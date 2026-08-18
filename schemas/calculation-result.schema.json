@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/calculation-result.schema.json",
+  "title": "Calculation Result",
+  "type": "object",
+  "required": [
+    "moduleId",
+    "moduleVersion",
+    "precision",
+    "status",
+    "outputs"
+  ],
+  "properties": {
+    "moduleId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "moduleVersion": {
+      "type": "string"
+    },
+    "precision": {
+      "enum": [
+        "ESTIMATE",
+        "ENGINEERING",
+        "STANDARD",
+        "REGULATORY"
+      ]
+    },
+    "status": {
+      "enum": [
+        "OK",
+        "PARTIAL",
+        "FAILED"
+      ]
+    },
+    "methodId": {
+      "type": "string"
+    },
+    "inputFingerprint": {
+      "type": "string"
+    },
+    "outputs": {
+      "type": "object"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code",
+          "severity",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "ERROR",
+              "WARNING",
+              "INFO"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "objectIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "computedAt": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

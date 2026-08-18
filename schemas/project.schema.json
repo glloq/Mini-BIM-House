@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/project.schema.json",
+  "title": "House Technical Designer Project",
+  "type": "object",
+  "required": ["format", "schemaVersion", "project"],
+  "properties": {
+    "format": {
+      "const": "house-technical-designer-project"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "applicationVersion": {
+      "type": "string"
+    },
+    "project": {
+      "type": "object",
+      "required": ["id", "metadata", "site", "building"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "metadata": {
+          "type": "object",
+          "required": ["name", "createdAt", "updatedAt"],
+          "properties": {
+            "name": { "type": "string" },
+            "description": { "type": "string" },
+            "createdAt": { "type": "string" },
+            "updatedAt": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "site": {
+          "type": "object",
+          "required": ["northAngleDeg"],
+          "properties": {
+            "northAngleDeg": { "type": "number" }
+          },
+          "additionalProperties": true
+        },
+        "building": {
+          "type": "object",
+          "required": ["levels", "zones"],
+          "properties": {
+            "levels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "name", "elevationMm", "defaultStoreyHeightMm"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "elevationMm": { "type": "number" },
+                  "defaultStoreyHeightMm": { "type": "number", "exclusiveMinimum": 0 },
+                  "walls": { "type": "array" },
+                  "slabs": { "type": "array" },
+                  "roofs": { "type": "array" },
+                  "openings": { "type": "array" },
+                  "stairs": { "type": "array" },
+                  "spaces": { "type": "array" },
+                  "annotations": { "type": "array" }
+                },
+                "additionalProperties": true
+              }
+            },
+            "zones": { "type": "array" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "references": {
+      "type": "object"
+    },
+    "extensions": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,45 @@
+{
+  "id": "equipment-vmc-generic",
+  "kind": "VENTILATION_UNIT",
+  "catalogKind": "GENERIC",
+  "dimensions": {
+    "widthMm": 600,
+    "depthMm": 450,
+    "heightMm": 300
+  },
+  "ports": [
+    {
+      "id": "supply",
+      "discipline": "VENTILATION",
+      "role": "SUPPLY",
+      "position": {
+        "x": 600,
+        "y": 150,
+        "z": 150
+      },
+      "direction": {
+        "x": 1,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "id": "extract",
+      "discipline": "VENTILATION",
+      "role": "EXTRACT",
+      "position": {
+        "x": 0,
+        "y": 150,
+        "z": 150
+      },
+      "direction": {
+        "x": -1,
+        "y": 0,
+        "z": 0
+      }
+    }
+  ],
+  "properties": {
+    "nominalFlowM3h": 250
+  }
+}

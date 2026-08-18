@@ -1,0 +1,17 @@
+{
+  "id": "scenario-more-insulation",
+  "name": "Isolation renforcée",
+  "baseProjectRevision": "rev-001",
+  "overrides": [
+    {
+      "path": "/assemblies/asm-wall-example/layers/l3/thicknessMm",
+      "operation": "SET",
+      "value": 200
+    }
+  ],
+  "enabledModules": [
+    "thermal",
+    "cost",
+    "environmental"
+  ]
+}

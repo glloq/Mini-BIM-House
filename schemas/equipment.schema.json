@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/equipment.schema.json",
+  "title": "Equipment definition",
+  "type": "object",
+  "required": [
+    "id",
+    "kind",
+    "catalogKind",
+    "properties"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "catalogKind": {
+      "enum": [
+        "GENERIC",
+        "PRODUCT",
+        "CUSTOM"
+      ]
+    },
+    "manufacturer": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "dimensions": {
+      "type": "object",
+      "properties": {
+        "widthMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "depthMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "heightMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "additionalProperties": true
+    },
+    "ports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "discipline",
+          "role",
+          "position"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "discipline": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "position": {
+            "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point3D"
+          },
+          "direction": {
+            "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Vector3D"
+          },
+          "connectionType": {
+            "type": "string"
+          },
+          "nominalSize": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "properties": {
+      "type": "object"
+    },
+    "performanceCurves": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "additionalProperties": true
+}

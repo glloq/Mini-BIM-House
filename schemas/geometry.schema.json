@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/geometry.schema.json",
+  "title": "Geometry primitives",
+  "$defs": {
+    "Point2D": {
+      "type": "object",
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Point3D": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Vector3D": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Polyline2D": {
+      "type": "object",
+      "required": [
+        "points",
+        "closed"
+      ],
+      "properties": {
+        "points": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/Point2D"
+          }
+        },
+        "closed": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Polygon2D": {
+      "type": "object",
+      "required": [
+        "outer"
+      ],
+      "properties": {
+        "outer": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "$ref": "#/$defs/Point2D"
+          }
+        },
+        "holes": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "items": {
+              "$ref": "#/$defs/Point2D"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Transform2D": {
+      "type": "object",
+      "required": [
+        "translation",
+        "rotationRad"
+      ],
+      "properties": {
+        "translation": {
+          "$ref": "#/$defs/Point2D"
+        },
+        "rotationRad": {
+          "type": "number"
+        },
+        "scale": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Point2D"
+    },
+    {
+      "$ref": "#/$defs/Point3D"
+    },
+    {
+      "$ref": "#/$defs/Polyline2D"
+    },
+    {
+      "$ref": "#/$defs/Polygon2D"
+    },
+    {
+      "$ref": "#/$defs/Transform2D"
+    }
+  ]
+}

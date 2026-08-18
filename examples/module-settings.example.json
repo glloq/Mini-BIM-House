@@ -1,0 +1,9 @@
+{
+  "moduleId": "thermal",
+  "moduleVersion": "0.1.0",
+  "methodId": "steady-state-envelope-v1",
+  "precisionTarget": "ENGINEERING",
+  "settings": {
+    "includeThermalBridges": false
+  }
+}

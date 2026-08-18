@@ -1,0 +1,18 @@
+{
+  "moduleId": "thermal",
+  "moduleVersion": "0.1.0",
+  "precision": "ENGINEERING",
+  "status": "OK",
+  "methodId": "steady-state-envelope-v1",
+  "outputs": {
+    "totalHeatTransferCoefficientWK": 82.4
+  },
+  "warnings": [],
+  "assumptions": [
+    {
+      "id": "surface-resistance-profile",
+      "value": "default-example"
+    }
+  ],
+  "references": []
+}

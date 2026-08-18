@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/symbol.schema.json",
+  "title": "Technical Symbol Definition",
+  "type": "object",
+  "required": [
+    "id",
+    "semanticType",
+    "discipline",
+    "viewBox",
+    "primitives"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "semanticType": {
+      "type": "string",
+      "minLength": 1
+    },
+    "discipline": {
+      "enum": [
+        "ARCHITECTURE",
+        "WATER",
+        "WASTEWATER",
+        "VENTILATION",
+        "ELECTRICAL",
+        "LIGHTING",
+        "HEATING",
+        "PV",
+        "OTHER"
+      ]
+    },
+    "viewBox": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "anchors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "primitives": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "LINE",
+              "POLYLINE",
+              "POLYGON",
+              "CIRCLE",
+              "ARC",
+              "TEXT"
+            ]
+          },
+          "styleToken": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "scaleRules": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "additionalProperties": true
+}

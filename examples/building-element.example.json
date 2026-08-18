@@ -1,0 +1,23 @@
+{
+  "id": "wall-001",
+  "type": "WALL",
+  "levelId": "level-ground",
+  "path": {
+    "points": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 8000,
+        "y": 0
+      }
+    ]
+  },
+  "referenceSide": "CENTER",
+  "assemblyId": "asm-wall-example",
+  "baseOffsetMm": 0,
+  "heightMode": "EXPLICIT",
+  "heightMm": 2500,
+  "role": "EXTERIOR"
+}

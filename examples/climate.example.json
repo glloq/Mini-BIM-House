@@ -1,0 +1,29 @@
+{
+  "id": "climate-demo-monthly",
+  "location": {
+    "latitude": 48.1,
+    "longitude": -1.7,
+    "timezone": "Europe/Paris"
+  },
+  "resolution": "MONTHLY",
+  "source": {
+    "id": "manual-example",
+    "provider": "USER"
+  },
+  "samples": [
+    {
+      "timestamp": "2025-01",
+      "airTemperatureC": 6.0,
+      "relativeHumidity": 0.85,
+      "precipitationMm": 70,
+      "globalHorizontalIrradianceWhM2": 45000
+    },
+    {
+      "timestamp": "2025-02",
+      "airTemperatureC": 7.0,
+      "relativeHumidity": 0.82,
+      "precipitationMm": 55,
+      "globalHorizontalIrradianceWhM2": 65000
+    }
+  ]
+}

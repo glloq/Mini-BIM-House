@@ -1,0 +1,50 @@
+{
+  "format": "house-technical-designer-project",
+  "schemaVersion": "1.0.0",
+  "applicationVersion": "0.1.0",
+  "project": {
+    "id": "project-example-minimal",
+    "metadata": {
+      "name": "Projet minimal",
+      "description": "Fixture de référence pour import/export.",
+      "createdAt": "2026-08-18T20:00:00Z",
+      "updatedAt": "2026-08-18T20:00:00Z"
+    },
+    "site": {
+      "northAngleDeg": 0
+    },
+    "building": {
+      "levels": [
+        {
+          "id": "level-ground",
+          "name": "Rez-de-chaussée",
+          "elevationMm": 0,
+          "defaultStoreyHeightMm": 2500,
+          "walls": [],
+          "slabs": [],
+          "roofs": [],
+          "openings": [],
+          "stairs": [],
+          "spaces": [],
+          "annotations": []
+        }
+      ],
+      "zones": []
+    },
+    "materialLibrary": {
+      "materials": []
+    },
+    "assemblies": [],
+    "equipment": [],
+    "systems": [],
+    "scenarios": [],
+    "drawingViews": [],
+    "calculationSettings": {},
+    "regulatoryContext": {
+      "country": "FR",
+      "enabledRulePacks": []
+    }
+  },
+  "references": {},
+  "extensions": {}
+}

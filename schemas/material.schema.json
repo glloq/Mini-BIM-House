@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/material.schema.json",
+  "title": "Material Definition",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "kind",
+    "properties"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "enum": [
+        "GENERIC",
+        "PRODUCT",
+        "CUSTOM"
+      ]
+    },
+    "category": {
+      "type": "string"
+    },
+    "manufacturer": {
+      "type": "string"
+    },
+    "properties": {
+      "type": "object",
+      "properties": {
+        "densityKgM3": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "specificHeatJKgK": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "lambdaWmK": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "emissivity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "mu": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "sdM": {
+          "type": "number",
+          "minimum": 0
+        },
+        "acousticAbsorption": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "property",
+          "sourceType"
+        ],
+        "properties": {
+          "property": {
+            "type": "string"
+          },
+          "sourceType": {
+            "enum": [
+              "STANDARD",
+              "MANUFACTURER",
+              "DATABASE",
+              "USER",
+              "CALCULATED",
+              "OTHER"
+            ]
+          },
+          "reference": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "validAt": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "appearance": {
+      "type": "object",
+      "properties": {
+        "hatchId": {
+          "type": "string"
+        },
+        "fillToken": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

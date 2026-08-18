@@ -1,0 +1,39 @@
+{
+  "id": "electrical-socket-simple",
+  "semanticType": "ELECTRICAL_SOCKET",
+  "discipline": "ELECTRICAL",
+  "viewBox": {
+    "x": -10,
+    "y": -10,
+    "width": 20,
+    "height": 20
+  },
+  "anchors": [
+    {
+      "id": "insert",
+      "x": 0,
+      "y": 0,
+      "role": "INSERTION"
+    }
+  ],
+  "primitives": [
+    {
+      "type": "CIRCLE",
+      "cx": 0,
+      "cy": 0,
+      "r": 5,
+      "styleToken": "ELECTRICAL_SYMBOL"
+    },
+    {
+      "type": "LINE",
+      "x1": -3,
+      "y1": 0,
+      "x2": 3,
+      "y2": 0,
+      "styleToken": "ELECTRICAL_SYMBOL"
+    }
+  ],
+  "scaleRules": {
+    "paperSizeMm": 4
+  }
+}

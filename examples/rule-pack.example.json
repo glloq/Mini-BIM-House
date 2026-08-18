@@ -1,0 +1,35 @@
+{
+  "id": "fr-rainwater-example",
+  "version": "0.1.0",
+  "jurisdiction": {
+    "country": "FR",
+    "domain": "RAINWATER"
+  },
+  "validity": {
+    "from": "2025-03-15",
+    "to": null
+  },
+  "references": [
+    {
+      "id": "fr-rainwater-2024-order",
+      "type": "REGULATION",
+      "title": "Arrêté du 12 juillet 2024 — eaux impropres à la consommation humaine",
+      "url": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000049962813"
+    }
+  ],
+  "rules": [
+    {
+      "id": "RAINWATER_PREFILTER_REQUIRED",
+      "severity": "ERROR",
+      "appliesTo": "RainwaterSystem",
+      "message": "Un préfiltre requis par le référentiel actif doit être présent.",
+      "referenceIds": [
+        "fr-rainwater-2024-order"
+      ],
+      "evaluator": {
+        "type": "MODULE_FUNCTION",
+        "functionId": "rainwater.hasRequiredPrefilter"
+      }
+    }
+  ]
+}

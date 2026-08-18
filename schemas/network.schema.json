@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/network.schema.json",
+  "title": "Technical network",
+  "type": "object",
+  "required": [
+    "id",
+    "discipline",
+    "systemType",
+    "nodes",
+    "ports",
+    "edges"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "discipline": {
+      "enum": [
+        "WATER",
+        "WASTEWATER",
+        "VENTILATION",
+        "HEATING",
+        "ELECTRICAL",
+        "RAINWATER",
+        "OTHER"
+      ]
+    },
+    "systemType": {
+      "type": "string"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "position"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "position": {
+            "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point3D"
+          },
+          "hostObjectId": {
+            "type": "string"
+          },
+          "spaceId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "ports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "nodeId",
+          "role",
+          "direction"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nodeId": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "IN",
+              "OUT",
+              "BIDIRECTIONAL"
+            ]
+          },
+          "connectionType": {
+            "type": "string"
+          },
+          "nominalSize": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "fromPortId",
+          "toPortId",
+          "path",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "fromPortId": {
+            "type": "string"
+          },
+          "toPortId": {
+            "type": "string"
+          },
+          "path": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point3D"
+            }
+          },
+          "kind": {
+            "type": "string"
+          },
+          "catalogItemId": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

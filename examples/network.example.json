@@ -1,0 +1,62 @@
+{
+  "id": "net-water-001",
+  "discipline": "WATER",
+  "systemType": "POTABLE_COLD",
+  "nodes": [
+    {
+      "id": "n1",
+      "kind": "SOURCE",
+      "position": {
+        "x": 1000,
+        "y": 1000,
+        "z": 300
+      }
+    },
+    {
+      "id": "n2",
+      "kind": "FIXTURE",
+      "position": {
+        "x": 4000,
+        "y": 1000,
+        "z": 800
+      }
+    }
+  ],
+  "ports": [
+    {
+      "id": "p1",
+      "nodeId": "n1",
+      "role": "OUT",
+      "direction": "OUT"
+    },
+    {
+      "id": "p2",
+      "nodeId": "n2",
+      "role": "IN",
+      "direction": "IN"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromPortId": "p1",
+      "toPortId": "p2",
+      "kind": "PIPE",
+      "path": [
+        {
+          "x": 1000,
+          "y": 1000,
+          "z": 300
+        },
+        {
+          "x": 4000,
+          "y": 1000,
+          "z": 800
+        }
+      ],
+      "properties": {
+        "internalDiameterM": 0.012
+      }
+    }
+  ]
+}

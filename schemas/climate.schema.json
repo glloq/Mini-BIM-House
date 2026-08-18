@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/climate.schema.json",
+  "title": "Climate dataset",
+  "type": "object",
+  "required": [
+    "id",
+    "location",
+    "resolution",
+    "source",
+    "samples"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "location": {
+      "type": "object",
+      "required": [
+        "latitude",
+        "longitude",
+        "timezone"
+      ],
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "altitudeM": {
+          "type": "number"
+        },
+        "timezone": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "resolution": {
+      "enum": [
+        "HOURLY",
+        "DAILY",
+        "MONTHLY",
+        "DESIGN_CONDITIONS"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "id",
+        "provider"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "datasetName": {
+          "type": "string"
+        },
+        "stationId": {
+          "type": "string"
+        },
+        "periodStart": {
+          "type": "string"
+        },
+        "periodEnd": {
+          "type": "string"
+        },
+        "license": {
+          "type": "string"
+        },
+        "referenceUrl": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "samples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string"
+          },
+          "airTemperatureC": {
+            "type": "number"
+          },
+          "relativeHumidity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "globalHorizontalIrradianceWhM2": {
+            "type": "number",
+            "minimum": 0
+          },
+          "directNormalIrradianceWhM2": {
+            "type": "number",
+            "minimum": 0
+          },
+          "diffuseHorizontalIrradianceWhM2": {
+            "type": "number",
+            "minimum": 0
+          },
+          "precipitationMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "windSpeedMs": {
+            "type": "number",
+            "minimum": 0
+          },
+          "windDirectionDeg": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMaximum": 360
+          },
+          "atmosphericPressurePa": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

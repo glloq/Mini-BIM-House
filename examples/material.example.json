@@ -1,0 +1,21 @@
+{
+  "id": "mat-wood-fiber-generic",
+  "name": "Fibre de bois générique",
+  "kind": "GENERIC",
+  "category": "INSULATION",
+  "properties": {
+    "densityKgM3": 50,
+    "lambdaWmK": 0.038,
+    "mu": 3
+  },
+  "sources": [
+    {
+      "property": "lambdaWmK",
+      "sourceType": "USER",
+      "reference": "Example only — replace with documented source"
+    }
+  ],
+  "appearance": {
+    "hatchId": "insulation-fiber"
+  }
+}

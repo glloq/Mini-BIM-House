@@ -1,0 +1,31 @@
+{
+  "id": "asm-wall-example",
+  "name": "Mur exemple",
+  "category": "WALL",
+  "layers": [
+    {
+      "id": "l1",
+      "materialId": "mat-render",
+      "thicknessM": 0.015,
+      "role": "EXTERIOR_FINISH"
+    },
+    {
+      "id": "l2",
+      "materialId": "mat-masonry",
+      "thicknessM": 0.2,
+      "role": "STRUCTURE"
+    },
+    {
+      "id": "l3",
+      "materialId": "mat-wood-fiber-generic",
+      "thicknessM": 0.145,
+      "role": "INSULATION"
+    },
+    {
+      "id": "l4",
+      "materialId": "mat-plasterboard",
+      "thicknessM": 0.013,
+      "role": "INTERIOR_FINISH"
+    }
+  ]
+}

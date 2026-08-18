@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/building-element.schema.json",
+  "title": "Building elements",
+  "$defs": {
+    "Wall": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "levelId",
+        "path",
+        "referenceSide",
+        "assemblyId",
+        "baseOffsetMm",
+        "heightMode",
+        "role"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "const": "WALL"
+        },
+        "levelId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "object",
+          "required": [
+            "points"
+          ],
+          "properties": {
+            "points": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point2D"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "referenceSide": {
+          "enum": [
+            "CENTER",
+            "LEFT",
+            "RIGHT"
+          ]
+        },
+        "assemblyId": {
+          "type": "string"
+        },
+        "baseOffsetMm": {
+          "type": "number"
+        },
+        "heightMode": {
+          "enum": [
+            "EXPLICIT",
+            "TO_LEVEL"
+          ]
+        },
+        "heightMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "topLevelId": {
+          "type": "string"
+        },
+        "topOffsetMm": {
+          "type": "number"
+        },
+        "role": {
+          "enum": [
+            "EXTERIOR",
+            "INTERIOR",
+            "PARTITION",
+            "OTHER"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "heightMode": {
+                "const": "EXPLICIT"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "heightMm"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "heightMode": {
+                "const": "TO_LEVEL"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "topLevelId"
+            ]
+          }
+        }
+      ],
+      "additionalProperties": true
+    },
+    "Opening": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "openingType",
+        "hostElementId",
+        "offsetAlongHostMm",
+        "sillHeightMm",
+        "widthMm",
+        "heightMm"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "const": "OPENING"
+        },
+        "openingType": {
+          "enum": [
+            "DOOR",
+            "WINDOW",
+            "VOID",
+            "OTHER"
+          ]
+        },
+        "hostElementId": {
+          "type": "string"
+        },
+        "offsetAlongHostMm": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sillHeightMm": {
+          "type": "number"
+        },
+        "widthMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "heightMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "definitionId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "Slab": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "levelId",
+        "polygon",
+        "assemblyId",
+        "elevationOffsetMm",
+        "role"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "const": "SLAB"
+        },
+        "levelId": {
+          "type": "string"
+        },
+        "polygon": {
+          "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Polygon2D"
+        },
+        "assemblyId": {
+          "type": "string"
+        },
+        "elevationOffsetMm": {
+          "type": "number"
+        },
+        "role": {
+          "enum": [
+            "FLOOR",
+            "FOUNDATION",
+            "TERRACE",
+            "OTHER"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "Space": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "levelId",
+        "name",
+        "category",
+        "boundaryMode"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "const": "SPACE"
+        },
+        "levelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "boundaryMode": {
+          "enum": [
+            "AUTO",
+            "MANUAL"
+          ]
+        },
+        "manualPolygon": {
+          "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Polygon2D"
+        },
+        "usageProfileId": {
+          "type": "string"
+        },
+        "thermalZoneId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Wall"
+    },
+    {
+      "$ref": "#/$defs/Opening"
+    },
+    {
+      "$ref": "#/$defs/Slab"
+    },
+    {
+      "$ref": "#/$defs/Space"
+    }
+  ]
+}

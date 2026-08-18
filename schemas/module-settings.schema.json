@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/module-settings.schema.json",
+  "title": "Module settings envelope",
+  "type": "object",
+  "required": [
+    "moduleId",
+    "moduleVersion",
+    "methodId",
+    "settings"
+  ],
+  "properties": {
+    "moduleId": {
+      "type": "string"
+    },
+    "moduleVersion": {
+      "type": "string"
+    },
+    "methodId": {
+      "type": "string"
+    },
+    "precisionTarget": {
+      "enum": [
+        "ESTIMATE",
+        "ENGINEERING",
+        "STANDARD",
+        "REGULATORY"
+      ]
+    },
+    "settings": {
+      "type": "object"
+    },
+    "rulePackIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}
