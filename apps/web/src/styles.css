@@ -778,3 +778,116 @@ button.icon {
   padding-left: 1.1rem;
   font-size: 0.82rem;
 }
+
+/* Calculation dashboard. */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.6rem;
+}
+.dashboard-card {
+  display: grid;
+  gap: 0.2rem;
+  border: 1px solid #e0e6e2;
+  border-radius: 0.8rem;
+  padding: 0.7rem 0.85rem;
+  background: #fff;
+  color: #172126;
+  text-align: left;
+  font-weight: 500;
+}
+.dashboard-card-label {
+  color: #4a5d54;
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+.dashboard-card-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-card-value small {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7871;
+}
+.module-list,
+.alert-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.module-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #e0e6e2;
+  border-radius: 0.7rem;
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+  color: #172126;
+  text-align: left;
+  font-weight: 500;
+}
+.module-body {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid #e0e6e2;
+  border-top: 0;
+  border-radius: 0 0 0.7rem 0.7rem;
+  padding: 0.75rem;
+  background: #fbfdfc;
+  font-size: 0.82rem;
+}
+.module-body h4 {
+  margin: 0 0 0.3rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4a5d54;
+}
+.module-body ul {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+.alert-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  border-bottom: 1px solid #eef2ef;
+  padding-bottom: 0.3rem;
+  font-size: 0.82rem;
+}
+.badge.status-ok {
+  background: #d8ecdf;
+  color: #14563a;
+}
+.badge.status-partial,
+.badge.status-missing-input {
+  background: #f6e2c8;
+  color: #7a4a12;
+}
+.badge.status-failed,
+.badge.status-error {
+  background: #f4d5d5;
+  color: #7a1b1b;
+}
+.badge.severity-error {
+  background: #f4d5d5;
+  color: #7a1b1b;
+}
+.badge.severity-warning {
+  background: #f6e2c8;
+  color: #7a4a12;
+}
+.badge.severity-info {
+  background: #dbe6f2;
+  color: #1d3f6b;
+}

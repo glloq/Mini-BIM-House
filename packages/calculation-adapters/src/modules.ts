@@ -1880,6 +1880,8 @@ export const costAdapter: CalculationModule = {
     const data = record(input)!;
     const prices = numberRecord(data.unitPriceByMaterial);
     const waste = numberRecord(data.wasteFactorByMaterial);
+    const labour = numberRecord(data.labourPriceByMaterial);
+    const labourDeclared = data.labourDeclared === true;
     const currency = string(data.currency) ?? 'EUR';
     const lines = rows(data.quantities);
     const priced = lines.filter(
@@ -1908,6 +1910,9 @@ export const costAdapter: CalculationModule = {
         return {
           itemId: string(line.itemId)!,
           materialPricePerUnit: prices[materialId]!,
+          // The engine requires both components explicitly; an undeclared labour
+          // price is passed as zero and reported as an excluded scope.
+          laborPricePerUnit: labour[materialId] ?? 0,
           currency,
           priceUnit: string(line.unit) as 'm3',
           ...(wasteFactor === undefined ? {} : { wasteFactor }),
@@ -1950,6 +1955,13 @@ export const costAdapter: CalculationModule = {
           'priceSource',
           'project calculation settings',
           'Unit prices are user-declared and carry no supplier quotation.',
+        ),
+        assumption(
+          'labourScope',
+          labourDeclared ? 'declared' : 'excluded',
+          labourDeclared
+            ? 'Labour prices come from the project calculation settings.'
+            : 'No labour price is declared, so the estimate covers materials only.',
         ),
       ],
       references: [],
@@ -2009,14 +2021,16 @@ export const environmentalAdapter: CalculationModule = {
     const result = calculateEnvironmentalImpacts(
       covered.map((line) => ({
         itemId: string(line.itemId)!,
-        projectObjectId: string(line.sourceEntityId)!,
+        // A wall carries one line per material layer, so the environmental link
+        // is keyed by the quantity line rather than by the building object.
+        projectObjectId: string(line.itemId)!,
         materialId: string(line.materialId)!,
         lot: 'ENVELOPE',
         value: number(line.value)!,
         unit: string(line.unit) as 'm3',
       })),
       covered.map((line) => ({
-        projectObjectId: string(line.sourceEntityId)!,
+        projectObjectId: string(line.itemId)!,
         declarationId: `declaration:${string(line.materialId)!}`,
         declarationType: 'DED' as const,
         projectQuantityUnit: string(line.unit) as 'm3',
@@ -2044,9 +2058,9 @@ export const environmentalAdapter: CalculationModule = {
         indicator,
         indicatorUnit: 'kgCO2e/m3',
         declarationSource: source,
-        items: result.items.map((item) => ({
+        items: result.items.map((item, index) => ({
           itemId: item.itemId,
-          projectObjectId: item.projectObjectId,
+          sourceEntityId: string(covered[index]?.sourceEntityId) ?? null,
           totalImpact: item.totalImpact ?? null,
         })),
       },

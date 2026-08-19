@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { ProjectFile } from '@house-technical-designer/core-domain';
+import type { ClimateDataset } from '@house-technical-designer/climate';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import {
   loadProjectJson,
@@ -25,7 +26,7 @@ import {
   ProjectEditingSession,
   summarizeProject,
 } from './project-workspace.js';
-import { loadDemoProject } from './demo-project.js';
+import { demoClimateDatasets, loadDemoProject } from './demo-project.js';
 import { MaterialsPanel } from './library/MaterialsPanel.js';
 import { AssembliesPanel } from './library/AssembliesPanel.js';
 import { EquipmentPanel } from './library/EquipmentPanel.js';
@@ -34,6 +35,7 @@ import { InspectorPanel } from './editor/InspectorPanel.js';
 import { LayersPanel } from './editor/LayersPanel.js';
 import { ToolBar, type OpeningDraft } from './editor/ToolBar.js';
 import { BuildingPanel } from './editor/BuildingPanel.js';
+import { CalculationsPanel } from './calculations/CalculationsPanel.js';
 import {
   createEditorState,
   editorReducer,
@@ -66,6 +68,7 @@ const WORKSPACE_TABS = [
   { id: 'materials', label: 'Matériaux' },
   { id: 'assemblies', label: 'Assemblages' },
   { id: 'equipment', label: 'Équipements' },
+  { id: 'calculations', label: 'Calculs' },
 ] as const;
 
 type WorkspaceTab = (typeof WORKSPACE_TABS)[number]['id'];
@@ -88,6 +91,7 @@ function App() {
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>();
   const [openingDraft, setOpeningDraft] =
     useState<OpeningDraft>(DEFAULT_OPENING);
+  const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [wallAssemblyId, setWallAssemblyId] = useState(
     () => file.project.assemblies?.[0]?.id ?? '',
   );
@@ -320,6 +324,7 @@ function App() {
       setMessage(`Import refusé — ${detail}`);
       return;
     }
+    setClimate([]);
     adopt(result.file, `${selected.name} chargé et validé.`);
   }
 
@@ -351,12 +356,13 @@ function App() {
           </button>
           <button
             className="secondary"
-            onClick={() =>
+            onClick={() => {
+              setClimate([]);
               adopt(
                 createBlankProject(new Date().toISOString()),
                 'Nouveau projet local prêt, bibliothèque générique incluse.',
-              )
-            }
+              );
+            }}
           >
             Nouveau projet
           </button>
@@ -374,6 +380,7 @@ function App() {
                 setMessage(demo.message);
                 return;
               }
+              setClimate(demoClimateDatasets());
               adopt(demo.file, 'Maison de démonstration chargée.');
             }}
           >
@@ -516,6 +523,21 @@ function App() {
                 ? {}
                 : { selectedId: selectedAssemblyId })}
               onSelect={setSelectedAssemblyId}
+            />
+          </section>
+        )}
+
+        {tab === 'calculations' && (
+          <section className="canvas-panel panel">
+            <CalculationsPanel
+              project={file.project}
+              climate={climate}
+              onSelectObjects={(objectIds) => {
+                dispatchEditor({ type: 'CLEAR_SELECTION' });
+                for (const objectId of objectIds)
+                  dispatchEditor({ type: 'SELECT', objectId, additive: true });
+                setTab('plan');
+              }}
             />
           </section>
         )}

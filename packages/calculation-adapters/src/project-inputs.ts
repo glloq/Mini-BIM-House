@@ -1121,6 +1121,10 @@ function costInput(context: ProjectCalculationContext): CalculationJson {
     'cost',
     'wasteFactorByMaterial',
   );
+  const labourPrices = settings.optionalNumberRecord(
+    'cost',
+    'labourPriceByMaterial',
+  );
   if (prices === undefined)
     settings.reportMissing(
       'cost',
@@ -1144,6 +1148,10 @@ function costInput(context: ProjectCalculationContext): CalculationJson {
     ...(wasteFactors === undefined
       ? {}
       : { wasteFactorByMaterial: { ...wasteFactors } }),
+    ...(labourPrices === undefined
+      ? {}
+      : { labourPriceByMaterial: { ...labourPrices } }),
+    labourDeclared: labourPrices !== undefined,
     ...(prices === undefined ? {} : { unitPriceByMaterial: { ...prices } }),
     quantities: lines.map((line) => ({
       itemId: line.itemId,
