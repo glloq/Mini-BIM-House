@@ -13,11 +13,7 @@ export type GraphicProfileId = string & {
 };
 
 export type DrawingViewType =
-  | 'PLAN'
-  | 'SECTION'
-  | 'ELEVATION'
-  | 'DETAIL'
-  | 'SCHEMATIC';
+  'PLAN' | 'SECTION' | 'ELEVATION' | 'DETAIL' | 'SCHEMATIC';
 export type Discipline =
   | 'ARCHITECTURE'
   | 'WATER'
@@ -39,17 +35,19 @@ export type SemanticRole =
   | 'WATER_HOT'
   | 'WATER_RECIRCULATION'
   | 'WATER_NON_POTABLE'
+  | 'VENT_SUPPLY'
+  | 'VENT_EXHAUST'
+  | 'VENT_TRANSFER'
+  | 'ELECTRICAL_POWER'
+  | 'ELECTRICAL_LIGHTING'
+  | 'ELECTRICAL_CONTROL'
+  | 'ELECTRICAL_PV'
   | 'SYMBOL'
   | 'ANNOTATION'
   | 'DIMENSION'
   | 'ANALYSIS';
 export type ObjectState =
-  | 'NORMAL'
-  | 'SELECTED'
-  | 'HOVER'
-  | 'WARNING'
-  | 'ERROR'
-  | 'GHOST';
+  'NORMAL' | 'SELECTED' | 'HOVER' | 'WARNING' | 'ERROR' | 'GHOST';
 export type SceneGeometry =
   | { readonly kind: 'POINT'; readonly point: Point2D }
   | { readonly kind: 'POLYLINE'; readonly polyline: Polyline2D }

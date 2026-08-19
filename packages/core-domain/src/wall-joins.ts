@@ -29,9 +29,7 @@ export type WallJoinResult =
       readonly status: 'NO_JOIN';
       readonly kind: 'NONE';
       readonly reason:
-        | 'NO_INTERSECTION'
-        | 'POLICY_DISALLOWS'
-        | 'OVERLAPPING_COLLINEAR';
+        'NO_INTERSECTION' | 'POLICY_DISALLOWS' | 'OVERLAPPING_COLLINEAR';
     }
   | {
       readonly status: 'INVALID';

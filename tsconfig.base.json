@@ -29,6 +29,27 @@
       ],
       "@house-technical-designer/thermal": ["./modules/thermal/src/index.ts"],
       "@house-technical-designer/water": ["./modules/water/src/index.ts"],
+      "@house-technical-designer/rainwater": [
+        "./modules/rainwater/src/index.ts"
+      ],
+      "@house-technical-designer/ventilation": [
+        "./modules/ventilation/src/index.ts"
+      ],
+      "@house-technical-designer/iaq": ["./modules/iaq/src/index.ts"],
+      "@house-technical-designer/electrical": [
+        "./modules/electrical/src/index.ts"
+      ],
+      "@house-technical-designer/lighting": ["./modules/lighting/src/index.ts"],
+      "@house-technical-designer/photovoltaic": [
+        "./modules/photovoltaic/src/index.ts"
+      ],
+      "@house-technical-designer/battery": ["./modules/battery/src/index.ts"],
+      "@house-technical-designer/energy-balance": [
+        "./modules/energy-balance/src/index.ts"
+      ],
+      "@house-technical-designer/hygrothermal": [
+        "./modules/hygrothermal/src/index.ts"
+      ],
       "@house-technical-designer/rule-engine": [
         "./packages/rule-engine/src/index.ts"
       ]

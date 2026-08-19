@@ -57,8 +57,7 @@ export interface TerminalPressureResult {
   readonly elevationLossPa?: number;
   readonly availablePressurePa?: number;
   readonly warning?:
-    | 'WATER_DISCONNECTED_FIXTURE'
-    | 'WATER_UNKNOWN_PIPE_PROPERTIES';
+    'WATER_DISCONNECTED_FIXTURE' | 'WATER_UNKNOWN_PIPE_PROPERTIES';
 }
 
 /** WATER-001: circular cross-section in SI. */

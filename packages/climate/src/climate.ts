@@ -1,8 +1,5 @@
 export type ClimateResolution =
-  | 'HOURLY'
-  | 'DAILY'
-  | 'MONTHLY'
-  | 'DESIGN_CONDITIONS';
+  'HOURLY' | 'DAILY' | 'MONTHLY' | 'DESIGN_CONDITIONS';
 
 export interface ClimateLocation {
   readonly latitude: number;

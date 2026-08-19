@@ -2,7 +2,7 @@
 
 ## Last completed PR
 
-PR-040
+PR-057
 
 ## Completed
 
@@ -46,6 +46,23 @@ PR-040
 - PR-038 — deterministic catalog pipe sizing with externally supplied limits and uncertainty-safe smallest-diameter selection.
 - PR-039 — semantic plumbing plan primitives and SI pipe inspector models with explicit missing-data warnings.
 - PR-040 — validated hourly, daily, monthly, and design climate datasets with completeness, explicit gaps, and deterministic fingerprints.
+- PR-041 — uncertainty-safe rainwater time-step simulation with explicit top-up, overflow, indicators, and mass-conservation tests.
+- PR-042 — deterministic tank-capacity comparison with explicit initial-fill policy, marginal gains, and a unit-bearing chart model.
+- PR-043 — external Rule Pack integration for rainwater prefilter evidence with explicit UNKNOWN results and hydraulic isolation.
+- PR-044 — typed ventilation networks with terminals, ducts, fans, filters, dampers, heat recovery, and uncertainty-safe validation.
+- PR-045 — SI duct area, velocity, Darcy-Weisbach losses, airflow continuity, and critical-branch analysis with unknown propagation.
+- PR-046 — semantic ventilation plans, unit-bearing duct inspectors, and flow, velocity, and pressure overlays with explicit unknown states.
+- PR-047 — analytical well-mixed room CO2 time-step balance with explicit SI inputs, summaries, and unknown propagation.
+- PR-048 — graph-backed electrical boards, circuits, loads, protections, and cables with explicit reference validation.
+- PR-049 — installed/design power, voltage-reference-aware current, and resistive path voltage-drop calculations with catalog-supplied resistance.
+- PR-050 — semantic electrical cable and symbol plans with circuit, current, and voltage-drop overlays and explicit unknown states.
+- PR-051 — traceable lumen-method lighting, target quantity proposals, deterministic grid placement, and electrical load adapters.
+- PR-052 — roof-linked solar surfaces with derived inclined area, orientation, obstacles, exclusions, and explicit unknown heights.
+- PR-053 — deterministic roof-plane photovoltaic layout with portrait/landscape comparison, margins, gaps, and obstacle/exclusion avoidance.
+- PR-054 — traceable offline photovoltaic energy estimates and an HTTP-free, injected PVGIS transport contract with boundary validation.
+- PR-055 — hourly battery dispatch with SOC/power limits, charge/discharge losses, off-grid unmet energy, and conservation tests.
+- PR-056 — aligned whole-building energy aggregation across uses, vectors, PV, battery, and grid with external primary-energy factors.
+- PR-057 — steady-state hygrothermal interface profiles and surface-condensation screening with explicit method limits and unknown propagation.
 
 ## In progress
 
@@ -53,12 +70,11 @@ PR-040
 
 ## Next
 
-- PR-041 — rainwater time-step simulation.
+- PR-058 — heating loads.
 - Add safe parsing from unknown JSON at persistence boundaries.
 
 ## Known issues
 
-- Package installation is blocked in the current environment by an npm registry HTTP 403; dependency-backed checks and the web screenshot remain pending.
 - Complex polygon-hole containment and mutual-overlap validation remains a geometry-hardening task.
 
 ## Architectural decisions made
@@ -69,8 +85,9 @@ PR-040
 
 ## Test status
 
-- lint: blocked by dependency installation
-- typecheck: standalone production sources pass; workspace check blocked by dependency installation
-- unit: blocked by dependency installation
-- schemas: blocked by dependency installation
-- build: blocked by dependency installation
+- format: pass
+- lint: pass
+- typecheck: pass across all workspaces
+- unit: 295 tests pass across 56 files
+- schemas: all 13 schema/example pairs pass
+- build: pass across all workspaces

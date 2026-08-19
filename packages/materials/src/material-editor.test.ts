@@ -45,11 +45,13 @@ describe('material editor model', () => {
       requiredProperties: ['lambdaWmK', 'densityKgM3'],
       missingPropertiesOnly: true,
     });
-    expect(rows[0]).toMatchObject({
+    expect(
+      rows.find(({ material }) => material.id === 'wood-fibre'),
+    ).toMatchObject({
       missingProperties: ['densityKgM3'],
       sourcedProperties: ['lambdaWmK'],
     });
-    expect(rows[1]).toMatchObject({
+    expect(rows.find(({ material }) => material.id === 'brick')).toMatchObject({
       missingProperties: ['lambdaWmK'],
       unsourcedProperties: ['densityKgM3'],
     });

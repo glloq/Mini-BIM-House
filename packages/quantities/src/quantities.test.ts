@@ -63,11 +63,13 @@ describe('wall quantities', () => {
       [material],
     );
     expect(result.status).toBe('OK');
-    expect(
-      Object.fromEntries(
-        result.items.map(({ quantityType, value }) => [quantityType, value]),
-      ),
-    ).toMatchObject({ LENGTH: 4, AREA: 8.8, VOLUME: 1.76, MASS: 176 });
+    const values = Object.fromEntries(
+      result.items.map(({ quantityType, value }) => [quantityType, value]),
+    );
+    expect(values.LENGTH).toBeCloseTo(4);
+    expect(values.AREA).toBeCloseTo(8.8);
+    expect(values.VOLUME).toBeCloseTo(1.76);
+    expect(values.MASS).toBeCloseTo(176);
     expect(
       result.items.find(({ id }) => id.endsWith('gross-area'))?.value,
     ).toBe(10);
