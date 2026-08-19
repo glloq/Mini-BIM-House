@@ -107,7 +107,7 @@ Aucune interpolation silencieuse.
 interface DataGap {
   from: string;
   to: string;
-  strategy: "NONE" | "LINEAR" | "NEAREST" | "CLIMATOLOGY" | "CUSTOM";
+  strategy: 'NONE' | 'LINEAR' | 'NEAREST' | 'CLIMATOLOGY' | 'CUSTOM';
 }
 ```
 

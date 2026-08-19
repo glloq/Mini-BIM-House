@@ -56,13 +56,13 @@ Le moteur doit pouvoir expliquer pourquoi un pack est sélectionné.
 interface StandardReference {
   id: string;
   type:
-    | "LAW"
-    | "REGULATION"
-    | "STANDARD"
-    | "DTU"
-    | "GUIDELINE"
-    | "DATA_SOURCE"
-    | "OTHER";
+    | 'LAW'
+    | 'REGULATION'
+    | 'STANDARD'
+    | 'DTU'
+    | 'GUIDELINE'
+    | 'DATA_SOURCE'
+    | 'OTHER';
   title: string;
   version?: string;
   url?: string;
@@ -75,7 +75,7 @@ interface StandardReference {
 ```ts
 interface RuleDefinition {
   id: string;
-  severity: "ERROR" | "WARNING" | "INFO";
+  severity: 'ERROR' | 'WARNING' | 'INFO';
   appliesTo: string;
   evaluator: RuleEvaluator;
   messageTemplate: string;
@@ -106,10 +106,7 @@ remote script
 Les contrôles complexes utilisent un registre :
 
 ```ts
-registerRuleFunction(
-  "electrical.checkCircuit",
-  checkCircuit
-);
+registerRuleFunction('electrical.checkCircuit', checkCircuit);
 ```
 
 Une fonction doit être :
@@ -140,8 +137,8 @@ Pour les normes protégées, le dépôt public peut contenir le moteur et les cl
 ```ts
 interface RuleResult {
   ruleId: string;
-  status: "PASS" | "FAIL" | "UNKNOWN" | "NOT_APPLICABLE";
-  severity: "ERROR" | "WARNING" | "INFO";
+  status: 'PASS' | 'FAIL' | 'UNKNOWN' | 'NOT_APPLICABLE';
+  severity: 'ERROR' | 'WARNING' | 'INFO';
   objectIds: string[];
   message: string;
   referenceIds: string[];
@@ -161,7 +158,7 @@ Une règle peut fournir une suggestion :
 
 ```ts
 interface RuleSuggestion {
-  type: "TEXT" | "COMMAND_PROPOSAL";
+  type: 'TEXT' | 'COMMAND_PROPOSAL';
   description: string;
   commandId?: string;
   commandArgs?: unknown;

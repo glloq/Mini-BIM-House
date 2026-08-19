@@ -49,7 +49,7 @@ thermal
 ```ts
 interface ThermalElementGeometry {
   elementId: string;
-  type: "wall" | "roof" | "floor" | "window" | "door" | "other";
+  type: 'wall' | 'roof' | 'floor' | 'window' | 'door' | 'other';
   grossAreaM2: number;
   netAreaM2: number;
   orientationDeg?: number;
@@ -62,11 +62,11 @@ interface ThermalElementGeometry {
 
 ```ts
 type ThermalBoundary =
-  | { kind: "exterior"; climateZoneId: string }
-  | { kind: "ground"; groundModelId?: string }
-  | { kind: "unheated-space"; adjacentZoneId: string }
-  | { kind: "heated-space"; adjacentZoneId: string }
-  | { kind: "adiabatic" };
+  | { kind: 'exterior'; climateZoneId: string }
+  | { kind: 'ground'; groundModelId?: string }
+  | { kind: 'unheated-space'; adjacentZoneId: string }
+  | { kind: 'heated-space'; adjacentZoneId: string }
+  | { kind: 'adiabatic' };
 ```
 
 ### Couches
@@ -84,18 +84,18 @@ Valeur absente = inconnue. Aucune substitution silencieuse.
 
 ## 4. Unités internes
 
-| Grandeur | Unité |
-|---|---|
-| longueur | m |
-| surface | m² |
-| conductivité λ | W/(m·K) |
-| résistance R | m²·K/W |
-| transmission U | W/(m²·K) |
-| pont linéique ψ | W/(m·K) |
-| pont ponctuel χ | W/K |
-| coefficient H | W/K |
-| puissance | W |
-| énergie | Wh / kWh |
+| Grandeur        | Unité    |
+| --------------- | -------- |
+| longueur        | m        |
+| surface         | m²       |
+| conductivité λ  | W/(m·K)  |
+| résistance R    | m²·K/W   |
+| transmission U  | W/(m²·K) |
+| pont linéique ψ | W/(m·K)  |
+| pont ponctuel χ | W/K      |
+| coefficient H   | W/K      |
+| puissance       | W        |
+| énergie         | Wh / kWh |
 
 ## 5. Résistance des couches
 
@@ -212,7 +212,7 @@ Les apports solaires restent un calcul distinct.
 
 ```ts
 interface ThermalEnvelopeResult {
-  precision: "ESTIMATE" | "ENGINEERING" | "STANDARD" | "REGULATORY";
+  precision: 'ESTIMATE' | 'ENGINEERING' | 'STANDARD' | 'REGULATORY';
   totalHeatTransferCoefficientWK: number;
   designTransmissionLossW?: number;
   elements: ThermalElementResult[];
@@ -336,15 +336,19 @@ U ≈ 0.1934 W/m²K
 ```
 
 ### T-002
+
 Doubler `A` double `H`, sans changer `U`.
 
 ### T-003
+
 Absence de `λ` : calcul incomplet, aucune valeur inventée.
 
 ### T-004
+
 Les ouvertures sont déduites de la surface nette.
 
 ### T-005
+
 Invariant :
 
 ```text

@@ -52,7 +52,7 @@ Exemple :
 ```ts
 expectClose(actual, expected, {
   absolute: 1e-9,
-  relative: 1e-6
+  relative: 1e-6,
 });
 ```
 

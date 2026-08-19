@@ -91,7 +91,7 @@ interface PerformanceCurve {
   inputAxes: PerformanceAxis[];
   output: string;
   points: PerformancePoint[];
-  interpolation: "LINEAR" | "BILINEAR" | "TABLE" | "CUSTOM";
+  interpolation: 'LINEAR' | 'BILINEAR' | 'TABLE' | 'CUSTOM';
 }
 ```
 

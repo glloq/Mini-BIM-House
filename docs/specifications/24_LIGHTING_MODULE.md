@@ -136,15 +136,19 @@ Pour l'habitation, les cibles doivent être définies par profils métier et ré
 ## 12. Tests
 
 ### LIGHT-001
+
 Doubler `N` double `E_avg` dans la méthode lumen.
 
 ### LIGHT-002
+
 Doubler `A` divise `E_avg` par deux à paramètres constants.
 
 ### LIGHT-003
+
 `MF` ou `UF` hors domaine autorisé ⇒ erreur.
 
 ### LIGHT-004
+
 La puissance totale = somme des puissances luminaires.
 
 ## 13. MVP

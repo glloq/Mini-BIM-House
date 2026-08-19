@@ -1221,15 +1221,19 @@ Le moteur de snap prévoit :
 Séparer :
 
 ### Project State
+
 Données persistantes du projet.
 
 ### Editor State
+
 Sélection, outil actif, zoom, panneaux ouverts, hover.
 
 ### Derived State
+
 Pièces détectées, métrés, résultats calculés, caches géométriques.
 
 ### User Preferences
+
 Unités d’affichage, thème, préférences UI.
 
 Le `Project State` doit rester sérialisable en JSON et indépendant de l’interface.

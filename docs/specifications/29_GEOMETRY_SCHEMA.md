@@ -149,7 +149,7 @@ Un mur est défini à partir d'une ligne/polyligne de référence, pas de deux f
 
 ```ts
 interface WallReferencePath {
-  type: "LINE" | "POLYLINE";
+  type: 'LINE' | 'POLYLINE';
   points: Point2D[];
 }
 ```
@@ -254,6 +254,7 @@ GEOM_TOLERANCE_CONFLICT
 ## 14. Tests minimum
 
 ### GEO-001
+
 Distance symétrique :
 
 ```text
@@ -261,18 +262,23 @@ distance(A,B) = distance(B,A)
 ```
 
 ### GEO-002
+
 Aire d'un rectangle 5000 × 4000 mm = 20 000 000 mm².
 
 ### GEO-003
+
 Inversion de l'ordre des points modifie l'orientation mais pas la valeur absolue de l'aire.
 
 ### GEO-004
+
 Offset d'un segment horizontal de 200 mm produit une distance normale de 200 mm.
 
 ### GEO-005
+
 Une polyligne avec deux points identiques consécutifs est normalisée ou rejetée selon l'opération.
 
 ### GEO-006
+
 Les opérations identiques avec les mêmes entrées produisent le même résultat.
 
 ## 15. Schéma machine-lisible

@@ -111,7 +111,7 @@ Sources :
 interface EnvironmentalDataLink {
   projectObjectId: string;
   declarationId: string;
-  declarationType: "FDES" | "PEP" | "DED" | "CUSTOM";
+  declarationType: 'FDES' | 'PEP' | 'DED' | 'CUSTOM';
   functionalUnit: string;
   conversionFactor: number;
   validity?: DateRange;
@@ -206,26 +206,33 @@ Le projet doit continuer à fonctionner avec un catalogue local/importé.
 ## 17. Tests coût
 
 ### COST-001
+
 Conditionnement arrondi vers le haut.
 
 ### COST-002
+
 Changer le prix ne change pas la quantité physique.
 
 ### COST-003
+
 Devise absente/incompatible ⇒ diagnostic.
 
 ## 18. Tests environnement
 
 ### ENV-001
+
 Quantité × facteur avec unités compatibles.
 
 ### ENV-002
+
 Unité fonctionnelle incompatible ⇒ blocage.
 
 ### ENV-003
+
 Donnée expirée ⇒ warning.
 
 ### ENV-004
+
 Somme des éléments = total lot = total bâtiment à tolérance près.
 
 ## 19. MVP

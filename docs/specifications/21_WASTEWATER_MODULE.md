@@ -162,18 +162,23 @@ WASTEWATER_METHOD_MISSING
 ## 13. Tests
 
 ### WW-001
+
 Vérifier `slope = Δz/L`.
 
 ### WW-002
+
 Une contre-pente doit être détectée.
 
 ### WW-003
+
 Un réseau déconnecté de la sortie doit être signalé.
 
 ### WW-004
+
 Les altitudes doivent rester cohérentes après déplacement d'un nœud.
 
 ### WW-005
+
 Les débits agrégés doivent respecter la méthode active.
 
 ## 14. Références candidates

@@ -188,7 +188,7 @@ Les graphes se recalculent immédiatement.
 ```ts
 interface HygrothermalResult {
   methodId: string;
-  applicability: "VALID" | "LIMITED" | "NOT_APPLICABLE";
+  applicability: 'VALID' | 'LIMITED' | 'NOT_APPLICABLE';
   assemblies: HygrothermalAssemblyResult[];
   warnings: CalculationWarning[];
   assumptions: CalculationAssumption[];
@@ -199,21 +199,27 @@ interface HygrothermalResult {
 ## 15. Tests
 
 ### HYG-001
+
 `Sd = μ × d`.
 
 ### HYG-002
+
 `RH = 0` ⇒ `p_v = 0`.
 
 ### HYG-003
+
 `RH = 1` ⇒ `p_v = p_sat`.
 
 ### HYG-004
+
 Changer l'ordre des couches modifie le profil sans modifier la somme de `Sd`.
 
 ### HYG-005
+
 Absence de propriété vapeur ⇒ `METHOD_NOT_APPLICABLE`.
 
 ### HYG-006
+
 Cas documentaire comparé à une implémentation indépendante.
 
 ## 16. Référence principale

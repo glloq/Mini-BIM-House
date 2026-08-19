@@ -253,32 +253,41 @@ MIN_GRID_IMPORT
 ## 18. Tests PV
 
 ### PV-001
+
 `20 × 450 Wp = 9.0 kWp`.
 
 ### PV-002
+
 Aucun panneau ne coupe une zone d'exclusion.
 
 ### PV-003
+
 Implantation déterministe.
 
 ### PV-004
+
 Backend et source présents dans le résultat.
 
 ## 19. Tests batterie
 
 ### BAT-001
+
 Sans PV/batterie : `gridImport = load`.
 
 ### BAT-002
+
 PV = charge : aucun flux réseau/batterie.
 
 ### BAT-003
+
 Limites SOC.
 
 ### BAT-004
+
 Limites puissance.
 
 ### BAT-005
+
 Conservation énergétique.
 
 ## 20. Références

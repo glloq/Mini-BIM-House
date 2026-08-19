@@ -36,7 +36,7 @@ VentilationNetwork
 ```ts
 interface AirTerminal {
   roomId: string;
-  role: "SUPPLY" | "EXTRACT" | "TRANSFER";
+  role: 'SUPPLY' | 'EXTRACT' | 'TRANSFER';
   targetFlowM3h?: number;
   pressureDropPa?: number;
 }
@@ -50,7 +50,7 @@ Le débit réglementaire cible vient d'un Rule Pack.
 interface DuctSegment {
   id: string;
   lengthM: number;
-  shape: "ROUND" | "RECTANGULAR";
+  shape: 'ROUND' | 'RECTANGULAR';
   diameterM?: number;
   widthM?: number;
   heightM?: number;
@@ -221,26 +221,33 @@ Les seuils doivent indiquer leur source.
 ## 17. Tests ventilation
 
 ### VENT-001
+
 Conservation des débits aux nœuds.
 
 ### VENT-002
+
 À débit constant, réduction de section ⇒ vitesse supérieure.
 
 ### VENT-003
+
 Longueur supplémentaire ⇒ pertes supplémentaires avec méthode cohérente.
 
 ### VENT-004
+
 La branche critique est le chemin ayant la perte totale maximale pertinente.
 
 ## 18. Tests IAQ
 
 ### IAQ-001
+
 Sans génération et avec `C=C_out`, concentration stable.
 
 ### IAQ-002
+
 Avec génération positive et sans ventilation, concentration croissante.
 
 ### IAQ-003
+
 Augmenter `Q` doit réduire la concentration d'équilibre dans le modèle simple.
 
 ## 19. Critères MVP
