@@ -134,4 +134,110 @@ describe('validation diagnostics', () => {
       'SELF_INTERSECTION',
     );
   });
+
+  it.each([
+    [
+      'degenerate hole',
+      [
+        [
+          { x: 2, y: 2 },
+          { x: 3, y: 2 },
+          { x: 4, y: 2 },
+        ],
+      ],
+      'DEGENERATE_POLYGON',
+    ],
+    [
+      'outside hole',
+      [
+        [
+          { x: 12, y: 2 },
+          { x: 14, y: 2 },
+          { x: 14, y: 4 },
+          { x: 12, y: 4 },
+        ],
+      ],
+      'HOLE_OUTSIDE_OUTER',
+    ],
+    [
+      'crossing hole',
+      [
+        [
+          { x: 8, y: 2 },
+          { x: 12, y: 2 },
+          { x: 12, y: 4 },
+          { x: 8, y: 4 },
+        ],
+      ],
+      'RING_INTERSECTION',
+    ],
+    [
+      'touching hole',
+      [
+        [
+          { x: 0, y: 2 },
+          { x: 2, y: 2 },
+          { x: 2, y: 4 },
+          { x: 0, y: 4 },
+        ],
+      ],
+      'RING_INTERSECTION',
+    ],
+    [
+      'intersecting holes',
+      [
+        [
+          { x: 2, y: 2 },
+          { x: 6, y: 2 },
+          { x: 6, y: 6 },
+          { x: 2, y: 6 },
+        ],
+        [
+          { x: 5, y: 5 },
+          { x: 8, y: 5 },
+          { x: 8, y: 8 },
+          { x: 5, y: 8 },
+        ],
+      ],
+      'HOLE_OVERLAP',
+    ],
+    [
+      'contained hole',
+      [
+        [
+          { x: 2, y: 2 },
+          { x: 8, y: 2 },
+          { x: 8, y: 8 },
+          { x: 2, y: 8 },
+        ],
+        [
+          { x: 3, y: 3 },
+          { x: 4, y: 3 },
+          { x: 4, y: 4 },
+          { x: 3, y: 4 },
+        ],
+      ],
+      'HOLE_OVERLAP',
+    ],
+    [
+      'self-intersecting hole',
+      [
+        [
+          { x: 2, y: 2 },
+          { x: 7, y: 7 },
+          { x: 2, y: 8 },
+          { x: 8, y: 2 },
+        ],
+      ],
+      'SELF_INTERSECTION',
+    ],
+  ] as const)('rejects %s', (_label, holes, code) => {
+    const outer = [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 10 },
+      { x: 0, y: 10 },
+    ];
+    expect(validatePolygon({ outer, holes })[0]?.code).toBe(code);
+  });
 });

@@ -12,6 +12,8 @@ export type SiteId = EntityId<'Site'>;
 export type WallId = EntityId<'Wall'>;
 export type OpeningId = EntityId<'Opening'>;
 export type SpaceId = EntityId<'Space'>;
+export type SlabId = EntityId<'Slab'>;
+export type RoofPlaneId = EntityId<'RoofPlane'>;
 
 export function entityId<Kind extends string = string>(
   value: string,

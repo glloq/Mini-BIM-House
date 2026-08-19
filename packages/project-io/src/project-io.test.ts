@@ -43,6 +43,70 @@ const fixture = {
   extensions: {},
 };
 
+const populatedFixture = {
+  ...fixture,
+  project: {
+    ...fixture.project,
+    materialLibrary: {
+      materials: [
+        {
+          id: 'material',
+          name: 'Insulation',
+          kind: 'GENERIC',
+          properties: { lambdaWmK: 0.04 },
+        },
+      ],
+    },
+    assemblies: [
+      {
+        id: 'assembly',
+        name: 'Wall assembly',
+        category: 'WALL',
+        layers: [{ id: 'layer', materialId: 'material', thicknessM: 0.2 }],
+      },
+    ],
+    building: {
+      ...fixture.project.building,
+      levels: [
+        {
+          ...fixture.project.building.levels[0]!,
+          walls: [
+            {
+              id: 'wall',
+              type: 'WALL',
+              levelId: 'ground',
+              assemblyId: 'assembly',
+              path: {
+                points: [
+                  { x: 0, y: 0 },
+                  { x: 5000, y: 0 },
+                ],
+              },
+              referenceSide: 'CENTER',
+              baseOffsetMm: 0,
+              heightMode: 'EXPLICIT',
+              heightMm: 2500,
+              role: 'EXTERIOR',
+            },
+          ],
+          openings: [
+            {
+              id: 'window',
+              type: 'OPENING',
+              openingType: 'WINDOW',
+              hostElementId: 'wall',
+              offsetAlongHostMm: 1000,
+              sillHeightMm: 900,
+              widthMm: 1200,
+              heightMm: 1000,
+            },
+          ],
+        },
+      ],
+    },
+  },
+};
+
 describe('project I/O', () => {
   it('loads a current project without mutating input data', () => {
     const source = JSON.stringify(fixture);
@@ -75,6 +139,73 @@ describe('project I/O', () => {
     expect(first).toBe(second);
     expect(loadProjectJson(first)).toMatchObject({ status: 'OK' });
   });
+  it('round-trips a populated typed project canonically', () => {
+    const serialized = serializeProjectFile(populatedFixture);
+    const loaded = loadProjectJson(serialized);
+    expect(loaded.status).toBe('OK');
+    if (loaded.status === 'OK')
+      expect(serializeProjectFile(loaded.file)).toBe(serialized);
+  });
+  it('rejects broken cross-contract references after schema validation', () => {
+    const broken = structuredClone(populatedFixture);
+    broken.project.assemblies[0]!.layers[0]!.materialId = 'missing';
+    expect(loadProjectJson(JSON.stringify(broken))).toMatchObject({
+      status: 'INVALID_PROJECT',
+      issues: [
+        expect.objectContaining({
+          path: '/project/assemblies/0/layers/0/materialId',
+        }),
+      ],
+    });
+  });
+  it.each([
+    [
+      'equipment',
+      {
+        equipment: [
+          { id: 'pump', kind: 'PUMP', catalogKind: 'INVALID', properties: {} },
+        ],
+      },
+    ],
+    [
+      'network',
+      {
+        systems: [
+          {
+            id: 'water',
+            discipline: 'WATER',
+            systemType: 'COLD',
+            nodes: [],
+            ports: [
+              { id: 'port', nodeId: 'missing', role: 'OUT', direction: 'OUT' },
+            ],
+            edges: [],
+          },
+        ],
+      },
+    ],
+    [
+      'scenario',
+      {
+        scenarios: [
+          {
+            id: 'scenario',
+            name: 'Option',
+            baseProjectRevision: '1',
+            overrides: [{ path: '/project', operation: 'INVALID' }],
+          },
+        ],
+      },
+    ],
+  ] as const)('rejects malformed nested %s contracts', (_name, addition) => {
+    const invalid = {
+      ...fixture,
+      project: { ...fixture.project, ...addition },
+    };
+    expect(loadProjectJson(JSON.stringify(invalid))).toMatchObject({
+      status: 'INVALID_PROJECT',
+    });
+  });
   it('refuses non-finite values before JSON can coerce them to null', () => {
     expect(() =>
       serializeProjectFile({
@@ -82,5 +213,47 @@ describe('project I/O', () => {
         project: { ...fixture.project, site: { northAngleDeg: Number.NaN } },
       }),
     ).toThrow('/project/site/northAngleDeg');
+  });
+  it('rejects malformed nested first-class building elements', () => {
+    const level = fixture.project.building.levels[0]!;
+    const invalid = {
+      ...fixture,
+      project: {
+        ...fixture.project,
+        building: {
+          ...fixture.project.building,
+          levels: [
+            {
+              ...level,
+              walls: [
+                {
+                  id: 'wall',
+                  type: 'WALL',
+                  levelId: 'ground',
+                  assemblyId: 'assembly',
+                  path: { points: [{ x: 0, y: 0 }] },
+                  referenceSide: 'CENTER',
+                  baseOffsetMm: 0,
+                  heightMode: 'EXPLICIT',
+                  heightMm: -1,
+                  role: 'EXTERIOR',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+    expect(loadProjectJson(JSON.stringify(invalid))).toMatchObject({
+      status: 'INVALID_PROJECT',
+      issues: expect.arrayContaining([
+        expect.objectContaining({
+          path: expect.stringContaining('/walls/0/path/points'),
+        }),
+        expect.objectContaining({
+          path: expect.stringContaining('/walls/0/heightMm'),
+        }),
+      ]),
+    });
   });
 });

@@ -11,6 +11,9 @@ const base: CalculationModule = {
   methodId: 'base-v1',
   precision: 'ENGINEERING',
   dependencies: [],
+  settingsSchemaId: 'test://base-settings',
+  inputPaths: ['test.base'],
+  validate: () => ({ valid: true }),
   calculate: (input) => ({ status: 'OK', outputs: { value: input } }),
 };
 const dependent: CalculationModule = {
@@ -19,6 +22,9 @@ const dependent: CalculationModule = {
   methodId: 'dependent-v1',
   precision: 'ENGINEERING',
   dependencies: [{ moduleId: 'base', required: true }],
+  settingsSchemaId: 'test://dependent-settings',
+  inputPaths: ['test.dependent'],
+  validate: () => ({ valid: true }),
   calculate: (_input, _settings, dependencies) => ({
     status: 'OK',
     outputs: { base: dependencies.base?.outputs.value ?? null },

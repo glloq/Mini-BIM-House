@@ -6,3 +6,5 @@ export * from './wall-joins';
 export * from './opening';
 export * from './space';
 export * from './network.js';
+export * from './slab.js';
+export * from './roof-plane.js';

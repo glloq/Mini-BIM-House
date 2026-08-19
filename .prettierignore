@@ -4,3 +4,5 @@ node_modules
 package-lock.json
 schemas
 examples
+
+packages/project-io/src/generated-project-validator.js

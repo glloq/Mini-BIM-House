@@ -15,9 +15,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
-    "validate:schemas": "node scripts/validate-schemas.mjs",
+    "validate:schemas": "node scripts/generate-project-validator.mjs --check && node scripts/validate-schemas.mjs",
     "test": "vitest run --passWithNoTests",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "generate:project-validator": "node scripts/generate-project-validator.mjs"
   },
   "engines": {
     "node": ">=22.0.0"

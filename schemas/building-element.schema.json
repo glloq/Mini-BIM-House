@@ -254,6 +254,51 @@
         }
       },
       "additionalProperties": true
+    },
+    "RoofPlane": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "levelId",
+        "footprint",
+        "assemblyId",
+        "slopeDeg",
+        "azimuthDeg",
+        "baseElevationMm"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "const": "ROOF_PLANE"
+        },
+        "levelId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "footprint": {
+          "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Polygon2D"
+        },
+        "assemblyId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "slopeDeg": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 90
+        },
+        "azimuthDeg": {
+          "type": "number"
+        },
+        "baseElevationMm": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
     }
   },
   "oneOf": [
@@ -268,6 +313,9 @@
     },
     {
       "$ref": "#/$defs/Space"
+    },
+    {
+      "$ref": "#/$defs/RoofPlane"
     }
   ]
 }

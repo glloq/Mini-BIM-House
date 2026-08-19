@@ -77,16 +77,66 @@ PR-068
 
 ## In progress
 
-- None.
+- PR-068A — pre-reference integration stabilization.
 
 ## Next
 
-- PR-069 — end-to-end reference house.
-- Add safe parsing from unknown JSON at persistence boundaries.
+- Complete PR-068A blockers below before starting PR-069.
 
 ## Known issues
 
 - Complex polygon-hole containment and mutual-overlap validation remains a geometry-hardening task.
+
+## Pre-PR69 stabilization
+
+Completed in the current stabilization checkpoint:
+
+- Canonical `Project` level collections now use typed wall, opening, space, slab,
+  and MVP roof-plane contracts; material, assembly, equipment, network, scenario,
+  and module-setting collections no longer use arbitrary JSON arrays.
+- `project.schema.json` composes the canonical first-class schemas, including the
+  new MVP `RoofPlane` definition, instead of accepting untyped building arrays.
+- Project I/O now performs nested validation for all MVP building elements and
+  rejects non-finite nested geometry before returning a typed project.
+- Project I/O uses a generated standalone validator compiled from the canonical
+  JSON Schemas, with a reproducibility check and separate project-reference
+  integrity validation; populated persistence round trips are covered.
+- Calculation precision and warning names are aligned with specification 36 and
+  the persisted calculation-result schema.
+- CI uses reproducible `npm ci` installation.
+- Canonical project commands now provide immutable cross-domain undo/redo and an
+  explicit assembly invalidation map without copying persisted state into the
+  editor facade.
+- Polygon holes now reject degeneracy, self-intersection, outer-boundary
+  crossing/touching, outside placement, mutual intersection, and containment.
+- The calculation orchestrator now requires explicit serializable settings
+  schemas, input ownership, and validation before execution. Real adapters cover
+  thermal → heating and lighting/PV → battery → energy-balance with stable energy
+  use IDs and a conservation check.
+- Real adapters also exercise water, rainwater, ventilation, wastewater, IAQ,
+  hygrothermal, acoustics, DHW, cost, and environmental scientific kernels.
+- The populated pre-reference fixture covers one level, wall, opening, slab,
+  roof, space, materials, assemblies, water/ventilation/electrical networks, PV,
+  battery and climate-driven invariants without creating the PR-069 example.
+- Cross-contract tests serialize real TypeScript objects and validate ProjectFile,
+  Material, Assembly, building elements, TechnicalNetwork, RulePack,
+  CalculationResult, and ModuleSettings against their canonical JSON Schemas.
+
+PR-068A readiness:
+
+- Required persistence, schema/type, calculation orchestration, energy ownership,
+  editor command, geometry-hole, physical-invariant, rule-state, and CI gates pass.
+- PR-069 may now begin as a separate end-to-end reference-house change.
+
+Release blockers (non-PR69 architecture work):
+
+- The web app remains primarily a RuleReport demonstration; v0.1 still needs
+  project load/create, model/editor views, libraries, calculation and technical
+  overlays, and save/export integration.
+- GitHub Pages deployment is not configured.
+- A project license must be selected before a public stable release.
+- Stair remains deliberately deferred because it is not required by the PR-069
+  reference house; no detailed roof modeller was introduced beyond `RoofPlane`.
 
 ## Architectural decisions made
 
@@ -99,6 +149,6 @@ PR-068
 - format: pass
 - lint: pass
 - typecheck: pass across all workspaces
-- unit: 365 tests pass across 67 files
+- unit: 399 tests pass across 71 files
 - schemas: all 13 schema/example pairs pass
 - build: pass across all workspaces
