@@ -1,5 +1,5 @@
 {
-  "name": "@house-technical-designer/project-io",
+  "name": "@house-technical-designer/view-query",
   "version": "0.1.0",
   "private": true,
   "license": "AGPL-3.0-only",
@@ -13,7 +13,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@house-technical-designer/assemblies": "0.1.0",
     "@house-technical-designer/core-domain": "0.1.0",
-    "ajv": "^8.17.1"
+    "@house-technical-designer/drawing-engine": "0.1.0",
+    "@house-technical-designer/geometry": "0.1.0",
+    "@house-technical-designer/materials": "0.1.0",
+    "@house-technical-designer/units": "0.1.0"
   }
 }

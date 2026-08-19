@@ -22,8 +22,13 @@ const allRoles: readonly SemanticRole[] = [
   'SITE',
   'SPACE_FILL',
   'WALL_CUT',
+  'WALL_LAYER_STRUCTURE',
+  'WALL_LAYER_INSULATION',
+  'WALL_LAYER_FINISH',
+  'WALL_LAYER_OTHER',
   'WALL_BELOW',
   'OPENING',
+  'OPENING_REVEAL',
   'NETWORK',
   'WATER_COLD',
   'WATER_HOT',
@@ -46,8 +51,13 @@ const roleTokens: Readonly<Record<SemanticRole, string>> = {
   SITE: 'site',
   SPACE_FILL: 'space-fill',
   WALL_CUT: 'wall-cut',
+  WALL_LAYER_STRUCTURE: 'wall-layer-structure',
+  WALL_LAYER_INSULATION: 'wall-layer-insulation',
+  WALL_LAYER_FINISH: 'wall-layer-finish',
+  WALL_LAYER_OTHER: 'wall-layer-other',
   WALL_BELOW: 'wall-below',
   OPENING: 'opening',
+  OPENING_REVEAL: 'opening-reveal',
   NETWORK: 'network',
   WATER_COLD: 'water-cold',
   WATER_HOT: 'water-hot',
@@ -96,6 +106,28 @@ function styles(
       fill: black,
       strokeWidthPaperMm: paperWidths.cut,
     },
+    // Material layers are distinguished by their construction role, the way a
+    // technical drawing hatches by material family rather than by product.
+    'wall-layer-structure': {
+      stroke: black,
+      fill: mode === 'PRINT' ? '#c9c9c9' : '#9fb0b8',
+      strokeWidthPaperMm: paperWidths.ultraThin,
+    },
+    'wall-layer-insulation': {
+      stroke: black,
+      fill: mode === 'PRINT' ? '#ededed' : '#f2d492',
+      strokeWidthPaperMm: paperWidths.ultraThin,
+    },
+    'wall-layer-finish': {
+      stroke: black,
+      fill: mode === 'PRINT' ? '#ffffff' : '#dfe7ea',
+      strokeWidthPaperMm: paperWidths.ultraThin,
+    },
+    'wall-layer-other': {
+      stroke: black,
+      fill: mode === 'PRINT' ? '#f5f5f5' : '#cfd6d9',
+      strokeWidthPaperMm: paperWidths.ultraThin,
+    },
     'wall-below': {
       stroke: '#555555',
       fill: 'none',
@@ -106,6 +138,13 @@ function styles(
       stroke: black,
       fill: 'none',
       strokeWidthPaperMm: paperWidths.medium,
+    },
+    // The reveal erases the wall it passes through, so the opening reads as a
+    // gap rather than as an outline drawn over solid masonry.
+    'opening-reveal': {
+      stroke: black,
+      fill: '#ffffff',
+      strokeWidthPaperMm: paperWidths.thin,
     },
     network: {
       stroke: black,
