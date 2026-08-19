@@ -1,0 +1,14 @@
+{
+  "format": "house-technical-designer-project",
+  "schemaVersion": "1.0.0",
+  "project": {
+    "id": "migration-project",
+    "metadata": {
+      "name": "Migration fixture",
+      "createdAt": "2026-01-01T00:00:00Z",
+      "updatedAt": "2026-01-01T00:00:00Z"
+    },
+    "site": { "northAngleDeg": 0 },
+    "building": { "levels": [], "zones": [] }
+  }
+}
