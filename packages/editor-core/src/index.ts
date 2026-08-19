@@ -9,3 +9,4 @@ export * from './network-tool.js';
 
 export * from './project-commands.js';
 export * from './library-commands.js';
+export * from './building-commands.js';

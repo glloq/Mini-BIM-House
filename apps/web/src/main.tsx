@@ -33,6 +33,7 @@ import { PlanCanvas } from './editor/PlanCanvas.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { LayersPanel } from './editor/LayersPanel.js';
 import { ToolBar, type OpeningDraft } from './editor/ToolBar.js';
+import { BuildingPanel } from './editor/BuildingPanel.js';
 import {
   createEditorState,
   editorReducer,
@@ -61,6 +62,7 @@ function download(content: string, fileName: string, mediaType: string): void {
 
 const WORKSPACE_TABS = [
   { id: 'plan', label: 'Plan architectural' },
+  { id: 'building', label: 'Niveaux et pièces' },
   { id: 'materials', label: 'Matériaux' },
   { id: 'assemblies', label: 'Assemblages' },
   { id: 'equipment', label: 'Équipements' },
@@ -475,6 +477,19 @@ function App() {
               dispatch={dispatchEditor}
               onCommitPoints={commitPoints}
               wallThicknessMm={wallThicknessMm}
+            />
+          </section>
+        )}
+
+        {tab === 'building' && (
+          <section className="canvas-panel panel">
+            <BuildingPanel
+              project={file.project}
+              levelId={activeLevelId}
+              onCommand={runCommand}
+              onSelectLevel={(levelId) =>
+                dispatchEditor({ type: 'SET_LEVEL', levelId })
+              }
             />
           </section>
         )}
