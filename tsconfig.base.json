@@ -50,6 +50,18 @@
       "@house-technical-designer/hygrothermal": [
         "./modules/hygrothermal/src/index.ts"
       ],
+      "@house-technical-designer/heating": ["./modules/heating/src/index.ts"],
+      "@house-technical-designer/dhw": ["./modules/dhw/src/index.ts"],
+      "@house-technical-designer/wastewater": [
+        "./modules/wastewater/src/index.ts"
+      ],
+      "@house-technical-designer/acoustics": [
+        "./modules/acoustics/src/index.ts"
+      ],
+      "@house-technical-designer/cost": ["./modules/cost/src/index.ts"],
+      "@house-technical-designer/environmental": [
+        "./modules/environmental/src/index.ts"
+      ],
       "@house-technical-designer/rule-engine": [
         "./packages/rule-engine/src/index.ts"
       ]

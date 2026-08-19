@@ -2,7 +2,7 @@
 
 ## Last completed PR
 
-PR-057
+PR-063
 
 ## Completed
 
@@ -63,6 +63,12 @@ PR-057
 - PR-055 — hourly battery dispatch with SOC/power limits, charge/discharge losses, off-grid unmet energy, and conservation tests.
 - PR-056 — aligned whole-building energy aggregation across uses, vectors, PV, battery, and grid with external primary-energy factors.
 - PR-057 — steady-state hygrothermal interface profiles and surface-condensation screening with explicit method limits and unknown propagation.
+- PR-058 — traceable room and building heating loads with explicit transmission, ventilation, heat-recovery, and additional-load terms.
+- PR-059 — traceable domestic-hot-water useful energy, ideal mixing, storage equivalence, and reheating time with explicit water properties.
+- PR-060 — graph-backed gravity wastewater slopes, connectivity, level diagnostics, and externally supplied design-flow aggregation.
+- PR-061 — per-band room equivalent absorption, simplified traceable reverberation time, and external treatment comparisons.
+- PR-062 — immutable physical quantities, packaging and waste allowances, material/labor pricing, lot totals, currency diagnostics, and scenario comparison.
+- PR-063 — explicit environmental declaration links, functional-unit conversion, life-cycle impacts, validity warnings, and traceable item/lot/level/building totals.
 
 ## In progress
 
@@ -70,7 +76,7 @@ PR-057
 
 ## Next
 
-- PR-058 — heating loads.
+- PR-064 — symbol library v1.
 - Add safe parsing from unknown JSON at persistence boundaries.
 
 ## Known issues
@@ -88,6 +94,6 @@ PR-057
 - format: pass
 - lint: pass
 - typecheck: pass across all workspaces
-- unit: 295 tests pass across 56 files
+- unit: 332 tests pass across 62 files
 - schemas: all 13 schema/example pairs pass
 - build: pass across all workspaces
