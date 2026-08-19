@@ -2,7 +2,7 @@
 
 ## Last completed PR
 
-PR-026
+PR-040
 
 ## Completed
 
@@ -32,6 +32,20 @@ PR-026
 - PR-024 — ordered assembly cross-section editor with explicit units, materials, and hatches.
 - PR-025 — traceable SI wall quantities, opening deductions, unknown-property warnings, and CSV export.
 - PR-026 — deterministic calculation registry, dependency DAG, fingerprints, cache, and traceable results.
+- PR-027 — traceable thermal layer R/U/H calculations with explicit surface-method inputs and unknown-value diagnostics.
+- PR-028 — deterministic room, zone, level, and building thermal aggregation with manual bridge contributions.
+- PR-029 — semantic U-value and design heat-loss overlays with explicit units, scales, and missing-data values.
+- PR-030 — validated Rule Pack contracts, date-aware version registry, explicit overlap conflicts, and UNKNOWN results.
+- PR-031 — safe declarative evaluation, protected property paths, and versioned registered rule functions without dynamic code execution.
+- PR-032 — traceable rule report view models and responsive evidence UI without implicit compliance claims.
+- PR-033 — schema-aligned technical network graphs with port validation, connectivity, paths, components, and cycle detection.
+- PR-034 — transient network routing with compatible-port snapping, node placement, path editing, and reversible snapshots.
+- PR-035 — unit-bearing network analysis overlays with explicit unknown/error states and semantic scene projection.
+- PR-036 — typed potable, hot-water, recirculation, non-potable, and rainwater network extensions with cross-connection diagnostics.
+- PR-037 — SI hydraulic area, velocity, Darcy-Weisbach losses, elevation pressure, and node continuity with unknown propagation.
+- PR-038 — deterministic catalog pipe sizing with externally supplied limits and uncertainty-safe smallest-diameter selection.
+- PR-039 — semantic plumbing plan primitives and SI pipe inspector models with explicit missing-data warnings.
+- PR-040 — validated hourly, daily, monthly, and design climate datasets with completeness, explicit gaps, and deterministic fingerprints.
 
 ## In progress
 
@@ -39,7 +53,7 @@ PR-026
 
 ## Next
 
-- PR-027 — thermal layer R/U/H calculations.
+- PR-041 — rainwater time-step simulation.
 - Add safe parsing from unknown JSON at persistence boundaries.
 
 ## Known issues

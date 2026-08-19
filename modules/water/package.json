@@ -1,5 +1,5 @@
 {
-  "name": "@house-technical-designer/drawing-engine",
+  "name": "@house-technical-designer/water",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@house-technical-designer/calculation-core": "0.1.0",
-    "@house-technical-designer/geometry": "0.0.0"
+    "@house-technical-designer/core-domain": "0.0.0",
+    "@house-technical-designer/drawing-engine": "0.1.0",
+    "@house-technical-designer/units": "0.1.0"
   }
 }
