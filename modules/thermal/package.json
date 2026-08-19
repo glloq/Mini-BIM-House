@@ -1,5 +1,5 @@
 {
-  "name": "@house-technical-designer/drawing-engine",
+  "name": "@house-technical-designer/thermal",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@house-technical-designer/assemblies": "0.1.0",
     "@house-technical-designer/calculation-core": "0.1.0",
-    "@house-technical-designer/geometry": "0.0.0"
+    "@house-technical-designer/materials": "0.0.0"
   }
 }

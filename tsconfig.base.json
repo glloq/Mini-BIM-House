@@ -7,6 +7,10 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "paths": {
+      "@house-technical-designer/core-domain": [
+        "./packages/core-domain/src/index.ts"
+      ],
+      "@house-technical-designer/climate": ["./packages/climate/src/index.ts"],
       "@house-technical-designer/materials": [
         "./packages/materials/src/index.ts"
       ],
@@ -14,8 +18,19 @@
       "@house-technical-designer/geometry": [
         "./packages/geometry/src/index.ts"
       ],
+      "@house-technical-designer/calculation-core": [
+        "./packages/calculation-core/src/index.ts"
+      ],
+      "@house-technical-designer/drawing-engine": [
+        "./packages/drawing-engine/src/index.ts"
+      ],
       "@house-technical-designer/assemblies": [
         "./packages/assemblies/src/index.ts"
+      ],
+      "@house-technical-designer/thermal": ["./modules/thermal/src/index.ts"],
+      "@house-technical-designer/water": ["./modules/water/src/index.ts"],
+      "@house-technical-designer/rule-engine": [
+        "./packages/rule-engine/src/index.ts"
       ]
     },
     "noFallthroughCasesInSwitch": true,
