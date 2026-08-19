@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { Project } from '@house-technical-designer/core-domain';
+import { safeFileStem } from '../project-workspace.js';
 import { bomToCsv, buildBom } from './bom-model.js';
 
 const LOT_LABELS: Readonly<Record<string, string>> = {
@@ -38,7 +39,7 @@ export function QuantitiesPanel({
             onClick={() =>
               onExportCsv(
                 bomToCsv(report),
-                `${project.metadata.name}-nomenclature.csv`,
+                `${safeFileStem(project.metadata.name)}-nomenclature.csv`,
               )
             }
           >

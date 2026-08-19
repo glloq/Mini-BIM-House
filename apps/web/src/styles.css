@@ -985,3 +985,47 @@ button.icon {
   font-weight: 500;
   color: #6b7871;
 }
+
+/* Save state and crash handling. */
+.save-state {
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #e4eae6;
+  color: #31443b;
+}
+.save-state.save-modified {
+  background: #f6e2c8;
+  color: #7a4a12;
+}
+.save-state.save-autosaved {
+  background: #dbe6f2;
+  color: #1d3f6b;
+}
+.save-state.save-failed {
+  background: #f4d5d5;
+  color: #7a1b1b;
+}
+.recovery-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+}
+.crash-panel {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 3rem;
+  padding: 1.5rem;
+}
+.crash-detail {
+  overflow-x: auto;
+  border-radius: 0.6rem;
+  padding: 0.7rem;
+  background: #f4f6f5;
+  font-size: 0.8rem;
+}

@@ -224,6 +224,32 @@ export function PlanCanvas({
     [editor.camera],
   );
 
+  /**
+   * Resolves the snap for a pointer event from the event itself.
+   *
+   * Reading it back from state would reuse the previous pointer position when a
+   * move and a press arrive in the same frame, which is exactly what happens on
+   * a fast click and used to commit the same point twice.
+   */
+  const snapFor = useCallback(
+    (event: { clientX: number; clientY: number }) => {
+      const bounds = container.current?.getBoundingClientRect();
+      if (bounds === undefined || !editor.snap.enabled) return undefined;
+      return findSnap(
+        editor.camera,
+        { x: event.clientX - bounds.left, y: event.clientY - bounds.top },
+        segments,
+        {
+          tolerancePx: editor.snap.tolerancePx,
+          ...(editor.snap.grid
+            ? { gridSpacingMm: editor.snap.gridSpacingMm }
+            : {}),
+        },
+      );
+    },
+    [editor.camera, editor.snap, segments],
+  );
+
   const handleMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
       const bounds = container.current?.getBoundingClientRect();
@@ -240,19 +266,7 @@ export function PlanCanvas({
         panOrigin.current = { x: event.clientX, y: event.clientY };
         return;
       }
-      const snap = editor.snap.enabled
-        ? findSnap(
-            editor.camera,
-            { x: event.clientX - bounds.left, y: event.clientY - bounds.top },
-            segments,
-            {
-              tolerancePx: editor.snap.tolerancePx,
-              ...(editor.snap.grid
-                ? { gridSpacingMm: editor.snap.gridSpacingMm }
-                : {}),
-            },
-          )
-        : undefined;
+      const snap = snapFor(event);
       dispatch({
         type: 'MOVE_CURSOR',
         model,
@@ -266,15 +280,7 @@ export function PlanCanvas({
         });
       }
     },
-    [
-      dispatch,
-      editor.activeTool,
-      editor.camera,
-      editor.snap,
-      modelPointOf,
-      plan.primitives,
-      segments,
-    ],
+    [dispatch, editor.activeTool, modelPointOf, plan.primitives, snapFor],
   );
 
   const handleDown = useCallback(
@@ -295,7 +301,7 @@ export function PlanCanvas({
         });
         return;
       }
-      const snapped = editor.activeSnap?.point ?? model;
+      const snapped = snapFor(event)?.point ?? model;
       const origin = editor.pendingPoints[editor.pendingPoints.length - 1];
       const point =
         origin === undefined
@@ -306,7 +312,7 @@ export function PlanCanvas({
       if (points.length >= 2 || editor.activeTool === 'OPENING')
         onCommitPoints(points);
     },
-    [dispatch, editor, modelPointOf, onCommitPoints, plan.primitives],
+    [dispatch, editor, modelPointOf, onCommitPoints, plan.primitives, snapFor],
   );
 
   const handleUp = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
@@ -379,7 +385,12 @@ export function PlanCanvas({
           aria-hidden="true"
         />
       )}
-      <p className="canvas-status" role="status">
+      {/*
+        A continuous coordinate readout would flood a screen reader on every
+        pointer move, so it is shown without being announced; the application
+        status region carries the messages that matter.
+      */}
+      <p className="canvas-status" aria-live="off">
         {editor.cursorModel === undefined
           ? 'Déplacez le curseur sur le plan.'
           : `${Math.round(editor.cursorModel.x)} ; ${Math.round(editor.cursorModel.y)} mm`}

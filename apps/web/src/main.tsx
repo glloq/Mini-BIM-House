@@ -24,6 +24,7 @@ import {
   createBlankProject,
   exportProjectPlan,
   ProjectEditingSession,
+  safeFileStem,
   summarizeProject,
 } from './project-workspace.js';
 import { demoClimateDatasets, loadDemoProject } from './demo-project.js';
@@ -39,6 +40,15 @@ import { CalculationsPanel } from './calculations/CalculationsPanel.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { QuantitiesPanel } from './quantities/QuantitiesPanel.js';
 import { ScenariosPanel } from './scenarios/ScenariosPanel.js';
+import { ErrorBoundary } from './ErrorBoundary.js';
+import {
+  AUTOSAVE_DELAY_MS,
+  SAVE_STATE_LABELS,
+  discardAutosave,
+  readAutosave,
+  writeAutosave,
+  type SaveState,
+} from './autosave.js';
 import {
   buildOverlay,
   designTemperatureDifferenceK,
@@ -70,8 +80,15 @@ function download(content: string, fileName: string, mediaType: string): void {
   const link = document.createElement('a');
   link.href = url;
   link.download = fileName;
+  // The anchor has to be in the document for the browser to honour its
+  // download name, and the blob URL has to outlive the click: revoking it in
+  // the same tick loses the file name and saves the download unnamed.
+  document.body.append(link);
   link.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, 0);
 }
 
 const WORKSPACE_TABS = [
@@ -86,6 +103,9 @@ const WORKSPACE_TABS = [
 ] as const;
 
 type WorkspaceTab = (typeof WORKSPACE_TABS)[number]['id'];
+
+/** Version reported in diagnostics; it matches the project file it writes. */
+const APPLICATION_VERSION = '0.1.0';
 
 const DEFAULT_OPENING: OpeningDraft = {
   openingType: 'WINDOW',
@@ -107,6 +127,11 @@ function App() {
     useState<OpeningDraft>(DEFAULT_OPENING);
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
+  const [saveState, setSaveState] = useState<SaveState>('SAVED');
+  const [recovery, setRecovery] = useState<{
+    readonly savedAt: string;
+    readonly file: ProjectFile;
+  }>();
   const [calculationRun, setCalculationRun] = useState<CalculationRun>();
   const [wallAssemblyId, setWallAssemblyId] = useState(
     () => file.project.assemblies?.[0]?.id ?? '',
@@ -144,6 +169,7 @@ function App() {
       return false;
     }
     setFile(result.file);
+    setSaveState('MODIFIED');
     setMessage(`${command.label} · appliqué.`);
     return true;
   }, []);
@@ -151,15 +177,19 @@ function App() {
   const saveProject = useCallback(() => {
     download(
       serializeProjectFile(file),
-      `${file.project.metadata.name}.houseproj.json`,
+      `${safeFileStem(file.project.metadata.name)}.houseproj.json`,
       'application/json',
     );
+    setSaveState('SAVED');
     setMessage('Projet exporté en JSON.');
   }, [file]);
 
   const undo = useCallback(() => {
     const result = session.current.undo();
-    if (result.status === 'OK') setFile(result.file);
+    if (result.status === 'OK') {
+      setFile(result.file);
+      setSaveState('MODIFIED');
+    }
     setMessage(
       result.status === 'OK'
         ? 'Dernière commande annulée.'
@@ -169,7 +199,10 @@ function App() {
 
   const redo = useCallback(() => {
     const result = session.current.redo();
-    if (result.status === 'OK') setFile(result.file);
+    if (result.status === 'OK') {
+      setFile(result.file);
+      setSaveState('MODIFIED');
+    }
     setMessage(
       result.status === 'OK'
         ? 'Commande rétablie.'
@@ -258,6 +291,24 @@ function App() {
     }
     dispatchEditor({ type: 'ZOOM_SELECTION', bounds });
   }, [activeLevelId, editor.layers, editor.selection, file.project]);
+
+  useEffect(() => {
+    if (saveState !== 'MODIFIED') return;
+    const timer = setTimeout(() => {
+      void writeAutosave(file)
+        .then(() => setSaveState('AUTOSAVED'))
+        .catch(() => setSaveState('FAILED'));
+    }, AUTOSAVE_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [file, saveState]);
+
+  // A snapshot left by a previous session is offered, never applied silently.
+  useEffect(() => {
+    void readAutosave().then((result) => {
+      if (result.status === 'RECOVERED')
+        setRecovery({ savedAt: result.savedAt, file: result.file });
+    });
+  }, []);
 
   useEffect(() => {
     if (overlayId === 'none' && tab !== 'calculations') return;
@@ -458,8 +509,43 @@ function App() {
           <span>Projet actif</span>
           <strong>{file.project.metadata.name}</strong>
         </div>
-        <p role="status">{message}</p>
+        <p role="status" aria-label="État de l’application">
+          {message}
+        </p>
+        <span className={`save-state save-${saveState.toLowerCase()}`}>
+          {SAVE_STATE_LABELS[saveState]}
+        </span>
       </section>
+
+      {recovery !== undefined && (
+        <section className="panel recovery-prompt" role="alertdialog">
+          <p>
+            Une sauvegarde locale plus récente a été trouvée (
+            {new Date(recovery.savedAt).toLocaleString('fr-FR')}). Restaurer ?
+          </p>
+          <div className="actions">
+            <button
+              type="button"
+              onClick={() => {
+                adopt(recovery.file, 'Sauvegarde locale restaurée.');
+                setRecovery(undefined);
+              }}
+            >
+              Restaurer
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => {
+                void discardAutosave();
+                setRecovery(undefined);
+              }}
+            >
+              Ignorer et supprimer
+            </button>
+          </div>
+        </section>
+      )}
 
       <div className="workspace-grid">
         <aside className="sidebar panel">
@@ -661,8 +747,28 @@ function App() {
 
 const root = document.querySelector<HTMLElement>('#root');
 if (root === null) throw new Error('Unable to find the application root');
+function downloadDiagnostic(report: unknown): void {
+  const url = URL.createObjectURL(
+    new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' }),
+  );
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'diagnostic.json';
+  document.body.append(link);
+  link.click();
+  setTimeout(() => {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, 0);
+}
+
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary
+      applicationVersion={APPLICATION_VERSION}
+      onDownloadDiagnostic={downloadDiagnostic}
+    >
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );

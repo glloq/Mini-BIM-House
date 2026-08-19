@@ -61,12 +61,10 @@ export function ToolBar({
               tool.id === editor.activeTool ? 'tool-active' : 'secondary'
             }
             aria-pressed={tool.id === editor.activeTool}
+            title={`${tool.label} — raccourci${hint(SHORTCUT_BY_TOOL[tool.id])}`}
             onClick={() => dispatch({ type: 'SET_TOOL', tool: tool.id })}
           >
             {tool.label}
-            <span className="visually-hidden">
-              {hint(SHORTCUT_BY_TOOL[tool.id])}
-            </span>
           </button>
         ))}
       </div>
