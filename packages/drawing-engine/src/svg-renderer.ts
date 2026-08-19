@@ -27,6 +27,9 @@ export interface SvgRenderOptions {
   /** UI states are omitted by default so technical exports remain stable. */
   readonly includeInteractionStates?: boolean;
   readonly includeXmlDeclaration?: boolean;
+  /** Preserve semantic group boundaries without changing primitive z-order. */
+  readonly includeSemanticGroups?: boolean;
+  readonly documentMetadata?: Readonly<Record<string, string>>;
 }
 
 export function renderSemanticSceneToSvg(
@@ -46,15 +49,58 @@ export function renderSemanticSceneToSvg(
   const height = view.viewport.max.y - view.viewport.min.y;
   if (![width, height].every(Number.isFinite) || width <= 0 || height <= 0)
     throw new RangeError('SVG viewport must have a positive finite size.');
-  const body = scene.primitives
-    .map((primitive) =>
-      renderPrimitive(primitive, view, profile, styles, options),
-    )
-    .join('');
+  const body = options.includeSemanticGroups
+    ? renderSemanticGroups(scene.primitives, view, profile, styles, options)
+    : scene.primitives
+        .map((primitive) =>
+          renderPrimitive(primitive, view, profile, styles, options),
+        )
+        .join('');
+  const metadata = renderDocumentMetadata(options.documentMetadata);
   const declaration = options.includeXmlDeclaration
     ? '<?xml version="1.0" encoding="UTF-8"?>'
     : '';
-  return `${declaration}<svg xmlns="http://www.w3.org/2000/svg" viewBox="${number(view.viewport.min.x)} ${number(view.viewport.min.y)} ${number(width)} ${number(height)}" data-view-id="${attribute(view.id)}">${body}</svg>`;
+  return `${declaration}<svg xmlns="http://www.w3.org/2000/svg" viewBox="${number(view.viewport.min.x)} ${number(view.viewport.min.y)} ${number(width)} ${number(height)}" data-view-id="${attribute(view.id)}">${metadata}${body}</svg>`;
+}
+
+function renderSemanticGroups(
+  primitives: readonly ScenePrimitive[],
+  view: DrawingView,
+  profile: GraphicProfile,
+  styles: SvgStyleCatalog,
+  options: SvgRenderOptions,
+): string {
+  let result = '';
+  let groupKey: string | undefined;
+  let groupBody = '';
+  const flush = (): void => {
+    if (groupKey === undefined) return;
+    const [discipline, layer] = groupKey.split('\u0000');
+    result += `<g data-discipline="${attribute(discipline ?? '')}" data-layer="${attribute(layer ?? '')}">${groupBody}</g>`;
+  };
+  for (const primitive of primitives) {
+    const nextKey = `${primitive.discipline}\u0000${primitive.layer}`;
+    if (groupKey !== nextKey) {
+      flush();
+      groupKey = nextKey;
+      groupBody = '';
+    }
+    groupBody += renderPrimitive(primitive, view, profile, styles, options);
+  }
+  flush();
+  return result;
+}
+
+function renderDocumentMetadata(
+  metadata: Readonly<Record<string, string>> | undefined,
+): string {
+  if (metadata === undefined || Object.keys(metadata).length === 0) return '';
+  const canonical = Object.fromEntries(
+    Object.entries(metadata).sort(([first], [second]) =>
+      first.localeCompare(second),
+    ),
+  );
+  return `<metadata>${text(JSON.stringify(canonical))}</metadata>`;
 }
 
 function renderPrimitive(
@@ -65,7 +111,11 @@ function renderPrimitive(
   options: SvgRenderOptions,
 ): string {
   const token = profile.roleTokens[primitive.semanticRole];
-  const base = token === undefined ? {} : catalog.tokens[token];
+  if (token === undefined)
+    throw new RangeError(
+      `Graphic profile has no token for semantic role: ${primitive.semanticRole}`,
+    );
+  const base = catalog.tokens[token];
   if (base === undefined)
     throw new RangeError(`Unknown graphic token: ${token}`);
   const state = options.includeInteractionStates ? primitive.state : undefined;

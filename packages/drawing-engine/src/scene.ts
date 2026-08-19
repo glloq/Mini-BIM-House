@@ -90,8 +90,11 @@ export interface ScenePrimitive {
 export interface GraphicProfile {
   readonly id: GraphicProfileId;
   readonly name: string;
+  readonly locale?: string;
   /** Maps semantic roles to versionable tokens, not SVG/CSS declarations. */
   readonly roleTokens: Readonly<Partial<Record<SemanticRole, string>>>;
+  /** Maps stable semantic symbol IDs to profile-specific definitions. */
+  readonly symbolOverrides?: Readonly<Record<string, string>>;
   readonly minimumScreenStrokePx?: number;
 }
 

@@ -2,7 +2,7 @@
 
 ## Last completed PR
 
-PR-063
+PR-068
 
 ## Completed
 
@@ -69,6 +69,11 @@ PR-063
 - PR-061 — per-band room equivalent absorption, simplified traceable reverberation time, and external treatment comparisons.
 - PR-062 — immutable physical quantities, packaging and waste allowances, material/labor pricing, lot totals, currency diagnostics, and scenario comparison.
 - PR-063 — explicit environmental declaration links, functional-unit conversion, life-cycle impacts, validity warnings, and traceable item/lot/level/building totals.
+- PR-064 — versioned, safe semantic symbol library v1 with paper/model scaling, profile overrides, and architecture, water, ventilation, and electrical symbols.
+- PR-065 — validated generic and initial French graphic profiles with paper line weights, screen colors, monochrome print variants, and complete semantic-role coverage.
+- PR-066 — millimetre-based standard/custom sheets, printable-area and viewport validation, reusable title-block templates, and explicit unknown fields.
+- PR-067 — deterministic clean SVG export with canonical metadata, semantic groups, stable fingerprints, safe filenames, and interaction-free technical output.
+- PR-068 — ordered vector PDF print jobs with sheet sizes, explicit metadata, injected traceable conversion backends, and validated PDF artifacts.
 
 ## In progress
 
@@ -76,7 +81,7 @@ PR-063
 
 ## Next
 
-- PR-064 — symbol library v1.
+- PR-069 — end-to-end reference house.
 - Add safe parsing from unknown JSON at persistence boundaries.
 
 ## Known issues
@@ -94,6 +99,6 @@ PR-063
 - format: pass
 - lint: pass
 - typecheck: pass across all workspaces
-- unit: 332 tests pass across 62 files
+- unit: 365 tests pass across 67 files
 - schemas: all 13 schema/example pairs pass
 - build: pass across all workspaces
