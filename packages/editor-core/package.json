@@ -13,10 +13,10 @@
   },
   "dependencies": {
     "@house-technical-designer/assemblies": "0.1.0",
-    "@house-technical-designer/core-domain": "0.0.0",
-    "@house-technical-designer/geometry": "0.0.0"
+    "@house-technical-designer/core-domain": "0.1.0",
+    "@house-technical-designer/geometry": "0.1.0"
   },
   "devDependencies": {
-    "@house-technical-designer/materials": "0.0.0"
+    "@house-technical-designer/materials": "0.1.0"
   }
 }

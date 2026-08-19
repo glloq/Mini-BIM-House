@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@house-technical-designer/materials": "0.0.0",
+    "@house-technical-designer/materials": "0.1.0",
     "@house-technical-designer/units": "0.1.0"
   }
 }

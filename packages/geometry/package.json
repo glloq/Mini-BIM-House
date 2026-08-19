@@ -1,6 +1,6 @@
 {
   "name": "@house-technical-designer/geometry",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",
@@ -8,9 +8,5 @@
     "build": "tsc --noEmit",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
-  },
-  "devDependencies": {
-    "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
   }
 }
