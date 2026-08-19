@@ -648,6 +648,12 @@ les principaux systèmes techniques d'une habitation depuis un même modèle coh
 
 # Licence
 
-La licence du projet sera définie avant la première publication stable.
+Mini-BIM-House est distribué sous licence **GNU Affero General Public License v3.0 only** (AGPL-3.0-only). Le texte complet est dans [`LICENSE`](LICENSE).
 
-Les normes, catalogues fabricants et bases externes peuvent avoir leurs propres conditions de licence et ne seront pas redistribués sans autorisation.
+Concrètement :
+
+- vous pouvez utiliser, étudier, modifier et redistribuer le logiciel ;
+- toute version modifiée que vous distribuez doit rester sous AGPL-3.0 ;
+- si vous mettez une version modifiée à disposition via un réseau, y compris comme application web hébergée, vous devez en proposer les sources aux utilisateurs de cette instance (section 13).
+
+Les normes, catalogues fabricants et bases externes ont leurs propres conditions de licence : ils ne sont pas redistribués avec ce dépôt et doivent être obtenus auprès de leurs éditeurs. Les valeurs livrées dans les exemples et les catalogues intégrés sont des données génériques de démonstration, jamais des données fabricant.
