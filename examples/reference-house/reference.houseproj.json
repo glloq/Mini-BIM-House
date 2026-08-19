@@ -1,0 +1,762 @@
+{
+  "format": "house-technical-designer-project",
+  "schemaVersion": "1.0.0",
+  "applicationVersion": "0.1.0",
+  "project": {
+    "id": "reference-house",
+    "metadata": {
+      "name": "Maison de référence MVP",
+      "description": "Fixture end-to-end déterministe; valeurs techniques de démonstration non réglementaires.",
+      "createdAt": "2026-08-19T00:00:00Z",
+      "updatedAt": "2026-08-19T00:00:00Z",
+      "projectRevision": "reference-1"
+    },
+    "site": {
+      "northAngleDeg": 0,
+      "climateProfileId": "reference-temperate"
+    },
+    "building": {
+      "levels": [
+        {
+          "id": "ground",
+          "name": "Rez-de-chaussée",
+          "elevationMm": 0,
+          "defaultStoreyHeightMm": 2600,
+          "walls": [
+            {
+              "id": "wall-south",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 0
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "assembly-exterior",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-east",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 10000,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 8000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "assembly-exterior",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-north",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 10000,
+                    "y": 8000
+                  },
+                  {
+                    "x": 0,
+                    "y": 8000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "assembly-exterior",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-west",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 0,
+                    "y": 8000
+                  },
+                  {
+                    "x": 0,
+                    "y": 0
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "assembly-exterior",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-partition-v",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 5000,
+                    "y": 0
+                  },
+                  {
+                    "x": 5000,
+                    "y": 8000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "assembly-partition",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "INTERIOR"
+            },
+            {
+              "id": "wall-partition-h",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 0,
+                    "y": 4000
+                  },
+                  {
+                    "x": 10000,
+                    "y": 4000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "assembly-partition",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "INTERIOR"
+            }
+          ],
+          "openings": [
+            {
+              "id": "opening-entry",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-south",
+              "offsetAlongHostMm": 1000,
+              "sillHeightMm": 0,
+              "widthMm": 900,
+              "heightMm": 2100
+            },
+            {
+              "id": "opening-living",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-west",
+              "offsetAlongHostMm": 1000,
+              "sillHeightMm": 900,
+              "widthMm": 1800,
+              "heightMm": 1200
+            },
+            {
+              "id": "opening-bedroom",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-north",
+              "offsetAlongHostMm": 1000,
+              "sillHeightMm": 900,
+              "widthMm": 1400,
+              "heightMm": 1200
+            }
+          ],
+          "slabs": [
+            {
+              "id": "slab-ground",
+              "type": "SLAB",
+              "levelId": "ground",
+              "polygon": {
+                "outer": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 8000
+                  },
+                  {
+                    "x": 0,
+                    "y": 8000
+                  }
+                ]
+              },
+              "assemblyId": "assembly-horizontal",
+              "elevationOffsetMm": 0,
+              "role": "FLOOR"
+            }
+          ],
+          "roofs": [
+            {
+              "id": "roof-south",
+              "type": "ROOF_PLANE",
+              "levelId": "ground",
+              "footprint": {
+                "outer": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 8000
+                  },
+                  {
+                    "x": 0,
+                    "y": 8000
+                  }
+                ]
+              },
+              "assemblyId": "assembly-horizontal",
+              "slopeDeg": 30,
+              "azimuthDeg": 180,
+              "baseElevationMm": 2600
+            }
+          ],
+          "spaces": [
+            {
+              "id": "space-living",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Séjour",
+              "category": "LIVING",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 5000,
+                    "y": 0
+                  },
+                  {
+                    "x": 5000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 0,
+                    "y": 4000
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-kitchen",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Cuisine",
+              "category": "KITCHEN",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 5000,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 5000,
+                    "y": 4000
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-bedroom",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Chambre",
+              "category": "BEDROOM",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 0,
+                    "y": 4000
+                  },
+                  {
+                    "x": 5000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 5000,
+                    "y": 8000
+                  },
+                  {
+                    "x": 0,
+                    "y": 8000
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-bathroom",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Salle de bains",
+              "category": "BATHROOM",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 5000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 10000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 10000,
+                    "y": 8000
+                  },
+                  {
+                    "x": 5000,
+                    "y": 8000
+                  }
+                ]
+              }
+            }
+          ],
+          "stairs": [],
+          "annotations": []
+        }
+      ],
+      "zones": [
+        {
+          "id": "zone-heated",
+          "name": "Zone chauffée",
+          "type": "THERMAL",
+          "properties": {},
+          "spaceIds": [
+            "space-living",
+            "space-kitchen",
+            "space-bedroom",
+            "space-bathroom"
+          ]
+        }
+      ]
+    },
+    "materialLibrary": {
+      "materials": [
+        {
+          "id": "material-insulation",
+          "name": "Isolant générique de démonstration",
+          "kind": "GENERIC",
+          "properties": {
+            "lambdaWmK": 0.04,
+            "densityKgM3": 45
+          },
+          "provenance": {
+            "sourceType": "OTHER",
+            "sourceReference": "Fixture PR-069 — valeur de démonstration"
+          }
+        },
+        {
+          "id": "material-masonry",
+          "name": "Maçonnerie générique",
+          "kind": "GENERIC",
+          "properties": {
+            "lambdaWmK": 0.8,
+            "densityKgM3": 1800
+          },
+          "provenance": {
+            "sourceType": "OTHER",
+            "sourceReference": "Fixture PR-069 — valeur de démonstration"
+          }
+        }
+      ]
+    },
+    "assemblies": [
+      {
+        "id": "assembly-exterior",
+        "name": "Mur extérieur de référence",
+        "category": "WALL",
+        "layers": [
+          {
+            "id": "layer-masonry",
+            "materialId": "material-masonry",
+            "thicknessM": 0.2,
+            "role": "STRUCTURE"
+          },
+          {
+            "id": "layer-insulation",
+            "materialId": "material-insulation",
+            "thicknessM": 0.2,
+            "role": "INSULATION"
+          }
+        ]
+      },
+      {
+        "id": "assembly-partition",
+        "name": "Cloison de référence",
+        "category": "WALL",
+        "layers": [
+          {
+            "id": "layer-partition",
+            "materialId": "material-masonry",
+            "thicknessM": 0.1,
+            "role": "STRUCTURE"
+          }
+        ]
+      },
+      {
+        "id": "assembly-horizontal",
+        "name": "Plancher et toiture de référence",
+        "category": "FLOOR",
+        "layers": [
+          {
+            "id": "layer-horizontal-insulation",
+            "materialId": "material-insulation",
+            "thicknessM": 0.25,
+            "role": "INSULATION"
+          }
+        ]
+      }
+    ],
+    "equipment": [
+      {
+        "id": "equipment-pv",
+        "kind": "PHOTOVOLTAIC",
+        "catalogKind": "CUSTOM",
+        "properties": {
+          "installedPowerWp": 4000
+        }
+      },
+      {
+        "id": "equipment-battery",
+        "kind": "BATTERY",
+        "catalogKind": "CUSTOM",
+        "properties": {
+          "usableCapacityKWh": 5
+        }
+      },
+      {
+        "id": "equipment-vmc",
+        "kind": "FAN",
+        "catalogKind": "CUSTOM",
+        "properties": {
+          "designFlowM3h": 180
+        }
+      }
+    ],
+    "systems": [
+      {
+        "id": "water",
+        "discipline": "WATER",
+        "systemType": "WATER",
+        "nodes": [
+          {
+            "id": "water:source",
+            "kind": "SOURCE",
+            "position": {
+              "x": 1000,
+              "y": 1000,
+              "z": 0
+            }
+          },
+          {
+            "id": "water:terminal",
+            "kind": "TERMINAL",
+            "position": {
+              "x": 9000,
+              "y": 6000,
+              "z": 0
+            }
+          }
+        ],
+        "ports": [
+          {
+            "id": "water:out",
+            "nodeId": "water:source",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "water:in",
+            "nodeId": "water:terminal",
+            "role": "FLOW",
+            "direction": "IN"
+          }
+        ],
+        "edges": [
+          {
+            "id": "water:edge",
+            "fromPortId": "water:out",
+            "toPortId": "water:in",
+            "path": [
+              {
+                "x": 1000,
+                "y": 1000,
+                "z": 0
+              },
+              {
+                "x": 9000,
+                "y": 1000,
+                "z": 0
+              },
+              {
+                "x": 9000,
+                "y": 6000,
+                "z": 0
+              }
+            ],
+            "kind": "SEGMENT"
+          }
+        ]
+      },
+      {
+        "id": "wastewater",
+        "discipline": "WASTEWATER",
+        "systemType": "WASTEWATER",
+        "nodes": [
+          {
+            "id": "wastewater:source",
+            "kind": "SOURCE",
+            "position": {
+              "x": 1000,
+              "y": 1000,
+              "z": 0
+            }
+          },
+          {
+            "id": "wastewater:terminal",
+            "kind": "TERMINAL",
+            "position": {
+              "x": 9000,
+              "y": 6000,
+              "z": 0
+            }
+          }
+        ],
+        "ports": [
+          {
+            "id": "wastewater:out",
+            "nodeId": "wastewater:source",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:in",
+            "nodeId": "wastewater:terminal",
+            "role": "FLOW",
+            "direction": "IN"
+          }
+        ],
+        "edges": [
+          {
+            "id": "wastewater:edge",
+            "fromPortId": "wastewater:out",
+            "toPortId": "wastewater:in",
+            "path": [
+              {
+                "x": 1000,
+                "y": 1000,
+                "z": 0
+              },
+              {
+                "x": 9000,
+                "y": 1000,
+                "z": 0
+              },
+              {
+                "x": 9000,
+                "y": 6000,
+                "z": 0
+              }
+            ],
+            "kind": "GRAVITY_PIPE"
+          }
+        ]
+      },
+      {
+        "id": "ventilation",
+        "discipline": "VENTILATION",
+        "systemType": "VENTILATION",
+        "nodes": [
+          {
+            "id": "ventilation:source",
+            "kind": "SOURCE",
+            "position": {
+              "x": 1000,
+              "y": 1000,
+              "z": 0
+            }
+          },
+          {
+            "id": "ventilation:terminal",
+            "kind": "TERMINAL",
+            "position": {
+              "x": 9000,
+              "y": 6000,
+              "z": 0
+            }
+          }
+        ],
+        "ports": [
+          {
+            "id": "ventilation:out",
+            "nodeId": "ventilation:source",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "ventilation:in",
+            "nodeId": "ventilation:terminal",
+            "role": "FLOW",
+            "direction": "IN"
+          }
+        ],
+        "edges": [
+          {
+            "id": "ventilation:edge",
+            "fromPortId": "ventilation:out",
+            "toPortId": "ventilation:in",
+            "path": [
+              {
+                "x": 1000,
+                "y": 1000,
+                "z": 0
+              },
+              {
+                "x": 9000,
+                "y": 1000,
+                "z": 0
+              },
+              {
+                "x": 9000,
+                "y": 6000,
+                "z": 0
+              }
+            ],
+            "kind": "DUCT"
+          }
+        ]
+      },
+      {
+        "id": "electrical",
+        "discipline": "ELECTRICAL",
+        "systemType": "ELECTRICAL",
+        "nodes": [
+          {
+            "id": "electrical:source",
+            "kind": "SOURCE",
+            "position": {
+              "x": 1000,
+              "y": 1000,
+              "z": 0
+            }
+          },
+          {
+            "id": "electrical:terminal",
+            "kind": "TERMINAL",
+            "position": {
+              "x": 9000,
+              "y": 6000,
+              "z": 0
+            }
+          }
+        ],
+        "ports": [
+          {
+            "id": "electrical:out",
+            "nodeId": "electrical:source",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "electrical:in",
+            "nodeId": "electrical:terminal",
+            "role": "FLOW",
+            "direction": "IN"
+          }
+        ],
+        "edges": [
+          {
+            "id": "electrical:edge",
+            "fromPortId": "electrical:out",
+            "toPortId": "electrical:in",
+            "path": [
+              {
+                "x": 1000,
+                "y": 1000,
+                "z": 0
+              },
+              {
+                "x": 9000,
+                "y": 1000,
+                "z": 0
+              },
+              {
+                "x": 9000,
+                "y": 6000,
+                "z": 0
+              }
+            ],
+            "kind": "CABLE"
+          }
+        ]
+      }
+    ],
+    "scenarios": [],
+    "drawingViews": [],
+    "calculationSettings": {},
+    "regulatoryContext": {
+      "country": "FR",
+      "enabledRulePacks": []
+    }
+  },
+  "references": {},
+  "extensions": {}
+}

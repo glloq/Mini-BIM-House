@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "benchmark": "vitest bench --run",
     "dev": "npm run dev --workspace=@house-technical-designer/web",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

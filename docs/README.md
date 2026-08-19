@@ -1,5 +1,10 @@
 # Documentation — House Technical Designer
 
+## Utilisation
+
+- [Guide utilisateur MVP](USER_GUIDE_MVP.md)
+- [Baseline de performance](PERFORMANCE_BASELINE.md)
+
 ## Fondation
 
 1. [Vision and Scope](specifications/01_VISION_AND_SCOPE.md)
