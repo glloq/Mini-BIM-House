@@ -121,4 +121,14 @@ describe('SVG renderer', () => {
       }),
     ).toThrow(TypeError);
   });
+  it('rejects missing semantic-role mappings instead of rendering unstyled geometry', () => {
+    expect(() =>
+      renderSemanticSceneToSvg(
+        scene,
+        view,
+        { ...profile, roleTokens: {} },
+        styles,
+      ),
+    ).toThrow('no token for semantic role');
+  });
 });
