@@ -37,6 +37,8 @@ import { ToolBar, type OpeningDraft } from './editor/ToolBar.js';
 import { BuildingPanel } from './editor/BuildingPanel.js';
 import { CalculationsPanel } from './calculations/CalculationsPanel.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
+import { QuantitiesPanel } from './quantities/QuantitiesPanel.js';
+import { ScenariosPanel } from './scenarios/ScenariosPanel.js';
 import {
   buildOverlay,
   designTemperatureDifferenceK,
@@ -79,6 +81,8 @@ const WORKSPACE_TABS = [
   { id: 'assemblies', label: 'Assemblages' },
   { id: 'equipment', label: 'Équipements' },
   { id: 'calculations', label: 'Calculs' },
+  { id: 'quantities', label: 'Quantités' },
+  { id: 'scenarios', label: 'Scénarios' },
 ] as const;
 
 type WorkspaceTab = (typeof WORKSPACE_TABS)[number]['id'];
@@ -351,6 +355,13 @@ function App() {
     adopt(result.file, `${selected.name} chargé et validé.`);
   }
 
+  const selectOnPlan = useCallback((objectIds: readonly string[]): void => {
+    dispatchEditor({ type: 'CLEAR_SELECTION' });
+    for (const objectId of objectIds)
+      dispatchEditor({ type: 'SELECT', objectId, additive: true });
+    setTab('plan');
+  }, []);
+
   const overlay = useMemo(
     () =>
       calculationRun === undefined
@@ -581,13 +592,26 @@ function App() {
             <CalculationsPanel
               project={file.project}
               climate={climate}
-              onSelectObjects={(objectIds) => {
-                dispatchEditor({ type: 'CLEAR_SELECTION' });
-                for (const objectId of objectIds)
-                  dispatchEditor({ type: 'SELECT', objectId, additive: true });
-                setTab('plan');
-              }}
+              onSelectObjects={selectOnPlan}
             />
+          </section>
+        )}
+
+        {tab === 'quantities' && (
+          <section className="canvas-panel panel">
+            <QuantitiesPanel
+              project={file.project}
+              onSelectObjects={selectOnPlan}
+              onExportCsv={(content, fileName) =>
+                download(content, fileName, 'text/csv;charset=utf-8')
+              }
+            />
+          </section>
+        )}
+
+        {tab === 'scenarios' && (
+          <section className="canvas-panel panel">
+            <ScenariosPanel project={file.project} climate={climate} />
           </section>
         )}
 

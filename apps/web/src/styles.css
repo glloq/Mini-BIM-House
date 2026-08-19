@@ -969,3 +969,19 @@ button.icon {
     #fff 6px
   );
 }
+
+/* Scenario comparison deltas. */
+.delta {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.delta.up {
+  color: #8c4a12;
+}
+.delta.down {
+  color: #14563a;
+}
+.delta small {
+  font-weight: 500;
+  color: #6b7871;
+}

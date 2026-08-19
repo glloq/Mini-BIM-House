@@ -286,7 +286,7 @@ export function dashboardCards(
     card(
       runs,
       'cost',
-      'Coût matériaux',
+      'Coût matériaux et pose',
       'cost',
       'totalCost',
       '€',
