@@ -891,3 +891,81 @@ button.icon {
   background: #dbe6f2;
   color: #1d3f6b;
 }
+
+/* Analysis overlay control and legend. */
+.overlay-control {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.overlay-control h3 {
+  margin: 0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4a5d54;
+}
+.overlay-control label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: #4a5d54;
+}
+.overlay-control select {
+  border: 1px solid #cbd5cf;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  background: #fff;
+}
+.overlay-legend {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  font-size: 0.74rem;
+}
+.overlay-metric {
+  margin: 0;
+  font-weight: 700;
+}
+.overlay-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.4rem;
+  align-items: center;
+}
+.overlay-band dt {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  color: #4a5d54;
+}
+.overlay-band dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.overlay-swatch {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1px solid #b9c4bd;
+  border-radius: 0.2rem;
+}
+.overlay-swatch.analysis-low {
+  background: #7fb069;
+}
+.overlay-swatch.analysis-medium {
+  background: #f2c14e;
+}
+.overlay-swatch.analysis-high {
+  background: #e2725b;
+}
+.overlay-swatch.analysis-unknown {
+  background: repeating-linear-gradient(
+    45deg,
+    #d9d9d9,
+    #d9d9d9 3px,
+    #fff 3px,
+    #fff 6px
+  );
+}

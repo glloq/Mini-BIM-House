@@ -7,8 +7,10 @@ import {
 } from '@house-technical-designer/drawing-engine';
 import { findSnap, modelToScreen } from '@house-technical-designer/editor-core';
 import type { Segment2D } from '@house-technical-designer/geometry';
+import type { AnalysisOverlay } from '@house-technical-designer/calculation-core';
 import {
   buildPlanView,
+  overlayPrimitives,
   pickPrimitive,
   previewWallFaces,
   type PlanViewResult,
@@ -27,6 +29,8 @@ export interface PlanCanvasProps {
     points: readonly { x: number; y: number }[],
   ) => void;
   readonly wallThicknessMm: number;
+  /** Analysis values projected onto the drawing, when one is selected. */
+  readonly overlay?: AnalysisOverlay;
 }
 
 /** Segments the snap engine considers: every wall axis on the level. */
@@ -54,6 +58,7 @@ export function PlanCanvas({
   dispatch,
   onCommitPoints,
   wallThicknessMm,
+  overlay,
 }: PlanCanvasProps) {
   const container = useRef<HTMLDivElement>(null);
   const panOrigin = useRef<{ x: number; y: number } | undefined>(undefined);
@@ -122,7 +127,7 @@ export function PlanCanvas({
     ];
   }, [editor, wallThicknessMm]);
 
-  const plan: PlanViewResult = useMemo(
+  const base: PlanViewResult = useMemo(
     () =>
       buildPlanView(project, {
         ...(editor.levelId === undefined ? {} : { levelId: editor.levelId }),
@@ -143,6 +148,32 @@ export function PlanCanvas({
       preview,
     ],
   );
+
+  const plan: PlanViewResult = useMemo(() => {
+    if (overlay === undefined) return base;
+    return buildPlanView(project, {
+      ...(editor.levelId === undefined ? {} : { levelId: editor.levelId }),
+      layers: { ...editor.layers, 'analysis.overlay': true },
+      selection: editor.selection,
+      ...(editor.hoveredId === undefined
+        ? {}
+        : { hoveredId: editor.hoveredId }),
+      extraPrimitives: [
+        ...preview,
+        ...overlayPrimitives(base.primitives, overlay),
+      ],
+      graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
+    });
+  }, [
+    base,
+    overlay,
+    project,
+    editor.levelId,
+    editor.layers,
+    editor.selection,
+    editor.hoveredId,
+    preview,
+  ]);
 
   const markup = useMemo(() => {
     try {

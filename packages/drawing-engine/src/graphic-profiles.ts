@@ -45,6 +45,10 @@ const allRoles: readonly SemanticRole[] = [
   'ANNOTATION',
   'DIMENSION',
   'ANALYSIS',
+  'ANALYSIS_LOW',
+  'ANALYSIS_MEDIUM',
+  'ANALYSIS_HIGH',
+  'ANALYSIS_UNKNOWN',
 ];
 
 const roleTokens: Readonly<Record<SemanticRole, string>> = {
@@ -74,6 +78,10 @@ const roleTokens: Readonly<Record<SemanticRole, string>> = {
   ANNOTATION: 'annotation',
   DIMENSION: 'dimension',
   ANALYSIS: 'analysis',
+  ANALYSIS_LOW: 'analysis-low',
+  ANALYSIS_MEDIUM: 'analysis-medium',
+  ANALYSIS_HIGH: 'analysis-high',
+  ANALYSIS_UNKNOWN: 'analysis-unknown',
 };
 
 const paperWidths = {
@@ -233,6 +241,33 @@ function styles(
       stroke: black,
       fill: mode === 'PRINT' ? '#dddddd' : '#ffcc80',
       strokeWidthPaperMm: paperWidths.thin,
+    },
+    // Analysis classes carry the position of a value on its scale, not the
+    // value itself: the profile decides what a low or a high band looks like.
+    'analysis-low': {
+      stroke: 'none',
+      fill: mode === 'PRINT' ? '#eeeeee' : '#7fb069',
+      strokeWidthPaperMm: 0,
+      opacity: 0.75,
+    },
+    'analysis-medium': {
+      stroke: 'none',
+      fill: mode === 'PRINT' ? '#cccccc' : '#f2c14e',
+      strokeWidthPaperMm: 0,
+      opacity: 0.75,
+    },
+    'analysis-high': {
+      stroke: 'none',
+      fill: mode === 'PRINT' ? '#999999' : '#e2725b',
+      strokeWidthPaperMm: 0,
+      opacity: 0.8,
+    },
+    'analysis-unknown': {
+      stroke: black,
+      fill: mode === 'PRINT' ? '#ffffff' : '#d9d9d9',
+      strokeWidthPaperMm: paperWidths.ultraThin,
+      dashPaperMm: [2, 1],
+      opacity: 0.7,
     },
   };
   const stateOverrides: Partial<Record<ObjectState, SvgStyle>> = {

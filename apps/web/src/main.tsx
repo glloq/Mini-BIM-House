@@ -36,6 +36,16 @@ import { LayersPanel } from './editor/LayersPanel.js';
 import { ToolBar, type OpeningDraft } from './editor/ToolBar.js';
 import { BuildingPanel } from './editor/BuildingPanel.js';
 import { CalculationsPanel } from './calculations/CalculationsPanel.js';
+import { OverlayControl } from './calculations/OverlayControl.js';
+import {
+  buildOverlay,
+  designTemperatureDifferenceK,
+  type OverlayId,
+} from './calculations/overlay-source.js';
+import {
+  runProjectCalculations,
+  type CalculationRun,
+} from './calculations/calculation-runner.js';
 import {
   createEditorState,
   editorReducer,
@@ -92,6 +102,8 @@ function App() {
   const [openingDraft, setOpeningDraft] =
     useState<OpeningDraft>(DEFAULT_OPENING);
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
+  const [overlayId, setOverlayId] = useState<OverlayId>('none');
+  const [calculationRun, setCalculationRun] = useState<CalculationRun>();
   const [wallAssemblyId, setWallAssemblyId] = useState(
     () => file.project.assemblies?.[0]?.id ?? '',
   );
@@ -244,6 +256,17 @@ function App() {
   }, [activeLevelId, editor.layers, editor.selection, file.project]);
 
   useEffect(() => {
+    if (overlayId === 'none' && tab !== 'calculations') return;
+    let current = true;
+    void runProjectCalculations(file.project, climate).then((result) => {
+      if (current) setCalculationRun(result);
+    });
+    return () => {
+      current = false;
+    };
+  }, [climate, file.project, overlayId, tab]);
+
+  useEffect(() => {
     function handle(event: KeyboardEvent): void {
       const target = event.target as HTMLElement | null;
       if (shouldIgnoreTarget(target?.tagName, event)) return;
@@ -327,6 +350,18 @@ function App() {
     setClimate([]);
     adopt(result.file, `${selected.name} chargé et validé.`);
   }
+
+  const overlay = useMemo(
+    () =>
+      calculationRun === undefined
+        ? undefined
+        : buildOverlay(
+            overlayId,
+            calculationRun.runs,
+            designTemperatureDifferenceK(calculationRun.runs),
+          ),
+    [calculationRun, overlayId],
+  );
 
   const wallThicknessMm = useMemo(() => {
     const assembly = file.project.assemblies?.find(
@@ -450,7 +485,20 @@ function App() {
             </select>
           </label>
           {tab === 'plan' && (
-            <LayersPanel editor={editor} dispatch={dispatchEditor} />
+            <>
+              <LayersPanel editor={editor} dispatch={dispatchEditor} />
+              <OverlayControl
+                overlayId={overlayId}
+                onChange={setOverlayId}
+                {...(overlay === undefined ? {} : { overlay })}
+                {...(climate.length === 0
+                  ? {
+                      unavailableReason:
+                        'Analyse indisponible : aucun résultat de module pour ce projet.',
+                    }
+                  : {})}
+              />
+            </>
           )}
         </aside>
 
@@ -484,6 +532,7 @@ function App() {
               dispatch={dispatchEditor}
               onCommitPoints={commitPoints}
               wallThicknessMm={wallThicknessMm}
+              {...(overlay === undefined ? {} : { overlay })}
             />
           </section>
         )}
