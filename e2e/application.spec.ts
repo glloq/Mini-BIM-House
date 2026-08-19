@@ -234,3 +234,45 @@ test('discards the local snapshot when the user declines it', async ({
   await page.reload();
   await expect(page.getByRole('alertdialog')).toHaveCount(0);
 });
+
+test('creates a technical network, places a node on the plan and routes it', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Réseaux', exact: true }).click();
+  await expect(page.locator('.library-table tbody tr').first()).toBeVisible();
+
+  await page.getByLabel('Discipline', { exact: true }).selectOption('HEATING');
+  await page.getByLabel('Type de système').fill('RADIATOR_LOOP');
+  await page.getByRole('button', { name: 'Créer le réseau' }).click();
+  const networkRow = page.locator('.library-table tbody tr', {
+    hasText: 'RADIATOR_LOOP',
+  });
+  await expect(networkRow).toHaveCount(1);
+  await networkRow.getByRole('button', { name: 'Chauffage' }).click();
+
+  // The generator alone is open, waiting for something to feed.
+  await expect(networkRow.locator('.badge.missing')).toContainText(
+    '1 port(s) libre(s)',
+  );
+
+  await page.getByRole('button', { name: 'Plan architectural' }).click();
+  await page.getByRole('button', { name: 'Réseau', exact: true }).click();
+  await page
+    .getByLabel('Réseau', { exact: true })
+    .selectOption('network-heating-radiator-loop');
+  await page.getByLabel('Type de nœud').selectOption('EMITTER');
+  await page.locator('.plan-canvas').click({ position: { x: 260, y: 240 } });
+  await expect(page.getByRole('status')).toContainText('Ajouter un nœud');
+
+  await page.getByRole('button', { name: 'Réseaux', exact: true }).click();
+  await page.getByLabel('Départ').selectOption({ index: 1 });
+  await page.getByLabel('Arrivée').selectOption({ index: 1 });
+  await page.getByRole('button', { name: 'Relier' }).click();
+
+  const segments = page.locator('.library-table tbody tr', { hasText: 'PIPE' });
+  await expect(segments).toHaveCount(1);
+  await expect(segments).toContainText(' m');
+  expect(errors).toEqual([]);
+});

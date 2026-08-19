@@ -493,6 +493,11 @@ const NETWORK_LAYERS: Readonly<
   OTHER: { layer: 'water.pipes', discipline: 'OTHER' },
 };
 
+/** Layer a discipline draws on, so a caller can reveal what it just edited. */
+export function networkLayerId(discipline: string): string {
+  return (NETWORK_LAYERS[discipline] ?? NETWORK_LAYERS.OTHER!).layer;
+}
+
 function networkRole(network: TechnicalNetwork): SemanticRole {
   switch (network.discipline) {
     case 'WATER':

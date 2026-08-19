@@ -16,7 +16,11 @@ import {
   type PlanViewResult,
 } from '@house-technical-designer/view-query';
 import type { EditorAction, EditorState } from './editor-state.js';
-import { constrainPoint, pointerModelPoint } from './editor-state.js';
+import {
+  constrainPoint,
+  pointerModelPoint,
+  requiredPoints,
+} from './editor-state.js';
 
 /** Model-space pick tolerance, generous enough for a fingertip on a tablet. */
 const PICK_TOLERANCE_MM = 120;
@@ -309,7 +313,9 @@ export function PlanCanvas({
           : constrainPoint(origin, snapped, editor.snap, editor.directInput);
       const points = [...editor.pendingPoints, point];
       dispatch({ type: 'COMMIT_POINT', point });
-      if (points.length >= 2 || editor.activeTool === 'OPENING')
+      // Each tool declares how many points it needs; the canvas does not keep
+      // its own list of which ones are single-click.
+      if (points.length >= requiredPoints(editor.activeTool))
         onCommitPoints(points);
     },
     [dispatch, editor, modelPointOf, onCommitPoints, plan.primitives, snapFor],

@@ -11,6 +11,7 @@ import { createRoot } from 'react-dom/client';
 import type { ProjectFile } from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
+import { networkNodeTemplates } from '@house-technical-designer/editor-core';
 import {
   loadProjectJson,
   serializeProjectFile,
@@ -18,6 +19,7 @@ import {
 import {
   boundsOfObjects,
   buildPlanView,
+  networkLayerId,
 } from '@house-technical-designer/view-query';
 import './styles.css';
 import {
@@ -40,6 +42,8 @@ import { CalculationsPanel } from './calculations/CalculationsPanel.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { QuantitiesPanel } from './quantities/QuantitiesPanel.js';
 import { ScenariosPanel } from './scenarios/ScenariosPanel.js';
+import { NetworksPanel } from './networks/NetworksPanel.js';
+import { placeNodeCommand } from './networks/network-model.js';
 import { ErrorBoundary } from './ErrorBoundary.js';
 import {
   AUTOSAVE_DELAY_MS,
@@ -97,6 +101,7 @@ const WORKSPACE_TABS = [
   { id: 'materials', label: 'Matériaux' },
   { id: 'assemblies', label: 'Assemblages' },
   { id: 'equipment', label: 'Équipements' },
+  { id: 'networks', label: 'Réseaux' },
   { id: 'calculations', label: 'Calculs' },
   { id: 'quantities', label: 'Quantités' },
   { id: 'scenarios', label: 'Scénarios' },
@@ -123,6 +128,8 @@ function App() {
   const [selectedMaterialId, setSelectedMaterialId] = useState<string>();
   const [selectedAssemblyId, setSelectedAssemblyId] = useState<string>();
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>();
+  const [selectedNetworkId, setSelectedNetworkId] = useState<string>();
+  const [nodeKind, setNodeKind] = useState('');
   const [openingDraft, setOpeningDraft] =
     useState<OpeningDraft>(DEFAULT_OPENING);
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
@@ -147,6 +154,20 @@ function App() {
   const summary = useMemo(() => summarizeProject(file), [file]);
   const levels = file.project.building.levels;
   const activeLevelId = editor.levelId ?? levels[0]?.id;
+  const networks = file.project.systems ?? [];
+  const activeNetwork =
+    networks.find(({ id }) => id === selectedNetworkId) ?? networks[0];
+  const activeNetworkId = activeNetwork?.id;
+  // The drafted node kind has to belong to the active network's discipline: a
+  // luminaire is not a node an extract duct can carry.
+  const nodeKinds =
+    activeNetwork === undefined
+      ? []
+      : networkNodeTemplates(activeNetwork.discipline);
+  const activeNodeKind =
+    nodeKinds.find(({ kind }) => kind === nodeKind)?.kind ??
+    nodeKinds[0]?.kind ??
+    '';
 
   const adopt = useCallback((next: ProjectFile, notice: string): void => {
     setFile(next);
@@ -155,6 +176,8 @@ function App() {
     setSelectedMaterialId(undefined);
     setSelectedAssemblyId(undefined);
     setSelectedEquipmentId(undefined);
+    setSelectedNetworkId(next.project.systems?.[0]?.id);
+    setNodeKind('');
     dispatchEditor({ type: 'CANCEL' });
     const firstLevel = next.project.building.levels[0];
     if (firstLevel !== undefined)
@@ -247,6 +270,37 @@ function App() {
         runCommand(command.command);
         return;
       }
+      if (editor.activeTool === 'NETWORK') {
+        if (activeNetworkId === undefined) {
+          setMessage(
+            'Aucun réseau actif : créez un réseau dans l’onglet Réseaux.',
+          );
+          return;
+        }
+        const point = points[points.length - 1]!;
+        const level = session.current.file.project.building.levels.find(
+          ({ id }) => id === activeLevelId,
+        );
+        const command = placeNodeCommand(
+          session.current.file.project,
+          activeNetworkId,
+          {
+            nodeId: `${activeNetworkId}:node-${crypto.randomUUID().slice(0, 8)}`,
+            kind: activeNodeKind,
+            position: {
+              x: point.x,
+              y: point.y,
+              z: level?.elevationMm ?? 0,
+            },
+          },
+        );
+        if (command.status === 'ERROR') {
+          setMessage(command.message);
+          return;
+        }
+        runCommand(command.command);
+        return;
+      }
       if (editor.activeTool === 'OPENING') {
         const command = addOpeningCommand(
           session.current.file,
@@ -264,6 +318,8 @@ function App() {
     },
     [
       activeLevelId,
+      activeNetworkId,
+      activeNodeKind,
       editor.activeTool,
       openingDraft,
       runCommand,
@@ -291,6 +347,16 @@ function App() {
     }
     dispatchEditor({ type: 'ZOOM_SELECTION', bounds });
   }, [activeLevelId, editor.layers, editor.selection, file.project]);
+
+  // Drawing on a hidden layer would place a node the user cannot see, so the
+  // discipline of the active network is revealed while its tool is in use.
+  useEffect(() => {
+    if (editor.activeTool !== 'NETWORK' || activeNetwork === undefined) return;
+    dispatchEditor({
+      type: 'SHOW_LAYERS',
+      layerIds: [networkLayerId(activeNetwork.discipline)],
+    });
+  }, [activeNetwork, editor.activeTool]);
 
   useEffect(() => {
     if (saveState !== 'MODIFIED') return;
@@ -347,6 +413,9 @@ function App() {
           return;
         case 'tool.dimension':
           dispatchEditor({ type: 'SET_TOOL', tool: 'DIMENSION' });
+          return;
+        case 'tool.network':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'NETWORK' });
           return;
         case 'edit.undo':
           undo();
@@ -622,6 +691,10 @@ function App() {
               onAssemblyChange={setWallAssemblyId}
               openingDraft={openingDraft}
               onOpeningDraftChange={setOpeningDraft}
+              networkId={activeNetworkId ?? ''}
+              onNetworkChange={setSelectedNetworkId}
+              nodeKind={activeNodeKind}
+              onNodeKindChange={setNodeKind}
             />
             <PlanCanvas
               project={file.project}
@@ -669,6 +742,27 @@ function App() {
                 ? {}
                 : { selectedId: selectedAssemblyId })}
               onSelect={setSelectedAssemblyId}
+            />
+          </section>
+        )}
+
+        {tab === 'networks' && (
+          <section className="canvas-panel panel">
+            <NetworksPanel
+              project={file.project}
+              levelId={activeLevelId}
+              selectedNetworkId={activeNetworkId}
+              onSelectNetwork={setSelectedNetworkId}
+              onCommand={runCommand}
+              onSelectObjects={(objectIds) => {
+                if (activeNetwork !== undefined)
+                  dispatchEditor({
+                    type: 'SHOW_LAYERS',
+                    layerIds: [networkLayerId(activeNetwork.discipline)],
+                  });
+                selectOnPlan(objectIds);
+              }}
+              onMessage={setMessage}
             />
           </section>
         )}
