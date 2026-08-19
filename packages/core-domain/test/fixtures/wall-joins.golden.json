@@ -1,0 +1,54 @@
+[
+  {
+    "name": "orthogonal endpoint L",
+    "first": [
+      [0, 0],
+      [4000, 0]
+    ],
+    "second": [
+      [4000, 0],
+      [4000, 3000]
+    ],
+    "expectedKind": "L",
+    "expectedPoint": [4000, 0]
+  },
+  {
+    "name": "endpoint against interior T",
+    "first": [
+      [2000, -1000],
+      [2000, 0]
+    ],
+    "second": [
+      [0, 0],
+      [4000, 0]
+    ],
+    "expectedKind": "T",
+    "expectedPoint": [2000, 0]
+  },
+  {
+    "name": "interior crossing X",
+    "first": [
+      [0, 0],
+      [4000, 0]
+    ],
+    "second": [
+      [2000, -1000],
+      [2000, 1000]
+    ],
+    "expectedKind": "X",
+    "expectedPoint": [2000, 0]
+  },
+  {
+    "name": "collinear endpoint",
+    "first": [
+      [0, 0],
+      [2000, 0]
+    ],
+    "second": [
+      [2000, 0],
+      [4000, 0]
+    ],
+    "expectedKind": "COLLINEAR",
+    "expectedPoint": [2000, 0]
+  }
+]

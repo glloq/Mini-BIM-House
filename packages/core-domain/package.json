@@ -1,0 +1,20 @@
+{
+  "name": "@house-technical-designer/core-domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@house-technical-designer/assemblies": "0.1.0",
+    "@house-technical-designer/geometry": "0.0.0",
+    "@house-technical-designer/materials": "0.0.0",
+    "@house-technical-designer/units": "0.1.0"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  }
+}

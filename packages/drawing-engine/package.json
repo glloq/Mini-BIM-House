@@ -1,0 +1,17 @@
+{
+  "name": "@house-technical-designer/drawing-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@house-technical-designer/geometry": "0.0.0"
+  }
+}
