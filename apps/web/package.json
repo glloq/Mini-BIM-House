@@ -4,14 +4,18 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
     "dev": "vite",
     "typecheck": "tsc -b"
   },
   "dependencies": {
     "@house-technical-designer/rule-engine": "0.1.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "@house-technical-designer/core-domain": "0.0.0",
+    "@house-technical-designer/drawing-engine": "0.1.0",
+    "@house-technical-designer/editor-core": "0.1.0",
+    "@house-technical-designer/project-io": "0.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.2",

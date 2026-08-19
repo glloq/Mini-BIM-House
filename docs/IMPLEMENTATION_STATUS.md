@@ -74,14 +74,17 @@ PR-068
 - PR-066 — millimetre-based standard/custom sheets, printable-area and viewport validation, reusable title-block templates, and explicit unknown fields.
 - PR-067 — deterministic clean SVG export with canonical metadata, semantic groups, stable fingerprints, safe filenames, and interaction-free technical output.
 - PR-068 — ordered vector PDF print jobs with sheet sizes, explicit metadata, injected traceable conversion backends, and validated PDF artifacts.
+- PR-069 — deterministic four-room reference house exercising canonical persistence, integrated energy calculations, technical networks, and semantic SVG export.
+- PR-070 — reproducible microbenchmark baseline for 100 walls, 1,000 SVG primitives, a 500-segment network, annual hourly battery dispatch, and complete thermal aggregation.
+- PR-071 — MVP user guide covering quick start, core concepts, precision levels, and explicit product limitations.
 
 ## In progress
 
-- PR-068A — pre-reference integration stabilization.
+- PR-072 — release 0.1 readiness assessment.
 
 ## Next
 
-- Complete PR-068A blockers below before starting PR-069.
+- Resolve the documented application, deployment, and licensing blockers before declaring release 0.1.
 
 ## Known issues
 
@@ -126,14 +129,15 @@ PR-068A readiness:
 
 - Required persistence, schema/type, calculation orchestration, energy ownership,
   editor command, geometry-hole, physical-invariant, rule-state, and CI gates pass.
-- PR-069 may now begin as a separate end-to-end reference-house change.
+- PR-069 now provides the separate end-to-end reference-house change.
 
 Release blockers (non-PR69 architecture work):
 
-- The web app remains primarily a RuleReport demonstration; v0.1 still needs
-  project load/create, model/editor views, libraries, calculation and technical
-  overlays, and save/export integration.
-- GitHub Pages deployment is not configured.
+- The web app now creates, validates, imports, summarizes, saves, previews and
+  exports canonical projects and draws validated walls directly on the plan through
+  a persistent undo/redo command session. v0.1 still needs library editors,
+  calculation controls, and technical overlays.
+- GitHub Pages deployment is configured to run only after successful CI on main.
 - A project license must be selected before a public stable release.
 - Stair remains deliberately deferred because it is not required by the PR-069
   reference house; no detailed roof modeller was introduced beyond `RoofPlane`.
