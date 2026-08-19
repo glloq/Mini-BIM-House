@@ -2,6 +2,7 @@
   "name": "@house-technical-designer/photovoltaic",
   "version": "0.1.0",
   "private": true,
+  "license": "AGPL-3.0-only",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
@@ -12,7 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@house-technical-designer/geometry": "0.0.0",
+    "@house-technical-designer/geometry": "0.1.0",
     "@house-technical-designer/units": "0.1.0"
   }
 }

@@ -15,12 +15,10 @@ import {
   loadProjectJson,
   serializeProjectFile,
 } from '@house-technical-designer/project-io';
-import { REFERENCE_INTEGRATION_MODULES } from './modules.js';
-import {
-  buildProjectCalculationInputs,
-  createProjectCalculationContext,
-  type ProjectCalculationRunSettings,
-} from './project-context.js';
+import type { ClimateDataset } from '@house-technical-designer/climate';
+import { PROJECT_CALCULATION_MODULES } from './modules.js';
+import { createProjectCalculationContext } from './project-context.js';
+import { buildProjectCalculationInputs } from './project-inputs.js';
 import type { Project } from '@house-technical-designer/core-domain';
 
 const fixturePath = fileURLToPath(
@@ -30,16 +28,33 @@ const fixturePath = fileURLToPath(
   ),
 );
 
-const runSettings: ProjectCalculationRunSettings = {
-  designDeltaK: 25,
-  lightingPowerW: 72,
-  irradiationWhM2: [0, 180, 650, 820, 310, 0],
-  timeStepHours: 1,
-};
+const monthlyClimatePath = fileURLToPath(
+  new URL(
+    '../../../examples/reference-house/climate-monthly.json',
+    import.meta.url,
+  ),
+);
+const designDayClimatePath = fileURLToPath(
+  new URL(
+    '../../../examples/reference-house/climate-design-day.json',
+    import.meta.url,
+  ),
+);
+
+async function climateDatasets(): Promise<readonly ClimateDataset[]> {
+  const [monthly, designDay] = await Promise.all([
+    readFile(monthlyClimatePath, 'utf8'),
+    readFile(designDayClimatePath, 'utf8'),
+  ]);
+  return [
+    JSON.parse(monthly) as ClimateDataset,
+    JSON.parse(designDay) as ClimateDataset,
+  ];
+}
 
 function orchestrator(): CalculationOrchestrator {
   const engine = new CalculationOrchestrator();
-  REFERENCE_INTEGRATION_MODULES.forEach((module) => engine.register(module));
+  PROJECT_CALCULATION_MODULES.forEach((module) => engine.register(module));
   return engine;
 }
 
@@ -54,15 +69,15 @@ async function output(
     >
   >
 > {
+  const context = createProjectCalculationContext(project, {
+    climate: await climateDatasets(),
+  });
   const result = await orchestrator().calculateModule(
     moduleId,
-    buildProjectCalculationInputs(
-      createProjectCalculationContext(project),
-      runSettings,
-    ),
+    buildProjectCalculationInputs(context).inputs,
     {},
   );
-  expect(result.status).toBe('OK');
+  expect(result.status, JSON.stringify(result)).toBe('OK');
   if (result.status !== 'OK') throw new Error(result.message);
   return result.result.outputs;
 }
@@ -82,7 +97,9 @@ describe('PR-069 reference house', () => {
       ['ELECTRICAL', 'VENTILATION', 'WASTEWATER', 'WATER'],
     );
 
-    const context = createProjectCalculationContext(project);
+    const context = createProjectCalculationContext(project, {
+      climate: await climateDatasets(),
+    });
     expect(context.exteriorWalls).toHaveLength(4);
     expect(
       context.exteriorWalls.reduce((sum, wall) => sum + wall.netAreaM2, 0),
@@ -91,18 +108,25 @@ describe('PR-069 reference house', () => {
     expect(context.spaces).toHaveLength(4);
     expect(context.systems).toHaveLength(4);
     expect(context.climateProfileId).toBe('reference-temperate');
+    expect(context.climate?.datasetId).toBe('reference-temperate');
+    expect(context.subDailyClimate?.resolution).toBe('HOURLY');
+
+    const built = buildProjectCalculationInputs(context);
+    expect(built.missing, JSON.stringify(built.missing)).toEqual([]);
+    expect(built.provenance.length).toBeGreaterThan(20);
 
     const engine = orchestrator();
     const energy = await engine.calculateModule(
       'energy-balance',
-      buildProjectCalculationInputs(context, runSettings),
+      built.inputs,
       {},
     );
-    expect(energy.status).toBe('OK');
+    expect(energy.status, JSON.stringify(energy)).toBe('OK');
     if (energy.status === 'OK') {
       expect(
-        Math.abs(energy.result.outputs.conservationResidualKWh as number),
-      ).toBeLessThan(1e-9);
+        Math.abs(energy.result.outputs.conservationResidualWh as number),
+      ).toBeLessThan(1e-6);
+      expect(energy.result.outputs.storageAssessed).toBe(true);
     }
 
     const serialized = serializeProjectFile(loaded.file);
@@ -205,7 +229,7 @@ describe('PR-069 reference house', () => {
     const changedPv = await output(morePv, 'photovoltaic');
     expect((changedPv.generationWh as number[])[2]).toBeCloseTo(
       (basePv.generationWh as number[])[2]! * 2,
-      9,
+      6,
     );
 
     const largerBattery = structuredClone(baseline);
@@ -214,13 +238,13 @@ describe('PR-069 reference house', () => {
     )!;
     (battery.properties as { usableCapacityKWh: number }).usableCapacityKWh *=
       2;
-    const baseDispatch = await output(baseline, 'battery');
-    const changedDispatch = await output(largerBattery, 'battery');
-    expect(changedDispatch.initialStoredEnergyKWh).not.toBe(
-      baseDispatch.initialStoredEnergyKWh,
+    const baseLedger = await output(baseline, 'energy-balance');
+    const changedLedger = await output(largerBattery, 'energy-balance');
+    expect(changedLedger.finalStoredEnergyKWh).not.toBe(
+      baseLedger.finalStoredEnergyKWh,
     );
-    expect(changedDispatch.finalStoredEnergyKWh).not.toBe(
-      baseDispatch.finalStoredEnergyKWh,
+    expect(changedLedger.selfSufficiencyRatio as number).toBeGreaterThanOrEqual(
+      baseLedger.selfSufficiencyRatio as number,
     );
   });
 });

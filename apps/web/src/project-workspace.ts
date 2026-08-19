@@ -2,9 +2,16 @@ import type { ProjectFile } from '@house-technical-designer/core-domain';
 import { entityId, type Wall } from '@house-technical-designer/core-domain';
 import {
   AddWallCommand,
+  draftAssembly,
+  draftAssemblyLayer,
   ProjectCommandDispatcher,
   ProjectEditorCommand,
+  type ProjectCommand,
 } from '@house-technical-designer/editor-core';
+import {
+  genericMaterialCatalog,
+  materialId,
+} from '@house-technical-designer/materials';
 import {
   createSemanticScene,
   drawingViewId,
@@ -84,6 +91,12 @@ export class ProjectEditingSession {
     const command = createAddWallCommand(this.file, draft, wallId);
     if (command.status === 'ERROR') return command;
     const result = this.#dispatcher.dispatch(command.command);
+    return dispatchResult(result, this.file);
+  }
+
+  /** Runs any project command so panels edit through the same undo history. */
+  dispatch(command: ProjectCommand): AddWallResult {
+    const result = this.#dispatcher.dispatch(command);
     return dispatchResult(result, this.file);
   }
 
@@ -167,6 +180,93 @@ function dispatchResult(
   };
 }
 
+/**
+ * Assemblies a new project starts with.
+ *
+ * Drawing a wall requires an assembly, so an empty library would make a new
+ * project unusable until the user built one by hand. These starters are ordinary
+ * project data: they use the generic material catalogue and can be edited,
+ * duplicated or deleted like any other assembly.
+ */
+export function starterAssemblies() {
+  return [
+    draftAssembly('assembly-exterior-wall', 'Mur extérieur isolé', 'WALL', [
+      draftAssemblyLayer(
+        'exterior-wall-masonry',
+        materialId('generic-concrete-block'),
+        200,
+        'STRUCTURAL',
+      ),
+      draftAssemblyLayer(
+        'exterior-wall-insulation',
+        materialId('generic-rock-wool'),
+        160,
+        'INSULATION',
+      ),
+      draftAssemblyLayer(
+        'exterior-wall-board',
+        materialId('generic-gypsum-board'),
+        13,
+        'FINISH',
+      ),
+    ]),
+    draftAssembly('assembly-partition', 'Cloison intérieure', 'PARTITION', [
+      draftAssemblyLayer(
+        'partition-board-inner',
+        materialId('generic-gypsum-board'),
+        13,
+        'FINISH',
+      ),
+      draftAssemblyLayer(
+        'partition-insulation',
+        materialId('generic-glass-wool'),
+        70,
+        'INSULATION',
+      ),
+      draftAssemblyLayer(
+        'partition-board-outer',
+        materialId('generic-gypsum-board'),
+        13,
+        'FINISH',
+      ),
+    ]),
+    draftAssembly('assembly-floor', 'Plancher sur terre-plein', 'FLOOR', [
+      draftAssemblyLayer(
+        'floor-concrete',
+        materialId('generic-concrete'),
+        150,
+        'STRUCTURAL',
+      ),
+      draftAssemblyLayer(
+        'floor-insulation',
+        materialId('generic-xps'),
+        100,
+        'INSULATION',
+      ),
+    ]),
+    draftAssembly('assembly-roof', 'Toiture isolée', 'ROOF', [
+      draftAssemblyLayer(
+        'roof-structure',
+        materialId('generic-softwood'),
+        200,
+        'STRUCTURAL',
+      ),
+      draftAssemblyLayer(
+        'roof-insulation',
+        materialId('generic-wood-fibre'),
+        300,
+        'INSULATION',
+      ),
+      draftAssemblyLayer(
+        'roof-board',
+        materialId('generic-gypsum-board'),
+        13,
+        'FINISH',
+      ),
+    ]),
+  ];
+}
+
 export function createBlankProject(now: string): ProjectFile {
   return {
     format: 'house-technical-designer-project',
@@ -199,8 +299,8 @@ export function createBlankProject(now: string): ProjectFile {
         ],
         zones: [],
       },
-      materialLibrary: { materials: [] },
-      assemblies: [],
+      materialLibrary: { materials: genericMaterialCatalog() },
+      assemblies: starterAssemblies(),
       equipment: [],
       systems: [],
       scenarios: [],

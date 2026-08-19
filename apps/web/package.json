@@ -1,7 +1,8 @@
 {
   "name": "@house-technical-designer/web",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
+  "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit && vite build",
@@ -9,13 +10,23 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
-    "@house-technical-designer/rule-engine": "0.1.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "@house-technical-designer/core-domain": "0.0.0",
+    "@house-technical-designer/assemblies": "0.1.0",
+    "@house-technical-designer/calculation-adapters": "0.1.0",
+    "@house-technical-designer/calculation-core": "0.1.0",
+    "@house-technical-designer/climate": "0.1.0",
+    "@house-technical-designer/core-domain": "0.1.0",
     "@house-technical-designer/drawing-engine": "0.1.0",
     "@house-technical-designer/editor-core": "0.1.0",
-    "@house-technical-designer/project-io": "0.1.0"
+    "@house-technical-designer/equipment-catalog": "0.1.0",
+    "@house-technical-designer/geometry": "0.1.0",
+    "@house-technical-designer/materials": "0.1.0",
+    "@house-technical-designer/project-io": "0.1.0",
+    "@house-technical-designer/quantities": "0.1.0",
+    "@house-technical-designer/rule-engine": "0.1.0",
+    "@house-technical-designer/thermal": "0.1.0",
+    "@house-technical-designer/view-query": "0.1.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.2",

@@ -4,8 +4,17 @@ import {
   loadProjectJson,
   serializeProjectFile,
 } from '@house-technical-designer/project-io';
-import { REFERENCE_INTEGRATION_MODULES } from './modules.js';
-import { createPreReferenceProject } from './pre-reference-fixture.js';
+import type { Project } from '@house-technical-designer/core-domain';
+import { PROJECT_CALCULATION_MODULES } from './modules.js';
+import {
+  createPreReferenceClimate,
+  createPreReferenceProject,
+} from './pre-reference-fixture.js';
+import { createProjectCalculationContext } from './project-context.js';
+import {
+  buildProjectCalculationInputs,
+  PROJECT_CALCULATION_MODULE_IDS,
+} from './project-inputs.js';
 import { simulateRainwater } from '@house-technical-designer/rainwater';
 import {
   evaluateRule,
@@ -13,33 +22,32 @@ import {
   type RuleDefinition,
 } from '@house-technical-designer/rule-engine';
 
-const inputs = {
-  thermal: {
-    elements: [
-      {
-        id: 'wall',
-        areaM2: 100,
-        layers: [
-          {
-            layerId: 'layer',
-            materialId: 'material',
-            thicknessM: 0.2,
-            lambdaWmK: 0.04,
-          },
-        ],
-      },
-    ],
-  },
-  heating: { designDeltaK: 25 },
-  lighting: { powerW: 100 },
-  photovoltaic: { installedPowerWp: 4000, irradiationWhM2: [500, 800, 200] },
-  battery: { hours: 1, usableCapacityKWh: 5 },
-  'energy-balance': {},
-} as const;
 function orchestrator(): CalculationOrchestrator {
   const result = new CalculationOrchestrator();
-  REFERENCE_INTEGRATION_MODULES.forEach((module) => result.register(module));
+  PROJECT_CALCULATION_MODULES.forEach((module) => result.register(module));
   return result;
+}
+
+/** Builds every module input from the fixture project, never from literals. */
+function projectInputs(mutate?: (project: Project) => void) {
+  const project = structuredClone(createPreReferenceProject().project);
+  mutate?.(project);
+  const context = createProjectCalculationContext(project, {
+    climate: createPreReferenceClimate(),
+  });
+  return buildProjectCalculationInputs(context);
+}
+
+async function run(moduleId: string, mutate?: (project: Project) => void) {
+  const built = projectInputs(mutate);
+  const result = await orchestrator().calculateModule(
+    moduleId,
+    built.inputs,
+    {},
+  );
+  expect(result.status, JSON.stringify(result)).toBe('OK');
+  if (result.status !== 'OK') throw new Error(result.message);
+  return result.result;
 }
 
 describe('real calculation orchestration adapters', () => {
@@ -153,51 +161,46 @@ describe('real calculation orchestration adapters', () => {
     if (loaded.status === 'OK')
       expect(serializeProjectFile(loaded.file)).toBe(serialized);
   });
-  it('runs thermal → heating and insulation monotonicity', async () => {
-    const engine = orchestrator();
-    const first = await engine.calculateModule('heating', inputs, {});
-    const insulated = await engine.calculateModule(
-      'heating',
-      {
-        ...inputs,
-        thermal: {
-          elements: inputs.thermal.elements.map((element) => ({
-            ...element,
-            layers: element.layers.map((layer) => ({
-              ...layer,
-              thicknessM: 0.4,
-            })),
-          })),
-        },
-      },
-      {},
+  it('resolves every module input from the project without leftovers', () => {
+    const built = projectInputs();
+    expect(built.missing, JSON.stringify(built.missing)).toEqual([]);
+    expect(Object.keys(built.inputs).sort()).toEqual(
+      [...PROJECT_CALCULATION_MODULE_IDS].sort(),
     );
-    expect(first.status).toBe('OK');
-    expect(insulated.status).toBe('OK');
-    if (first.status === 'OK' && insulated.status === 'OK') {
-      expect(insulated.result.outputs.designLoadW).toBeLessThan(
-        first.result.outputs.designLoadW as number,
-      );
-    }
+    // Every resolved input names where it came from.
+    expect(built.provenance.length).toBeGreaterThan(20);
+    expect(
+      built.provenance.every(
+        ({ origin, sourceId }) => origin !== undefined && sourceId !== '',
+      ),
+    ).toBe(true);
+  });
+
+  it('runs thermal → heating and insulation monotonicity', async () => {
+    const first = await run('heating');
+    const insulated = await run('heating', (project) => {
+      const layer = project.assemblies![0]!.layers[0]! as {
+        thicknessM: number;
+      };
+      layer.thicknessM = 0.4;
+    });
+    expect(insulated.outputs.designLoadW).toBeLessThan(
+      first.outputs.designLoadW as number,
+    );
   });
 
   it('runs lighting and PV → battery → energy with unique uses and conservation', async () => {
-    const result = await orchestrator().calculateModule(
-      'energy-balance',
-      inputs,
-      {},
+    const result = await run('energy-balance');
+    expect(Object.keys(result.outputs.totalByUsageWh as object).sort()).toEqual(
+      ['DHW', 'HEATING', 'LIGHTING', 'VENTILATION'],
     );
-    expect(result.status).toBe('OK');
-    if (result.status === 'OK') {
-      expect(result.result.outputs.energyUseIds).toEqual([
-        'heating:electricity',
-        'lighting:electricity',
-      ]);
-      expect(
-        Math.abs(result.result.outputs.conservationResidualKWh as number),
-      ).toBeLessThan(1e-9);
-      expect(result.result.trace?.dependencyFingerprints).toHaveLength(1);
-    }
+    expect(
+      Math.abs(result.outputs.conservationResidualWh as number),
+    ).toBeLessThan(1e-6);
+    expect(result.outputs.storageAssessed).toBe(true);
+    expect(result.trace?.dependencyFingerprints.length).toBeGreaterThanOrEqual(
+      4,
+    );
   });
 
   it('rejects malformed worker-bound module input before calculation', async () => {
@@ -207,62 +210,40 @@ describe('real calculation orchestration adapters', () => {
   });
 
   it('preserves hydraulic and ventilation monotonic invariants', async () => {
-    const engine = orchestrator();
-    const wideWater = await engine.calculateModule(
-      'water',
-      { water: { lengthM: 10, diameterM: 0.03, flowM3s: 0.0005 } },
-      {},
-    );
-    const narrowWater = await engine.calculateModule(
-      'water',
-      { water: { lengthM: 10, diameterM: 0.02, flowM3s: 0.0005 } },
-      {},
-    );
-    const wideDuct = await engine.calculateModule(
-      'ventilation',
-      { ventilation: { diameterM: 0.2, flowM3h: 100 } },
-      {},
-    );
-    const narrowDuct = await engine.calculateModule(
-      'ventilation',
-      { ventilation: { diameterM: 0.1, flowM3h: 100 } },
-      {},
-    );
-    for (const result of [wideWater, narrowWater, wideDuct, narrowDuct])
-      expect(result.status).toBe('OK');
-    if (wideWater.status === 'OK' && narrowWater.status === 'OK') {
-      expect(narrowWater.result.outputs.velocityMs).toBeGreaterThan(
-        wideWater.result.outputs.velocityMs as number,
-      );
-      expect(narrowWater.result.outputs.pressureLossPa).toBeGreaterThan(
-        wideWater.result.outputs.pressureLossPa as number,
-      );
-    }
-    if (wideDuct.status === 'OK' && narrowDuct.status === 'OK') {
-      expect(narrowDuct.result.outputs.velocityMs).toBeGreaterThan(
-        wideDuct.result.outputs.velocityMs as number,
-      );
-      expect(narrowDuct.result.outputs.pressureLossPa).toBeGreaterThan(
-        wideDuct.result.outputs.pressureLossPa as number,
-      );
-    }
+    const narrowPipe = (project: Project) => {
+      const pipe = project.systems!.find(({ id }) => id === 'water')!.edges[0]!;
+      (pipe.properties as { internalDiameterM: number }).internalDiameterM =
+        0.012;
+    };
+    const narrowDuct = (project: Project) => {
+      const duct = project.systems!.find(({ id }) => id === 'ventilation')!
+        .edges[0]!;
+      (duct.properties as { diameterM: number }).diameterM = 0.08;
+    };
+    const [wideWater, tightWater, wideAir, tightAir] = await Promise.all([
+      run('water'),
+      run('water', narrowPipe),
+      run('ventilation'),
+      run('ventilation', narrowDuct),
+    ]);
+    const velocity = (result: { outputs: Record<string, unknown> }) =>
+      (result.outputs.segments as { velocityMs: number }[])[0]!.velocityMs;
+    const loss = (result: { outputs: Record<string, unknown> }) =>
+      result.outputs.totalPressureLossPa as number;
+    expect(velocity(tightWater)).toBeGreaterThan(velocity(wideWater));
+    expect(loss(tightWater)).toBeGreaterThan(loss(wideWater));
+    expect(velocity(tightAir)).toBeGreaterThan(velocity(wideAir));
+    expect(loss(tightAir)).toBeGreaterThan(loss(wideAir));
   });
 
-  it.each([
-    ['rainwater', { precipitationMm: 10, areaM2: 100 }],
-    ['wastewater', { endElevationMm: 0 }],
-    ['iaq', { volumeM3: 125, flowM3h: 100 }],
-    ['hygrothermal', { resistanceM2KW: 5 }],
-    ['acoustics', { absorption: 0.3 }],
-    ['dhw', { dailyVolumeL: 100 }],
-    ['cost', { quantity: 100, price: 25 }],
-    ['environmental', { quantity: 100, impact: 5 }],
-  ] as const)(
-    'runs the real independent %s kernel',
-    async (moduleId, input) => {
-      await expect(
-        orchestrator().calculateModule(moduleId, { [moduleId]: input }, {}),
-      ).resolves.toMatchObject({ status: 'OK' });
+  it.each(PROJECT_CALCULATION_MODULE_IDS)(
+    'runs %s from the project alone',
+    async (moduleId) => {
+      const result = await run(moduleId);
+      expect(result.moduleId).toBe(moduleId);
+      // Any conventional value used by a module is declared, never silent.
+      for (const declared of result.assumptions)
+        expect(declared.source).toBeTruthy();
     },
   );
 });

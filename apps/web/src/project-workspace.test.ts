@@ -16,14 +16,44 @@ describe('web project workspace', () => {
     expect(loadProjectJson(JSON.stringify(file))).toMatchObject({
       status: 'OK',
     });
-    expect(summarizeProject(file)).toEqual({
+    expect(summarizeProject(file)).toMatchObject({
       levels: 1,
       walls: 0,
       openings: 0,
       spaces: 0,
       systems: 0,
-      materials: 0,
     });
+  });
+
+  it('ships a usable library so a new project can host a wall immediately', () => {
+    const file = createBlankProject('2026-08-19T00:00:00Z');
+    const materials = file.project.materialLibrary!.materials;
+    const assemblies = file.project.assemblies!;
+    expect(materials.length).toBeGreaterThan(0);
+    expect(assemblies.map(({ category }) => category)).toEqual([
+      'WALL',
+      'PARTITION',
+      'FLOOR',
+      'ROOF',
+    ]);
+    // Every starter layer points at a material the project actually carries.
+    const known = new Set(materials.map(({ id }) => id));
+    for (const assembly of assemblies)
+      for (const layer of assembly.layers)
+        expect(known.has(layer.materialId)).toBe(true);
+
+    const wall = addWallToProject(
+      file,
+      {
+        startXmm: 0,
+        startYmm: 0,
+        endXmm: 5000,
+        endYmm: 0,
+        assemblyId: assemblies[0]!.id,
+      },
+      'wall-1',
+    );
+    expect(wall.status).toBe('OK');
   });
 
   it('exports an interaction-free SVG from persisted wall paths', () => {

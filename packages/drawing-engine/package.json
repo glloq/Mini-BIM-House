@@ -2,6 +2,7 @@
   "name": "@house-technical-designer/drawing-engine",
   "version": "0.1.0",
   "private": true,
+  "license": "AGPL-3.0-only",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
@@ -13,6 +14,6 @@
   },
   "dependencies": {
     "@house-technical-designer/calculation-core": "0.1.0",
-    "@house-technical-designer/geometry": "0.0.0"
+    "@house-technical-designer/geometry": "0.1.0"
   }
 }

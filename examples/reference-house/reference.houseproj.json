@@ -13,7 +13,12 @@
     },
     "site": {
       "northAngleDeg": 0,
-      "climateProfileId": "reference-temperate"
+      "climateProfileId": "reference-temperate",
+      "location": {
+        "latitudeDeg": 48.1,
+        "longitudeDeg": -1.7
+      },
+      "altitudeM": 40
     },
     "building": {
       "levels": [
@@ -396,12 +401,40 @@
           "kind": "GENERIC",
           "properties": {
             "lambdaWmK": 0.04,
-            "densityKgM3": 45
+            "densityKgM3": 45,
+            "specificHeatJKgK": 1030,
+            "mu": 1.3,
+            "acousticAbsorption": {
+              "125": 0.15,
+              "250": 0.35,
+              "500": 0.6,
+              "1000": 0.75,
+              "2000": 0.8,
+              "4000": 0.8
+            }
           },
           "provenance": {
             "sourceType": "OTHER",
             "sourceReference": "Fixture PR-069 — valeur de démonstration"
-          }
+          },
+          "category": "INSULATION",
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "Generic mineral wool, demonstration value"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "Generic mineral wool, demonstration value"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "STANDARD",
+              "reference": "Generic porous absorber, demonstration value"
+            }
+          ]
         },
         {
           "id": "material-masonry",
@@ -409,12 +442,40 @@
           "kind": "GENERIC",
           "properties": {
             "lambdaWmK": 0.8,
-            "densityKgM3": 1800
+            "densityKgM3": 1800,
+            "specificHeatJKgK": 1000,
+            "mu": 15,
+            "acousticAbsorption": {
+              "125": 0.02,
+              "250": 0.02,
+              "500": 0.03,
+              "1000": 0.04,
+              "2000": 0.05,
+              "4000": 0.05
+            }
           },
           "provenance": {
             "sourceType": "OTHER",
             "sourceReference": "Fixture PR-069 — valeur de démonstration"
-          }
+          },
+          "category": "MASONRY",
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "Generic masonry, demonstration value"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "Generic masonry, demonstration value"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "STANDARD",
+              "reference": "Generic hard surface, demonstration value"
+            }
+          ]
         }
       ]
     },
@@ -469,218 +530,805 @@
       {
         "id": "equipment-pv",
         "kind": "PHOTOVOLTAIC",
-        "catalogKind": "CUSTOM",
+        "catalogKind": "GENERIC",
         "properties": {
-          "installedPowerWp": 4000
-        }
+          "installedPowerWp": 4000,
+          "moduleCount": 10,
+          "moduleAreaM2": 1.9
+        },
+        "sources": [
+          {
+            "property": "installedPowerWp",
+            "sourceType": "USER",
+            "reference": "Reference project design choice"
+          }
+        ]
       },
       {
         "id": "equipment-battery",
         "kind": "BATTERY",
-        "catalogKind": "CUSTOM",
+        "catalogKind": "GENERIC",
         "properties": {
-          "usableCapacityKWh": 5
-        }
+          "usableCapacityKWh": 5,
+          "minimumSoc": 0.1,
+          "maximumSoc": 0.95,
+          "initialSoc": 0.5,
+          "maxChargePowerKW": 2.5,
+          "maxDischargePowerKW": 2.5,
+          "chargeEfficiency": 0.95,
+          "dischargeEfficiency": 0.95
+        },
+        "sources": [
+          {
+            "property": "usableCapacityKWh",
+            "sourceType": "USER",
+            "reference": "Reference project design choice"
+          }
+        ]
       },
       {
         "id": "equipment-vmc",
         "kind": "FAN",
-        "catalogKind": "CUSTOM",
+        "catalogKind": "GENERIC",
         "properties": {
-          "designFlowM3h": 180
-        }
+          "designFlowM3h": 75,
+          "nominalPowerW": 22,
+          "systemType": "EXTRACT"
+        },
+        "sources": [
+          {
+            "property": "nominalPowerW",
+            "sourceType": "USER",
+            "reference": "Generic single-flow extract unit"
+          }
+        ]
+      },
+      {
+        "id": "equipment-dhw-tank",
+        "kind": "DHW_TANK",
+        "catalogKind": "GENERIC",
+        "properties": {
+          "tankVolumeL": 200,
+          "usefulHeatingPowerW": 2000,
+          "standbyLossW": 45
+        },
+        "sources": [
+          {
+            "property": "tankVolumeL",
+            "sourceType": "USER",
+            "reference": "Reference project design choice"
+          }
+        ]
+      },
+      {
+        "id": "equipment-rain-tank",
+        "kind": "RAINWATER_TANK",
+        "catalogKind": "GENERIC",
+        "properties": {
+          "nominalVolumeL": 5000,
+          "initialVolumeL": 2500
+        },
+        "sources": [
+          {
+            "property": "nominalVolumeL",
+            "sourceType": "USER",
+            "reference": "Reference project design choice"
+          }
+        ]
+      },
+      {
+        "id": "equipment-luminaire",
+        "kind": "LUMINAIRE",
+        "catalogKind": "GENERIC",
+        "properties": {
+          "name": "Plafonnier LED générique",
+          "luminousFluxLm": 1400,
+          "electricalPowerW": 12,
+          "colorTemperatureK": 3000
+        },
+        "sources": [
+          {
+            "property": "luminousFluxLm",
+            "sourceType": "STANDARD",
+            "reference": "Generic LED ceiling luminaire, demonstration value"
+          }
+        ]
       }
     ],
     "systems": [
       {
         "id": "water",
         "discipline": "WATER",
-        "systemType": "WATER",
+        "systemType": "POTABLE_COLD",
         "nodes": [
           {
             "id": "water:source",
             "kind": "SOURCE",
             "position": {
-              "x": 1000,
-              "y": 1000,
-              "z": 0
+              "x": 500,
+              "y": 500,
+              "z": 400
+            },
+            "supplyPressurePa": 300000
+          },
+          {
+            "id": "water:manifold",
+            "kind": "JUNCTION",
+            "position": {
+              "x": 7500,
+              "y": 5000,
+              "z": 400
             }
           },
           {
-            "id": "water:terminal",
-            "kind": "TERMINAL",
+            "id": "water:sink",
+            "kind": "FIXTURE",
+            "position": {
+              "x": 7000,
+              "y": 1000,
+              "z": 400
+            },
+            "spaceId": "space-kitchen",
+            "fixtureType": "SINK",
+            "designFlowLps": 0.2,
+            "minimumPressurePa": 100000
+          },
+          {
+            "id": "water:basin",
+            "kind": "FIXTURE",
+            "position": {
+              "x": 7000,
+              "y": 5500,
+              "z": 400
+            },
+            "spaceId": "space-bathroom",
+            "fixtureType": "BASIN",
+            "designFlowLps": 0.2,
+            "minimumPressurePa": 100000
+          },
+          {
+            "id": "water:shower",
+            "kind": "FIXTURE",
             "position": {
               "x": 9000,
-              "y": 6000,
-              "z": 0
-            }
+              "y": 5500,
+              "z": 400
+            },
+            "spaceId": "space-bathroom",
+            "fixtureType": "SHOWER",
+            "designFlowLps": 0.2,
+            "minimumPressurePa": 100000
+          },
+          {
+            "id": "water:wc",
+            "kind": "FIXTURE",
+            "position": {
+              "x": 9500,
+              "y": 7500,
+              "z": 400
+            },
+            "spaceId": "space-bathroom",
+            "fixtureType": "WC",
+            "designFlowLps": 0.12,
+            "minimumPressurePa": 100000
           }
         ],
         "ports": [
           {
-            "id": "water:out",
+            "id": "water:source-out",
             "nodeId": "water:source",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
-            "id": "water:in",
-            "nodeId": "water:terminal",
+            "id": "water:manifold-in",
+            "nodeId": "water:manifold",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "water:manifold-out-sink",
+            "nodeId": "water:manifold",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "water:sink-in",
+            "nodeId": "water:sink",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "water:manifold-out-basin",
+            "nodeId": "water:manifold",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "water:basin-in",
+            "nodeId": "water:basin",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "water:manifold-out-shower",
+            "nodeId": "water:manifold",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "water:shower-in",
+            "nodeId": "water:shower",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "water:manifold-out-wc",
+            "nodeId": "water:manifold",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "water:wc-in",
+            "nodeId": "water:wc",
             "role": "FLOW",
             "direction": "IN"
           }
         ],
         "edges": [
           {
-            "id": "water:edge",
-            "fromPortId": "water:out",
-            "toPortId": "water:in",
+            "id": "water:trunk",
+            "fromPortId": "water:source-out",
+            "toPortId": "water:manifold-in",
             "path": [
               {
-                "x": 1000,
-                "y": 1000,
-                "z": 0
+                "x": 500,
+                "y": 500,
+                "z": 400
               },
               {
-                "x": 9000,
-                "y": 1000,
-                "z": 0
+                "x": 7500,
+                "y": 500,
+                "z": 400
               },
               {
-                "x": 9000,
-                "y": 6000,
-                "z": 0
+                "x": 7500,
+                "y": 5000,
+                "z": 400
               }
             ],
-            "kind": "SEGMENT"
+            "kind": "PIPE",
+            "properties": {
+              "internalDiameterM": 0.0166,
+              "materialId": "copper",
+              "localLossCoefficient": 1.2
+            }
+          },
+          {
+            "id": "water:branch-sink",
+            "fromPortId": "water:manifold-out-sink",
+            "toPortId": "water:sink-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5000,
+                "z": 400
+              },
+              {
+                "x": 7000,
+                "y": 1000,
+                "z": 400
+              }
+            ],
+            "kind": "PIPE",
+            "properties": {
+              "internalDiameterM": 0.0126,
+              "materialId": "copper",
+              "localLossCoefficient": 2.4
+            }
+          },
+          {
+            "id": "water:branch-basin",
+            "fromPortId": "water:manifold-out-basin",
+            "toPortId": "water:basin-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5000,
+                "z": 400
+              },
+              {
+                "x": 7000,
+                "y": 5500,
+                "z": 400
+              }
+            ],
+            "kind": "PIPE",
+            "properties": {
+              "internalDiameterM": 0.0126,
+              "materialId": "copper",
+              "localLossCoefficient": 2.4
+            }
+          },
+          {
+            "id": "water:branch-shower",
+            "fromPortId": "water:manifold-out-shower",
+            "toPortId": "water:shower-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5000,
+                "z": 400
+              },
+              {
+                "x": 9000,
+                "y": 5500,
+                "z": 400
+              }
+            ],
+            "kind": "PIPE",
+            "properties": {
+              "internalDiameterM": 0.0126,
+              "materialId": "copper",
+              "localLossCoefficient": 2.4
+            }
+          },
+          {
+            "id": "water:branch-wc",
+            "fromPortId": "water:manifold-out-wc",
+            "toPortId": "water:wc-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5000,
+                "z": 400
+              },
+              {
+                "x": 9500,
+                "y": 7500,
+                "z": 400
+              }
+            ],
+            "kind": "PIPE",
+            "properties": {
+              "internalDiameterM": 0.0126,
+              "materialId": "copper",
+              "localLossCoefficient": 2.4
+            }
           }
         ]
       },
       {
         "id": "wastewater",
         "discipline": "WASTEWATER",
-        "systemType": "WASTEWATER",
+        "systemType": "COMBINED_WASTEWATER",
         "nodes": [
           {
-            "id": "wastewater:source",
-            "kind": "SOURCE",
+            "id": "wastewater:collector",
+            "kind": "INSPECTION_CHAMBER",
             "position": {
-              "x": 1000,
-              "y": 1000,
-              "z": 0
+              "x": 9500,
+              "y": 7900,
+              "z": -350
             }
           },
           {
-            "id": "wastewater:terminal",
-            "kind": "TERMINAL",
+            "id": "wastewater:outlet",
+            "kind": "OUTLET",
+            "position": {
+              "x": 9900,
+              "y": 7900,
+              "z": -500
+            }
+          },
+          {
+            "id": "wastewater:sink",
+            "kind": "FIXTURE",
+            "position": {
+              "x": 7000,
+              "y": 1000,
+              "z": -150
+            },
+            "spaceId": "space-kitchen",
+            "dischargeUnits": 1
+          },
+          {
+            "id": "wastewater:basin",
+            "kind": "FIXTURE",
+            "position": {
+              "x": 7000,
+              "y": 5500,
+              "z": -150
+            },
+            "spaceId": "space-bathroom",
+            "dischargeUnits": 1
+          },
+          {
+            "id": "wastewater:shower",
+            "kind": "FIXTURE",
             "position": {
               "x": 9000,
-              "y": 6000,
-              "z": 0
-            }
+              "y": 5500,
+              "z": -180
+            },
+            "spaceId": "space-bathroom",
+            "dischargeUnits": 2
+          },
+          {
+            "id": "wastewater:wc",
+            "kind": "FIXTURE",
+            "position": {
+              "x": 9500,
+              "y": 7500,
+              "z": -200
+            },
+            "spaceId": "space-bathroom",
+            "dischargeUnits": 4
           }
         ],
         "ports": [
           {
-            "id": "wastewater:out",
-            "nodeId": "wastewater:source",
+            "id": "wastewater:collector-out",
+            "nodeId": "wastewater:collector",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
-            "id": "wastewater:in",
-            "nodeId": "wastewater:terminal",
+            "id": "wastewater:outlet-in",
+            "nodeId": "wastewater:outlet",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:sink-out",
+            "nodeId": "wastewater:sink",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:collector-in-sink",
+            "nodeId": "wastewater:collector",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:basin-out",
+            "nodeId": "wastewater:basin",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:collector-in-basin",
+            "nodeId": "wastewater:collector",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:shower-out",
+            "nodeId": "wastewater:shower",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:collector-in-shower",
+            "nodeId": "wastewater:collector",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:wc-out",
+            "nodeId": "wastewater:wc",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:collector-in-wc",
+            "nodeId": "wastewater:collector",
             "role": "FLOW",
             "direction": "IN"
           }
         ],
         "edges": [
           {
-            "id": "wastewater:edge",
-            "fromPortId": "wastewater:out",
-            "toPortId": "wastewater:in",
+            "id": "wastewater:outfall",
+            "fromPortId": "wastewater:collector-out",
+            "toPortId": "wastewater:outlet-in",
             "path": [
               {
-                "x": 1000,
-                "y": 1000,
-                "z": 0
+                "x": 9500,
+                "y": 7900,
+                "z": -350
               },
               {
-                "x": 9000,
-                "y": 1000,
-                "z": 0
-              },
-              {
-                "x": 9000,
-                "y": 6000,
-                "z": 0
+                "x": 9900,
+                "y": 7900,
+                "z": -500
               }
             ],
-            "kind": "GRAVITY_PIPE"
+            "kind": "GRAVITY_PIPE",
+            "properties": {
+              "internalDiameterM": 0.1,
+              "materialId": "pvc"
+            }
+          },
+          {
+            "id": "wastewater:branch-sink",
+            "fromPortId": "wastewater:sink-out",
+            "toPortId": "wastewater:collector-in-sink",
+            "path": [
+              {
+                "x": 7000,
+                "y": 1000,
+                "z": -150
+              },
+              {
+                "x": 9500,
+                "y": 7900,
+                "z": -350
+              }
+            ],
+            "kind": "GRAVITY_PIPE",
+            "properties": {
+              "internalDiameterM": 0.04,
+              "materialId": "pvc"
+            }
+          },
+          {
+            "id": "wastewater:branch-basin",
+            "fromPortId": "wastewater:basin-out",
+            "toPortId": "wastewater:collector-in-basin",
+            "path": [
+              {
+                "x": 7000,
+                "y": 5500,
+                "z": -150
+              },
+              {
+                "x": 9500,
+                "y": 7900,
+                "z": -350
+              }
+            ],
+            "kind": "GRAVITY_PIPE",
+            "properties": {
+              "internalDiameterM": 0.04,
+              "materialId": "pvc"
+            }
+          },
+          {
+            "id": "wastewater:branch-shower",
+            "fromPortId": "wastewater:shower-out",
+            "toPortId": "wastewater:collector-in-shower",
+            "path": [
+              {
+                "x": 9000,
+                "y": 5500,
+                "z": -180
+              },
+              {
+                "x": 9500,
+                "y": 7900,
+                "z": -350
+              }
+            ],
+            "kind": "GRAVITY_PIPE",
+            "properties": {
+              "internalDiameterM": 0.04,
+              "materialId": "pvc"
+            }
+          },
+          {
+            "id": "wastewater:branch-wc",
+            "fromPortId": "wastewater:wc-out",
+            "toPortId": "wastewater:collector-in-wc",
+            "path": [
+              {
+                "x": 9500,
+                "y": 7500,
+                "z": -200
+              },
+              {
+                "x": 9500,
+                "y": 7900,
+                "z": -350
+              }
+            ],
+            "kind": "GRAVITY_PIPE",
+            "properties": {
+              "internalDiameterM": 0.1,
+              "materialId": "pvc"
+            }
           }
         ]
       },
       {
         "id": "ventilation",
         "discipline": "VENTILATION",
-        "systemType": "VENTILATION",
+        "systemType": "EXTRACT",
         "nodes": [
           {
-            "id": "ventilation:source",
-            "kind": "SOURCE",
+            "id": "ventilation:unit",
+            "kind": "FAN",
             "position": {
-              "x": 1000,
-              "y": 1000,
-              "z": 0
+              "x": 9500,
+              "y": 500,
+              "z": 2400
+            },
+            "equipmentId": "equipment-vmc"
+          },
+          {
+            "id": "ventilation:junction",
+            "kind": "JUNCTION",
+            "position": {
+              "x": 7500,
+              "y": 4000,
+              "z": 2400
             }
           },
           {
-            "id": "ventilation:terminal",
+            "id": "ventilation:extract-kitchen",
             "kind": "TERMINAL",
             "position": {
-              "x": 9000,
+              "x": 7500,
+              "y": 2000,
+              "z": 2400
+            },
+            "spaceId": "space-kitchen",
+            "airRole": "EXTRACT",
+            "targetFlowM3h": 45
+          },
+          {
+            "id": "ventilation:extract-bathroom",
+            "kind": "TERMINAL",
+            "position": {
+              "x": 7500,
               "y": 6000,
-              "z": 0
-            }
+              "z": 2400
+            },
+            "spaceId": "space-bathroom",
+            "airRole": "EXTRACT",
+            "targetFlowM3h": 30
+          },
+          {
+            "id": "ventilation:inlet-living",
+            "kind": "INTAKE",
+            "position": {
+              "x": 2500,
+              "y": 100,
+              "z": 2200
+            },
+            "spaceId": "space-living",
+            "airRole": "SUPPLY",
+            "targetFlowM3h": 45
+          },
+          {
+            "id": "ventilation:inlet-bedroom",
+            "kind": "INTAKE",
+            "position": {
+              "x": 2500,
+              "y": 7900,
+              "z": 2200
+            },
+            "spaceId": "space-bedroom",
+            "airRole": "SUPPLY",
+            "targetFlowM3h": 30
           }
         ],
         "ports": [
           {
-            "id": "ventilation:out",
-            "nodeId": "ventilation:source",
-            "role": "FLOW",
+            "id": "ventilation:unit-out",
+            "nodeId": "ventilation:unit",
+            "role": "AIR",
             "direction": "OUT"
           },
           {
-            "id": "ventilation:in",
-            "nodeId": "ventilation:terminal",
-            "role": "FLOW",
+            "id": "ventilation:junction-in",
+            "nodeId": "ventilation:junction",
+            "role": "AIR",
+            "direction": "IN"
+          },
+          {
+            "id": "ventilation:junction-out-kitchen",
+            "nodeId": "ventilation:junction",
+            "role": "AIR",
+            "direction": "OUT"
+          },
+          {
+            "id": "ventilation:junction-out-bathroom",
+            "nodeId": "ventilation:junction",
+            "role": "AIR",
+            "direction": "OUT"
+          },
+          {
+            "id": "ventilation:kitchen-in",
+            "nodeId": "ventilation:extract-kitchen",
+            "role": "AIR",
+            "direction": "IN"
+          },
+          {
+            "id": "ventilation:bathroom-in",
+            "nodeId": "ventilation:extract-bathroom",
+            "role": "AIR",
             "direction": "IN"
           }
         ],
         "edges": [
           {
-            "id": "ventilation:edge",
-            "fromPortId": "ventilation:out",
-            "toPortId": "ventilation:in",
+            "id": "ventilation:trunk",
+            "fromPortId": "ventilation:unit-out",
+            "toPortId": "ventilation:junction-in",
             "path": [
               {
-                "x": 1000,
-                "y": 1000,
-                "z": 0
+                "x": 9500,
+                "y": 500,
+                "z": 2400
               },
               {
-                "x": 9000,
-                "y": 1000,
-                "z": 0
+                "x": 7500,
+                "y": 500,
+                "z": 2400
               },
               {
-                "x": 9000,
-                "y": 6000,
-                "z": 0
+                "x": 7500,
+                "y": 4000,
+                "z": 2400
               }
             ],
-            "kind": "DUCT"
+            "kind": "DUCT",
+            "properties": {
+              "airRole": "EXTRACT",
+              "shape": "ROUND",
+              "diameterM": 0.125,
+              "localLossCoefficient": 0.6
+            }
+          },
+          {
+            "id": "ventilation:branch-kitchen",
+            "fromPortId": "ventilation:junction-out-kitchen",
+            "toPortId": "ventilation:kitchen-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 4000,
+                "z": 2400
+              },
+              {
+                "x": 7500,
+                "y": 2000,
+                "z": 2400
+              }
+            ],
+            "kind": "DUCT",
+            "properties": {
+              "airRole": "EXTRACT",
+              "shape": "ROUND",
+              "diameterM": 0.08,
+              "localLossCoefficient": 0.9
+            }
+          },
+          {
+            "id": "ventilation:branch-bathroom",
+            "fromPortId": "ventilation:junction-out-bathroom",
+            "toPortId": "ventilation:bathroom-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 4000,
+                "z": 2400
+              },
+              {
+                "x": 7500,
+                "y": 6000,
+                "z": 2400
+              }
+            ],
+            "kind": "DUCT",
+            "properties": {
+              "airRole": "EXTRACT",
+              "shape": "ROUND",
+              "diameterM": 0.08,
+              "localLossCoefficient": 0.9
+            }
           }
         ]
       },
@@ -690,68 +1338,473 @@
         "systemType": "ELECTRICAL",
         "nodes": [
           {
-            "id": "electrical:source",
-            "kind": "SOURCE",
+            "id": "electrical:board",
+            "kind": "DISTRIBUTION_BOARD",
             "position": {
-              "x": 1000,
-              "y": 1000,
-              "z": 0
-            }
+              "x": 9500,
+              "y": 500,
+              "z": 1400
+            },
+            "nominalVoltageV": 230
           },
           {
-            "id": "electrical:terminal",
-            "kind": "TERMINAL",
+            "id": "electrical:lighting-circuit",
+            "kind": "CIRCUIT",
             "position": {
-              "x": 9000,
+              "x": 9500,
+              "y": 700,
+              "z": 1400
+            },
+            "protectionRatingA": 10,
+            "conductorSectionMm2": 1.5
+          },
+          {
+            "id": "electrical:luminaire-living",
+            "kind": "LUMINAIRE",
+            "position": {
+              "x": 2500,
+              "y": 2000,
+              "z": 2500
+            },
+            "spaceId": "space-living",
+            "catalogItemId": "equipment-luminaire"
+          },
+          {
+            "id": "electrical:luminaire-kitchen",
+            "kind": "LUMINAIRE",
+            "position": {
+              "x": 7500,
+              "y": 2000,
+              "z": 2500
+            },
+            "spaceId": "space-kitchen",
+            "catalogItemId": "equipment-luminaire"
+          },
+          {
+            "id": "electrical:luminaire-bedroom",
+            "kind": "LUMINAIRE",
+            "position": {
+              "x": 2500,
               "y": 6000,
-              "z": 0
-            }
+              "z": 2500
+            },
+            "spaceId": "space-bedroom",
+            "catalogItemId": "equipment-luminaire"
+          },
+          {
+            "id": "electrical:luminaire-bathroom",
+            "kind": "LUMINAIRE",
+            "position": {
+              "x": 7500,
+              "y": 6000,
+              "z": 2500
+            },
+            "spaceId": "space-bathroom",
+            "catalogItemId": "equipment-luminaire"
           }
         ],
         "ports": [
           {
-            "id": "electrical:out",
-            "nodeId": "electrical:source",
-            "role": "FLOW",
+            "id": "electrical:board-out",
+            "nodeId": "electrical:board",
+            "role": "POWER",
             "direction": "OUT"
           },
           {
-            "id": "electrical:in",
-            "nodeId": "electrical:terminal",
-            "role": "FLOW",
+            "id": "electrical:circuit-in",
+            "nodeId": "electrical:lighting-circuit",
+            "role": "POWER",
+            "direction": "IN"
+          },
+          {
+            "id": "electrical:circuit-out-living",
+            "nodeId": "electrical:lighting-circuit",
+            "role": "POWER",
+            "direction": "OUT"
+          },
+          {
+            "id": "electrical:luminaire-living-in",
+            "nodeId": "electrical:luminaire-living",
+            "role": "POWER",
+            "direction": "IN"
+          },
+          {
+            "id": "electrical:circuit-out-kitchen",
+            "nodeId": "electrical:lighting-circuit",
+            "role": "POWER",
+            "direction": "OUT"
+          },
+          {
+            "id": "electrical:luminaire-kitchen-in",
+            "nodeId": "electrical:luminaire-kitchen",
+            "role": "POWER",
+            "direction": "IN"
+          },
+          {
+            "id": "electrical:circuit-out-bedroom",
+            "nodeId": "electrical:lighting-circuit",
+            "role": "POWER",
+            "direction": "OUT"
+          },
+          {
+            "id": "electrical:luminaire-bedroom-in",
+            "nodeId": "electrical:luminaire-bedroom",
+            "role": "POWER",
+            "direction": "IN"
+          },
+          {
+            "id": "electrical:circuit-out-bathroom",
+            "nodeId": "electrical:lighting-circuit",
+            "role": "POWER",
+            "direction": "OUT"
+          },
+          {
+            "id": "electrical:luminaire-bathroom-in",
+            "nodeId": "electrical:luminaire-bathroom",
+            "role": "POWER",
             "direction": "IN"
           }
         ],
         "edges": [
           {
-            "id": "electrical:edge",
-            "fromPortId": "electrical:out",
-            "toPortId": "electrical:in",
+            "id": "electrical:board-to-circuit",
+            "fromPortId": "electrical:board-out",
+            "toPortId": "electrical:circuit-in",
             "path": [
               {
-                "x": 1000,
-                "y": 1000,
-                "z": 0
+                "x": 9500,
+                "y": 500,
+                "z": 1400
               },
               {
-                "x": 9000,
-                "y": 1000,
-                "z": 0
-              },
-              {
-                "x": 9000,
-                "y": 6000,
-                "z": 0
+                "x": 9500,
+                "y": 700,
+                "z": 1400
               }
             ],
-            "kind": "CABLE"
+            "kind": "CABLE",
+            "properties": {
+              "conductorSectionMm2": 1.5
+            }
+          },
+          {
+            "id": "electrical:cable-living",
+            "fromPortId": "electrical:circuit-out-living",
+            "toPortId": "electrical:luminaire-living-in",
+            "path": [
+              {
+                "x": 9500,
+                "y": 700,
+                "z": 1400
+              },
+              {
+                "x": 2500,
+                "y": 2000,
+                "z": 2500
+              }
+            ],
+            "kind": "CABLE",
+            "properties": {
+              "conductorSectionMm2": 1.5
+            }
+          },
+          {
+            "id": "electrical:cable-kitchen",
+            "fromPortId": "electrical:circuit-out-kitchen",
+            "toPortId": "electrical:luminaire-kitchen-in",
+            "path": [
+              {
+                "x": 9500,
+                "y": 700,
+                "z": 1400
+              },
+              {
+                "x": 7500,
+                "y": 2000,
+                "z": 2500
+              }
+            ],
+            "kind": "CABLE",
+            "properties": {
+              "conductorSectionMm2": 1.5
+            }
+          },
+          {
+            "id": "electrical:cable-bedroom",
+            "fromPortId": "electrical:circuit-out-bedroom",
+            "toPortId": "electrical:luminaire-bedroom-in",
+            "path": [
+              {
+                "x": 9500,
+                "y": 700,
+                "z": 1400
+              },
+              {
+                "x": 2500,
+                "y": 6000,
+                "z": 2500
+              }
+            ],
+            "kind": "CABLE",
+            "properties": {
+              "conductorSectionMm2": 1.5
+            }
+          },
+          {
+            "id": "electrical:cable-bathroom",
+            "fromPortId": "electrical:circuit-out-bathroom",
+            "toPortId": "electrical:luminaire-bathroom-in",
+            "path": [
+              {
+                "x": 9500,
+                "y": 700,
+                "z": 1400
+              },
+              {
+                "x": 7500,
+                "y": 6000,
+                "z": 2500
+              }
+            ],
+            "kind": "CABLE",
+            "properties": {
+              "conductorSectionMm2": 1.5
+            }
           }
         ]
       }
     ],
-    "scenarios": [],
+    "scenarios": [
+      {
+        "id": "scenario-insulation-plus",
+        "name": "Isolation renforcée (300 mm)",
+        "baseProjectRevision": "reference-1",
+        "overrides": [
+          {
+            "path": "assemblies/0/layers/1/thicknessM",
+            "operation": "SET",
+            "value": 0.3
+          }
+        ]
+      },
+      {
+        "id": "scenario-pv-6kwp",
+        "name": "Photovoltaïque 6 kWc",
+        "baseProjectRevision": "reference-1",
+        "overrides": [
+          {
+            "path": "equipment/0/properties/installedPowerWp",
+            "operation": "SET",
+            "value": 6000
+          }
+        ]
+      },
+      {
+        "id": "scenario-battery-10kwh",
+        "name": "Batterie 10 kWh",
+        "baseProjectRevision": "reference-1",
+        "overrides": [
+          {
+            "path": "equipment/1/properties/usableCapacityKWh",
+            "operation": "SET",
+            "value": 10
+          }
+        ]
+      }
+    ],
     "drawingViews": [],
-    "calculationSettings": {},
+    "calculationSettings": {
+      "thermal": {
+        "moduleId": "thermal",
+        "moduleVersion": "2.0.0",
+        "methodId": "assembly-u-value-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {}
+      },
+      "heating": {
+        "moduleId": "heating",
+        "moduleVersion": "2.0.0",
+        "methodId": "design-heating-steady-state-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "designIndoorTemperatureC": 20,
+          "designOutdoorTemperatureC": -7
+        }
+      },
+      "dhw": {
+        "moduleId": "dhw",
+        "moduleVersion": "2.0.0",
+        "methodId": "sensible-water-heating-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "householdOccupants": 4,
+          "dailyUseVolumeLPerOccupant": 40,
+          "coldWaterTemperatureC": 10,
+          "useTemperatureC": 40,
+          "storageTemperatureC": 60,
+          "annualOperatingDays": 365
+        }
+      },
+      "lighting": {
+        "moduleId": "lighting",
+        "moduleVersion": "2.0.0",
+        "methodId": "lumen-average-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "utilizationFactor": 0.6,
+          "maintenanceFactor": 0.8,
+          "operatingHoursPerDay": 3
+        }
+      },
+      "ventilation": {
+        "moduleId": "ventilation",
+        "moduleVersion": "2.0.0",
+        "methodId": "duct-darcy-weisbach-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {}
+      },
+      "iaq": {
+        "moduleId": "iaq",
+        "moduleVersion": "2.0.0",
+        "methodId": "co2-mass-balance-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "co2GenerationM3sPerOccupant": 4.7e-06,
+          "initialConcentrationPpm": 500,
+          "durationHours": 8,
+          "occupantsByCategory": {
+            "LIVING": 4,
+            "KITCHEN": 2,
+            "BEDROOM": 2,
+            "BATHROOM": 1
+          }
+        }
+      },
+      "water": {
+        "moduleId": "water",
+        "moduleVersion": "2.0.0",
+        "methodId": "pipe-darcy-weisbach-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "simultaneityFactor": 0.5
+        }
+      },
+      "wastewater": {
+        "moduleId": "wastewater",
+        "moduleVersion": "2.0.0",
+        "methodId": "discharge-unit-gravity-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "designFlowM3sPerDischargeUnit": 0.0004,
+          "minimumSlope": 0.01
+        }
+      },
+      "rainwater": {
+        "moduleId": "rainwater",
+        "moduleVersion": "2.0.0",
+        "methodId": "tank-water-balance-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "runoffCoefficient": 0.9,
+          "preFilterEfficiency": 0.95,
+          "dailyDemandL": 120
+        }
+      },
+      "photovoltaic": {
+        "moduleId": "photovoltaic",
+        "moduleVersion": "2.0.0",
+        "methodId": "offline-pv-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "performanceRatio": 0.8
+        }
+      },
+      "battery": {
+        "moduleId": "battery",
+        "moduleVersion": "2.0.0",
+        "methodId": "battery-configuration-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "offGrid": 0
+        }
+      },
+      "energy-balance": {
+        "moduleId": "energy-balance",
+        "moduleVersion": "2.0.0",
+        "methodId": "physical-energy-balance-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "heatingSetpointTemperatureC": 19
+        }
+      },
+      "hygrothermal": {
+        "moduleId": "hygrothermal",
+        "moduleVersion": "2.0.0",
+        "methodId": "glaser-steady-state-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "indoorTemperatureC": 20,
+          "indoorRelativeHumidity": 0.5,
+          "period": "design-winter"
+        }
+      },
+      "acoustics": {
+        "moduleId": "acoustics",
+        "moduleVersion": "2.0.0",
+        "methodId": "sabine-reverberation-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "bandsHz": [
+            125,
+            250,
+            500,
+            1000,
+            2000,
+            4000
+          ],
+          "defaultSurfaceAbsorption": {
+            "125": 0.05,
+            "250": 0.06,
+            "500": 0.08,
+            "1000": 0.09,
+            "2000": 0.1,
+            "4000": 0.1
+          }
+        }
+      },
+      "cost": {
+        "moduleId": "cost",
+        "moduleVersion": "2.0.0",
+        "methodId": "quantity-priced-estimate-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "currency": "EUR",
+          "unitPriceByMaterial": {
+            "material-masonry": 185,
+            "material-insulation": 95
+          },
+          "wasteFactorByMaterial": {
+            "material-masonry": 0.05,
+            "material-insulation": 0.1
+          }
+        }
+      },
+      "environmental": {
+        "moduleId": "environmental",
+        "moduleVersion": "2.0.0",
+        "methodId": "declaration-linked-impact-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "indicator": "GWP",
+          "validAt": "2026-01-01",
+          "declarationSource": "Generic demonstration data — not a manufacturer declaration",
+          "gwpPerUnitByMaterial": {
+            "material-masonry": 255,
+            "material-insulation": 140
+          }
+        }
+      }
+    },
     "regulatoryContext": {
       "country": "FR",
       "enabledRulePacks": []
