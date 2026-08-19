@@ -33,6 +33,13 @@ const fixtures = new Map([
   ['symbol.schema.json', 'symbol.example.json'],
 ]);
 
+/** Fixtures living outside `examples/`, kept validated alongside the examples. */
+const additionalFixtures = [
+  ['project.schema.json', 'examples/reference-house/reference.houseproj.json'],
+  ['climate.schema.json', 'examples/reference-house/climate-monthly.json'],
+  ['climate.schema.json', 'examples/reference-house/climate-design-day.json'],
+];
+
 let failed = false;
 for (const [schemaFile, fixtureFile] of fixtures) {
   const schemaId = `https://house-technical-designer.local/schemas/${schemaFile}`;
@@ -47,6 +54,22 @@ for (const [schemaFile, fixtureFile] of fixtures) {
     console.error(ajv.errorsText(validate.errors, { separator: '\n' }));
   } else {
     console.log(`validated examples/${fixtureFile}`);
+  }
+}
+
+for (const [schemaFile, fixturePath] of additionalFixtures) {
+  const schemaId = `https://house-technical-designer.local/schemas/${schemaFile}`;
+  const validate = ajv.getSchema(schemaId);
+  if (!validate) throw new Error(`Schema not registered: ${schemaId}`);
+  const fixture = JSON.parse(
+    await readFile(path.join(root, fixturePath), 'utf8'),
+  );
+  if (!validate(fixture)) {
+    failed = true;
+    console.error(`${fixturePath} does not satisfy ${schemaFile}:`);
+    console.error(ajv.errorsText(validate.errors, { separator: '\n' }));
+  } else {
+    console.log(`validated ${fixturePath}`);
   }
 }
 

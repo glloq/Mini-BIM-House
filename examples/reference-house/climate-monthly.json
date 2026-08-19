@@ -1,0 +1,104 @@
+{
+  "id": "reference-temperate",
+  "location": {
+    "latitude": 48.1,
+    "longitude": -1.7,
+    "altitudeM": 40,
+    "timezone": "Europe/Paris"
+  },
+  "resolution": "MONTHLY",
+  "source": {
+    "id": "reference-house-monthly-normals",
+    "provider": "PROJECT_FIXTURE",
+    "datasetName": "Mini-BIM-House reference monthly normals",
+    "periodStart": "2025-01",
+    "periodEnd": "2025-12",
+    "license": "Demonstration data, not a measured weather record"
+  },
+  "samples": [
+    {
+      "timestamp": "2025-01",
+      "airTemperatureC": 5.6,
+      "relativeHumidity": 0.87,
+      "precipitationMm": 71,
+      "globalHorizontalIrradianceWhM2": 24000
+    },
+    {
+      "timestamp": "2025-02",
+      "airTemperatureC": 6.1,
+      "relativeHumidity": 0.84,
+      "precipitationMm": 55,
+      "globalHorizontalIrradianceWhM2": 38000
+    },
+    {
+      "timestamp": "2025-03",
+      "airTemperatureC": 8.4,
+      "relativeHumidity": 0.79,
+      "precipitationMm": 54,
+      "globalHorizontalIrradianceWhM2": 76000
+    },
+    {
+      "timestamp": "2025-04",
+      "airTemperatureC": 10.6,
+      "relativeHumidity": 0.75,
+      "precipitationMm": 51,
+      "globalHorizontalIrradianceWhM2": 113000
+    },
+    {
+      "timestamp": "2025-05",
+      "airTemperatureC": 13.9,
+      "relativeHumidity": 0.76,
+      "precipitationMm": 62,
+      "globalHorizontalIrradianceWhM2": 143000
+    },
+    {
+      "timestamp": "2025-06",
+      "airTemperatureC": 16.7,
+      "relativeHumidity": 0.74,
+      "precipitationMm": 46,
+      "globalHorizontalIrradianceWhM2": 155000
+    },
+    {
+      "timestamp": "2025-07",
+      "airTemperatureC": 18.6,
+      "relativeHumidity": 0.73,
+      "precipitationMm": 45,
+      "globalHorizontalIrradianceWhM2": 158000
+    },
+    {
+      "timestamp": "2025-08",
+      "airTemperatureC": 18.5,
+      "relativeHumidity": 0.75,
+      "precipitationMm": 47,
+      "globalHorizontalIrradianceWhM2": 136000
+    },
+    {
+      "timestamp": "2025-09",
+      "airTemperatureC": 16.1,
+      "relativeHumidity": 0.79,
+      "precipitationMm": 58,
+      "globalHorizontalIrradianceWhM2": 101000
+    },
+    {
+      "timestamp": "2025-10",
+      "airTemperatureC": 12.8,
+      "relativeHumidity": 0.85,
+      "precipitationMm": 76,
+      "globalHorizontalIrradianceWhM2": 60000
+    },
+    {
+      "timestamp": "2025-11",
+      "airTemperatureC": 8.7,
+      "relativeHumidity": 0.88,
+      "precipitationMm": 80,
+      "globalHorizontalIrradianceWhM2": 28000
+    },
+    {
+      "timestamp": "2025-12",
+      "airTemperatureC": 6.1,
+      "relativeHumidity": 0.89,
+      "precipitationMm": 82,
+      "globalHorizontalIrradianceWhM2": 20000
+    }
+  ]
+}

@@ -81,10 +81,14 @@ describe('TypeScript/runtime schema contracts', () => {
       'thermal',
       {
         thermal: {
+          insideSurfaceResistanceM2KW: 0.13,
+          outsideSurfaceResistanceM2KW: 0.04,
           elements: [
             {
               id: 'wall',
               areaM2: 100,
+              levelId: 'ground',
+              assemblyId: 'assembly',
               layers: [
                 {
                   layerId: 'layer',

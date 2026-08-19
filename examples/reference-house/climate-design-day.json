@@ -1,0 +1,188 @@
+{
+  "id": "reference-temperate-design-day",
+  "location": {
+    "latitude": 48.1,
+    "longitude": -1.7,
+    "altitudeM": 40,
+    "timezone": "Europe/Paris"
+  },
+  "resolution": "HOURLY",
+  "source": {
+    "id": "reference-house-design-day",
+    "provider": "PROJECT_FIXTURE",
+    "datasetName": "Mini-BIM-House reference spring design day",
+    "periodStart": "2025-04-15T00:00:00+02:00",
+    "periodEnd": "2025-04-15T23:00:00+02:00",
+    "license": "Demonstration data, not a measured weather record"
+  },
+  "samples": [
+    {
+      "timestamp": "2025-04-15T00:00:00+02:00",
+      "airTemperatureC": 14.5,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T01:00:00+02:00",
+      "airTemperatureC": 15.3,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T02:00:00+02:00",
+      "airTemperatureC": 15.8,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T03:00:00+02:00",
+      "airTemperatureC": 16.0,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T04:00:00+02:00",
+      "airTemperatureC": 15.8,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T05:00:00+02:00",
+      "airTemperatureC": 15.3,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T06:00:00+02:00",
+      "airTemperatureC": 14.5,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T07:00:00+02:00",
+      "airTemperatureC": 13.5,
+      "relativeHumidity": 0.79,
+      "globalHorizontalIrradianceWhM2": 228,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T08:00:00+02:00",
+      "airTemperatureC": 12.3,
+      "relativeHumidity": 0.72,
+      "globalHorizontalIrradianceWhM2": 440,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T09:00:00+02:00",
+      "airTemperatureC": 11.0,
+      "relativeHumidity": 0.67,
+      "globalHorizontalIrradianceWhM2": 622,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T10:00:00+02:00",
+      "airTemperatureC": 9.7,
+      "relativeHumidity": 0.63,
+      "globalHorizontalIrradianceWhM2": 762,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T11:00:00+02:00",
+      "airTemperatureC": 8.5,
+      "relativeHumidity": 0.61,
+      "globalHorizontalIrradianceWhM2": 850,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T12:00:00+02:00",
+      "airTemperatureC": 7.5,
+      "relativeHumidity": 0.6,
+      "globalHorizontalIrradianceWhM2": 880,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T13:00:00+02:00",
+      "airTemperatureC": 6.7,
+      "relativeHumidity": 0.61,
+      "globalHorizontalIrradianceWhM2": 850,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T14:00:00+02:00",
+      "airTemperatureC": 6.2,
+      "relativeHumidity": 0.63,
+      "globalHorizontalIrradianceWhM2": 762,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T15:00:00+02:00",
+      "airTemperatureC": 6.0,
+      "relativeHumidity": 0.67,
+      "globalHorizontalIrradianceWhM2": 622,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T16:00:00+02:00",
+      "airTemperatureC": 6.2,
+      "relativeHumidity": 0.72,
+      "globalHorizontalIrradianceWhM2": 440,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T17:00:00+02:00",
+      "airTemperatureC": 6.7,
+      "relativeHumidity": 0.79,
+      "globalHorizontalIrradianceWhM2": 228,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T18:00:00+02:00",
+      "airTemperatureC": 7.5,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T19:00:00+02:00",
+      "airTemperatureC": 8.5,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T20:00:00+02:00",
+      "airTemperatureC": 9.7,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T21:00:00+02:00",
+      "airTemperatureC": 11.0,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T22:00:00+02:00",
+      "airTemperatureC": 12.3,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    },
+    {
+      "timestamp": "2025-04-15T23:00:00+02:00",
+      "airTemperatureC": 13.5,
+      "relativeHumidity": 0.85,
+      "globalHorizontalIrradianceWhM2": 0,
+      "precipitationMm": 0
+    }
+  ]
+}
