@@ -1,5 +1,14 @@
 # House Technical Designer
 
+[![CI](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml/badge.svg)](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml)
+[![Licence AGPL-3.0-only](https://img.shields.io/badge/licence-AGPL--3.0--only-blue)](LICENSE)
+![Version 0.1.0](https://img.shields.io/badge/version-0.1.0--alpha-orange)
+![Statut alpha](https://img.shields.io/badge/statut-alpha-orange)
+
+> **Version 0.1.0 — alpha.** L'application est utilisable de bout en bout, mais
+> son interface bouge encore et plusieurs sujets sont hors périmètre. Voir
+> [Ce que l'application ne fait pas](#ce-que-lapplication-ne-fait-pas).
+
 **House Technical Designer** est une application web open source de **conception et d'étude technique d'une habitation**, pensée comme un **mini-BIM résidentiel modulaire**.
 
 L'objectif est de réunir dans une seule interface :
@@ -14,6 +23,40 @@ L'objectif est de réunir dans une seule interface :
 - les contrôles techniques et réglementaires via des règles versionnées.
 
 > **Dessiner une seule fois le bâtiment, puis utiliser ce même modèle pour toutes les études techniques.**
+
+![L'espace de travail : plan du rez-de-chaussée de la maison de démonstration, outils de dessin, calques et inspecteur](docs/images/plan.png)
+
+---
+
+## Démarrage rapide
+
+L'application est publiée sur GitHub Pages après chaque CI verte sur `main` :
+<https://glloq.github.io/Mini-BIM-House/>. Tout se passe dans le navigateur ;
+aucun projet n'est envoyé sur un serveur.
+
+En local, avec Node.js 22 ou plus récent :
+
+```bash
+git clone https://github.com/glloq/Mini-BIM-House.git
+cd Mini-BIM-House
+npm ci
+npm run dev
+```
+
+Puis, dans l'application :
+
+1. **Maison de démonstration** ouvre la maison de référence, quatre pièces
+   déjà dessinées et calculables ;
+2. l'onglet **Calculs** exécute les seize modules et affiche, pour chacun, sa
+   méthode, ses hypothèses et ses entrées manquantes ;
+3. la **Superposition** projette un résultat sur le plan ;
+4. **Sauvegarder** exporte le projet en JSON, **Exporter SVG** le plan.
+
+Un **Nouveau projet** part vide mais utilisable : la bibliothèque générique de
+matériaux et d'assemblages est déjà là, l'outil **Mur** dessine tout de suite.
+
+Le parcours complet est décrit dans
+[`docs/USER_GUIDE_MVP.md`](docs/USER_GUIDE_MVP.md).
 
 ---
 
@@ -411,17 +454,23 @@ Le niveau `REGULATORY` ne doit être utilisé qu'après validation complète de 
 # Technologies utilisées
 
 ```text
-TypeScript
-React
-Vite
-SVG
-Web Workers
-JSON / JSON Schema
-Vitest
-GitHub Actions
+TypeScript strict     modèle, moteurs, application
+React 19 / Vite 7     interface
+SVG                   rendu du plan et export technique
+JSON / JSON Schema    format projet et contrats validés
+Vitest                tests unitaires, d'intégration et benchmarks
+Playwright            tests navigateur sur la construction de production
+ESLint / Prettier     qualité et format
+GitHub Actions        CI et déploiement Pages
 ```
 
-L'application doit pouvoir fonctionner comme une application web statique et rester compatible avec **GitHub Pages**.
+Les Web Workers sont prévus mais pas encore utilisés : la baseline de
+performance montre que la charge la plus lourde d'une interaction tient
+largement dans une image.
+
+L'application fonctionne comme une application web statique et reste compatible
+avec **GitHub Pages** : la construction a été vérifiée servie depuis un
+sous-chemin de projet.
 
 ---
 
@@ -430,48 +479,37 @@ L'application doit pouvoir fonctionner comme une application web statique et res
 ```text
 /
 ├── apps/
-│   └── web/
+│   └── web/                     application React/Vite
 │
 ├── packages/
-│   ├── core-domain/
-│   ├── geometry/
-│   ├── units/
-│   ├── materials/
-│   ├── assemblies/
-│   ├── equipment-catalog/
-│   ├── editor-core/
-│   ├── drawing-engine/
-│   ├── calculation-core/
-│   ├── rule-engine/
-│   └── project-io/
+│   ├── units/                   conversions marquées SI ↔ édition
+│   ├── geometry/                primitives et opérations en millimètres
+│   ├── core-domain/             modèle canonique du projet
+│   ├── materials/               catalogue et provenance des matériaux
+│   ├── assemblies/              parois multicouches
+│   ├── equipment-catalog/       définitions et instances d'équipements
+│   ├── editor-core/             commandes, caméra, accrochage, outils
+│   ├── drawing-engine/          scène sémantique et rendu SVG
+│   ├── view-query/              calques, vues de plan, sélection, analyse
+│   ├── quantities/              métrés dérivés de la géométrie
+│   ├── calculation-core/        orchestrateur, dépendances, traçabilité
+│   ├── calculation-adapters/    branchement projet → modules de calcul
+│   ├── climate/                 jeux de données climatiques validés
+│   ├── rule-engine/             Rule Packs versionnés
+│   └── project-io/              chargement, migrations, sauvegarde locale
 │
-├── modules/
-│   ├── thermal/
-│   ├── hygrothermal/
-│   ├── heating/
-│   ├── dhw/
-│   ├── photovoltaic/
-│   ├── battery/
-│   ├── water/
-│   ├── rainwater/
-│   ├── wastewater/
-│   ├── ventilation/
-│   ├── iaq/
-│   ├── electrical/
-│   ├── lighting/
-│   ├── acoustics/
-│   ├── energy-balance/
-│   ├── cost/
-│   └── environmental/
+├── modules/                     dix-sept moteurs de calcul
+│   ├── thermal/                 hygrothermal/  heating/     dhw/
+│   ├── photovoltaic/            battery/       energy-balance/
+│   ├── water/                   rainwater/     wastewater/
+│   ├── ventilation/             iaq/           electrical/
+│   ├── lighting/                acoustics/     cost/        environmental/
 │
-├── catalogs/
-├── schemas/
-├── examples/
-├── docs/
-├── tests/
-│
-├── ARCHITECTURE.md
-└── IMPLEMENTATION_PLAN.md
+├── schemas/                     contrats JSON Schema
+├── examples/                    fixtures validées, dont la maison de référence
+├── e2e/                         tests navigateur Playwright
+├── scripts/                     validation des schémas, audit des licences
+└── docs/                        spécifications, normes, ADR, état, guide
 ```
 
 ---
@@ -537,27 +575,59 @@ sans casser le noyau.
 
 # État du projet
 
-Le projet dispose désormais d'un noyau TypeScript strict, d'une application web
-React/Vite et de packages métier testés couvrant le modèle de projet, la géométrie,
-le dessin SVG, les commandes d'édition, les réseaux techniques et les principaux
-modules de calcul. Une maison de référence versionnée exerce la persistance, les
-réseaux, les calculs énergétiques intégrés et l'export SVG.
+**Version 0.1.0, alpha.** L'application couvre le parcours complet : dessiner,
+composer, calculer, superposer, métrer, comparer, exporter.
 
-Le travail en cours porte sur l'intégration produit : relier systématiquement le
-projet aux calculs, exposer dans l'application les éditeurs de matériaux et
-d'assemblages, utiliser tout le pipeline de dessin et d'édition, puis présenter
-les résultats et overlays d'analyse. La préparation de la version 0.1 reste en
-cours ; elle n'est pas déclarée terminée.
+## Ce que fait l'application
 
-L'application peut être lancée localement avec `npm run dev`. Le déploiement
-statique GitHub Pages est configuré derrière la réussite de la CI sur la branche
-principale, mais aucun déploiement public n'est annoncé ici tant qu'il n'a pas été
-vérifié.
+- **Plan** — murs en couches de matériaux, ouvertures percées avec leur
+  débattement, pièces remplies et étiquetées, dalles et toitures ; accrochage
+  sur grille, extrémités, milieux et intersections ; contraintes de longueur et
+  d'angle ; annulation et rétablissement de chaque commande.
+- **Bibliothèques** — matériaux, assemblages multicouches et équipements
+  éditables dans l'application, avec la provenance de chaque propriété et le
+  refus de supprimer ce qui est encore référencé.
+- **Bâtiment** — niveaux, détection des pièces, dalles et plans de toiture.
+- **Réseaux techniques** — eau, évacuation, eaux pluviales, ventilation,
+  chauffage et électricité : création, pose des nœuds sur le plan, liaison des
+  ports, longueurs développées et diagnostics.
+- **Calculs** — seize modules exécutés depuis l'interface, chacun affichant sa
+  méthode, sa précision, ses hypothèses, ses références et ses entrées
+  manquantes.
+- **Analyse** — les résultats se projettent sur le plan en bandes légendées.
+- **Quantités** — nomenclature par lot et par niveau, masses, coûts et carbone,
+  export CSV, avec les matériaux non valorisés signalés comme tels.
+- **Scénarios** — comparaison d'une variante au projet de base, sans dupliquer
+  le projet.
+- **Fichiers** — export JSON canonique et SVG, import validé, sauvegarde locale
+  automatique et restauration proposée — jamais appliquée en silence.
 
-Pour le détail des fonctionnalités livrées, des travaux en cours et des blocages
-de publication, consulter
-[`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md). Le parcours MVP
-est décrit dans [`docs/USER_GUIDE_MVP.md`](docs/USER_GUIDE_MVP.md).
+## Ce que l'application ne fait pas
+
+- **Escaliers** : délibérément reportés.
+- **Exports PDF, DXF et IFC** : hors périmètre de la 0.1 ; l'export technique
+  se fait en SVG.
+- **Simulation thermique dynamique, confort d'été, structure, géotechnique,
+  éclairage naturel** : hors périmètre de la 0.1.
+- **Modes QUICK / DESIGN / EXPERT, assistant de création, palette de
+  commandes** : non implémentés.
+- **Conformité réglementaire** : le moteur de règles et les Rule Packs
+  existent, mais l'interface de conformité n'est pas branchée sur les
+  résultats de calcul.
+- **Données fabricant** : les catalogues livrés sont génériques et le disent.
+  Aucune valeur générique n'est présentée comme une donnée fabricant.
+
+## Ce sur quoi vous pouvez compter
+
+- Aucune constante silencieuse : chaque entrée de calcul vient du projet, d'un
+  scénario, d'un réglage de module ou d'une source identifiée, et le dit.
+- Une valeur inconnue reste inconnue : elle n'est jamais remplacée par zéro ni
+  par une valeur typique. Elle est nommée.
+- Les résultats calculés sont dérivés ; ils ne sont pas enregistrés comme
+  source de vérité.
+
+L'état détaillé, chantier par chantier, est tenu dans
+[`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md).
 
 ---
 
@@ -602,11 +672,17 @@ Documents principaux :
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md)
 - [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md)
+- [`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md) — état réel, chantier par chantier
+- [`docs/USER_GUIDE_MVP.md`](docs/USER_GUIDE_MVP.md) — parcours utilisateur
+- [`docs/PERFORMANCE_BASELINE.md`](docs/PERFORMANCE_BASELINE.md) — chiffres mesurés
 - [`docs/specifications/`](docs/specifications/)
 - [`docs/standards/`](docs/standards/)
 - [`docs/adr/`](docs/adr/)
 - [`schemas/`](schemas/)
 - [`examples/`](examples/)
+
+Chaque sujet n'a qu'un seul document ; la carte se trouve en tête de
+[`docs/README.md`](docs/README.md).
 
 ---
 

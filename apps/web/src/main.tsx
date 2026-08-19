@@ -467,7 +467,9 @@ function App() {
             ? result.message
             : result.status === 'UNSUPPORTED_FUTURE_SCHEMA'
               ? `version future ${result.schemaVersion}`
-              : 'migration impossible';
+              : result.status === 'TOO_LARGE'
+                ? `${result.breach.actual.toLocaleString('fr-FR')} ${result.breach.label} pour un maximum de ${result.breach.maximum.toLocaleString('fr-FR')}`
+                : 'migration impossible';
       setMessage(`Import refusé — ${detail}`);
       return;
     }

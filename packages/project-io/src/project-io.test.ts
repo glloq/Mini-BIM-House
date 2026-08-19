@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { loadProjectJson, serializeProjectFile } from './project-io.js';
+import {
+  DEFAULT_PROJECT_IMPORT_LIMITS,
+  loadProjectJson,
+  serializeProjectFile,
+} from './project-io.js';
 
 const fixture = {
   format: 'house-technical-designer-project' as const,
@@ -254,6 +258,97 @@ describe('project I/O', () => {
           path: expect.stringContaining('/walls/0/heightMm'),
         }),
       ]),
+    });
+  });
+});
+
+describe('import limits', () => {
+  it('accepts a real project well below every bound', () => {
+    expect(loadProjectJson(JSON.stringify(fixture)).status).toBe('OK');
+  });
+
+  it('refuses a file larger than the character bound before parsing it', () => {
+    const result = loadProjectJson(JSON.stringify(fixture), undefined, {
+      ...DEFAULT_PROJECT_IMPORT_LIMITS,
+      maximumCharacters: 10,
+    });
+    expect(result).toMatchObject({
+      status: 'TOO_LARGE',
+      breach: { limit: 'maximumCharacters', maximum: 10 },
+    });
+  });
+
+  it('names which count is out of bounds', () => {
+    const walled = {
+      ...fixture,
+      project: {
+        ...fixture.project,
+        materialLibrary: {
+          materials: [
+            {
+              id: 'material',
+              name: 'Material',
+              kind: 'GENERIC',
+              properties: { lambdaWmK: 0.04 },
+            },
+          ],
+        },
+        assemblies: [
+          {
+            id: 'assembly',
+            name: 'Wall assembly',
+            category: 'WALL',
+            layers: [{ id: 'layer', materialId: 'material', thicknessM: 0.2 }],
+          },
+        ],
+        building: {
+          ...fixture.project.building,
+          levels: [
+            {
+              ...fixture.project.building.levels[0]!,
+              walls: [
+                {
+                  id: 'wall',
+                  type: 'WALL',
+                  levelId: 'ground',
+                  assemblyId: 'assembly',
+                  path: {
+                    points: [
+                      { x: 0, y: 0 },
+                      { x: 5000, y: 0 },
+                    ],
+                  },
+                  referenceSide: 'CENTER',
+                  baseOffsetMm: 0,
+                  heightMode: 'EXPLICIT',
+                  heightMm: 2500,
+                  role: 'EXTERIOR',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
+    const result = loadProjectJson(JSON.stringify(walled), undefined, {
+      ...DEFAULT_PROJECT_IMPORT_LIMITS,
+      maximumWalls: 0,
+    });
+    expect(result).toMatchObject({
+      status: 'TOO_LARGE',
+      breach: { limit: 'maximumWalls', label: 'murs', actual: 1, maximum: 0 },
+    });
+  });
+
+  it('reports the first bound exceeded, not a generic refusal', () => {
+    const result = loadProjectJson(JSON.stringify(fixture), undefined, {
+      ...DEFAULT_PROJECT_IMPORT_LIMITS,
+      maximumLevels: 0,
+      maximumWalls: 0,
+    });
+    expect(result).toMatchObject({
+      status: 'TOO_LARGE',
+      breach: { limit: 'maximumLevels' },
     });
   });
 });
