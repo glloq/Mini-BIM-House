@@ -3,12 +3,7 @@ declare const materialIdBrand: unique symbol;
 export type MaterialId = string & { readonly [materialIdBrand]: true };
 export type MaterialKind = 'GENERIC' | 'PRODUCT' | 'CUSTOM';
 export type MaterialSourceType =
-  | 'STANDARD'
-  | 'MANUFACTURER'
-  | 'DATABASE'
-  | 'USER'
-  | 'CALCULATED'
-  | 'OTHER';
+  'STANDARD' | 'MANUFACTURER' | 'DATABASE' | 'USER' | 'CALCULATED' | 'OTHER';
 
 export type JsonValue =
   | string

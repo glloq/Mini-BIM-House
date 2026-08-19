@@ -3,9 +3,7 @@ import type { Polygon2D } from '@house-technical-designer/geometry';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
-  | JsonPrimitive
-  | readonly JsonValue[]
-  | { readonly [key: string]: JsonValue };
+  JsonPrimitive | readonly JsonValue[] | { readonly [key: string]: JsonValue };
 export type ExtensionNamespace = `${string}.${string}`;
 export type Extensions = Readonly<
   Partial<Record<ExtensionNamespace, JsonValue>>

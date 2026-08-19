@@ -91,6 +91,9 @@
             }
           },
           "then": {
+            "properties": {
+              "heightMm": {}
+            },
             "required": [
               "heightMm"
             ]
@@ -105,6 +108,9 @@
             }
           },
           "then": {
+            "properties": {
+              "topLevelId": {}
+            },
             "required": [
               "topLevelId"
             ]

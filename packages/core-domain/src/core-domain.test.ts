@@ -7,7 +7,6 @@ import {
   createProjectMetadata,
   createSite,
   entityId,
-  type EntityId,
   type LevelId,
   type ProjectFile,
   type ProjectId,

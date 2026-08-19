@@ -6,12 +6,7 @@ declare const layerIdBrand: unique symbol;
 export type AssemblyId = string & { readonly [assemblyIdBrand]: true };
 export type AssemblyLayerId = string & { readonly [layerIdBrand]: true };
 export type AssemblyCategory =
-  | 'WALL'
-  | 'ROOF'
-  | 'FLOOR'
-  | 'CEILING'
-  | 'PARTITION'
-  | 'OTHER';
+  'WALL' | 'ROOF' | 'FLOOR' | 'CEILING' | 'PARTITION' | 'OTHER';
 export type LayerRole =
   | 'FINISH'
   | 'STRUCTURAL'
