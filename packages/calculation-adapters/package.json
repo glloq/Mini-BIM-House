@@ -35,7 +35,8 @@
     "@house-technical-designer/assemblies": "0.1.0",
     "@house-technical-designer/project-io": "0.1.0",
     "@house-technical-designer/rule-engine": "0.1.0",
-    "@house-technical-designer/climate": "0.1.0"
+    "@house-technical-designer/climate": "0.1.0",
+    "@house-technical-designer/units": "0.0.0"
   },
   "devDependencies": {
     "ajv": "^8.17.1"

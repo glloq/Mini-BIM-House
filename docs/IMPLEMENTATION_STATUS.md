@@ -2,7 +2,7 @@
 
 ## Last completed PR
 
-PR-068
+PR-071
 
 ## Completed
 
@@ -80,15 +80,14 @@ PR-068
 
 ## In progress
 
-- PR-072 — release 0.1 readiness assessment.
+- PR-072 — product integration and release 0.1 readiness assessment.
+- The first PR-072 wave derives reference-house thermal envelope, PV, and
+  battery inputs from the canonical `Project`; fixture changes now propagate
+  through the calculation orchestrator without duplicated physical values.
 
 ## Next
 
 - Resolve the documented application, deployment, and licensing blockers before declaring release 0.1.
-
-## Known issues
-
-- Complex polygon-hole containment and mutual-overlap validation remains a geometry-hardening task.
 
 ## Pre-PR69 stabilization
 
@@ -148,7 +147,10 @@ Release blockers (non-PR69 architecture work):
 - Geometry APIs use millimetres; explicit branded conversions isolate SI boundaries.
 - Constructors reject non-finite persisted numeric values rather than inventing defaults.
 
-## Test status
+## Last recorded full test status
+
+This snapshot predates the current PR-072 integration work and must be refreshed
+before release readiness is assessed.
 
 - format: pass
 - lint: pass

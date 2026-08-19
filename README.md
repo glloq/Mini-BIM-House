@@ -408,7 +408,7 @@ Le niveau `REGULATORY` ne doit être utilisé qu'après validation complète de 
 
 ---
 
-# Technologies prévues
+# Technologies utilisées
 
 ```text
 TypeScript
@@ -425,7 +425,7 @@ L'application doit pouvoir fonctionner comme une application web statique et res
 
 ---
 
-# Structure cible du dépôt
+# Structure du dépôt
 
 ```text
 /
@@ -478,7 +478,7 @@ L'application doit pouvoir fonctionner comme une application web statique et res
 
 # Format projet
 
-Format prévu :
+Format de projet :
 
 ```text
 *.houseproj.json
@@ -537,28 +537,27 @@ sans casser le noyau.
 
 # État du projet
 
-Le projet est actuellement en **phase de spécification / architecture**.
+Le projet dispose désormais d'un noyau TypeScript strict, d'une application web
+React/Vite et de packages métier testés couvrant le modèle de projet, la géométrie,
+le dessin SVG, les commandes d'édition, les réseaux techniques et les principaux
+modules de calcul. Une maison de référence versionnée exerce la persistance, les
+réseaux, les calculs énergétiques intégrés et l'export SVG.
 
-Sont déjà définis :
+Le travail en cours porte sur l'intégration produit : relier systématiquement le
+projet aux calculs, exposer dans l'application les éditeurs de matériaux et
+d'assemblages, utiliser tout le pipeline de dessin et d'édition, puis présenter
+les résultats et overlays d'analyse. La préparation de la version 0.1 reste en
+cours ; elle n'est pas déclarée terminée.
 
-- architecture logicielle ;
-- modèle métier ;
-- géométrie ;
-- moteur de dessin ;
-- matériaux ;
-- assemblages ;
-- métrés ;
-- moteurs de calcul ;
-- réseaux ;
-- réglementation ;
-- format projet ;
-- JSON Schemas ;
-- stratégie de tests ;
-- roadmap ;
-- plan d'implémentation PR par PR ;
-- évolutions futures.
+L'application peut être lancée localement avec `npm run dev`. Le déploiement
+statique GitHub Pages est configuré derrière la réussite de la CI sur la branche
+principale, mais aucun déploiement public n'est annoncé ici tant qu'il n'a pas été
+vérifié.
 
-Le développement du noyau applicatif constitue l'étape suivante.
+Pour le détail des fonctionnalités livrées, des travaux en cours et des blocages
+de publication, consulter
+[`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md). Le parcours MVP
+est décrit dans [`docs/USER_GUIDE_MVP.md`](docs/USER_GUIDE_MVP.md).
 
 ---
 
