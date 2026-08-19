@@ -9,10 +9,21 @@ export interface CalculationDependency {
   readonly moduleId: string;
   readonly required: boolean;
 }
+export interface CalculationValidationIssue {
+  readonly path: string;
+  readonly message: string;
+}
+export type CalculationValidation =
+  | { readonly valid: true }
+  | {
+      readonly valid: false;
+      readonly issues: readonly CalculationValidationIssue[];
+    };
 export interface CalculationWarning {
   readonly code: string;
+  readonly severity: 'ERROR' | 'WARNING' | 'INFO';
   readonly message: string;
-  readonly sourceIds?: readonly string[];
+  readonly objectIds?: readonly string[];
 }
 export interface CalculationAssumption {
   readonly id: string;
@@ -27,7 +38,7 @@ export interface CalculationReference {
 export interface CalculationResult {
   readonly moduleId: string;
   readonly moduleVersion: string;
-  readonly precision: 'ESTIMATE' | 'ENGINEERING' | 'DETAILED';
+  readonly precision: 'ESTIMATE' | 'ENGINEERING' | 'STANDARD' | 'REGULATORY';
   readonly status: 'OK' | 'PARTIAL' | 'FAILED';
   readonly methodId: string;
   readonly inputFingerprint: string;
@@ -58,6 +69,14 @@ export interface CalculationModule {
   readonly methodId: string;
   readonly precision: CalculationResult['precision'];
   readonly dependencies: readonly CalculationDependency[];
+  /** Schema identifier for serializable worker-bound settings. */
+  readonly settingsSchemaId: string;
+  /** Project/domain paths owned by this module for invalidation. */
+  readonly inputPaths: readonly string[];
+  validate(
+    input: CalculationJson,
+    settings: CalculationJson,
+  ): CalculationValidation;
   calculate(
     input: CalculationJson,
     settings: CalculationJson,
@@ -77,6 +96,7 @@ export type CalculationRunResult =
         | 'UNKNOWN_MODULE'
         | 'MISSING_DEPENDENCY'
         | 'DEPENDENCY_CYCLE'
+        | 'INVALID_INPUT'
         | 'ABORTED'
         | 'TECHNICAL_ERROR';
       readonly message: string;
@@ -152,6 +172,15 @@ export class CalculationOrchestrator {
     }
     const input = inputs[moduleId] ?? null;
     const moduleSettings = settings[moduleId] ?? null;
+    const validation = module.validate(input, moduleSettings);
+    if (!validation.valid)
+      return {
+        status: 'ERROR',
+        code: 'INVALID_INPUT',
+        message: validation.issues
+          .map(({ path, message }) => `${path}: ${message}`)
+          .join('; '),
+      };
     const fingerprint = fingerprintValue({
       moduleId,
       version: module.version,

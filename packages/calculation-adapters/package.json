@@ -1,0 +1,41 @@
+{
+  "name": "@house-technical-designer/calculation-adapters",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "test": "vitest run --root ../.. packages/calculation-adapters",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@house-technical-designer/calculation-core": "0.1.0",
+    "@house-technical-designer/thermal": "0.1.0",
+    "@house-technical-designer/heating": "0.1.0",
+    "@house-technical-designer/lighting": "0.1.0",
+    "@house-technical-designer/photovoltaic": "0.1.0",
+    "@house-technical-designer/battery": "0.1.0",
+    "@house-technical-designer/water": "0.1.0",
+    "@house-technical-designer/ventilation": "0.1.0",
+    "@house-technical-designer/rainwater": "0.1.0",
+    "@house-technical-designer/iaq": "0.1.0",
+    "@house-technical-designer/hygrothermal": "0.1.0",
+    "@house-technical-designer/acoustics": "0.1.0",
+    "@house-technical-designer/dhw": "0.1.0",
+    "@house-technical-designer/cost": "0.1.0",
+    "@house-technical-designer/environmental": "0.1.0",
+    "@house-technical-designer/wastewater": "0.1.0",
+    "@house-technical-designer/core-domain": "0.0.0",
+    "@house-technical-designer/materials": "0.0.0",
+    "@house-technical-designer/assemblies": "0.1.0",
+    "@house-technical-designer/project-io": "0.1.0",
+    "@house-technical-designer/rule-engine": "0.1.0",
+    "@house-technical-designer/climate": "0.1.0"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1"
+  }
+}

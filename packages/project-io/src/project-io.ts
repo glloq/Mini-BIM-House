@@ -1,4 +1,5 @@
 import type { ProjectFile } from '@house-technical-designer/core-domain';
+import validateProjectSchema from './generated-project-validator.js';
 import {
   DEFAULT_PROJECT_MIGRATIONS,
   runMigrationChain,
@@ -85,43 +86,102 @@ export function loadProjectJson(
   return { status: 'OK', file: structuredClone(file), migrationJournal };
 }
 
-/** Mirrors the current project.schema.json contract without silently defaulting missing data. */
+/** Validates with the compiled canonical JSON Schema, then checks project-wide references. */
 export function validateProjectFile(
   value: unknown,
 ): readonly ProjectValidationIssue[] {
+  if (!validateProjectSchema(value))
+    return (validateProjectSchema.errors ?? []).map((error) => ({
+      path:
+        error.keyword === 'required' &&
+        typeof error.params.missingProperty === 'string'
+          ? `${error.instancePath}/${error.params.missingProperty}`
+          : error.instancePath === ''
+            ? '/'
+            : error.instancePath,
+      message: error.message ?? 'does not satisfy the project schema',
+    }));
+  return validateProjectReferences(value as ProjectFile);
+}
+
+function validateProjectReferences(
+  file: ProjectFile,
+): readonly ProjectValidationIssue[] {
   const issues: ProjectValidationIssue[] = [];
-  if (!isRecord(value)) return [{ path: '/', message: 'must be an object' }];
-  requiredString(issues, value, 'format', '/format');
-  if (value.format !== 'house-technical-designer-project')
-    issues.push({
-      path: '/format',
-      message: 'must identify a House Technical Designer project',
+  const levels = new Set(file.project.building.levels.map(({ id }) => id));
+  const walls = new Set(
+    file.project.building.levels.flatMap(({ walls }) =>
+      walls.map(({ id }) => id),
+    ),
+  );
+  const materials = new Set(
+    file.project.materialLibrary?.materials.map(({ id }) => id) ?? [],
+  );
+  const assemblies = new Set(
+    file.project.assemblies?.map(({ id }) => id) ?? [],
+  );
+  file.project.building.levels.forEach((level, levelIndex) => {
+    const base = `/project/building/levels/${levelIndex}`;
+    for (const [collection, elements] of [
+      ['walls', level.walls],
+      ['slabs', level.slabs],
+      ['roofs', level.roofs],
+    ] as const)
+      elements.forEach((element, index) => {
+        if (!levels.has(element.levelId))
+          issues.push({
+            path: `${base}/${collection}/${index}/levelId`,
+            message: `references unknown level ${element.levelId}`,
+          });
+        if (!assemblies.has(element.assemblyId))
+          issues.push({
+            path: `${base}/${collection}/${index}/assemblyId`,
+            message: `references unknown assembly ${element.assemblyId}`,
+          });
+      });
+    level.openings.forEach((opening, index) => {
+      if (!walls.has(opening.hostElementId))
+        issues.push({
+          path: `${base}/openings/${index}/hostElementId`,
+          message: `references unknown wall ${opening.hostElementId}`,
+        });
     });
-  requiredString(issues, value, 'schemaVersion', '/schemaVersion');
-  if (
-    typeof value.schemaVersion === 'string' &&
-    !/^\d+\.\d+\.\d+$/u.test(value.schemaVersion)
-  )
-    issues.push({
-      path: '/schemaVersion',
-      message: 'must be semantic version x.y.z',
+    level.spaces.forEach((space, index) => {
+      if (!levels.has(space.levelId))
+        issues.push({
+          path: `${base}/spaces/${index}/levelId`,
+          message: `references unknown level ${space.levelId}`,
+        });
     });
-  if (!isRecord(value.project))
-    return [...issues, { path: '/project', message: 'must be an object' }];
-  const project = value.project;
-  requiredString(issues, project, 'id', '/project/id');
-  validateMetadata(issues, project.metadata);
-  if (!isRecord(project.site))
-    issues.push({ path: '/project/site', message: 'must be an object' });
-  else
-    finiteNumber(
-      issues,
-      project.site,
-      'northAngleDeg',
-      '/project/site/northAngleDeg',
-    );
-  validateBuilding(issues, project.building);
-  validateJsonValue(value, '/', issues);
+  });
+  file.project.assemblies?.forEach((assembly, assemblyIndex) =>
+    assembly.layers.forEach((layer, layerIndex) => {
+      if (!materials.has(layer.materialId))
+        issues.push({
+          path: `/project/assemblies/${assemblyIndex}/layers/${layerIndex}/materialId`,
+          message: `references unknown material ${layer.materialId}`,
+        });
+    }),
+  );
+  file.project.systems?.forEach((network, networkIndex) => {
+    const nodeIds = new Set(network.nodes.map(({ id }) => id));
+    const portIds = new Set(network.ports.map(({ id }) => id));
+    network.ports.forEach((port, portIndex) => {
+      if (!nodeIds.has(port.nodeId))
+        issues.push({
+          path: `/project/systems/${networkIndex}/ports/${portIndex}/nodeId`,
+          message: `references unknown network node ${port.nodeId}`,
+        });
+    });
+    network.edges.forEach((edge, edgeIndex) => {
+      for (const key of ['fromPortId', 'toPortId'] as const)
+        if (!portIds.has(edge[key]))
+          issues.push({
+            path: `/project/systems/${networkIndex}/edges/${edgeIndex}/${key}`,
+            message: `references unknown network port ${edge[key]}`,
+          });
+    });
+  });
   return issues;
 }
 
@@ -143,119 +203,6 @@ export class ProjectSerializationError extends Error {
     super(issues.map(({ path, message }) => `${path}: ${message}`).join('; '));
     this.name = 'ProjectSerializationError';
   }
-}
-
-function validateMetadata(
-  issues: ProjectValidationIssue[],
-  value: unknown,
-): void {
-  if (!isRecord(value)) {
-    issues.push({ path: '/project/metadata', message: 'must be an object' });
-    return;
-  }
-  requiredString(issues, value, 'name', '/project/metadata/name');
-  requiredString(issues, value, 'createdAt', '/project/metadata/createdAt');
-  requiredString(issues, value, 'updatedAt', '/project/metadata/updatedAt');
-}
-
-function validateBuilding(
-  issues: ProjectValidationIssue[],
-  value: unknown,
-): void {
-  if (!isRecord(value)) {
-    issues.push({ path: '/project/building', message: 'must be an object' });
-    return;
-  }
-  if (!Array.isArray(value.levels))
-    issues.push({
-      path: '/project/building/levels',
-      message: 'must be an array',
-    });
-  else
-    value.levels.forEach((level, index) => validateLevel(issues, level, index));
-  if (!Array.isArray(value.zones))
-    issues.push({
-      path: '/project/building/zones',
-      message: 'must be an array',
-    });
-}
-
-function validateLevel(
-  issues: ProjectValidationIssue[],
-  value: unknown,
-  index: number,
-): void {
-  const base = `/project/building/levels/${index}`;
-  if (!isRecord(value)) {
-    issues.push({ path: base, message: 'must be an object' });
-    return;
-  }
-  requiredString(issues, value, 'id', `${base}/id`);
-  requiredString(issues, value, 'name', `${base}/name`);
-  finiteNumber(issues, value, 'elevationMm', `${base}/elevationMm`);
-  finiteNumber(
-    issues,
-    value,
-    'defaultStoreyHeightMm',
-    `${base}/defaultStoreyHeightMm`,
-  );
-  if (
-    typeof value.defaultStoreyHeightMm === 'number' &&
-    value.defaultStoreyHeightMm <= 0
-  )
-    issues.push({
-      path: `${base}/defaultStoreyHeightMm`,
-      message: 'must be greater than zero',
-    });
-}
-
-function requiredString(
-  issues: ProjectValidationIssue[],
-  value: Record<string, unknown>,
-  key: string,
-  path: string,
-): void {
-  const field = value[key];
-  if (typeof field !== 'string')
-    issues.push({ path, message: 'must be a string' });
-  else if (field.length === 0 && key === 'id')
-    issues.push({ path, message: 'must not be empty' });
-}
-
-function finiteNumber(
-  issues: ProjectValidationIssue[],
-  value: Record<string, unknown>,
-  key: string,
-  path: string,
-): void {
-  if (typeof value[key] !== 'number' || !Number.isFinite(value[key]))
-    issues.push({ path, message: 'must be a finite number' });
-}
-
-function validateJsonValue(
-  value: unknown,
-  path: string,
-  issues: ProjectValidationIssue[],
-): void {
-  if (value === null || typeof value === 'string' || typeof value === 'boolean')
-    return;
-  if (typeof value === 'number') {
-    if (!Number.isFinite(value))
-      issues.push({ path, message: 'must not contain NaN or Infinity' });
-    return;
-  }
-  if (Array.isArray(value)) {
-    value.forEach((item, index) =>
-      validateJsonValue(item, `${path}/${index}`, issues),
-    );
-    return;
-  }
-  if (isRecord(value)) {
-    for (const [key, item] of Object.entries(value))
-      validateJsonValue(item, `${path}/${escapePointer(key)}`, issues);
-    return;
-  }
-  issues.push({ path, message: 'must contain only JSON values' });
 }
 
 function canonicalize(value: unknown): unknown {
@@ -281,8 +228,4 @@ function compareSemver(first: string, second: string): number {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function escapePointer(value: string): string {
-  return value.replaceAll('~', '~0').replaceAll('/', '~1');
 }

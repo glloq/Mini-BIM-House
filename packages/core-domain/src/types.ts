@@ -1,5 +1,13 @@
 import type { BuildingId, EntityId, LevelId, ProjectId, SiteId } from './ids';
 import type { Polygon2D } from '@house-technical-designer/geometry';
+import type { Material } from '@house-technical-designer/materials';
+import type { Assembly } from '@house-technical-designer/assemblies';
+import type { Wall } from './wall.js';
+import type { Opening } from './opening.js';
+import type { Space } from './space.js';
+import type { Slab } from './slab.js';
+import type { RoofPlane } from './roof-plane.js';
+import type { TechnicalNetwork } from './network.js';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
@@ -58,12 +66,12 @@ export interface Level extends BaseEntity<LevelId> {
   readonly name: string;
   readonly elevationMm: number;
   readonly defaultStoreyHeightMm: number;
-  readonly walls: readonly JsonValue[];
-  readonly slabs: readonly JsonValue[];
-  readonly roofs: readonly JsonValue[];
-  readonly openings: readonly JsonValue[];
+  readonly walls: readonly Wall[];
+  readonly slabs: readonly Slab[];
+  readonly roofs: readonly RoofPlane[];
+  readonly openings: readonly Opening[];
   readonly stairs: readonly JsonValue[];
-  readonly spaces: readonly JsonValue[];
+  readonly spaces: readonly Space[];
   readonly annotations: readonly JsonValue[];
 }
 
@@ -99,17 +107,45 @@ export interface RegulatoryContext {
   readonly enabledRulePacks: readonly JsonValue[];
 }
 
+export interface EquipmentDefinition {
+  readonly id: string;
+  readonly kind: string;
+  readonly catalogKind: 'GENERIC' | 'PRODUCT' | 'CUSTOM';
+  readonly properties: Readonly<Record<string, JsonValue>>;
+}
+export interface ScenarioOverride {
+  readonly path: string;
+  readonly operation: 'SET' | 'ADD' | 'REMOVE' | 'REPLACE_REFERENCE';
+  readonly value?: JsonValue;
+}
+export interface Scenario {
+  readonly id: string;
+  readonly name: string;
+  readonly baseProjectRevision: string;
+  readonly overrides: readonly ScenarioOverride[];
+  readonly enabledModules?: readonly string[];
+}
+export interface ModuleSettings {
+  readonly moduleId: string;
+  readonly moduleVersion: string;
+  readonly methodId: string;
+  readonly precisionTarget?:
+    'ESTIMATE' | 'ENGINEERING' | 'STANDARD' | 'REGULATORY';
+  readonly settings: Readonly<Record<string, JsonValue>>;
+  readonly rulePackIds?: readonly string[];
+}
+
 export interface Project extends BaseEntity<ProjectId> {
   readonly metadata: ProjectMetadata;
   readonly site: Site;
   readonly building: Building;
-  readonly materialLibrary?: { readonly materials: readonly JsonValue[] };
-  readonly assemblies?: readonly JsonValue[];
-  readonly equipment?: readonly JsonValue[];
-  readonly systems?: readonly JsonValue[];
-  readonly scenarios?: readonly JsonValue[];
+  readonly materialLibrary?: { readonly materials: readonly Material[] };
+  readonly assemblies?: readonly Assembly[];
+  readonly equipment?: readonly EquipmentDefinition[];
+  readonly systems?: readonly TechnicalNetwork[];
+  readonly scenarios?: readonly Scenario[];
   readonly drawingViews?: readonly JsonValue[];
-  readonly calculationSettings?: Readonly<Record<string, JsonValue>>;
+  readonly calculationSettings?: Readonly<Record<string, ModuleSettings>>;
   readonly regulatoryContext?: RegulatoryContext;
 }
 

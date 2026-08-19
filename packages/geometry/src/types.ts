@@ -50,7 +50,10 @@ export type GeometryIssueCode =
   | 'INSUFFICIENT_POINTS'
   | 'DEGENERATE_SEGMENT'
   | 'DEGENERATE_POLYGON'
-  | 'SELF_INTERSECTION';
+  | 'SELF_INTERSECTION'
+  | 'HOLE_OUTSIDE_OUTER'
+  | 'RING_INTERSECTION'
+  | 'HOLE_OVERLAP';
 
 export interface GeometryIssue {
   readonly code: GeometryIssueCode;

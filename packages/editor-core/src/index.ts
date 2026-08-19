@@ -6,3 +6,5 @@ export * from './wall-drawing-tool.js';
 export * from './opening-tool.js';
 export * from './dimension.js';
 export * from './network-tool.js';
+
+export * from './project-commands.js';

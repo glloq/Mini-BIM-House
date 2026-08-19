@@ -223,3 +223,18 @@ Les settings spécifiques peuvent avoir des sous-schémas.
 ## 19. Critère MVP
 
 Les modules `thermal`, `rainwater` et `electrical` doivent fonctionner via exactement le même orchestrateur sans logique spécifique dans l'UI.
+
+## 20. Frontière d'intégration énergétique
+
+Les adaptateurs de calcul sont propriétaires des conversions entre résultats de
+modules et usages énergétiques. Chaque usage possède un identifiant stable de la
+forme `<source>:<vecteur>` (par exemple `heating:electricity` et
+`lighting:electricity`). L'agrégateur rejette les identifiants dupliqués.
+
+- chauffage, ECS, éclairage et ventilation produisent chacun leur charge une seule fois ;
+- photovoltaïque produit une génération, jamais une charge négative ;
+- batterie possède le dispatch charge/décharge et ses pertes ;
+- energy-balance assemble le registre sans recalculer ni recompter ces flux.
+
+Les conversions d'unités et de pas de temps appartiennent aux adaptateurs, jamais
+à React ni aux noyaux scientifiques.

@@ -91,12 +91,133 @@ export function validatePolygon(
       },
     ];
   }
+  const degenerateHole = (polygon.holes ?? []).findIndex(
+    (ring) => Math.abs(signedRingArea(ring)) <= tolerance.areaMm2,
+  );
+  if (degenerateHole >= 0)
+    return [
+      {
+        code: 'DEGENERATE_POLYGON',
+        message: `Polygon hole ${degenerateHole} has no area.`,
+      },
+    ];
   if (rings.some((ring) => ringSelfIntersects(ring, tolerance.collinearMm))) {
     return [
       { code: 'SELF_INTERSECTION', message: 'Polygon rings must be simple.' },
     ];
   }
+  for (const [holeIndex, hole] of (polygon.holes ?? []).entries()) {
+    if (ringsIntersect(polygon.outer, hole, tolerance.collinearMm))
+      return [
+        {
+          code: 'RING_INTERSECTION',
+          message: `Polygon hole ${holeIndex} crosses or touches the outer boundary.`,
+        },
+      ];
+    if (!pointInRing(hole[0]!, polygon.outer, tolerance.collinearMm))
+      return [
+        {
+          code: 'HOLE_OUTSIDE_OUTER',
+          message: `Polygon hole ${holeIndex} must be strictly inside the outer ring.`,
+        },
+      ];
+    for (let otherIndex = 0; otherIndex < holeIndex; otherIndex += 1) {
+      const other = polygon.holes![otherIndex]!;
+      if (
+        ringsIntersect(hole, other, tolerance.collinearMm) ||
+        pointInRing(hole[0]!, other, tolerance.collinearMm) ||
+        pointInRing(other[0]!, hole, tolerance.collinearMm)
+      )
+        return [
+          {
+            code: 'HOLE_OVERLAP',
+            message: `Polygon holes ${otherIndex} and ${holeIndex} overlap, touch, or contain one another.`,
+          },
+        ];
+    }
+  }
   return [];
+}
+
+function ringsIntersect(
+  first: readonly Point2D[],
+  second: readonly Point2D[],
+  epsilon: number,
+): boolean {
+  return first.some((start, firstIndex) => {
+    const end = first[(firstIndex + 1) % first.length]!;
+    return second.some((otherStart, secondIndex) =>
+      segmentsMeet(
+        start,
+        end,
+        otherStart,
+        second[(secondIndex + 1) % second.length]!,
+        epsilon,
+      ),
+    );
+  });
+}
+
+function segmentsMeet(
+  a: Point2D,
+  b: Point2D,
+  c: Point2D,
+  d: Point2D,
+  epsilon: number,
+): boolean {
+  const abc = orientation(a, b, c);
+  const abd = orientation(a, b, d);
+  const cda = orientation(c, d, a);
+  const cdb = orientation(c, d, b);
+  if (abc * abd < -epsilon && cda * cdb < -epsilon) return true;
+  return (
+    (Math.abs(abc) <= epsilon && onSegment(c, a, b, epsilon)) ||
+    (Math.abs(abd) <= epsilon && onSegment(d, a, b, epsilon)) ||
+    (Math.abs(cda) <= epsilon && onSegment(a, c, d, epsilon)) ||
+    (Math.abs(cdb) <= epsilon && onSegment(b, c, d, epsilon))
+  );
+}
+
+function pointInRing(
+  point: Point2D,
+  ring: readonly Point2D[],
+  epsilon: number,
+): boolean {
+  let inside = false;
+  for (let index = 0; index < ring.length; index += 1) {
+    const start = ring[index]!;
+    const end = ring[(index + 1) % ring.length]!;
+    if (
+      Math.abs(orientation(start, end, point)) <= epsilon &&
+      onSegment(point, start, end, epsilon)
+    )
+      return false;
+    if (
+      start.y > point.y !== end.y > point.y &&
+      point.x <
+        ((end.x - start.x) * (point.y - start.y)) / (end.y - start.y) + start.x
+    )
+      inside = !inside;
+  }
+  return inside;
+}
+
+function orientation(a: Point2D, b: Point2D, c: Point2D): number {
+  return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
+function onSegment(
+  point: Point2D,
+  start: Point2D,
+  end: Point2D,
+  epsilon: number,
+): boolean {
+  return (
+    point.x >= Math.min(start.x, end.x) - epsilon &&
+    point.x <= Math.max(start.x, end.x) + epsilon &&
+    point.y >= Math.min(start.y, end.y) - epsilon &&
+    point.y <= Math.max(start.y, end.y) + epsilon
+  );
 }
 
 function ringSelfIntersects(
