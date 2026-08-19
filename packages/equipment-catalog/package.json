@@ -1,5 +1,5 @@
 {
-  "name": "@house-technical-designer/editor-core",
+  "name": "@house-technical-designer/equipment-catalog",
   "version": "0.1.0",
   "private": true,
   "license": "AGPL-3.0-only",
@@ -13,9 +13,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@house-technical-designer/assemblies": "0.1.0",
-    "@house-technical-designer/core-domain": "0.1.0",
-    "@house-technical-designer/geometry": "0.1.0",
-    "@house-technical-designer/materials": "0.1.0"
+    "@house-technical-designer/geometry": "0.1.0"
   }
 }

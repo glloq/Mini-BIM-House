@@ -8,3 +8,4 @@ export * from './dimension.js';
 export * from './network-tool.js';
 
 export * from './project-commands.js';
+export * from './library-commands.js';
