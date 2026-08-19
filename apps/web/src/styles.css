@@ -778,3 +778,277 @@ button.icon {
   padding-left: 1.1rem;
   font-size: 0.82rem;
 }
+
+/* Calculation dashboard. */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.6rem;
+}
+.dashboard-card {
+  display: grid;
+  gap: 0.2rem;
+  border: 1px solid #e0e6e2;
+  border-radius: 0.8rem;
+  padding: 0.7rem 0.85rem;
+  background: #fff;
+  color: #172126;
+  text-align: left;
+  font-weight: 500;
+}
+.dashboard-card-label {
+  color: #4a5d54;
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+.dashboard-card-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-card-value small {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7871;
+}
+.module-list,
+.alert-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.module-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #e0e6e2;
+  border-radius: 0.7rem;
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+  color: #172126;
+  text-align: left;
+  font-weight: 500;
+}
+.module-body {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid #e0e6e2;
+  border-top: 0;
+  border-radius: 0 0 0.7rem 0.7rem;
+  padding: 0.75rem;
+  background: #fbfdfc;
+  font-size: 0.82rem;
+}
+.module-body h4 {
+  margin: 0 0 0.3rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4a5d54;
+}
+.module-body ul {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+.alert-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  border-bottom: 1px solid #eef2ef;
+  padding-bottom: 0.3rem;
+  font-size: 0.82rem;
+}
+.badge.status-ok {
+  background: #d8ecdf;
+  color: #14563a;
+}
+.badge.status-partial,
+.badge.status-missing-input {
+  background: #f6e2c8;
+  color: #7a4a12;
+}
+.badge.status-failed,
+.badge.status-error {
+  background: #f4d5d5;
+  color: #7a1b1b;
+}
+.badge.severity-error {
+  background: #f4d5d5;
+  color: #7a1b1b;
+}
+.badge.severity-warning {
+  background: #f6e2c8;
+  color: #7a4a12;
+}
+.badge.severity-info {
+  background: #dbe6f2;
+  color: #1d3f6b;
+}
+
+/* Analysis overlay control and legend. */
+.overlay-control {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.overlay-control h3 {
+  margin: 0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4a5d54;
+}
+.overlay-control label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: #4a5d54;
+}
+.overlay-control select {
+  border: 1px solid #cbd5cf;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  background: #fff;
+}
+.overlay-legend {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  font-size: 0.74rem;
+}
+.overlay-metric {
+  margin: 0;
+  font-weight: 700;
+}
+.overlay-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.4rem;
+  align-items: center;
+}
+.overlay-band dt {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  color: #4a5d54;
+}
+.overlay-band dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.overlay-swatch {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1px solid #b9c4bd;
+  border-radius: 0.2rem;
+}
+.overlay-swatch.analysis-low {
+  background: #7fb069;
+}
+.overlay-swatch.analysis-medium {
+  background: #f2c14e;
+}
+.overlay-swatch.analysis-high {
+  background: #e2725b;
+}
+.overlay-swatch.analysis-unknown {
+  background: repeating-linear-gradient(
+    45deg,
+    #d9d9d9,
+    #d9d9d9 3px,
+    #fff 3px,
+    #fff 6px
+  );
+}
+
+/* Scenario comparison deltas. */
+.delta {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.delta.up {
+  color: #8c4a12;
+}
+.delta.down {
+  color: #14563a;
+}
+.delta small {
+  font-weight: 500;
+  color: #6b7871;
+}
+
+/* Save state and crash handling. */
+.save-state {
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #e4eae6;
+  color: #31443b;
+}
+.save-state.save-modified {
+  background: #f6e2c8;
+  color: #7a4a12;
+}
+.save-state.save-autosaved {
+  background: #dbe6f2;
+  color: #1d3f6b;
+}
+.save-state.save-failed {
+  background: #f4d5d5;
+  color: #7a1b1b;
+}
+.recovery-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+}
+.crash-panel {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 3rem;
+  padding: 1.5rem;
+}
+.crash-detail {
+  overflow-x: auto;
+  border-radius: 0.6rem;
+  padding: 0.7rem;
+  background: #f4f6f5;
+  font-size: 0.8rem;
+}
+
+/* Label and control kept together so a form row stays a column, not a pile. */
+.field {
+  display: grid;
+  gap: 0.2rem;
+}
+.field > label {
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: #4a5d54;
+}
+
+/* A wide table scrolls inside its column instead of spilling over the next. */
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Network tables are dense: they get the full width rather than half of it. */
+.network-layout {
+  display: grid;
+  gap: 1.5rem;
+}

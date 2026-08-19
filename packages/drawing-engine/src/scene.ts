@@ -50,7 +50,11 @@ export type SemanticRole =
   | 'SYMBOL'
   | 'ANNOTATION'
   | 'DIMENSION'
-  | 'ANALYSIS';
+  | 'ANALYSIS'
+  | 'ANALYSIS_LOW'
+  | 'ANALYSIS_MEDIUM'
+  | 'ANALYSIS_HIGH'
+  | 'ANALYSIS_UNKNOWN';
 export type ObjectState =
   'NORMAL' | 'SELECTED' | 'HOVER' | 'WARNING' | 'ERROR' | 'GHOST';
 export type SceneGeometry =

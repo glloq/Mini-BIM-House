@@ -1,0 +1,338 @@
+import { describe, expect, it } from 'vitest';
+import type {
+  NetworkEdge,
+  NetworkNode,
+  Project,
+  TechnicalNetwork,
+} from '@house-technical-designer/core-domain';
+import {
+  AddNetworkCommand,
+  AddNetworkNodeCommand,
+  AddNetworkPortCommand,
+  ConnectNetworkPortsCommand,
+  ProjectCommandDispatcher,
+  RemoveNetworkCommand,
+  RemoveNetworkEdgeCommand,
+  RemoveNetworkNodeCommand,
+  RemoveNetworkPortCommand,
+  UpdateNetworkNodeCommand,
+  connectablePorts,
+  draftNetwork,
+  networkNodeTemplates,
+  networkSummary,
+  openPorts,
+  orthogonalRoute,
+  templatePorts,
+} from './index.js';
+
+function baseProject(networks: readonly TechnicalNetwork[] = []): Project {
+  return {
+    metadata: {
+      name: 'Réseaux',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    },
+    building: { levels: [] },
+    systems: networks,
+  } as unknown as Project;
+}
+
+function waterNetwork(): TechnicalNetwork {
+  return {
+    id: 'water',
+    discipline: 'WATER',
+    systemType: 'POTABLE_COLD',
+    nodes: [
+      { id: 'source', kind: 'SOURCE', position: { x: 0, y: 0, z: 0 } },
+      { id: 'sink', kind: 'FIXTURE', position: { x: 3000, y: 2000, z: 0 } },
+    ],
+    ports: [
+      { id: 'source-out', nodeId: 'source', role: 'FLOW', direction: 'OUT' },
+      { id: 'sink-in', nodeId: 'sink', role: 'FLOW', direction: 'IN' },
+    ],
+    edges: [],
+  };
+}
+
+function pipe(): NetworkEdge {
+  return {
+    id: 'trunk',
+    fromPortId: 'source-out',
+    toPortId: 'sink-in',
+    kind: 'PIPE',
+    path: [
+      { x: 0, y: 0, z: 0 },
+      { x: 3000, y: 0, z: 0 },
+      { x: 3000, y: 2000, z: 0 },
+    ],
+  };
+}
+
+describe('network authoring helpers', () => {
+  it('turns a node template into ports named after the node', () => {
+    const template = networkNodeTemplates('VENTILATION').find(
+      ({ kind }) => kind === 'JUNCTION',
+    )!;
+    expect(templatePorts('vent:junction', template)).toEqual([
+      {
+        id: 'vent:junction-in',
+        nodeId: 'vent:junction',
+        role: 'AIR',
+        direction: 'IN',
+      },
+      {
+        id: 'vent:junction-out',
+        nodeId: 'vent:junction',
+        role: 'AIR',
+        direction: 'OUT',
+      },
+    ]);
+  });
+
+  it('routes orthogonally and drops the corner when it adds nothing', () => {
+    expect(
+      orthogonalRoute({ x: 0, y: 0, z: 0 }, { x: 1000, y: 500, z: 0 }),
+    ).toEqual([
+      { x: 0, y: 0, z: 0 },
+      { x: 1000, y: 0, z: 0 },
+      { x: 1000, y: 500, z: 0 },
+    ]);
+    expect(
+      orthogonalRoute({ x: 0, y: 0, z: 0 }, { x: 1000, y: 0, z: 0 }),
+    ).toEqual([
+      { x: 0, y: 0, z: 0 },
+      { x: 1000, y: 0, z: 0 },
+    ]);
+  });
+
+  it('reports open ports and the developed length of the routes', () => {
+    const summary = networkSummary({ ...waterNetwork(), edges: [pipe()] });
+    expect(summary.nodeCount).toBe(2);
+    expect(summary.edgeCount).toBe(1);
+    expect(summary.openPortCount).toBe(0);
+    expect(summary.routeLengthMm).toBe(5000);
+  });
+
+  it('offers only compatible, unconnected ports as a destination', () => {
+    const network = waterNetwork();
+    expect(connectablePorts(network, 'source-out').map(({ id }) => id)).toEqual(
+      ['sink-in'],
+    );
+    const connected = { ...network, edges: [pipe()] };
+    expect(connectablePorts(connected, 'source-out')).toEqual([]);
+    expect(openPorts(connected)).toEqual([]);
+  });
+
+  it('drafts a network around the source node of its discipline', () => {
+    const { network, source } = draftNetwork('vmc', 'VENTILATION', 'EXTRACT', {
+      x: 100,
+      y: 200,
+      z: 2400,
+    });
+    expect(source.kind).toBe('FAN');
+    expect(network.ports).toHaveLength(1);
+    expect(network.edges).toEqual([]);
+  });
+});
+
+describe('network commands', () => {
+  it('adds and removes a network, and undoes both', () => {
+    const dispatcher = new ProjectCommandDispatcher(baseProject());
+    expect(
+      dispatcher.dispatch(new AddNetworkCommand(waterNetwork())).status,
+    ).toBe('APPLIED');
+    expect(dispatcher.project.systems).toHaveLength(1);
+    expect(dispatcher.dispatch(new RemoveNetworkCommand('water')).status).toBe(
+      'APPLIED',
+    );
+    expect(dispatcher.project.systems).toHaveLength(0);
+    expect(dispatcher.undo().status).toBe('APPLIED');
+    expect(dispatcher.project.systems).toHaveLength(1);
+    expect(dispatcher.undo().status).toBe('APPLIED');
+    expect(dispatcher.project.systems).toHaveLength(0);
+  });
+
+  it('creates a drainage network even though it carries no source node', () => {
+    const dispatcher = new ProjectCommandDispatcher(baseProject());
+    const { network } = draftNetwork(
+      'eu',
+      'WASTEWATER',
+      'COMBINED_WASTEWATER',
+      { x: 0, y: 0, z: -200 },
+    );
+    expect(dispatcher.dispatch(new AddNetworkCommand(network)).status).toBe(
+      'APPLIED',
+    );
+    // The missing source is not hidden: it stays reported as an open issue.
+    expect(
+      networkSummary(dispatcher.project.systems![0]!).issues.map(
+        ({ code }) => code,
+      ),
+    ).toContain('NETWORK_MISSING_SOURCE');
+  });
+
+  it('refuses a duplicate network identifier', () => {
+    const dispatcher = new ProjectCommandDispatcher(
+      baseProject([waterNetwork()]),
+    );
+    const result = dispatcher.dispatch(new AddNetworkCommand(waterNetwork()));
+    expect(result.status).toBe('REJECTED');
+  });
+
+  it('places a node with its ports and routes an edge to it', () => {
+    const dispatcher = new ProjectCommandDispatcher(
+      baseProject([waterNetwork()]),
+    );
+    const node: NetworkNode = {
+      id: 'basin',
+      kind: 'FIXTURE',
+      position: { x: 5000, y: 1000, z: 0 },
+    };
+    expect(
+      dispatcher.dispatch(
+        new AddNetworkNodeCommand(
+          'water',
+          node,
+          templatePorts('basin', networkNodeTemplates('WATER')[2]!),
+        ),
+      ).status,
+    ).toBe('APPLIED');
+    expect(dispatcher.project.systems![0]!.nodes).toHaveLength(3);
+    expect(
+      dispatcher.dispatch(new ConnectNetworkPortsCommand('water', pipe()))
+        .status,
+    ).toBe('APPLIED');
+    expect(dispatcher.project.systems![0]!.edges).toHaveLength(1);
+  });
+
+  it('refuses a node whose ports belong to another node', () => {
+    const dispatcher = new ProjectCommandDispatcher(
+      baseProject([waterNetwork()]),
+    );
+    const result = dispatcher.dispatch(
+      new AddNetworkNodeCommand(
+        'water',
+        { id: 'basin', kind: 'FIXTURE', position: { x: 0, y: 0, z: 0 } },
+        [{ id: 'stray', nodeId: 'other', role: 'FLOW', direction: 'IN' }],
+      ),
+    );
+    expect(result.status).toBe('REJECTED');
+  });
+
+  it('refuses to connect two ports that are already joined', () => {
+    const dispatcher = new ProjectCommandDispatcher(
+      baseProject([{ ...waterNetwork(), edges: [pipe()] }]),
+    );
+    const result = dispatcher.dispatch(
+      new ConnectNetworkPortsCommand('water', { ...pipe(), id: 'again' }),
+    );
+    expect(result.status).toBe('REJECTED');
+    if (result.status === 'REJECTED')
+      expect(result.errors.join(' ')).toContain('already connected');
+  });
+
+  it('removes a node together with its ports and the edges reaching it', () => {
+    const dispatcher = new ProjectCommandDispatcher(
+      baseProject([{ ...waterNetwork(), edges: [pipe()] }]),
+    );
+    expect(
+      dispatcher.dispatch(new RemoveNetworkNodeCommand('water', 'sink')).status,
+    ).toBe('APPLIED');
+    const network = dispatcher.project.systems![0]!;
+    expect(network.nodes.map(({ id }) => id)).toEqual(['source']);
+    expect(network.ports.map(({ id }) => id)).toEqual(['source-out']);
+    expect(network.edges).toEqual([]);
+    expect(dispatcher.undo().status).toBe('APPLIED');
+    expect(dispatcher.project.systems![0]!.edges).toHaveLength(1);
+  });
+
+  it('keeps a port that still carries a segment', () => {
+    const dispatcher = new ProjectCommandDispatcher(
+      baseProject([{ ...waterNetwork(), edges: [pipe()] }]),
+    );
+    expect(
+      dispatcher.dispatch(new RemoveNetworkPortCommand('water', 'sink-in'))
+        .status,
+    ).toBe('REJECTED');
+    expect(
+      dispatcher.dispatch(new RemoveNetworkEdgeCommand('water', 'trunk'))
+        .status,
+    ).toBe('APPLIED');
+    expect(
+      dispatcher.dispatch(new RemoveNetworkPortCommand('water', 'sink-in'))
+        .status,
+    ).toBe('APPLIED');
+  });
+
+  it('adds a second outgoing port so a junction can feed another branch', () => {
+    const dispatcher = new ProjectCommandDispatcher(
+      baseProject([waterNetwork()]),
+    );
+    expect(
+      dispatcher.dispatch(
+        new AddNetworkPortCommand('water', {
+          id: 'source-out-2',
+          nodeId: 'source',
+          role: 'FLOW',
+          direction: 'OUT',
+        }),
+      ).status,
+    ).toBe('APPLIED');
+    expect(dispatcher.project.systems![0]!.ports).toHaveLength(3);
+  });
+
+  it('drags the ends of the segments that reach a moved node', () => {
+    const dispatcher = new ProjectCommandDispatcher(
+      baseProject([{ ...waterNetwork(), edges: [pipe()] }]),
+    );
+    expect(
+      dispatcher.dispatch(
+        new UpdateNetworkNodeCommand('water', 'sink', {
+          position: { x: 4000, y: 2500, z: 0 },
+          spaceId: 'space:bath',
+        }),
+      ).status,
+    ).toBe('APPLIED');
+    const network = dispatcher.project.systems![0]!;
+    expect(network.nodes[1]!.spaceId).toBe('space:bath');
+    // Only the end that moved follows; the hand-drawn corner is preserved.
+    expect(network.edges[0]!.path).toEqual([
+      { x: 0, y: 0, z: 0 },
+      { x: 3000, y: 0, z: 0 },
+      { x: 4000, y: 2500, z: 0 },
+    ]);
+  });
+
+  it('clears the space a node was assigned to', () => {
+    const dispatcher = new ProjectCommandDispatcher(
+      baseProject([
+        {
+          ...waterNetwork(),
+          nodes: [
+            { id: 'source', kind: 'SOURCE', position: { x: 0, y: 0, z: 0 } },
+            {
+              id: 'sink',
+              kind: 'FIXTURE',
+              position: { x: 3000, y: 2000, z: 0 },
+              spaceId: 'space:kitchen',
+            },
+          ],
+        },
+      ]),
+    );
+    dispatcher.dispatch(
+      new UpdateNetworkNodeCommand('water', 'sink', { spaceId: null }),
+    );
+    expect(dispatcher.project.systems![0]!.nodes[1]).not.toHaveProperty(
+      'spaceId',
+    );
+  });
+
+  it('refuses an edit that names an unknown network', () => {
+    const dispatcher = new ProjectCommandDispatcher(baseProject());
+    expect(
+      dispatcher.dispatch(new RemoveNetworkEdgeCommand('ghost', 'trunk'))
+        .status,
+    ).toBe('REJECTED');
+  });
+});

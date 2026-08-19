@@ -19,14 +19,17 @@
     "lint": "eslint .",
     "validate:schemas": "node scripts/generate-project-validator.mjs --check && node scripts/validate-schemas.mjs",
     "test": "vitest run --passWithNoTests",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "generate:project-validator": "node scripts/generate-project-validator.mjs"
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc -p e2e/tsconfig.json",
+    "generate:project-validator": "node scripts/generate-project-validator.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install --with-deps chromium"
   },
   "engines": {
     "node": ">=22.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^24.3.0",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",

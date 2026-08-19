@@ -17,6 +17,7 @@ import {
 } from '@house-technical-designer/project-io';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import { PROJECT_CALCULATION_MODULES } from './modules.js';
+import { PROJECT_CALCULATION_MODULE_IDS } from './project-inputs.js';
 import { createProjectCalculationContext } from './project-context.js';
 import { buildProjectCalculationInputs } from './project-inputs.js';
 import type { Project } from '@house-technical-designer/core-domain';
@@ -215,6 +216,26 @@ describe('PR-069 reference house', () => {
     expect(changedHeating.designLoadW as number).toBeLessThan(
       baseHeating.designLoadW as number,
     );
+  });
+
+  it('runs every module on the reference house', async () => {
+    const loaded = loadProjectJson(await readFile(fixturePath, 'utf8'));
+    expect(loaded.status).toBe('OK');
+    if (loaded.status !== 'OK') return;
+    const context = createProjectCalculationContext(loaded.file.project, {
+      climate: await climateDatasets(),
+    });
+    const built = buildProjectCalculationInputs(context);
+    expect(built.missing).toEqual([]);
+    const engine = orchestrator();
+    for (const moduleId of PROJECT_CALCULATION_MODULE_IDS) {
+      const result = await engine.calculateModule(moduleId, built.inputs, {});
+      expect(result.status, `${moduleId}: ${JSON.stringify(result)}`).toBe(
+        'OK',
+      );
+      if (result.status !== 'OK') continue;
+      expect(result.result.status, moduleId).not.toBe('FAILED');
+    }
   });
 
   it('propagates project PV power and battery capacity changes', async () => {

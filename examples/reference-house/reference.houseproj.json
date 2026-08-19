@@ -1786,6 +1786,10 @@
           "wasteFactorByMaterial": {
             "material-masonry": 0.05,
             "material-insulation": 0.1
+          },
+          "labourPriceByMaterial": {
+            "material-masonry": 95,
+            "material-insulation": 45
           }
         }
       },

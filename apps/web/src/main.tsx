@@ -9,7 +9,9 @@ import {
 } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { ProjectFile } from '@house-technical-designer/core-domain';
+import type { ClimateDataset } from '@house-technical-designer/climate';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
+import { networkNodeTemplates } from '@house-technical-designer/editor-core';
 import {
   loadProjectJson,
   serializeProjectFile,
@@ -17,15 +19,17 @@ import {
 import {
   boundsOfObjects,
   buildPlanView,
+  networkLayerId,
 } from '@house-technical-designer/view-query';
 import './styles.css';
 import {
   createBlankProject,
   exportProjectPlan,
   ProjectEditingSession,
+  safeFileStem,
   summarizeProject,
 } from './project-workspace.js';
-import { loadDemoProject } from './demo-project.js';
+import { demoClimateDatasets, loadDemoProject } from './demo-project.js';
 import { MaterialsPanel } from './library/MaterialsPanel.js';
 import { AssembliesPanel } from './library/AssembliesPanel.js';
 import { EquipmentPanel } from './library/EquipmentPanel.js';
@@ -33,6 +37,31 @@ import { PlanCanvas } from './editor/PlanCanvas.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { LayersPanel } from './editor/LayersPanel.js';
 import { ToolBar, type OpeningDraft } from './editor/ToolBar.js';
+import { BuildingPanel } from './editor/BuildingPanel.js';
+import { CalculationsPanel } from './calculations/CalculationsPanel.js';
+import { OverlayControl } from './calculations/OverlayControl.js';
+import { QuantitiesPanel } from './quantities/QuantitiesPanel.js';
+import { ScenariosPanel } from './scenarios/ScenariosPanel.js';
+import { NetworksPanel } from './networks/NetworksPanel.js';
+import { placeNodeCommand } from './networks/network-model.js';
+import { ErrorBoundary } from './ErrorBoundary.js';
+import {
+  AUTOSAVE_DELAY_MS,
+  SAVE_STATE_LABELS,
+  discardAutosave,
+  readAutosave,
+  writeAutosave,
+  type SaveState,
+} from './autosave.js';
+import {
+  buildOverlay,
+  designTemperatureDifferenceK,
+  type OverlayId,
+} from './calculations/overlay-source.js';
+import {
+  runProjectCalculations,
+  type CalculationRun,
+} from './calculations/calculation-runner.js';
 import {
   createEditorState,
   editorReducer,
@@ -55,18 +84,33 @@ function download(content: string, fileName: string, mediaType: string): void {
   const link = document.createElement('a');
   link.href = url;
   link.download = fileName;
+  // The anchor has to be in the document for the browser to honour its
+  // download name, and the blob URL has to outlive the click: revoking it in
+  // the same tick loses the file name and saves the download unnamed.
+  document.body.append(link);
   link.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, 0);
 }
 
 const WORKSPACE_TABS = [
   { id: 'plan', label: 'Plan architectural' },
+  { id: 'building', label: 'Niveaux et pièces' },
   { id: 'materials', label: 'Matériaux' },
   { id: 'assemblies', label: 'Assemblages' },
   { id: 'equipment', label: 'Équipements' },
+  { id: 'networks', label: 'Réseaux' },
+  { id: 'calculations', label: 'Calculs' },
+  { id: 'quantities', label: 'Quantités' },
+  { id: 'scenarios', label: 'Scénarios' },
 ] as const;
 
 type WorkspaceTab = (typeof WORKSPACE_TABS)[number]['id'];
+
+/** Version reported in diagnostics; it matches the project file it writes. */
+const APPLICATION_VERSION = '0.1.0';
 
 const DEFAULT_OPENING: OpeningDraft = {
   openingType: 'WINDOW',
@@ -84,8 +128,18 @@ function App() {
   const [selectedMaterialId, setSelectedMaterialId] = useState<string>();
   const [selectedAssemblyId, setSelectedAssemblyId] = useState<string>();
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>();
+  const [selectedNetworkId, setSelectedNetworkId] = useState<string>();
+  const [nodeKind, setNodeKind] = useState('');
   const [openingDraft, setOpeningDraft] =
     useState<OpeningDraft>(DEFAULT_OPENING);
+  const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
+  const [overlayId, setOverlayId] = useState<OverlayId>('none');
+  const [saveState, setSaveState] = useState<SaveState>('SAVED');
+  const [recovery, setRecovery] = useState<{
+    readonly savedAt: string;
+    readonly file: ProjectFile;
+  }>();
+  const [calculationRun, setCalculationRun] = useState<CalculationRun>();
   const [wallAssemblyId, setWallAssemblyId] = useState(
     () => file.project.assemblies?.[0]?.id ?? '',
   );
@@ -100,6 +154,20 @@ function App() {
   const summary = useMemo(() => summarizeProject(file), [file]);
   const levels = file.project.building.levels;
   const activeLevelId = editor.levelId ?? levels[0]?.id;
+  const networks = file.project.systems ?? [];
+  const activeNetwork =
+    networks.find(({ id }) => id === selectedNetworkId) ?? networks[0];
+  const activeNetworkId = activeNetwork?.id;
+  // The drafted node kind has to belong to the active network's discipline: a
+  // luminaire is not a node an extract duct can carry.
+  const nodeKinds =
+    activeNetwork === undefined
+      ? []
+      : networkNodeTemplates(activeNetwork.discipline);
+  const activeNodeKind =
+    nodeKinds.find(({ kind }) => kind === nodeKind)?.kind ??
+    nodeKinds[0]?.kind ??
+    '';
 
   const adopt = useCallback((next: ProjectFile, notice: string): void => {
     setFile(next);
@@ -108,6 +176,8 @@ function App() {
     setSelectedMaterialId(undefined);
     setSelectedAssemblyId(undefined);
     setSelectedEquipmentId(undefined);
+    setSelectedNetworkId(next.project.systems?.[0]?.id);
+    setNodeKind('');
     dispatchEditor({ type: 'CANCEL' });
     const firstLevel = next.project.building.levels[0];
     if (firstLevel !== undefined)
@@ -122,6 +192,7 @@ function App() {
       return false;
     }
     setFile(result.file);
+    setSaveState('MODIFIED');
     setMessage(`${command.label} · appliqué.`);
     return true;
   }, []);
@@ -129,15 +200,19 @@ function App() {
   const saveProject = useCallback(() => {
     download(
       serializeProjectFile(file),
-      `${file.project.metadata.name}.houseproj.json`,
+      `${safeFileStem(file.project.metadata.name)}.houseproj.json`,
       'application/json',
     );
+    setSaveState('SAVED');
     setMessage('Projet exporté en JSON.');
   }, [file]);
 
   const undo = useCallback(() => {
     const result = session.current.undo();
-    if (result.status === 'OK') setFile(result.file);
+    if (result.status === 'OK') {
+      setFile(result.file);
+      setSaveState('MODIFIED');
+    }
     setMessage(
       result.status === 'OK'
         ? 'Dernière commande annulée.'
@@ -147,7 +222,10 @@ function App() {
 
   const redo = useCallback(() => {
     const result = session.current.redo();
-    if (result.status === 'OK') setFile(result.file);
+    if (result.status === 'OK') {
+      setFile(result.file);
+      setSaveState('MODIFIED');
+    }
     setMessage(
       result.status === 'OK'
         ? 'Commande rétablie.'
@@ -192,6 +270,37 @@ function App() {
         runCommand(command.command);
         return;
       }
+      if (editor.activeTool === 'NETWORK') {
+        if (activeNetworkId === undefined) {
+          setMessage(
+            'Aucun réseau actif : créez un réseau dans l’onglet Réseaux.',
+          );
+          return;
+        }
+        const point = points[points.length - 1]!;
+        const level = session.current.file.project.building.levels.find(
+          ({ id }) => id === activeLevelId,
+        );
+        const command = placeNodeCommand(
+          session.current.file.project,
+          activeNetworkId,
+          {
+            nodeId: `${activeNetworkId}:node-${crypto.randomUUID().slice(0, 8)}`,
+            kind: activeNodeKind,
+            position: {
+              x: point.x,
+              y: point.y,
+              z: level?.elevationMm ?? 0,
+            },
+          },
+        );
+        if (command.status === 'ERROR') {
+          setMessage(command.message);
+          return;
+        }
+        runCommand(command.command);
+        return;
+      }
       if (editor.activeTool === 'OPENING') {
         const command = addOpeningCommand(
           session.current.file,
@@ -209,6 +318,8 @@ function App() {
     },
     [
       activeLevelId,
+      activeNetworkId,
+      activeNodeKind,
       editor.activeTool,
       openingDraft,
       runCommand,
@@ -237,6 +348,45 @@ function App() {
     dispatchEditor({ type: 'ZOOM_SELECTION', bounds });
   }, [activeLevelId, editor.layers, editor.selection, file.project]);
 
+  // Drawing on a hidden layer would place a node the user cannot see, so the
+  // discipline of the active network is revealed while its tool is in use.
+  useEffect(() => {
+    if (editor.activeTool !== 'NETWORK' || activeNetwork === undefined) return;
+    dispatchEditor({
+      type: 'SHOW_LAYERS',
+      layerIds: [networkLayerId(activeNetwork.discipline)],
+    });
+  }, [activeNetwork, editor.activeTool]);
+
+  useEffect(() => {
+    if (saveState !== 'MODIFIED') return;
+    const timer = setTimeout(() => {
+      void writeAutosave(file)
+        .then(() => setSaveState('AUTOSAVED'))
+        .catch(() => setSaveState('FAILED'));
+    }, AUTOSAVE_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [file, saveState]);
+
+  // A snapshot left by a previous session is offered, never applied silently.
+  useEffect(() => {
+    void readAutosave().then((result) => {
+      if (result.status === 'RECOVERED')
+        setRecovery({ savedAt: result.savedAt, file: result.file });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (overlayId === 'none' && tab !== 'calculations') return;
+    let current = true;
+    void runProjectCalculations(file.project, climate).then((result) => {
+      if (current) setCalculationRun(result);
+    });
+    return () => {
+      current = false;
+    };
+  }, [climate, file.project, overlayId, tab]);
+
   useEffect(() => {
     function handle(event: KeyboardEvent): void {
       const target = event.target as HTMLElement | null;
@@ -263,6 +413,9 @@ function App() {
           return;
         case 'tool.dimension':
           dispatchEditor({ type: 'SET_TOOL', tool: 'DIMENSION' });
+          return;
+        case 'tool.network':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'NETWORK' });
           return;
         case 'edit.undo':
           undo();
@@ -318,8 +471,28 @@ function App() {
       setMessage(`Import refusé — ${detail}`);
       return;
     }
+    setClimate([]);
     adopt(result.file, `${selected.name} chargé et validé.`);
   }
+
+  const selectOnPlan = useCallback((objectIds: readonly string[]): void => {
+    dispatchEditor({ type: 'CLEAR_SELECTION' });
+    for (const objectId of objectIds)
+      dispatchEditor({ type: 'SELECT', objectId, additive: true });
+    setTab('plan');
+  }, []);
+
+  const overlay = useMemo(
+    () =>
+      calculationRun === undefined
+        ? undefined
+        : buildOverlay(
+            overlayId,
+            calculationRun.runs,
+            designTemperatureDifferenceK(calculationRun.runs),
+          ),
+    [calculationRun, overlayId],
+  );
 
   const wallThicknessMm = useMemo(() => {
     const assembly = file.project.assemblies?.find(
@@ -349,12 +522,13 @@ function App() {
           </button>
           <button
             className="secondary"
-            onClick={() =>
+            onClick={() => {
+              setClimate([]);
               adopt(
                 createBlankProject(new Date().toISOString()),
                 'Nouveau projet local prêt, bibliothèque générique incluse.',
-              )
-            }
+              );
+            }}
           >
             Nouveau projet
           </button>
@@ -372,6 +546,7 @@ function App() {
                 setMessage(demo.message);
                 return;
               }
+              setClimate(demoClimateDatasets());
               adopt(demo.file, 'Maison de démonstration chargée.');
             }}
           >
@@ -403,8 +578,43 @@ function App() {
           <span>Projet actif</span>
           <strong>{file.project.metadata.name}</strong>
         </div>
-        <p role="status">{message}</p>
+        <p role="status" aria-label="État de l’application">
+          {message}
+        </p>
+        <span className={`save-state save-${saveState.toLowerCase()}`}>
+          {SAVE_STATE_LABELS[saveState]}
+        </span>
       </section>
+
+      {recovery !== undefined && (
+        <section className="panel recovery-prompt" role="alertdialog">
+          <p>
+            Une sauvegarde locale plus récente a été trouvée (
+            {new Date(recovery.savedAt).toLocaleString('fr-FR')}). Restaurer ?
+          </p>
+          <div className="actions">
+            <button
+              type="button"
+              onClick={() => {
+                adopt(recovery.file, 'Sauvegarde locale restaurée.');
+                setRecovery(undefined);
+              }}
+            >
+              Restaurer
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => {
+                void discardAutosave();
+                setRecovery(undefined);
+              }}
+            >
+              Ignorer et supprimer
+            </button>
+          </div>
+        </section>
+      )}
 
       <div className="workspace-grid">
         <aside className="sidebar panel">
@@ -441,7 +651,20 @@ function App() {
             </select>
           </label>
           {tab === 'plan' && (
-            <LayersPanel editor={editor} dispatch={dispatchEditor} />
+            <>
+              <LayersPanel editor={editor} dispatch={dispatchEditor} />
+              <OverlayControl
+                overlayId={overlayId}
+                onChange={setOverlayId}
+                {...(overlay === undefined ? {} : { overlay })}
+                {...(climate.length === 0
+                  ? {
+                      unavailableReason:
+                        'Analyse indisponible : aucun résultat de module pour ce projet.',
+                    }
+                  : {})}
+              />
+            </>
           )}
         </aside>
 
@@ -468,6 +691,10 @@ function App() {
               onAssemblyChange={setWallAssemblyId}
               openingDraft={openingDraft}
               onOpeningDraftChange={setOpeningDraft}
+              networkId={activeNetworkId ?? ''}
+              onNetworkChange={setSelectedNetworkId}
+              nodeKind={activeNodeKind}
+              onNodeKindChange={setNodeKind}
             />
             <PlanCanvas
               project={file.project}
@@ -475,6 +702,20 @@ function App() {
               dispatch={dispatchEditor}
               onCommitPoints={commitPoints}
               wallThicknessMm={wallThicknessMm}
+              {...(overlay === undefined ? {} : { overlay })}
+            />
+          </section>
+        )}
+
+        {tab === 'building' && (
+          <section className="canvas-panel panel">
+            <BuildingPanel
+              project={file.project}
+              levelId={activeLevelId}
+              onCommand={runCommand}
+              onSelectLevel={(levelId) =>
+                dispatchEditor({ type: 'SET_LEVEL', levelId })
+              }
             />
           </section>
         )}
@@ -502,6 +743,55 @@ function App() {
                 : { selectedId: selectedAssemblyId })}
               onSelect={setSelectedAssemblyId}
             />
+          </section>
+        )}
+
+        {tab === 'networks' && (
+          <section className="canvas-panel panel">
+            <NetworksPanel
+              project={file.project}
+              levelId={activeLevelId}
+              selectedNetworkId={activeNetworkId}
+              onSelectNetwork={setSelectedNetworkId}
+              onCommand={runCommand}
+              onSelectObjects={(objectIds) => {
+                if (activeNetwork !== undefined)
+                  dispatchEditor({
+                    type: 'SHOW_LAYERS',
+                    layerIds: [networkLayerId(activeNetwork.discipline)],
+                  });
+                selectOnPlan(objectIds);
+              }}
+              onMessage={setMessage}
+            />
+          </section>
+        )}
+
+        {tab === 'calculations' && (
+          <section className="canvas-panel panel">
+            <CalculationsPanel
+              project={file.project}
+              climate={climate}
+              onSelectObjects={selectOnPlan}
+            />
+          </section>
+        )}
+
+        {tab === 'quantities' && (
+          <section className="canvas-panel panel">
+            <QuantitiesPanel
+              project={file.project}
+              onSelectObjects={selectOnPlan}
+              onExportCsv={(content, fileName) =>
+                download(content, fileName, 'text/csv;charset=utf-8')
+              }
+            />
+          </section>
+        )}
+
+        {tab === 'scenarios' && (
+          <section className="canvas-panel panel">
+            <ScenariosPanel project={file.project} climate={climate} />
           </section>
         )}
 
@@ -551,8 +841,28 @@ function App() {
 
 const root = document.querySelector<HTMLElement>('#root');
 if (root === null) throw new Error('Unable to find the application root');
+function downloadDiagnostic(report: unknown): void {
+  const url = URL.createObjectURL(
+    new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' }),
+  );
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'diagnostic.json';
+  document.body.append(link);
+  link.click();
+  setTimeout(() => {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, 0);
+}
+
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary
+      applicationVersion={APPLICATION_VERSION}
+      onDownloadDiagnostic={downloadDiagnostic}
+    >
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );

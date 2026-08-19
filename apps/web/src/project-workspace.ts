@@ -390,7 +390,14 @@ export function exportProjectPlan(file: ProjectFile) {
   });
 }
 
-function safeFileStem(value: string): string {
+/**
+ * Reduces a name to a stem a browser will actually use.
+ *
+ * Chromium ignores a download attribute holding non-ASCII characters and saves
+ * the file as "download" instead, so an accented project name has to be folded
+ * before it reaches the anchor.
+ */
+export function safeFileStem(value: string): string {
   const normalized = value
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/gu, '')

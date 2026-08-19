@@ -16,7 +16,8 @@ import {
   presetVisibility,
 } from '@house-technical-designer/view-query';
 
-export type EditorTool = 'SELECT' | 'WALL' | 'OPENING' | 'DIMENSION';
+export type EditorTool =
+  'SELECT' | 'WALL' | 'OPENING' | 'DIMENSION' | 'NETWORK';
 
 export interface SnapSettings {
   readonly enabled: boolean;
@@ -149,6 +150,7 @@ export type EditorAction =
   | { readonly type: 'SET_SNAP'; readonly snap: Partial<SnapSettings> }
   | { readonly type: 'SET_DIRECT_INPUT'; readonly input: DirectInputPatch }
   | { readonly type: 'TOGGLE_LAYER'; readonly layerId: string }
+  | { readonly type: 'SHOW_LAYERS'; readonly layerIds: readonly string[] }
   | { readonly type: 'APPLY_PRESET'; readonly presetId: string }
   | { readonly type: 'SET_LEVEL'; readonly levelId: string };
 
@@ -206,6 +208,7 @@ export function requiredPoints(tool: EditorTool): number {
     case 'DIMENSION':
       return 2;
     case 'OPENING':
+    case 'NETWORK':
       return 1;
     case 'SELECT':
       return 0;
@@ -317,6 +320,20 @@ export function editorReducer(
           [action.layerId]: state.layers[action.layerId] !== true,
         },
       };
+    case 'SHOW_LAYERS': {
+      // Revealing never hides: turning a discipline on to see what was just
+      // edited must not take the architecture out from under it.
+      const hidden = action.layerIds.filter((id) => state.layers[id] !== true);
+      return hidden.length === 0
+        ? state
+        : {
+            ...state,
+            layers: {
+              ...state.layers,
+              ...Object.fromEntries(hidden.map((id) => [id, true])),
+            },
+          };
+    }
     case 'APPLY_PRESET': {
       const preset = LAYER_PRESETS.find(({ id }) => id === action.presetId);
       return preset === undefined

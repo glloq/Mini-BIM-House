@@ -1,4 +1,8 @@
 import type { Project } from '@house-technical-designer/core-domain';
+import {
+  NETWORK_DISCIPLINE_LABELS,
+  networkNodeTemplates,
+} from '@house-technical-designer/editor-core';
 import type { EditorAction, EditorState, EditorTool } from './editor-state.js';
 import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
 
@@ -7,6 +11,7 @@ const TOOLS: readonly { readonly id: EditorTool; readonly label: string }[] = [
   { id: 'WALL', label: 'Mur' },
   { id: 'OPENING', label: 'Ouverture' },
   { id: 'DIMENSION', label: 'Cotation' },
+  { id: 'NETWORK', label: 'Réseau' },
 ];
 
 const SHORTCUT_BY_TOOL: Readonly<Record<EditorTool, string>> = {
@@ -14,6 +19,7 @@ const SHORTCUT_BY_TOOL: Readonly<Record<EditorTool, string>> = {
   WALL: 'tool.wall',
   OPENING: 'tool.opening',
   DIMENSION: 'tool.dimension',
+  NETWORK: 'tool.network',
 };
 
 export interface ToolBarProps {
@@ -24,6 +30,11 @@ export interface ToolBarProps {
   readonly onAssemblyChange: (assemblyId: string) => void;
   readonly openingDraft: OpeningDraft;
   readonly onOpeningDraftChange: (draft: OpeningDraft) => void;
+  /** Network the node tool adds to; empty while the project has none. */
+  readonly networkId: string;
+  readonly onNetworkChange: (networkId: string) => void;
+  readonly nodeKind: string;
+  readonly onNodeKindChange: (kind: string) => void;
 }
 
 export interface OpeningDraft {
@@ -46,7 +57,13 @@ export function ToolBar({
   onAssemblyChange,
   openingDraft,
   onOpeningDraftChange,
+  networkId,
+  onNetworkChange,
+  nodeKind,
+  onNodeKindChange,
 }: ToolBarProps) {
+  const networks = project.systems ?? [];
+  const activeNetwork = networks.find(({ id }) => id === networkId);
   const wallAssemblies = (project.assemblies ?? []).filter(
     ({ category }) => category === 'WALL' || category === 'PARTITION',
   );
@@ -61,12 +78,10 @@ export function ToolBar({
               tool.id === editor.activeTool ? 'tool-active' : 'secondary'
             }
             aria-pressed={tool.id === editor.activeTool}
+            title={`${tool.label} — raccourci${hint(SHORTCUT_BY_TOOL[tool.id])}`}
             onClick={() => dispatch({ type: 'SET_TOOL', tool: tool.id })}
           >
             {tool.label}
-            <span className="visually-hidden">
-              {hint(SHORTCUT_BY_TOOL[tool.id])}
-            </span>
           </button>
         ))}
       </div>
@@ -174,6 +189,52 @@ export function ToolBar({
               />
             </label>
           ))}
+        </div>
+      )}
+
+      {editor.activeTool === 'NETWORK' && (
+        <div className="tool-group">
+          {networks.length === 0 ? (
+            <p className="hint">
+              Aucun réseau : créez-en un dans l’onglet « Réseaux » avant de
+              poser des nœuds.
+            </p>
+          ) : (
+            <>
+              <div className="field">
+                <label htmlFor="tool-network">Réseau</label>
+                <select
+                  id="tool-network"
+                  value={networkId}
+                  onChange={(event) => onNetworkChange(event.target.value)}
+                >
+                  {networks.map((network) => (
+                    <option key={network.id} value={network.id}>
+                      {NETWORK_DISCIPLINE_LABELS[network.discipline]} ·{' '}
+                      {network.systemType}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="tool-node-kind">Type de nœud</label>
+                <select
+                  id="tool-node-kind"
+                  value={nodeKind}
+                  onChange={(event) => onNodeKindChange(event.target.value)}
+                >
+                  {(activeNetwork === undefined
+                    ? []
+                    : networkNodeTemplates(activeNetwork.discipline)
+                  ).map((template) => (
+                    <option key={template.kind} value={template.kind}>
+                      {template.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
         </div>
       )}
 
