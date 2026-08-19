@@ -204,8 +204,11 @@ export function constrainPoint(
 /** Number of points a tool needs before it can produce a command. */
 export function requiredPoints(tool: EditorTool): number {
   switch (tool) {
-    case 'WALL':
+    // Two endpoints to measure, then a point setting how far the dimension
+    // line sits from them.
     case 'DIMENSION':
+      return 3;
+    case 'WALL':
       return 2;
     case 'OPENING':
     case 'NETWORK':
@@ -213,6 +216,17 @@ export function requiredPoints(tool: EditorTool): number {
     case 'SELECT':
       return 0;
   }
+}
+
+/**
+ * Whether a tool drafts along constrained angles and lengths.
+ *
+ * A wall is drawn along the building axes. A dimension is not drawn at all: it
+ * points at endpoints that already exist, and constraining the click would pull
+ * it off the corner the user aimed at.
+ */
+export function constrainsDrafting(tool: EditorTool): boolean {
+  return tool === 'WALL';
 }
 
 export function editorReducer(

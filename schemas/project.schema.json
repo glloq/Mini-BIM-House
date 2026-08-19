@@ -61,7 +61,7 @@
         "roofs": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/RoofPlane" } },
         "openings": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Opening" } },
         "spaces": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Space" } },
-        "stairs": { "type": "array" }, "annotations": { "type": "array" }
+        "stairs": { "type": "array" }, "annotations": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Dimension" } }
       }, "additionalProperties": true
     },
     "Zone": {

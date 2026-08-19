@@ -1,4 +1,7 @@
-import type { Project } from '@house-technical-designer/core-domain';
+import type {
+  DimensionType,
+  Project,
+} from '@house-technical-designer/core-domain';
 import {
   NETWORK_DISCIPLINE_LABELS,
   networkNodeTemplates,
@@ -30,6 +33,8 @@ export interface ToolBarProps {
   readonly onAssemblyChange: (assemblyId: string) => void;
   readonly openingDraft: OpeningDraft;
   readonly onOpeningDraftChange: (draft: OpeningDraft) => void;
+  readonly dimensionType: DimensionType;
+  readonly onDimensionTypeChange: (type: DimensionType) => void;
   /** Network the node tool adds to; empty while the project has none. */
   readonly networkId: string;
   readonly onNetworkChange: (networkId: string) => void;
@@ -57,6 +62,8 @@ export function ToolBar({
   onAssemblyChange,
   openingDraft,
   onOpeningDraftChange,
+  dimensionType,
+  onDimensionTypeChange,
   networkId,
   onNetworkChange,
   nodeKind,
@@ -189,6 +196,29 @@ export function ToolBar({
               />
             </label>
           ))}
+        </div>
+      )}
+
+      {editor.activeTool === 'DIMENSION' && (
+        <div className="tool-group">
+          <div className="field">
+            <label htmlFor="tool-dimension-type">Type de cote</label>
+            <select
+              id="tool-dimension-type"
+              value={dimensionType}
+              onChange={(event) =>
+                onDimensionTypeChange(event.target.value as DimensionType)
+              }
+            >
+              <option value="ALIGNED">Alignée</option>
+              <option value="HORIZONTAL">Horizontale</option>
+              <option value="VERTICAL">Verticale</option>
+            </select>
+          </div>
+          <p className="hint">
+            Cliquez deux angles de murs, puis un troisième point pour placer la
+            ligne de cote.
+          </p>
         </div>
       )}
 

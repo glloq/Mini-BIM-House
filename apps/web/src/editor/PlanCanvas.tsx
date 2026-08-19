@@ -18,6 +18,7 @@ import {
 import type { EditorAction, EditorState } from './editor-state.js';
 import {
   constrainPoint,
+  constrainsDrafting,
   pointerModelPoint,
   requiredPoints,
 } from './editor-state.js';
@@ -308,7 +309,7 @@ export function PlanCanvas({
       const snapped = snapFor(event)?.point ?? model;
       const origin = editor.pendingPoints[editor.pendingPoints.length - 1];
       const point =
-        origin === undefined
+        origin === undefined || !constrainsDrafting(editor.activeTool)
           ? snapped
           : constrainPoint(origin, snapped, editor.snap, editor.directInput);
       const points = [...editor.pendingPoints, point];

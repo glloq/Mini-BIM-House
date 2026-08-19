@@ -8,7 +8,10 @@ import {
   useState,
 } from 'react';
 import { createRoot } from 'react-dom/client';
-import type { ProjectFile } from '@house-technical-designer/core-domain';
+import type {
+  DimensionType,
+  ProjectFile,
+} from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import { networkNodeTemplates } from '@house-technical-designer/editor-core';
@@ -74,6 +77,7 @@ import {
   shortcutLabel,
 } from './editor/shortcuts.js';
 import {
+  addDimensionCommand,
   addOpeningCommand,
   addWallCommand,
   deleteObjectCommand,
@@ -132,6 +136,7 @@ function App() {
   const [nodeKind, setNodeKind] = useState('');
   const [openingDraft, setOpeningDraft] =
     useState<OpeningDraft>(DEFAULT_OPENING);
+  const [dimensionType, setDimensionType] = useState<DimensionType>('ALIGNED');
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
   const [saveState, setSaveState] = useState<SaveState>('SAVED');
@@ -301,6 +306,21 @@ function App() {
         runCommand(command.command);
         return;
       }
+      if (editor.activeTool === 'DIMENSION') {
+        const command = addDimensionCommand(
+          session.current.file,
+          activeLevelId,
+          points,
+          { dimensionType },
+          `dimension-${crypto.randomUUID()}`,
+        );
+        if (command.status === 'ERROR') {
+          setMessage(command.message);
+          return;
+        }
+        runCommand(command.command);
+        return;
+      }
       if (editor.activeTool === 'OPENING') {
         const command = addOpeningCommand(
           session.current.file,
@@ -320,6 +340,7 @@ function App() {
       activeLevelId,
       activeNetworkId,
       activeNodeKind,
+      dimensionType,
       editor.activeTool,
       openingDraft,
       runCommand,
@@ -559,7 +580,12 @@ function App() {
           </button>
           <button
             onClick={() => {
-              const artifact = exportProjectPlan(file);
+              const artifact = exportProjectPlan(file, {
+                ...(activeLevelId === undefined
+                  ? {}
+                  : { levelId: activeLevelId }),
+                layers: editor.layers,
+              });
               download(artifact.content, artifact.fileName, artifact.mediaType);
             }}
           >
@@ -693,6 +719,8 @@ function App() {
               onAssemblyChange={setWallAssemblyId}
               openingDraft={openingDraft}
               onOpeningDraftChange={setOpeningDraft}
+              dimensionType={dimensionType}
+              onDimensionTypeChange={setDimensionType}
               networkId={activeNetworkId ?? ''}
               onNetworkChange={setSelectedNetworkId}
               nodeKind={activeNodeKind}

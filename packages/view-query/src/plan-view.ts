@@ -1,4 +1,5 @@
 import type {
+  Dimension,
   Level,
   Opening,
   Project,
@@ -8,6 +9,8 @@ import type {
 } from '@house-technical-designer/core-domain';
 import {
   deriveWallFaces,
+  isDimension,
+  resolveDimension,
   resolveStraightWallJoin,
   validateWall,
 } from '@house-technical-designer/core-domain';
@@ -41,7 +44,8 @@ export type PlanViewIssueCode =
   | 'VIEW_MISSING_ASSEMBLY'
   | 'VIEW_INVALID_WALL'
   | 'VIEW_OPENING_OUTSIDE_HOST'
-  | 'VIEW_UNRESOLVED_HOST';
+  | 'VIEW_UNRESOLVED_HOST'
+  | 'VIEW_UNRESOLVED_DIMENSION';
 
 export interface PlanViewIssue {
   readonly code: PlanViewIssueCode;
@@ -438,6 +442,123 @@ function centroid(polygon: Polygon2D): Point2D {
   return { x: sum.x / points.length, y: sum.y / points.length };
 }
 
+/**
+ * Draws a dimension: its two extension lines, the measured line and the value.
+ *
+ * The value shown is resolved from the walls the dimension references. A
+ * dimension whose walls have gone is drawn as unknown rather than silently
+ * dropped, so the drawing never hides that it lost what it measured.
+ */
+function dimensionPrimitives(
+  dimension: Dimension,
+  level: Level,
+  issues: PlanViewIssue[],
+): readonly PrimitiveDraft[] {
+  const resolution = resolveDimension(dimension, level.walls);
+  if (resolution.status !== 'OK') {
+    issues.push({
+      code: 'VIEW_UNRESOLVED_DIMENSION',
+      objectId: dimension.id,
+      message: `La cote ${dimension.id} référence des murs absents : ${resolution.missingWallIds.join(', ')}.`,
+    });
+    return [];
+  }
+  const { firstPoint, secondPoint, valueMm } = resolution;
+  const first = measuredEnd(dimension, firstPoint, secondPoint, 'FIRST');
+  const second = measuredEnd(dimension, firstPoint, secondPoint, 'SECOND');
+  const length = Math.hypot(second.x - first.x, second.y - first.y);
+  if (length === 0) return [];
+  const normal = {
+    x: -(second.y - first.y) / length,
+    y: (second.x - first.x) / length,
+  };
+  const offset = (point: Point2D): Point2D => ({
+    x: point.x + normal.x * dimension.offsetMm,
+    y: point.y + normal.y * dimension.offsetMm,
+  });
+  const firstOffset = offset(first);
+  const secondOffset = offset(second);
+  const label = dimension.overrideText ?? `${(valueMm / 1000).toFixed(2)} m`;
+  const shared = {
+    sourceObjectId: dimension.id,
+    layer: 'annotation.dimensions',
+    discipline: 'ARCHITECTURE' as const,
+    metadata: {
+      valueMm: Number(valueMm.toFixed(1)),
+      dimensionType: dimension.type,
+      ...(dimension.overrideText === undefined
+        ? {}
+        : { overrideText: dimension.overrideText }),
+    },
+  };
+  return [
+    {
+      ...shared,
+      id: `dimension:${dimension.id}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: { points: [firstOffset, secondOffset], closed: false },
+      },
+      zIndex: 70,
+    },
+    {
+      ...shared,
+      id: `dimension-witness-first:${dimension.id}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: { points: [first, firstOffset], closed: false },
+      },
+      zIndex: 70,
+    },
+    {
+      ...shared,
+      id: `dimension-witness-second:${dimension.id}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: { points: [second, secondOffset], closed: false },
+      },
+      zIndex: 70,
+    },
+    {
+      ...shared,
+      id: `dimension-label:${dimension.id}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'TEXT',
+        anchor: {
+          x: (firstOffset.x + secondOffset.x) / 2,
+          y: (firstOffset.y + secondOffset.y) / 2,
+        },
+        text: label,
+      },
+      zIndex: 71,
+    },
+  ];
+}
+
+/**
+ * Where a dimension's line starts and ends.
+ *
+ * A horizontal or vertical dimension measures one axis only, so its line runs
+ * along that axis rather than between the two points.
+ */
+function measuredEnd(
+  dimension: Dimension,
+  firstPoint: Point2D,
+  secondPoint: Point2D,
+  which: 'FIRST' | 'SECOND',
+): Point2D {
+  const point = which === 'FIRST' ? firstPoint : secondPoint;
+  if (dimension.type === 'HORIZONTAL')
+    return { x: point.x, y: Math.min(firstPoint.y, secondPoint.y) };
+  if (dimension.type === 'VERTICAL')
+    return { x: Math.min(firstPoint.x, secondPoint.x), y: point.y };
+  return point;
+}
+
 function spacePrimitives(
   space: Space,
   level: Level,
@@ -670,6 +791,9 @@ export function buildPlanView(
     }
     for (const space of level.spaces)
       drafts.push(...spacePrimitives(space, level));
+    for (const annotation of level.annotations)
+      if (isDimension(annotation))
+        drafts.push(...dimensionPrimitives(annotation, level, issues));
     drafts.push(...slabAndRoofPrimitives(level));
   }
   for (const network of project.systems ?? [])

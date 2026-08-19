@@ -1,5 +1,8 @@
-import type { Wall } from '@house-technical-designer/core-domain';
-import type { Point2D } from '@house-technical-designer/geometry';
+import type {
+  Dimension,
+  DimensionId,
+} from '@house-technical-designer/core-domain';
+import { resolveDimension } from '@house-technical-designer/core-domain';
 import type {
   ChangeSet,
   CommandExecution,
@@ -8,68 +11,19 @@ import type {
   EditorProjectState,
 } from './commands.js';
 
-declare const dimensionIdBrand: unique symbol;
-export type DimensionId = string & { readonly [dimensionIdBrand]: true };
-export type DimensionType = 'ALIGNED' | 'HORIZONTAL' | 'VERTICAL';
-export interface WallEndpointReference {
-  readonly kind: 'WALL_ENDPOINT';
-  readonly wallId: Wall['id'];
-  readonly endpoint: 'START' | 'END';
-}
-export interface Dimension {
-  readonly id: DimensionId;
-  readonly type: DimensionType;
-  readonly first: WallEndpointReference;
-  readonly second: WallEndpointReference;
-  readonly offsetMm: number;
-  /** Display only: never replaces the resolved numeric value. */
-  readonly overrideText?: string;
-}
-export type DimensionResolution =
-  | {
-      readonly status: 'OK';
-      readonly valueMm: number;
-      readonly firstPoint: Point2D;
-      readonly secondPoint: Point2D;
-    }
-  | {
-      readonly status: 'UNKNOWN';
-      readonly missingWallIds: readonly Wall['id'][];
-    };
-
-export function dimensionId(value: string): DimensionId {
-  if (value.trim() === '')
-    throw new TypeError('Dimension ID must not be empty.');
-  return value as DimensionId;
-}
-
-export function resolveDimension(
-  dimension: Dimension,
-  walls: readonly Wall[],
-): DimensionResolution {
-  const firstPoint = resolveReference(dimension.first, walls);
-  const secondPoint = resolveReference(dimension.second, walls);
-  const missing = [
-    firstPoint === undefined ? dimension.first.wallId : undefined,
-    secondPoint === undefined ? dimension.second.wallId : undefined,
-  ].filter((value): value is Wall['id'] => value !== undefined);
-  if (missing.length > 0)
-    return { status: 'UNKNOWN', missingWallIds: [...new Set(missing)] };
-  const dx = secondPoint!.x - firstPoint!.x;
-  const dy = secondPoint!.y - firstPoint!.y;
-  const valueMm =
-    dimension.type === 'HORIZONTAL'
-      ? Math.abs(dx)
-      : dimension.type === 'VERTICAL'
-        ? Math.abs(dy)
-        : Math.hypot(dx, dy);
-  return {
-    status: 'OK',
-    valueMm,
-    firstPoint: firstPoint!,
-    secondPoint: secondPoint!,
-  };
-}
+// The dimension itself is a project fact, so its type and resolution live in
+// the domain. Only the commands that edit it belong to the editor.
+export type {
+  Dimension,
+  DimensionId,
+  DimensionResolution,
+  DimensionType,
+  WallEndpointReference,
+} from '@house-technical-designer/core-domain';
+export {
+  dimensionId,
+  resolveDimension,
+} from '@house-technical-designer/core-domain';
 
 export class AddDimensionCommand implements EditorCommand {
   readonly label = 'Add dimension';
@@ -141,17 +95,6 @@ export class DeleteDimensionCommand implements EditorCommand {
       changes: dimensionChanges(dimension),
     };
   }
-}
-
-function resolveReference(
-  reference: WallEndpointReference,
-  walls: readonly Wall[],
-): Point2D | undefined {
-  const wall = walls.find(({ id }) => id === reference.wallId);
-  if (wall === undefined) return undefined;
-  return reference.endpoint === 'START'
-    ? wall.path.points[0]
-    : wall.path.points.at(-1);
 }
 
 function dimensionChanges(dimension: Dimension): ChangeSet {

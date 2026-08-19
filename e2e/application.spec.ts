@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
 /**
@@ -275,4 +276,73 @@ test('creates a technical network, places a node on the plan and routes it', asy
   await expect(segments).toHaveCount(1);
   await expect(segments).toContainText(' m');
   expect(errors).toEqual([]);
+});
+
+test('measures between two wall corners and keeps the cote in the project', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const dimensions = page.locator('[data-layer="annotation.dimensions"] > *');
+  await expect(dimensions).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Cotation', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  // The south wall runs the whole width of the house; its two ends are the
+  // corners the dimension attaches to.
+  const wall = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  const at = (x: number, y: number) => ({ x: x - box.x, y: y - box.y });
+  const middle = wall.y + wall.height / 2;
+  await canvas.click({ position: at(wall.x + 4, middle) });
+  await canvas.click({ position: at(wall.x + wall.width - 4, middle) });
+  await canvas.click({ position: at(wall.x + wall.width / 2, middle + 40) });
+  await expect(page.getByRole('status')).toContainText('Ajouter une cote');
+  // Line, two witness lines and the value.
+  await expect(dimensions).toHaveCount(4);
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(dimensions).toHaveCount(0);
+  await page.getByRole('button', { name: 'Rétablir', exact: true }).click();
+  await expect(dimensions).toHaveCount(4);
+
+  // A dimension is a project fact: it survives a save and a reload.
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  const file = await download;
+  await page.reload();
+  await page.setInputFiles('input[type="file"]', await file.path());
+  await expect(page.getByRole('status')).toContainText('chargé et validé');
+  await expect(dimensions).toHaveCount(4);
+  expect(errors).toEqual([]);
+});
+
+test('exports the plan it draws, not a simplified redrawing of it', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  const exportSvg = async (): Promise<string> => {
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Exporter SVG' }).click();
+    const file = await download;
+    expect(file.suggestedFilename()).toContain('rez-de-chaussee');
+    return readFile(await file.path(), 'utf8');
+  };
+
+  const architecture = await exportSvg();
+  // The layered walls, the cut openings and the rooms are all in the file,
+  // and the sheet names its scale.
+  expect(architecture).toContain('architecture.wall-layers');
+  expect(architecture).toContain('architecture.openings');
+  expect(architecture).toContain('architecture.spaces');
+  expect(architecture).toContain('1:50');
+  // An exported drawing carries no interaction state.
+  expect(architecture).not.toContain('data-state');
+  // The architecture view does not draw the plumbing, and neither does its
+  // export: the sheet is what the user is looking at.
+  expect(architecture).not.toContain('water.pipes');
+
+  await page.getByLabel('Vue disciplinaire').selectOption('plumbing');
+  const plumbing = await exportSvg();
+  expect(plumbing).toContain('water.pipes');
 });

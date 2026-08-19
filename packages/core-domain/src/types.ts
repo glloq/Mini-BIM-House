@@ -8,6 +8,7 @@ import type { Space } from './space.js';
 import type { Slab } from './slab.js';
 import type { RoofPlane } from './roof-plane.js';
 import type { TechnicalNetwork } from './network.js';
+import type { Annotation } from './annotation.js';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
@@ -72,7 +73,7 @@ export interface Level extends BaseEntity<LevelId> {
   readonly openings: readonly Opening[];
   readonly stairs: readonly JsonValue[];
   readonly spaces: readonly Space[];
-  readonly annotations: readonly JsonValue[];
+  readonly annotations: readonly Annotation[];
 }
 
 export type ZoneType =

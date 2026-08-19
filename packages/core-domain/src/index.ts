@@ -8,3 +8,4 @@ export * from './space';
 export * from './network.js';
 export * from './slab.js';
 export * from './roof-plane.js';
+export * from './annotation.js';

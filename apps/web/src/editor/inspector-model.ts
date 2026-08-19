@@ -1,5 +1,8 @@
 import type { Project } from '@house-technical-designer/core-domain';
-import { calculateWallNetArea } from '@house-technical-designer/core-domain';
+import {
+  calculateWallNetArea,
+  resolveDimension,
+} from '@house-technical-designer/core-domain';
 import { serializedTotalThicknessM } from '@house-technical-designer/assemblies';
 import { polygonArea } from '@house-technical-designer/geometry';
 import { assemblyView } from '../library/library-model.js';
@@ -26,6 +29,7 @@ export interface InspectorSubject {
     | 'ROOF'
     | 'NETWORK_EDGE'
     | 'NETWORK_NODE'
+    | 'DIMENSION'
     | 'UNKNOWN';
   readonly title: string;
   readonly sections: readonly InspectorSection[];
@@ -457,6 +461,65 @@ function buildingElementSubject(
   return undefined;
 }
 
+const DIMENSION_TYPE_LABELS: Readonly<Record<string, string>> = {
+  ALIGNED: 'Alignée',
+  HORIZONTAL: 'Horizontale',
+  VERTICAL: 'Verticale',
+};
+
+function dimensionSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  for (const level of project.building.levels) {
+    const dimension = level.annotations.find(({ id }) => id === objectId);
+    if (dimension === undefined) continue;
+    const resolution = resolveDimension(dimension, level.walls);
+    return {
+      objectId,
+      kind: 'DIMENSION',
+      title: `Cote ${DIMENSION_TYPE_LABELS[dimension.type] ?? dimension.type}`,
+      sections: [
+        {
+          title: 'Mesure',
+          fields: [
+            resolution.status === 'OK'
+              ? field('Valeur', metres(resolution.valueMm))
+              : field(
+                  'Valeur',
+                  undefined,
+                  `Murs référencés absents : ${resolution.missingWallIds.join(', ')}.`,
+                ),
+            field('Décalage', metres(dimension.offsetMm)),
+            field(
+              'Texte affiché',
+              dimension.overrideText,
+              dimension.overrideText === undefined
+                ? 'La valeur mesurée est affichée telle quelle.'
+                : 'Texte imposé : il ne remplace pas la valeur mesurée.',
+            ),
+          ],
+        },
+        {
+          title: 'Références',
+          fields: [
+            field(
+              'Première extrémité',
+              `${dimension.first.wallId} · ${dimension.first.endpoint === 'START' ? 'début' : 'fin'}`,
+            ),
+            field(
+              'Seconde extrémité',
+              `${dimension.second.wallId} · ${dimension.second.endpoint === 'START' ? 'début' : 'fin'}`,
+            ),
+            field('Niveau', level.name),
+          ],
+        },
+      ],
+    };
+  }
+  return undefined;
+}
+
 /**
  * Describes the selected object for the inspector.
  *
@@ -472,7 +535,8 @@ export function inspectObject(
     openingSubject(project, objectId) ??
     spaceSubject(project, objectId) ??
     buildingElementSubject(project, objectId) ??
-    networkSubject(project, objectId) ?? {
+    networkSubject(project, objectId) ??
+    dimensionSubject(project, objectId) ?? {
       objectId,
       kind: 'UNKNOWN',
       title: objectId,
