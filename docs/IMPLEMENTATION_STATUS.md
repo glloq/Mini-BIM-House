@@ -2,7 +2,7 @@
 
 ## Last completed PR
 
-PR-071
+PR-072 — audit de reprise, chantiers R-001 à R-014 (voir plus bas).
 
 ## Completed
 
@@ -78,83 +78,104 @@ PR-071
 - PR-070 — reproducible microbenchmark baseline for 100 walls, 1,000 SVG primitives, a 500-segment network, annual hourly battery dispatch, and complete thermal aggregation.
 - PR-071 — MVP user guide covering quick start, core concepts, precision levels, and explicit product limitations.
 
-## In progress
+## Audit de reprise — chantiers R-001 à R-014
 
-- PR-072 — product integration and release 0.1 readiness assessment.
-- The first PR-072 wave derives reference-house thermal envelope, PV, and
-  battery inputs from the canonical `Project`; fixture changes now propagate
-  through the calculation orchestrator without duplicated physical values.
+Un audit produit sur cent points a constaté que les moteurs étaient mûrs mais
+que l'application ne l'était pas : interface architecturale à environ 35 %,
+interface des modules techniques à 10-20 %, tests navigateur à 0 %. Sa
+directive : cesser d'ajouter des moteurs isolés et transformer ceux qui
+existent en application intégrée. Les chantiers ci-dessous répondent à cette
+directive.
 
-## Next
+| Chantier | Objet                                        | État |
+| -------- | -------------------------------------------- | ---- |
+| R-001    | Réparation de l'installation et de la CI     | fait |
+| R-002    | Contexte de calcul complet issu du projet    | fait |
+| R-003    | Interface matériaux et assemblages           | fait |
+| R-004    | Catalogue d'équipements                      | fait |
+| R-005    | Rendu BIM réel du plan                       | fait |
+| R-006    | Caméra, accrochage, sélection, ouvertures    | fait |
+| R-007    | Multi-niveaux, pièces, dalles, toitures      | fait |
+| R-008    | Tableau de bord des calculs                  | fait |
+| R-009    | Superpositions d'analyse sur le plan         | fait |
+| R-010    | Interface des réseaux techniques             | fait |
+| R-011    | Quantités, coût, environnement               | fait |
+| R-012    | Scénarios et comparaison                     | fait |
+| R-013    | Tests navigateur, performance, accessibilité | fait |
+| R-014    | Audit de publication                         | fait |
 
-- Resolve the documented application, deployment, and licensing blockers before declaring release 0.1.
+### Ce que fait l'application aujourd'hui
 
-## Pre-PR69 stabilization
+- un projet neuf s'ouvre utilisable, bibliothèque générique de seize matériaux
+  et quatre assemblages incluse ;
+- le plan dessine des murs en couches, des ouvertures percées avec leur
+  débattement, des pièces remplies et étiquetées, les dalles et les toitures ;
+- les outils mur, ouverture, cotation et réseau dessinent avec accrochage,
+  contraintes de longueur et d'angle, annulation et rétablissement ;
+- les seize modules de calcul s'exécutent depuis l'interface, chaque entrée
+  portant son origine, chaque entrée manquante étant nommée plutôt que
+  remplacée ;
+- les résultats se projettent sur le plan sous forme de bandes légendées ;
+- la nomenclature s'exporte en CSV, les scénarios se comparent au projet de
+  base ;
+- les réseaux techniques se créent, se peuplent et se relient depuis
+  l'application, et non plus seulement depuis un fichier importé ;
+- le projet s'exporte en JSON et en SVG, se sauvegarde localement toutes les
+  1,5 s après une modification et se restaure après un rechargement, sur
+  demande explicite.
 
-Completed in the current stabilization checkpoint:
+### Ce que l'application ne fait pas
 
-- Canonical `Project` level collections now use typed wall, opening, space, slab,
-  and MVP roof-plane contracts; material, assembly, equipment, network, scenario,
-  and module-setting collections no longer use arbitrary JSON arrays.
-- `project.schema.json` composes the canonical first-class schemas, including the
-  new MVP `RoofPlane` definition, instead of accepting untyped building arrays.
-- Project I/O now performs nested validation for all MVP building elements and
-  rejects non-finite nested geometry before returning a typed project.
-- Project I/O uses a generated standalone validator compiled from the canonical
-  JSON Schemas, with a reproducibility check and separate project-reference
-  integrity validation; populated persistence round trips are covered.
-- Calculation precision and warning names are aligned with specification 36 and
-  the persisted calculation-result schema.
-- CI uses reproducible `npm ci` installation.
-- Canonical project commands now provide immutable cross-domain undo/redo and an
-  explicit assembly invalidation map without copying persisted state into the
-  editor facade.
-- Polygon holes now reject degeneracy, self-intersection, outer-boundary
-  crossing/touching, outside placement, mutual intersection, and containment.
-- The calculation orchestrator now requires explicit serializable settings
-  schemas, input ownership, and validation before execution. Real adapters cover
-  thermal → heating and lighting/PV → battery → energy-balance with stable energy
-  use IDs and a conservation check.
-- Real adapters also exercise water, rainwater, ventilation, wastewater, IAQ,
-  hygrothermal, acoustics, DHW, cost, and environmental scientific kernels.
-- The populated pre-reference fixture covers one level, wall, opening, slab,
-  roof, space, materials, assemblies, water/ventilation/electrical networks, PV,
-  battery and climate-driven invariants without creating the PR-069 example.
-- Cross-contract tests serialize real TypeScript objects and validate ProjectFile,
-  Material, Assembly, building elements, TechnicalNetwork, RulePack,
-  CalculationResult, and ModuleSettings against their canonical JSON Schemas.
+- escaliers : délibérément reportés ;
+- export PDF, DXF, IFC : hors périmètre v0.1 ;
+- simulation thermique dynamique, confort d'été, structure, géotechnique,
+  éclairage naturel : hors périmètre v0.1 ;
+- modes QUICK / DESIGN / EXPERT, assistant de création de projet, palette de
+  commandes : non implémentés ;
+- module de conformité réglementaire : le moteur de règles existe, l'interface
+  de conformité n'est pas branchée sur les résultats de calcul.
 
-PR-068A readiness:
+## Publication
 
-- Required persistence, schema/type, calculation orchestration, energy ownership,
-  editor command, geometry-hole, physical-invariant, rule-state, and CI gates pass.
-- PR-069 now provides the separate end-to-end reference-house change.
+- Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
+  `package.json`.
+- Déploiement : GitHub Pages après une CI verte sur `main`. La construction a
+  été vérifiée servie depuis un sous-chemin de projet : aucun 404, aucune
+  erreur console, la maison de référence se dessine.
+- Licences des dépendances : `npm run audit:licenses` vérifie les 221 paquets
+  installés à chaque CI. Aucune licence incompatible avec l'AGPL, aucune
+  licence non déclarée.
+- Import : un fichier projet est refusé au-delà de bornes explicites — taille
+  du texte, nombre de niveaux, murs, ouvertures, pièces, matériaux, nœuds et
+  tronçons de réseau — avec le compte hors bornes nommé.
+- Documentation : une seule copie de chaque spécification, sous `docs/`. Les
+  doublons racine et la première version de l'architecture ont été supprimés.
 
-Release blockers (non-PR69 architecture work):
+## Décisions d'architecture tenues
 
-- The web app now creates, validates, imports, summarizes, saves, previews and
-  exports canonical projects and draws validated walls directly on the plan through
-  a persistent undo/redo command session. v0.1 still needs library editors,
-  calculation controls, and technical overlays.
-- GitHub Pages deployment is configured to run only after successful CI on main.
-- A project license must be selected before a public stable release.
-- Stair remains deliberately deferred because it is not required by the PR-069
-  reference house; no detailed roof modeller was introduced beyond `RoofPlane`.
+- Les paquets utilisent l'espace de noms `@house-technical-designer/*`.
+- La géométrie est en millimètres ; des conversions marquées isolent les
+  frontières SI.
+- Les constructeurs refusent les valeurs numériques non finies plutôt que
+  d'inventer des valeurs par défaut.
+- Aucune constante silencieuse : toute entrée de calcul vient du projet, d'un
+  scénario, d'un réglage de module ou d'une source identifiée.
+- Les valeurs inconnues restent inconnues ; elles ne sont jamais remplacées par
+  zéro ni par une valeur typique.
+- Les données dérivées ne sont jamais persistées comme source de vérité.
+- L'état de l'éditeur — sélection, caméra, outil, calques — ne vit pas dans le
+  projet.
 
-## Architectural decisions made
+## Dernier état de validation complet
 
-- Workspace packages use the `@house-technical-designer/*` namespace.
-- Geometry APIs use millimetres; explicit branded conversions isolate SI boundaries.
-- Constructors reject non-finite persisted numeric values rather than inventing defaults.
+Mesuré sur la branche courante :
 
-## Last recorded full test status
-
-This snapshot predates the current PR-072 integration work and must be refreshed
-before release readiness is assessed.
-
-- format: pass
-- lint: pass
-- typecheck: pass across all workspaces
-- unit: 399 tests pass across 71 files
-- schemas: all 13 schema/example pairs pass
-- build: pass across all workspaces
+- format : pass
+- lint : pass
+- typecheck : pass sur tous les espaces de travail
+- schémas : 16 paires schéma/exemple validées
+- licences : pass, 221 paquets audités
+- tests unitaires et d'intégration : 570 tests sur 87 fichiers
+- tests navigateur : 15 tests Playwright sur la construction de production
+- build : pass sur tous les espaces de travail
+- benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

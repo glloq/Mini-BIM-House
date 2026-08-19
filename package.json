@@ -22,7 +22,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present && tsc -p e2e/tsconfig.json",
     "generate:project-validator": "node scripts/generate-project-validator.mjs",
     "test:e2e": "playwright test",
-    "test:e2e:install": "playwright install --with-deps chromium"
+    "test:e2e:install": "playwright install --with-deps chromium",
+    "audit:licenses": "node scripts/audit-licenses.mjs"
   },
   "engines": {
     "node": ">=22.0.0"

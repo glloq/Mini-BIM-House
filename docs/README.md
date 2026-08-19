@@ -1,8 +1,30 @@
 # Documentation — House Technical Designer
 
+## Où se trouve quoi
+
+Chaque sujet n'a qu'un seul document, et il se trouve ici :
+
+| Sujet                             | Document                                                         |
+| --------------------------------- | ---------------------------------------------------------------- |
+| Présentation, démo, prise en main | [`README.md`](../README.md)                                      |
+| Architecture logicielle           | [`ARCHITECTURE.md`](../ARCHITECTURE.md)                          |
+| État réel de l'implémentation     | [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md)           |
+| Plan d'implémentation, PR par PR  | [`IMPLEMENTATION_PLAN.md`](../IMPLEMENTATION_PLAN.md)            |
+| Spécifications et normes          | [`specifications/`](specifications/), [`standards/`](standards/) |
+| Décisions structurantes           | [`adr/`](adr/)                                                   |
+| Contrats machine-lisibles         | [`schemas/`](../schemas/)                                        |
+
+Les copies de `specifications/` et `standards/` qui existaient à la racine du
+dépôt ont été supprimées : elles étaient identiques à celles-ci, et deux
+exemplaires d'une même spécification finissent toujours par diverger. Le
+document `architecture logicielle.md`, première version de l'architecture, a
+été supprimé pour la même raison : `ARCHITECTURE.md` le remplace. L'historique
+Git conserve les deux.
+
 ## Utilisation
 
 - [Guide utilisateur MVP](USER_GUIDE_MVP.md)
+- [État de l'implémentation](IMPLEMENTATION_STATUS.md)
 - [Baseline de performance](PERFORMANCE_BASELINE.md)
 
 ## Fondation
@@ -53,6 +75,7 @@
 38. [Command / Undo / Redo](specifications/38_COMMAND_UNDO_REDO.md)
 39. [Project Migrations](specifications/39_PROJECT_MIGRATIONS.md)
 40. [CI and Validation](specifications/40_CI_AND_VALIDATION.md)
+41. [Future Evolutions and Modules](specifications/41_FUTURE_EVOLUTIONS_AND_MODULES.md)
 
 ## Plan d'implémentation
 
