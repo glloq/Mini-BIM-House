@@ -31,19 +31,22 @@ Les calculateurs produisent des résultats traçables depuis le modèle. Les rè
 
 Chaque résultat de calcul annonce l'un des niveaux suivants :
 
-- `CONCEPTUAL` : ordre de grandeur pour une esquisse ;
 - `ESTIMATE` : estimation basée sur des entrées simplifiées ;
 - `ENGINEERING` : méthode technique déterministe avec entrées explicites ;
-- `DETAILED` : modèle plus détaillé, sans constituer automatiquement une étude réglementaire ou une validation professionnelle.
+- `STANDARD` : méthode alignée sur une norme identifiée, avec sa référence et sa version ;
+- `REGULATORY` : méthode réglementaire identifiée, uniquement lorsqu'elle a été validée pour le contexte déclaré.
 
-Le niveau décrit la méthode, pas la qualité des entrées. Les diagnostics, hypothèses, versions et données inconnues doivent être consultés avant toute interprétation.
+Le niveau décrit la méthode, pas la qualité des entrées et ne constitue pas à lui
+seul une preuve de conformité. Les diagnostics, hypothèses, versions, références
+et données inconnues doivent être consultés avant toute interprétation.
 
 ## Limitations du MVP
 
-- L'interface web ne propose pas encore l'édition géométrique interactive, les éditeurs de bibliothèques, les contrôles de calcul ni les overlays techniques.
+- L'interface web propose une première édition de murs, mais pas encore l'ensemble
+  des outils du moteur d'édition, des éditeurs de bibliothèques, des contrôles de
+  calcul et des overlays techniques.
 - Le déploiement GitHub Pages est configuré mais dépend d'une CI réussie sur la branche principale et de l'activation de Pages dans le dépôt.
 - Les escaliers et le modeleur détaillé de toiture sont différés.
-- La validation géométrique des trous polygonaux complexes reste à renforcer.
 - Aucun résultat ne revendique une conformité réglementaire implicite ; seuls des Rule Packs identifiés peuvent porter des règles externes.
 - Les données de la maison de référence sont démonstratives et ne constituent ni un dimensionnement de chantier, ni une prescription de produit.
 - Les exports PDF reposent sur un backend injecté ; le navigateur ne fournit pas encore à lui seul toute la chaîne documentaire finale.

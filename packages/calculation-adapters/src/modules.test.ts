@@ -14,11 +14,26 @@ import {
 } from '@house-technical-designer/rule-engine';
 
 const inputs = {
-  thermal: { areaM2: 100, thicknessM: 0.2, lambdaWmK: 0.04 },
+  thermal: {
+    elements: [
+      {
+        id: 'wall',
+        areaM2: 100,
+        layers: [
+          {
+            layerId: 'layer',
+            materialId: 'material',
+            thicknessM: 0.2,
+            lambdaWmK: 0.04,
+          },
+        ],
+      },
+    ],
+  },
   heating: { designDeltaK: 25 },
   lighting: { powerW: 100 },
   photovoltaic: { installedPowerWp: 4000, irradiationWhM2: [500, 800, 200] },
-  battery: { hours: 1 },
+  battery: { hours: 1, usableCapacityKWh: 5 },
   'energy-balance': {},
 } as const;
 function orchestrator(): CalculationOrchestrator {
@@ -145,7 +160,15 @@ describe('real calculation orchestration adapters', () => {
       'heating',
       {
         ...inputs,
-        thermal: { ...inputs.thermal, thicknessM: 0.4 },
+        thermal: {
+          elements: inputs.thermal.elements.map((element) => ({
+            ...element,
+            layers: element.layers.map((layer) => ({
+              ...layer,
+              thicknessM: 0.4,
+            })),
+          })),
+        },
       },
       {},
     );

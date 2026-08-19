@@ -79,7 +79,24 @@ describe('TypeScript/runtime schema contracts', () => {
     engine.register(thermalAdapter);
     const run = await engine.calculateModule(
       'thermal',
-      { thermal: { areaM2: 100, thicknessM: 0.2, lambdaWmK: 0.04 } },
+      {
+        thermal: {
+          elements: [
+            {
+              id: 'wall',
+              areaM2: 100,
+              layers: [
+                {
+                  layerId: 'layer',
+                  materialId: 'material',
+                  thicknessM: 0.2,
+                  lambdaWmK: 0.04,
+                },
+              ],
+            },
+          ],
+        },
+      },
       {},
     );
     expect(run.status).toBe('OK');

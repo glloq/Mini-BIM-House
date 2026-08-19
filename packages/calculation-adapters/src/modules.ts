@@ -40,6 +40,9 @@ function number(value: CalculationJson | undefined): number | undefined {
     ? value
     : undefined;
 }
+function string(value: CalculationJson | undefined): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
 function numbers(
   value: CalculationJson | undefined,
 ): readonly number[] | undefined {
@@ -65,38 +68,53 @@ export const thermalAdapter: CalculationModule = {
   inputPaths: ['building.geometry', 'assemblies', 'materials.thermal'],
   validate(input) {
     const data = record(input);
-    return data !== undefined &&
-      number(data.areaM2) !== undefined &&
-      number(data.thicknessM) !== undefined &&
-      number(data.lambdaWmK) !== undefined
+    const elements = data?.elements;
+    return Array.isArray(elements) && elements.length > 0
       ? ok()
-      : invalid('areaM2, thicknessM and lambdaWmK are required finite numbers');
+      : invalid('at least one thermal element is required');
   },
   calculate(input) {
     const data = record(input)!;
-    const result = calculateElementTransmission(
-      'envelope',
-      number(data.areaM2)!,
-      [
-        {
-          layerId: 'insulation',
-          materialId: 'insulation',
-          thicknessM: number(data.thicknessM)!,
-          lambdaWmK: number(data.lambdaWmK)!,
+    const elements = data.elements as readonly CalculationJson[];
+    const results = elements.map((element) => {
+      const item = record(element)!;
+      const layers = (item.layers as readonly CalculationJson[]).map(
+        (layer) => {
+          const value = record(layer)!;
+          return {
+            layerId: string(value.layerId)!,
+            materialId: string(value.materialId)!,
+            thicknessM: number(value.thicknessM)!,
+            lambdaWmK: number(value.lambdaWmK)!,
+          };
         },
-      ],
-      {
-        id: 'integration-surfaces',
-        version: '1',
-        insideSurfaceResistanceM2KW: 0.13,
-        outsideSurfaceResistanceM2KW: 0.04,
-      },
+      );
+      return calculateElementTransmission(
+        string(item.id)!,
+        number(item.areaM2)!,
+        layers,
+        {
+          id: 'integration-surfaces',
+          version: '1',
+          insideSurfaceResistanceM2KW: 0.13,
+          outsideSurfaceResistanceM2KW: 0.04,
+        },
+      );
+    });
+    const heatTransferCoefficientWK = results.reduce<number>(
+      (total, result) =>
+        total + (result.heatTransferCoefficientWK ?? Number.NaN),
+      0,
+    );
+    const totalAreaM2 = elements.reduce<number>(
+      (total, element) => total + number(record(element)!.areaM2)!,
+      0,
     );
     return {
-      status: result.status,
+      status: results.every(({ status }) => status === 'OK') ? 'OK' : 'PARTIAL',
       outputs: {
-        uValueWm2K: result.uValueWm2K ?? null,
-        heatTransferCoefficientWK: result.heatTransferCoefficientWK ?? null,
+        uValueWm2K: heatTransferCoefficientWK / totalAreaM2,
+        heatTransferCoefficientWK,
       },
     };
   },
@@ -242,9 +260,11 @@ export const batteryAdapter: CalculationModule = {
   inputPaths: ['equipment.battery', 'energy.loads', 'photovoltaic'],
   validate(input) {
     const data = record(input);
-    return data !== undefined && number(data.hours) !== undefined
+    return data !== undefined &&
+      number(data.hours) !== undefined &&
+      number(data.usableCapacityKWh) !== undefined
       ? ok()
-      : invalid('hours is required');
+      : invalid('hours and usableCapacityKWh are required');
   },
   calculate(input, _settings, dependencies) {
     const hours = number(record(input)!.hours)!;
@@ -260,7 +280,7 @@ export const batteryAdapter: CalculationModule = {
       loadKWh: load,
       pvKWh: pv.map((value) => value / 1000),
       battery: {
-        usableCapacityKWh: 5,
+        usableCapacityKWh: number(record(input)!.usableCapacityKWh)!,
         minimumSoc: 0.1,
         maximumSoc: 0.9,
         initialSoc: 0.5,
