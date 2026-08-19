@@ -10,10 +10,10 @@ Principe fondamental :
 
 Le logiciel doit pouvoir être utilisé :
 
-* comme simple calculateur spécialisé ;
-* pour étudier un sous-système ;
-* pour concevoir une habitation complète ;
-* pour comparer plusieurs variantes de conception.
+- comme simple calculateur spécialisé ;
+- pour étudier un sous-système ;
+- pour concevoir une habitation complète ;
+- pour comparer plusieurs variantes de conception.
 
 ---
 
@@ -98,14 +98,14 @@ dimensionnement PV
 
 Architecture recommandée :
 
-* TypeScript ;
-* React ;
-* Vite ;
-* SVG pour le dessin technique 2D ;
-* Canvas pour certaines cartes analytiques ;
-* Web Workers pour les calculs lourds ;
-* JSON pour projets/catalogues/règles ;
-* application statique compatible GitHub Pages.
+- TypeScript ;
+- React ;
+- Vite ;
+- SVG pour le dessin technique 2D ;
+- Canvas pour certaines cartes analytiques ;
+- Web Workers pour les calculs lourds ;
+- JSON pour projets/catalogues/règles ;
+- application statique compatible GitHub Pages.
 
 Le moteur métier ne doit pas dépendre de React.
 
@@ -130,21 +130,21 @@ Wall
 
 Le moteur déduit :
 
-* épaisseur ;
-* faces ;
-* intersections ;
-* surfaces ;
-* volumes ;
-* jonctions.
+- épaisseur ;
+- faces ;
+- intersections ;
+- surfaces ;
+- volumes ;
+- jonctions.
 
 Même principe pour :
 
-* toiture ;
-* plancher ;
-* porte ;
-* fenêtre ;
-* pièce ;
-* escalier.
+- toiture ;
+- plancher ;
+- porte ;
+- fenêtre ;
+- pièce ;
+- escalier.
 
 ---
 
@@ -190,15 +190,15 @@ Mur extérieur
 
 Cette seule définition sert :
 
-* au dessin ;
-* aux coupes ;
-* aux hachures ;
-* au métré ;
-* au thermique ;
-* à l'hygrothermie ;
-* à l'acoustique ;
-* au carbone ;
-* au coût.
+- au dessin ;
+- aux coupes ;
+- aux hachures ;
+- au métré ;
+- au thermique ;
+- à l'hygrothermie ;
+- à l'acoustique ;
+- au carbone ;
+- au coût.
 
 ---
 
@@ -252,12 +252,12 @@ Une valeur inconnue reste explicitement inconnue.
 
 L'utilisateur peut :
 
-* créer ;
-* modifier ;
-* dupliquer ;
-* importer ;
-* exporter ;
-* compléter ;
+- créer ;
+- modifier ;
+- dupliquer ;
+- importer ;
+- exporter ;
+- compléter ;
 
 un matériau.
 
@@ -287,13 +287,13 @@ Deux propriétés d'un même matériau peuvent provenir de sources différentes.
 
 Le moteur génère automatiquement une liste globale :
 
-* matériaux ;
-* surfaces ;
-* volumes ;
-* masses ;
-* longueurs ;
-* équipements ;
-* réseaux.
+- matériaux ;
+- surfaces ;
+- volumes ;
+- masses ;
+- longueurs ;
+- équipements ;
+- réseaux.
 
 Exemple :
 
@@ -327,12 +327,12 @@ Network
 
 Cela concerne :
 
-* plomberie ;
-* évacuation ;
-* eau de pluie ;
-* chauffage ;
-* ventilation ;
-* électricité.
+- plomberie ;
+- évacuation ;
+- eau de pluie ;
+- chauffage ;
+- ventilation ;
+- électricité.
 
 Une canalisation dessinée est donc également une canalisation calculable.
 
@@ -356,20 +356,20 @@ SVG
 
 Types de vues :
 
-* architecture ;
-* matériaux ;
-* thermique ;
-* plomberie ;
-* évacuation ;
-* ventilation ;
-* chauffage ;
-* électricité ;
-* éclairage ;
-* acoustique ;
-* photovoltaïque ;
-* coupe ;
-* façade ;
-* synthèse.
+- architecture ;
+- matériaux ;
+- thermique ;
+- plomberie ;
+- évacuation ;
+- ventilation ;
+- chauffage ;
+- électricité ;
+- éclairage ;
+- acoustique ;
+- photovoltaïque ;
+- coupe ;
+- façade ;
+- synthèse.
 
 ---
 
@@ -404,13 +404,13 @@ Un profil graphique transforme ensuite ces rôles en représentation réelle.
 
 Chaque élément peut être classé par :
 
-* discipline ;
-* fonction ;
-* système ;
-* niveau ;
-* phase ;
-* état ;
-* classe graphique.
+- discipline ;
+- fonction ;
+- système ;
+- niveau ;
+- phase ;
+- état ;
+- classe graphique.
 
 Un moteur génère ensuite les noms de calques pour les exports CAD.
 
@@ -434,16 +434,16 @@ SymbolDefinition
 
 Exemples :
 
-* prises ;
-* interrupteurs ;
-* luminaires ;
-* radiateurs ;
-* sanitaires ;
-* bouches VMC ;
-* vannes ;
-* pompes ;
-* tableaux ;
-* panneaux solaires.
+- prises ;
+- interrupteurs ;
+- luminaires ;
+- radiateurs ;
+- sanitaires ;
+- bouches VMC ;
+- vannes ;
+- pompes ;
+- tableaux ;
+- panneaux solaires.
 
 ---
 
@@ -470,14 +470,14 @@ USER_RULE
 
 Chaque référence possède :
 
-* identifiant ;
-* domaine ;
-* pays ;
-* version ;
-* date d'entrée en vigueur ;
-* date éventuelle de fin ;
-* source ;
-* statut.
+- identifiant ;
+- domaine ;
+- pays ;
+- version ;
+- date d'entrée en vigueur ;
+- date éventuelle de fin ;
+- source ;
+- statut.
 
 ---
 
@@ -547,21 +547,19 @@ interface CalculationModule<I, O> {
 
   validate(context: CalculationContext): ValidationResult;
 
-  calculate(
-    context: CalculationContext
-  ): CalculationResult<O>;
+  calculate(context: CalculationContext): CalculationResult<O>;
 }
 ```
 
 Chaque résultat contient :
 
-* version ;
-* entrées ;
-* sorties ;
-* hypothèses ;
-* avertissements ;
-* références ;
-* diagnostic.
+- version ;
+- entrées ;
+- sorties ;
+- hypothèses ;
+- avertissements ;
+- références ;
+- diagnostic.
 
 ---
 
@@ -595,122 +593,122 @@ Seuls les modules impactés sont recalculés.
 
 ## Architecture
 
-* géométrie ;
-* surfaces ;
-* volumes ;
-* orientations ;
-* métrés.
+- géométrie ;
+- surfaces ;
+- volumes ;
+- orientations ;
+- métrés.
 
 ## Thermique
 
-* R ;
-* U ;
-* pertes ;
-* zones ;
-* chauffage ;
-* confort d'été.
+- R ;
+- U ;
+- pertes ;
+- zones ;
+- chauffage ;
+- confort d'été.
 
 ## Hygrothermie
 
-* vapeur ;
-* condensation ;
-* température de surface.
+- vapeur ;
+- condensation ;
+- température de surface.
 
 ## Énergie
 
-* consommations ;
-* chauffage ;
-* ECS ;
-* refroidissement.
+- consommations ;
+- chauffage ;
+- ECS ;
+- refroidissement.
 
 ## Photovoltaïque
 
-* surface disponible ;
-* orientation ;
-* puissance ;
-* production ;
-* autoconsommation.
+- surface disponible ;
+- orientation ;
+- puissance ;
+- production ;
+- autoconsommation.
 
 ## Batterie
 
-* capacité ;
-* autonomie ;
-* SOC ;
-* puissance.
+- capacité ;
+- autonomie ;
+- SOC ;
+- puissance.
 
 ## Eau
 
-* consommation ;
-* débit ;
-* pression ;
-* diamètre ;
-* pertes de charge.
+- consommation ;
+- débit ;
+- pression ;
+- diamètre ;
+- pertes de charge.
 
 ## Eau de pluie
 
-* collecte ;
-* pluviométrie ;
-* cuve ;
-* autonomie ;
-* appoint.
+- collecte ;
+- pluviométrie ;
+- cuve ;
+- autonomie ;
+- appoint.
 
 ## Évacuation
 
-* diamètres ;
-* pente ;
-* réseaux.
+- diamètres ;
+- pente ;
+- réseaux.
 
 ## Ventilation
 
-* débit ;
-* gaines ;
-* vitesse ;
-* pertes de charge ;
-* équilibrage.
+- débit ;
+- gaines ;
+- vitesse ;
+- pertes de charge ;
+- équilibrage.
 
 ## Air intérieur
 
-* CO₂ ;
-* humidité ;
-* occupation.
+- CO₂ ;
+- humidité ;
+- occupation.
 
 ## Électricité
 
-* circuits ;
-* puissance ;
-* intensité ;
-* sections ;
-* protections ;
-* chute de tension.
+- circuits ;
+- puissance ;
+- intensité ;
+- sections ;
+- protections ;
+- chute de tension.
 
 ## Éclairage
 
-* luminaires ;
-* lux ;
-* puissance ;
-* carte d'éclairement.
+- luminaires ;
+- lux ;
+- puissance ;
+- carte d'éclairement.
 
 ## Acoustique
 
-* RT ;
-* absorption ;
-* transmission ;
-* façades ;
-* séparation entre pièces.
+- RT ;
+- absorption ;
+- transmission ;
+- façades ;
+- séparation entre pièces.
 
 ## Coût
 
-* matériaux ;
-* équipements ;
-* lots ;
-* scénarios.
+- matériaux ;
+- équipements ;
+- lots ;
+- scénarios.
 
 ## Environnement
 
-* masses ;
-* données environnementales ;
-* carbone ;
-* comparaison de solutions.
+- masses ;
+- données environnementales ;
+- carbone ;
+- comparaison de solutions.
 
 ---
 
@@ -730,10 +728,10 @@ SetMaterial
 
 Cela permet :
 
-* Undo ;
-* Redo ;
-* historique cohérent ;
-* recalcul contrôlé.
+- Undo ;
+- Redo ;
+- historique cohérent ;
+- recalcul contrôlé.
 
 ---
 
@@ -741,14 +739,14 @@ Cela permet :
 
 Prévoir :
 
-* grille ;
-* point ;
-* milieu ;
-* intersection ;
-* perpendiculaire ;
-* parallèle ;
-* alignement ;
-* angle.
+- grille ;
+- point ;
+- milieu ;
+- intersection ;
+- perpendiculaire ;
+- parallèle ;
+- alignement ;
+- angle.
 
 ---
 
@@ -789,20 +787,20 @@ Les changements futurs doivent passer par des migrations.
 
 MVP :
 
-* JSON projet ;
-* JSON matériaux ;
-* JSON assemblages ;
-* SVG ;
-* CSV métrés ;
-* CSV résultats ;
-* PDF via impression.
+- JSON projet ;
+- JSON matériaux ;
+- JSON assemblages ;
+- SVG ;
+- CSV métrés ;
+- CSV résultats ;
+- PDF via impression.
 
 Plus tard :
 
-* DXF ;
-* IFC ;
-* GeoJSON ;
-* fonds de plans.
+- DXF ;
+- IFC ;
+- GeoJSON ;
+- fonds de plans.
 
 ---
 
@@ -864,14 +862,14 @@ Plus tard :
 
 Prévoir dès le début :
 
-* tests géométriques ;
-* tests des unités ;
-* tests des formules ;
-* tests des règles ;
-* tests des migrations ;
-* cas de référence ;
-* golden tests SVG ;
-* projets complets de non-régression.
+- tests géométriques ;
+- tests des unités ;
+- tests des formules ;
+- tests des règles ;
+- tests des migrations ;
+- cas de référence ;
+- golden tests SVG ;
+- projets complets de non-régression.
 
 ---
 
@@ -881,65 +879,65 @@ Ordre recommandé :
 
 ### A — Core
 
-* TypeScript ;
-* modèle projet ;
-* unités ;
-* matériaux ;
-* assemblages.
+- TypeScript ;
+- modèle projet ;
+- unités ;
+- matériaux ;
+- assemblages.
 
 ### B — Architecture
 
-* murs ;
-* ouvertures ;
-* pièces ;
-* SVG ;
-* cotes ;
-* snap ;
-* Undo/Redo.
+- murs ;
+- ouvertures ;
+- pièces ;
+- SVG ;
+- cotes ;
+- snap ;
+- Undo/Redo.
 
 ### C — Matériaux
 
-* parois multicouches ;
-* hachures ;
-* catalogue ;
-* ajout utilisateur ;
-* métrés.
+- parois multicouches ;
+- hachures ;
+- catalogue ;
+- ajout utilisateur ;
+- métrés.
 
 ### D — Thermique
 
-* premier calcul transversal complet.
+- premier calcul transversal complet.
 
 ### E — Eau
 
-* plomberie ;
-* pluie ;
-* cuve.
+- plomberie ;
+- pluie ;
+- cuve.
 
 ### F — Ventilation
 
-* réseaux ;
-* débits ;
-* dimensionnement.
+- réseaux ;
+- débits ;
+- dimensionnement.
 
 ### G — Électricité
 
-* circuits ;
-* protections ;
-* éclairage.
+- circuits ;
+- protections ;
+- éclairage.
 
 ### H — Énergie
 
-* chauffage ;
-* ECS ;
-* PV ;
-* batterie.
+- chauffage ;
+- ECS ;
+- PV ;
+- batterie.
 
 ### I — Avancé
 
-* acoustique ;
-* coût ;
-* environnement ;
-* scénarios.
+- acoustique ;
+- coût ;
+- environnement ;
+- scénarios.
 
 ---
 

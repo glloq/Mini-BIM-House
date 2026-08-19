@@ -82,7 +82,7 @@ Chaque formule critique possède :
 Ne jamais écrire :
 
 ```ts
-expect(x).toBeCloseTo(y)
+expect(x).toBeCloseTo(y);
 ```
 
 sans expliquer la tolérance du domaine si elle est importante.

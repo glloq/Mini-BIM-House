@@ -306,13 +306,13 @@ Ne jamais utiliser automatiquement `0`.
 Exemple :
 
 ```ts
-conductivityWMK: undefined
+conductivityWMK: undefined;
 ```
 
 signifie : donnée inconnue.
 
 ```ts
-conductivityWMK: 0
+conductivityWMK: 0;
 ```
 
 serait physiquement très différent et doit donc être évité.

@@ -4,14 +4,14 @@
 
 L'objectif est de réunir dans une seule interface :
 
-* la conception architecturale 2D ;
-* les matériaux et compositions de parois ;
-* les calculs thermiques et énergétiques ;
-* les réseaux d'eau, ventilation et électricité ;
-* l'éclairage et l'acoustique ;
-* le photovoltaïque et le stockage ;
-* les métrés, coûts et impacts environnementaux ;
-* les contrôles techniques et réglementaires via des règles versionnées.
+- la conception architecturale 2D ;
+- les matériaux et compositions de parois ;
+- les calculs thermiques et énergétiques ;
+- les réseaux d'eau, ventilation et électricité ;
+- l'éclairage et l'acoustique ;
+- le photovoltaïque et le stockage ;
+- les métrés, coûts et impacts environnementaux ;
+- les contrôles techniques et réglementaires via des règles versionnées.
 
 > **Dessiner une seule fois le bâtiment, puis utiliser ce même modèle pour toutes les études techniques.**
 
@@ -65,18 +65,18 @@ BUILDING MODEL
 
 L'application doit privilégier la représentation visuelle :
 
-* plans architecturaux ;
-* coupes ;
-* hachures de matériaux ;
-* réseaux techniques ;
-* symboles ;
-* cotations ;
-* cartes de pertes thermiques ;
-* débits ;
-* pressions ;
-* tensions ;
-* niveaux d'éclairement ;
-* résultats acoustiques.
+- plans architecturaux ;
+- coupes ;
+- hachures de matériaux ;
+- réseaux techniques ;
+- symboles ;
+- cotations ;
+- cartes de pertes thermiques ;
+- débits ;
+- pressions ;
+- tensions ;
+- niveaux d'éclairement ;
+- résultats acoustiques.
 
 Les conventions graphiques doivent rester aussi proches que possible des standards du dessin technique et architectural.
 
@@ -84,13 +84,13 @@ Les conventions graphiques doivent rester aussi proches que possible des standar
 
 Chaque résultat doit pouvoir indiquer :
 
-* les données utilisées ;
-* la méthode ;
-* les hypothèses ;
-* les unités ;
-* les avertissements ;
-* les références techniques ;
-* la version du module.
+- les données utilisées ;
+- la méthode ;
+- les hypothèses ;
+- les unités ;
+- les avertissements ;
+- les références techniques ;
+- la version du module.
 
 Une donnée inconnue doit rester **inconnue** : le logiciel ne doit pas inventer silencieusement une valeur.
 
@@ -128,31 +128,31 @@ Le moteur métier reste indépendant de l'interface React.
 
 ## Architecture
 
-* niveaux ;
-* murs ;
-* cloisons ;
-* portes ;
-* fenêtres ;
-* pièces ;
-* dalles ;
-* toitures ;
-* surfaces ;
-* volumes ;
-* cotations ;
-* coupes et façades.
+- niveaux ;
+- murs ;
+- cloisons ;
+- portes ;
+- fenêtres ;
+- pièces ;
+- dalles ;
+- toitures ;
+- surfaces ;
+- volumes ;
+- cotations ;
+- coupes et façades.
 
 ## Matériaux
 
-* bibliothèque générale ;
-* matériaux génériques ;
-* produits fabricants ;
-* matériaux personnalisés ;
-* propriétés thermiques ;
-* hygrométriques ;
-* acoustiques ;
-* physiques ;
-* environnementales ;
-* provenance des données.
+- bibliothèque générale ;
+- matériaux génériques ;
+- produits fabricants ;
+- matériaux personnalisés ;
+- propriétés thermiques ;
+- hygrométriques ;
+- acoustiques ;
+- physiques ;
+- environnementales ;
+- provenance des données.
 
 Les utilisateurs pourront ajouter leurs propres matériaux sans modifier le code.
 
@@ -175,133 +175,133 @@ Une composition sert simultanément au dessin, aux hachures, au thermique, à l'
 
 ## Thermique
 
-* résistance thermique ;
-* coefficient U ;
-* déperditions ;
-* ponts thermiques ;
-* températures de surface ;
-* analyse par pièce ;
-* comparaison de variantes.
+- résistance thermique ;
+- coefficient U ;
+- déperditions ;
+- ponts thermiques ;
+- températures de surface ;
+- analyse par pièce ;
+- comparaison de variantes.
 
 ## Hygrothermie
 
-* diffusion de vapeur ;
-* point de rosée ;
-* condensation interstitielle ;
-* risque de condensation superficielle.
+- diffusion de vapeur ;
+- point de rosée ;
+- condensation interstitielle ;
+- risque de condensation superficielle.
 
 ## Chauffage / ECS
 
-* charge par pièce ;
-* puissance nécessaire ;
-* émetteurs ;
-* PAC ;
-* chaudière ;
-* chauffage électrique ;
-* besoins ECS ;
-* ballon ;
-* temps de chauffe ;
-* énergie consommée.
+- charge par pièce ;
+- puissance nécessaire ;
+- émetteurs ;
+- PAC ;
+- chaudière ;
+- chauffage électrique ;
+- besoins ECS ;
+- ballon ;
+- temps de chauffe ;
+- énergie consommée.
 
 ## Photovoltaïque / batterie
 
-* surfaces disponibles ;
-* orientation ;
-* inclinaison ;
-* implantation automatique ;
-* obstacles ;
-* puissance installable ;
-* productible ;
-* strings ;
-* onduleur ;
-* capacité batterie ;
-* SOC ;
-* autoconsommation ;
-* autosuffisance ;
-* import/export réseau.
+- surfaces disponibles ;
+- orientation ;
+- inclinaison ;
+- implantation automatique ;
+- obstacles ;
+- puissance installable ;
+- productible ;
+- strings ;
+- onduleur ;
+- capacité batterie ;
+- SOC ;
+- autoconsommation ;
+- autosuffisance ;
+- import/export réseau.
 
 Une intégration optionnelle avec **PVGIS** est prévue.
 
 ## Eau / eau de pluie
 
-* eau froide et chaude ;
-* réseaux non potables ;
-* diamètres ;
-* débits ;
-* pertes de charge ;
-* pression disponible ;
-* récupération de pluie ;
-* filtration ;
-* cuve ;
-* appoint ;
-* trop-plein.
+- eau froide et chaude ;
+- réseaux non potables ;
+- diamètres ;
+- débits ;
+- pertes de charge ;
+- pression disponible ;
+- récupération de pluie ;
+- filtration ;
+- cuve ;
+- appoint ;
+- trop-plein.
 
 ## Évacuation
 
-* eaux usées ;
-* eaux-vannes ;
-* pentes ;
-* diamètres ;
-* colonnes ;
-* ventilations ;
-* profils altimétriques.
+- eaux usées ;
+- eaux-vannes ;
+- pentes ;
+- diamètres ;
+- colonnes ;
+- ventilations ;
+- profils altimétriques.
 
 ## Ventilation / qualité de l'air
 
-* soufflage ;
-* extraction ;
-* gaines ;
-* débits ;
-* vitesses ;
-* pertes de charge ;
-* récupération de chaleur ;
-* équilibrage ;
-* CO₂ ;
-* humidité.
+- soufflage ;
+- extraction ;
+- gaines ;
+- débits ;
+- vitesses ;
+- pertes de charge ;
+- récupération de chaleur ;
+- équilibrage ;
+- CO₂ ;
+- humidité.
 
 ## Électricité
 
-* tableaux ;
-* circuits ;
-* prises ;
-* luminaires ;
-* équipements ;
-* puissance ;
-* courant ;
-* sections ;
-* chute de tension ;
-* protections.
+- tableaux ;
+- circuits ;
+- prises ;
+- luminaires ;
+- équipements ;
+- puissance ;
+- courant ;
+- sections ;
+- chute de tension ;
+- protections.
 
 ## Éclairage
 
-* implantation ;
-* flux lumineux ;
-* éclairement ;
-* lux ;
-* puissance ;
-* carte d'éclairement.
+- implantation ;
+- flux lumineux ;
+- éclairement ;
+- lux ;
+- puissance ;
+- carte d'éclairement.
 
 ## Acoustique
 
-* absorption ;
-* temps de réverbération ;
-* comparaison de traitements ;
-* isolation acoustique future.
+- absorption ;
+- temps de réverbération ;
+- comparaison de traitements ;
+- isolation acoustique future.
 
 ## Métrés / coûts / environnement
 
 Le modèle pourra générer automatiquement :
 
-* surfaces ;
-* longueurs ;
-* volumes ;
-* masses ;
-* équipements ;
-* réseaux ;
-* quantités d'achat ;
-* coûts par lot ;
-* impacts environnementaux ;
-* FDES / PEP / données INIES.
+- surfaces ;
+- longueurs ;
+- volumes ;
+- masses ;
+- équipements ;
+- réseaux ;
+- quantités d'achat ;
+- coûts par lot ;
+- impacts environnementaux ;
+- FDES / PEP / données INIES.
 
 ---
 
@@ -332,25 +332,25 @@ Le moteur de dessin est basé principalement sur **SVG**.
 
 Le projet prévoit :
 
-* traits techniques ;
-* épaisseurs de ligne ;
-* hachures ;
-* symboles ;
-* cotations ;
-* échelles ;
-* calques ;
-* cartouches ;
-* légendes ;
-* plans thématiques.
+- traits techniques ;
+- épaisseurs de ligne ;
+- hachures ;
+- symboles ;
+- cotations ;
+- échelles ;
+- calques ;
+- cartouches ;
+- légendes ;
+- plans thématiques.
 
 Références structurantes prévues :
 
-* ISO 128 ;
-* ISO 129 ;
-* ISO 5455 ;
-* ISO 5457 ;
-* ISO 7200 ;
-* ISO 13567.
+- ISO 128 ;
+- ISO 129 ;
+- ISO 5455 ;
+- ISO 5457 ;
+- ISO 7200 ;
+- ISO 13567.
 
 Les conventions nationales ou réglementaires seront intégrées via des profils graphiques et des Rule Packs dédiés.
 
@@ -375,12 +375,12 @@ PASS / FAIL / WARNING / UNKNOWN
 
 Un Rule Pack contient :
 
-* juridiction ;
-* domaine ;
-* période de validité ;
-* références ;
-* paramètres ;
-* règles.
+- juridiction ;
+- domaine ;
+- période de validité ;
+- références ;
+- paramètres ;
+- règles.
 
 Exemples futurs :
 
@@ -500,26 +500,26 @@ Les évolutions du format passent par des migrations explicites.
 
 L'architecture prévoit dès le départ des évolutions importantes :
 
-* simulation thermique dynamique ;
-* confort d'été ;
-* structure ;
-* géotechnique ;
-* lumière naturelle ;
-* solaire thermique ;
-* eaux grises ;
-* assainissement ;
-* triphasé ;
-* recharge véhicule électrique ;
-* domotique ;
-* maintenance ;
-* digital twin ;
-* rénovation ;
-* optimisation multicritère ;
-* DXF ;
-* IFC ;
-* LiDAR ;
-* plugins ;
-* moteurs externes.
+- simulation thermique dynamique ;
+- confort d'été ;
+- structure ;
+- géotechnique ;
+- lumière naturelle ;
+- solaire thermique ;
+- eaux grises ;
+- assainissement ;
+- triphasé ;
+- recharge véhicule électrique ;
+- domotique ;
+- maintenance ;
+- digital twin ;
+- rénovation ;
+- optimisation multicritère ;
+- DXF ;
+- IFC ;
+- LiDAR ;
+- plugins ;
+- moteurs externes.
 
 Une nouvelle discipline doit pouvoir être ajoutée principalement sous forme de :
 
@@ -541,22 +541,22 @@ Le projet est actuellement en **phase de spécification / architecture**.
 
 Sont déjà définis :
 
-* architecture logicielle ;
-* modèle métier ;
-* géométrie ;
-* moteur de dessin ;
-* matériaux ;
-* assemblages ;
-* métrés ;
-* moteurs de calcul ;
-* réseaux ;
-* réglementation ;
-* format projet ;
-* JSON Schemas ;
-* stratégie de tests ;
-* roadmap ;
-* plan d'implémentation PR par PR ;
-* évolutions futures.
+- architecture logicielle ;
+- modèle métier ;
+- géométrie ;
+- moteur de dessin ;
+- matériaux ;
+- assemblages ;
+- métrés ;
+- moteurs de calcul ;
+- réseaux ;
+- réglementation ;
+- format projet ;
+- JSON Schemas ;
+- stratégie de tests ;
+- roadmap ;
+- plan d'implémentation PR par PR ;
+- évolutions futures.
 
 Le développement du noyau applicatif constitue l'étape suivante.
 
@@ -601,13 +601,13 @@ La documentation technique est disponible dans :
 
 Documents principaux :
 
-* [`ARCHITECTURE.md`](ARCHITECTURE.md)
-* [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md)
-* [`docs/specifications/`](docs/specifications/)
-* [`docs/standards/`](docs/standards/)
-* [`docs/adr/`](docs/adr/)
-* [`schemas/`](schemas/)
-* [`examples/`](examples/)
+- [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md)
+- [`docs/specifications/`](docs/specifications/)
+- [`docs/standards/`](docs/standards/)
+- [`docs/adr/`](docs/adr/)
+- [`schemas/`](schemas/)
+- [`examples/`](examples/)
 
 ---
 

@@ -53,7 +53,7 @@ interface NetworkPort {
   id: string;
   nodeId: string;
   role: string;
-  direction: "IN" | "OUT" | "BIDIRECTIONAL";
+  direction: 'IN' | 'OUT' | 'BIDIRECTIONAL';
   connectionType?: string;
   nominalSize?: number;
 }
@@ -88,7 +88,7 @@ interface WaterEdgeProperties {
 }
 
 interface DuctEdgeProperties {
-  shape: "ROUND" | "RECTANGULAR";
+  shape: 'ROUND' | 'RECTANGULAR';
   diameterM?: number;
   widthM?: number;
   heightM?: number;

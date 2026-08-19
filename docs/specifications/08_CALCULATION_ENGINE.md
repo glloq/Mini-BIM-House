@@ -132,13 +132,13 @@ Tous les modules utilisent des quantités typées.
 Éviter :
 
 ```ts
-power = 3500
+power = 3500;
 ```
 
 Préférer :
 
 ```ts
-power = W(3500)
+power = W(3500);
 ```
 
 ou un type équivalent empêchant les erreurs d’unité.
@@ -190,7 +190,7 @@ Le moteur calcule chaque scénario avec un contexte immuable.
 Comparaison :
 
 ```ts
-compareResults(base, variant)
+compareResults(base, variant);
 ```
 
 ## 15. Optimisation

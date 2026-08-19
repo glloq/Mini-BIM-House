@@ -53,7 +53,7 @@ Format commun :
 interface EnergySeries {
   timestepSeconds: number;
   start: string;
-  unit: "Wh";
+  unit: 'Wh';
   values: number[];
 }
 ```
@@ -137,18 +137,23 @@ Source officielle :
 ## 12. Tests
 
 ### EN-001
+
 Somme des usages = charge totale.
 
 ### EN-002
+
 Vérifier cohérence des pas temporels.
 
 ### EN-003
+
 Aucune double comptabilisation du chauffage électrique.
 
 ### EN-004
+
 Conservation énergie avec PV+batterie.
 
 ### EN-005
+
 Changer un coefficient réglementaire ne change pas les kWh physiques.
 
 ## 13. MVP

@@ -218,18 +218,23 @@ Il fournit ses consommations à `energy-balance`.
 ## 16. Tests
 
 ### ELEC-001
+
 Cas monophasé résistif : `P=2300 W`, `U=230 V`, `cosφ=1` ⇒ `I=10 A`.
 
 ### ELEC-002
+
 Puissance installée ≠ puissance de calcul si facteur de demande < 1.
 
 ### ELEC-003
+
 La chute de tension totale d'un chemin est cohérente avec les tronçons.
 
 ### ELEC-004
+
 Circuit déconnecté du tableau ⇒ erreur.
 
 ### ELEC-005
+
 Les règles réglementaires peuvent changer sans changer les équations physiques.
 
 ## 17. MVP

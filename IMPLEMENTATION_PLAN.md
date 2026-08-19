@@ -596,11 +596,17 @@ Agrégation usages/PV/batterie/réseau.
 # Phase 14 — Autres modules
 
 ## PR-057 — Hygrothermal simplified
+
 ## PR-058 — Heating loads
+
 ## PR-059 — DHW
+
 ## PR-060 — Wastewater
+
 ## PR-061 — Acoustics room
+
 ## PR-062 — Cost
+
 ## PR-063 — Environmental links
 
 Chaque module suit sa spécification dédiée.

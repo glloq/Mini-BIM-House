@@ -16,15 +16,12 @@ interface CalculationModule<TSettings, TOutput> {
   dependencies: CalculationDependency[];
   settingsSchemaId: string;
 
-  validate(
-    ctx: CalculationContext,
-    settings: TSettings
-  ): ValidationResult;
+  validate(ctx: CalculationContext, settings: TSettings): ValidationResult;
 
   calculate(
     ctx: CalculationContext,
     settings: TSettings,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<CalculationResult<TOutput>> | CalculationResult<TOutput>;
 }
 ```
@@ -51,7 +48,7 @@ interface CalculationResult<T> {
   moduleId: string;
   moduleVersion: string;
   precision: PrecisionLevel;
-  status: "OK" | "PARTIAL" | "FAILED";
+  status: 'OK' | 'PARTIAL' | 'FAILED';
   methodId: string;
   inputFingerprint: string;
   outputs: T;
@@ -196,10 +193,10 @@ Une donnée manquante = résultat `PARTIAL/FAILED` avec diagnostic structuré.
 L'orchestrateur expose :
 
 ```ts
-calculateModule(id)
-calculateAffected(changes)
-calculateScenario(id)
-calculateAllEnabled()
+calculateModule(id);
+calculateAffected(changes);
+calculateScenario(id);
+calculateAllEnabled();
 ```
 
 ## 17. Schéma settings

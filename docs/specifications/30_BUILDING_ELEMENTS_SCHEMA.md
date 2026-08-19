@@ -82,14 +82,14 @@ interface Wall {
   id: string;
   levelId: string;
   path: WallReferencePath;
-  referenceSide: "CENTER" | "LEFT" | "RIGHT";
+  referenceSide: 'CENTER' | 'LEFT' | 'RIGHT';
   assemblyId: string;
   baseOffsetMm: number;
-  heightMode: "EXPLICIT" | "TO_LEVEL";
+  heightMode: 'EXPLICIT' | 'TO_LEVEL';
   heightMm?: number;
   topLevelId?: string;
   topOffsetMm?: number;
-  role: "EXTERIOR" | "INTERIOR" | "PARTITION" | "OTHER";
+  role: 'EXTERIOR' | 'INTERIOR' | 'PARTITION' | 'OTHER';
 }
 ```
 
@@ -101,7 +101,7 @@ Une ouverture est hébergée par un élément.
 interface Opening {
   id: string;
   hostElementId: string;
-  type: "DOOR" | "WINDOW" | "VOID" | "OTHER";
+  type: 'DOOR' | 'WINDOW' | 'VOID' | 'OTHER';
   positionAlongHostMm: number;
   sillHeightMm: number;
   widthMm: number;
@@ -121,7 +121,7 @@ interface Slab {
   polygon: Polygon2D;
   assemblyId: string;
   elevationOffsetMm: number;
-  role: "FLOOR" | "FOUNDATION" | "TERRACE" | "OTHER";
+  role: 'FLOOR' | 'FOUNDATION' | 'TERRACE' | 'OTHER';
 }
 ```
 
@@ -151,7 +151,7 @@ interface Space {
   levelId: string;
   name: string;
   category: string;
-  boundaryMode: "AUTO" | "MANUAL";
+  boundaryMode: 'AUTO' | 'MANUAL';
   manualPolygon?: Polygon2D;
   usageProfileId?: string;
   thermalZoneId?: string;

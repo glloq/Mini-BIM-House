@@ -98,13 +98,7 @@ La puissance d'un émetteur ne doit pas rester fixe lorsque le régime change si
 
 ```ts
 interface HeatGenerator {
-  type:
-    | "heat-pump"
-    | "boiler"
-    | "electric"
-    | "wood"
-    | "district"
-    | "other";
+  type: 'heat-pump' | 'boiler' | 'electric' | 'wood' | 'district' | 'other';
   nominalThermalPowerW: number;
   performanceModelId: string;
 }
@@ -248,23 +242,29 @@ interface DwhResult {
 ## 19. Tests chauffage
 
 ### HEAT-001
+
 `H = 100 W/K`, `ΔT = 20 K` ⇒ `Φ = 2000 W`.
 
 ### HEAT-002
+
 Somme des pièces = bâtiment à tolérance près.
 
 ### HEAT-003
+
 La récupération de chaleur n'affecte que le terme auquel elle s'applique.
 
 ## 20. Tests ECS
 
 ### DHW-001
+
 Vérifier `Q = m × cp × ΔT`.
 
 ### DHW-002
+
 Puissance utile doublée ⇒ temps idéal divisé par deux.
 
 ### DHW-003
+
 Vérifier le bilan de mélange.
 
 ## 21. Références candidates

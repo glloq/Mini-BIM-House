@@ -1612,12 +1612,19 @@ Le stockage interne reste indépendant de la locale.
 # 41. Modules environnementaux futurs
 
 ## 41.1 Eau grise
+
 ## 41.2 Biodiversité / végétalisation
+
 ## 41.3 Toiture végétalisée
+
 ## 41.4 Empreinte eau
+
 ## 41.5 Circularité
+
 ## 41.6 Réemploi
+
 ## 41.7 Fin de vie
+
 ## 41.8 Stockage carbone biogénique
 
 Chaque méthode doit avoir sa référence propre.
@@ -1805,23 +1812,23 @@ Le cœur doit préserver les extensions inconnues lors d’un chargement/sauvega
 
 # 51. Matrice dépendances futures
 
-| Module futur | Dépendances principales |
-|---|---|
-| Thermique dynamique | géométrie, climat, matériaux, occupation |
-| Confort été | thermique dynamique, solaire, ventilation |
-| Structure | géométrie, matériaux, charges |
-| Géotechnique | site, terrain |
-| Lumière naturelle | géométrie, ouvertures, climat, ombrage |
-| Eaux grises | eau, évacuation, équipements |
-| Assainissement | évacuation, site, sol |
-| EV | électricité, énergie, PV, batterie |
-| Smart home | équipements, réseaux, profils |
-| Digital twin | projet, capteurs, séries temporelles |
-| Optimiseur | tous modules sélectionnés |
-| IFC | modèle domaine, relations, unités |
-| Rénovation | phases, scénarios, incertitude |
-| Planning chantier | quantités, phases |
-| Maintenance | équipements, dates, catalogues |
+| Module futur        | Dépendances principales                   |
+| ------------------- | ----------------------------------------- |
+| Thermique dynamique | géométrie, climat, matériaux, occupation  |
+| Confort été         | thermique dynamique, solaire, ventilation |
+| Structure           | géométrie, matériaux, charges             |
+| Géotechnique        | site, terrain                             |
+| Lumière naturelle   | géométrie, ouvertures, climat, ombrage    |
+| Eaux grises         | eau, évacuation, équipements              |
+| Assainissement      | évacuation, site, sol                     |
+| EV                  | électricité, énergie, PV, batterie        |
+| Smart home          | équipements, réseaux, profils             |
+| Digital twin        | projet, capteurs, séries temporelles      |
+| Optimiseur          | tous modules sélectionnés                 |
+| IFC                 | modèle domaine, relations, unités         |
+| Rénovation          | phases, scénarios, incertitude            |
+| Planning chantier   | quantités, phases                         |
+| Maintenance         | équipements, dates, catalogues            |
 
 ---
 

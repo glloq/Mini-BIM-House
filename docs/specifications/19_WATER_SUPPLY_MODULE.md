@@ -244,21 +244,27 @@ WATER_UNKNOWN_PIPE_PROPERTIES
 ## 19. Tests
 
 ### WATER-001
+
 `A = πD²/4`.
 
 ### WATER-002
+
 À débit constant, diminution de diamètre ⇒ vitesse supérieure.
 
 ### WATER-003
+
 Longueur doublée ⇒ terme linéaire doublé, paramètres constants.
 
 ### WATER-004
+
 Vérifier `ρgΔz`.
 
 ### WATER-005
+
 Terminal déconnecté ⇒ pas de pression valide.
 
 ### WATER-006
+
 Conservation des débits aux nœuds.
 
 ## 20. Références candidates

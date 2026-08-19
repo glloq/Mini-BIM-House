@@ -264,18 +264,23 @@ et non un composant ajouté silencieusement.
 ## 18. Tests
 
 ### RAIN-001
+
 `1 mm × 1 m² = 1 L`.
 
 ### RAIN-002
+
 Sans pluie, stockage stable ou décroissant.
 
 ### RAIN-003
+
 Sans demande, `served = 0`.
 
 ### RAIN-004
+
 Le stockage ne dépasse jamais la capacité.
 
 ### RAIN-005
+
 Invariant :
 
 ```text
@@ -285,6 +290,7 @@ final + served + overflow + otherLosses
 ```
 
 ### RAIN-006
+
 Un usage non conforme déclenche une règle sans altérer le bilan hydraulique.
 
 ## 19. Critères de sortie MVP

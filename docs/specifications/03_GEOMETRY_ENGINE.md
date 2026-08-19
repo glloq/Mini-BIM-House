@@ -247,15 +247,15 @@ Le type de surface doit être explicite dans chaque API.
 Éviter une fonction ambiguë comme :
 
 ```ts
-getWallArea()
+getWallArea();
 ```
 
 Préférer :
 
 ```ts
-getGrossExteriorArea()
-getNetExteriorArea()
-getGrossInteriorArea()
+getGrossExteriorArea();
+getNetExteriorArea();
+getGrossInteriorArea();
 ```
 
 ---
