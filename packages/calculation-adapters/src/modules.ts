@@ -30,6 +30,12 @@ import { calculateCostEstimate } from '@house-technical-designer/cost';
 import { calculateEnvironmentalImpacts } from '@house-technical-designer/environmental';
 import { analyzeWastewaterNetwork } from '@house-technical-designer/wastewater';
 import { calculateEnergyBalance } from '@house-technical-designer/energy-balance';
+import {
+  calculateElectricalCircuit,
+  type ElectricalCable,
+  type ElectricalCircuit,
+  type ElectricalLoad,
+} from '@house-technical-designer/electrical';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 
 const ok = (): CalculationValidation => ({ valid: true });
@@ -598,6 +604,182 @@ export const lightingAdapter: CalculationModule = {
         {
           id: 'lumen-method',
           title: 'Average illuminance by the lumen method',
+        },
+      ],
+    };
+  },
+};
+
+/**
+ * Runs the electrical engine on the circuits the project declares.
+ *
+ * Nothing is completed here: a load with no stated power, a cable with no
+ * stated section and a circuit with no stated voltage each come back as a
+ * warning naming the object. A circuit that branches is reported as such by the
+ * engine, which refuses to total a voltage drop over a path that is not one
+ * run.
+ */
+export const electricalAdapter: CalculationModule = {
+  id: 'electrical',
+  version: '1.0.0',
+  methodId: 'balanced-active-power-demand-v1',
+  precision: 'ENGINEERING',
+  dependencies: [],
+  settingsSchemaId: 'project://calculationSettings/electrical',
+  inputPaths: ['systems.ELECTRICAL'],
+  validate(input) {
+    const data = record(input);
+    if (data === undefined)
+      return invalid({ path: '/', message: 'Input must be an object.' });
+    if (rows(data.circuits).length === 0)
+      return invalid({
+        path: '/circuits',
+        message: 'The project declares no electrical circuit to assess.',
+      });
+    return requireNumbers(input, [
+      'copperResistivityOhmMm2PerM',
+      'aluminiumResistivityOhmMm2PerM',
+    ]);
+  },
+  calculate(input) {
+    const data = record(input)!;
+    const resistivity: Readonly<Record<string, number>> = {
+      COPPER: number(data.copperResistivityOhmMm2PerM)!,
+      ALUMINIUM: number(data.aluminiumResistivityOhmMm2PerM)!,
+    };
+    const warnings: CalculationWarning[] = [];
+    const results = rows(data.circuits).map((entry) => {
+      const circuitId = string(entry.id)!;
+      const voltageV = number(entry.voltageV);
+      const phases = number(entry.phases);
+      const loadRows = rows(data.loads).filter(
+        (load) => string(load.circuitId) === circuitId,
+      );
+      const cableRows = rows(data.cables).filter(
+        (cable) => string(cable.circuitId) === circuitId,
+      );
+      if (voltageV === undefined || (phases !== 1 && phases !== 3)) {
+        warnings.push(
+          missingWarning(
+            'ELECTRICAL_INCOMPLETE_CIRCUIT',
+            `Circuit ${circuitId} states no nominal voltage or phase count.`,
+            [circuitId],
+          ),
+        );
+        return {
+          circuitId,
+          status: 'PARTIAL',
+          installedPowerW: null,
+          designPowerW: null,
+          designCurrentA: null,
+          voltageDropV: null,
+          voltageDropPercent: null,
+          cables: cableRows.map((cable) => ({
+            cableId: string(cable.id)!,
+            voltageDropV: null,
+          })),
+        };
+      }
+      const loads: ElectricalLoad[] = loadRows.map((load) => {
+        const activePowerW = number(load.activePowerW);
+        const powerFactor = number(load.powerFactor);
+        const demandFactor = number(load.demandFactor);
+        return {
+          loadId: string(load.loadId)!,
+          name: string(load.name) ?? string(load.loadId)!,
+          ...(activePowerW === undefined ? {} : { activePowerW }),
+          ...(powerFactor === undefined ? {} : { powerFactor }),
+          ...(demandFactor === undefined ? {} : { demandFactor }),
+        };
+      });
+      const circuit: ElectricalCircuit = {
+        id: circuitId,
+        purpose: (string(entry.purpose) ??
+          'POWER') as ElectricalCircuit['purpose'],
+        boardId: string(entry.boardId) ?? `${circuitId}:board`,
+        voltageV,
+        voltageReference:
+          string(entry.voltageReference) === 'PHASE_PHASE'
+            ? 'PHASE_PHASE'
+            : 'PHASE_NEUTRAL',
+        phases: phases === 3 ? 3 : 1,
+        loadIds: loads.map(({ loadId }) => loadId),
+      };
+      const cables = cableRows.map((cable) => {
+        const sectionMm2 = number(cable.conductorSectionMm2);
+        const material = string(cable.conductorMaterial) ?? 'COPPER';
+        const declared: ElectricalCable = {
+          id: string(cable.id)!,
+          kind: 'CABLE',
+          fromPortId: `${string(cable.id)!}:from`,
+          toPortId: `${string(cable.id)!}:to`,
+          path: rows(cable.path).map((point) => ({
+            x: number(point.x)!,
+            y: number(point.y)!,
+            z: number(point.z)!,
+          })),
+          properties: {
+            circuitId,
+            conductorCount: number(cable.conductorCount) ?? 1,
+            ...(sectionMm2 === undefined
+              ? {}
+              : { conductorSectionMm2: sectionMm2 }),
+          },
+        };
+        const perMetre =
+          sectionMm2 === undefined || resistivity[material] === undefined
+            ? undefined
+            : resistivity[material] / sectionMm2;
+        return {
+          cable: declared,
+          ...(perMetre === undefined
+            ? {}
+            : { conductorResistanceOhmPerM: perMetre }),
+        };
+      });
+      const result = calculateElectricalCircuit({ circuit, loads, cables });
+      for (const entryWarning of result.warnings)
+        warnings.push({
+          code: entryWarning.code,
+          severity: 'WARNING',
+          message: entryWarning.message,
+          objectIds: [entryWarning.objectId],
+        });
+      return {
+        circuitId,
+        status: result.status,
+        installedPowerW: result.installedPowerW ?? null,
+        designPowerW: result.designPowerW ?? null,
+        designCurrentA: result.designCurrentA ?? null,
+        voltageDropV: result.voltageDropV ?? null,
+        voltageDropPercent: result.voltageDropPercent ?? null,
+        cables: result.cables.map((cable) => ({
+          cableId: cable.cableId,
+          lengthM: cable.lengthM,
+          currentA: cable.currentA ?? null,
+          voltageDropV: cable.voltageDropV ?? null,
+        })),
+      };
+    });
+    const totalOf = (key: string): number | null => {
+      const values = results.map((entry) => entry[key as 'designPowerW']);
+      return values.some((value) => value === null)
+        ? null
+        : values.reduce<number>((total, value) => total + Number(value), 0);
+    };
+    return {
+      status: warnings.length === 0 ? 'OK' : 'PARTIAL',
+      outputs: {
+        circuits: results,
+        installedPowerW: totalOf('installedPowerW'),
+        designPowerW: totalOf('designPowerW'),
+      },
+      warnings,
+      assumptions: [],
+      references: [
+        {
+          id: 'balanced-active-power-demand',
+          title: 'Balanced active power demand and resistive voltage drop',
         },
       ],
     };
@@ -2104,6 +2286,7 @@ export const PROJECT_CALCULATION_MODULES = [
   heatingAdapter,
   dhwAdapter,
   lightingAdapter,
+  electricalAdapter,
   ventilationAdapter,
   iaqAdapter,
   waterAdapter,

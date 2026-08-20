@@ -352,6 +352,136 @@ copié plus haut ou déplacé.
 - Firefox et WebKit en intégration continue (BETA-16) ;
 - publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18).
 
+## Réseaux physiques et module électrique — lots B et C
+
+| Porte   | Constat                                                            | État    |
+| ------- | ------------------------------------------------------------------ | ------- |
+| BETA-06 | les réseaux ne portaient aucune propriété physique éditable        | corrigé |
+| BETA-07 | le moteur électrique existait sans être branché au pipeline projet | corrigé |
+
+**Un nœud et un tronçon disent ce qu'ils sont.** `NetworkNode` possède désormais
+un enregistrement `properties` et un `equipmentId`, tous deux déclarés au schéma
+JSON ; les tronçons avaient déjà le leur. Un catalogue par discipline dit ce que
+chaque objet peut porter — débit, pression, unités de vidange, puissance active,
+facteur de puissance d'un côté ; diamètre, matériau, rugosité, pertes
+singulières, pente, section et âme des conducteurs de l'autre — avec libellé,
+unité et bornes. Le panneau Réseaux ouvre l'inspecteur correspondant sur un nœud
+ou un tronçon, en saisie différée : un champ vidé retire la propriété, une
+valeur hors bornes est refusée en le disant, et rien n'est supposé. Le type de
+système se choisit enfin dans une liste de gabarits par discipline au lieu d'être
+épelé.
+
+Les adaptateurs lisent la propriété dans l'enregistrement puis, à défaut, sur le
+nœud lui-même : un fichier écrit avant cet enregistrement continue de calculer
+ce qu'il calculait. La maison de référence a été migrée vers la forme
+canonique ; le fixture d'intégration garde l'ancienne, pour que le chemin de
+compatibilité reste couvert par les tests.
+
+**Le dix-septième moteur est branché.** Aucun nouveau moteur n'a été écrit :
+`modules/electrical` existait, il manquait l'adaptateur projet. Les circuits sont
+lus depuis le réseau électrique — un nœud CIRCUIT, le tableau qui l'alimente, les
+charges qu'il atteint et les câbles qui y mènent, trouvés en parcourant le
+graphe. La puissance d'une charge vient du nœud ou de l'équipement qu'il
+représente ; la résistance linéique vient de la section et de la résistivité du
+cuivre ou de l'aluminium, déclarées comme constantes de méthode avec leur source.
+Une tension, un nombre de phases, une puissance ou une section que personne n'a
+énoncés sont signalés comme entrées manquantes, et un circuit ramifié est
+rapporté comme tel par le moteur plutôt que totalisé comme s'il n'était qu'une
+seule antenne.
+
+Dans la même veine que la porte BETA-02, trois choix silencieux ont été retirés :
+le premier ballon d'eau chaude, la première cuve de pluie et le premier pan de
+toiture ne sont plus pris par défaut quand le projet en déclare plusieurs —
+l'ambiguïté est signalée, avec les candidats nommés.
+
+### Ce que ces lots n'ont pas traité
+
+- édition géométrique des murs, ouvertures, dalles et toitures
+  (BETA-13 à BETA-15) ;
+- climat portable avec le projet et autosave IndexedDB (BETA-10, BETA-11) ;
+- Firefox et WebKit en intégration continue (BETA-16) ;
+- publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18) ;
+- superpositions graphiques par discipline, qui attendaient ces données ;
+- champ de saisie différée généralisé aux panneaux historiques.
+
+## Portabilité et sauvegarde locale — lot E
+
+| Porte   | Constat                                              | État    |
+| ------- | ---------------------------------------------------- | ------- |
+| BETA-10 | le climat vivait dans la session, pas dans le projet | corrigé |
+| BETA-11 | la sauvegarde de secours tenait dans `localStorage`  | corrigé |
+
+**Le projet voyage avec son climat.** « Sauvegarder » écrit désormais un
+`.houseproj` : une archive ZIP contenant `manifest.json`, `project.json` et un
+`climate/<jeu>.json` par jeu de données associé. Le format ZIP est écrit et relu
+par le dépôt lui-même — en-têtes locaux, répertoire central, `deflate-raw` via
+l'API de compression du navigateur quand elle existe, stockage simple sinon —
+sans dépendance ajoutée, et avec des horodatages fixes pour que le même contenu
+produise les mêmes octets. Chaque entrée est vérifiée contre son CRC à la
+lecture. Le JSON reste exporté à part, pour l'inspection et l'outillage, et
+l'ouverture accepte les deux : les octets disent lequel c'est.
+
+**La sauvegarde de secours a la taille des projets admis.** Les bornes d'import
+acceptent vingt mille murs et cinquante mille nœuds de réseau ; rien de tel ne
+tient dans `localStorage`. L'instantané va dans IndexedDB, `localStorage` restant
+le recours d'un navigateur sans base. Deux instantanés sont conservés — le
+courant et celui qu'il a remplacé — et la relecture bascule sur le précédent
+quand le dernier est illisible, au lieu de ne rien retrouver.
+
+**Le message de crash ne promet plus ce qu'il ignore.** Il affichait « une
+sauvegarde locale est conservée » même lorsqu'aucune n'avait encore été écrite.
+Il indique désormais l'heure de la dernière sauvegarde locale de la session,
+ou dit qu'aucune n'a pu être confirmée.
+
+### Ce que ce lot n'a pas traité
+
+- édition géométrique des murs, ouvertures, dalles et toitures
+  (BETA-13 à BETA-15) ;
+- Firefox et WebKit en intégration continue (BETA-16) ;
+- publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18).
+
+## Édition géométrique — lot D
+
+| Porte   | Constat                                                        | État    |
+| ------- | -------------------------------------------------------------- | ------- |
+| BETA-13 | un mur se dessinait et se supprimait, mais ne se reprenait pas | corrigé |
+| BETA-14 | une ouverture ne se déplaçait qu'en tapant un nombre           | corrigé |
+| BETA-15 | une dalle ou une toiture se recréait au lieu de se corriger    | corrigé |
+
+**Un objet sélectionné montre ses poignées.** Elles sont dérivées de la
+sélection, jamais stockées : le modèle porte la géométrie, les poignées n'en
+sont qu'une lecture. Un mur en expose ses deux extrémités et une poignée pour le
+déplacer entier ; une ouverture, une poignée qui glisse sur son mur ; une dalle
+ou un pan de toiture, une poignée par sommet et une au milieu de chaque côté,
+qui en insère un — alt-clic sur un sommet le retire. Le tracé se cale sur les
+accroches existantes, si bien qu'un coin déposé sur un mur y atterrit
+exactement.
+
+**Une extrémité déplacée reste vérifiée.** Le mur garde son identité, son
+assemblage et ses ouvertures ; ce que le déplacement ne peut pas faire, c'est
+laisser une ouverture hors du mur qui l'héberge, et un raccourcissement qui le
+ferait est refusé plutôt que de rogner la fenêtre en silence. La longueur et
+l'angle se saisissent aussi comme des nombres dans l'inspecteur, en passant par
+la même commande et donc la même validation.
+
+**Scinder un mur donne deux murs.** Chaque morceau garde l'assemblage, la
+hauteur et le rôle de celui dont il vient, et chaque ouverture suit le morceau
+qui la contient vraiment, son décalage recalculé depuis le nouveau départ. Une
+coupe qui tomberait dans une ouverture est refusée : une demi-fenêtre n'est pas
+une fenêtre, et choisir de quel côté la garder n'est pas à l'application de le
+décider. L'annulation recolle les deux morceaux, ouvertures comprises.
+
+**Un contour reste une surface.** Un polygone qui se croiserait ou s'effondrerait
+sur une ligne est refusé pendant que le geste est encore dans la main de
+l'utilisateur, et il ne reste jamais moins de trois sommets.
+
+### Ce que ce lot n'a pas traité
+
+- copier-coller, joindre deux murs, trim et extend ;
+- édition tactile complète sur téléphone ;
+- Firefox et WebKit en intégration continue (BETA-16) ;
+- publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18).
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -392,7 +522,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 656 tests sur 102 fichiers
-- tests navigateur : 40 tests Playwright, dont trois sur un écran de téléphone
+- tests unitaires et d'intégration : 710 tests sur 108 fichiers
+- tests navigateur : 44 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

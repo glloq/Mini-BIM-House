@@ -8,9 +8,17 @@ import {
   RemoveNetworkCommand,
   RemoveNetworkEdgeCommand,
   RemoveNetworkNodeCommand,
+  UpdateNetworkEdgeCommand,
   UpdateNetworkNodeCommand,
+  edgePropertySchema,
+  networkSystemTemplates,
+  nodePropertySchema,
+  withNetworkProperty,
+  type NetworkPropertyDescriptor,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
+import type { JsonValue } from '@house-technical-designer/core-domain';
+import { DraftField } from '../DraftField.js';
 import { nextLibraryId } from '../library/library-model.js';
 import {
   NETWORK_DISCIPLINES,
@@ -42,6 +50,103 @@ function metres(millimetres: number): string {
   return (millimetres / 1000).toFixed(2);
 }
 
+/**
+ * The physical properties of one network object.
+ *
+ * Values are committed once, on leaving the field, and an emptied field removes
+ * the property: a duct with no stated diameter is a duct nobody has sized, and
+ * the ventilation module is right to say so rather than guess one.
+ */
+function PropertyInspector({
+  idPrefix,
+  title,
+  descriptors,
+  properties,
+  onCommit,
+  onMessage,
+}: {
+  readonly idPrefix: string;
+  readonly title: string;
+  readonly descriptors: readonly NetworkPropertyDescriptor[];
+  readonly properties: Readonly<Record<string, JsonValue>>;
+  readonly onCommit: (next: Readonly<Record<string, JsonValue>>) => void;
+  readonly onMessage: (message: string) => void;
+}) {
+  if (descriptors.length === 0)
+    return (
+      <p className="notice">
+        {title} : cette version ne décrit aucune propriété physique pour cet
+        objet.
+      </p>
+    );
+  return (
+    <div className="property-group">
+      <h4>{title}</h4>
+      {descriptors.map((descriptor) => {
+        const value = properties[descriptor.key];
+        const commit = (raw: string): void => {
+          const next = withNetworkProperty(properties, descriptor, raw);
+          if (next === undefined) {
+            onMessage(
+              `${descriptor.label} : valeur non reconnue, la propriété n'a pas été modifiée.`,
+            );
+            return;
+          }
+          onCommit(next);
+        };
+        if (descriptor.kind === 'CHOICE')
+          return (
+            <div className="field" key={descriptor.key}>
+              <label htmlFor={`${idPrefix}-${descriptor.key}`}>
+                {descriptor.label}
+              </label>
+              <select
+                id={`${idPrefix}-${descriptor.key}`}
+                value={typeof value === 'string' ? value : ''}
+                onChange={(event) => commit(event.target.value)}
+              >
+                <option value="">Non renseigné</option>
+                {(descriptor.options ?? []).map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              {descriptor.hint !== undefined && (
+                <small className="hint">{descriptor.hint}</small>
+              )}
+            </div>
+          );
+        return (
+          <DraftField
+            key={descriptor.key}
+            id={`${idPrefix}-${descriptor.key}`}
+            label={descriptor.label}
+            kind={descriptor.kind === 'NUMBER' ? 'NUMBER' : 'TEXT'}
+            value={
+              typeof value === 'number' || typeof value === 'string'
+                ? value
+                : undefined
+            }
+            {...(descriptor.unit === undefined
+              ? {}
+              : { unit: descriptor.unit })}
+            {...(descriptor.hint === undefined
+              ? {}
+              : { hint: descriptor.hint })}
+            {...(descriptor.min === undefined ? {} : { min: descriptor.min })}
+            onCommit={commit}
+          />
+        );
+      })}
+      <p className="hint">
+        Un champ vidé retire la propriété : le calcul signale alors une donnée
+        manquante plutôt que de dimensionner sur une valeur supposée.
+      </p>
+    </div>
+  );
+}
+
 export function NetworksPanel({
   project,
   levelId,
@@ -60,7 +165,17 @@ export function NetworksPanel({
     project.building.levels[0];
 
   const [discipline, setDiscipline] = useState<NetworkDiscipline>('WATER');
-  const [systemType, setSystemType] = useState('');
+  const templates = networkSystemTemplates(discipline);
+  const [systemType, setSystemType] = useState(
+    () => networkSystemTemplates('WATER')[0]?.systemType ?? '',
+  );
+  // The chosen system has to belong to the chosen discipline; changing one
+  // without the other would create a water network typed as a duct run.
+  if (!templates.some((template) => template.systemType === systemType))
+    setSystemType(templates[0]?.systemType ?? '');
+  const [inspected, setInspected] = useState<
+    { readonly kind: 'NODE' | 'EDGE'; readonly id: string } | undefined
+  >();
   const [fromPortId, setFromPortId] = useState('');
   const [toPortId, setToPortId] = useState('');
 
@@ -191,7 +306,6 @@ export function NetworksPanel({
                   position: { x: 0, y: 0, z: level.elevationMm },
                 }),
               );
-              setSystemType('');
             }}
           >
             <div className="field">
@@ -211,13 +325,18 @@ export function NetworksPanel({
               </select>
             </div>
             <div className="field">
-              <label htmlFor="network-system-type">Type de système</label>
-              <input
+              <label htmlFor="network-system-type">Système</label>
+              <select
                 id="network-system-type"
                 value={systemType}
-                placeholder="POTABLE_COLD"
                 onChange={(event) => setSystemType(event.target.value)}
-              />
+              >
+                {templates.map((template) => (
+                  <option key={template.systemType} value={template.systemType}>
+                    {template.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <button type="submit">Créer le réseau</button>
           </form>
@@ -313,6 +432,20 @@ export function NetworksPanel({
                           <button
                             type="button"
                             className="link"
+                            onClick={() =>
+                              setInspected(
+                                inspected?.kind === 'NODE' &&
+                                  inspected.id === row.node.id
+                                  ? undefined
+                                  : { kind: 'NODE', id: row.node.id },
+                              )
+                            }
+                          >
+                            Propriétés
+                          </button>
+                          <button
+                            type="button"
+                            className="link"
                             onClick={() => onSelectObjects([row.node.id])}
                           >
                             Localiser
@@ -389,6 +522,20 @@ export function NetworksPanel({
                           <button
                             type="button"
                             className="link"
+                            onClick={() =>
+                              setInspected(
+                                inspected?.kind === 'EDGE' &&
+                                  inspected.id === row.edge.id
+                                  ? undefined
+                                  : { kind: 'EDGE', id: row.edge.id },
+                              )
+                            }
+                          >
+                            Propriétés
+                          </button>
+                          <button
+                            type="button"
+                            className="link"
                             onClick={() => onSelectObjects([row.edge.id])}
                           >
                             Localiser
@@ -418,6 +565,104 @@ export function NetworksPanel({
                   </tbody>
                 </table>
               </div>
+
+              {inspected?.kind === 'NODE' &&
+                (() => {
+                  const node = network.nodes.find(
+                    ({ id }) => id === inspected.id,
+                  );
+                  if (node === undefined) return null;
+                  const properties = node.properties ?? {};
+                  return (
+                    <>
+                      <div className="property-group">
+                        <h4>Équipement posé sur {node.id}</h4>
+                        <div className="field">
+                          <label htmlFor={`node-${node.id}-equipment`}>
+                            Équipement du projet
+                          </label>
+                          <select
+                            id={`node-${node.id}-equipment`}
+                            value={node.equipmentId ?? ''}
+                            onChange={(event) =>
+                              onCommand(
+                                new UpdateNetworkNodeCommand(
+                                  network.id,
+                                  node.id,
+                                  {
+                                    equipmentId:
+                                      event.target.value === ''
+                                        ? null
+                                        : event.target.value,
+                                  },
+                                ),
+                              )
+                            }
+                          >
+                            <option value="">Aucun</option>
+                            {(project.equipment ?? []).map((item) => (
+                              <option key={item.id} value={item.id}>
+                                {typeof item.properties.name === 'string'
+                                  ? item.properties.name
+                                  : item.id}
+                              </option>
+                            ))}
+                          </select>
+                          <small className="hint">
+                            Le nœud reprend alors les caractéristiques de cet
+                            équipement ; elles ne sont pas recopiées ici.
+                          </small>
+                        </div>
+                      </div>
+                      <PropertyInspector
+                        idPrefix={`node-${node.id}`}
+                        title={`Propriétés de ${node.id}`}
+                        descriptors={nodePropertySchema(
+                          network.discipline,
+                          node.kind,
+                        )}
+                        properties={properties}
+                        onMessage={onMessage}
+                        onCommit={(next) =>
+                          onCommand(
+                            new UpdateNetworkNodeCommand(network.id, node.id, {
+                              properties: next,
+                            }),
+                          )
+                        }
+                      />
+                    </>
+                  );
+                })()}
+
+              {inspected?.kind === 'EDGE' &&
+                (() => {
+                  const edge = network.edges.find(
+                    ({ id }) => id === inspected.id,
+                  );
+                  if (edge === undefined) return null;
+                  const properties = (edge.properties ?? {}) as Readonly<
+                    Record<string, JsonValue>
+                  >;
+                  return (
+                    <PropertyInspector
+                      idPrefix={`edge-${edge.id}`}
+                      title={`Propriétés de ${edge.id}`}
+                      descriptors={edgePropertySchema(network.discipline)}
+                      properties={properties}
+                      onMessage={onMessage}
+                      onCommit={(next) =>
+                        onCommand(
+                          new UpdateNetworkEdgeCommand(
+                            network.id,
+                            edge.id,
+                            next,
+                          ),
+                        )
+                      }
+                    />
+                  );
+                })()}
 
               <form
                 className="tool-group"
@@ -484,8 +729,9 @@ export function NetworksPanel({
               <p className="notice">
                 Un port ne porte qu’un tronçon : pour desservir plusieurs
                 terminaux depuis une nourrice, ajoutez-lui autant de départs. Le
-                tracé suit les axes du bâtiment ; il est dessiné, pas
-                dimensionné : ni diamètre ni débit ne sont supposés.
+                tracé suit les axes du bâtiment ; le diamètre, le matériau et le
+                débit se saisissent avec « Propriétés », et rien n’est supposé
+                tant qu’ils ne le sont pas.
               </p>
               <p className="notice">
                 Types de nœuds disponibles pour cette discipline :{' '}

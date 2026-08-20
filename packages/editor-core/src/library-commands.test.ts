@@ -106,7 +106,7 @@ function project(): Project {
             kind: 'FAN',
             position: { x: 0, y: 0, z: 0 },
             equipmentId: 'vmc',
-          } as never,
+          },
         ],
         ports: [],
         edges: [],

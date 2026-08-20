@@ -231,7 +231,11 @@ function spaceSubject(
       .flatMap(({ nodes }) => nodes)
       .filter((node) => node.spaceId === space.id);
     const flowM3h = terminals.reduce<number>((total, node) => {
-      const value = (node as unknown as Record<string, unknown>).targetFlowM3h;
+      // Stated in the node's property record; older files carried it as a
+      // field of the node itself, and both are read.
+      const value =
+        node.properties?.targetFlowM3h ??
+        (node as unknown as Record<string, unknown>).targetFlowM3h;
       return total + (typeof value === 'number' ? value : 0);
     }, 0);
     const luminaires = (project.systems ?? [])
@@ -350,7 +354,12 @@ function networkSubject(
     }
     const node = network.nodes.find(({ id }) => id === objectId);
     if (node === undefined) continue;
-    const record = node as unknown as Record<string, unknown>;
+    // Properties live in the node's record; a file written before that record
+    // existed carried them as fields of the node, and both are shown.
+    const record: Record<string, unknown> = {
+      ...(node as unknown as Record<string, unknown>),
+      ...(node.properties ?? {}),
+    };
     return {
       objectId,
       kind: 'NETWORK_NODE',
@@ -369,9 +378,14 @@ function networkSubject(
           fields: Object.entries(record)
             .filter(
               ([key]) =>
-                !['id', 'kind', 'position', 'spaceId', 'hostObjectId'].includes(
-                  key,
-                ),
+                ![
+                  'id',
+                  'kind',
+                  'position',
+                  'spaceId',
+                  'hostObjectId',
+                  'properties',
+                ].includes(key),
             )
             .map(([key, value]) =>
               field(

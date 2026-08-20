@@ -105,7 +105,7 @@ test('runs every calculation module from the dashboard', async ({ page }) => {
   await loadDemo(page);
   await page.getByRole('button', { name: 'Calculs', exact: true }).click();
   await expect(page.locator('.dashboard-card').first()).toBeVisible();
-  await expect(page.locator('.module-header')).toHaveCount(16);
+  await expect(page.locator('.module-header')).toHaveCount(17);
   // No module may end in a hard failure on the reference project.
   await expect(page.locator('.badge.status-error')).toHaveCount(0);
   await expect(page.locator('.badge.status-failed')).toHaveCount(0);
@@ -159,6 +159,38 @@ test('saves the project and reloads it unchanged', async ({ page }) => {
   await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
     6,
   );
+});
+
+test('carries the climate with the project in one file', async ({ page }) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  // The demonstration project comes with its datasets loaded in the session.
+  await expect(page.locator('.library-panel')).not.toContainText(
+    'Aucun jeu de données climatiques',
+  );
+
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  const saved = await (await download).path();
+  await expect(page.getByRole('status')).toContainText('.houseproj');
+  await expect(page.getByRole('status')).toContainText('climatiques');
+
+  // Reopened from nothing — as another machine would — the project still has
+  // the weather it was calculated on.
+  await page.reload();
+  const prompt = page.getByRole('alertdialog');
+  if ((await prompt.count()) > 0)
+    await prompt.getByRole('button', { name: 'Ignorer et supprimer' }).click();
+  await expect(page.getByRole('status')).toContainText('Nouveau projet');
+  await page.setInputFiles('input[type="file"]', saved);
+  await expect(page.getByRole('status')).toContainText('climatiques');
+
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await expect(page.locator('.library-panel')).not.toContainText(
+    'Aucun jeu de données climatiques',
+  );
+  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await expect(page.locator('.dashboard-card').first()).toBeVisible();
 });
 
 test('switches level and discipline view without losing the model', async ({
@@ -245,7 +277,10 @@ test('creates a technical network, places a node on the plan and routes it', asy
   await expect(page.locator('.library-table tbody tr').first()).toBeVisible();
 
   await page.getByLabel('Discipline', { exact: true }).selectOption('HEATING');
-  await page.getByLabel('Type de système').fill('RADIATOR_LOOP');
+  // The system is chosen from the kinds the discipline offers, not spelled.
+  await page
+    .getByLabel('Système', { exact: true })
+    .selectOption('RADIATOR_LOOP');
   await page.getByRole('button', { name: 'Créer le réseau' }).click();
   const networkRow = page.locator('.library-table tbody tr', {
     hasText: 'RADIATOR_LOOP',
@@ -275,6 +310,156 @@ test('creates a technical network, places a node on the plan and routes it', asy
   const segments = page.locator('.library-table tbody tr', { hasText: 'PIPE' });
   await expect(segments).toHaveCount(1);
   await expect(segments).toContainText(' m');
+  expect(errors).toEqual([]);
+});
+
+test('sizes a duct and a terminal from the network inspector', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Réseaux', exact: true }).click();
+  await page
+    .locator('.library-table tbody tr', { hasText: 'Ventilation' })
+    .getByRole('button', { name: 'Ventilation' })
+    .click();
+
+  // A duct states its bore, its shape and its role; nothing is assumed for it.
+  const duct = page
+    .locator('.library-table tbody tr', { hasText: 'DUCT' })
+    .first();
+  await duct.getByRole('button', { name: 'Propriétés' }).click();
+  const diameter = page.getByLabel('Diamètre intérieur');
+  await expect(diameter).toBeVisible();
+  await diameter.fill('0.16');
+  await diameter.press('Enter');
+  await expect(page.getByRole('status')).toContainText(
+    'Modifier un tronçon du réseau',
+  );
+
+  // An out-of-range value is refused rather than stored.
+  const terminal = page
+    .locator('.library-table tbody tr', { hasText: 'Bouche' })
+    .first();
+  await terminal.getByRole('button', { name: 'Propriétés' }).click();
+  const flow = page.getByLabel('Débit visé');
+  await expect(flow).toBeVisible();
+  await flow.fill('-10');
+  await flow.press('Enter');
+  await expect(page.getByRole('status')).toContainText('Refusé');
+  await flow.fill('52');
+  await flow.press('Enter');
+  await expect(page.getByRole('status')).toContainText(
+    'Modifier un nœud du réseau',
+  );
+
+  // What was typed is what the file carries.
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
+  const saved = JSON.parse(
+    await readFile(await (await download).path(), 'utf8'),
+  ) as {
+    project: {
+      systems: readonly {
+        readonly discipline: string;
+        readonly nodes: readonly {
+          readonly properties?: Record<string, unknown>;
+        }[];
+        readonly edges: readonly {
+          readonly properties?: Record<string, unknown>;
+        }[];
+      }[];
+    };
+  };
+  const ventilation = saved.project.systems.find(
+    ({ discipline }) => discipline === 'VENTILATION',
+  );
+  expect(
+    ventilation?.edges.some((edge) => edge.properties?.diameterM === 0.16),
+  ).toBe(true);
+  expect(
+    ventilation?.nodes.some((node) => node.properties?.targetFlowM3h === 52),
+  ).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('reshapes a wall after drawing it, instead of redrawing it', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  const canvasBox = (await canvas.boundingBox())!;
+  // The east wall carries no opening and no partition crosses it.
+  const east = (await page.locator('[id="wall:wall-east"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: east.x - canvasBox.x + east.width / 2,
+      y: east.y - canvasBox.y + east.height * 0.25,
+    },
+  });
+
+  // A selected wall offers its ends and a handle to move it whole.
+  const grips = page.locator('.grip');
+  await expect(grips).toHaveCount(3);
+
+  // Length and angle are editable as numbers, and the geometry follows.
+  const length = page.getByLabel('Longueur (mm)');
+  await expect(length).toBeVisible();
+  await length.fill('7000');
+  await length.press('Enter');
+  await expect(page.getByRole('status')).toContainText(
+    'Modifier la géométrie du mur',
+  );
+
+  // Dragging the end handle moves that end and nothing else.
+  const box = (await grips.nth(1).boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 60, box.y + 40, { steps: 8 });
+  await page.mouse.up();
+  await expect(page.getByRole('status')).toContainText(
+    'Déplacer une extrémité de mur',
+  );
+
+  // The wall can be cut in two, and the pieces are two walls.
+  const wallsBefore = await page
+    .locator('[data-role="WALL_CUT"][id^="wall:"]')
+    .count();
+  await page.getByRole('button', { name: 'Scinder le mur' }).click();
+  await expect(page.getByRole('status')).toContainText('Scinder un mur');
+  await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
+    wallsBefore + 1,
+  );
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
+    wallsBefore,
+  );
+  expect(errors).toEqual([]);
+});
+
+test('reshapes the footprint of a slab corner by corner', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Niveaux et pièces' }).click();
+  const slab = page.locator('.catalog-list li', { hasText: 'slab' }).first();
+  await slab.getByRole('button', { name: 'Modifier le contour' }).click();
+
+  const vertices = page.locator('.grip-polygon-vertex');
+  const edges = page.locator('.grip-polygon-edge');
+  const corners = await vertices.count();
+  expect(corners).toBeGreaterThanOrEqual(3);
+  await expect(edges).toHaveCount(corners);
+
+  // Clicking a side handle inserts a corner there.
+  await edges.first().click();
+  await expect(page.getByRole('status')).toContainText('Modifier une dalle');
+  await expect(vertices).toHaveCount(corners + 1);
+
+  // Alt-clicking a corner takes it back out.
+  await vertices.nth(1).click({ modifiers: ['Alt'] });
+  await expect(vertices).toHaveCount(corners);
   expect(errors).toEqual([]);
 });
 
@@ -420,7 +605,7 @@ test('chooses which contour a slab is built from', async ({ page }) => {
   // The saved project is the proof: the slab carries the polygon of the
   // contour that was chosen, not of the first one detected.
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
   const saved = JSON.parse(
     await readFile(await (await download).path(), 'utf8'),
   ) as {
@@ -568,7 +753,7 @@ test('names the project, its site and its calculation settings', async ({
 
   // The saved project carries all three.
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
   const saved = JSON.parse(
     await readFile(await (await download).path(), 'utf8'),
   ) as {
@@ -603,7 +788,7 @@ test('chooses the octave bands the acoustic study covers', async ({ page }) => {
   );
 
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
   const saved = JSON.parse(
     await readFile(await (await download).path(), 'utf8'),
   ) as {
@@ -624,7 +809,7 @@ test('chooses the octave bands the acoustic study covers', async ({ page }) => {
   await bands.getByRole('checkbox', { name: '500 Hz' }).uncheck();
   await bands.getByRole('checkbox', { name: '1000 Hz' }).uncheck();
   const second = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
   const cleared = JSON.parse(
     await readFile(await (await second).path(), 'utf8'),
   ) as {
@@ -730,7 +915,7 @@ test('gathers what the project does not resolve and offers to fix it', async ({
   await loadDemo(page);
   // Run the modules first: their missing inputs are part of the findings.
   await page.getByRole('button', { name: 'Calculs', exact: true }).click();
-  await expect(page.locator('.module-header')).toHaveCount(16);
+  await expect(page.locator('.module-header')).toHaveCount(17);
 
   await page.getByRole('button', { name: 'Vérifications' }).click();
   const findings = page.locator('.alert-list li');
@@ -867,17 +1052,15 @@ test('activates a rule pack and reports what it checked', async ({ page }) => {
   await expect(report.locator('.rule-card')).toContainText('Non applicable');
 
   // Two rainwater systems, judged one by one rather than through the first.
-  for (const suffix of ['NORTH', 'SOUTH']) {
+  for (const system of ['ROOF_DRAINAGE', 'HARVESTING']) {
     await page.getByRole('button', { name: 'Réseaux', exact: true }).click();
     await page
       .getByLabel('Discipline', { exact: true })
       .selectOption('RAINWATER');
-    await page.getByLabel('Type de système').fill(`HARVESTING_${suffix}`);
+    await page.getByLabel('Système', { exact: true }).selectOption(system);
     await page.getByRole('button', { name: 'Créer le réseau' }).click();
     await expect(
-      page.locator('.library-table tbody tr', {
-        hasText: `HARVESTING_${suffix}`,
-      }),
+      page.locator('.library-table tbody tr', { hasText: system }),
     ).toHaveCount(1);
   }
 
@@ -985,7 +1168,7 @@ test('never offers to fix a value the settings screen cannot take', async ({
 }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Calculs', exact: true }).click();
-  await expect(page.locator('.module-header')).toHaveCount(16);
+  await expect(page.locator('.module-header')).toHaveCount(17);
   await page.getByRole('button', { name: 'Vérifications' }).click();
 
   const findings = page.locator('.alert-list li');

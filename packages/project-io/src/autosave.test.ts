@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   autosaveProject,
   clearAutosave,
+  previousKey,
   recoverAutosave,
   type AutosaveStore,
 } from './autosave.js';
@@ -68,5 +69,70 @@ describe('local autosave', () => {
     await expect(
       autosaveProject(memoryStore(), 'current', file, () => 'today'),
     ).rejects.toThrow(RangeError);
+  });
+});
+
+const KEY = 'current';
+
+/** The same project under another name, so two snapshots differ. */
+function renamed(name: string): typeof file {
+  return {
+    ...file,
+    project: { ...file.project, metadata: { ...file.project.metadata, name } },
+  };
+}
+
+describe('two snapshots rather than one', () => {
+  it('keeps the snapshot a new one replaces', async () => {
+    const store = memoryStore();
+    await autosaveProject(store, KEY, file, () => '2026-01-01T00:00:00.000Z');
+    await autosaveProject(
+      store,
+      KEY,
+      renamed('Renommé'),
+      () => '2026-01-01T00:01:00.000Z',
+    );
+    const kept = await store.get(previousKey(KEY));
+    expect(kept).toBeDefined();
+    const record = JSON.parse(kept!) as { readonly savedAt: string };
+    expect(record.savedAt).toBe('2026-01-01T00:00:00.000Z');
+  });
+
+  it('falls back to it when the last write cannot be read', async () => {
+    const store = memoryStore();
+    await autosaveProject(store, KEY, file, () => '2026-01-01T00:00:00.000Z');
+    await autosaveProject(
+      store,
+      KEY,
+      renamed('Renommé'),
+      () => '2026-01-01T00:01:00.000Z',
+    );
+    await store.set(KEY, '{ this is not json');
+    const recovered = await recoverAutosave(store, KEY);
+    expect(recovered.status).toBe('RECOVERED');
+    if (recovered.status !== 'RECOVERED') return;
+    expect(recovered.savedAt).toBe('2026-01-01T00:00:00.000Z');
+    expect(recovered.file.project.metadata.name).toBe('House');
+  });
+
+  it('reports the corruption when neither snapshot can be read', async () => {
+    const store = memoryStore();
+    await autosaveProject(store, KEY, file, () => '2026-01-01T00:00:00.000Z');
+    await store.set(KEY, '{ this is not json');
+    expect((await recoverAutosave(store, KEY)).status).toBe('CORRUPT');
+  });
+
+  it('drops both when the user declines the recovery', async () => {
+    const store = memoryStore();
+    await autosaveProject(store, KEY, file, () => '2026-01-01T00:00:00.000Z');
+    await autosaveProject(
+      store,
+      KEY,
+      renamed('Renommé'),
+      () => '2026-01-01T00:01:00.000Z',
+    );
+    await clearAutosave(store, KEY);
+    expect(await store.get(KEY)).toBeUndefined();
+    expect(await store.get(previousKey(KEY))).toBeUndefined();
   });
 });

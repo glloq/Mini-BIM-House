@@ -170,6 +170,12 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
       },
     ],
   },
+  {
+    moduleId: 'electrical',
+    label: 'Électricité',
+    fields: [],
+    note: 'Tension, phases, puissances et sections se saisissent sur les nœuds et les tronçons du réseau électrique, dans l’espace Réseaux.',
+  },
   { moduleId: 'ventilation', label: 'Ventilation', fields: [] },
   {
     moduleId: 'iaq',

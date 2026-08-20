@@ -47,10 +47,12 @@ Puis, dans l'application :
 
 1. **Maison de démonstration** ouvre la maison de référence, quatre pièces
    déjà dessinées et calculables ;
-2. l'onglet **Calculs** exécute les seize modules et affiche, pour chacun, sa
+2. l'onglet **Calculs** exécute les dix-sept modules et affiche, pour chacun, sa
    méthode, ses hypothèses et ses entrées manquantes ;
 3. la **Superposition** projette un résultat sur le plan ;
-4. **Sauvegarder** exporte le projet en JSON, **Exporter SVG** le plan.
+4. **Sauvegarder** exporte le projet et ses jeux climatiques dans un seul
+   fichier `.houseproj`, **Exporter le JSON** le projet seul, **Exporter SVG**
+   le plan.
 
 Un **Nouveau projet** part vide mais utilisable : la bibliothèque générique de
 matériaux et d'assemblages est déjà là, l'outil **Mur** dessine tout de suite.
@@ -516,11 +518,24 @@ sous-chemin de projet.
 
 # Format projet
 
-Format de projet :
+Deux formats, le même projet :
 
 ```text
-*.houseproj.json
+*.houseproj        projet et jeux climatiques, archive ZIP
+*.houseproj.json   projet seul, JSON lisible
 ```
+
+L'archive contient ce que son manifeste déclare, et rien d'implicite :
+
+```text
+manifest.json
+project.json
+climate/<jeu>.json
+```
+
+Un projet qui nomme un profil climatique sans le transporter ne recalcule rien
+sur une autre machine : le conteneur les garde ensemble. Le JSON reste le format
+d'inspection et d'outillage, et l'application ouvre indifféremment les deux.
 
 Chaque fichier est versionné :
 
@@ -595,7 +610,7 @@ composer, calculer, superposer, métrer, comparer, exporter.
 - **Réseaux techniques** — eau, évacuation, eaux pluviales, ventilation,
   chauffage et électricité : création, pose des nœuds sur le plan, liaison des
   ports, longueurs développées et diagnostics.
-- **Calculs** — seize modules exécutés depuis l'interface, chacun affichant sa
+- **Calculs** — dix-sept modules exécutés depuis l'interface, chacun affichant sa
   méthode, sa précision, ses hypothèses, ses références et ses entrées
   manquantes.
 - **Analyse** — les résultats se projettent sur le plan en bandes légendées.
@@ -603,7 +618,7 @@ composer, calculer, superposer, métrer, comparer, exporter.
   résolvent pas, rassemblé avec le chemin pour le corriger. Aucune conformité
   réglementaire n'y est constatée.
 - **Projet** — nom, auteur, site, orientation, localisation, contexte
-  réglementaire, jeux climatiques et réglages de calcul des seize modules.
+  réglementaire, jeux climatiques et réglages de calcul des dix-sept modules.
 - **Quantités** — nomenclature par lot et par niveau, masses, coûts et carbone,
   export CSV, avec les matériaux non valorisés signalés comme tels.
 - **Scénarios** — création, duplication et comparaison d'une variante au projet

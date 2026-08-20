@@ -8,28 +8,31 @@ Statuts employés : **FAIT**, **BLOQUANT** (la bêta ne sort pas sans),
 **REQUIS** (attendu dans la bêta), **RECOMMANDÉ**, **REPORTÉ** (hors bêta,
 assumé).
 
+Les quinze portes qui portent sur le produit lui-même sont franchies ; les trois
+qui restent relèvent de la publication.
+
 ## Les portes de la bêta
 
-| Porte   | Ce qu'elle exige                                                    | État     |
-| ------- | ------------------------------------------------------------------- | -------- |
-| BETA-01 | aucun résultat de calcul périmé présenté comme actuel               | FAIT     |
-| BETA-02 | plusieurs réseaux d'une même discipline correctement pris en compte | FAIT     |
-| BETA-03 | scénarios fondés sur des identités stables                          | FAIT     |
-| BETA-04 | impossible de promouvoir un scénario structurellement invalide      | FAIT     |
-| BETA-05 | références inter-niveaux et import strictement validés              | FAIT     |
-| BETA-06 | réseaux dotés de propriétés physiques éditables                     | BLOQUANT |
-| BETA-07 | module électrique existant intégré au pipeline projet               | BLOQUANT |
-| BETA-08 | duplication et déplacement de niveau sans incohérence d'altitude    | FAIT     |
-| BETA-09 | aucune perte silencieuse d'objets que l'éditeur ne sait pas éditer  | FAIT     |
-| BETA-10 | projet et climat transportables ensemble                            | BLOQUANT |
-| BETA-11 | sauvegarde automatique dimensionnée pour de vrais projets           | BLOQUANT |
-| BETA-12 | export impossible à casser silencieusement                          | FAIT     |
-| BETA-13 | mur modifiable après création (extrémités, déplacement, longueur)   | BLOQUANT |
-| BETA-14 | ouverture déplaçable et redimensionnable                            | BLOQUANT |
-| BETA-15 | dalles et toitures éditables géométriquement                        | BLOQUANT |
-| BETA-16 | intégration continue Chromium, Firefox et WebKit                    | REQUIS   |
-| BETA-17 | GitHub Pages réellement accessible et vérifié après déploiement     | REQUIS   |
-| BETA-18 | migrations et versions figées pour les premiers utilisateurs        | REQUIS   |
+| Porte   | Ce qu'elle exige                                                    | État   |
+| ------- | ------------------------------------------------------------------- | ------ |
+| BETA-01 | aucun résultat de calcul périmé présenté comme actuel               | FAIT   |
+| BETA-02 | plusieurs réseaux d'une même discipline correctement pris en compte | FAIT   |
+| BETA-03 | scénarios fondés sur des identités stables                          | FAIT   |
+| BETA-04 | impossible de promouvoir un scénario structurellement invalide      | FAIT   |
+| BETA-05 | références inter-niveaux et import strictement validés              | FAIT   |
+| BETA-06 | réseaux dotés de propriétés physiques éditables                     | FAIT   |
+| BETA-07 | module électrique existant intégré au pipeline projet               | FAIT   |
+| BETA-08 | duplication et déplacement de niveau sans incohérence d'altitude    | FAIT   |
+| BETA-09 | aucune perte silencieuse d'objets que l'éditeur ne sait pas éditer  | FAIT   |
+| BETA-10 | projet et climat transportables ensemble                            | FAIT   |
+| BETA-11 | sauvegarde automatique dimensionnée pour de vrais projets           | FAIT   |
+| BETA-12 | export impossible à casser silencieusement                          | FAIT   |
+| BETA-13 | mur modifiable après création (extrémités, déplacement, longueur)   | FAIT   |
+| BETA-14 | ouverture déplaçable et redimensionnable                            | FAIT   |
+| BETA-15 | dalles et toitures éditables géométriquement                        | FAIT   |
+| BETA-16 | intégration continue Chromium, Firefox et WebKit                    | REQUIS |
+| BETA-17 | GitHub Pages réellement accessible et vérifié après déploiement     | REQUIS |
+| BETA-18 | migrations et versions figées pour les premiers utilisateurs        | REQUIS |
 
 ## Attendu dans la bêta, hors portes
 

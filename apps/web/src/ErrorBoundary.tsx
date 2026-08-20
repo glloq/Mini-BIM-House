@@ -17,6 +17,8 @@ export interface ErrorBoundaryProps {
   /** Identity of the open project; never its contents. */
   readonly projectId?: string;
   readonly schemaVersion?: string;
+  /** When a snapshot was last written in this session, if one was. */
+  readonly lastAutosaveAt?: () => string | undefined;
   readonly onDownloadDiagnostic: (report: DiagnosticReport) => void;
 }
 
@@ -69,6 +71,13 @@ export class ErrorBoundary extends Component<
     };
   }
 
+  private savedState(): string {
+    const savedAt = this.props.lastAutosaveAt?.();
+    if (savedAt === undefined)
+      return "Aucune sauvegarde locale récente n'a pu être confirmée pour cette session : ce qui n'a pas été exporté peut être perdu.";
+    return `Dernière sauvegarde locale : ${new Date(savedAt).toLocaleString('fr-FR')}. Rechargez la page pour la retrouver.`;
+  }
+
   override render(): ReactNode {
     if (this.state.error === undefined) return this.props.children;
     return (
@@ -77,9 +86,11 @@ export class ErrorBoundary extends Component<
           <h1>Une erreur inattendue est survenue</h1>
           <p>
             L’interface s’est arrêtée, mais votre projet n’a pas été modifié.
-            Une sauvegarde locale est conservée dans ce navigateur : rechargez
-            la page pour la retrouver.
           </p>
+          {/* A crash can happen before the first snapshot, or after one that
+              failed. Promising a backup that may not exist is worse than
+              saying what is actually known. */}
+          <p>{this.savedState()}</p>
           <pre className="crash-detail">{this.state.error.message}</pre>
           <div className="actions">
             <button

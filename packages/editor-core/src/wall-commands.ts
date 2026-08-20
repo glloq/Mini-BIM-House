@@ -1,4 +1,8 @@
-import { validateWall, type Wall } from '@house-technical-designer/core-domain';
+import {
+  validateOpening,
+  validateWall,
+  type Wall,
+} from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
 import type {
   ChangeSet,
@@ -127,6 +131,271 @@ export class MoveWallCommand implements EditorCommand {
         y: -this.deltaMm.y,
       }),
       changes: changes(this.wallId),
+    };
+  }
+}
+
+/**
+ * Moves one point of a wall path.
+ *
+ * This is the grip a user drags: the wall keeps its identity, its assembly and
+ * its openings, and only the point moves. What the move must not do is leave an
+ * opening hanging outside the wall that hosts it, so a move that would shorten
+ * the wall past its openings is refused rather than silently clipping them.
+ */
+export class MoveWallPointCommand implements EditorCommand {
+  readonly label = 'Move wall point';
+  constructor(
+    readonly id: string,
+    readonly wallId: Wall['id'],
+    readonly pointIndex: number,
+    readonly to: Point2D,
+  ) {}
+  private moved(state: EditorProjectState): Wall | undefined {
+    const wall = state.walls.find(({ id }) => id === this.wallId);
+    if (wall === undefined) return undefined;
+    return {
+      ...wall,
+      path: {
+        points: wall.path.points.map((point, index) =>
+          index === this.pointIndex ? { ...this.to } : point,
+        ),
+      },
+    };
+  }
+  validate(state: EditorProjectState): CommandValidation {
+    if (!Number.isFinite(this.to.x) || !Number.isFinite(this.to.y))
+      return { valid: false, errors: ['Wall point must be finite.'] };
+    const wall = state.walls.find(({ id }) => id === this.wallId);
+    if (wall === undefined)
+      return { valid: false, errors: [`Wall ${this.wallId} does not exist.`] };
+    if (
+      !Number.isInteger(this.pointIndex) ||
+      this.pointIndex < 0 ||
+      this.pointIndex >= wall.path.points.length
+    )
+      return {
+        valid: false,
+        errors: [`Wall ${this.wallId} has no point ${this.pointIndex}.`],
+      };
+    const next = this.moved(state)!;
+    const assembly = state.assemblies.find(({ id }) => id === wall.assemblyId);
+    const issues = validateWall(next, assembly);
+    if (issues.length > 0)
+      return {
+        valid: false,
+        errors: issues.map(({ path, message }) => `${path}: ${message}`),
+      };
+    const hosted = state.openings.filter(
+      ({ hostElementId }) => hostElementId === this.wallId,
+    );
+    const errors = hosted.flatMap((opening) =>
+      validateOpening(opening, next).map(
+        ({ message }) => `Opening ${opening.id} ${message}.`,
+      ),
+    );
+    return errors.length === 0 ? { valid: true } : { valid: false, errors };
+  }
+  execute(state: EditorProjectState): CommandExecution {
+    const wall = state.walls.find(({ id }) => id === this.wallId);
+    if (wall === undefined)
+      throw new Error('Move wall point executed without validation.');
+    const previous = wall.path.points[this.pointIndex]!;
+    const next = this.moved(state)!;
+    return {
+      nextState: {
+        ...state,
+        walls: state.walls.map((entry) =>
+          entry.id === this.wallId ? next : entry,
+        ),
+      },
+      inverse: new MoveWallPointCommand(
+        `${this.id}:inverse`,
+        this.wallId,
+        this.pointIndex,
+        { ...previous },
+      ),
+      changes: changes(this.wallId),
+    };
+  }
+}
+
+/**
+ * Cuts a wall in two at a point along its axis.
+ *
+ * Each piece keeps the assembly, the height and the role of the wall it came
+ * from; the openings follow the piece that actually contains them. A cut that
+ * would fall inside an opening is refused: half a window is not a window, and
+ * choosing which side to keep it on is not the application's decision.
+ */
+export class SplitWallCommand implements EditorCommand {
+  readonly label = 'Split wall';
+  constructor(
+    readonly id: string,
+    readonly wallId: Wall['id'],
+    readonly at: Point2D,
+    readonly newWallId: Wall['id'],
+  ) {}
+  private cut(state: EditorProjectState):
+    | {
+        readonly first: Wall;
+        readonly second: Wall;
+        readonly distanceMm: number;
+        readonly totalMm: number;
+      }
+    | undefined {
+    const wall = state.walls.find(({ id }) => id === this.wallId);
+    if (wall === undefined || wall.path.points.length !== 2) return undefined;
+    const start = wall.path.points[0]!;
+    const end = wall.path.points[1]!;
+    const axis = { x: end.x - start.x, y: end.y - start.y };
+    const totalMm = Math.hypot(axis.x, axis.y);
+    if (totalMm === 0) return undefined;
+    const ratio =
+      ((this.at.x - start.x) * axis.x + (this.at.y - start.y) * axis.y) /
+      (totalMm * totalMm);
+    const distanceMm = ratio * totalMm;
+    const point = {
+      x: start.x + axis.x * ratio,
+      y: start.y + axis.y * ratio,
+    };
+    return {
+      first: { ...wall, path: { points: [start, point] } },
+      second: {
+        ...wall,
+        id: this.newWallId,
+        path: { points: [point, end] },
+      },
+      distanceMm,
+      totalMm,
+    };
+  }
+  validate(state: EditorProjectState): CommandValidation {
+    if (!Number.isFinite(this.at.x) || !Number.isFinite(this.at.y))
+      return { valid: false, errors: ['Split point must be finite.'] };
+    if (state.walls.some(({ id }) => id === this.newWallId))
+      return {
+        valid: false,
+        errors: [`Wall ${this.newWallId} already exists.`],
+      };
+    const wall = state.walls.find(({ id }) => id === this.wallId);
+    if (wall === undefined)
+      return { valid: false, errors: [`Wall ${this.wallId} does not exist.`] };
+    if (wall.path.points.length !== 2)
+      return {
+        valid: false,
+        errors: [
+          `Wall ${this.wallId} has more than one segment; split it segment by segment.`,
+        ],
+      };
+    const cut = this.cut(state);
+    if (cut === undefined)
+      return { valid: false, errors: [`Wall ${this.wallId} has no length.`] };
+    if (cut.distanceMm <= 0 || cut.distanceMm >= cut.totalMm)
+      return {
+        valid: false,
+        errors: ['The split point must fall inside the wall.'],
+      };
+    const crossed = state.openings.filter(
+      (opening) =>
+        opening.hostElementId === this.wallId &&
+        opening.offsetAlongHostMm < cut.distanceMm &&
+        opening.offsetAlongHostMm + opening.widthMm > cut.distanceMm,
+    );
+    if (crossed.length > 0)
+      return {
+        valid: false,
+        errors: [
+          `The split point falls inside ${crossed.map(({ id }) => id).join(', ')}.`,
+        ],
+      };
+    const dimensions = state.dimensions.filter(
+      ({ first, second }) =>
+        first.wallId === this.wallId || second.wallId === this.wallId,
+    );
+    return dimensions.length === 0
+      ? { valid: true }
+      : {
+          valid: false,
+          errors: [
+            `Wall ${this.wallId} is referenced by dimensions: ${dimensions.map(({ id }) => id).join(', ')}.`,
+          ],
+        };
+  }
+  execute(state: EditorProjectState): CommandExecution {
+    const cut = this.cut(state);
+    if (cut === undefined)
+      throw new Error('Split wall executed without validation.');
+    const openings = state.openings.map((opening) => {
+      if (opening.hostElementId !== this.wallId) return opening;
+      return opening.offsetAlongHostMm < cut.distanceMm
+        ? opening
+        : {
+            ...opening,
+            hostElementId: this.newWallId,
+            offsetAlongHostMm: opening.offsetAlongHostMm - cut.distanceMm,
+          };
+    });
+    const walls = state.walls.flatMap((wall) =>
+      wall.id === this.wallId ? [cut.first, cut.second] : [wall],
+    );
+    return {
+      nextState: { ...state, walls, openings },
+      inverse: new JoinSplitWallsCommand(
+        `${this.id}:inverse`,
+        this.wallId,
+        this.newWallId,
+        state.walls.find(({ id }) => id === this.wallId)!,
+        state.openings,
+      ),
+      changes: {
+        objectIds: [this.wallId, this.newWallId],
+        domains: ['geometry', 'spaces', 'quantities', 'drawing'],
+        paths: [`walls/${this.wallId}`, `walls/${this.newWallId}`],
+      },
+    };
+  }
+}
+
+/** Puts back a wall a split had cut in two; the inverse of {@link SplitWallCommand}. */
+export class JoinSplitWallsCommand implements EditorCommand {
+  readonly label = 'Join split walls';
+  constructor(
+    readonly id: string,
+    readonly wallId: Wall['id'],
+    readonly removedWallId: Wall['id'],
+    readonly restored: Wall,
+    readonly openings: EditorProjectState['openings'],
+  ) {}
+  validate(state: EditorProjectState): CommandValidation {
+    return state.walls.some(({ id }) => id === this.removedWallId)
+      ? { valid: true }
+      : {
+          valid: false,
+          errors: [`Wall ${this.removedWallId} does not exist.`],
+        };
+  }
+  execute(state: EditorProjectState): CommandExecution {
+    const walls = state.walls
+      .filter(({ id }) => id !== this.removedWallId)
+      .map((wall) => (wall.id === this.wallId ? this.restored : wall));
+    return {
+      nextState: {
+        ...state,
+        walls,
+        openings: this.openings.map((opening) => ({ ...opening })),
+      },
+      inverse: new SplitWallCommand(
+        `${this.id}:inverse`,
+        this.wallId,
+        this.restored.path.points[1]!,
+        this.removedWallId,
+      ),
+      changes: {
+        objectIds: [this.wallId, this.removedWallId],
+        domains: ['geometry', 'spaces', 'quantities', 'drawing'],
+        paths: [`walls/${this.wallId}`],
+      },
     };
   }
 }

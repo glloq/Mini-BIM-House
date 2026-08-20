@@ -48,6 +48,8 @@ export interface ToolBarProps {
   readonly onNetworkChange: (networkId: string) => void;
   readonly nodeKind: string;
   readonly onNodeKindChange: (kind: string) => void;
+  /** Cuts the selected wall in two at its middle, when one is selected. */
+  readonly onSplitWall?: () => void;
 }
 
 export interface OpeningDraft {
@@ -78,8 +80,20 @@ export function ToolBar({
   onNetworkChange,
   nodeKind,
   onNodeKindChange,
+  onSplitWall,
 }: ToolBarProps) {
   const networks = project.systems ?? [];
+  // Splitting takes one straight wall: the action says so rather than failing
+  // once clicked.
+  const splittableWall =
+    onSplitWall !== undefined &&
+    editor.selection.length === 1 &&
+    project.building.levels
+      .flatMap(({ walls }) => walls)
+      .some(
+        (wall) =>
+          wall.id === editor.selection[0] && wall.path.points.length === 2,
+      );
   const activeNetwork = networks.find(({ id }) => id === networkId);
   const wallAssemblies = (project.assemblies ?? []).filter(
     ({ category }) => category === 'WALL' || category === 'PARTITION',
@@ -338,6 +352,22 @@ export function ToolBar({
             {label}
           </label>
         ))}
+      </div>
+
+      <div className="tool-group" role="group" aria-label="Modification">
+        <button
+          type="button"
+          className="secondary"
+          disabled={!splittableWall}
+          title={
+            splittableWall
+              ? undefined
+              : 'Sélectionnez un mur droit sur le plan pour le scinder.'
+          }
+          onClick={() => onSplitWall?.()}
+        >
+          Scinder le mur
+        </button>
       </div>
 
       <div className="tool-group" role="group" aria-label="Navigation">

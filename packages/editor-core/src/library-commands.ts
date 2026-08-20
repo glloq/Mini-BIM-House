@@ -117,10 +117,14 @@ export function nodesUsingEquipment(
   return (project.systems ?? []).flatMap((network) =>
     network.nodes
       .filter((node) => {
-        const record = node as unknown as Readonly<Record<string, unknown>>;
+        // The binding is a field of the node; the catalogue reference it may
+        // also carry lives in its property record, and a file written before
+        // that record carried it on the node itself.
+        const legacy = node as unknown as Readonly<Record<string, unknown>>;
         return (
-          record.catalogItemId === equipmentId ||
-          record.equipmentId === equipmentId
+          node.equipmentId === equipmentId ||
+          node.properties?.catalogItemId === equipmentId ||
+          legacy.catalogItemId === equipmentId
         );
       })
       .map((node) => ({

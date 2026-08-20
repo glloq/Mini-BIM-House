@@ -14,3 +14,5 @@ export * from './building-commands.js';
 export * from './network-commands.js';
 export * from './project-settings-commands.js';
 export * from './scenario-commands.js';
+export * from './network-properties.js';
+export * from './polygon-editing.js';

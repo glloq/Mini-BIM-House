@@ -150,6 +150,18 @@ export const METHOD_DEFAULTS = {
       reference: 'Absolute roughness of galvanised steel duct',
     },
   },
+  electrical: {
+    copperResistivityOhmMm2PerM: {
+      value: 0.01724,
+      sourceId: 'method-default:copper-resistivity-20c',
+      reference: 'Annealed copper resistivity at 20 °C, IEC 60028',
+    },
+    aluminiumResistivityOhmMm2PerM: {
+      value: 0.0282,
+      sourceId: 'method-default:aluminium-resistivity-20c',
+      reference: 'Aluminium conductor resistivity at 20 °C',
+    },
+  },
 } as const satisfies Readonly<
   Record<string, Readonly<Record<string, DeclaredConstant>>>
 >;
