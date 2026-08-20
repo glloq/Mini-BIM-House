@@ -948,8 +948,8 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d’intégration : 852 tests sur 121 fichiers
-- tests navigateur : 55 tests Playwright — 52 sur Chromium et trois sur un
+- tests unitaires et d’intégration : 870 tests sur 123 fichiers
+- tests navigateur : 58 tests Playwright — 55 sur Chromium et trois sur un
   écran de téléphone — dont deux rejoués sur Firefox et WebKit
 - accessibilité : axe-core, onze espaces de travail et la palette de
   commandes, WCAG 2.1 AA, aucun manquement
