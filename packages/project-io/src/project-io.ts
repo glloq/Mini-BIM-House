@@ -213,7 +213,15 @@ export function validateProjectFile(
   return validateProjectReferences(value as ProjectFile);
 }
 
-function validateProjectReferences(
+/**
+ * References and containment, checked across the whole project.
+ *
+ * A reference that names something absent is a broken file; so is an object
+ * stored in a container it does not belong to. An opening whose wall exists on
+ * another level passes a "the wall exists" test and still describes a house
+ * nobody can build, so containment is checked, not only existence.
+ */
+export function validateProjectReferences(
   file: ProjectFile,
 ): readonly ProjectValidationIssue[] {
   const issues: ProjectValidationIssue[] = [];
@@ -223,6 +231,39 @@ function validateProjectReferences(
       walls.map(({ id }) => id),
     ),
   );
+  const spaces = new Set<string>(
+    file.project.building.levels.flatMap(({ spaces }) =>
+      spaces.map(({ id }) => id as string),
+    ),
+  );
+  const equipment = new Set(file.project.equipment?.map(({ id }) => id) ?? []);
+  for (const [what, ids] of [
+    ['level', file.project.building.levels.map(({ id }) => id)],
+    [
+      'wall',
+      file.project.building.levels.flatMap(({ walls }) =>
+        walls.map(({ id }) => id),
+      ),
+    ],
+    [
+      'space',
+      file.project.building.levels.flatMap(({ spaces }) =>
+        spaces.map(({ id }) => id),
+      ),
+    ],
+    ['assembly', file.project.assemblies?.map(({ id }) => id) ?? []],
+    [
+      'material',
+      file.project.materialLibrary?.materials.map(({ id }) => id) ?? [],
+    ],
+    ['equipment', file.project.equipment?.map(({ id }) => id) ?? []],
+    ['network', file.project.systems?.map(({ id }) => id) ?? []],
+  ] as const)
+    for (const duplicate of repeated(ids))
+      issues.push({
+        path: `/project/${what}s`,
+        message: `declares ${what} ${duplicate} more than once`,
+      });
   const materials = new Set(
     file.project.materialLibrary?.materials.map(({ id }) => id) ?? [],
   );
@@ -231,6 +272,7 @@ function validateProjectReferences(
   );
   file.project.building.levels.forEach((level, levelIndex) => {
     const base = `/project/building/levels/${levelIndex}`;
+    const levelWalls = new Set(level.walls.map(({ id }) => id));
     for (const [collection, elements] of [
       ['walls', level.walls],
       ['slabs', level.slabs],
@@ -241,6 +283,11 @@ function validateProjectReferences(
           issues.push({
             path: `${base}/${collection}/${index}/levelId`,
             message: `references unknown level ${element.levelId}`,
+          });
+        else if (element.levelId !== level.id)
+          issues.push({
+            path: `${base}/${collection}/${index}/levelId`,
+            message: `is stored on level ${level.id} but declares level ${element.levelId}`,
           });
         if (!assemblies.has(element.assemblyId))
           issues.push({
@@ -254,12 +301,22 @@ function validateProjectReferences(
           path: `${base}/openings/${index}/hostElementId`,
           message: `references unknown wall ${opening.hostElementId}`,
         });
+      else if (!levelWalls.has(opening.hostElementId))
+        issues.push({
+          path: `${base}/openings/${index}/hostElementId`,
+          message: `is stored on level ${level.id} but hosted by wall ${opening.hostElementId} of another level`,
+        });
     });
     level.spaces.forEach((space, index) => {
       if (!levels.has(space.levelId))
         issues.push({
           path: `${base}/spaces/${index}/levelId`,
           message: `references unknown level ${space.levelId}`,
+        });
+      else if (space.levelId !== level.id)
+        issues.push({
+          path: `${base}/spaces/${index}/levelId`,
+          message: `is stored on level ${level.id} but declares level ${space.levelId}`,
         });
     });
   });
@@ -275,6 +332,21 @@ function validateProjectReferences(
   file.project.systems?.forEach((network, networkIndex) => {
     const nodeIds = new Set(network.nodes.map(({ id }) => id));
     const portIds = new Set(network.ports.map(({ id }) => id));
+    network.nodes.forEach((node, nodeIndex) => {
+      const path = `/project/systems/${networkIndex}/nodes/${nodeIndex}`;
+      if (node.spaceId !== undefined && !spaces.has(node.spaceId))
+        issues.push({
+          path: `${path}/spaceId`,
+          message: `references unknown space ${node.spaceId}`,
+        });
+      const equipmentId = (node as { readonly equipmentId?: unknown })
+        .equipmentId;
+      if (typeof equipmentId === 'string' && !equipment.has(equipmentId))
+        issues.push({
+          path: `${path}/equipmentId`,
+          message: `references unknown equipment ${equipmentId}`,
+        });
+    });
     network.ports.forEach((port, portIndex) => {
       if (!nodeIds.has(port.nodeId))
         issues.push({
@@ -292,6 +364,17 @@ function validateProjectReferences(
     });
   });
   return issues;
+}
+
+/** Identifiers a list declares more than once. */
+function repeated(ids: readonly string[]): readonly string[] {
+  const seen = new Set<string>();
+  const twice = new Set<string>();
+  for (const id of ids) {
+    if (seen.has(id)) twice.add(id);
+    seen.add(id);
+  }
+  return [...twice];
 }
 
 export function serializeProjectFile(file: unknown, indentation = 2): string {

@@ -22,7 +22,9 @@ import {
 import {
   applyProjectScenario,
   loadProjectJson,
+  ProjectSerializationError,
   serializeProjectFile,
+  validateProjectFile,
 } from '@house-technical-designer/project-io';
 import {
   boundsOfObjects,
@@ -70,6 +72,7 @@ import {
   type OverlayId,
 } from './calculations/overlay-source.js';
 import {
+  isCurrentRun,
   runProjectCalculations,
   type CalculationRun,
 } from './calculations/calculation-runner.js';
@@ -157,6 +160,8 @@ function App() {
     readonly savedAt: string;
     readonly file: ProjectFile;
   }>();
+  /** Why the last export was refused, when it was. */
+  const [exportFailure, setExportFailure] = useState<readonly string[]>();
   const [calculationRun, setCalculationRun] = useState<CalculationRun>();
   const [calculationBusy, setCalculationBusy] = useState(false);
   /** Bumped by an explicit recompute; the effect above watches it. */
@@ -259,14 +264,34 @@ function App() {
     return true;
   }, []);
 
-  const saveProject = useCallback(() => {
+  const saveProject = useCallback((): boolean => {
+    // The serialiser refuses to write a project the format would not accept.
+    // A click handler is outside any error boundary, so the refusal is caught
+    // here and said out loud rather than lost in the console with the save
+    // state left claiming the project was written.
+    let json: string;
+    try {
+      json = serializeProjectFile(file);
+    } catch (error) {
+      const issues =
+        error instanceof ProjectSerializationError ? error.issues : [];
+      setExportFailure(
+        issues.length > 0
+          ? issues.map(({ path, message }) => `${path} ${message}`)
+          : [error instanceof Error ? error.message : String(error)],
+      );
+      setMessage("Export impossible : le projet n'est pas enregistrable.");
+      return false;
+    }
+    setExportFailure(undefined);
     download(
-      serializeProjectFile(file),
+      json,
       `${safeFileStem(file.project.metadata.name)}.houseproj.json`,
       'application/json',
     );
     setSaveState('SAVED');
     setMessage('Projet exporté en JSON.');
+    return true;
   }, [file]);
 
   const undo = useCallback(() => {
@@ -430,6 +455,14 @@ function App() {
           'Promouvoir un scénario en projet',
           () => promoted,
           { objectIds: [scenarioId], domains: ['scenarios', 'calculations'] },
+          // Promotion writes a whole project into the editor; what it writes has
+          // to be a project the format would accept, or the file could no longer
+          // be saved at all.
+          (candidate) =>
+            validateProjectFile({
+              ...session.current.file,
+              project: candidate,
+            }).map(({ path, message }) => `${path} ${message}`),
         ),
       );
     },
@@ -501,7 +534,10 @@ function App() {
   // used to compute the same thing twice whenever the calculation tab was
   // opened with an overlay already on.
   useEffect(() => {
-    if (overlayId === 'none' && tab !== 'calculations') return;
+    // Checks read the calculation results, so opening them has to produce a
+    // run for the current revision rather than reuse whatever was last left.
+    if (overlayId === 'none' && tab !== 'calculations' && tab !== 'checks')
+      return;
     let current = true;
     setCalculationBusy(true);
     void runProjectCalculations(file.project, climate)
@@ -633,16 +669,23 @@ function App() {
     [selectOnPlan],
   );
 
+  // A run computed on an earlier revision — or with another climate file — is
+  // not the state of this project. It is withheld rather than shown as current;
+  // the effect above is already recomputing.
+  const currentRun = isCurrentRun(calculationRun, file.project, climate)
+    ? calculationRun
+    : undefined;
+
   const overlay = useMemo(
     () =>
-      calculationRun === undefined
+      currentRun === undefined
         ? undefined
         : buildOverlay(
             overlayId,
-            calculationRun.runs,
-            designTemperatureDifferenceK(calculationRun.runs),
+            currentRun.runs,
+            designTemperatureDifferenceK(currentRun.runs),
           ),
-    [calculationRun, overlayId],
+    [currentRun, overlayId],
   );
 
   const wallThicknessMm = useMemo(() => {
@@ -759,6 +802,35 @@ function App() {
         </span>
       </section>
 
+      {exportFailure !== undefined && (
+        <section className="panel recovery-prompt" role="alertdialog">
+          <p>
+            <strong>Export impossible.</strong> Le projet ouvert contient{' '}
+            {exportFailure.length} incohérence(s) que le format refuse
+            d’enregistrer. Corrigez-les, puis exportez à nouveau ; rien n’a été
+            écrit.
+          </p>
+          <ul className="alert-list">
+            {exportFailure.slice(0, 8).map((issue) => (
+              <li key={issue}>
+                <span className="badge missing">référence</span>
+                <span>{issue}</span>
+              </li>
+            ))}
+          </ul>
+          {exportFailure.length > 8 && (
+            <p className="hint">
+              et {exportFailure.length - 8} autre(s) non affichée(s).
+            </p>
+          )}
+          <div className="actions">
+            <button type="button" onClick={() => setExportFailure(undefined)}>
+              Fermer
+            </button>
+          </div>
+        </section>
+      )}
+
       {pendingReplacement !== undefined && (
         <section className="panel recovery-prompt" role="alertdialog">
           <p>
@@ -769,7 +841,9 @@ function App() {
             <button
               type="button"
               onClick={() => {
-                saveProject();
+                // Only an export that actually happened may authorise
+                // replacing the project it was meant to protect.
+                if (!saveProject()) return;
                 pendingReplacement.run();
                 setPendingReplacement(undefined);
               }}
@@ -1027,7 +1101,7 @@ function App() {
             <CalculationsPanel
               project={file.project}
               climate={climate}
-              {...(calculationRun === undefined ? {} : { run: calculationRun })}
+              {...(currentRun === undefined ? {} : { run: currentRun })}
               running={calculationBusy}
               onRecompute={() =>
                 setCalculationGeneration((generation) => generation + 1)
@@ -1053,7 +1127,7 @@ function App() {
           <section className="canvas-panel panel">
             <ChecksPanel
               project={file.project}
-              {...(calculationRun === undefined ? {} : { run: calculationRun })}
+              {...(currentRun === undefined ? {} : { run: currentRun })}
               running={calculationBusy}
               onFix={applyFix}
             />

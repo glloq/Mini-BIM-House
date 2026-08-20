@@ -72,6 +72,13 @@ export function ChecksPanel({
       </div>
 
       {running && <p className="hint">Calcul en cours…</p>}
+      {run !== undefined && (
+        <p className="hint">
+          Constats de calcul établis sur la révision{' '}
+          {run.projectRevision === '' ? 'non numérotée' : run.projectRevision},
+          celle du projet affiché.
+        </p>
+      )}
       {run === undefined && !running && (
         <p className="notice">
           Les constats de calcul apparaissent une fois les modules exécutés :

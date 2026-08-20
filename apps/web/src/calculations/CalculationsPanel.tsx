@@ -86,6 +86,14 @@ export function CalculationsPanel({
         </p>
       )}
 
+      {run !== undefined && (
+        <p className="hint">
+          Résultats calculés le{' '}
+          {new Date(run.completedAt).toLocaleString('fr-FR')} sur la révision{' '}
+          {run.projectRevision === '' ? 'non numérotée' : run.projectRevision}.
+        </p>
+      )}
+
       <div className="dashboard-cards" role="list">
         {running && cards.length === 0 && (
           <p className="empty-state">Calcul en cours…</p>

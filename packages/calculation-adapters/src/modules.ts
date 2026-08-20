@@ -70,6 +70,11 @@ function numbers(
 ): readonly (number | undefined)[] {
   return (list(value) ?? []).map((item) => number(item));
 }
+function strings(value: CalculationJson | undefined): readonly string[] {
+  return (list(value) ?? []).filter(
+    (item): item is string => typeof item === 'string',
+  );
+}
 function numberRecord(
   value: CalculationJson | undefined,
 ): Readonly<Record<string, number>> {
@@ -947,7 +952,10 @@ export const wastewaterAdapter: CalculationModule = {
     const perUnit = number(data.designFlowM3sPerDischargeUnit)!;
     const minimumSlope = number(data.minimumSlope);
     const network = {
-      id: string(data.networkId) ?? 'wastewater',
+      // Several systems are analysed together as one graph of disjoint
+      // components; each node is still required to reach an outlet of its own
+      // system, so nothing is judged against another system's outfall.
+      id: strings(data.networkIds).join('+') || 'wastewater',
       discipline: 'WASTEWATER' as const,
       systemType: 'COMBINED_WASTEWATER' as const,
       nodes: rows(data.nodes).map((node) => {

@@ -120,16 +120,26 @@ function stamped(project: Project, revision: string, now: string): Project {
   };
 }
 
-/** Exact immutable replacement command suitable for building and network slices. */
+/**
+ * Exact immutable replacement command suitable for building and network slices.
+ *
+ * A replacement may be given a check on what it produces. Replacing the whole
+ * project — promoting a scenario, for one — must not be a way to put a state
+ * into the editor that the file format would refuse to write: the caller
+ * supplies the check, because it owns the definition of a valid project.
+ */
 export class ReplaceProjectCommand implements ProjectCommand {
   constructor(
     readonly id: string,
     readonly label: string,
     readonly replace: (project: Project) => Project,
     readonly changes: ChangeSet,
+    readonly rejectsResult?: (project: Project) => readonly string[],
   ) {}
-  validate(): CommandValidation {
-    return { valid: true };
+  validate(project: Project): CommandValidation {
+    if (this.rejectsResult === undefined) return { valid: true };
+    const errors = this.rejectsResult(this.replace(project));
+    return errors.length === 0 ? { valid: true } : { valid: false, errors };
   }
   execute(project: Project): ProjectCommandExecution {
     return {

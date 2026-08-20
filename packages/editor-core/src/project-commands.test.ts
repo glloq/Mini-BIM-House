@@ -127,6 +127,29 @@ describe('canonical project commands', () => {
     dispatcher.undo();
     expect(content(dispatcher.project)).toEqual(content(project));
   });
+  it('refuses a replacement whose result the caller rejects', () => {
+    const dispatcher = new ProjectCommandDispatcher(initial);
+    const rejected = dispatcher.dispatch(
+      new ReplaceProjectCommand(
+        'promote',
+        'Promouvoir',
+        (project) => ({ ...project, assemblies: [] }),
+        { objectIds: [], domains: ['scenarios'] },
+        (candidate) =>
+          candidate.assemblies?.length === 0
+            ? ['le projet ne déclarerait plus aucun assemblage']
+            : [],
+      ),
+    );
+    // Replacing the whole project is exactly where an invalid state could be
+    // slipped in, so the check runs before anything is applied.
+    expect(rejected).toEqual({
+      status: 'REJECTED',
+      errors: ['le projet ne déclarerait plus aucun assemblage'],
+    });
+    expect(dispatcher.project).toBe(initial);
+  });
+
   it('undoes and redoes cross-domain project mutations exactly', () => {
     const dispatcher = new ProjectCommandDispatcher(initial);
     const commands = [

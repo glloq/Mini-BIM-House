@@ -1,5 +1,6 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
+import { climateFingerprint } from '@house-technical-designer/climate';
 import type {
   CalculationJson,
   CalculationResult,
@@ -52,6 +53,45 @@ export interface CalculationRun {
   readonly runs: readonly ModuleRun[];
   readonly missing: readonly MissingCalculationInput[];
   readonly provenance: ProjectCalculationInputs['provenance'];
+  /** The project revision these results were computed from. */
+  readonly projectRevision: string;
+  /** The climate datasets they were computed with. */
+  readonly climateFingerprint: string;
+  readonly startedAt: string;
+  readonly completedAt: string;
+}
+
+/**
+ * What the climate contributes to a result, as one comparable value.
+ *
+ * Datasets are identified by content rather than by name: replacing a file with
+ * another one carrying the same identifier changes the answers, and the run has
+ * to be seen as out of date.
+ */
+export function climateSignature(climate: readonly ClimateDataset[]): string {
+  return climate
+    .map((dataset) => climateFingerprint(dataset))
+    .sort()
+    .join('|');
+}
+
+/**
+ * Whether a run still describes the project in front of the user.
+ *
+ * Results computed on revision 20 must never be read as the state of revision
+ * 35. The check is on the revision and the climate, because those are the two
+ * inputs the run was built from.
+ */
+export function isCurrentRun(
+  run: CalculationRun | undefined,
+  project: Project,
+  climate: readonly ClimateDataset[],
+): run is CalculationRun {
+  if (run === undefined) return false;
+  return (
+    run.projectRevision === (project.metadata.projectRevision ?? '') &&
+    run.climateFingerprint === climateSignature(climate)
+  );
 }
 
 function orchestrator(): CalculationOrchestrator {
@@ -71,6 +111,7 @@ export async function runProjectCalculations(
   project: Project,
   climate: readonly ClimateDataset[],
 ): Promise<CalculationRun> {
+  const startedAt = new Date().toISOString();
   const context = createProjectCalculationContext(project, { climate });
   const built = buildProjectCalculationInputs(context);
   const engine = orchestrator();
@@ -102,7 +143,15 @@ export async function runProjectCalculations(
       inputs,
     });
   }
-  return { runs, missing: built.missing, provenance: built.provenance };
+  return {
+    runs,
+    missing: built.missing,
+    provenance: built.provenance,
+    projectRevision: project.metadata.projectRevision ?? '',
+    climateFingerprint: climateSignature(climate),
+    startedAt,
+    completedAt: new Date().toISOString(),
+  };
 }
 
 function number(value: CalculationJson | undefined): number | undefined {

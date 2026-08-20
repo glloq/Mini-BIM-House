@@ -3,6 +3,7 @@ import type {
   Scenario,
   ScenarioOverride,
 } from '@house-technical-designer/core-domain';
+import { resolveProjectPath } from '@house-technical-designer/core-domain';
 import type { ChangeSet, CommandValidation } from './commands.js';
 import type {
   ProjectCommand,
@@ -296,16 +297,5 @@ export class RemoveScenarioOverrideCommand extends ScenarioCommand {
  * what lets a change be refused when it names something that does not exist.
  */
 export function resolve(project: Project, path: string): unknown {
-  const segments = path.split('/').filter((segment) => segment !== '');
-  let current: unknown = project;
-  for (const segment of segments) {
-    if (Array.isArray(current)) {
-      if (!/^\d+$/.test(segment)) return undefined;
-      current = current[Number(segment)];
-      continue;
-    }
-    if (typeof current !== 'object' || current === null) return undefined;
-    current = (current as Record<string, unknown>)[segment];
-  }
-  return current;
+  return resolveProjectPath(project, path);
 }
