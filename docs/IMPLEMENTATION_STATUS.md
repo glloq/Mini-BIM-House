@@ -1,5 +1,16 @@
 # Implementation Status
 
+Ce fichier est un journal : chaque section décrit l'état du projet **au moment
+de la passe qu'elle raconte**, et n'est pas corrigée après coup. Une section
+ancienne qui parle de seize modules de calcul ou d'une géométrie qu'on ne peut
+pas remanier dit vrai de sa date, pas d'aujourd'hui — le dix-septième moteur a
+été branché plus tard, et l'édition géométrique aussi.
+
+Ce que l'application fait **aujourd'hui** se lit dans
+[`../README.md`](../README.md) ; où en est la bêta, dans
+[`BETA_READINESS.md`](BETA_READINESS.md) ; ce qui a changé d'une version à
+l'autre, dans [`../CHANGELOG.md`](../CHANGELOG.md).
+
 ## Last completed PR
 
 PR-072 — audit de reprise, chantiers R-001 à R-014 (voir plus bas).
@@ -733,6 +744,70 @@ et différemment sur chaque machine ; elle reste hors bêta.
   sélective ; régression visuelle pixel par pixel ; réglages encore invisibles
   alors que les moteurs les lisent.
 
+## Intégrité de la bêta — lot 1 du septième audit
+
+Un septième audit a repris le dépôt après la publication de la
+`0.2.0-beta.1`. Il n'a rouvert aucune porte fonctionnelle : les moteurs, les
+réseaux, les scénarios, l'éditeur et les tests navigateur sont là. Il a relevé
+quatre cas d'intégrité, tous du même genre — une vérification qui répond juste
+à une question trop étroite.
+
+| Point                    | Constat                                                                     | État    |
+| ------------------------ | --------------------------------------------------------------------------- | ------- |
+| Course de révision       | l'état « sauvegardé » pouvait décrire un instantané en retard d'une édition | corrigé |
+| Suppression d'instantané | une écriture engagée pouvait le faire réapparaître après la suppression     | corrigé |
+| Climat désigné, absent   | un conteneur sans aucun climat échappait à la vérification                  | corrigé |
+| Références d'un nœud     | vérifiées une à une, jamais ensemble                                        | corrigé |
+
+**Un instantané ne peut plus parler pour un autre état.** Un instantané est
+identifié par le projet et sa révision, et l'interface n'annonce « sauvegardé
+localement » que si cette identité est à la fois celle qui a atteint le
+stockage et celle du projet à l'écran. La séquence en cause était discrète :
+l'écriture de la révision 50 commence, l'utilisateur édite, la révision 51
+programme son minuteur, l'écriture de 50 se termine, l'ancienne comparaison
+reconnaît sa propre révision et sort l'atelier de l'état « modifié » — ce qui
+détruisait l'effet qui devait écrire 51. Le disque restait en retard d'une
+édition sous une étiquette rassurante.
+
+**Supprimer l'instantané le supprime vraiment.** La suppression passe par la
+file d'écriture au lieu de s'exécuter à côté : une écriture déjà engagée se
+termine d'abord, tout ce qui attendait est abandonné, et un instantané confié
+pendant la suppression est refusé — il appartient à l'état que l'utilisateur
+vient de jeter. Sans cela, « ignorer et supprimer » pouvait rendre la
+sauvegarde une seconde plus tard.
+
+**Un conteneur qui désigne un climat le transporte.** La vérification ne
+s'appliquait qu'aux archives portant au moins un jeu de données : un projet
+annonçant Brest et n'emportant rien passait, ce qui est précisément la
+situation que le format existe pour empêcher. Elle s'applique maintenant dans
+tous les cas, et aussi à l'écriture — mieux vaut un export refusé qui dit quel
+jeu charger qu'un fichier découvert inutilisable sur une autre machine. Un
+manifeste dont le champ `climate` n'est pas une liste de noms est refusé au
+lieu d'être lu comme « pas de climat ».
+
+**Trois références réelles peuvent décrire un lieu qui ne l'est pas.** Un nœud
+déclaré au rez-de-chaussée, desservant une chambre à l'étage et fixé à un mur
+d'un troisième niveau nomme trois objets existants et aucun endroit existant.
+La validation structurelle compare désormais les niveaux de la pièce et de
+l'objet support à celui du nœud, et entre eux quand le nœud ne déclare pas de
+niveau. Les commandes d'ajout et de modification refusent la même chose, pour
+que l'éditeur n'écrive jamais un projet que le lecteur rejette ; un équipement,
+qui appartient au projet et non à un niveau, ne dit rien et ne prouve rien.
+
+**Le déploiement échouait avant même de publier.** Le workflow Pages est
+correct, mais chacune de ses exécutions s'arrêtait à `configure-pages` sur un
+« Get Pages site failed… Not Found » : GitHub Pages n'est pas activé sur le
+dépôt, et une page jamais publiée ne pouvait pas être vérifiée. Le workflow
+demande maintenant l'activation lui-même. Si le réglage de l'organisation
+l'interdit, il reste à l'activer à la main dans Réglages → Pages, source
+« GitHub Actions » — c'est un réglage du dépôt, pas du code.
+
+### Ce que ce lot n'a pas traité
+
+- feuilles et export PDF ; projection des résultats des réseaux, de la
+  ventilation et de l'électricité sur le plan ; orchestrateur de calcul
+  persistant ; protection de `main`, qui est un réglage du dépôt.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -773,8 +848,8 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 788 tests sur 116 fichiers
-- tests navigateur : 49 tests Playwright — 46 sur Chromium et trois sur un
+- tests unitaires et d’intégration : 807 tests sur 117 fichiers
+- tests navigateur : 50 tests Playwright — 47 sur Chromium et trois sur un
   écran de téléphone — dont deux rejoués sur Firefox et WebKit
 - accessibilité : axe-core, onze espaces de travail, WCAG 2.1 AA, aucun
   manquement

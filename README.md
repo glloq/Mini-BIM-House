@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml/badge.svg)](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml)
 [![Licence AGPL-3.0-only](https://img.shields.io/badge/licence-AGPL--3.0--only-blue)](LICENSE)
-![Version 0.2.0-beta.1](https://img.shields.io/badge/version-0.2.0--beta.1-yellow)
+![Version 0.2.0-beta.2](https://img.shields.io/badge/version-0.2.0--beta.2-yellow)
 ![Statut bêta](https://img.shields.io/badge/statut-b%C3%AAta-yellow)
 
-> **Version 0.2.0-beta.1 — bêta.** L'application couvre le parcours complet et
+> **Version 0.2.0-beta.2 — bêta.** L'application couvre le parcours complet et
 > ses formats sont stabilisés ; l'interface peut encore bouger et plusieurs
 > sujets restent hors périmètre. Voir
 > [Ce que l'application ne fait pas](#ce-que-lapplication-ne-fait-pas), le
@@ -593,7 +593,7 @@ sans casser le noyau.
 
 # État du projet
 
-**Version 0.2.0-beta.1, bêta.** L'application couvre le parcours complet :
+**Version 0.2.0-beta.2, bêta.** L'application couvre le parcours complet :
 dessiner, composer, calculer, superposer, métrer, comparer, exporter. Ce qu'un
 fichier de projet promet d'une version à l'autre est écrit dans
 [`CHANGELOG.md`](CHANGELOG.md).
@@ -603,8 +603,9 @@ fichier de projet promet d'une version à l'autre est écrit dans
 - **Plan** — murs en couches de matériaux, ouvertures percées avec leur
   débattement, pièces remplies et étiquetées, dalles, toitures et cotes
   associatives ; accrochage sur grille, extrémités, milieux et intersections ;
-  contraintes de longueur et d'angle ; annulation et rétablissement de chaque
-  commande.
+  contraintes de longueur et d'angle ; remaniement après coup — extrémité
+  déplacée, mur scindé, ouverture redimensionnée, contour de dalle repris
+  sommet par sommet ; annulation et rétablissement de chaque commande.
 - **Inspecteur** — la barre d'outils crée, l'inspecteur modifie : assemblage et
   rôle d'un mur, dimensions d'une ouverture, usage d'une pièce, pente d'une
   toiture, position d'un nœud de réseau.
@@ -622,33 +623,52 @@ fichier de projet promet d'une version à l'autre est écrit dans
 - **Vérifications** — ce que le modèle, les réseaux, les calculs et le métré ne
   résolvent pas, rassemblé avec le chemin pour le corriger. Aucune conformité
   réglementaire n'y est constatée.
-- **Projet** — nom, auteur, site, orientation, localisation, contexte
-  réglementaire, jeux climatiques et réglages de calcul des dix-sept modules.
+- **Projet** — assistant de création qui demande ce qu'aucun calcul ne peut
+  deviner, puis nom, auteur, site, orientation, localisation, contexte
+  réglementaire, zones, jeux climatiques et réglages de calcul des dix-sept
+  modules.
 - **Quantités** — nomenclature par lot et par niveau, masses, coûts et carbone,
   export CSV, avec les matériaux non valorisés signalés comme tels.
 - **Scénarios** — création, duplication et comparaison d'une variante au projet
   de base, sans dupliquer le projet, et promotion d'une variante en projet.
-- **Fichiers** — export JSON canonique et SVG, import validé, sauvegarde locale
-  automatique et restauration proposée — jamais appliquée en silence.
+- **Fichiers** — conteneur `.houseproj` transportant le projet et son climat,
+  export JSON canonique et SVG, import validé, sauvegarde locale automatique
+  dans IndexedDB et restauration proposée — jamais appliquée en silence.
 
 ## Ce que l'application ne fait pas
 
-- **Escaliers** : délibérément reportés.
-- **Exports PDF, DXF et IFC** : hors périmètre de la 0.1 ; l'export technique
-  se fait en SVG.
-- **Simulation thermique dynamique, confort d'été, structure, géotechnique,
-  éclairage naturel** : hors périmètre de la 0.1.
-- **Modes QUICK / DESIGN / EXPERT, assistant de création, palette de
-  commandes** : non implémentés.
-- **Édition géométrique fine** : déplacer l'extrémité d'un mur, le scinder ou
-  le raccorder à la souris n'est pas encore possible ; la géométrie se dessine
-  et se supprime, elle ne se remanie pas.
+Cette liste décrit la `0.2.0-beta.2` telle qu'elle est aujourd'hui, et rien
+d'autre : ce qui y figure n'existe pas encore dans l'application.
+
+- **Escaliers** : délibérément reportés. Le modèle les transporte sans les
+  typer, l'éditeur ne les dessine pas.
+- **Feuilles et export PDF** : le moteur de mise en page existe dans
+  `drawing-engine`, mais aucun format de feuille ni aucun backend PDF n'est
+  raccordé à l'interface ; l'export technique se fait en SVG.
+- **Exports DXF et IFC** : hors périmètre de la bêta.
+- **Simulation thermique dynamique, confort d'été avancé, structure,
+  géotechnique, éclairage naturel** : hors périmètre de la bêta.
+- **Modes QUICK / DESIGN / EXPERT, palette de commandes** : non implémentés.
+- **Analyses projetées sur le plan** : seules les trois analyses thermiques
+  (transmission, déperditions, données manquantes) sont branchées ; les
+  résultats des réseaux, de la ventilation et de l'électricité se lisent dans
+  les tableaux, pas encore sur le dessin.
+- **Productivité CAO** : copier-coller, duplication géométrique, raccord de
+  deux murs, trim/extend, décalage parallèle et transformations multiples ne
+  sont pas implémentés. Les extrémités d'un mur se déplacent, un mur se scinde
+  et une ouverture se redimensionne ; le reste du remaniement géométrique reste
+  à faire.
+- **Dossier de plans** : `drawingViews` n'est pas encore un contrat typé, si
+  bien qu'un projet exporte l'état courant plutôt qu'un jeu de feuilles
+  reproductible.
 - **Conformité réglementaire** : le moteur de règles et les Rule Packs
   existent ; l'espace Vérifications rassemble les constats du modèle et des
   calculs, mais aucun référentiel réglementaire n'est livré, et rien n'est
   affirmé conforme.
 - **Données fabricant** : les catalogues livrés sont génériques et le disent.
   Aucune valeur générique n'est présentée comme une donnée fabricant.
+- **Collaboration** : l'application est locale ; il n'y a ni compte, ni
+  serveur, ni édition à plusieurs.
 
 ## Ce sur quoi vous pouvez compter
 

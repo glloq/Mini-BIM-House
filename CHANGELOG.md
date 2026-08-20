@@ -5,6 +5,42 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.2.0-beta.2 — non publiée
+
+Quatre cas d'intégrité relevés par un septième audit, chacun accompagné de son
+test de non-régression. Rien de fonctionnel n'a été ajouté : cette version rend
+sûr ce que la précédente proposait déjà.
+
+### Corrigé
+
+- la sauvegarde locale n'annonce « sauvegardé » que si l'instantané écrit est
+  celui du projet à l'écran. Une édition faite pendant l'écriture laissait
+  jusqu'ici le disque en retard d'une révision tout en annulant le minuteur de
+  l'instantané suivant, si bien que la modification n'était jamais écrite sous
+  une étiquette rassurante ;
+- supprimer l'instantané passe par la file d'écriture : une écriture déjà
+  engagée ne peut plus le faire réapparaître juste après la suppression, et un
+  instantané confié pendant celle-ci est refusé ;
+- un conteneur `.houseproj` qui désigne un profil climatique sans le
+  transporter est refusé même lorsqu'il ne transporte aucun climat — le cas qui
+  passait. La même vérification a lieu à l'écriture : l'export est refusé, en
+  disant quel jeu de données charger, plutôt que de produire un fichier
+  inutilisable ailleurs ;
+- un manifeste dont le champ `climate` n'est pas une liste de noms est refusé
+  au lieu d'être lu comme un conteneur sans climat ;
+- les références d'un nœud de réseau sont vérifiées ensemble et plus seulement
+  une à une : niveau déclaré, pièce desservie et objet support doivent
+  appartenir au même niveau. L'import le refuse, et les commandes d'édition
+  aussi.
+
+### Documentation
+
+- le `README` décrit l'application telle qu'elle est : l'assistant de création
+  et le remaniement géométrique n'y figurent plus comme absents, et les limites
+  connues sont datées de cette version ;
+- `docs/IMPLEMENTATION_STATUS.md` dit en tête qu'il est un journal, dont les
+  sections anciennes décrivent l'état de leur date.
+
 ## 0.2.0-beta.1 — non publiée
 
 Première version proposée à des utilisateurs. Elle permet le parcours complet :
