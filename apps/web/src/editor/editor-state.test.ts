@@ -312,3 +312,33 @@ describe('keyboard shortcuts', () => {
     );
   });
 });
+
+describe('what the constraints do to a drafted point', () => {
+  it('places a typed length even when the pointer has not moved', () => {
+    // Typing 4500 and pressing Enter is a way of drawing; refusing because the
+    // pointer sits on the first point would make the keyboard useless.
+    const placed = constrainPoint(
+      { x: 0, y: 0 },
+      { x: 0, y: 0 },
+      DEFAULT_SNAP,
+      { lengthMm: 4500 },
+    );
+    expect(placed).toEqual({ x: 4500, y: 0 });
+  });
+
+  it('follows the angle that was typed', () => {
+    const placed = constrainPoint(
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      DEFAULT_SNAP,
+      { lengthMm: 1000, angleDeg: 90 },
+    );
+    expect(Math.round(placed.x)).toBe(0);
+    expect(Math.round(placed.y)).toBe(1000);
+  });
+
+  it('leaves the point alone when nothing says how far', () => {
+    const origin = { x: 120, y: 340 };
+    expect(constrainPoint(origin, origin, DEFAULT_SNAP, {})).toEqual(origin);
+  });
+});

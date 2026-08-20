@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Project } from '@house-technical-designer/core-domain';
+import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import {
   GENERIC_TECHNICAL_SCREEN,
   renderSemanticSceneToSvg,
@@ -19,8 +20,12 @@ import {
 } from '@house-technical-designer/view-query';
 import type { EditorAction, EditorState } from './editor-state.js';
 import { offsetAlongWall, type GeometryEdit, type Grip } from './grips.js';
-import { gripsFor } from './object-editors.js';
+import { editsFor, gripsFor } from './object-editors.js';
 import { pickToleranceMm } from './pick-tolerance.js';
+import { DynamicInput } from './DynamicInput.js';
+import { TemporaryDimensions } from './TemporaryDimensions.js';
+import { TEMPORARY_EDIT_IDS } from './temporary-edits.js';
+import { draftedMeasures } from './typed-values.js';
 import {
   constrainPoint,
   constrainsDrafting,
@@ -58,6 +63,8 @@ export interface PlanCanvasProps {
   ) => void;
   /** Carries the whole selection, once a drag on it has been released. */
   readonly onMoveSelection?: (delta: { x: number; y: number }) => void;
+  /** Applies an edit typed on the drawing itself. */
+  readonly onCommand?: (command: ProjectCommand) => boolean;
   readonly wallThicknessMm: number;
   /**
    * What a dragged handle asks of the model.
@@ -102,6 +109,7 @@ export function PlanCanvas({
   wallThicknessMm,
   onEditGeometry,
   onMoveSelection,
+  onCommand,
   overlay,
 }: PlanCanvasProps) {
   const container = useRef<HTMLDivElement>(null);
@@ -761,6 +769,54 @@ export function PlanCanvas({
     [dispatch],
   );
 
+  /**
+   * Where the fields that say how long and how steep should sit.
+   *
+   * They follow the point being drafted, which is what the user is watching;
+   * they appear only while something is being drawn, so they never sit over an
+   * empty plan.
+   */
+  const drafting = editor.pendingPoints[editor.pendingPoints.length - 1];
+  const draftTarget =
+    drafting === undefined || editor.cursorModel === undefined
+      ? undefined
+      : constrainPoint(
+          drafting,
+          editor.activeSnap?.point ?? editor.cursorModel,
+          editor.snap,
+          editor.directInput,
+        );
+  const draftMeasures =
+    drafting === undefined || draftTarget === undefined
+      ? undefined
+      : draftedMeasures(drafting, draftTarget);
+  const draftAtPx =
+    draftTarget === undefined
+      ? undefined
+      : modelToScreen(editor.camera, draftTarget);
+
+  /**
+   * The measurements written on the drawing, for the object selected.
+   *
+   * They are the inspector's own edits, placed where they are measured: the
+   * command, its validation and its place in the history are the same.
+   */
+  const temporary = useMemo(() => {
+    if (onCommand === undefined || editor.selection.length !== 1)
+      return undefined;
+    const objectId = editor.selection[0]!;
+    const shown = editsFor(project, objectId).filter((edit) =>
+      TEMPORARY_EDIT_IDS.includes(edit.id),
+    );
+    if (shown.length === 0) return undefined;
+    const anchor =
+      grips.find(({ kind }) => kind === 'WALL_BODY') ??
+      grips.find(({ kind }) => kind === 'OPENING') ??
+      grips[0];
+    if (anchor === undefined) return undefined;
+    return { edits: shown, atPx: modelToScreen(editor.camera, anchor.at) };
+  }, [editor.camera, editor.selection, grips, onCommand, project]);
+
   const snapMarker =
     editor.activeSnap === undefined
       ? undefined
@@ -785,6 +841,41 @@ export function PlanCanvas({
       onPointerLeave={handleUp}
       onWheel={handleWheel}
     >
+      {temporary !== undefined && (
+        <TemporaryDimensions
+          edits={temporary.edits}
+          atPx={temporary.atPx}
+          onApply={(edit, value) => {
+            const command = edit.apply(value);
+            if (command !== undefined) onCommand?.(command);
+          }}
+        />
+      )}
+
+      {draftMeasures !== undefined && draftAtPx !== undefined && (
+        <DynamicInput
+          atPx={draftAtPx}
+          lengthMm={draftMeasures.lengthMm}
+          angleDeg={draftMeasures.angleDeg}
+          {...(editor.directInput.lengthMm === undefined
+            ? {}
+            : { lockedLengthMm: editor.directInput.lengthMm })}
+          {...(editor.directInput.angleDeg === undefined
+            ? {}
+            : { lockedAngleDeg: editor.directInput.angleDeg })}
+          onChange={(input) => dispatch({ type: 'SET_DIRECT_INPUT', input })}
+          onCommit={() => {
+            // Enter places the point the fields describe, exactly as clicking
+            // there would.
+            const points = [...editor.pendingPoints, draftTarget!];
+            dispatch({ type: 'COMMIT_POINT', point: draftTarget! });
+            if (points.length >= requiredPoints(editor.activeTool))
+              onCommitPoints(points, [...editor.pendingPicks, undefined]);
+          }}
+          onCancel={() => dispatch({ type: 'CANCEL' })}
+        />
+      )}
+
       {rendered.status === 'EMPTY' && (
         <div className="empty-state">
           <strong>Rien à afficher sur ce niveau</strong>

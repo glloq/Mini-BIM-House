@@ -96,6 +96,7 @@ import {
 import { CommandPalette } from './palette/CommandPalette.js';
 import { PanelSeparator } from './shell/PanelSeparator.js';
 import { StatusBar } from './shell/StatusBar.js';
+import { ProjectTree } from './shell/ProjectTree.js';
 import {
   boundedWidth,
   gridColumns,
@@ -1625,6 +1626,23 @@ function App() {
           </label>
           {tab === 'plan' && (
             <>
+              <ProjectTree
+                project={file.project}
+                {...(activeLevelId === undefined
+                  ? {}
+                  : { levelId: activeLevelId })}
+                selection={editor.selection}
+                onSelectLevel={(levelId) =>
+                  dispatchEditor({ type: 'SET_LEVEL', levelId })
+                }
+                onSelectObject={(objectId) =>
+                  dispatchEditor({ type: 'SELECT', objectId })
+                }
+                onFrameObject={(objectId) => {
+                  dispatchEditor({ type: 'SELECT', objectId });
+                  zoomSelection();
+                }}
+              />
               <LayersPanel editor={editor} dispatch={dispatchEditor} />
               <OverlayControl
                 overlayId={overlayId}
@@ -1699,6 +1717,7 @@ function App() {
               dispatch={dispatchEditor}
               onCommitPoints={commitPoints}
               onMoveSelection={moveSelection}
+              onCommand={runCommand}
               onEditGeometry={editGeometry}
               wallThicknessMm={wallThicknessMm}
               {...(overlay === undefined ? {} : { overlay })}

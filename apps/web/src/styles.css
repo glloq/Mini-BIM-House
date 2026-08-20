@@ -1416,3 +1416,108 @@ button.icon {
   border-radius: 0.35rem;
   font-size: 0.76rem;
 }
+
+/*
+ * The length and the angle, where the user is looking.
+ *
+ * Drawing a wall means watching its far end; the fields that say how long it is
+ * were at the top of the window, and are now beside the point being placed.
+ */
+.dynamic-input {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.3rem 0.4rem;
+  transform: translate(0.8rem, 0.8rem);
+  border: 1px solid #b9cec3;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 18px rgba(30, 55, 42, 0.18);
+  font-size: 0.72rem;
+}
+.dynamic-input label {
+  display: grid;
+  gap: 0.1rem;
+}
+.dynamic-input input {
+  width: 5.5rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid #cbd5cf;
+  border-radius: 0.35rem;
+  font-size: 0.78rem;
+}
+.dynamic-input .lock {
+  color: #2f6f4f;
+  font-weight: 700;
+}
+
+/*
+ * The measurements written on the drawing, where they are measured. Typing over
+ * one moves what it measures, through the same command as the inspector.
+ */
+.temporary-dimensions {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.2rem 0.3rem;
+  transform: translate(-50%, -160%);
+  border: 1px solid #cfe0d6;
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 0.68rem;
+}
+.temporary-dimension {
+  display: grid;
+  gap: 0.05rem;
+  color: #41544a;
+}
+.temporary-dimension input {
+  width: 4.6rem;
+  padding: 0.1rem 0.25rem;
+  border: 1px solid #cbd5cf;
+  border-radius: 0.3rem;
+  font-size: 0.74rem;
+}
+
+/*
+ * The project as a tree: the workspaces say what the user is doing, this says
+ * what is in the building.
+ */
+.project-tree {
+  margin-bottom: 1rem;
+  font-size: 0.78rem;
+}
+.project-tree ul {
+  margin: 0.1rem 0 0.2rem;
+  padding-left: 0.7rem;
+  list-style: none;
+}
+.project-tree summary {
+  padding: 0.15rem 0;
+  color: #31443b;
+  font-weight: 700;
+  cursor: pointer;
+}
+.project-tree button {
+  width: 100%;
+  padding: 0.15rem 0.3rem;
+  border: 0;
+  border-radius: 0.3rem;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.project-tree button:hover,
+.project-tree .tree-active {
+  background: #eaf2ed;
+  color: #1f4c37;
+  font-weight: 700;
+}
+.project-tree .tree-fact {
+  display: block;
+  padding: 0.15rem 0.3rem;
+  color: #5b6b63;
+}

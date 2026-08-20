@@ -871,7 +871,36 @@ d'ajouter les dizaines de familles d'objets qui manquent.
 - Aligner à gauche, à droite, en haut, en bas : chaque objet parcourt la
   distance qui amène son propre bord sur le plus extérieur, sans être remanié.
 
-Restent à faire dans ce lot : cotes temporaires éditables sur le plan.
+- Cotes temporaires : la longueur d'un mur, la position et la largeur d'une
+  ouverture s'écrivent sur le dessin, là où elles se mesurent, et se modifient
+  en tapant par-dessus. Ce sont les modifications de l'inspecteur elles-mêmes,
+  pas une seconde façon d'écrire la même chose : commande, validation et place
+  dans l'historique sont identiques.
+
+### UI-05 — saisie dynamique
+
+La longueur et l'angle du tracé se saisissaient en haut de la fenêtre alors que
+l'utilisateur regarde l'extrémité de son mur. Les deux champs suivent désormais
+le point en cours de placement : taper une longueur, Tab pour l'angle, Entrée
+pour poser le point, Échap pour abandonner. Un champ laissé libre mesure ce qui
+est dessiné ; un champ rempli verrouille sa valeur et le tracé suit ce qui a été
+tapé plutôt que le pointeur.
+
+L'unité est celle à laquelle la personne pense : `4200`, `4.2 m`, `420 cm` et
+`4,2m` désignent le même mur. Ce qui ne se lit pas est refusé plutôt que deviné.
+
+Une longueur tapée sans avoir bougé le pointeur pose maintenant le point : la
+contrainte refusait de dessiner quand le pointeur n'avait pas quitté le premier
+point, ce qui rendait le clavier inutilisable.
+
+### UI-02 — arbre du projet
+
+Les espaces de travail disent ce que l'on fait ; l'arbre dit ce qu'il y a dans
+le bâtiment. Site, niveaux, familles d'objets du niveau dessiné, réseaux et
+leurs nœuds : un clic sélectionne, un double-clic cadre. Seul le niveau dessiné
+est déplié — un objet d'un autre niveau ne peut pas être montré sans changer le
+plan d'abord — et au-delà de quarante objets par famille, l'arbre renvoie à la
+palette plutôt que d'aligner mille murs.
 
 ### UI-15 — palette de commandes
 

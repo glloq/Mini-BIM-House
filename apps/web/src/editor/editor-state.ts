@@ -219,14 +219,18 @@ export function constrainPoint(
   const dx = target.x - origin.x;
   const dy = target.y - origin.y;
   const rawLength = Math.hypot(dx, dy);
-  if (rawLength === 0) return target;
-  const rawAngle = (Math.atan2(dy, dx) * 180) / Math.PI;
+  const lengthMm = direct.lengthMm ?? rawLength;
+  // Nothing to place: neither the pointer nor the keyboard has said how far.
+  if (lengthMm === 0) return target;
+  // A length typed without moving the pointer has no direction of its own; it
+  // goes along the axis until the user says otherwise, rather than refusing to
+  // draw at all.
+  const rawAngle = rawLength === 0 ? 0 : (Math.atan2(dy, dx) * 180) / Math.PI;
   const angleDeg =
     direct.angleDeg ??
     (snap.enabled && snap.orthogonal && snap.angleStepDeg > 0
       ? Math.round(rawAngle / snap.angleStepDeg) * snap.angleStepDeg
       : rawAngle);
-  const lengthMm = direct.lengthMm ?? rawLength;
   const radians = (angleDeg * Math.PI) / 180;
   return {
     x: origin.x + Math.cos(radians) * lengthMm,

@@ -609,9 +609,11 @@ fichier de projet promet d'une version à l'autre est écrit dans
   faisant glisser ; sélection à la bande, fenêtre ou capture selon le sens du
   tracé, et modification en une fois des propriétés communes à la sélection ;
   annulation et rétablissement de chaque commande.
-- **Poste de travail** — panneaux redimensionnables et masquables, largeurs
-  retrouvées à la session suivante, barre d'état sous le plan : niveau,
-  position, accroches, pas de grille, échelle et taille de la sélection.
+- **Poste de travail** — arbre du projet, panneaux redimensionnables et
+  masquables dont les largeurs sont retrouvées à la session suivante, barre
+  d'état sous le plan : niveau, position, accroches, pas de grille, échelle et
+  taille de la sélection ; longueur et angle saisis près du curseur, cotes
+  éditables sur le dessin.
 - **Palette de commandes** — `Ctrl+K` cherche d'un même champ les outils, les
   espaces de travail, les niveaux, les commandes du clavier et les objets du
   niveau dessiné, accents et casse indifférents.
@@ -663,13 +665,13 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   (transmission, déperditions, données manquantes) sont branchées ; les
   résultats des réseaux, de la ventilation et de l'électricité se lisent dans
   les tableaux, pas encore sur le dessin.
-- **Productivité CAO** : les cotes temporaires éditables directement sur le
-  plan manquent encore. Ce qui existe : extrémité de mur déplacée, mur scindé
-  là où on le désigne, ouverture redimensionnée, contour de dalle repris sommet
-  par sommet, sélection déplacée en la faisant glisser, dupliquée, copiée et
-  collée d'un niveau à l'autre, pivotée d'un quart de tour ou d'un angle
-  tracé, retournée autour d'un axe tracé, décalée parallèlement, jointe,
-  ajustée et alignée.
+- **Productivité CAO** : congés, chanfreins, réseaux de contraintes
+  paramétriques et transformations multiples restent hors périmètre. Ce qui
+  existe : extrémité de mur déplacée, mur scindé là où on le désigne, ouverture
+  redimensionnée, contour de dalle repris sommet par sommet, sélection déplacée
+  en la faisant glisser, dupliquée, copiée et collée d'un niveau à l'autre,
+  pivotée d'un quart de tour ou d'un angle tracé, retournée autour d'un axe
+  tracé, décalée parallèlement, jointe, ajustée et alignée.
 - **Dossier de plans** : `drawingViews` n'est pas encore un contrat typé, si
   bien qu'un projet exporte l'état courant plutôt qu'un jeu de feuilles
   reproductible.

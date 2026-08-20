@@ -143,51 +143,6 @@ export function ToolBar({
               ))}
             </select>
           </div>
-          <label>
-            Longueur (m)
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="libre"
-              value={
-                editor.directInput.lengthMm === undefined
-                  ? ''
-                  : editor.directInput.lengthMm / 1000
-              }
-              onChange={(event) =>
-                dispatch({
-                  type: 'SET_DIRECT_INPUT',
-                  input: {
-                    lengthMm:
-                      event.target.value === ''
-                        ? null
-                        : event.target.valueAsNumber * 1000,
-                  },
-                })
-              }
-            />
-          </label>
-          <label>
-            Angle (°)
-            <input
-              type="number"
-              step="1"
-              placeholder="libre"
-              value={editor.directInput.angleDeg ?? ''}
-              onChange={(event) =>
-                dispatch({
-                  type: 'SET_DIRECT_INPUT',
-                  input: {
-                    angleDeg:
-                      event.target.value === ''
-                        ? null
-                        : event.target.valueAsNumber,
-                  },
-                })
-              }
-            />
-          </label>
         </div>
       )}
 
