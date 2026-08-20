@@ -1,6 +1,6 @@
 {
   "name": "house-technical-designer",
-  "version": "0.1.0",
+  "version": "0.2.0-beta.1",
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
@@ -21,14 +21,18 @@
     "test": "vitest run --passWithNoTests",
     "typecheck": "npm run typecheck --workspaces --if-present && tsc -p e2e/tsconfig.json",
     "generate:project-validator": "node scripts/generate-project-validator.mjs",
+    "check:bundle": "node scripts/check-bundle-budget.mjs",
+    "smoke:deployment": "node scripts/smoke-deployment.mjs",
     "test:e2e": "playwright test",
-    "test:e2e:install": "playwright install --with-deps chromium",
+    "test:e2e:install": "playwright install --with-deps chromium firefox webkit",
+    "test:e2e:chromium": "playwright test --project=chromium --project=mobile",
     "audit:licenses": "node scripts/audit-licenses.mjs"
   },
   "engines": {
     "node": ">=22.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^9.33.0",
     "@playwright/test": "^1.62.1",
     "@types/node": "^24.3.0",

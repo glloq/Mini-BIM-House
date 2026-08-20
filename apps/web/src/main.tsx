@@ -1,11 +1,14 @@
 import {
+  lazy,
   StrictMode,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
   useReducer,
   useRef,
   useState,
+  type ReactNode,
 } from 'react';
 import { createRoot } from 'react-dom/client';
 import type {
@@ -45,22 +48,12 @@ import {
   summarizeProject,
 } from './project-workspace.js';
 import { demoClimateDatasets, loadDemoProject } from './demo-project.js';
-import { MaterialsPanel } from './library/MaterialsPanel.js';
-import { AssembliesPanel } from './library/AssembliesPanel.js';
-import { EquipmentPanel } from './library/EquipmentPanel.js';
 import { PlanCanvas } from './editor/PlanCanvas.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { LayersPanel } from './editor/LayersPanel.js';
 import { ToolBar, type OpeningDraft } from './editor/ToolBar.js';
-import { BuildingPanel } from './editor/BuildingPanel.js';
-import { CalculationsPanel } from './calculations/CalculationsPanel.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
-import { QuantitiesPanel } from './quantities/QuantitiesPanel.js';
-import { ScenariosPanel } from './scenarios/ScenariosPanel.js';
-import { NetworksPanel } from './networks/NetworksPanel.js';
-import { ProjectPanel } from './project/ProjectPanel.js';
-import { NewProjectWizard } from './project/NewProjectWizard.js';
-import { ChecksPanel } from './checks/ChecksPanel.js';
+import { APPLICATION_VERSION } from './version.js';
 import type { CheckFix } from './checks/checks-model.js';
 import { placeNodeCommand } from './networks/network-model.js';
 import { nextLibraryId } from './library/library-model.js';
@@ -104,6 +97,62 @@ import {
 } from './editor/editing-commands.js';
 import type { GeometryEdit } from './editor/grips.js';
 
+/**
+ * Workspaces loaded when they are opened.
+ *
+ * Opening a project and drawing does not need the calculation dashboard, the
+ * libraries or the checks; downloading them before the first line is drawn
+ * only delays the drawing. Each workspace arrives when it is asked for, and
+ * stays for the rest of the session.
+ */
+const MaterialsPanel = lazy(async () => ({
+  default: (await import('./library/MaterialsPanel.js')).MaterialsPanel,
+}));
+const AssembliesPanel = lazy(async () => ({
+  default: (await import('./library/AssembliesPanel.js')).AssembliesPanel,
+}));
+const EquipmentPanel = lazy(async () => ({
+  default: (await import('./library/EquipmentPanel.js')).EquipmentPanel,
+}));
+const BuildingPanel = lazy(async () => ({
+  default: (await import('./editor/BuildingPanel.js')).BuildingPanel,
+}));
+const CalculationsPanel = lazy(async () => ({
+  default: (await import('./calculations/CalculationsPanel.js'))
+    .CalculationsPanel,
+}));
+const QuantitiesPanel = lazy(async () => ({
+  default: (await import('./quantities/QuantitiesPanel.js')).QuantitiesPanel,
+}));
+const ScenariosPanel = lazy(async () => ({
+  default: (await import('./scenarios/ScenariosPanel.js')).ScenariosPanel,
+}));
+const NetworksPanel = lazy(async () => ({
+  default: (await import('./networks/NetworksPanel.js')).NetworksPanel,
+}));
+const ProjectPanel = lazy(async () => ({
+  default: (await import('./project/ProjectPanel.js')).ProjectPanel,
+}));
+const ChecksPanel = lazy(async () => ({
+  default: (await import('./checks/ChecksPanel.js')).ChecksPanel,
+}));
+const NewProjectWizard = lazy(async () => ({
+  default: (await import('./project/NewProjectWizard.js')).NewProjectWizard,
+}));
+
+/** One workspace panel, with what to show while its code is still arriving. */
+function LazyWorkspace({ children }: { readonly children: ReactNode }) {
+  return (
+    <section className="canvas-panel panel">
+      <Suspense
+        fallback={<p className="notice">Chargement de l’espace de travail…</p>}
+      >
+        {children}
+      </Suspense>
+    </section>
+  );
+}
+
 function download(content: string, fileName: string, mediaType: string): void {
   downloadBlob(new Blob([content], { type: mediaType }), fileName);
 }
@@ -114,6 +163,22 @@ function download(content: string, fileName: string, mediaType: string): void {
  * A file may hold anything; what is adopted has to satisfy the climate
  * contract, or the project would recalculate on something that is not weather.
  */
+/**
+ * What to add to an import notice when the file came from an older schema.
+ *
+ * A project written by an earlier version is brought up to date on the way in.
+ * Saying nothing would give back a file that is no longer the one that was
+ * saved, without the user ever having been told.
+ */
+function migrationNotice(
+  journal: readonly { readonly from: string; readonly to: string }[],
+): string {
+  if (journal.length === 0) return '';
+  const from = journal[0]!.from;
+  const to = journal[journal.length - 1]!.to;
+  return ` Le fichier était au format ${from} : il a été mis à jour en ${to}, et c'est cette version qui sera enregistrée.`;
+}
+
 function readClimateDataset(json: string): ClimateDataset | undefined {
   let parsed: unknown;
   try {
@@ -194,9 +259,6 @@ const WORKSPACE_GROUPS = [
 ] as const;
 
 type WorkspaceTab = (typeof WORKSPACE_GROUPS)[number]['tabs'][number]['id'];
-
-/** Version reported in diagnostics; it matches the project file it writes. */
-const APPLICATION_VERSION = '0.1.0';
 
 const DEFAULT_OPENING: OpeningDraft = {
   openingType: 'WINDOW',
@@ -864,9 +926,10 @@ function App() {
       setClimate(datasets);
       adopt(
         container.container.file,
-        datasets.length === 0
+        (datasets.length === 0
           ? `${selected.name} chargé et validé.`
-          : `${selected.name} chargé et validé, avec ${datasets.length} jeu(x) de données climatiques.`,
+          : `${selected.name} chargé et validé, avec ${datasets.length} jeu(x) de données climatiques.`) +
+          migrationNotice(container.migrationJournal),
       );
       return;
     }
@@ -889,7 +952,11 @@ function App() {
       return;
     }
     setClimate([]);
-    adopt(result.file, `${selected.name} chargé et validé.`);
+    adopt(
+      result.file,
+      `${selected.name} chargé et validé.` +
+        migrationNotice(result.migrationJournal),
+    );
   }
 
   const selectOnPlan = useCallback((objectIds: readonly string[]): void => {
@@ -1137,18 +1204,22 @@ function App() {
       )}
 
       {creating && (
-        <NewProjectWizard
-          onCancel={() => setCreating(false)}
-          onCreate={(draft) => {
-            setCreating(false);
-            setClimate([]);
-            const created = projectFromDraft(draft, new Date().toISOString());
-            adopt(
-              created,
-              `Nouveau projet « ${created.project.metadata.name} » prêt : ${created.project.building.levels.length} niveau(x), bibliothèque générique incluse.`,
-            );
-          }}
-        />
+        <Suspense
+          fallback={<p className="notice">Chargement de l’assistant…</p>}
+        >
+          <NewProjectWizard
+            onCancel={() => setCreating(false)}
+            onCreate={(draft) => {
+              setCreating(false);
+              setClimate([]);
+              const created = projectFromDraft(draft, new Date().toISOString());
+              adopt(
+                created,
+                `Nouveau projet « ${created.project.metadata.name} » prêt : ${created.project.building.levels.length} niveau(x), bibliothèque générique incluse.`,
+              );
+            }}
+          />
+        </Suspense>
       )}
 
       {recovery !== undefined && (
@@ -1320,7 +1391,7 @@ function App() {
         )}
 
         {tab === 'project' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <ProjectPanel
               project={file.project}
               climate={climate}
@@ -1328,11 +1399,11 @@ function App() {
               onClimateChange={setClimate}
               onMessage={setMessage}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'building' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <BuildingPanel
               project={file.project}
               levelId={activeLevelId}
@@ -1342,11 +1413,11 @@ function App() {
               }
               onSelectObjects={selectOnPlan}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'materials' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <MaterialsPanel
               project={file.project}
               onCommand={runCommand}
@@ -1355,11 +1426,11 @@ function App() {
                 : { selectedId: selectedMaterialId })}
               onSelect={setSelectedMaterialId}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'assemblies' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <AssembliesPanel
               project={file.project}
               onCommand={runCommand}
@@ -1368,11 +1439,11 @@ function App() {
                 : { selectedId: selectedAssemblyId })}
               onSelect={setSelectedAssemblyId}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'networks' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <NetworksPanel
               project={file.project}
               levelId={activeLevelId}
@@ -1392,11 +1463,11 @@ function App() {
               }}
               onMessage={setMessage}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'calculations' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <CalculationsPanel
               project={file.project}
               climate={climate}
@@ -1407,11 +1478,11 @@ function App() {
               }
               onSelectObjects={selectOnPlan}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'quantities' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <QuantitiesPanel
               project={file.project}
               onSelectObjects={selectOnPlan}
@@ -1419,22 +1490,22 @@ function App() {
                 download(content, fileName, 'text/csv;charset=utf-8')
               }
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'checks' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <ChecksPanel
               project={file.project}
               {...(currentRun === undefined ? {} : { run: currentRun })}
               running={calculationBusy}
               onFix={applyFix}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'scenarios' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <ScenariosPanel
               project={file.project}
               climate={climate}
@@ -1442,11 +1513,11 @@ function App() {
               onMessage={setMessage}
               onPromote={promoteScenario}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'equipment' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <EquipmentPanel
               project={file.project}
               onCommand={runCommand}
@@ -1456,7 +1527,7 @@ function App() {
                 : { selectedId: selectedEquipmentId })}
               onSelect={setSelectedEquipmentId}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         <aside className="inspector panel" id="inventory">

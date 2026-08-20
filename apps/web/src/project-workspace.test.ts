@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { defaultVisibility } from '@house-technical-designer/view-query';
 import type { ProjectFile } from '@house-technical-designer/core-domain';
 import { loadProjectJson } from '@house-technical-designer/project-io';
+import { readFileSync } from 'node:fs';
+import { APPLICATION_VERSION } from './version.js';
 import {
   addWallToProject,
   createBlankProject,
@@ -171,6 +173,21 @@ describe('web project workspace', () => {
         { min: { x: 0, y: 0 }, max: { x: 1, y: 1 } },
       ),
     ).toThrow(/positives/u);
+  });
+});
+
+describe('application version', () => {
+  it('is the one the repository declares, not a second copy', () => {
+    const declared = (
+      JSON.parse(
+        readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'),
+      ) as { readonly version: string }
+    ).version;
+    expect(APPLICATION_VERSION).toBe(declared);
+    // What the application stamps on a file it writes is that same version.
+    expect(createBlankProject('2026-08-19T00:00:00Z').applicationVersion).toBe(
+      declared,
+    );
   });
 });
 

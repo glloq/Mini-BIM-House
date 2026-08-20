@@ -675,10 +675,63 @@ signaleront plutôt que d'en supposer un. Les onze espaces de travail sont
 regroupés en cinq familles — projet, conception, bibliothèques, technique,
 résultats — pour dire dans quel ordre un projet se décrit.
 
-### Ce que ces lots n'ont pas traité
+## Publication de la bêta — lot F du sixième audit
 
-- Firefox, WebKit, Pages, migrations, version unique, axe-core, régression
-  visuelle et budget de bundle (lot F).
+| Point                 | Constat                                                       | État    |
+| --------------------- | ------------------------------------------------------------- | ------- |
+| Un seul moteur testé  | l'intégration continue ne connaissait que Chromium            | corrigé |
+| Pages jamais vérifié  | un déploiement réussi pouvait servir une page blanche         | corrigé |
+| Version applicative   | écrite en dur dans le code, à côté de celle de `package.json` | corrigé |
+| Migration silencieuse | un fichier ancien était mis à jour sans que rien ne le dise   | corrigé |
+| Taille du chargement  | 861 kio d'un bloc, sans budget                                | corrigé |
+| Accessibilité         | aucune vérification automatisée                               | corrigé |
+| Régression du dessin  | rien ne signalait un calque qui cesse d'être dessiné          | corrigé |
+| Version publiable     | le dépôt était encore en 0.1.0, sans journal des versions     | corrigé |
+
+**Trois moteurs, et ce qui les distingue.** Chromium exécute toute la suite ;
+Firefox et WebKit exécutent le parcours qui dépend réellement du moteur —
+géométrie du pointeur sur le canevas, IndexedDB, téléchargement, champ fichier,
+compression du conteneur. Le reste est le même code partout, et les tests
+unitaires le couvrent déjà.
+
+**Un déploiement réussi n'est pas une page qui s'ouvre.** Un chemin de base
+erroné publie un `index.html` dont le script répond 404 : la page reste blanche
+derrière une pipeline verte. Après publication, la page est chargée, ses
+fichiers sont demandés, et leur type est vérifié — un hébergeur qui répond
+`index.html` à tout renvoie 200 pour un script absent.
+
+**La version vient d'un seul endroit.** Le `package.json` du dépôt, injecté à
+la construction et aux tests. Une constante recopiée dans le code aurait été
+une seconde source, et le jour où les deux divergent, un fichier de projet
+porte une version qui n'a jamais existé. Un test compare les deux.
+
+**Une mise à jour de format se dit.** Un projet écrit dans un schéma antérieur
+est migré à l'ouverture, y compris à l'intérieur d'un conteneur ; l'application
+nomme la version d'origine, celle d'arrivée, et prévient que c'est cette
+dernière qui sera enregistrée.
+
+**Ce que la première visite télécharge est décidé.** Les dix espaces de travail
+et les dix-sept modules de calcul arrivent à la demande : le chargement initial
+passe de 861 kio à 151 kio compressés, pour un budget de 200 kio vérifié en
+intégration continue. Dépasser le budget est permis ; le dépasser sans s'en
+apercevoir ne l'est pas.
+
+**Ce qu'une machine peut vérifier de l'accessibilité l'est.** axe-core passe sur
+les onze espaces de travail, aux règles WCAG 2.1 AA, et un manquement est un
+échec. Il a immédiatement trouvé deux textes illisibles, dont l'étiquette d'état
+de sauvegarde qui perdait sa couleur au profit du gris du texte voisin.
+
+**Le dessin a une référence.** Le plan de la maison de démonstration est comparé
+à un fichier SVG de référence : un calque qui cesse d'être dessiné, une hachure
+qui change, un cadrage qui bouge se lisent comme une différence de texte. Une
+comparaison pixel par pixel sur trois moteurs répondrait à une autre question,
+et différemment sur chaque machine ; elle reste hors bêta.
+
+### Ce que ce lot n'a pas traité
+
+- feuilles et export PDF ; orchestrateur de calcul persistant et invalidation
+  sélective ; régression visuelle pixel par pixel ; réglages encore invisibles
+  alors que les moteurs les lisent.
 
 ## Publication
 
@@ -720,7 +773,11 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 778 tests sur 113 fichiers
-- tests navigateur : 46 tests Playwright, dont trois sur un écran de téléphone
+- tests unitaires et d'intégration : 788 tests sur 116 fichiers
+- tests navigateur : 49 tests Playwright — 46 sur Chromium et trois sur un
+  écran de téléphone — dont deux rejoués sur Firefox et WebKit
+- accessibilité : axe-core, onze espaces de travail, WCAG 2.1 AA, aucun
+  manquement
+- chargement initial : 151 kio compressés pour un budget de 200 kio
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

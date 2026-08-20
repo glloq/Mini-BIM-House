@@ -175,6 +175,49 @@ describe('a project and its climate in one file', () => {
   });
 });
 
+describe('a container carrying an older project', () => {
+  it('migrates it and says so instead of upgrading it in silence', async () => {
+    const { metadata, ...projectRest } = file.project;
+    const older = {
+      ...file,
+      schemaVersion: '0.9.0',
+      project: { ...projectRest, info: metadata },
+    };
+    const encoder = new TextEncoder();
+    const bytes = await writeZip([
+      {
+        name: 'manifest.json',
+        data: encoder.encode(
+          JSON.stringify({
+            format: PROJECT_CONTAINER_FORMAT,
+            version: '1.0.0',
+            project: 'project.json',
+            climate: [],
+          }),
+        ),
+      },
+      { name: 'project.json', data: encoder.encode(JSON.stringify(older)) },
+    ]);
+    const result = await readProjectContainer(bytes);
+    expect(result.status).toBe('OK');
+    if (result.status !== 'OK') return;
+    expect(result.migrationJournal).toEqual([
+      { migrationId: 'project-0.9.0-to-1.0.0', from: '0.9.0', to: '1.0.0' },
+    ]);
+    expect(result.container.file.schemaVersion).toBe('1.0.0');
+    expect(result.container.file.project.metadata.name).toBe('Maison portable');
+  });
+
+  it('reports no migration for a container already at the current version', async () => {
+    const result = await readProjectContainer(
+      await writeProjectContainer(file, []),
+    );
+    expect(result.status).toBe('OK');
+    if (result.status !== 'OK') return;
+    expect(result.migrationJournal).toEqual([]);
+  });
+});
+
 describe('an archive that is not what it claims', () => {
   const manifest = (extra: object) =>
     new TextEncoder().encode(

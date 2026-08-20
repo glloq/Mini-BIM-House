@@ -4,6 +4,7 @@ import {
   serializeProjectFile,
   type ProjectLoadResult,
 } from './project-io.js';
+import type { MigrationJournalEntry } from './migrations.js';
 import {
   looksLikeZip,
   readZip,
@@ -51,6 +52,12 @@ export type ProjectContainerResult =
       readonly status: 'OK';
       readonly container: ProjectContainer;
       readonly manifest: ProjectContainerManifest;
+      /**
+       * The migrations the project inside went through, if it came from an
+       * older schema. A container opened silently upgraded would leave the
+       * user with a file that is no longer the one they saved.
+       */
+      readonly migrationJournal: readonly MigrationJournalEntry[];
     }
   | { readonly status: 'NOT_A_CONTAINER' }
   | { readonly status: 'INVALID_CONTAINER'; readonly message: string }
@@ -247,5 +254,6 @@ export async function readProjectContainer(
     status: 'OK',
     container: { file: loaded.file, climate },
     manifest,
+    migrationJournal: loaded.migrationJournal,
   };
 }

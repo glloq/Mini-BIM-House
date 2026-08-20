@@ -2,12 +2,15 @@
 
 [![CI](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml/badge.svg)](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml)
 [![Licence AGPL-3.0-only](https://img.shields.io/badge/licence-AGPL--3.0--only-blue)](LICENSE)
-![Version 0.1.0](https://img.shields.io/badge/version-0.1.0--alpha-orange)
-![Statut alpha](https://img.shields.io/badge/statut-alpha-orange)
+![Version 0.2.0-beta.1](https://img.shields.io/badge/version-0.2.0--beta.1-yellow)
+![Statut bêta](https://img.shields.io/badge/statut-b%C3%AAta-yellow)
 
-> **Version 0.1.0 — alpha.** L'application est utilisable de bout en bout, mais
-> son interface bouge encore et plusieurs sujets sont hors périmètre. Voir
-> [Ce que l'application ne fait pas](#ce-que-lapplication-ne-fait-pas).
+> **Version 0.2.0-beta.1 — bêta.** L'application couvre le parcours complet et
+> ses formats sont stabilisés ; l'interface peut encore bouger et plusieurs
+> sujets restent hors périmètre. Voir
+> [Ce que l'application ne fait pas](#ce-que-lapplication-ne-fait-pas), le
+> [journal des versions](CHANGELOG.md) et
+> [l'état de préparation](docs/BETA_READINESS.md).
 
 **House Technical Designer** est une application web open source de **conception et d'étude technique d'une habitation**, pensée comme un **mini-BIM résidentiel modulaire**.
 
@@ -590,8 +593,10 @@ sans casser le noyau.
 
 # État du projet
 
-**Version 0.1.0, alpha.** L'application couvre le parcours complet : dessiner,
-composer, calculer, superposer, métrer, comparer, exporter.
+**Version 0.2.0-beta.1, bêta.** L'application couvre le parcours complet :
+dessiner, composer, calculer, superposer, métrer, comparer, exporter. Ce qu'un
+fichier de projet promet d'une version à l'autre est écrit dans
+[`CHANGELOG.md`](CHANGELOG.md).
 
 ## Ce que fait l'application
 

@@ -39,6 +39,21 @@ export default defineConfig({
       },
     },
     {
+      // Firefox and WebKit run the journey that actually depends on the engine:
+      // canvas pointer geometry, IndexedDB, downloads, file input and the
+      // compression the container format is written with. The rest of the
+      // suite is the same application code on every engine, and Chromium
+      // covers it.
+      name: 'firefox',
+      testMatch: /cross-browser\.spec\.ts/,
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      testMatch: /cross-browser\.spec\.ts/,
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
       // A phone is not a narrow desktop: the tests tagged @mobile check that
       // the workspace stays reachable on one.
       name: 'mobile',

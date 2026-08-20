@@ -8,13 +8,15 @@ Statuts employés : **FAIT**, **PARTIEL** (ce qui manque est nommé),
 **BLOQUANT** (la bêta ne sort pas sans), **REQUIS** (attendu dans la bêta),
 **RECOMMANDÉ**, **REPORTÉ** (hors bêta, assumé).
 
-Un sixième audit a rouvert plusieurs portes que la passe précédente donnait pour
+Les six lots du sixième audit sont clos. Le dépôt est en `0.2.0-beta.1`, avec
+son journal des versions et son contrat de compatibilité dans `CHANGELOG.md`.
+
+Un sixième audit avait rouvert plusieurs portes que la passe précédente donnait pour
 closes : course d'écriture de la sauvegarde locale, climat absent de
 l'instantané, racine de réseau imposée à toutes les disciplines, gaine
 rectangulaire inutilisable, hypothèses silencieuses, conteneur trop permissif,
-altitude des nœuds de réseau. Les lots A, B, C, D et E les referment ; ne reste
-ouvert que le lot F, celui de la publication. Ce tableau dit où en est chaque
-porte aujourd'hui.
+altitude des nœuds de réseau. Les six lots les referment ; ce tableau dit où en
+est chaque porte aujourd'hui.
 
 ## Les portes de la bêta
 
@@ -48,22 +50,24 @@ collection qui les porte, et une collision entre deux familles est refusée.
 
 ## Attendu dans la bêta, hors portes
 
-- feuilles et export PDF, dont le moteur existe déjà dans `drawing-engine` ;
-- découpage du bundle et budget de taille en intégration continue ;
-- version applicative issue d'une seule source.
+- feuilles et export PDF, dont le moteur existe déjà dans `drawing-engine`.
 
 ## Recommandé
 
 - orchestrateur de calcul persistant et cache réutilisé entre exécutions ;
 - invalidation sélective fondée sur les `ChangeSet` des commandes ;
-- vérification d'accessibilité automatisée (axe-core) et régression visuelle ;
+- régression visuelle pixel par pixel sur les trois moteurs ;
 - benchmark d'un projet réaliste de plusieurs centaines de murs ;
 - réglages encore invisibles alors que les moteurs les lisent
   (`heatRecoveryEfficiency`, températures extérieures de repli).
 
 ## Fait depuis le sixième audit
 
-Saisie différée sur les panneaux matériaux, assemblages, niveaux et pièces ;
+Trois moteurs en intégration continue ; vérification de la page déployée ;
+version applicative issue du seul `package.json` ; migrations annoncées à
+l'ouverture ; chargement à la demande des espaces de travail et des modules de
+calcul, sous budget vérifié ; axe-core sur les onze espaces ; référence de
+dessin du plan. Saisie différée sur les panneaux matériaux, assemblages, niveaux et pièces ;
 commandes de zones et renommage de niveau depuis l'interface ; provenance d'une
 propriété de matériau saisissable, qui bascule en « saisie » quand la valeur
 d'une norme est écrasée ; `battery.offGrid` en case à cocher, l'ancien `1`
