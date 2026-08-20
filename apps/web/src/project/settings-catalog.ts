@@ -12,7 +12,7 @@ export interface ModuleSettingField {
   readonly key: string;
   readonly label: string;
   /** How the value is stored, which decides how an emptied field is written. */
-  readonly kind: 'NUMBER' | 'TEXT';
+  readonly kind: 'NUMBER' | 'TEXT' | 'BOOLEAN';
   readonly unit?: string;
   readonly hint?: string;
 }
@@ -281,10 +281,9 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
     fields: [
       {
         key: 'offGrid',
-        kind: 'NUMBER',
-        label: 'Site isolé',
-        unit: '0 ou 1',
-        hint: '1 pour un site sans raccordement au réseau.',
+        kind: 'BOOLEAN',
+        label: 'Site hors réseau',
+        hint: 'Coché, le stockage est dimensionné sans appui du réseau.',
       },
     ],
   },
@@ -404,7 +403,31 @@ export function fieldValue(
   if (value === undefined || value === null) return '';
   if (typeof value === 'number' || typeof value === 'string')
     return String(value);
+  if (typeof value === 'boolean') return value ? 'true' : 'false';
   return '';
+}
+
+/**
+ * Whether a setting stored as a flag is on.
+ *
+ * Earlier versions wrote 1 and 0, which is what a project file may still hold;
+ * both are read, and the checkbox writes a real boolean from now on.
+ */
+export function flagValue(
+  settings: Readonly<Record<string, JsonValue>>,
+  key: string,
+): boolean {
+  const value = settings[key];
+  return value === true || value === 1;
+}
+
+/** The settings with one flag set or cleared. */
+export function withFlag(
+  settings: Readonly<Record<string, JsonValue>>,
+  key: string,
+  value: boolean,
+): Readonly<Record<string, JsonValue>> {
+  return { ...settings, [key]: value };
 }
 
 /** The per-material value stored under a table key. */

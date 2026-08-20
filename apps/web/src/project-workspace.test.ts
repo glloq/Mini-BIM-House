@@ -5,6 +5,9 @@ import { loadProjectJson } from '@house-technical-designer/project-io';
 import {
   addWallToProject,
   createBlankProject,
+  DEFAULT_NEW_PROJECT,
+  newProjectIssue,
+  projectFromDraft,
   exportProjectPlan,
   planExportIssues,
   ProjectEditingSession,
@@ -168,5 +171,90 @@ describe('web project workspace', () => {
         { min: { x: 0, y: 0 }, max: { x: 1, y: 1 } },
       ),
     ).toThrow(/positives/u);
+  });
+});
+
+describe('project creation assistant', () => {
+  const NOW = '2026-08-19T00:00:00Z';
+
+  it('creates the same project as before when nothing is answered', () => {
+    const file = projectFromDraft(DEFAULT_NEW_PROJECT, NOW);
+    expect(loadProjectJson(JSON.stringify(file))).toMatchObject({
+      status: 'OK',
+    });
+    expect(file.project.building.levels).toHaveLength(1);
+    expect(file.project.building.levels[0]?.name).toBe('Rez-de-chaussée');
+    expect(file.project.materialLibrary?.materials.length).toBeGreaterThan(0);
+  });
+
+  it('stacks the levels it was asked for, basement included', () => {
+    const file = projectFromDraft(
+      {
+        ...DEFAULT_NEW_PROJECT,
+        name: 'Maison des Lilas',
+        author: 'A. Martin',
+        levelCount: 2,
+        storeyHeightMm: 2700,
+        basement: true,
+      },
+      NOW,
+    );
+    expect(
+      file.project.building.levels.map(({ id, name, elevationMm }) => ({
+        id,
+        name,
+        elevationMm,
+      })),
+    ).toEqual([
+      { id: 'basement', name: 'Sous-sol', elevationMm: -2700 },
+      { id: 'ground', name: 'Rez-de-chaussée', elevationMm: 0 },
+      { id: 'level-1', name: 'Étage 1', elevationMm: 2700 },
+    ]);
+    expect(
+      file.project.building.levels.every(
+        ({ defaultStoreyHeightMm }) => defaultStoreyHeightMm === 2700,
+      ),
+    ).toBe(true);
+    expect(file.project.metadata.name).toBe('Maison des Lilas');
+    expect(file.project.metadata.author).toBe('A. Martin');
+    expect(loadProjectJson(JSON.stringify(file))).toMatchObject({
+      status: 'OK',
+    });
+  });
+
+  it('leaves an unanswered location unknown rather than choosing one', () => {
+    const file = projectFromDraft(DEFAULT_NEW_PROJECT, NOW);
+    expect(file.project.site.location).toBeUndefined();
+    expect(file.project.site.altitudeM).toBeUndefined();
+    // Half a location is no location: nothing is written from one coordinate.
+    expect(
+      projectFromDraft({ ...DEFAULT_NEW_PROJECT, latitudeDeg: 48.85 }, NOW)
+        .project.site.location,
+    ).toBeUndefined();
+    expect(
+      projectFromDraft(
+        { ...DEFAULT_NEW_PROJECT, latitudeDeg: 48.85, longitudeDeg: 2.35 },
+        NOW,
+      ).project.site.location,
+    ).toEqual({ latitudeDeg: 48.85, longitudeDeg: 2.35 });
+  });
+
+  it('says what an answer makes impossible instead of correcting it', () => {
+    expect(newProjectIssue(DEFAULT_NEW_PROJECT)).toBeUndefined();
+    expect(newProjectIssue({ ...DEFAULT_NEW_PROJECT, name: '  ' })).toContain(
+      'nom',
+    );
+    expect(
+      newProjectIssue({ ...DEFAULT_NEW_PROJECT, levelCount: 0 }),
+    ).toContain('au moins un niveau');
+    expect(
+      newProjectIssue({ ...DEFAULT_NEW_PROJECT, levelCount: 200 }),
+    ).toContain('20 niveaux');
+    expect(
+      newProjectIssue({ ...DEFAULT_NEW_PROJECT, storeyHeightMm: 0 }),
+    ).toContain('hauteur');
+    expect(newProjectIssue({ ...DEFAULT_NEW_PROJECT, country: '' })).toContain(
+      'pays',
+    );
   });
 });

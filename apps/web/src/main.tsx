@@ -38,6 +38,7 @@ import {
 import './styles.css';
 import {
   createBlankProject,
+  projectFromDraft,
   exportProjectPlan,
   ProjectEditingSession,
   safeFileStem,
@@ -58,6 +59,7 @@ import { QuantitiesPanel } from './quantities/QuantitiesPanel.js';
 import { ScenariosPanel } from './scenarios/ScenariosPanel.js';
 import { NetworksPanel } from './networks/NetworksPanel.js';
 import { ProjectPanel } from './project/ProjectPanel.js';
+import { NewProjectWizard } from './project/NewProjectWizard.js';
 import { ChecksPanel } from './checks/ChecksPanel.js';
 import type { CheckFix } from './checks/checks-model.js';
 import { placeNodeCommand } from './networks/network-model.js';
@@ -150,21 +152,48 @@ function downloadBlob(blob: Blob, fileName: string): void {
   }, 0);
 }
 
-const WORKSPACE_TABS = [
-  { id: 'project', label: 'Projet' },
-  { id: 'plan', label: 'Plan architectural' },
-  { id: 'building', label: 'Niveaux et pièces' },
-  { id: 'materials', label: 'Matériaux' },
-  { id: 'assemblies', label: 'Assemblages' },
-  { id: 'equipment', label: 'Équipements' },
-  { id: 'networks', label: 'Réseaux' },
-  { id: 'calculations', label: 'Calculs' },
-  { id: 'quantities', label: 'Quantités' },
-  { id: 'scenarios', label: 'Scénarios' },
-  { id: 'checks', label: 'Vérifications' },
+/**
+ * The workspaces, gathered by what the user is doing rather than listed flat.
+ *
+ * Eleven entries in one column read as eleven unrelated places; grouped, they
+ * say that a project is described, then drawn, then furnished from libraries,
+ * then serviced, and only then calculated.
+ */
+const WORKSPACE_GROUPS = [
+  { label: 'Projet', tabs: [{ id: 'project', label: 'Projet' }] },
+  {
+    label: 'Conception',
+    tabs: [
+      { id: 'plan', label: 'Plan architectural' },
+      { id: 'building', label: 'Niveaux et pièces' },
+    ],
+  },
+  {
+    label: 'Bibliothèques',
+    tabs: [
+      { id: 'materials', label: 'Matériaux' },
+      { id: 'assemblies', label: 'Assemblages' },
+    ],
+  },
+  {
+    label: 'Technique',
+    tabs: [
+      { id: 'equipment', label: 'Équipements' },
+      { id: 'networks', label: 'Réseaux' },
+    ],
+  },
+  {
+    label: 'Résultats',
+    tabs: [
+      { id: 'calculations', label: 'Calculs' },
+      { id: 'quantities', label: 'Quantités' },
+      { id: 'scenarios', label: 'Scénarios' },
+      { id: 'checks', label: 'Vérifications' },
+    ],
+  },
 ] as const;
 
-type WorkspaceTab = (typeof WORKSPACE_TABS)[number]['id'];
+type WorkspaceTab = (typeof WORKSPACE_GROUPS)[number]['tabs'][number]['id'];
 
 /** Version reported in diagnostics; it matches the project file it writes. */
 const APPLICATION_VERSION = '0.1.0';
@@ -248,6 +277,9 @@ function App() {
     readonly label: string;
     readonly run: () => void;
   }>();
+
+  /** Whether the creation assistant is open, waiting for its answers. */
+  const [creating, setCreating] = useState(false);
 
   /**
    * Replaces the open project.
@@ -952,13 +984,7 @@ function App() {
           <button
             className="secondary"
             onClick={() =>
-              replaceProject('Nouveau projet', () => {
-                setClimate([]);
-                adopt(
-                  createBlankProject(new Date().toISOString()),
-                  'Nouveau projet local prêt, bibliothèque générique incluse.',
-                );
-              })
+              replaceProject('Nouveau projet', () => setCreating(true))
             }
           >
             Nouveau projet
@@ -1110,6 +1136,21 @@ function App() {
         </section>
       )}
 
+      {creating && (
+        <NewProjectWizard
+          onCancel={() => setCreating(false)}
+          onCreate={(draft) => {
+            setCreating(false);
+            setClimate([]);
+            const created = projectFromDraft(draft, new Date().toISOString());
+            adopt(
+              created,
+              `Nouveau projet « ${created.project.metadata.name} » prêt : ${created.project.building.levels.length} niveau(x), bibliothèque générique incluse.`,
+            );
+          }}
+        />
+      )}
+
       {recovery !== undefined && (
         <section className="panel recovery-prompt" role="alertdialog">
           <p>
@@ -1162,19 +1203,29 @@ function App() {
         >
           <p className="panel-label">Modèle</p>
           <nav aria-label="Sections du projet" className="workspace-tabs">
-            {WORKSPACE_TABS.map((entry) => (
-              <button
-                key={entry.id}
-                type="button"
-                className={entry.id === tab ? 'active' : undefined}
-                aria-current={entry.id === tab ? 'page' : undefined}
-                onClick={() => {
-                  setTab(entry.id);
-                  setMenuOpen(false);
-                }}
+            {WORKSPACE_GROUPS.map((group) => (
+              <div
+                key={group.label}
+                className="workspace-group"
+                role="group"
+                aria-label={group.label}
               >
-                {entry.label}
-              </button>
+                <p className="workspace-group-label">{group.label}</p>
+                {group.tabs.map((entry) => (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    className={entry.id === tab ? 'active' : undefined}
+                    aria-current={entry.id === tab ? 'page' : undefined}
+                    onClick={() => {
+                      setTab(entry.id);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    {entry.label}
+                  </button>
+                ))}
+              </div>
             ))}
           </nav>
           <label className="level-selector">

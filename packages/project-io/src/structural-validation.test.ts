@@ -145,7 +145,16 @@ describe('structural validation of a project file', () => {
       { ...level, walls: [wall('wall', 'ground'), wall('wall', 'ground')] },
     ]);
     expect(issues(twice)).toContain(
-      '/project/walls declares wall wall more than once',
+      '/project/walls declares the identifier wall more than once',
+    );
+  });
+
+  it('refuses one identifier used by two different objects', () => {
+    // Selection, dimensions and scenario paths all address an object by its
+    // identifier alone, so a collision would make a click ambiguous.
+    const collision = file([{ ...level, walls: [wall('ground', 'ground')] }]);
+    expect(issues(collision)).toContain(
+      '/project uses the identifier ground for more than one object',
     );
   });
 
@@ -197,5 +206,143 @@ describe('structural validation of a project file', () => {
     expect(issues(dangling)).toEqual([
       '/project/systems/0/nodes/0/equipmentId references unknown equipment boiler-1',
     ]);
+  });
+});
+
+describe('references the rest of the project relies on', () => {
+  const dimension = (wallId: string) => ({
+    id: 'cote',
+    kind: 'DIMENSION',
+    type: 'ALIGNED',
+    first: { kind: 'WALL_ENDPOINT', wallId, endpoint: 'START' },
+    second: { kind: 'WALL_ENDPOINT', wallId, endpoint: 'END' },
+    offsetMm: 500,
+  });
+
+  it('refuses a dimension measuring a wall that does not exist', () => {
+    const dangling = file([
+      {
+        ...level,
+        walls: [wall('wall-ground', 'ground')],
+        annotations: [dimension('wall-gone')],
+      },
+    ]);
+    expect(issues(dangling)).toContain(
+      '/project/building/levels/0/annotations/0/first/wallId references unknown wall wall-gone',
+    );
+  });
+
+  it('refuses a dimension measuring a wall of another level', () => {
+    const crossLevel = file([
+      { ...level, walls: [wall('wall-ground', 'ground')] },
+      {
+        ...level,
+        id: 'first',
+        name: 'First',
+        elevationMm: 2500,
+        annotations: [dimension('wall-ground')],
+      },
+    ]);
+    expect(
+      issues(crossLevel).some((entry) => entry.includes('of another level')),
+    ).toBe(true);
+  });
+
+  it('refuses a zone naming a room the project does not hold', () => {
+    const zoned = {
+      ...file([level]),
+      project: {
+        ...file([level]).project,
+        building: {
+          ...file([level]).project.building,
+          zones: [
+            {
+              id: 'zone-thermique',
+              type: 'THERMAL',
+              name: 'Volume chauffé',
+              spaceIds: ['space-gone'],
+              properties: {},
+            },
+          ],
+        },
+      },
+    };
+    expect(issues(zoned)).toContain(
+      '/project/building/zones/0/spaceIds/0 references unknown space space-gone',
+    );
+  });
+
+  it('refuses a network node fixed to an object that does not exist', () => {
+    const dangling = file([level], {
+      systems: [
+        {
+          id: 'water',
+          discipline: 'WATER',
+          systemType: 'POTABLE_COLD',
+          nodes: [
+            {
+              id: 'water:source',
+              kind: 'SOURCE',
+              position: { x: 0, y: 0, z: 0 },
+              hostObjectId: 'wall-gone',
+            },
+          ],
+          ports: [],
+          edges: [],
+        },
+      ],
+    });
+    expect(issues(dangling)).toContain(
+      '/project/systems/0/nodes/0/hostObjectId references unknown object wall-gone',
+    );
+  });
+
+  it('refuses a network node placed on a level that does not exist', () => {
+    const dangling = file([level], {
+      systems: [
+        {
+          id: 'water',
+          discipline: 'WATER',
+          systemType: 'POTABLE_COLD',
+          nodes: [
+            {
+              id: 'water:source',
+              kind: 'SOURCE',
+              position: { x: 0, y: 0, z: 0 },
+              levelId: 'attic',
+            },
+          ],
+          ports: [],
+          edges: [],
+        },
+      ],
+    });
+    expect(issues(dangling)).toContain(
+      '/project/systems/0/nodes/0/levelId references unknown level attic',
+    );
+  });
+
+  it('accepts a node fixed to a wall that is there', () => {
+    const fine = file([{ ...level, walls: [wall('wall-ground', 'ground')] }], {
+      systems: [
+        {
+          id: 'water',
+          discipline: 'WATER',
+          systemType: 'POTABLE_COLD',
+          nodes: [
+            {
+              id: 'water:source',
+              kind: 'SOURCE',
+              position: { x: 0, y: 0, z: 0 },
+              hostObjectId: 'wall-ground',
+              levelId: 'ground',
+            },
+          ],
+          ports: [],
+          edges: [],
+        },
+      ],
+    });
+    expect(issues(fine)).toEqual([]);
   });
 });

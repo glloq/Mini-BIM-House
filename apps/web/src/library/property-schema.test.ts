@@ -11,6 +11,9 @@ import {
 import {
   describeProperties,
   describeProperty,
+  invariantIssues,
+  propertyIssue,
+  rangeIssue,
   withProperty,
 } from './property-schema.js';
 
@@ -42,6 +45,59 @@ describe('equipment property editing', () => {
     expect(groups[0]?.group).toBe('Autres');
     expect(groups[0]?.entries[0]?.descriptor.label).toBe('soundPowerDbA');
     expect(groups[0]?.entries[0]?.descriptor.kind).toBe('NUMBER');
+  });
+});
+
+describe('equipment property bounds and invariants', () => {
+  const EFFICIENCY = describeProperty('chargeEfficiency', 0);
+
+  it('refuses a rate of return above one and a negative power', () => {
+    expect(rangeIssue(EFFICIENCY, 1.2)).toContain('entre 0 et 1');
+    expect(rangeIssue(POWER, -10)).toContain('inférieure à 0');
+    expect(rangeIssue(EFFICIENCY, 0.94)).toBeUndefined();
+  });
+
+  it('leaves a property the catalogue does not bound alone', () => {
+    expect(
+      rangeIssue(describeProperty('soundPowerDbA', 0), -3),
+    ).toBeUndefined();
+  });
+
+  it('refuses a state of charge ordering that cannot hold', () => {
+    expect(invariantIssues({ minimumSoc: 0.2, maximumSoc: 0.9 })).toEqual([]);
+    expect(invariantIssues({ minimumSoc: 0.95, maximumSoc: 0.9 })).toEqual([
+      'L’état de charge minimal doit rester inférieur au maximal.',
+    ]);
+    expect(
+      invariantIssues({ minimumSoc: 0.2, maximumSoc: 0.9, initialSoc: 0.95 }),
+    ).toEqual(['L’état de charge initial dépasse le maximum déclaré.']);
+  });
+
+  it('says nothing about a value that is not declared', () => {
+    expect(invariantIssues({ maximumSoc: 0.9 })).toEqual([]);
+    expect(invariantIssues({ initialVolumeL: 400 })).toEqual([]);
+  });
+
+  it('reports the volume of a tank filled past its own capacity', () => {
+    expect(
+      invariantIssues({ nominalVolumeL: 300, initialVolumeL: 400 }),
+    ).toEqual(['Le volume initial dépasse le volume nominal de la cuve.']);
+  });
+
+  it('blames the edit only for the rule that edit breaks', () => {
+    const broken = { minimumSoc: 0.95, maximumSoc: 0.9 };
+    const descriptor = describeProperty('initialVolumeL', 0);
+    // The state of charge was already impossible; adding a volume does not
+    // become the reason it is.
+    expect(
+      propertyIssue(broken, descriptor, { ...broken, initialVolumeL: 400 }),
+    ).toBeUndefined();
+    expect(
+      propertyIssue({ nominalVolumeL: 300 }, descriptor, {
+        nominalVolumeL: 300,
+        initialVolumeL: 400,
+      }),
+    ).toContain('volume nominal');
   });
 });
 

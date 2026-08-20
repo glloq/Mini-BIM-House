@@ -13,7 +13,12 @@ import {
 } from '@house-technical-designer/editor-core';
 import { projectEquipmentFromCatalog } from './library-model.js';
 import { DraftField } from '../DraftField.js';
-import { describeProperties, withProperty } from './property-schema.js';
+import {
+  describeProperties,
+  invariantIssues,
+  propertyIssue,
+  withProperty,
+} from './property-schema.js';
 
 const CATEGORY_LABELS: Readonly<Record<string, string>> = {
   HEAT_PUMP: 'Pompe à chaleur',
@@ -214,6 +219,9 @@ export function EquipmentPanel({
                       {...(descriptor.min === undefined
                         ? {}
                         : { min: descriptor.min })}
+                      {...(descriptor.max === undefined
+                        ? {}
+                        : { max: descriptor.max })}
                       onCommit={(raw) => {
                         const properties = withProperty(
                           selected.properties,
@@ -226,6 +234,15 @@ export function EquipmentPanel({
                           );
                           return;
                         }
+                        const issue = propertyIssue(
+                          selected.properties,
+                          descriptor,
+                          properties,
+                        );
+                        if (issue !== undefined) {
+                          onMessage(issue);
+                          return;
+                        }
                         onCommand(
                           new UpdateEquipmentCommand({
                             ...selected,
@@ -236,6 +253,11 @@ export function EquipmentPanel({
                     />
                   ))}
                 </section>
+              ))}
+              {invariantIssues(selected.properties).map((issue) => (
+                <p className="notice warning" key={issue}>
+                  {issue}
+                </p>
               ))}
               <p className="notice">
                 Un champ vidé retire la propriété : le calcul signale alors une

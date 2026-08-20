@@ -87,6 +87,22 @@ export type ZoneType =
   | 'SECURITY'
   | 'CUSTOM';
 
+export const ZONE_TYPES = [
+  'THERMAL',
+  'VENTILATION',
+  'ELECTRICAL',
+  'ACOUSTIC',
+  'LIGHTING',
+  'FIRE',
+  'WATER',
+  'SECURITY',
+  'CUSTOM',
+] as const satisfies readonly ZoneType[];
+
+export function isZoneType(value: string): value is ZoneType {
+  return (ZONE_TYPES as readonly string[]).includes(value);
+}
+
 export interface Zone extends BaseEntity {
   readonly type: ZoneType;
   readonly name: string;

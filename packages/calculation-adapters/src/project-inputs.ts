@@ -1258,7 +1258,11 @@ function batteryInput(context: ProjectCalculationContext): CalculationJson {
   const maxDischargePowerKW = read('maxDischargePowerKW');
   const chargeEfficiency = read('chargeEfficiency');
   const dischargeEfficiency = read('dischargeEfficiency');
-  const offGrid = settings.optionalNumber('battery', 'offGrid') === 1;
+  // Written as a boolean since the setting became a checkbox; a project file
+  // from before that still holds 1 or 0, and both mean the same thing.
+  const offGrid =
+    settings.optionalBoolean('battery', 'offGrid') ??
+    settings.optionalNumber('battery', 'offGrid') === 1;
   const dispatchClimate = context.subDailyClimate;
   const hours = periodHours(dispatchClimate);
   if (hours === undefined)

@@ -598,10 +598,87 @@ lire les octets, et le lecteur refuse les méthodes de compression autres que
 
 ### Ce que ce lot n'a pas traité
 
-- références de zones, d'annotations et d'objets hôtes, unicité des
-  identifiants (lot D) ;
-- `DraftField` partout, zones, renommage de niveau, provenance (lot E) ;
 - Firefox, WebKit, Pages, migrations et version unique (lot F).
+
+## Intégrité du projet — lot D du sixième audit
+
+| Point                     | Constat                                                              | État    |
+| ------------------------- | -------------------------------------------------------------------- | ------- |
+| `spaceIds` des zones      | une zone pouvait grouper une pièce que le projet ne contenait plus   | corrigé |
+| `wallId` des cotes        | une cote pouvait mesurer un mur absent, ou d'un autre niveau         | corrigé |
+| `hostObjectId` des nœuds  | un nœud pouvait être fixé à un objet inexistant                      | corrigé |
+| `levelId` des nœuds       | l'altitude d'un nœud pouvait renvoyer à un niveau supprimé           | corrigé |
+| Identifiants dupliqués    | seules quelques familles étaient vérifiées, et jamais entre familles | corrigé |
+| Unicité : quelle portée ? | le contrat n'était écrit nulle part                                  | tranché |
+
+**Une référence qui ne mène à rien est refusée à l'import.** Seize familles
+d'objets sont recensées à la lecture d'un fichier ; chaque référence est
+confrontée à ce recensement. Une zone qui nomme une pièce disparue la protège
+d'une suppression qu'elle ne pourra jamais lever ; une cote dont le mur a été
+effacé affiche une longueur que le modèle ne sait plus justifier ; un nœud fixé
+à rien reste sur place quand l'objet qui le portait bouge. Chacun de ces cas
+nomme désormais le chemin exact dans le fichier.
+
+**L'unicité est celle du projet entier, et c'est écrit.** La question était
+ouverte : un identifiant unique par collection, ou unique partout ? La sélection
+sur le plan, les superpositions, les cotes et les chemins de scénario désignent
+un objet par son seul identifiant — deux objets qui le partagent rendent un clic
+ambigu et un scénario applicable à l'un comme à l'autre. Le contrat retenu est
+donc l'unicité dans tout le projet ; il figure dans `02_DOMAIN_MODEL.md` avec la
+liste des familles concernées, et l'import refuse une collision, y compris entre
+deux familles différentes.
+
+## Ergonomie de la bêta — lot E du sixième audit
+
+| Point                          | Constat                                                              | État    |
+| ------------------------------ | -------------------------------------------------------------------- | ------- |
+| Saisie caractère par caractère | matériaux, assemblages, niveaux et pièces validaient à chaque touche | corrigé |
+| Renommage de niveau            | impossible depuis l'interface                                        | corrigé |
+| Zones                          | le modèle les portait, rien ne permettait d'en créer                 | corrigé |
+| Provenance d'une propriété     | affichée, jamais saisissable                                         | corrigé |
+| `battery.offGrid`              | saisi comme « 0 ou 1 »                                               | corrigé |
+| Bornes hautes des équipements  | un rendement de 1,4 était accepté                                    | corrigé |
+| Navigation                     | onze espaces de travail en liste plate                               | corrigé |
+| Création d'un projet           | apparaissait sans nom, sans lieu et avec un seul niveau              | corrigé |
+
+**Une frappe n'est pas une décision.** `DraftField` couvre maintenant les
+panneaux matériaux, assemblages, niveaux et pièces : la commande part au blur ou
+sur Entrée, Échap remet ce que le modèle porte. L'historique d'annulation cesse
+de se remplir de lettres et les calculs de s'invalider à chaque caractère.
+
+**Les zones se créent, se nomment, se peuplent et se suppriment.** Une zone
+groupe des pièces pour un domaine — thermique, ventilation, acoustique — et le
+panneau « Niveaux et pièces » la traite comme un objet du projet : commandes
+inversibles, appartenance par case à cocher, refus d'un type inconnu.
+
+**Une valeur dit d'où elle vient.** Chaque propriété de matériau porte sa
+provenance et sa référence, saisissables. Écraser un nombre tiré d'une norme
+bascule la provenance en « saisie » plutôt que de laisser la référence décrire
+une valeur qui n'est plus là ; une propriété effacée emporte sa provenance ; un
+matériau qui n'en déclarait aucune n'en reçoit pas d'office.
+
+**Ce qui est physiquement impossible est refusé, avec la borne dite.** Les
+rendements et les états de charge sont bornés à 1, et quatre invariants croisés
+sont vérifiés — état de charge minimal sous le maximal, état initial dans ces
+bornes, volume initial sous le volume nominal, pertes à l'arrêt sous la
+puissance nominale. Une règle ne parle que si les deux valeurs qu'elle compare
+sont présentes : une donnée inconnue reste inconnue, elle ne devient pas une
+violation. Une saisie n'est tenue pour responsable que de la règle qu'elle
+casse, jamais d'une incohérence qui existait déjà.
+
+**Un projet commence par ce qu'on ne peut pas deviner.** L'assistant demande le
+nom, l'auteur, le pays, le nombre de niveaux hors sol, la hauteur d'étage, le
+sous-sol, l'orientation du nord et, s'ils sont connus, la latitude, la longitude
+et l'altitude. Ce qui est laissé vide reste vide : une latitude sans longitude
+ne situe rien et n'est pas écrite, et les modules qui ont besoin d'un lieu le
+signaleront plutôt que d'en supposer un. Les onze espaces de travail sont
+regroupés en cinq familles — projet, conception, bibliothèques, technique,
+résultats — pour dire dans quel ordre un projet se décrit.
+
+### Ce que ces lots n'ont pas traité
+
+- Firefox, WebKit, Pages, migrations, version unique, axe-core, régression
+  visuelle et budget de bundle (lot F).
 
 ## Publication
 
@@ -643,7 +720,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 749 tests sur 111 fichiers
-- tests navigateur : 45 tests Playwright, dont trois sur un écran de téléphone
+- tests unitaires et d'intégration : 778 tests sur 113 fichiers
+- tests navigateur : 46 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

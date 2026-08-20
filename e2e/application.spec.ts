@@ -694,7 +694,38 @@ test('asks before replacing a project that has unexported changes', async ({
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Continuer sans exporter' })
     .click();
+  await page.getByRole('button', { name: 'Créer le projet' }).click();
   await expect(page.getByRole('status')).toContainText('Nouveau projet');
+});
+
+test('the assistant asks what a new project cannot be guessed', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Nouveau projet' }).click();
+  const wizard = page.getByRole('dialog', { name: 'Nouveau projet' });
+  await wizard.getByLabel('Nom du projet').fill('Maison des Lilas');
+  await wizard.getByLabel('Niveaux hors sol').fill('2');
+  await wizard.getByLabel('Hauteur d’étage').fill('2700');
+  await wizard.getByLabel('Sous-sol').check();
+  await wizard.getByLabel('Latitude').fill('48.85');
+  await wizard.getByLabel('Longitude').fill('2.35');
+  await page.getByRole('button', { name: 'Créer le projet' }).click();
+
+  await expect(page.getByRole('status')).toContainText('3 niveau(x)');
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await expect(page.getByLabel('Nom du projet')).toHaveValue(
+    'Maison des Lilas',
+  );
+  await expect(page.getByLabel('Latitude')).toHaveValue('48.85');
+  // The building was stacked as it was described, basement included.
+  await expect(page.locator('.level-selector select option')).toHaveText([
+    'Sous-sol',
+    'Rez-de-chaussée',
+    'Étage 1',
+  ]);
+  expect(errors).toEqual([]);
 });
 
 test('edits the selected wall from the inspector', async ({ page }) => {

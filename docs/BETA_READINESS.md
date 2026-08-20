@@ -12,9 +12,9 @@ Un sixième audit a rouvert plusieurs portes que la passe précédente donnait p
 closes : course d'écriture de la sauvegarde locale, climat absent de
 l'instantané, racine de réseau imposée à toutes les disciplines, gaine
 rectangulaire inutilisable, hypothèses silencieuses, conteneur trop permissif,
-altitude des nœuds de réseau. Les lots A, B et C les referment ; ce tableau dit
-où en est chacune aujourd'hui, et ce qu'il reste dans celles qui ne sont pas
-entièrement closes.
+altitude des nœuds de réseau. Les lots A, B, C, D et E les referment ; ne reste
+ouvert que le lot F, celui de la publication. Ce tableau dit où en est chaque
+porte aujourd'hui.
 
 ## Les portes de la bêta
 
@@ -39,20 +39,15 @@ entièrement closes.
 | BETA-17 | GitHub Pages réellement accessible et vérifié après déploiement     | REQUIS  |
 | BETA-18 | migrations et versions figées pour les premiers utilisateurs        | REQUIS  |
 
-**BETA-05** : les appartenances de niveau, les références d'assemblage, de
-matériau, de pièce, d'équipement et de port sont vérifiées, ainsi que les
-identifiants dupliqués des familles principales. Restent à couvrir les
-`spaceIds` des zones, le `wallId` des cotes, le `hostObjectId` des nœuds de
-réseau, et une décision explicite sur l'unicité des identifiants — par
-collection ou dans tout le projet.
+**BETA-05** : seize familles d'objets sont recensées à l'import et toutes les
+références y sont confrontées — appartenance de niveau, assemblage, matériau,
+pièce, équipement, port, `spaceIds` des zones, `wallId` des cotes,
+`hostObjectId` et `levelId` des nœuds de réseau. L'unicité des identifiants est
+tranchée et écrite : elle vaut pour tout le projet, pas seulement pour la
+collection qui les porte, et une collision entre deux familles est refusée.
 
 ## Attendu dans la bêta, hors portes
 
-- champ de saisie différée généralisé aux panneaux matériaux, assemblages,
-  niveaux et pièces ;
-- commandes de zones, renommage de niveau depuis l'interface ;
-- saisie de la provenance d'une propriété de matériau ;
-- navigation regroupée et assistant de création de projet ;
 - feuilles et export PDF, dont le moteur existe déjà dans `drawing-engine` ;
 - découpage du bundle et budget de taille en intégration continue ;
 - version applicative issue d'une seule source.
@@ -64,9 +59,16 @@ collection ou dans tout le projet.
 - vérification d'accessibilité automatisée (axe-core) et régression visuelle ;
 - benchmark d'un projet réaliste de plusieurs centaines de murs ;
 - réglages encore invisibles alors que les moteurs les lisent
-  (`heatRecoveryEfficiency`, températures extérieures de repli) ;
-- `battery.offGrid` saisi comme une case à cocher ;
-- bornes hautes et invariants croisés des propriétés d'équipement.
+  (`heatRecoveryEfficiency`, températures extérieures de repli).
+
+## Fait depuis le sixième audit
+
+Saisie différée sur les panneaux matériaux, assemblages, niveaux et pièces ;
+commandes de zones et renommage de niveau depuis l'interface ; provenance d'une
+propriété de matériau saisissable, qui bascule en « saisie » quand la valeur
+d'une norme est écrasée ; `battery.offGrid` en case à cocher, l'ancien `1`
+restant lu ; bornes hautes et invariants croisés des propriétés d'équipement ;
+navigation regroupée en cinq familles ; assistant de création de projet.
 
 ## Reporté, assumé hors bêta
 

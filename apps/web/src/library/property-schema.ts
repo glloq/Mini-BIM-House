@@ -16,6 +16,8 @@ export interface PropertyDescriptor {
   readonly unit?: string;
   readonly group: string;
   readonly min?: number;
+  /** Upper bound, when the quantity has one physically. */
+  readonly max?: number;
   readonly hint?: string;
 }
 
@@ -106,6 +108,7 @@ const DESCRIPTORS: readonly PropertyDescriptor[] = [
     unit: '0 à 1',
     group: 'Stockage',
     min: 0,
+    max: 1,
   },
   {
     key: 'dischargeEfficiency',
@@ -114,6 +117,7 @@ const DESCRIPTORS: readonly PropertyDescriptor[] = [
     unit: '0 à 1',
     group: 'Stockage',
     min: 0,
+    max: 1,
   },
   {
     key: 'minimumSoc',
@@ -122,6 +126,7 @@ const DESCRIPTORS: readonly PropertyDescriptor[] = [
     unit: '0 à 1',
     group: 'Stockage',
     min: 0,
+    max: 1,
   },
   {
     key: 'maximumSoc',
@@ -130,6 +135,7 @@ const DESCRIPTORS: readonly PropertyDescriptor[] = [
     unit: '0 à 1',
     group: 'Stockage',
     min: 0,
+    max: 1,
   },
   {
     key: 'initialSoc',
@@ -138,6 +144,7 @@ const DESCRIPTORS: readonly PropertyDescriptor[] = [
     unit: '0 à 1',
     group: 'Stockage',
     min: 0,
+    max: 1,
   },
   {
     key: 'tankVolumeL',
@@ -265,6 +272,121 @@ export function describeProperties(
     groups.set(descriptor.group, entries);
   }
   return [...groups.entries()].map(([group, entries]) => ({ group, entries }));
+}
+
+/**
+ * Whether a value falls outside what the quantity can physically be.
+ *
+ * A rate of return greater than one and a negative power are not opinions: they
+ * are impossible, and storing them would make a calculation produce a number
+ * that looks like a result. The message says the bound rather than only that
+ * the value is refused.
+ */
+export function rangeIssue(
+  descriptor: PropertyDescriptor,
+  value: JsonValue,
+): string | undefined {
+  if (typeof value !== 'number') return undefined;
+  const { min, max } = descriptor;
+  if (min !== undefined && max !== undefined && (value < min || value > max))
+    return `${descriptor.label} : la valeur doit être comprise entre ${min} et ${max}.`;
+  if (min !== undefined && value < min)
+    return `${descriptor.label} : la valeur ne peut pas être inférieure à ${min}.`;
+  if (max !== undefined && value > max)
+    return `${descriptor.label} : la valeur ne peut pas dépasser ${max}.`;
+  return undefined;
+}
+
+interface PropertyInvariant {
+  readonly check: (
+    read: (key: string) => number | undefined,
+  ) => string | undefined;
+}
+
+/**
+ * The rules that tie several properties of one equipment together.
+ *
+ * Each property can be within its own bounds while the set is impossible — a
+ * minimum state of charge above the maximum, a tank filled past its own volume.
+ * A rule only speaks when both of the values it compares are present: an
+ * unknown value stays unknown, it does not become a violation.
+ */
+const PROPERTY_INVARIANTS: readonly PropertyInvariant[] = [
+  {
+    check: (read) => {
+      const low = read('minimumSoc');
+      const high = read('maximumSoc');
+      return low === undefined || high === undefined || low < high
+        ? undefined
+        : 'L’état de charge minimal doit rester inférieur au maximal.';
+    },
+  },
+  {
+    check: (read) => {
+      const initial = read('initialSoc');
+      if (initial === undefined) return undefined;
+      const low = read('minimumSoc');
+      const high = read('maximumSoc');
+      if (low !== undefined && initial < low)
+        return 'L’état de charge initial est sous le minimum déclaré.';
+      if (high !== undefined && initial > high)
+        return 'L’état de charge initial dépasse le maximum déclaré.';
+      return undefined;
+    },
+  },
+  {
+    check: (read) => {
+      const initial = read('initialVolumeL');
+      const nominal = read('nominalVolumeL');
+      return initial === undefined ||
+        nominal === undefined ||
+        initial <= nominal
+        ? undefined
+        : 'Le volume initial dépasse le volume nominal de la cuve.';
+    },
+  },
+  {
+    check: (read) => {
+      const loss = read('standbyLossW');
+      const nominal = read('nominalPowerW');
+      return loss === undefined || nominal === undefined || loss <= nominal
+        ? undefined
+        : 'Les pertes à l’arrêt dépassent la puissance nominale.';
+    },
+  },
+];
+
+/** The invariants a property record breaks, in the order they are declared. */
+export function invariantIssues(
+  properties: Readonly<Record<string, JsonValue>>,
+): readonly string[] {
+  const read = (key: string): number | undefined => {
+    const value = properties[key];
+    return typeof value === 'number' ? value : undefined;
+  };
+  return PROPERTY_INVARIANTS.map((invariant) => invariant.check(read)).filter(
+    (message): message is string => message !== undefined,
+  );
+}
+
+/**
+ * Why a committed value cannot be stored, if it cannot.
+ *
+ * Bounds are checked first, then the invariants the new value takes part in:
+ * a rule about two other properties that was already broken is not reported
+ * here, since this edit is not what broke it.
+ */
+export function propertyIssue(
+  properties: Readonly<Record<string, JsonValue>>,
+  descriptor: PropertyDescriptor,
+  next: Readonly<Record<string, JsonValue>>,
+): string | undefined {
+  const value = next[descriptor.key];
+  if (value === undefined) return undefined;
+  const range = rangeIssue(descriptor, value);
+  if (range !== undefined) return range;
+  const before = new Set(invariantIssues(properties));
+  return invariantIssues(next).find((message) => !before.has(message));
 }
 
 /**

@@ -25,6 +25,7 @@ import {
   nextLibraryId,
   type AssemblyView,
 } from './library-model.js';
+import { DraftField } from '../DraftField.js';
 
 const CATEGORIES: readonly AssemblyCategory[] = [
   'WALL',
@@ -286,20 +287,19 @@ function AssemblyDetail({
   return (
     <article className="library-detail">
       <header>
-        <label className="detail-name">
-          Nom
-          <input
+        <div className="detail-name">
+          <DraftField
+            id={`assembly-${assembly.id}-name`}
+            label="Nom"
+            kind="TEXT"
             value={assembly.name}
-            onChange={(event) =>
-              onCommand(
-                new UpdateAssemblyCommand({
-                  ...assembly,
-                  name: event.target.value,
-                }),
-              )
+            onCommit={(name) =>
+              name.trim() === ''
+                ? undefined
+                : onCommand(new UpdateAssemblyCommand({ ...assembly, name }))
             }
           />
-        </label>
+        </div>
         <div className="actions">
           <button type="button" className="secondary" onClick={onDuplicate}>
             Dupliquer
@@ -411,21 +411,24 @@ function AssemblyDetail({
                 </select>
               </td>
               <td>
-                <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  aria-label={`Épaisseur de la couche ${index + 1} en millimètres`}
+                <DraftField
+                  id={`assembly-${assembly.id}-layer-${layer.layer.id}`}
+                  label={`Épaisseur de la couche ${index + 1}`}
+                  unit="mm"
+                  kind="NUMBER"
+                  min={1}
                   value={layer.thicknessMm}
-                  onChange={(event) =>
+                  onCommit={(raw) => {
+                    const thicknessMm = Number(raw.replace(',', '.'));
+                    if (!Number.isFinite(thicknessMm)) return;
                     onCommand(
                       setAssemblyLayerThicknessCommand(
                         assembly.id,
                         layer.layer.id,
-                        event.target.valueAsNumber,
+                        thicknessMm,
                       ),
-                    )
-                  }
+                    );
+                  }}
                 />
               </td>
               <td>

@@ -297,6 +297,19 @@ export class ProjectCalculationSettings {
     return value;
   }
 
+  /** A setting stored as a flag, when the project declares one. */
+  optionalBoolean(moduleId: string, key: string): boolean | undefined {
+    const value = this.#raw(moduleId, key);
+    if (typeof value !== 'boolean') return undefined;
+    this.#record(
+      moduleId,
+      key,
+      'MODULE_SETTINGS',
+      this.#settings[moduleId]?.methodId ?? moduleId,
+    );
+    return value;
+  }
+
   optionalString(moduleId: string, key: string): string | undefined {
     const value = this.#raw(moduleId, key);
     if (typeof value !== 'string' || value === '') return undefined;

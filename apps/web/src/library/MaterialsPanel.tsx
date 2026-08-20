@@ -3,6 +3,7 @@ import type { Project } from '@house-technical-designer/core-domain';
 import type {
   Material,
   MaterialKind,
+  MaterialSourceType,
 } from '@house-technical-designer/materials';
 import {
   createCustomMaterialFromDraft,
@@ -18,11 +19,15 @@ import {
 } from '@house-technical-designer/editor-core';
 import {
   MATERIAL_PROPERTY_FIELDS,
+  MATERIAL_SOURCE_TYPES,
   duplicateMaterialDraft,
   materialCategories,
   materialRows,
   nextLibraryId,
+  withEditedProperty,
+  withPropertySource,
 } from './library-model.js';
+import { DraftField } from '../DraftField.js';
 
 const KINDS: readonly MaterialKind[] = ['GENERIC', 'PRODUCT', 'CUSTOM'];
 
@@ -259,6 +264,11 @@ function MaterialDetail({
   const sourceByProperty = new Map(
     (material.sources ?? []).map((source) => [source.property, source]),
   );
+  const unsourced = MATERIAL_PROPERTY_FIELDS.filter(
+    (field) =>
+      typeof material.properties[field.key] === 'number' &&
+      !sourceByProperty.has(field.key),
+  );
 
   function update(next: Material): void {
     onCommand(new UpdateMaterialCommand(next));
@@ -271,15 +281,17 @@ function MaterialDetail({
   return (
     <article className="library-detail">
       <header>
-        <label className="detail-name">
-          Nom
-          <input
+        <div className="detail-name">
+          <DraftField
+            id={`material-${material.id}-name`}
+            label="Nom"
+            kind="TEXT"
             value={material.name}
-            onChange={(event) =>
-              update({ ...material, name: event.target.value })
+            onCommit={(name) =>
+              name.trim() === '' ? undefined : update({ ...material, name })
             }
           />
-        </label>
+        </div>
         <div className="actions">
           <button type="button" className="secondary" onClick={onDuplicate}>
             Dupliquer
@@ -301,25 +313,21 @@ function MaterialDetail({
       </header>
 
       <div className="detail-grid">
-        <label>
-          Catégorie
-          <input
-            value={material.category ?? ''}
-            onChange={(event) =>
-              update({ ...material, category: event.target.value })
-            }
-          />
-        </label>
-        <label>
-          Fabricant
-          <input
-            value={material.manufacturer ?? ''}
-            placeholder="Aucun (donnée générique)"
-            onChange={(event) =>
-              update({ ...material, manufacturer: event.target.value })
-            }
-          />
-        </label>
+        <DraftField
+          id={`material-${material.id}-category`}
+          label="Catégorie"
+          kind="TEXT"
+          value={material.category ?? ''}
+          onCommit={(category) => update({ ...material, category })}
+        />
+        <DraftField
+          id={`material-${material.id}-manufacturer`}
+          label="Fabricant"
+          kind="TEXT"
+          value={material.manufacturer ?? ''}
+          placeholder="Aucun (donnée générique)"
+          onCommit={(manufacturer) => update({ ...material, manufacturer })}
+        />
       </div>
 
       {usedBy.length > 0 && (
@@ -339,33 +347,88 @@ function MaterialDetail({
             const value = material.properties[field.key];
             const source = sourceByProperty.get(field.key);
             return (
-              <label key={field.key} className="property-row">
-                <span>
-                  {field.label} <em>{field.unit}</em>
-                </span>
-                <input
-                  type="number"
-                  step="any"
-                  value={typeof value === 'number' ? value : ''}
+              <div key={field.key} className="property-row">
+                <DraftField
+                  id={`material-${material.id}-${field.key}`}
+                  label={field.label}
+                  unit={field.unit}
+                  kind="NUMBER"
+                  value={typeof value === 'number' ? value : undefined}
                   placeholder="inconnu"
-                  onChange={(event) => {
-                    const raw = event.target.value;
-                    const properties = { ...material.properties };
-                    if (raw === '') delete properties[field.key];
-                    else properties[field.key] = Number(raw);
-                    update({ ...material, properties });
+                  onCommit={(raw) => {
+                    // An emptied field takes the property away; the modules
+                    // then report it missing instead of reading a zero.
+                    if (raw.trim() === '') {
+                      update(
+                        withEditedProperty(material, field.key, undefined),
+                      );
+                      return;
+                    }
+                    const parsed = Number(raw.replace(',', '.'));
+                    if (!Number.isFinite(parsed)) return;
+                    update(withEditedProperty(material, field.key, parsed));
                   }}
                 />
-                <small className="provenance">
-                  {source === undefined
-                    ? 'Sans provenance déclarée'
-                    : `${source.sourceType} — ${source.reference ?? 'sans référence'}`}
-                </small>
-              </label>
+                <div className="provenance">
+                  <label
+                    className="field"
+                    htmlFor={`material-${material.id}-${field.key}-source`}
+                  >
+                    <span>Provenance</span>
+                    <select
+                      id={`material-${material.id}-${field.key}-source`}
+                      value={source?.sourceType ?? ''}
+                      onChange={(event) =>
+                        update(
+                          withPropertySource(material, field.key, {
+                            sourceType: event.target.value as
+                              MaterialSourceType | '',
+                          }),
+                        )
+                      }
+                    >
+                      <option value="">Non déclarée</option>
+                      {MATERIAL_SOURCE_TYPES.map((entry) => (
+                        <option key={entry.value} value={entry.value}>
+                          {entry.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {source !== undefined && (
+                    <DraftField
+                      id={`material-${material.id}-${field.key}-reference`}
+                      label="Référence"
+                      kind="TEXT"
+                      value={source.reference ?? ''}
+                      placeholder={
+                        MATERIAL_SOURCE_TYPES.find(
+                          (entry) => entry.value === source.sourceType,
+                        )?.hint ?? 'Où cette valeur a été prise'
+                      }
+                      onCommit={(reference) =>
+                        update(
+                          withPropertySource(material, field.key, {
+                            reference,
+                          }),
+                        )
+                      }
+                    />
+                  )}
+                </div>
+              </div>
             );
           })}
         </fieldset>
       ))}
+
+      {unsourced.length > 0 && (
+        <p className="notice">
+          Sans provenance déclarée : {unsourced.map((f) => f.label).join(', ')}.
+          Une valeur dont on ignore l’origine reste utilisable, mais rien ne
+          permet de la vérifier.
+        </p>
+      )}
 
       {missingProperties.length > 0 && (
         <p className="notice warning">
