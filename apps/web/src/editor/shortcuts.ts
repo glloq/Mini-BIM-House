@@ -15,6 +15,7 @@ export type ShortcutCommandId =
   | 'edit.redo'
   | 'edit.delete'
   | 'edit.cancel'
+  | 'edit.duplicate'
   | 'file.save'
   | 'view.zoomFit'
   | 'view.zoomSelection'
@@ -54,6 +55,13 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
     group: 'Édition',
   },
   { id: 'edit.delete', label: 'Supprimer', key: 'Delete', group: 'Édition' },
+  {
+    id: 'edit.duplicate',
+    label: 'Dupliquer la sélection',
+    key: 'd',
+    ctrlOrMeta: true,
+    group: 'Édition',
+  },
   {
     id: 'edit.cancel',
     label: 'Annuler l’action',

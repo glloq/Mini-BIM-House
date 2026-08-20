@@ -9,6 +9,9 @@ import type {
 import { dimensionId, entityId } from '@house-technical-designer/core-domain';
 import {
   AddDimensionCommand,
+  AddOpeningCommand,
+  AddRoofCommand,
+  AddSlabCommand,
   AddWallCommand,
   DeleteDimensionCommand,
   DeleteOpeningCommand,
@@ -442,6 +445,154 @@ export function moveObjectsCommand(
             objectIds.length === 1
               ? 'Déplacer un objet'
               : `Déplacer ${objectIds.length} objets`,
+            commands,
+          ),
+  };
+}
+
+/** What a duplication produced, so the copies can be selected in its place. */
+export type DuplicationResult =
+  | {
+      readonly status: 'OK';
+      readonly command: ProjectCommand;
+      readonly createdIds: readonly string[];
+    }
+  | { readonly status: 'ERROR'; readonly message: string };
+
+/**
+ * Copies what is selected, a little to the side.
+ *
+ * The copies are what the user then works on, so their identifiers are
+ * reported: a duplication that leaves the originals selected looks like
+ * nothing happened.
+ *
+ * An opening belongs to a wall. Its copy is hosted by the copy of that wall
+ * when the wall was duplicated too, and refused otherwise: put back on the same
+ * wall at the same place it would sit exactly under the original.
+ */
+export function duplicateObjectsCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  objectIds: readonly string[],
+  deltaMm: Point2D,
+  newId: (prefix: string) => string,
+): DuplicationResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  if (objectIds.length === 0)
+    return { status: 'ERROR', message: 'La sélection est vide.' };
+  const commands: ProjectCommand[] = [];
+  const createdIds: string[] = [];
+  /** The copy each duplicated wall got, so its openings can follow it. */
+  const copiedWalls = new Map<string, string>();
+
+  for (const objectId of objectIds) {
+    const wall = level.walls.find(({ id }) => id === objectId);
+    if (wall === undefined) continue;
+    const copyId = newId('wall');
+    copiedWalls.set(wall.id, copyId);
+    createdIds.push(copyId);
+    commands.push(
+      new ProjectEditorCommand(
+        `wall:duplicate:${copyId}`,
+        'Dupliquer un mur',
+        level.id,
+        new AddWallCommand(`wall:duplicate:${copyId}`, {
+          ...wall,
+          id: copyId as Wall['id'],
+          path: {
+            points: wall.path.points.map((point) => ({
+              x: point.x + deltaMm.x,
+              y: point.y + deltaMm.y,
+            })),
+          },
+        }),
+      ),
+    );
+  }
+
+  for (const objectId of objectIds) {
+    if (copiedWalls.has(objectId)) continue;
+    const opening = level.openings.find(({ id }) => id === objectId);
+    if (opening !== undefined) {
+      const host = copiedWalls.get(opening.hostElementId);
+      if (host === undefined)
+        return {
+          status: 'ERROR',
+          message:
+            'Une ouverture ne se duplique qu’avec son mur : sélectionnez aussi le mur qui la porte.',
+        };
+      const copyId = newId('opening');
+      createdIds.push(copyId);
+      commands.push(
+        new ProjectEditorCommand(
+          `opening:duplicate:${copyId}`,
+          'Dupliquer une ouverture',
+          level.id,
+          new AddOpeningCommand(`opening:duplicate:${copyId}`, {
+            ...opening,
+            id: copyId as Opening['id'],
+            hostElementId: host as Opening['hostElementId'],
+          }),
+        ),
+      );
+      continue;
+    }
+    const slab = level.slabs.find(({ id }) => id === objectId);
+    if (slab !== undefined) {
+      const copyId = newId('slab');
+      createdIds.push(copyId);
+      commands.push(
+        new AddSlabCommand(level.id, {
+          id: copyId,
+          polygon: translated(slab.polygon, deltaMm),
+          assemblyId: slab.assemblyId,
+          role: slab.role,
+          elevationOffsetMm: slab.elevationOffsetMm,
+        }),
+      );
+      continue;
+    }
+    const roof = level.roofs.find(({ id }) => id === objectId);
+    if (roof !== undefined) {
+      const copyId = newId('roof');
+      createdIds.push(copyId);
+      commands.push(
+        new AddRoofCommand(level.id, {
+          id: copyId,
+          footprint: translated(roof.footprint, deltaMm),
+          assemblyId: roof.assemblyId,
+          slopeDeg: roof.slopeDeg,
+          azimuthDeg: roof.azimuthDeg,
+          baseElevationMm: roof.baseElevationMm,
+        }),
+      );
+      continue;
+    }
+    return {
+      status: 'ERROR',
+      message: `Cet objet ne se duplique pas depuis le plan : ${objectId}.`,
+    };
+  }
+
+  if (commands.length === 0)
+    return {
+      status: 'ERROR',
+      message: 'Rien de sélectionné ne se duplique depuis le plan.',
+    };
+  const id = `duplicate:${createdIds.join(',')}`;
+  return {
+    status: 'OK',
+    createdIds,
+    command:
+      commands.length === 1
+        ? commands[0]!
+        : new ProjectTransactionCommand(
+            id,
+            createdIds.length === 1
+              ? 'Dupliquer un objet'
+              : `Dupliquer ${createdIds.length} objets`,
             commands,
           ),
   };

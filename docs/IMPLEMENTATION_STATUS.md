@@ -844,9 +844,14 @@ d'ajouter les dizaines de familles d'objets qui manquent.
 - Ce qui ne se déplace pas seul est refusé en le disant : une ouverture glisse
   le long de son mur, une pièce est l'espace que ses murs enferment.
 
-Restent à faire dans ce lot : copier-coller, rotation, miroir, décalage
-parallèle, raccord de deux murs, trim/extend, alignement et cotes temporaires
-éditables.
+- Dupliquer une sélection (`Ctrl+D`) copie murs, ouvertures, dalles et pans de
+  toiture un peu à côté, puis sélectionne les copies : ce sont elles que
+  l'utilisateur travaille ensuite. Une ouverture ne se duplique qu'avec le mur
+  qui la porte, faute de quoi sa copie se poserait exactement sur l'originale.
+
+Restent à faire dans ce lot : coller vers un autre niveau, rotation, miroir,
+décalage parallèle, raccord de deux murs, trim/extend, alignement et cotes
+temporaires éditables.
 
 ### UI-15 — palette de commandes
 

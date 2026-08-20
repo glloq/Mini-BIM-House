@@ -108,6 +108,7 @@ import { inspectObject } from './editor/object-editors.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import {
   deleteObjectsCommand,
+  duplicateObjectsCommand,
   geometryEditCommand,
   moveObjectsCommand,
 } from './editor/editing-commands.js';
@@ -625,6 +626,30 @@ function App() {
     });
   }, []);
 
+  /**
+   * Copies the selection a little to the side, and selects the copies.
+   *
+   * Leaving the originals selected would look like nothing happened, and the
+   * next edit would land on the wrong objects.
+   */
+  const duplicateSelection = useCallback(() => {
+    const step =
+      editor.snap.gridSpacingMm > 0 ? editor.snap.gridSpacingMm : 100;
+    const result = duplicateObjectsCommand(
+      session.current.file,
+      activeLevelId,
+      editor.selection,
+      { x: step * 2, y: step * 2 },
+      (prefix) => `${prefix}-${crypto.randomUUID()}`,
+    );
+    if (result.status === 'ERROR') {
+      setMessage(result.message);
+      return;
+    }
+    if (!runCommand(result.command)) return;
+    dispatchEditor({ type: 'SELECT_MANY', objectIds: result.createdIds });
+  }, [activeLevelId, editor.selection, editor.snap.gridSpacingMm, runCommand]);
+
   /** Carries the whole selection, as one entry in the history. */
   const moveSelection = useCallback(
     (delta: { x: number; y: number }) => {
@@ -877,6 +902,9 @@ function App() {
         case 'edit.delete':
           deleteSelection();
           return;
+        case 'edit.duplicate':
+          duplicateSelection();
+          return;
         case 'file.save':
           void saveContainer();
           return;
@@ -896,6 +924,7 @@ function App() {
     [
       deleteSelection,
       dispatchEditor,
+      duplicateSelection,
       redo,
       saveContainer,
       undo,

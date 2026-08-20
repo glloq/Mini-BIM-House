@@ -858,6 +858,43 @@ test('remembers how wide the panels were made', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('duplicates a selection and leaves the copies selected', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  await expect(walls).toHaveCount(6);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const frame = (await canvas.boundingBox())!;
+  const shape = (await page
+    .locator('[id="wall:wall-partition-v"]')
+    .boundingBox())!;
+  await canvas.click({
+    position: {
+      x: shape.x - frame.x + shape.width * 0.5,
+      y: shape.y - frame.y + shape.height * 0.2,
+    },
+  });
+  await expect(page.locator('.inspector-subject')).toContainText(
+    'wall-partition-v',
+  );
+
+  await page.keyboard.press('Control+d');
+  await expect(page.getByRole('status')).toContainText('Dupliquer');
+  await expect(walls).toHaveCount(7);
+  // What is selected afterwards is the copy, not the original: the next edit
+  // has to land on what was just created.
+  await expect(page.locator('.inspector-subject')).not.toContainText(
+    'wall-partition-v',
+  );
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(walls).toHaveCount(6);
+  expect(errors).toEqual([]);
+});
+
 test('chooses which contour a slab is built from', async ({ page }) => {
   await loadDemo(page);
   await page.getByRole('button', { name: 'Niveaux et pièces' }).click();
