@@ -613,3 +613,59 @@ test('associates a climate dataset and reports what it covers', async ({
     'Aucun jeu de données climatiques',
   );
 });
+
+test('creates a scenario, states what it changes and compares it', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Scénarios', exact: true }).click();
+
+  await page.getByLabel('Nouveau scénario').fill('Isolation renforcée');
+  await page.getByRole('button', { name: 'Créer', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('Ajouter le scénario');
+  await expect(page.locator('h3')).toContainText('Isolation renforcée');
+  await expect(page.locator('.library-table tbody tr').first()).toContainText(
+    'ne modifie encore rien',
+  );
+
+  // The change is chosen by what it means, never by a path into the file.
+  const target = page.getByLabel('Valeur modifiée');
+  const insulation = await target
+    .locator('option', { hasText: 'épaisseur de material-insulation' })
+    .first()
+    .getAttribute('value');
+  await target.selectOption(insulation);
+  await page.getByLabel(/Nouvelle valeur/).fill('0.3');
+  await page.getByRole('button', { name: 'Ajouter le changement' }).click();
+  await expect(page.getByRole('status')).toContainText(
+    'Ajouter un changement au scénario',
+  );
+  const change = page.locator('.library-table tbody tr').first();
+  await expect(change).toContainText('0.2');
+  await expect(change).toContainText('0.3');
+
+  // And the comparison reflects it.
+  await page.getByLabel('Scénario comparé').selectOption({ index: 0 });
+  await expect(page.locator('.delta').first()).toBeVisible({ timeout: 20_000 });
+});
+
+test('promotes a scenario into the project', async ({ page }) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Scénarios', exact: true }).click();
+  await page.getByLabel('Scénario comparé').selectOption({ index: 0 });
+  const before = await page
+    .locator('.library-table tbody tr')
+    .first()
+    .textContent();
+  await page.getByRole('button', { name: 'Promouvoir en projet' }).click();
+  await expect(page.getByRole('status')).toContainText(
+    'Promouvoir un scénario en projet',
+  );
+  // The project now carries what the scenario described, so the change reads
+  // as having no effect any more.
+  const after = await page
+    .locator('.library-table tbody tr')
+    .first()
+    .textContent();
+  expect(after).not.toBe(before);
+});

@@ -15,8 +15,12 @@ import type {
 } from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
-import { networkNodeTemplates } from '@house-technical-designer/editor-core';
 import {
+  networkNodeTemplates,
+  ReplaceProjectCommand,
+} from '@house-technical-designer/editor-core';
+import {
+  applyProjectScenario,
   loadProjectJson,
   serializeProjectFile,
 } from '@house-technical-designer/project-io';
@@ -380,6 +384,38 @@ function App() {
       wallAssemblyId,
       wallRole,
     ],
+  );
+
+  /**
+   * Turns a scenario into the project itself.
+   *
+   * The variant is derived on read, so promoting it means writing what it
+   * describes into the project — as one command, undoable like any other. The
+   * scenario is left in place: it is a record of what was compared.
+   */
+  const promoteScenario = useCallback(
+    (scenarioId: string) => {
+      const result = applyProjectScenario(
+        session.current.file.project,
+        scenarioId,
+      );
+      if (result.status !== 'OK') {
+        setMessage(
+          `Scénario non applicable — ${result.issues[0]?.message ?? 'raison inconnue'}`,
+        );
+        return;
+      }
+      const promoted = result.project;
+      runCommand(
+        new ReplaceProjectCommand(
+          `scenario:promote:${scenarioId}`,
+          'Promouvoir un scénario en projet',
+          () => promoted,
+          { objectIds: [scenarioId], domains: ['scenarios', 'calculations'] },
+        ),
+      );
+    },
+    [runCommand],
   );
 
   const zoomFit = useCallback(() => {
@@ -980,7 +1016,13 @@ function App() {
 
         {tab === 'scenarios' && (
           <section className="canvas-panel panel">
-            <ScenariosPanel project={file.project} climate={climate} />
+            <ScenariosPanel
+              project={file.project}
+              climate={climate}
+              onCommand={runCommand}
+              onMessage={setMessage}
+              onPromote={promoteScenario}
+            />
           </section>
         )}
 
