@@ -179,6 +179,31 @@ export async function writeZip(
   return body.bytes();
 }
 
+/**
+ * What an archive is allowed to be.
+ *
+ * Everything here runs in the reader's own browser, so a hostile or merely
+ * enormous file cannot reach a server — it freezes the tab instead. A file that
+ * would expand to hundreds of megabytes is refused before it is expanded rather
+ * than after.
+ */
+export interface ZipLimits {
+  readonly maxArchiveBytes: number;
+  readonly maxEntries: number;
+  readonly maxEntryBytes: number;
+  readonly maxTotalBytes: number;
+  /** How much larger than its stored form one entry may become. */
+  readonly maxCompressionRatio: number;
+}
+
+export const DEFAULT_ZIP_LIMITS: ZipLimits = {
+  maxArchiveBytes: 128 * 1024 * 1024,
+  maxEntries: 128,
+  maxEntryBytes: 32 * 1024 * 1024,
+  maxTotalBytes: 256 * 1024 * 1024,
+  maxCompressionRatio: 1000,
+};
+
 export class ZipFormatError extends Error {
   constructor(message: string) {
     super(message);
@@ -198,13 +223,25 @@ export function looksLikeZip(bytes: Uint8Array): boolean {
 }
 
 /** The entries an archive holds, checked against their recorded checksums. */
-export async function readZip(bytes: Uint8Array): Promise<readonly ZipEntry[]> {
+export async function readZip(
+  bytes: Uint8Array,
+  limits: ZipLimits = DEFAULT_ZIP_LIMITS,
+): Promise<readonly ZipEntry[]> {
+  if (bytes.length > limits.maxArchiveBytes)
+    throw new ZipFormatError(
+      `This archive is ${Math.round(bytes.length / 1024 / 1024)} MB; the reader accepts ${Math.round(limits.maxArchiveBytes / 1024 / 1024)} MB.`,
+    );
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const end = findEndOfCentralDirectory(view, bytes.length);
   const count = view.getUint16(end + 10, true);
+  if (count > limits.maxEntries)
+    throw new ZipFormatError(
+      `This archive declares ${count} entries; the reader accepts ${limits.maxEntries}.`,
+    );
   let cursor = view.getUint32(end + 16, true);
   const decoder = new TextDecoder();
   const entries: ZipEntry[] = [];
+  let totalBytes = 0;
   for (let index = 0; index < count; index += 1) {
     if (view.getUint32(cursor, true) !== CENTRAL_HEADER)
       throw new ZipFormatError('Central directory entry is missing.');
@@ -220,6 +257,28 @@ export async function readZip(bytes: Uint8Array): Promise<readonly ZipEntry[]> {
       bytes.subarray(cursor + 46, cursor + 46 + nameLength),
     );
     cursor += 46 + nameLength + extraLength + commentLength;
+    // Only stored and deflated entries are read. Treating every other method as
+    // deflate would try to decompress something that is not deflate.
+    if (method !== 0 && method !== 8)
+      throw new ZipFormatError(
+        `Entry ${name} uses compression method ${method}, which this reader does not support.`,
+      );
+    if (uncompressedSize > limits.maxEntryBytes)
+      throw new ZipFormatError(
+        `Entry ${name} declares ${Math.round(uncompressedSize / 1024 / 1024)} MB; the reader accepts ${Math.round(limits.maxEntryBytes / 1024 / 1024)} MB per entry.`,
+      );
+    if (
+      compressedSize > 0 &&
+      uncompressedSize / compressedSize > limits.maxCompressionRatio
+    )
+      throw new ZipFormatError(
+        `Entry ${name} expands ${Math.round(uncompressedSize / compressedSize)} times; the reader accepts ${limits.maxCompressionRatio}.`,
+      );
+    totalBytes += uncompressedSize;
+    if (totalBytes > limits.maxTotalBytes)
+      throw new ZipFormatError(
+        `This archive expands past ${Math.round(limits.maxTotalBytes / 1024 / 1024)} MB.`,
+      );
     if (view.getUint32(localOffset, true) !== LOCAL_HEADER)
       throw new ZipFormatError(`Entry ${name} has no local header.`);
     const localNameLength = view.getUint16(localOffset + 26, true);

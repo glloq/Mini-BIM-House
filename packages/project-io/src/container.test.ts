@@ -5,7 +5,15 @@ import {
   readProjectContainer,
   writeProjectContainer,
 } from './container.js';
-import { crc32, looksLikeZip, readZip, writeZip } from './zip.js';
+import {
+  crc32,
+  DEFAULT_ZIP_LIMITS,
+  looksLikeZip,
+  readZip,
+  writeZip,
+} from './zip.js';
+
+const LIMITS = DEFAULT_ZIP_LIMITS;
 
 const file = {
   format: 'house-technical-designer-project' as const,
@@ -164,5 +172,146 @@ describe('a project and its climate in one file', () => {
     expect(result.status).toBe('INVALID_PROJECT');
     if (result.status !== 'INVALID_PROJECT') return;
     expect(result.result.status).toBe('INVALID_PROJECT');
+  });
+});
+
+describe('an archive that is not what it claims', () => {
+  const manifest = (extra: object) =>
+    new TextEncoder().encode(
+      JSON.stringify({
+        format: PROJECT_CONTAINER_FORMAT,
+        version: '1.0.0',
+        project: 'project.json',
+        climate: [],
+        ...extra,
+      }),
+    );
+  const projectEntry = {
+    name: 'project.json',
+    data: new TextEncoder().encode(JSON.stringify(file)),
+  };
+
+  async function read(entries: readonly { name: string; data: Uint8Array }[]) {
+    return readProjectContainer(await writeZip(entries));
+  }
+
+  it('refuses a climate entry the manifest declares and does not carry', async () => {
+    const result = await read([
+      {
+        name: 'manifest.json',
+        data: manifest({ climate: ['climate/paris.json'] }),
+      },
+      projectEntry,
+    ]);
+    expect(result.status).toBe('INVALID_CONTAINER');
+    if (result.status !== 'INVALID_CONTAINER') return;
+    expect(result.message).toContain('climate/paris.json');
+  });
+
+  it('refuses a climate entry that is not JSON', async () => {
+    const result = await read([
+      {
+        name: 'manifest.json',
+        data: manifest({ climate: ['climate/x.json'] }),
+      },
+      projectEntry,
+      { name: 'climate/x.json', data: new TextEncoder().encode('{ nope') },
+    ]);
+    expect(result.status).toBe('INVALID_CONTAINER');
+  });
+
+  it('refuses a version this application does not read', async () => {
+    const result = await read([
+      { name: 'manifest.json', data: manifest({ version: '2.0.0' }) },
+      projectEntry,
+    ]);
+    expect(result.status).toBe('INVALID_CONTAINER');
+    if (result.status !== 'INVALID_CONTAINER') return;
+    expect(result.message).toContain('2.0.0');
+  });
+
+  it('refuses a dataset the caller judges invalid', async () => {
+    const archive = await writeZip([
+      {
+        name: 'manifest.json',
+        data: manifest({ climate: ['climate/x.json'] }),
+      },
+      projectEntry,
+      { name: 'climate/x.json', data: new TextEncoder().encode('{"id":"x"}') },
+    ]);
+    const result = await readProjectContainer(archive, {
+      validateClimate: () => false,
+    });
+    expect(result.status).toBe('INVALID_CONTAINER');
+    if (result.status !== 'INVALID_CONTAINER') return;
+    expect(result.message).toContain('climate/x.json');
+  });
+
+  it('refuses a container missing the profile the project names', async () => {
+    const named = structuredClone(file) as unknown as Record<string, unknown>;
+    (named.project as Record<string, unknown>).site = {
+      northAngleDeg: 0,
+      climateProfileId: 'brest',
+    };
+    const result = await read([
+      {
+        name: 'manifest.json',
+        data: manifest({ climate: ['climate/paris.json'] }),
+      },
+      {
+        name: 'project.json',
+        data: new TextEncoder().encode(JSON.stringify(named)),
+      },
+      {
+        name: 'climate/paris.json',
+        data: new TextEncoder().encode('{"id":"paris"}'),
+      },
+    ]);
+    expect(result.status).toBe('INVALID_CONTAINER');
+    if (result.status !== 'INVALID_CONTAINER') return;
+    expect(result.message).toContain('brest');
+  });
+});
+
+describe('what the archive reader refuses to expand', () => {
+  it('refuses more entries than it accepts', async () => {
+    const archive = await writeZip(
+      Array.from({ length: 4 }, (_entry, index) => ({
+        name: `file-${index}.txt`,
+        data: new TextEncoder().encode('x'),
+      })),
+    );
+    await expect(
+      readZip(archive, { ...LIMITS, maxEntries: 3 }),
+    ).rejects.toThrow(/entries/u);
+  });
+
+  it('refuses an archive larger than it accepts', async () => {
+    const archive = await writeZip([
+      { name: 'a.txt', data: new TextEncoder().encode('x'.repeat(100)) },
+    ]);
+    await expect(
+      readZip(archive, { ...LIMITS, maxArchiveBytes: 10 }),
+    ).rejects.toThrow(/MB/u);
+  });
+
+  it('refuses an entry that expands past the total it accepts', async () => {
+    const archive = await writeZip([
+      { name: 'a.txt', data: new TextEncoder().encode('x'.repeat(10_000)) },
+    ]);
+    await expect(
+      readZip(archive, { ...LIMITS, maxTotalBytes: 100 }),
+    ).rejects.toThrow();
+  });
+
+  it('refuses an entry that expands far more than it accepts', async () => {
+    // Highly repetitive content compresses enormously: exactly the shape of an
+    // archive built to fill memory.
+    const archive = await writeZip([
+      { name: 'a.txt', data: new TextEncoder().encode('x'.repeat(200_000)) },
+    ]);
+    await expect(
+      readZip(archive, { ...LIMITS, maxCompressionRatio: 2 }),
+    ).rejects.toThrow(/expands/u);
   });
 });

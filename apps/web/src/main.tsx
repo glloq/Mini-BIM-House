@@ -22,6 +22,7 @@ import {
 } from '@house-technical-designer/editor-core';
 import {
   applyProjectScenario,
+  DEFAULT_ZIP_LIMITS,
   loadProjectJson,
   ProjectSerializationError,
   readProjectContainer,
@@ -802,15 +803,29 @@ function App() {
 
   async function importProject(selected: File | undefined): Promise<void> {
     if (selected === undefined) return;
+    // The size is read before the bytes are: a file far past what the reader
+    // accepts should not be pulled into memory to be refused afterwards.
+    if (selected.size > DEFAULT_ZIP_LIMITS.maxArchiveBytes) {
+      setMessage(
+        `Import refusé — ce fichier fait ${Math.round(selected.size / 1024 / 1024)} Mo ; la limite est de ${Math.round(DEFAULT_ZIP_LIMITS.maxArchiveBytes / 1024 / 1024)} Mo.`,
+      );
+      return;
+    }
     const bytes = new Uint8Array(await selected.arrayBuffer());
-    const container = await readProjectContainer(bytes);
+    const container = await readProjectContainer(bytes, {
+      // A dataset that does not satisfy the contract makes the container
+      // invalid; dropping it silently would open a project whose weather
+      // quietly went missing.
+      validateClimate: (json) => readClimateDataset(json) !== undefined,
+    });
     if (container.status === 'INVALID_CONTAINER') {
       setMessage(`Import refusé — ${container.message}`);
       return;
     }
     if (container.status === 'OK') {
       // A container carries its climate: the project reopens with the data it
-      // was calculated on, on this machine or another.
+      // was calculated on, on this machine or another. Every entry has already
+      // been checked, so nothing is dropped here.
       const datasets = container.container.climate
         .map(({ json }) => readClimateDataset(json))
         .filter((dataset): dataset is ClimateDataset => dataset !== undefined);

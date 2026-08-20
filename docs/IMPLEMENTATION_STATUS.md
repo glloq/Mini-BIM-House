@@ -571,6 +571,38 @@ un tronçon ouvre ce tronçon, dans l'espace Réseaux, propriétés ouvertes.
 - références de zones, d'annotations et d'objets hôtes (lot D) ;
 - Firefox, WebKit, Pages, migrations et version unique (lot F).
 
+## Durcissement du conteneur — lot C du sixième audit
+
+| Point                      | Constat                                                                    | État    |
+| -------------------------- | -------------------------------------------------------------------------- | ------- |
+| Manifeste permissif        | un jeu climatique annoncé et absent était simplement ignoré                | corrigé |
+| Version du conteneur       | aucune vérification : une archive plus récente s'ouvrait à moitié          | corrigé |
+| Jeux climatiques invalides | l'import filtrait en silence ce qui ne respectait pas le contrat           | corrigé |
+| Profil référencé absent    | le projet pouvait nommer un climat que l'archive ne transportait pas       | corrigé |
+| Archive sans limites       | taille, nombre d'entrées, taille décompressée et taux n'étaient pas bornés | corrigé |
+| Méthodes de compression    | toute méthode non nulle était traitée comme du deflate                     | corrigé |
+
+**Ce que le manifeste annonce doit être là.** Une entrée déclarée et manquante,
+un JSON illisible, un jeu de données qui ne satisfait pas le contrat climatique,
+ou un projet nommant un profil que l'archive ne porte pas : chacun rend le
+conteneur invalide, avec le fichier nommé. Un « chargé et validé » sur un projet
+dont la météo a disparu en route est exactement ce qu'il fallait rendre
+impossible.
+
+**Une archive a des bornes.** 128 Mo d'archive, 128 entrées, 32 Mo par entrée
+décompressée, 256 Mo au total et un facteur d'expansion plafonné : tout cela
+s'exécute dans le navigateur du lecteur, où un fichier démesuré ne menace aucun
+serveur — il fige l'onglet. L'interface regarde la taille du fichier avant d'en
+lire les octets, et le lecteur refuse les méthodes de compression autres que
+« stocké » et « deflate » au lieu de traiter tout le reste comme du deflate.
+
+### Ce que ce lot n'a pas traité
+
+- références de zones, d'annotations et d'objets hôtes, unicité des
+  identifiants (lot D) ;
+- `DraftField` partout, zones, renommage de niveau, provenance (lot E) ;
+- Firefox, WebKit, Pages, migrations et version unique (lot F).
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -611,7 +643,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 740 tests sur 111 fichiers
+- tests unitaires et d'intégration : 749 tests sur 111 fichiers
 - tests navigateur : 45 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

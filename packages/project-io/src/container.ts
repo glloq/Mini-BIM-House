@@ -4,7 +4,13 @@ import {
   serializeProjectFile,
   type ProjectLoadResult,
 } from './project-io.js';
-import { looksLikeZip, readZip, writeZip, ZipFormatError } from './zip.js';
+import {
+  looksLikeZip,
+  readZip,
+  writeZip,
+  ZipFormatError,
+  type ZipLimits,
+} from './zip.js';
 
 export const PROJECT_CONTAINER_FORMAT = 'house-technical-designer-container';
 export const PROJECT_CONTAINER_VERSION = '1.0.0';
@@ -12,6 +18,8 @@ export const PROJECT_CONTAINER_VERSION = '1.0.0';
 const PROJECT_ENTRY = 'project.json';
 const MANIFEST_ENTRY = 'manifest.json';
 const CLIMATE_PREFIX = 'climate/';
+/** Container versions this application knows how to read. */
+const SUPPORTED_VERSIONS = /^1\.\d+\.\d+$/u;
 
 /**
  * What a container declares about itself.
@@ -97,18 +105,39 @@ export async function writeProjectContainer(
   ]);
 }
 
+/** Whether a serialised dataset declares this identifier. */
+function carriesId(json: string, id: string): boolean {
+  try {
+    return (JSON.parse(json) as { readonly id?: unknown }).id === id;
+  } catch {
+    return false;
+  }
+}
+
 function stringify(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+export interface ProjectContainerReadOptions {
+  /**
+   * Whether one carried dataset satisfies the climate contract.
+   *
+   * The reader does not know what a climate dataset is; the caller does. A
+   * dataset that fails is a broken container, not a dataset to drop quietly.
+   */
+  readonly validateClimate?: (json: string) => boolean;
+  readonly limits?: ZipLimits;
 }
 
 /** Reads a container, or says why these bytes are not one. */
 export async function readProjectContainer(
   bytes: Uint8Array,
+  options: ProjectContainerReadOptions = {},
 ): Promise<ProjectContainerResult> {
   if (!looksLikeZip(bytes)) return { status: 'NOT_A_CONTAINER' };
   let entries;
   try {
-    entries = await readZip(bytes);
+    entries = await readZip(bytes, options.limits);
   } catch (error: unknown) {
     return {
       status: 'INVALID_CONTAINER',
@@ -142,7 +171,20 @@ export async function readProjectContainer(
       status: 'INVALID_CONTAINER',
       message: 'The container manifest declares another format.',
     };
-  const projectBytes = byName.get(manifest.project ?? PROJECT_ENTRY);
+  // A container written by a later version may hold things this one cannot
+  // read; opening it half way would be worse than saying so.
+  const version = manifest.version;
+  if (typeof version !== 'string' || !SUPPORTED_VERSIONS.test(version))
+    return {
+      status: 'INVALID_CONTAINER',
+      message: `This container is version ${String(version)}; this application reads ${PROJECT_CONTAINER_VERSION}.`,
+    };
+  if (typeof manifest.project !== 'string' || manifest.project === '')
+    return {
+      status: 'INVALID_CONTAINER',
+      message: 'The container manifest names no project file.',
+    };
+  const projectBytes = byName.get(manifest.project);
   if (projectBytes === undefined)
     return {
       status: 'INVALID_CONTAINER',
@@ -151,17 +193,56 @@ export async function readProjectContainer(
   const loaded = loadProjectJson(decoder.decode(projectBytes));
   if (loaded.status !== 'OK')
     return { status: 'INVALID_PROJECT', result: loaded };
-  const climate = (manifest.climate ?? [])
-    .map((name) => {
-      const data = byName.get(name);
-      return data === undefined
-        ? undefined
-        : {
-            id: name.slice(CLIMATE_PREFIX.length).replace(/\.json$/u, ''),
-            json: decoder.decode(data),
-          };
-    })
-    .filter((entry): entry is ContainedClimateDataset => entry !== undefined);
+  // Everything the manifest announces has to be there. A dataset listed and
+  // missing would open as "loaded and validated" while the calculations quietly
+  // lost the weather they were run on.
+  const declared: readonly string[] = Array.isArray(manifest.climate)
+    ? manifest.climate.filter(
+        (entry): entry is string => typeof entry === 'string',
+      )
+    : [];
+  const climate: ContainedClimateDataset[] = [];
+  for (const name of declared) {
+    const data = byName.get(name);
+    if (data === undefined)
+      return {
+        status: 'INVALID_CONTAINER',
+        message: `The container declares ${name} and does not carry it.`,
+      };
+    const json = decoder.decode(data);
+    try {
+      JSON.parse(json);
+    } catch {
+      return {
+        status: 'INVALID_CONTAINER',
+        message: `The climate entry ${name} is not valid JSON.`,
+      };
+    }
+    if (options.validateClimate?.(json) === false)
+      return {
+        status: 'INVALID_CONTAINER',
+        message: `The climate entry ${name} does not satisfy the climate contract.`,
+      };
+    climate.push({
+      id: name.startsWith(CLIMATE_PREFIX)
+        ? name.slice(CLIMATE_PREFIX.length).replace(/\.json$/u, '')
+        : name,
+      json,
+    });
+  }
+  // A container that carries weather but not the one the project names is
+  // inconsistent with itself, and the modules would report the difference as a
+  // missing input without anyone knowing why.
+  const profile = loaded.file.project.site.climateProfileId;
+  if (
+    profile !== undefined &&
+    climate.length > 0 &&
+    !climate.some(({ id, json }) => id === profile || carriesId(json, profile))
+  )
+    return {
+      status: 'INVALID_CONTAINER',
+      message: `The project uses the climate profile ${profile}, which this container does not carry.`,
+    };
   return {
     status: 'OK',
     container: { file: loaded.file, climate },
