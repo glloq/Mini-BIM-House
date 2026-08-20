@@ -332,15 +332,32 @@ export function ScenariosPanel({
                 Nouvelle valeur
                 {target?.unit !== undefined && <small> ({target.unit})</small>}
               </label>
-              <input
-                id="scenario-value"
-                type={target?.numeric === true ? 'number' : 'text'}
-                step="any"
-                disabled={target === undefined}
-                placeholder={target?.currentValue ?? ''}
-                value={targetValue}
-                onChange={(event) => setTargetValue(event.target.value)}
-              />
+              {target?.options === undefined ? (
+                <input
+                  id="scenario-value"
+                  type={target?.numeric === true ? 'number' : 'text'}
+                  step="any"
+                  disabled={target === undefined}
+                  placeholder={target?.currentValue ?? ''}
+                  value={targetValue}
+                  onChange={(event) => setTargetValue(event.target.value)}
+                />
+              ) : (
+                // A reference is chosen among the objects the project holds; it
+                // is not typed, so a scenario cannot name something absent.
+                <select
+                  id="scenario-value"
+                  value={targetValue}
+                  onChange={(event) => setTargetValue(event.target.value)}
+                >
+                  <option value="">Choisir</option>
+                  {target.options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
             <button type="submit" disabled={target === undefined}>
               Ajouter le changement

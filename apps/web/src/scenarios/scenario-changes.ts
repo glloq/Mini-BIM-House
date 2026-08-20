@@ -21,6 +21,16 @@ export interface ScenarioTarget {
   /** Value the base project declares, so the change reads as "from → to". */
   readonly currentValue: string;
   readonly numeric: boolean;
+  /**
+   * The values this target accepts, when it names another object.
+   *
+   * A reference typed by hand can name something the project does not hold,
+   * and a variant built on a dangling reference is not a variant of anything.
+   */
+  readonly options?: readonly {
+    readonly value: string;
+    readonly label: string;
+  }[];
 }
 
 function stringify(value: unknown): string {
@@ -34,52 +44,57 @@ function stringify(value: unknown): string {
 export function scenarioTargets(project: Project): readonly ScenarioTarget[] {
   const targets: ScenarioTarget[] = [];
 
-  project.building.levels.forEach((level, levelIndex) => {
-    level.walls.forEach((wall, wallIndex) => {
+  // Paths name objects rather than positions: deleting an assembly must not
+  // silently point an existing scenario at the one that takes its place.
+  const assemblyOptions = (project.assemblies ?? []).map((assembly) => ({
+    value: assembly.id,
+    label: `${assembly.name} (${assembly.id})`,
+  }));
+
+  for (const level of project.building.levels) {
+    for (const wall of level.walls) {
       targets.push({
-        path: `building/levels/${levelIndex}/walls/${wallIndex}/assemblyId`,
+        path: `building/levels/${level.id}/walls/${wall.id}/assemblyId`,
         label: `Assemblage du mur ${wall.id}`,
         group: `Murs — ${level.name}`,
         currentValue: wall.assemblyId,
         numeric: false,
+        options: assemblyOptions,
       });
       if (wall.heightMode === 'EXPLICIT')
         targets.push({
-          path: `building/levels/${levelIndex}/walls/${wallIndex}/heightMm`,
+          path: `building/levels/${level.id}/walls/${wall.id}/heightMm`,
           label: `Hauteur du mur ${wall.id}`,
           group: `Murs — ${level.name}`,
           unit: 'mm',
           currentValue: String(wall.heightMm),
           numeric: true,
         });
-    });
-  });
+    }
+  }
 
-  (project.assemblies ?? []).forEach((assembly, assemblyIndex) => {
-    assembly.layers.forEach((layer, layerIndex) => {
+  for (const assembly of project.assemblies ?? [])
+    for (const layer of assembly.layers)
       targets.push({
-        path: `assemblies/${assemblyIndex}/layers/${layerIndex}/thicknessM`,
+        path: `assemblies/${assembly.id}/layers/${layer.id}/thicknessM`,
         label: `${assembly.name} — épaisseur de ${layer.materialId}`,
         group: 'Assemblages',
         unit: 'm',
         currentValue: String(layer.thicknessM),
         numeric: true,
       });
-    });
-  });
 
-  (project.equipment ?? []).forEach((equipment, equipmentIndex) => {
+  for (const equipment of project.equipment ?? [])
     for (const [key, value] of Object.entries(equipment.properties)) {
       if (typeof value !== 'number' && typeof value !== 'string') continue;
       targets.push({
-        path: `equipment/${equipmentIndex}/properties/${key}`,
+        path: `equipment/${equipment.id}/properties/${key}`,
         label: `${equipment.id} — ${key}`,
         group: 'Équipements',
         currentValue: stringify(value),
         numeric: typeof value === 'number',
       });
     }
-  });
 
   for (const descriptor of MODULE_SETTINGS) {
     const settings = project.calculationSettings?.[descriptor.moduleId];
@@ -108,6 +123,10 @@ export function scenarioOverride(
   raw: string,
 ): ScenarioOverride | undefined {
   if (raw.trim() === '') return undefined;
+  if (target.options !== undefined)
+    return target.options.some(({ value }) => value === raw)
+      ? { path: target.path, operation: 'SET', value: raw }
+      : undefined;
   if (!target.numeric)
     return { path: target.path, operation: 'SET', value: raw };
   const value = Number(raw.replace(',', '.'));

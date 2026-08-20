@@ -105,11 +105,18 @@ function stringProperty(
   return typeof value === 'string' && value !== '' ? value : undefined;
 }
 
-function firstNetwork(
+/**
+ * Every network of a discipline, in project order.
+ *
+ * A house can hold two water systems, two ventilation units or two boards, and
+ * a module that read only the first one produced a result that looked complete
+ * while ignoring half the installation. Each network contributes exactly once.
+ */
+function networksForDiscipline(
   context: ProjectCalculationContext,
   discipline: string,
-): TechnicalNetwork | undefined {
-  return context.networksByDiscipline[discipline]?.[0];
+): readonly TechnicalNetwork[] {
+  return context.networksByDiscipline[discipline] ?? [];
 }
 
 /**
@@ -211,17 +218,17 @@ function thermalInput(context: ProjectCalculationContext): CalculationJson {
 function spaceVentilationFlowsM3h(
   context: ProjectCalculationContext,
 ): ReadonlyMap<string, number> {
-  const network = firstNetwork(context, 'VENTILATION');
   const flows = new Map<string, number>();
-  for (const node of network?.nodes ?? []) {
-    const spaceId = node.spaceId;
-    const flow = numericProperty(
-      node as unknown as Readonly<Record<string, unknown>>,
-      'targetFlowM3h',
-    );
-    if (spaceId === undefined || flow === undefined) continue;
-    flows.set(spaceId, (flows.get(spaceId) ?? 0) + flow);
-  }
+  for (const network of networksForDiscipline(context, 'VENTILATION'))
+    for (const node of network.nodes) {
+      const spaceId = node.spaceId;
+      const flow = numericProperty(
+        node as unknown as Readonly<Record<string, unknown>>,
+        'targetFlowM3h',
+      );
+      if (spaceId === undefined || flow === undefined) continue;
+      flows.set(spaceId, (flows.get(spaceId) ?? 0) + flow);
+    }
   return flows;
 }
 
@@ -294,7 +301,7 @@ function heatingInput(context: ProjectCalculationContext): CalculationJson {
 
 function lightingInput(context: ProjectCalculationContext): CalculationJson {
   const settings = context.settings;
-  const electrical = firstNetwork(context, 'ELECTRICAL');
+  const electrical = networksForDiscipline(context, 'ELECTRICAL');
   const luminaireEquipment = context.equipmentByKind.LUMINAIRE ?? [];
   const luminaires = luminaireEquipment.map((equipment) => ({
     id: equipment.id,
@@ -324,7 +331,8 @@ function lightingInput(context: ProjectCalculationContext): CalculationJson {
         'EQUIPMENT',
         `Luminaire ${luminaire.id} declares no luminous flux or electrical power.`,
       );
-  const placements = (electrical?.nodes ?? [])
+  const placements = electrical
+    .flatMap((network) => network.nodes)
     .filter((node) => node.kind === 'LUMINAIRE')
     .map((node) => ({
       id: node.id,
@@ -384,8 +392,8 @@ function lightingInput(context: ProjectCalculationContext): CalculationJson {
 
 function ventilationInput(context: ProjectCalculationContext): CalculationJson {
   const settings = context.settings;
-  const network = firstNetwork(context, 'VENTILATION');
-  if (network === undefined) {
+  const networks = networksForDiscipline(context, 'VENTILATION');
+  if (networks.length === 0) {
     settings.reportMissing(
       'ventilation',
       'network',
@@ -396,65 +404,85 @@ function ventilationInput(context: ProjectCalculationContext): CalculationJson {
   }
   const roughnessM = settings.methodConstant('ventilation', 'ductRoughnessM');
   const nodeFlow = new Map(
-    network.nodes.map((node) => [
-      node.id,
-      numericProperty(
-        node as unknown as Readonly<Record<string, unknown>>,
-        'targetFlowM3h',
-      ) ?? 0,
+    networks.flatMap((network) =>
+      network.nodes.map((node): readonly [string, number] => [
+        node.id,
+        numericProperty(
+          node as unknown as Readonly<Record<string, unknown>>,
+          'targetFlowM3h',
+        ) ?? 0,
+      ]),
+    ),
+  );
+  // Flows accumulate inside each system: a duct never carries the demand of a
+  // terminal served by another unit.
+  const flows = new Map(
+    networks.flatMap((network) => [
+      ...edgeFlows(network, (nodeId) => nodeFlow.get(nodeId)),
     ]),
   );
-  const flows = edgeFlows(network, (nodeId) => nodeFlow.get(nodeId));
-  const segments = network.edges.map((edge) => {
-    const diameterM = numericProperty(edge.properties, 'diameterM');
-    const flowM3h = flows.get(edge.id);
-    if (diameterM === undefined)
-      settings.reportMissing(
+  const segments = networks.flatMap((network) =>
+    network.edges.map((edge) => {
+      const diameterM = numericProperty(edge.properties, 'diameterM');
+      const flowM3h = flows.get(edge.id);
+      if (diameterM === undefined)
+        settings.reportMissing(
+          'ventilation',
+          `segments/${edge.id}/diameterM`,
+          'PROJECT',
+          `Duct ${edge.id} has no internal diameter.`,
+        );
+      if (flowM3h === undefined || flowM3h <= 0)
+        settings.reportMissing(
+          'ventilation',
+          `segments/${edge.id}/flowM3h`,
+          'PROJECT',
+          `Duct ${edge.id} serves no terminal with a design flow.`,
+        );
+      settings.note(
         'ventilation',
-        `segments/${edge.id}/diameterM`,
+        `segments/${edge.id}`,
         'PROJECT',
-        `Duct ${edge.id} has no internal diameter.`,
+        network.id,
       );
-    if (flowM3h === undefined || flowM3h <= 0)
-      settings.reportMissing(
-        'ventilation',
-        `segments/${edge.id}/flowM3h`,
-        'PROJECT',
-        `Duct ${edge.id} serves no terminal with a design flow.`,
-      );
-    settings.note('ventilation', `segments/${edge.id}`, 'PROJECT', network.id);
-    return {
-      id: edge.id,
-      lengthM: pathLengthM(edge.path),
-      diameterM: diameterM ?? null,
-      flowM3h: flowM3h ?? null,
-      localLossCoefficient:
-        numericProperty(edge.properties, 'localLossCoefficient') ?? 0,
-      roughnessM: numericProperty(edge.properties, 'roughnessM') ?? roughnessM,
-    };
-  });
+      return {
+        id: edge.id,
+        networkId: network.id,
+        lengthM: pathLengthM(edge.path),
+        diameterM: diameterM ?? null,
+        flowM3h: flowM3h ?? null,
+        localLossCoefficient:
+          numericProperty(edge.properties, 'localLossCoefficient') ?? 0,
+        roughnessM:
+          numericProperty(edge.properties, 'roughnessM') ?? roughnessM,
+      };
+    }),
+  );
   return {
-    networkId: network.id,
+    networkIds: networks.map(({ id }) => id),
     airDensityKgM3: settings.physicalConstant('ventilation', 'airDensityKgM3'),
     dynamicViscosityPaS: settings.physicalConstant(
       'ventilation',
       'airDynamicViscosityPaS',
     ),
     segments,
-    terminals: network.nodes
-      .filter((node) => node.spaceId !== undefined)
-      .map((node) => ({
-        id: node.id,
-        spaceId: node.spaceId ?? null,
-        targetFlowM3h: nodeFlow.get(node.id) ?? null,
-      })),
+    terminals: networks.flatMap((network) =>
+      network.nodes
+        .filter((node) => node.spaceId !== undefined)
+        .map((node) => ({
+          id: node.id,
+          networkId: network.id,
+          spaceId: node.spaceId ?? null,
+          targetFlowM3h: nodeFlow.get(node.id) ?? null,
+        })),
+    ),
   };
 }
 
 function waterInput(context: ProjectCalculationContext): CalculationJson {
   const settings = context.settings;
-  const network = firstNetwork(context, 'WATER');
-  if (network === undefined) {
+  const networks = networksForDiscipline(context, 'WATER');
+  if (networks.length === 0) {
     settings.reportMissing(
       'water',
       'network',
@@ -470,48 +498,61 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
     'Set the water simultaneity factor in the module settings.',
   );
   const nodeFlow = new Map(
-    network.nodes.map((node) => [
-      node.id,
-      numericProperty(
-        node as unknown as Readonly<Record<string, unknown>>,
-        'designFlowLps',
-      ) ?? 0,
+    networks.flatMap((network) =>
+      network.nodes.map((node): readonly [string, number] => [
+        node.id,
+        numericProperty(
+          node as unknown as Readonly<Record<string, unknown>>,
+          'designFlowLps',
+        ) ?? 0,
+      ]),
+    ),
+  );
+  // Each system accumulates its own demand: a house pipe never carries the
+  // garage's fixtures.
+  const flows = new Map(
+    networks.flatMap((network) => [
+      ...edgeFlows(network, (nodeId) => nodeFlow.get(nodeId)),
     ]),
   );
-  const flows = edgeFlows(network, (nodeId) => nodeFlow.get(nodeId));
-  const segments = network.edges.map((edge) => {
-    const diameterM = numericProperty(edge.properties, 'internalDiameterM');
-    const cumulatedLps = flows.get(edge.id) ?? 0;
-    if (diameterM === undefined)
-      settings.reportMissing(
-        'water',
-        `segments/${edge.id}/internalDiameterM`,
-        'PROJECT',
-        `Pipe ${edge.id} has no internal diameter.`,
-      );
-    if (cumulatedLps <= 0)
-      settings.reportMissing(
-        'water',
-        `segments/${edge.id}/flow`,
-        'PROJECT',
-        `Pipe ${edge.id} serves no fixture with a design flow.`,
-      );
-    return {
-      id: edge.id,
-      lengthM: pathLengthM(edge.path),
-      internalDiameterM: diameterM ?? null,
-      cumulatedDesignFlowLps: cumulatedLps,
-      flowM3s:
-        simultaneity === undefined
-          ? null
-          : (cumulatedLps * simultaneity) / 1000,
-      localLossCoefficient:
-        numericProperty(edge.properties, 'localLossCoefficient') ?? 0,
-      roughnessM: numericProperty(edge.properties, 'roughnessM') ?? roughnessM,
-    };
-  });
+  const segments = networks.flatMap((network) =>
+    network.edges.map((edge) => {
+      const diameterM = numericProperty(edge.properties, 'internalDiameterM');
+      const cumulatedLps = flows.get(edge.id) ?? 0;
+      if (diameterM === undefined)
+        settings.reportMissing(
+          'water',
+          `segments/${edge.id}/internalDiameterM`,
+          'PROJECT',
+          `Pipe ${edge.id} has no internal diameter.`,
+        );
+      if (cumulatedLps <= 0)
+        settings.reportMissing(
+          'water',
+          `segments/${edge.id}/flow`,
+          'PROJECT',
+          `Pipe ${edge.id} serves no fixture with a design flow.`,
+        );
+      settings.note('water', `segments/${edge.id}`, 'PROJECT', network.id);
+      return {
+        id: edge.id,
+        networkId: network.id,
+        lengthM: pathLengthM(edge.path),
+        internalDiameterM: diameterM ?? null,
+        cumulatedDesignFlowLps: cumulatedLps,
+        flowM3s:
+          simultaneity === undefined
+            ? null
+            : (cumulatedLps * simultaneity) / 1000,
+        localLossCoefficient:
+          numericProperty(edge.properties, 'localLossCoefficient') ?? 0,
+        roughnessM:
+          numericProperty(edge.properties, 'roughnessM') ?? roughnessM,
+      };
+    }),
+  );
   return {
-    networkId: network.id,
+    networkIds: networks.map(({ id }) => id),
     fluidDensityKgM3: settings.physicalConstant('water', 'waterDensityKgM3'),
     dynamicViscosityPaS: settings.physicalConstant(
       'water',
@@ -525,8 +566,8 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
 
 function wastewaterInput(context: ProjectCalculationContext): CalculationJson {
   const settings = context.settings;
-  const network = firstNetwork(context, 'WASTEWATER');
-  if (network === undefined) {
+  const networks = networksForDiscipline(context, 'WASTEWATER');
+  if (networks.length === 0) {
     settings.reportMissing(
       'wastewater',
       'network',
@@ -541,48 +582,60 @@ function wastewaterInput(context: ProjectCalculationContext): CalculationJson {
     'Set the discharge-unit to design-flow factor in the wastewater module settings.',
   );
   const minimumSlope = settings.optionalNumber('wastewater', 'minimumSlope');
-  const nodes = network.nodes.map((node) => ({
-    id: node.id,
-    kind: node.kind,
-    position: { ...node.position },
-    dischargeUnits:
-      numericProperty(
-        node as unknown as Readonly<Record<string, unknown>>,
-        'dischargeUnits',
-      ) ?? null,
-  }));
-  const edges = network.edges.map((edge) => {
-    const diameterM = numericProperty(edge.properties, 'internalDiameterM');
-    if (diameterM === undefined)
-      settings.reportMissing(
-        'wastewater',
-        `segments/${edge.id}/internalDiameterM`,
-        'PROJECT',
-        `Gravity pipe ${edge.id} has no internal diameter.`,
-      );
-    return {
-      id: edge.id,
-      fromPortId: edge.fromPortId,
-      toPortId: edge.toPortId,
-      kind: edge.kind,
-      path: edge.path.map((point) => ({ ...point })),
-      internalDiameterM: diameterM ?? null,
-    };
-  });
+  // Systems are assessed together but stay separate graphs: each one drains to
+  // its own outlet, and every node is checked against the outlet it can reach.
+  const nodes = networks.flatMap((network) =>
+    network.nodes.map((node) => ({
+      id: node.id,
+      networkId: network.id,
+      kind: node.kind,
+      position: { ...node.position },
+      dischargeUnits:
+        numericProperty(
+          node as unknown as Readonly<Record<string, unknown>>,
+          'dischargeUnits',
+        ) ?? null,
+    })),
+  );
+  const edges = networks.flatMap((network) =>
+    network.edges.map((edge) => {
+      const diameterM = numericProperty(edge.properties, 'internalDiameterM');
+      if (diameterM === undefined)
+        settings.reportMissing(
+          'wastewater',
+          `segments/${edge.id}/internalDiameterM`,
+          'PROJECT',
+          `Gravity pipe ${edge.id} has no internal diameter.`,
+        );
+      settings.note('wastewater', `segments/${edge.id}`, 'PROJECT', network.id);
+      return {
+        id: edge.id,
+        networkId: network.id,
+        fromPortId: edge.fromPortId,
+        toPortId: edge.toPortId,
+        kind: edge.kind,
+        path: edge.path.map((point) => ({ ...point })),
+        internalDiameterM: diameterM ?? null,
+      };
+    }),
+  );
   return {
-    networkId: network.id,
-    systemType: network.systemType,
+    networkIds: networks.map(({ id }) => id),
+    systemTypes: networks.map(({ systemType }) => systemType),
     ...(flowPerUnit === undefined
       ? {}
       : { designFlowM3sPerDischargeUnit: flowPerUnit }),
     ...(minimumSlope === undefined ? {} : { minimumSlope }),
     nodes,
-    ports: network.ports.map((port) => ({
-      id: port.id,
-      nodeId: port.nodeId,
-      role: port.role,
-      direction: port.direction,
-    })),
+    ports: networks.flatMap((network) =>
+      network.ports.map((port) => ({
+        id: port.id,
+        networkId: network.id,
+        nodeId: port.nodeId,
+        role: port.role,
+        direction: port.direction,
+      })),
+    ),
     edges,
   };
 }

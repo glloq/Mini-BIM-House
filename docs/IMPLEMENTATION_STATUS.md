@@ -293,6 +293,65 @@ plutôt que d'attendre que l'avertissement disparaisse tout seul.
 - Firefox, WebKit, axe-core, régression visuelle, découpage du bundle ;
 - feuilles, cartouches et PDF.
 
+## Intégrité des données — lot A de la préparation bêta
+
+Un cinquième audit a fixé dix-huit portes à franchir avant une bêta utilisable.
+Ce lot traite celles qui portent sur la justesse de ce que l'application montre
+et enregistre.
+
+| Porte   | Constat                                                                                                         | État    |
+| ------- | --------------------------------------------------------------------------------------------------------------- | ------- |
+| BETA-01 | les Vérifications pouvaient présenter des résultats calculés sur une révision antérieure                        | corrigé |
+| BETA-02 | plusieurs réseaux d'une même discipline : seul le premier était calculé                                         | corrigé |
+| BETA-03 | les scénarios visaient des positions dans des tableaux, pas des objets                                          | corrigé |
+| BETA-04 | un scénario pouvait promouvoir un projet dont une référence ne désignait plus rien                              | corrigé |
+| BETA-05 | un objet rangé sous un niveau pouvait en déclarer un autre, une ouverture pouvait citer un mur d'un autre étage | corrigé |
+| BETA-08 | une duplication de niveau conservait l'altitude absolue des toitures                                            | corrigé |
+| BETA-09 | un escalier importé disparaissait à la duplication et ne comptait pas à la suppression                          | corrigé |
+| BETA-12 | l'export pouvait échouer sans que rien ne le dise, l'état restant « Enregistré »                                | corrigé |
+
+Quatre décisions valent d'être écrites.
+
+**Un résultat de calcul appartient à une révision.** Chaque exécution porte la
+révision du projet, l'empreinte des jeux climatiques utilisés et ses heures de
+début et de fin. L'application ne montre plus un résultat dont la révision n'est
+pas celle du projet affiché : ouvrir les Vérifications relance le calcul au lieu
+de réutiliser le dernier connu, et les deux écrans disent sur quelle révision
+leurs chiffres ont été établis.
+
+**Chaque réseau compte une fois.** Les adaptateurs lisaient le premier réseau de
+la discipline ; ils lisent maintenant tous les réseaux, chaque tronçon portant
+l'identifiant du système auquel il appartient. Les débits s'accumulent à
+l'intérieur d'un système : une canalisation de la maison ne transporte pas les
+appareils du garage. Un test dédié double chaque réseau de la maison de
+référence et vérifie que rien n'est compté deux fois ni oublié.
+
+**Un scénario vise un objet, pas une position.** Les chemins nomment désormais
+`assemblies/mur-ossature/layers/isolant/thicknessM`. Supprimer un autre
+assemblage ne déplace plus la cible sur son voisin ; un chemin numérique
+enregistré auparavant continue d'être lu, et s'il ne désigne plus rien il est
+signalé au lieu d'être appliqué ailleurs. Une référence se choisit dans une
+liste des objets que le projet déclare, et un scénario qui rendrait une
+référence invalide est refusé — sans qu'on lui reproche ce que le projet cassait
+déjà.
+
+**Ce que l'application ne sait pas éditer est conservé.** Un niveau contenant un
+escalier ne se duplique pas et ne se supprime pas silencieusement : l'opération
+est refusée en nommant ce qui la bloque. Et parce que l'altitude d'un pan de
+toiture est absolue dans le projet, elle est translatée quand le niveau est
+copié plus haut ou déplacé.
+
+### Ce que ce lot n'a pas traité
+
+- réseaux : propriétés physiques éditables, gabarits de systèmes, inspecteur de
+  tronçon (BETA-06) ;
+- moteur électrique présent mais absent du pipeline (BETA-07) ;
+- édition géométrique des murs, ouvertures, dalles et toitures
+  (BETA-13 à BETA-15) ;
+- climat portable avec le projet et autosave IndexedDB (BETA-10, BETA-11) ;
+- Firefox et WebKit en intégration continue (BETA-16) ;
+- publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18).
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -333,7 +392,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 624 tests sur 96 fichiers
-- tests navigateur : 38 tests Playwright, dont trois sur un écran de téléphone
+- tests unitaires et d'intégration : 656 tests sur 102 fichiers
+- tests navigateur : 40 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

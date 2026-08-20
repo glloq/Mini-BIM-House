@@ -171,16 +171,27 @@ export class DuplicateLevelCommand extends BuildingCommand {
     return project.building.levels.find(({ id }) => id === this.sourceLevelId);
   }
   validate(project: Project): CommandValidation {
-    if (this.source(project) === undefined)
+    const source = this.source(project);
+    if (source === undefined)
       return rejected(`Le niveau ${this.sourceLevelId} est introuvable.`);
-    return project.building.levels.some(({ id }) => id === this.draft.id)
-      ? rejected(`Le niveau ${this.draft.id} existe déjà.`)
-      : ok();
+    if (project.building.levels.some(({ id }) => id === this.draft.id))
+      return rejected(`Le niveau ${this.draft.id} existe déjà.`);
+    // The editor cannot read a stair, so it cannot copy one faithfully.
+    // Refusing keeps the data; duplicating it blindly would not.
+    return source.stairs.length === 0
+      ? ok()
+      : rejected(
+          `Le niveau ${source.name} contient ${source.stairs.length} escalier(s), que cette version ne sait pas dupliquer. Retirez-les du fichier ou dupliquez le niveau hors de l'application.`,
+        );
   }
   protected apply(project: Project): Project {
     const source = this.source(project)!;
     const levelId = entityId<'Level'>(this.draft.id);
     const suffix = `@${this.draft.id}`;
+    // Roof elevations are absolute in the project, so a copy placed one storey
+    // higher has to be raised by that much; keeping the value would leave the
+    // new roof at the height of the old one.
+    const deltaZ = this.draft.elevationMm - source.elevationMm;
     const level: Level = {
       id: levelId,
       name: this.draft.name,
@@ -205,6 +216,7 @@ export class DuplicateLevelCommand extends BuildingCommand {
         ...roof,
         id: entityId<'RoofPlane'>(`${roof.id}${suffix}`),
         levelId,
+        baseElevationMm: roof.baseElevationMm + deltaZ,
       })),
       spaces: source.spaces.map((space) => ({
         ...space,
@@ -259,11 +271,31 @@ export class UpdateLevelCommand extends BuildingCommand {
       project,
       sortedByElevation(
         project.building.levels.map((level) =>
-          level.id === this.levelId ? { ...level, ...this.changes } : level,
+          level.id === this.levelId ? raised(level, this.changes) : level,
         ),
       ),
     );
   }
+}
+
+/**
+ * A level after a change, with what it holds in absolute height moved with it.
+ *
+ * Roof planes carry a project elevation rather than an offset from their level.
+ * Moving the level without moving them would leave the roof where the storey
+ * used to be — a value nobody edited and nobody would suspect.
+ */
+function raised(level: Level, changes: Partial<Omit<LevelDraft, 'id'>>): Level {
+  const next = { ...level, ...changes };
+  const deltaZ = next.elevationMm - level.elevationMm;
+  if (deltaZ === 0) return next;
+  return {
+    ...next,
+    roofs: next.roofs.map((roof) => ({
+      ...roof,
+      baseElevationMm: roof.baseElevationMm + deltaZ,
+    })),
+  };
 }
 
 export class RemoveLevelCommand extends BuildingCommand {
@@ -283,8 +315,11 @@ export class RemoveLevelCommand extends BuildingCommand {
       level.roofs.length +
       level.spaces.length +
       // Annotations count too: a level holding nothing but dimensions is not
-      // empty, and deleting it would take work with it without warning.
-      level.annotations.length;
+      // empty, and deleting it would take work with it without warning. The
+      // same holds for what this version cannot edit at all: a stair the file
+      // carries is data, and deleting it silently would lose it for good.
+      level.annotations.length +
+      level.stairs.length;
     return contents === 0
       ? ok()
       : rejected(

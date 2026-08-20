@@ -893,6 +893,74 @@ test('activates a rule pack and reports what it checked', async ({ page }) => {
   );
 });
 
+test('never shows calculation results from an earlier revision', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await expect(page.locator('.dashboard-card').first()).toBeVisible();
+  const computedOn = await page
+    .locator('.library-panel .hint')
+    .first()
+    .textContent();
+  expect(computedOn).toContain('révision');
+
+  // Edit the model after the results were produced.
+  await page.getByRole('button', { name: 'Plan architectural' }).click();
+  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  await canvas.click({ position: { x: 120, y: 380 } });
+  await canvas.click({ position: { x: 420, y: 380 } });
+
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  const revision =
+    (await page.locator('#project-revision').textContent()) ?? '';
+  const current = /^(\d+)/u.exec(revision.trim())?.[1];
+  expect(current).toBeDefined();
+
+  await page.getByRole('button', { name: 'Vérifications' }).click();
+  // The panel recomputes rather than presenting the numbers of the house as it
+  // was before the wall was drawn.
+  await expect(
+    page.locator('.library-panel', { hasText: 'Constats de calcul établis' }),
+  ).toContainText(`révision ${current!}`, { timeout: 20_000 });
+});
+
+test('chooses a scenario reference among the objects the project holds', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Scénarios' }).click();
+  await page.getByLabel('Nouveau scénario').fill('Autre assemblage');
+  await page.getByRole('button', { name: 'Créer', exact: true }).click();
+
+  const targets = page.getByLabel('Valeur modifiée');
+  const assemblyTarget = await targets
+    .locator('option', { hasText: 'Assemblage du mur' })
+    .first()
+    .getAttribute('value');
+  expect(assemblyTarget).toMatch(
+    /^building\/levels\/[^/]+\/walls\/[^/]+\/assemblyId$/u,
+  );
+  await targets.selectOption(assemblyTarget);
+
+  // A reference is picked from a menu: a scenario cannot name an assembly the
+  // project does not declare.
+  const value = page.locator('select#scenario-value');
+  await expect(value).toBeVisible();
+  const options = await value.locator('option').allTextContents();
+  expect(options.length).toBeGreaterThan(1);
+  await value.selectOption({ index: 1 });
+  await page.getByRole('button', { name: 'Ajouter le changement' }).click();
+  await expect(page.getByRole('status')).toContainText(
+    'Ajouter un changement au scénario',
+  );
+  // The change addresses the wall by name, not by its position in the file.
+  await expect(
+    page.getByRole('table', { name: 'Modifications déclarées par' }),
+  ).toContainText('Assemblage du mur');
+});
+
 test('keeps a scenario selected after deleting another one', async ({
   page,
 }) => {

@@ -3,13 +3,23 @@ import type {
   Scenario,
   ScenarioOverride,
 } from '@house-technical-designer/core-domain';
+import {
+  childAt,
+  elementIndex,
+  parseProjectPath,
+} from '@house-technical-designer/core-domain';
+import {
+  CURRENT_PROJECT_SCHEMA_VERSION,
+  validateProjectReferences,
+} from './project-io.js';
 
 export type ScenarioIssueCode =
   | 'SCENARIO_UNKNOWN_ID'
   | 'SCENARIO_INVALID_PATH'
   | 'SCENARIO_PATH_NOT_FOUND'
   | 'SCENARIO_MISSING_VALUE'
-  | 'SCENARIO_REVISION_MISMATCH';
+  | 'SCENARIO_REVISION_MISMATCH'
+  | 'SCENARIO_BROKEN_REFERENCE';
 
 export interface ScenarioIssue {
   readonly code: ScenarioIssueCode;
@@ -27,25 +37,13 @@ export type ScenarioApplicationResult =
 
 type MutableJson = Record<string, unknown> | unknown[];
 
-function isIndex(segment: string): boolean {
-  return /^\d+$/.test(segment);
-}
-
 /**
  * Splits a `/`-separated override path. Leading slashes are tolerated so both
  * `site/altitudeM` and `/site/altitudeM` address the same node.
  */
 function parsePath(path: string): readonly string[] | undefined {
-  const segments = path.split('/').filter((segment) => segment !== '');
+  const segments = parseProjectPath(path);
   return segments.length === 0 ? undefined : segments;
-}
-
-function childOf(container: unknown, segment: string): unknown {
-  if (Array.isArray(container))
-    return isIndex(segment) ? container[Number(segment)] : undefined;
-  if (typeof container === 'object' && container !== null)
-    return (container as Record<string, unknown>)[segment];
-  return undefined;
 }
 
 /**
@@ -58,7 +56,7 @@ function resolveParent(
 ): MutableJson | undefined {
   let current: MutableJson = root;
   for (const segment of segments.slice(0, -1)) {
-    const child = childOf(current, segment);
+    const child = childAt(current, segment);
     if (typeof child !== 'object' || child === null) return undefined;
     current = child as MutableJson;
   }
@@ -66,12 +64,13 @@ function resolveParent(
 }
 
 function readAt(parent: MutableJson, segment: string): unknown {
-  return childOf(parent, segment);
+  return childAt(parent, segment);
 }
 
 function writeAt(parent: MutableJson, segment: string, value: unknown): void {
   if (Array.isArray(parent)) {
-    if (isIndex(segment)) parent[Number(segment)] = value;
+    const index = elementIndex(parent, segment);
+    if (index !== undefined) parent[index] = value;
     return;
   }
   parent[segment] = value;
@@ -79,7 +78,8 @@ function writeAt(parent: MutableJson, segment: string, value: unknown): void {
 
 function removeAt(parent: MutableJson, segment: string): void {
   if (Array.isArray(parent)) {
-    if (isIndex(segment)) parent.splice(Number(segment), 1);
+    const index = elementIndex(parent, segment);
+    if (index !== undefined) parent.splice(index, 1);
     return;
   }
   delete parent[segment];
@@ -199,9 +199,41 @@ export function applyScenario(
   >;
   for (const override of scenario.overrides)
     applyOverride(draft, override, issues);
+  const variant = draft as unknown as Project;
+  // A scenario answers for what it breaks, not for what the project already
+  // carried: only the references its own changes made dangle are reported.
+  for (const broken of referencesBrokenBy(project, variant))
+    issues.push({
+      code: 'SCENARIO_BROKEN_REFERENCE',
+      path: broken.path,
+      message: `Le scénario ${scenario.id} rend une référence invalide : ${broken.path} ${broken.message}.`,
+    });
   if (issues.some(({ code }) => code !== 'SCENARIO_REVISION_MISMATCH'))
     return { status: 'INVALID', issues };
-  return { status: 'OK', project: draft as unknown as Project, issues };
+  return { status: 'OK', project: variant, issues };
+}
+
+function asFile(project: Project) {
+  return {
+    format: 'house-technical-designer-project' as const,
+    schemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
+    project,
+  };
+}
+
+/** Reference problems the variant has and the base project did not. */
+function referencesBrokenBy(
+  project: Project,
+  variant: Project,
+): readonly { readonly path: string; readonly message: string }[] {
+  const before = new Set(
+    validateProjectReferences(asFile(project)).map(
+      ({ path, message }) => `${path} ${message}`,
+    ),
+  );
+  return validateProjectReferences(asFile(variant)).filter(
+    ({ path, message }) => !before.has(`${path} ${message}`),
+  );
 }
 
 /** Applies the scenario carried by the project under the given identifier. */
