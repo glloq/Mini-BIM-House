@@ -605,7 +605,9 @@ fichier de projet promet d'une version à l'autre est écrit dans
   associatives ; accrochage sur grille, extrémités, milieux et intersections ;
   contraintes de longueur et d'angle ; remaniement après coup — extrémité
   déplacée, mur scindé, ouverture redimensionnée, contour de dalle repris
-  sommet par sommet ; annulation et rétablissement de chaque commande.
+  sommet par sommet ; sélection à la bande, fenêtre ou capture selon le sens du
+  tracé, et modification en une fois des propriétés communes à la sélection ;
+  annulation et rétablissement de chaque commande.
 - **Inspecteur** — la barre d'outils crée, l'inspecteur modifie : assemblage et
   rôle d'un mur, dimensions d'une ouverture, usage d'une pièce, pente d'une
   toiture, position d'un nœud de réseau.
@@ -654,8 +656,8 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   résultats des réseaux, de la ventilation et de l'électricité se lisent dans
   les tableaux, pas encore sur le dessin.
 - **Productivité CAO** : copier-coller, duplication géométrique, raccord de
-  deux murs, trim/extend, décalage parallèle et transformations multiples ne
-  sont pas implémentés. Les extrémités d'un mur se déplacent, un mur se scinde
+  deux murs, trim/extend, décalage parallèle, rotation, miroir et déplacement
+  d'une sélection ne sont pas implémentés. Les extrémités d'un mur se déplacent, un mur se scinde
   et une ouverture se redimensionne ; le reste du remaniement géométrique reste
   à faire.
 - **Dossier de plans** : `drawingViews` n'est pas encore un contrat typé, si

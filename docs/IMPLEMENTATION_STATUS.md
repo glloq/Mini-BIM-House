@@ -808,6 +808,53 @@ l'interdit, il reste à l'activer à la main dans Réglages → Pages, source
   ventilation et de l'électricité sur le plan ; orchestrateur de calcul
   persistant ; protection de `main`, qui est un réglage du dépôt.
 
+## Fondations de l'éditeur — UI-01 et UI-03 du huitième audit
+
+Un audit consacré à l'interface a constaté que le moteur du projet était
+désormais plus mûr que l'éditeur, et que la structure de celui-ci empêchait de
+le faire grandir : cinq outils inscrits dans six endroits différents, trois
+chaînes de conditions parallèles pour décrire, éditer et manipuler un objet.
+Sa première recommandation était de rendre cette structure extensible **avant**
+d'ajouter les dizaines de familles d'objets qui manquent.
+
+### UI-01 — registres
+
+- Un outil se déclare une fois : famille, libellé, raccourci, nombre de clics
+  attendus, respect des axes du bâtiment, commande produite. Le type des outils
+  est dérivé du registre, donc un outil non déclaré ne peut pas être désigné.
+- La barre d'outils lit les familles au lieu de tenir sa propre liste ; un
+  nouvel outil apparaît auprès de ceux auxquels il appartient.
+- La poignée de clics de l'application ne connaît plus les outils un par un :
+  elle porte les points à l'outil actif, qui dit ce qu'ils veulent dire.
+- Une famille d'objets déclare au même endroit ce que l'inspecteur montre, ce
+  que le panneau des propriétés modifie et les poignées que le plan dessine. Ce
+  qu'elle ne sait pas dire, elle le laisse indéfini et la famille suivante
+  répond.
+
+### UI-03 — sélection et modification multiple
+
+- Bande de sélection : vers la droite, une fenêtre qui ne prend que les objets
+  entièrement compris ; vers la gauche, une capture qui prend tout ce qu'elle
+  touche. La barre d'état dit laquelle est en cours.
+- Un appui décide de son sens au relâchement : sur place c'est un clic, traîné
+  c'est une bande. Ctrl ou Cmd ajoute à la sélection.
+- Tolérance de désignation exprimée en pixels — huit au pointeur, dix-huit au
+  doigt — puis convertie par la caméra, au lieu de 120 mm quel que soit le zoom.
+- Échap défait une chose à la fois, la plus récente d'abord : action en cours,
+  puis outil actif, puis sélection.
+- Modification multiple : les propriétés communes à toute la sélection sont
+  offertes une fois, avec la valeur partagée quand elle existe et « valeurs
+  différentes » sinon — jamais la valeur du premier objet présentée comme celle
+  de tous. Appliquer écrit une seule entrée d'historique : une décision, une
+  annulation.
+
+Restent ouverts, dans l'ordre recommandé par l'audit : le poste de travail
+redimensionnable et l'arbre du projet (UI-02), les transformations CAO —
+déplacer, copier, pivoter, miroir, décaler, scinder en un point choisi, joindre
+(UI-04), la saisie dynamique près du curseur (UI-05), puis l'architecture
+complète, la toiture, l'escalier, les composants placés et l'édition graphique
+des réseaux.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans

@@ -674,6 +674,49 @@ test('selects several objects with a rubber band', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('changes a property of several objects in one go', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  // A point on each partition, away from where the two of them cross: their
+  // bounding boxes share that crossing, and clicking it twice would select and
+  // then deselect the same wall.
+  const along = async (id: string, fx: number, fy: number) => {
+    const shape = (await page.locator(`[id="wall:${id}"]`).boundingBox())!;
+    return {
+      x: shape.x - box.x + shape.width * fx,
+      y: shape.y - box.y + shape.height * fy,
+    };
+  };
+  await canvas.click({ position: await along('wall-partition-v', 0.5, 0.2) });
+  await canvas.click({
+    position: await along('wall-partition-h', 0.2, 0.5),
+    modifiers: ['ControlOrMeta'],
+  });
+  await expect(page.locator('.selection-list li')).toHaveCount(2);
+
+  // Both are partitions, so the shared field shows that value rather than
+  // "different"; their lengths differ, and that field says so.
+  const role = page.getByLabel('Rôle');
+  await expect(role).toHaveValue('INTERIOR');
+  await expect(page.getByLabel('Longueur')).toHaveAttribute(
+    'placeholder',
+    'valeurs différentes',
+  );
+
+  await role.selectOption('EXTERIOR');
+  await expect(page.getByRole('status')).toContainText('2 objets');
+
+  // One decision, one undo: both walls go back together.
+  await canvas.click({ position: await along('wall-partition-v', 0.5, 0.2) });
+  await expect(page.getByLabel('Rôle')).toHaveValue('EXTERIOR');
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.getByLabel('Rôle')).toHaveValue('INTERIOR');
+  expect(errors).toEqual([]);
+});
+
 test('chooses which contour a slab is built from', async ({ page }) => {
   await loadDemo(page);
   await page.getByRole('button', { name: 'Niveaux et pièces' }).click();

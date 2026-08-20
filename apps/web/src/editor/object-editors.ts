@@ -1,4 +1,5 @@
 import type { Project } from '@house-technical-designer/core-domain';
+import { ProjectTransactionCommand } from '@house-technical-designer/editor-core';
 import {
   buildingElementSubject,
   dimensionSubject,
@@ -9,6 +10,7 @@ import {
   wallSubject,
   type InspectorSubject,
 } from './inspector-model.js';
+import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import {
   dimensionEditsFor,
   networkNodeEditsFor,
@@ -172,4 +174,86 @@ export function gripsFor(
     if (grips !== undefined) return grips;
   }
   return [];
+}
+
+/**
+ * A property several selected objects share, edited in one go.
+ *
+ * `values` says whether they agree: an assembly all twelve walls already use is
+ * shown, and twelve different heights are shown as differing rather than as the
+ * first one — writing that back would silently align eleven walls on a value
+ * nobody chose.
+ */
+export interface SharedEdit {
+  readonly id: string;
+  readonly label: string;
+  readonly control: InspectorEdit['control'];
+  readonly hint?: string;
+  /** Whether every selected object already carries the same value. */
+  readonly uniform: boolean;
+  /** The command applying one value to all of them, as a single history entry. */
+  readonly apply: (value: string) => ProjectCommand | undefined;
+}
+
+/**
+ * The properties every object of a selection offers, with a common value.
+ *
+ * Only properties all of them have are offered, and only when they are edited
+ * the same way: a select and a number field sharing a name are not the same
+ * property, and applying one to the other would write nonsense.
+ */
+export function sharedEditsFor(
+  project: Project,
+  selection: readonly string[],
+): readonly SharedEdit[] {
+  if (selection.length < 2) return [];
+  const perObject = selection.map((objectId) => ({
+    objectId,
+    edits: editsFor(project, objectId),
+  }));
+  if (perObject.some(({ edits }) => edits.length === 0)) return [];
+  const [first, ...rest] = perObject;
+  if (first === undefined) return [];
+  const shared: SharedEdit[] = [];
+  for (const candidate of first.edits) {
+    const matches = rest.map(({ edits }) =>
+      edits.find(
+        (edit) =>
+          edit.id === candidate.id &&
+          edit.control.kind === candidate.control.kind,
+      ),
+    );
+    if (matches.some((match) => match === undefined)) continue;
+    const others = matches as readonly InspectorEdit[];
+    const uniform = others.every(
+      (edit) =>
+        String(edit.control.value) === String(candidate.control.value) &&
+        (edit.control.kind !== 'SELECT' ||
+          candidate.control.kind !== 'SELECT' ||
+          edit.control.options.length === candidate.control.options.length),
+    );
+    shared.push({
+      id: candidate.id,
+      label: candidate.label,
+      control: candidate.control,
+      ...(candidate.hint === undefined ? {} : { hint: candidate.hint }),
+      uniform,
+      apply: (value) => {
+        const commands = [candidate, ...others]
+          .map((edit) => edit.apply(value))
+          .filter(
+            (command): command is ProjectCommand => command !== undefined,
+          );
+        // One value refused is the whole edit refused: half a selection changed
+        // would be worse than none, and impossible to undo in one step.
+        if (commands.length !== selection.length) return undefined;
+        return new ProjectTransactionCommand(
+          `multi:${candidate.id}:${selection.join(',')}`,
+          `${candidate.label} · ${selection.length} objets`,
+          commands,
+        );
+      },
+    });
+  }
+  return shared;
 }

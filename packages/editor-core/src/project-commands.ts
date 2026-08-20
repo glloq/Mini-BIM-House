@@ -166,6 +166,60 @@ export const ASSEMBLY_INVALIDATION_DOMAINS = [
 ] as const;
 
 /** Patches existing wall/opening tool commands back into the canonical Project. */
+/**
+ * Several project edits applied as one.
+ *
+ * Changing the assembly of twelve selected walls is one decision, and has to be
+ * one entry in the history: undoing it puts back twelve walls, not the last
+ * one. A refusal anywhere refuses the whole thing, so the project is never left
+ * with half a change applied.
+ */
+export class ProjectTransactionCommand implements ProjectCommand {
+  constructor(
+    readonly id: string,
+    readonly label: string,
+    readonly commands: readonly ProjectCommand[],
+  ) {}
+  validate(project: Project): CommandValidation {
+    let current = project;
+    for (const command of this.commands) {
+      const validation = command.validate(current);
+      if (!validation.valid)
+        return {
+          valid: false,
+          errors: validation.errors.map((error) => `${command.id}: ${error}`),
+        };
+      current = command.execute(current).nextState;
+    }
+    return { valid: true };
+  }
+  execute(project: Project): ProjectCommandExecution {
+    let current = project;
+    const inverses: ProjectCommand[] = [];
+    const changes: ChangeSet[] = [];
+    for (const command of this.commands) {
+      const execution = command.execute(current);
+      current = execution.nextState;
+      // Undoing runs them backwards: the last change made is the first undone.
+      inverses.unshift(execution.inverse);
+      changes.push(execution.changes);
+    }
+    return {
+      nextState: current,
+      inverse: new ProjectTransactionCommand(
+        `${this.id}:inverse`,
+        `Undo ${this.label}`,
+        inverses,
+      ),
+      changes: {
+        objectIds: [...new Set(changes.flatMap(({ objectIds }) => objectIds))],
+        domains: [...new Set(changes.flatMap(({ domains }) => domains))],
+        paths: [...new Set(changes.flatMap(({ paths }) => paths ?? []))],
+      },
+    };
+  }
+}
+
 export class ProjectEditorCommand implements ProjectCommand {
   constructor(
     readonly id: string,

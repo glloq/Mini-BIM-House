@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
 import { loadDemoProject } from '../demo-project.js';
+import { ProjectCommandDispatcher } from '@house-technical-designer/editor-core';
 import {
   OBJECT_EDITORS,
   editsFor,
   gripsFor,
   inspectObject,
+  sharedEditsFor,
 } from './object-editors.js';
 
 function demo(): Project {
@@ -87,5 +89,57 @@ describe('the object families the editor knows', () => {
 
   it('names every family it registers', () => {
     for (const editor of OBJECT_EDITORS) expect(editor.label).not.toBe('');
+  });
+});
+
+describe('editing several objects at once', () => {
+  it('offers the properties they all have', () => {
+    const shared = sharedEditsFor(demo(), ['wall-south', 'wall-north']);
+    expect(shared.map(({ id }) => id)).toContain('assemblyId');
+    expect(shared.map(({ id }) => id)).toContain('role');
+  });
+
+  it('says when they already agree and when they do not', () => {
+    const project = demo();
+    const shared = sharedEditsFor(project, ['wall-south', 'wall-west']);
+    const assembly = shared.find(({ id }) => id === 'assemblyId');
+    // Both are exterior walls of the same assembly.
+    expect(assembly?.uniform).toBe(true);
+    const length = shared.find(({ id }) => id === 'lengthMm');
+    // Their lengths differ, and the panel must not present one as both.
+    expect(length?.uniform).toBe(false);
+  });
+
+  it('applies one value to all of them as a single history entry', () => {
+    const project = demo();
+    const shared = sharedEditsFor(project, ['wall-south', 'wall-north']);
+    const role = shared.find(({ id }) => id === 'role');
+    const command = role?.apply('INTERIOR');
+    expect(command).toBeDefined();
+    if (command === undefined) return;
+    const dispatcher = new ProjectCommandDispatcher(project);
+    expect(dispatcher.dispatch(command).status).toBe('APPLIED');
+    const walls = dispatcher.project.building.levels[0]!.walls;
+    expect(
+      walls
+        .filter(({ id }) => id === 'wall-south' || id === 'wall-north')
+        .map(({ role: value }) => value),
+    ).toEqual(['INTERIOR', 'INTERIOR']);
+
+    // One decision, one undo: both walls go back together.
+    expect(dispatcher.undo().status).toBe('APPLIED');
+    expect(
+      dispatcher.project.building.levels[0]!.walls.filter(
+        ({ id }) => id === 'wall-south' || id === 'wall-north',
+      ).map(({ role: value }) => value),
+    ).toEqual(['EXTERIOR', 'EXTERIOR']);
+  });
+
+  it('offers nothing when the selection has no property in common', () => {
+    expect(sharedEditsFor(demo(), ['wall-south', 'space-living'])).toEqual([]);
+  });
+
+  it('offers nothing for a selection of one', () => {
+    expect(sharedEditsFor(demo(), ['wall-south'])).toEqual([]);
   });
 });
