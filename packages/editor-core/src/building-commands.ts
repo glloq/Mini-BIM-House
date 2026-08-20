@@ -1,9 +1,12 @@
 import type {
+  Dimension,
   Level,
+  Opening,
   Project,
   RoofPlane,
   Slab,
   Space,
+  Wall,
 } from '@house-technical-designer/core-domain';
 import {
   detectSpaceBoundaries,
@@ -586,4 +589,287 @@ export function detectRooms(
       };
     })
     .sort((first, second) => second.areaM2 - first.areaM2);
+}
+
+/**
+ * What an element edit may change.
+ *
+ * A patch names only the fields it changes. Anything absent keeps its current
+ * value: an edit never rewrites a field the user did not touch.
+ */
+export interface WallPatch {
+  readonly assemblyId?: string;
+  readonly role?: Wall['role'];
+  readonly heightMm?: number;
+  readonly baseOffsetMm?: number;
+  readonly referenceSide?: Wall['referenceSide'];
+}
+
+function finitePositive(value: number | undefined, label: string): string[] {
+  if (value === undefined) return [];
+  if (!Number.isFinite(value)) return [`${label} doit être un nombre fini.`];
+  return value > 0 ? [] : [`${label} doit être strictement positif.`];
+}
+
+function assemblyExists(project: Project, assemblyId: string | undefined) {
+  return (
+    assemblyId === undefined ||
+    (project.assemblies ?? []).some(({ id }) => id === assemblyId)
+  );
+}
+
+export class UpdateWallCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly wallId: string,
+    readonly patch: WallPatch,
+  ) {
+    super(`wall:update:${wallId}`, 'Modifier un mur');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level?.walls.some(({ id }) => id === this.wallId) !== true)
+      return rejected(`Le mur ${this.wallId} est introuvable.`);
+    if (!assemblyExists(project, this.patch.assemblyId))
+      return rejected(`L'assemblage ${this.patch.assemblyId} est introuvable.`);
+    const wall = level.walls.find(({ id }) => id === this.wallId)!;
+    if (this.patch.heightMm !== undefined && wall.heightMode !== 'EXPLICIT')
+      return rejected(
+        'Ce mur tient sa hauteur du niveau supérieur : elle ne se saisit pas ici.',
+      );
+    const errors = [
+      ...finitePositive(this.patch.heightMm, 'La hauteur du mur'),
+      ...(this.patch.baseOffsetMm === undefined ||
+      Number.isFinite(this.patch.baseOffsetMm)
+        ? []
+        : ['Le décalage en pied doit être un nombre fini.']),
+    ];
+    return errors.length > 0 ? rejected(...errors) : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      walls: level.walls.map((wall) =>
+        wall.id === this.wallId
+          ? ({
+              ...wall,
+              ...this.patch,
+              ...(this.patch.assemblyId === undefined
+                ? {}
+                : { assemblyId: this.patch.assemblyId as Wall['assemblyId'] }),
+            } as Wall)
+          : wall,
+      ),
+    }));
+  }
+}
+
+export interface OpeningPatch {
+  readonly openingType?: Opening['openingType'];
+  readonly widthMm?: number;
+  readonly heightMm?: number;
+  readonly sillHeightMm?: number;
+  readonly offsetAlongHostMm?: number;
+}
+
+/**
+ * Edits an opening, keeping it inside the wall that hosts it.
+ *
+ * The host wall is the constraint: an opening wider than what remains of its
+ * wall is refused rather than clamped, because clamping would silently change
+ * a value the user typed.
+ */
+export class UpdateOpeningCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly openingId: string,
+    readonly patch: OpeningPatch,
+  ) {
+    super(`opening:update:${openingId}`, 'Modifier une ouverture');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    const opening = level?.openings.find(({ id }) => id === this.openingId);
+    if (level === undefined || opening === undefined)
+      return rejected(`L'ouverture ${this.openingId} est introuvable.`);
+    const errors = [
+      ...finitePositive(this.patch.widthMm, "La largeur de l'ouverture"),
+      ...finitePositive(this.patch.heightMm, "La hauteur de l'ouverture"),
+    ];
+    const sill = this.patch.sillHeightMm;
+    if (sill !== undefined && (!Number.isFinite(sill) || sill < 0))
+      errors.push("L'allège doit être un nombre fini positif ou nul.");
+    const offset = this.patch.offsetAlongHostMm;
+    if (offset !== undefined && (!Number.isFinite(offset) || offset < 0))
+      errors.push('La position sur le mur doit être positive ou nulle.');
+    const host = level.walls.find(({ id }) => id === opening.hostElementId);
+    if (host !== undefined) {
+      const next = { ...opening, ...this.patch };
+      const start = host.path.points[0];
+      const end = host.path.points.at(-1);
+      if (start !== undefined && end !== undefined) {
+        const wallLengthMm = Math.hypot(end.x - start.x, end.y - start.y);
+        if (next.offsetAlongHostMm + next.widthMm > wallLengthMm)
+          errors.push(
+            `L'ouverture dépasserait le mur qui la porte (${Math.round(wallLengthMm)} mm).`,
+          );
+      }
+      // A wall whose top follows another level has no explicit height here;
+      // the vertical fit is then checked when that height is resolved, not
+      // guessed from a value this command does not have.
+      if (
+        host.heightMode === 'EXPLICIT' &&
+        next.sillHeightMm + next.heightMm > host.heightMm
+      )
+        errors.push(
+          `L'ouverture dépasserait la hauteur du mur (${host.heightMm} mm).`,
+        );
+    }
+    return errors.length > 0 ? rejected(...errors) : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      openings: level.openings.map((opening) =>
+        opening.id === this.openingId ? { ...opening, ...this.patch } : opening,
+      ),
+    }));
+  }
+}
+
+export interface SlabPatch {
+  readonly assemblyId?: string;
+  readonly role?: Slab['role'];
+  readonly elevationOffsetMm?: number;
+}
+
+export class UpdateSlabCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly slabId: string,
+    readonly patch: SlabPatch,
+  ) {
+    super(`slab:update:${slabId}`, 'Modifier une dalle');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level?.slabs.some(({ id }) => id === this.slabId) !== true)
+      return rejected(`La dalle ${this.slabId} est introuvable.`);
+    if (!assemblyExists(project, this.patch.assemblyId))
+      return rejected(`L'assemblage ${this.patch.assemblyId} est introuvable.`);
+    return this.patch.elevationOffsetMm !== undefined &&
+      !Number.isFinite(this.patch.elevationOffsetMm)
+      ? rejected('Le décalage de la dalle doit être un nombre fini.')
+      : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      slabs: level.slabs.map((slab) =>
+        slab.id === this.slabId ? ({ ...slab, ...this.patch } as Slab) : slab,
+      ),
+    }));
+  }
+}
+
+export interface RoofPatch {
+  readonly assemblyId?: string;
+  readonly slopeDeg?: number;
+  readonly azimuthDeg?: number;
+  readonly baseElevationMm?: number;
+}
+
+export class UpdateRoofCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly roofId: string,
+    readonly patch: RoofPatch,
+  ) {
+    super(`roof:update:${roofId}`, 'Modifier un pan de toiture');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level?.roofs.some(({ id }) => id === this.roofId) !== true)
+      return rejected(`Le pan de toiture ${this.roofId} est introuvable.`);
+    if (!assemblyExists(project, this.patch.assemblyId))
+      return rejected(`L'assemblage ${this.patch.assemblyId} est introuvable.`);
+    const errors: string[] = [];
+    const slope = this.patch.slopeDeg;
+    if (
+      slope !== undefined &&
+      (!Number.isFinite(slope) || slope < 0 || slope >= 90)
+    )
+      errors.push('La pente doit être comprise entre 0 et 90 degrés exclus.');
+    const azimuth = this.patch.azimuthDeg;
+    if (
+      azimuth !== undefined &&
+      (!Number.isFinite(azimuth) || azimuth < 0 || azimuth >= 360)
+    )
+      errors.push("L'azimut doit être compris entre 0 et 360 degrés exclus.");
+    if (
+      this.patch.baseElevationMm !== undefined &&
+      !Number.isFinite(this.patch.baseElevationMm)
+    )
+      errors.push("L'altitude de base doit être un nombre fini.");
+    return errors.length > 0 ? rejected(...errors) : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      roofs: level.roofs.map((roof) =>
+        roof.id === this.roofId
+          ? ({ ...roof, ...this.patch } as RoofPlane)
+          : roof,
+      ),
+    }));
+  }
+}
+
+export interface DimensionPatch {
+  readonly type?: Dimension['type'];
+  readonly offsetMm?: number;
+  /** `null` drops the imposed text and restores the measured value. */
+  readonly overrideText?: string | null;
+}
+
+export class UpdateDimensionCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly dimensionId: string,
+    readonly patch: DimensionPatch,
+  ) {
+    super(`dimension:update:${dimensionId}`, 'Modifier une cote');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level?.annotations.some(({ id }) => id === this.dimensionId) !== true)
+      return rejected(`La cote ${this.dimensionId} est introuvable.`);
+    return this.patch.offsetMm !== undefined &&
+      !Number.isFinite(this.patch.offsetMm)
+      ? rejected('Le décalage de la cote doit être un nombre fini.')
+      : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      annotations: level.annotations.map((annotation) => {
+        if (annotation.id !== this.dimensionId) return annotation;
+        const { overrideText: _dropped, ...rest } = annotation;
+        const text =
+          this.patch.overrideText === undefined
+            ? annotation.overrideText
+            : this.patch.overrideText;
+        return {
+          ...rest,
+          ...(this.patch.type === undefined ? {} : { type: this.patch.type }),
+          ...(this.patch.offsetMm === undefined
+            ? {}
+            : { offsetMm: this.patch.offsetMm }),
+          ...(text === null || text === undefined || text.trim() === ''
+            ? {}
+            : { overrideText: text }),
+        };
+      }),
+    }));
+  }
 }

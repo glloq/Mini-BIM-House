@@ -472,3 +472,64 @@ test('asks before replacing a project that has unexported changes', async ({
     .click();
   await expect(page.getByRole('status')).toContainText('Nouveau projet');
 });
+
+test('edits the selected wall from the inspector', async ({ page }) => {
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  // The east wall carries no opening and no partition crosses it.
+  const east = (await page.locator('[id="wall:wall-east"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: east.x - box.x + east.width / 2,
+      y: east.y - box.y + east.height * 0.25,
+    },
+  });
+  const inspector = page.locator('.inspector-subject');
+  await expect(inspector).toContainText('wall-east');
+  await expect(inspector).toContainText('EXTERIOR');
+
+  // A select is a decision: it applies at once.
+  await inspector.getByLabel('Rôle').selectOption('INTERIOR');
+  await expect(page.getByRole('status')).toContainText('Modifier un mur');
+  await expect(inspector).toContainText('INTERIOR');
+
+  // A typed value is committed on Enter, not on every keystroke.
+  const height = inspector.getByLabel('Hauteur (mm)');
+  await height.fill('2700');
+  await height.press('Enter');
+  await expect(inspector).toContainText('2.70 m');
+
+  // Both changes are undoable, one command at a time.
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(inspector).toContainText('2.60 m');
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(inspector).toContainText('EXTERIOR');
+});
+
+test('refuses an opening that would no longer fit its wall', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  const opening = (await page
+    .locator('[data-layer="architecture.openings"] > *')
+    .first()
+    .boundingBox())!;
+  await canvas.click({
+    position: {
+      x: opening.x - box.x + opening.width / 2,
+      y: opening.y - box.y + opening.height / 2,
+    },
+  });
+  const inspector = page.locator('.inspector-subject');
+  await expect(inspector).toBeVisible();
+
+  const width = inspector.getByLabel('Largeur (mm)');
+  await width.fill('99000');
+  await width.press('Enter');
+  await expect(page.getByRole('status')).toContainText('Refusé');
+  // The model is unchanged: a refused edit changes nothing.
+  await expect(inspector).not.toContainText('99.00 m');
+});

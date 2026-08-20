@@ -990,6 +990,9 @@ function App() {
               project={file.project}
               selection={editor.selection}
               onClear={() => dispatchEditor({ type: 'CLEAR_SELECTION' })}
+              onCommand={runCommand}
+              onMessage={setMessage}
+              onDelete={deleteSelection}
             />
           ) : (
             <>

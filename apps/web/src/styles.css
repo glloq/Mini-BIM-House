@@ -1112,3 +1112,23 @@ button.icon {
   display: grid;
   gap: 1.5rem;
 }
+
+/* The inspector edits: the panel that changes the model, not just reads it. */
+.inspector-edits {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0e6e2;
+}
+.inspector-edit input,
+.inspector-edit select {
+  width: 100%;
+  border: 1px solid #cbd5cf;
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  background: #fff;
+}
+.inspector-subject .actions {
+  margin-top: 0.75rem;
+}
