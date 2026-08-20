@@ -11,13 +11,16 @@ import type { AnalysisOverlay } from '@house-technical-designer/calculation-core
 import {
   buildPlanView,
   overlayPrimitives,
+  objectsInBox,
   pickPrimitive,
+  selectionBoxOf,
   previewWallFaces,
   type PlanViewResult,
 } from '@house-technical-designer/view-query';
 import type { EditorAction, EditorState } from './editor-state.js';
 import { offsetAlongWall, type GeometryEdit, type Grip } from './grips.js';
 import { gripsFor } from './object-editors.js';
+import { pickToleranceMm } from './pick-tolerance.js';
 import {
   constrainPoint,
   constrainsDrafting,
@@ -41,8 +44,8 @@ function gripLabel(grip: Grip): string {
   }
 }
 
-/** Model-space pick tolerance, generous enough for a fingertip on a tablet. */
-const PICK_TOLERANCE_MM = 120;
+/** How far the pointer travels before a click becomes a rubber band, in pixels. */
+const BAND_THRESHOLD_PX = 4;
 
 export interface PlanCanvasProps {
   readonly project: Project;
@@ -102,10 +105,53 @@ export function PlanCanvas({
   const dragging = useRef<
     { readonly grip: Grip; readonly from: { x: number; y: number } } | undefined
   >(undefined);
+  /** Where the pointer went down, while it is deciding between click and band. */
+  const press = useRef<
+    | {
+        readonly clientX: number;
+        readonly clientY: number;
+        readonly model: { x: number; y: number };
+        readonly additive: boolean;
+        readonly pointerType: string;
+      }
+    | undefined
+  >(undefined);
+
+  /** The rubber band, drawn the way every other preview is. */
+  const band = useMemo<readonly ScenePrimitive[]>(() => {
+    if (editor.selectionBox === undefined) return [];
+    const { box, mode } = selectionBoxOf(
+      editor.selectionBox.from,
+      editor.selectionBox.to,
+    );
+    return [
+      {
+        id: 'preview:selection-box',
+        semanticRole: 'ANNOTATION' as const,
+        geometry: {
+          kind: 'POLYLINE' as const,
+          polyline: {
+            points: [
+              box.min,
+              { x: box.max.x, y: box.min.y },
+              box.max,
+              { x: box.min.x, y: box.max.y },
+            ],
+            closed: true,
+          },
+        },
+        layer: 'annotation.dimensions',
+        zIndex: 95,
+        discipline: 'ARCHITECTURE' as const,
+        state: 'GHOST' as const,
+        metadata: { selectionMode: mode },
+      },
+    ];
+  }, [editor.selectionBox]);
 
   const preview = useMemo<readonly ScenePrimitive[]>(() => {
     if (editor.pendingPoints.length === 0 || editor.cursorModel === undefined)
-      return [];
+      return band;
     const origin = editor.pendingPoints[editor.pendingPoints.length - 1]!;
     const target = constrainPoint(
       origin,
@@ -123,6 +169,7 @@ export function PlanCanvas({
     const angleDeg =
       (Math.atan2(target.y - origin.y, target.x - origin.x) * 180) / Math.PI;
     return [
+      ...band,
       ...(footprint === undefined
         ? []
         : [
@@ -165,7 +212,7 @@ export function PlanCanvas({
         state: 'GHOST' as const,
       },
     ];
-  }, [editor, wallThicknessMm]);
+  }, [band, editor, wallThicknessMm]);
 
   const base: PlanViewResult = useMemo(
     () =>
@@ -325,15 +372,41 @@ export function PlanCanvas({
         model,
         ...(snap === undefined ? {} : { snap }),
       });
-      if (editor.activeTool === 'SELECT') {
-        const picked = pickPrimitive(plan.primitives, model, PICK_TOLERANCE_MM);
-        dispatch({
-          type: 'HOVER',
-          ...(picked === undefined ? {} : { objectId: picked.objectId }),
-        });
+      if (editor.activeTool !== 'SELECT') return;
+      const pressed = press.current;
+      if (pressed !== undefined) {
+        const travelled = Math.hypot(
+          event.clientX - pressed.clientX,
+          event.clientY - pressed.clientY,
+        );
+        // Past a few pixels the gesture is a band and not a click; below it,
+        // the pointer is only shaking.
+        if (travelled > BAND_THRESHOLD_PX)
+          dispatch({
+            type: 'SET_SELECTION_BOX',
+            from: pressed.model,
+            to: model,
+          });
+        return;
       }
+      const picked = pickPrimitive(
+        plan.primitives,
+        model,
+        pickToleranceMm(editor.camera, event.pointerType),
+      );
+      dispatch({
+        type: 'HOVER',
+        ...(picked === undefined ? {} : { objectId: picked.objectId }),
+      });
     },
-    [dispatch, editor.activeTool, modelPointOf, plan.primitives, snapFor],
+    [
+      dispatch,
+      editor.activeTool,
+      editor.camera,
+      modelPointOf,
+      plan.primitives,
+      snapFor,
+    ],
   );
 
   const handleDown = useCallback(
@@ -346,12 +419,17 @@ export function PlanCanvas({
       const model = modelPointOf(event);
       if (model === undefined) return;
       if (editor.activeTool === 'SELECT') {
-        const picked = pickPrimitive(plan.primitives, model, PICK_TOLERANCE_MM);
-        dispatch({
-          type: 'SELECT',
-          ...(picked === undefined ? {} : { objectId: picked.objectId }),
+        // What this press means is not known yet: released where it started it
+        // is a click on one object, dragged it is a band over several. The
+        // decision is taken when the pointer comes back up.
+        press.current = {
+          clientX: event.clientX,
+          clientY: event.clientY,
+          model,
           additive: event.ctrlKey || event.metaKey,
-        });
+          pointerType: event.pointerType,
+        };
+        event.currentTarget.setPointerCapture(event.pointerId);
         return;
       }
       const snapped = snapFor(event)?.point ?? model;
@@ -367,15 +445,50 @@ export function PlanCanvas({
       if (points.length >= requiredPoints(editor.activeTool))
         onCommitPoints(points);
     },
-    [dispatch, editor, modelPointOf, onCommitPoints, plan.primitives, snapFor],
+    [dispatch, editor, modelPointOf, onCommitPoints, snapFor],
   );
 
-  const handleUp = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
-    if (panOrigin.current === undefined) return;
-    panOrigin.current = undefined;
-    if (event.currentTarget.hasPointerCapture(event.pointerId))
-      event.currentTarget.releasePointerCapture(event.pointerId);
-  }, []);
+  const handleUp = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (event.currentTarget.hasPointerCapture(event.pointerId))
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      if (panOrigin.current !== undefined) {
+        panOrigin.current = undefined;
+        return;
+      }
+      const pressed = press.current;
+      press.current = undefined;
+      if (pressed === undefined) return;
+      const model = modelPointOf(event) ?? pressed.model;
+      if (editor.selectionBox !== undefined) {
+        const { box, mode } = selectionBoxOf(pressed.model, model);
+        dispatch({ type: 'CLEAR_SELECTION_BOX' });
+        dispatch({
+          type: 'SELECT_MANY',
+          objectIds: objectsInBox(plan.primitives, box, mode),
+          additive: pressed.additive,
+        });
+        return;
+      }
+      const picked = pickPrimitive(
+        plan.primitives,
+        pressed.model,
+        pickToleranceMm(editor.camera, pressed.pointerType),
+      );
+      dispatch({
+        type: 'SELECT',
+        ...(picked === undefined ? {} : { objectId: picked.objectId }),
+        additive: pressed.additive,
+      });
+    },
+    [
+      dispatch,
+      editor.camera,
+      editor.selectionBox,
+      modelPointOf,
+      plan.primitives,
+    ],
+  );
 
   const grips = useMemo(
     () =>
@@ -601,6 +714,13 @@ export function PlanCanvas({
           : `${Math.round(editor.cursorModel.x)} ; ${Math.round(editor.cursorModel.y)} mm`}
         {editor.activeSnap !== undefined &&
           ` · accroche ${editor.activeSnap.kind.toLowerCase()}`}
+        {/* The two directions of a band ask two different questions, and the
+            rectangle alone does not say which one is being asked. */}
+        {editor.selectionBox !== undefined &&
+          (selectionBoxOf(editor.selectionBox.from, editor.selectionBox.to)
+            .mode === 'WINDOW'
+            ? ' · fenêtre : objets entièrement compris'
+            : ' · capture : objets touchés')}
       </p>
     </div>
   );

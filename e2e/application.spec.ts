@@ -624,6 +624,56 @@ test('deletes a multiple selection as one undoable action', async ({
   await expect(walls).toHaveCount(6);
 });
 
+test('selects several objects with a rubber band', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  // The pointer is driven in viewport coordinates, so the canvas has to be
+  // where the test thinks it is.
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  const at = (fx: number, fy: number) => ({
+    x: box.x + box.width * fx,
+    y: box.y + box.height * fy,
+  });
+
+  // Dragged rightwards, the band takes what it encloses.
+  const from = at(0.02, 0.04);
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  const halfway = at(0.5, 0.5);
+  await page.mouse.move(halfway.x, halfway.y, { steps: 4 });
+  await expect(page.locator('#preview\\:selection-box')).toHaveCount(1);
+  await expect(page.locator('.canvas-status')).toContainText('fenêtre');
+  const to = at(0.98, 0.96);
+  await page.mouse.move(to.x, to.y, { steps: 4 });
+  await page.mouse.up();
+
+  const selection = page.locator('.selection-list li');
+  await expect(selection.first()).toBeVisible();
+  expect(await selection.count()).toBeGreaterThan(1);
+  // The band is gone once released.
+  await expect(page.locator('#preview\\:selection-box')).toHaveCount(0);
+
+  // Escape clears the selection once nothing else is in progress.
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.selection-list li')).toHaveCount(0);
+
+  // Dragged leftwards, the band takes everything it touches: a band far too
+  // small to enclose a wall still catches the ones crossing it.
+  const start = at(0.55, 0.55);
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  const back = at(0.45, 0.45);
+  await page.mouse.move(back.x, back.y, { steps: 4 });
+  await expect(page.locator('.canvas-status')).toContainText('capture');
+  await page.mouse.up();
+  await expect(
+    page.locator('.inspector-subject, .selection-list'),
+  ).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test('chooses which contour a slab is built from', async ({ page }) => {
   await loadDemo(page);
   await page.getByRole('button', { name: 'Niveaux et pièces' }).click();

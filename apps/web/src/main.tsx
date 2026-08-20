@@ -806,11 +806,10 @@ function App() {
       }
       switch (command) {
         case 'tool.select':
-          dispatchEditor(
-            editor.pendingPoints.length > 0
-              ? { type: 'CANCEL' }
-              : { type: 'SET_TOOL', tool: 'SELECT' },
-          );
+          // Échap défait une chose à la fois, la plus récente d'abord :
+          // l'action en cours, puis l'outil, puis la sélection. Le réducteur
+          // sait où l'on en est ; la touche ne fait que le lui dire.
+          dispatchEditor({ type: 'CANCEL' });
           return;
         case 'edit.cancel':
           dispatchEditor({ type: 'CANCEL' });

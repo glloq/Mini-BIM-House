@@ -94,6 +94,8 @@ export interface EditorState {
   readonly levelId?: string;
   /** Points already committed for the tool in progress. */
   readonly pendingPoints: readonly Point2D[];
+  /** The rubber band being dragged, while one is. */
+  readonly selectionBox?: { readonly from: Point2D; readonly to: Point2D };
   readonly cursorModel?: Point2D;
   readonly directInput: DirectInput;
 }
@@ -137,6 +139,17 @@ export type EditorAction =
       readonly additive?: boolean;
     }
   | { readonly type: 'CLEAR_SELECTION' }
+  | {
+      readonly type: 'SELECT_MANY';
+      readonly objectIds: readonly string[];
+      readonly additive?: boolean;
+    }
+  | {
+      readonly type: 'SET_SELECTION_BOX';
+      readonly from: Point2D;
+      readonly to: Point2D;
+    }
+  | { readonly type: 'CLEAR_SELECTION_BOX' }
   | { readonly type: 'HOVER'; readonly objectId?: string }
   | { readonly type: 'RESIZE'; readonly viewport: EditorViewport }
   | { readonly type: 'PAN'; readonly deltaPx: ScreenPoint }
@@ -232,6 +245,26 @@ export function editorReducer(
           }
         : { ...state, selection: [...state.selection, action.objectId] };
     }
+    case 'SELECT_MANY': {
+      const { selectionBox: _band, ...rest } = state;
+      if (action.additive !== true)
+        return { ...rest, selection: [...action.objectIds] };
+      // Adding a band to a selection adds what it caught and removes nothing:
+      // taking objects away is what clicking them again is for.
+      return {
+        ...rest,
+        selection: [...new Set([...state.selection, ...action.objectIds])],
+      };
+    }
+    case 'SET_SELECTION_BOX':
+      return {
+        ...state,
+        selectionBox: { from: action.from, to: action.to },
+      };
+    case 'CLEAR_SELECTION_BOX': {
+      const { selectionBox: _band, ...rest } = state;
+      return rest;
+    }
     case 'CLEAR_SELECTION':
       return { ...state, selection: [] };
     case 'HOVER': {
@@ -297,8 +330,17 @@ export function editorReducer(
         ? { ...state, pendingPoints: [], directInput: {} }
         : { ...state, pendingPoints: points };
     }
-    case 'CANCEL':
-      return { ...state, pendingPoints: [], directInput: {}, selection: [] };
+    case 'CANCEL': {
+      // One step at a time, and the most recent first. Abandoning a wall being
+      // drawn used to clear the selection as well, so a mis-started line cost
+      // the twelve walls that were about to be edited.
+      const { selectionBox: _band, ...rest } = state;
+      if (state.pendingPoints.length > 0 || state.selectionBox !== undefined)
+        return { ...rest, pendingPoints: [], directInput: {} };
+      if (state.activeTool !== 'SELECT')
+        return { ...rest, activeTool: 'SELECT', directInput: {} };
+      return { ...rest, selection: [] };
+    }
     case 'SET_SNAP':
       return { ...state, snap: { ...state.snap, ...action.snap } };
     case 'SET_DIRECT_INPUT':

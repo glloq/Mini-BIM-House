@@ -146,6 +146,62 @@ describe('editor state', () => {
     expect(current.pendingPoints).toEqual([]);
   });
 
+  it('undoes one thing at a time, the most recent first', () => {
+    // Abandoning a wall being drawn used to clear the selection too, so a
+    // mis-started line cost the objects that were about to be edited.
+    let current = editorReducer(state(), {
+      type: 'SELECT_MANY',
+      objectIds: ['wall-a', 'wall-b'],
+    });
+    current = editorReducer(current, { type: 'SET_TOOL', tool: 'WALL' });
+    current = editorReducer(current, {
+      type: 'COMMIT_POINT',
+      point: { x: 0, y: 0 },
+    });
+
+    current = editorReducer(current, { type: 'CANCEL' });
+    expect(current.pendingPoints).toEqual([]);
+    expect(current.activeTool).toBe('WALL');
+    expect(current.selection).toEqual(['wall-a', 'wall-b']);
+
+    current = editorReducer(current, { type: 'CANCEL' });
+    expect(current.activeTool).toBe('SELECT');
+    expect(current.selection).toEqual(['wall-a', 'wall-b']);
+
+    current = editorReducer(current, { type: 'CANCEL' });
+    expect(current.selection).toEqual([]);
+  });
+
+  it('abandons the rubber band before anything else', () => {
+    let current = editorReducer(state(), {
+      type: 'SET_SELECTION_BOX',
+      from: { x: 0, y: 0 },
+      to: { x: 1000, y: 1000 },
+    });
+    current = editorReducer(current, { type: 'CANCEL' });
+    expect(current.selectionBox).toBeUndefined();
+    expect(current.activeTool).toBe('SELECT');
+  });
+
+  it('replaces the selection with what a band caught, or adds to it', () => {
+    let current = editorReducer(state(), {
+      type: 'SELECT',
+      objectId: 'wall-a',
+    });
+    current = editorReducer(current, {
+      type: 'SELECT_MANY',
+      objectIds: ['wall-b', 'wall-c'],
+    });
+    expect(current.selection).toEqual(['wall-b', 'wall-c']);
+    current = editorReducer(current, {
+      type: 'SELECT_MANY',
+      objectIds: ['wall-c', 'wall-d'],
+      additive: true,
+    });
+    // What was already selected stays, and nothing is counted twice.
+    expect(current.selection).toEqual(['wall-b', 'wall-c', 'wall-d']);
+  });
+
   it('cancels the action in progress without touching the tool', () => {
     let current = editorReducer(state(), { type: 'SET_TOOL', tool: 'WALL' });
     current = editorReducer(current, {
