@@ -105,7 +105,7 @@ test('runs every calculation module from the dashboard', async ({ page }) => {
   await loadDemo(page);
   await page.getByRole('button', { name: 'Calculs', exact: true }).click();
   await expect(page.locator('.dashboard-card').first()).toBeVisible();
-  await expect(page.locator('.module-header')).toHaveCount(16);
+  await expect(page.locator('.module-header')).toHaveCount(17);
   // No module may end in a hard failure on the reference project.
   await expect(page.locator('.badge.status-error')).toHaveCount(0);
   await expect(page.locator('.badge.status-failed')).toHaveCount(0);
@@ -245,7 +245,10 @@ test('creates a technical network, places a node on the plan and routes it', asy
   await expect(page.locator('.library-table tbody tr').first()).toBeVisible();
 
   await page.getByLabel('Discipline', { exact: true }).selectOption('HEATING');
-  await page.getByLabel('Type de système').fill('RADIATOR_LOOP');
+  // The system is chosen from the kinds the discipline offers, not spelled.
+  await page
+    .getByLabel('Système', { exact: true })
+    .selectOption('RADIATOR_LOOP');
   await page.getByRole('button', { name: 'Créer le réseau' }).click();
   const networkRow = page.locator('.library-table tbody tr', {
     hasText: 'RADIATOR_LOOP',
@@ -275,6 +278,76 @@ test('creates a technical network, places a node on the plan and routes it', asy
   const segments = page.locator('.library-table tbody tr', { hasText: 'PIPE' });
   await expect(segments).toHaveCount(1);
   await expect(segments).toContainText(' m');
+  expect(errors).toEqual([]);
+});
+
+test('sizes a duct and a terminal from the network inspector', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Réseaux', exact: true }).click();
+  await page
+    .locator('.library-table tbody tr', { hasText: 'Ventilation' })
+    .getByRole('button', { name: 'Ventilation' })
+    .click();
+
+  // A duct states its bore, its shape and its role; nothing is assumed for it.
+  const duct = page
+    .locator('.library-table tbody tr', { hasText: 'DUCT' })
+    .first();
+  await duct.getByRole('button', { name: 'Propriétés' }).click();
+  const diameter = page.getByLabel('Diamètre intérieur');
+  await expect(diameter).toBeVisible();
+  await diameter.fill('0.16');
+  await diameter.press('Enter');
+  await expect(page.getByRole('status')).toContainText(
+    'Modifier un tronçon du réseau',
+  );
+
+  // An out-of-range value is refused rather than stored.
+  const terminal = page
+    .locator('.library-table tbody tr', { hasText: 'Bouche' })
+    .first();
+  await terminal.getByRole('button', { name: 'Propriétés' }).click();
+  const flow = page.getByLabel('Débit visé');
+  await expect(flow).toBeVisible();
+  await flow.fill('-10');
+  await flow.press('Enter');
+  await expect(page.getByRole('status')).toContainText('Refusé');
+  await flow.fill('52');
+  await flow.press('Enter');
+  await expect(page.getByRole('status')).toContainText(
+    'Modifier un nœud du réseau',
+  );
+
+  // What was typed is what the file carries.
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  const saved = JSON.parse(
+    await readFile(await (await download).path(), 'utf8'),
+  ) as {
+    project: {
+      systems: readonly {
+        readonly discipline: string;
+        readonly nodes: readonly {
+          readonly properties?: Record<string, unknown>;
+        }[];
+        readonly edges: readonly {
+          readonly properties?: Record<string, unknown>;
+        }[];
+      }[];
+    };
+  };
+  const ventilation = saved.project.systems.find(
+    ({ discipline }) => discipline === 'VENTILATION',
+  );
+  expect(
+    ventilation?.edges.some((edge) => edge.properties?.diameterM === 0.16),
+  ).toBe(true);
+  expect(
+    ventilation?.nodes.some((node) => node.properties?.targetFlowM3h === 52),
+  ).toBe(true);
   expect(errors).toEqual([]);
 });
 
@@ -730,7 +803,7 @@ test('gathers what the project does not resolve and offers to fix it', async ({
   await loadDemo(page);
   // Run the modules first: their missing inputs are part of the findings.
   await page.getByRole('button', { name: 'Calculs', exact: true }).click();
-  await expect(page.locator('.module-header')).toHaveCount(16);
+  await expect(page.locator('.module-header')).toHaveCount(17);
 
   await page.getByRole('button', { name: 'Vérifications' }).click();
   const findings = page.locator('.alert-list li');
@@ -867,17 +940,15 @@ test('activates a rule pack and reports what it checked', async ({ page }) => {
   await expect(report.locator('.rule-card')).toContainText('Non applicable');
 
   // Two rainwater systems, judged one by one rather than through the first.
-  for (const suffix of ['NORTH', 'SOUTH']) {
+  for (const system of ['ROOF_DRAINAGE', 'HARVESTING']) {
     await page.getByRole('button', { name: 'Réseaux', exact: true }).click();
     await page
       .getByLabel('Discipline', { exact: true })
       .selectOption('RAINWATER');
-    await page.getByLabel('Type de système').fill(`HARVESTING_${suffix}`);
+    await page.getByLabel('Système', { exact: true }).selectOption(system);
     await page.getByRole('button', { name: 'Créer le réseau' }).click();
     await expect(
-      page.locator('.library-table tbody tr', {
-        hasText: `HARVESTING_${suffix}`,
-      }),
+      page.locator('.library-table tbody tr', { hasText: system }),
     ).toHaveCount(1);
   }
 
@@ -985,7 +1056,7 @@ test('never offers to fix a value the settings screen cannot take', async ({
 }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Calculs', exact: true }).click();
-  await expect(page.locator('.module-header')).toHaveCount(16);
+  await expect(page.locator('.module-header')).toHaveCount(17);
   await page.getByRole('button', { name: 'Vérifications' }).click();
 
   const findings = page.locator('.alert-list li');

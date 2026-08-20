@@ -1,4 +1,5 @@
 import type { Point3D } from '@house-technical-designer/geometry';
+import type { JsonValue } from './types.js';
 
 export type NetworkDiscipline =
   | 'WATER'
@@ -17,6 +18,16 @@ export interface NetworkNode {
   readonly position: Point3D;
   readonly hostObjectId?: string;
   readonly spaceId?: string;
+  /** The equipment this node stands for, when it stands for one. */
+  readonly equipmentId?: string;
+  /**
+   * What the node carries beyond its position: a design flow, a discharge
+   * count, an electrical load.
+   *
+   * These are specified or measured values. The application never invents one;
+   * a property that is absent stays absent, and the calculation says so.
+   */
+  readonly properties?: Readonly<Record<string, JsonValue>>;
 }
 
 export interface NetworkPort {
@@ -53,6 +64,7 @@ export type NetworkIssueCode =
   | 'NETWORK_INVALID_SYSTEM_TYPE'
   | 'NETWORK_DUPLICATE_ID'
   | 'NETWORK_INVALID_POSITION'
+  | 'NETWORK_INVALID_PROPERTY'
   | 'NETWORK_ORPHAN_PORT'
   | 'NETWORK_DISCONNECTED_EDGE'
   | 'NETWORK_INVALID_PATH'
@@ -100,6 +112,26 @@ export function validateTechnicalNetwork(
           `Node ${node.id} position must be finite.`,
         ),
       );
+    for (const [key, value] of Object.entries(node.properties ?? {}))
+      if (typeof value === 'number' && !Number.isFinite(value))
+        issues.push(
+          issue(
+            'NETWORK_INVALID_PROPERTY',
+            `nodes[${index}].properties.${key}`,
+            `Node ${node.id} property ${key} is not a number.`,
+          ),
+        );
+  });
+  network.edges.forEach((edge, index) => {
+    for (const [key, value] of Object.entries(edge.properties ?? {}))
+      if (typeof value === 'number' && !Number.isFinite(value))
+        issues.push(
+          issue(
+            'NETWORK_INVALID_PROPERTY',
+            `edges[${index}].properties.${key}`,
+            `Segment ${edge.id} property ${key} is not a number.`,
+          ),
+        );
   });
   for (const [index, port] of network.ports.entries()) {
     if (!nodes.has(port.nodeId))

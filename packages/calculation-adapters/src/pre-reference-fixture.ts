@@ -160,6 +160,18 @@ function preReferenceNetworks(): readonly TechnicalNetwork[] {
           id: 'electrical:board',
           kind: 'DISTRIBUTION_BOARD',
           position: point(4800, 0, 1400),
+          properties: { nominalVoltageV: 230, phases: 1 },
+        },
+        {
+          id: 'electrical:lighting-circuit',
+          kind: 'CIRCUIT',
+          position: point(4800, 200, 1400),
+          properties: {
+            nominalVoltageV: 230,
+            phases: 1,
+            protectionRatingA: 10,
+            conductorSectionMm2: 1.5,
+          },
         },
         {
           id: 'electrical:luminaire',
@@ -167,12 +179,25 @@ function preReferenceNetworks(): readonly TechnicalNetwork[] {
           position: point(2500, 2000, 2400),
           spaceId: space,
           catalogItemId: 'luminaire',
+          properties: { powerFactor: 0.95, demandFactor: 1 },
         } as TechnicalNetwork['nodes'][number],
       ],
       ports: [
         {
           id: 'electrical:out',
           nodeId: 'electrical:board',
+          role: 'POWER',
+          direction: 'OUT',
+        },
+        {
+          id: 'electrical:circuit-in',
+          nodeId: 'electrical:lighting-circuit',
+          role: 'POWER',
+          direction: 'IN',
+        },
+        {
+          id: 'electrical:circuit-out',
+          nodeId: 'electrical:lighting-circuit',
           role: 'POWER',
           direction: 'OUT',
         },
@@ -185,10 +210,18 @@ function preReferenceNetworks(): readonly TechnicalNetwork[] {
       ],
       edges: [
         {
-          id: 'electrical:cable',
+          id: 'electrical:feeder',
           fromPortId: 'electrical:out',
+          toPortId: 'electrical:circuit-in',
+          path: [point(4800, 0, 1400), point(4800, 200, 1400)],
+          kind: 'CABLE',
+          properties: { conductorSectionMm2: 1.5 },
+        },
+        {
+          id: 'electrical:cable',
+          fromPortId: 'electrical:circuit-out',
           toPortId: 'electrical:in',
-          path: [point(4800, 0, 1400), point(2500, 2000, 2400)],
+          path: [point(4800, 200, 1400), point(2500, 2000, 2400)],
           kind: 'CABLE',
           properties: { conductorSectionMm2: 1.5 },
         },

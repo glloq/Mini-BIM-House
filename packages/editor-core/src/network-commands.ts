@@ -1,4 +1,5 @@
 import type {
+  JsonValue,
   NetworkEdge,
   NetworkIssue,
   NetworkNode,
@@ -7,6 +8,11 @@ import type {
   TechnicalNetwork,
 } from '@house-technical-designer/core-domain';
 import { validateTechnicalNetwork } from '@house-technical-designer/core-domain';
+import {
+  edgePropertySchema,
+  invalidNetworkProperties,
+  nodePropertySchema,
+} from './network-properties.js';
 import type { Point3D } from '@house-technical-designer/geometry';
 import type { ChangeSet, CommandValidation } from './commands.js';
 import type {
@@ -262,6 +268,10 @@ export interface NetworkNodePatch {
   readonly kind?: string;
   /** `null` clears the space a node was assigned to. */
   readonly spaceId?: string | null;
+  /** `null` clears the equipment a node stood for. */
+  readonly equipmentId?: string | null;
+  /** The whole property record; an absent key means the property is absent. */
+  readonly properties?: Readonly<Record<string, JsonValue>>;
 }
 
 /**
@@ -291,6 +301,21 @@ export class UpdateNetworkNodeCommand extends NetworkCommand {
       return rejected(`Le nœud ${this.nodeId} est introuvable.`);
     if (this.patch.kind !== undefined && this.patch.kind.trim() === '')
       return rejected('Le type de nœud ne peut pas être vide.');
+    if (
+      typeof this.patch.equipmentId === 'string' &&
+      !(project.equipment ?? []).some(({ id }) => id === this.patch.equipmentId)
+    )
+      return rejected(
+        `L'équipement ${this.patch.equipmentId} n'existe pas dans ce projet.`,
+      );
+    if (this.patch.properties !== undefined) {
+      const node = network.nodes.find(({ id }) => id === this.nodeId)!;
+      const errors = invalidNetworkProperties(
+        nodePropertySchema(network.discipline, this.patch.kind ?? node.kind),
+        this.patch.properties,
+      );
+      if (errors.length > 0) return rejected(...errors);
+    }
     return validateEdit(project, this.networkId, (candidate) =>
       updateNode(candidate, this.nodeId, this.patch),
     );
@@ -388,6 +413,51 @@ export class ConnectNetworkPortsCommand extends NetworkCommand {
   }
 }
 
+/**
+ * States what a routed segment is made of.
+ *
+ * The route says where the pipe runs; these properties say what it is — its
+ * bore, its material, its slope. Without them a module can draw the network and
+ * still refuse to size it, which is exactly what it should do.
+ */
+export class UpdateNetworkEdgeCommand extends NetworkCommand {
+  constructor(
+    readonly networkId: string,
+    readonly edgeId: string,
+    readonly properties: Readonly<Record<string, JsonValue>>,
+  ) {
+    super(
+      `network:edge:update:${networkId}:${edgeId}`,
+      'Modifier un tronçon du réseau',
+    );
+  }
+  validate(project: Project): CommandValidation {
+    const network = findNetwork(project, this.networkId);
+    if (network === undefined)
+      return rejected(`Le réseau ${this.networkId} est introuvable.`);
+    if (!network.edges.some(({ id }) => id === this.edgeId))
+      return rejected(`Le tronçon ${this.edgeId} est introuvable.`);
+    const errors = invalidNetworkProperties(
+      edgePropertySchema(network.discipline),
+      this.properties,
+    );
+    if (errors.length > 0) return rejected(...errors);
+    return validateEdit(project, this.networkId, (candidate) =>
+      updateEdge(candidate, this.edgeId, this.properties),
+    );
+  }
+  protected apply(project: Project): Project {
+    return replaceNetwork(
+      project,
+      updateEdge(
+        requireNetwork(project, this.networkId),
+        this.edgeId,
+        this.properties,
+      ),
+    );
+  }
+}
+
 export class RemoveNetworkEdgeCommand extends NetworkCommand {
   constructor(
     readonly networkId: string,
@@ -456,6 +526,23 @@ function removeNode(
   };
 }
 
+function updateEdge(
+  network: TechnicalNetwork,
+  edgeId: string,
+  properties: Readonly<Record<string, JsonValue>>,
+): TechnicalNetwork {
+  return {
+    ...network,
+    edges: network.edges.map((edge) => {
+      if (edge.id !== edgeId) return edge;
+      const { properties: _previous, ...rest } = edge;
+      return Object.keys(properties).length === 0
+        ? rest
+        : { ...rest, properties: structuredClone(properties) };
+    }),
+  };
+}
+
 function updateNode(
   network: TechnicalNetwork,
   nodeId: string,
@@ -464,15 +551,31 @@ function updateNode(
   const current = network.nodes.find(({ id }) => id === nodeId);
   if (current === undefined)
     throw new RangeError(`Le nœud ${nodeId} est introuvable.`);
-  const { spaceId: _previousSpaceId, ...withoutSpace } = current;
+  const {
+    spaceId: _previousSpaceId,
+    equipmentId: _previousEquipmentId,
+    properties: previousProperties,
+    ...rest
+  } = current;
   const spaceId = patch.spaceId === undefined ? current.spaceId : patch.spaceId;
+  const equipmentId =
+    patch.equipmentId === undefined ? current.equipmentId : patch.equipmentId;
+  const properties = patch.properties ?? previousProperties;
   const next: NetworkNode = {
-    ...withoutSpace,
+    ...rest,
     ...(patch.kind === undefined ? {} : { kind: patch.kind }),
     ...(patch.position === undefined
       ? {}
       : { position: structuredClone(patch.position) }),
     ...(spaceId === null || spaceId === undefined ? {} : { spaceId }),
+    ...(equipmentId === null || equipmentId === undefined
+      ? {}
+      : { equipmentId }),
+    // An empty record is dropped rather than stored: a node with no property is
+    // a node the file says nothing about, which is what it means.
+    ...(properties === undefined || Object.keys(properties).length === 0
+      ? {}
+      : { properties: structuredClone(properties) }),
   };
   const movedPorts = new Set(
     network.ports.filter((port) => port.nodeId === nodeId).map(({ id }) => id),

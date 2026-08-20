@@ -1,5 +1,8 @@
 import type { CalculationJson } from '@house-technical-designer/calculation-core';
-import type { TechnicalNetwork } from '@house-technical-designer/core-domain';
+import type {
+  NetworkNode,
+  TechnicalNetwork,
+} from '@house-technical-designer/core-domain';
 import type {
   ProjectCalculationContext,
   ProjectClimateContext,
@@ -14,6 +17,7 @@ export const PROJECT_CALCULATION_MODULE_IDS = [
   'heating',
   'dhw',
   'lighting',
+  'electrical',
   'ventilation',
   'iaq',
   'water',
@@ -103,6 +107,31 @@ function stringProperty(
 ): string | undefined {
   const value = properties?.[key];
   return typeof value === 'string' && value !== '' ? value : undefined;
+}
+
+/**
+ * A value a node states about itself.
+ *
+ * Properties belong in the node's `properties` record. Files written before
+ * that record existed carried them as fields of the node itself, and they are
+ * still read there: an older project must keep calculating what it always did.
+ */
+function nodeNumber(node: NetworkNode, key: string): number | undefined {
+  const declared = numericProperty(node.properties, key);
+  if (declared !== undefined) return declared;
+  return numericProperty(
+    node as unknown as Readonly<Record<string, unknown>>,
+    key,
+  );
+}
+
+function nodeString(node: NetworkNode, key: string): string | undefined {
+  const declared = stringProperty(node.properties, key);
+  if (declared !== undefined) return declared;
+  return stringProperty(
+    node as unknown as Readonly<Record<string, unknown>>,
+    key,
+  );
 }
 
 /**
@@ -222,10 +251,7 @@ function spaceVentilationFlowsM3h(
   for (const network of networksForDiscipline(context, 'VENTILATION'))
     for (const node of network.nodes) {
       const spaceId = node.spaceId;
-      const flow = numericProperty(
-        node as unknown as Readonly<Record<string, unknown>>,
-        'targetFlowM3h',
-      );
+      const flow = nodeNumber(node, 'targetFlowM3h');
       if (spaceId === undefined || flow === undefined) continue;
       flows.set(spaceId, (flows.get(spaceId) ?? 0) + flow);
     }
@@ -336,10 +362,7 @@ function lightingInput(context: ProjectCalculationContext): CalculationJson {
     .filter((node) => node.kind === 'LUMINAIRE')
     .map((node) => ({
       id: node.id,
-      luminaireId: stringProperty(
-        node as unknown as Readonly<Record<string, unknown>>,
-        'catalogItemId',
-      ),
+      luminaireId: nodeString(node, 'catalogItemId'),
       roomId: node.spaceId,
       position: { x: node.position.x, y: node.position.y },
     }));
@@ -407,10 +430,7 @@ function ventilationInput(context: ProjectCalculationContext): CalculationJson {
     networks.flatMap((network) =>
       network.nodes.map((node): readonly [string, number] => [
         node.id,
-        numericProperty(
-          node as unknown as Readonly<Record<string, unknown>>,
-          'targetFlowM3h',
-        ) ?? 0,
+        nodeNumber(node, 'targetFlowM3h') ?? 0,
       ]),
     ),
   );
@@ -501,10 +521,7 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
     networks.flatMap((network) =>
       network.nodes.map((node): readonly [string, number] => [
         node.id,
-        numericProperty(
-          node as unknown as Readonly<Record<string, unknown>>,
-          'designFlowLps',
-        ) ?? 0,
+        nodeNumber(node, 'designFlowLps') ?? 0,
       ]),
     ),
   );
@@ -590,11 +607,7 @@ function wastewaterInput(context: ProjectCalculationContext): CalculationJson {
       networkId: network.id,
       kind: node.kind,
       position: { ...node.position },
-      dischargeUnits:
-        numericProperty(
-          node as unknown as Readonly<Record<string, unknown>>,
-          'dischargeUnits',
-        ) ?? null,
+      dischargeUnits: nodeNumber(node, 'dischargeUnits') ?? null,
     })),
   );
   const edges = networks.flatMap((network) =>
@@ -640,6 +653,289 @@ function wastewaterInput(context: ProjectCalculationContext): CalculationJson {
   };
 }
 
+/**
+ * The single item of a kind, or nothing when the project holds several.
+ *
+ * Taking the first of two tanks would answer a question the project has not
+ * decided. The ambiguity is reported instead, naming the candidates, so the
+ * user picks rather than discovers later which one was used.
+ */
+function theOnly<T extends { readonly id: string }>(
+  items: readonly T[],
+  settings: ProjectCalculationContext['settings'],
+  moduleId: string,
+  key: string,
+  what: string,
+): T | undefined {
+  if (items.length <= 1) return items[0];
+  settings.reportMissing(
+    moduleId,
+    key,
+    'EQUIPMENT',
+    `The project declares ${items.length} ${what} (${items
+      .map(({ id }) => id)
+      .join(', ')}); state which one this module applies to.`,
+  );
+  return undefined;
+}
+
+/**
+ * How many phases a node declares, when it declares one.
+ *
+ * The value may be stored as a number or as the text a menu produced; anything
+ * else is not a phase count, and the circuit is reported as unstated rather
+ * than assumed single-phase.
+ */
+function phaseCount(node: NetworkNode): 1 | 3 | undefined {
+  const declared =
+    nodeNumber(node, 'phases') ?? Number(nodeString(node, 'phases'));
+  return declared === 1 || declared === 3 ? declared : undefined;
+}
+
+/** Node kinds that consume power, in the electrical templates the editor offers. */
+const ELECTRICAL_LOAD_KINDS = new Set([
+  'LUMINAIRE',
+  'OUTLET',
+  'FIXED_LOAD',
+  'EV',
+]);
+
+/** Which node each port belongs to, so an edge can be read as node → node. */
+function portOwners(network: TechnicalNetwork): ReadonlyMap<string, string> {
+  return new Map(network.ports.map((port) => [port.id, port.nodeId]));
+}
+
+/**
+ * Everything reachable from a node by following the segments forward.
+ *
+ * A circuit is what hangs below it: the lamps it feeds and the cables that
+ * reach them. Walking the graph is what tells them apart, rather than a naming
+ * convention nobody enforces.
+ */
+function downstream(
+  network: TechnicalNetwork,
+  fromNodeId: string,
+): {
+  readonly nodeIds: readonly string[];
+  readonly edges: readonly TechnicalNetwork['edges'][number][];
+} {
+  const owners = portOwners(network);
+  const visited = new Set([fromNodeId]);
+  const edges: TechnicalNetwork['edges'][number][] = [];
+  let frontier = [fromNodeId];
+  while (frontier.length > 0) {
+    const next: string[] = [];
+    for (const edge of network.edges) {
+      const from = owners.get(edge.fromPortId);
+      const to = owners.get(edge.toPortId);
+      if (from === undefined || to === undefined) continue;
+      if (!frontier.includes(from) || visited.has(to)) continue;
+      visited.add(to);
+      edges.push(edge);
+      next.push(to);
+    }
+    frontier = next;
+  }
+  visited.delete(fromNodeId);
+  return { nodeIds: [...visited], edges };
+}
+
+function feedingEdge(
+  network: TechnicalNetwork,
+  nodeId: string,
+): TechnicalNetwork['edges'][number] | undefined {
+  const owners = portOwners(network);
+  return network.edges.find((edge) => owners.get(edge.toPortId) === nodeId);
+}
+
+function upstreamNode(
+  network: TechnicalNetwork,
+  nodeId: string,
+): NetworkNode | undefined {
+  const owners = portOwners(network);
+  const edge = feedingEdge(network, nodeId);
+  if (edge === undefined) return undefined;
+  const from = owners.get(edge.fromPortId);
+  return network.nodes.find((node) => node.id === from);
+}
+
+/**
+ * Circuits, loads and cables the project declares, read from its boards.
+ *
+ * Nothing is assumed: a circuit with no stated voltage, a lamp with no stated
+ * power and a cable with no stated section are all reported as missing inputs
+ * rather than completed with a habit.
+ */
+function electricalInput(context: ProjectCalculationContext): CalculationJson {
+  const settings = context.settings;
+  const networks = networksForDiscipline(context, 'ELECTRICAL');
+  if (networks.length === 0) {
+    settings.reportMissing(
+      'electrical',
+      'network',
+      'PROJECT',
+      'The project has no electrical network.',
+    );
+    return { circuits: [] };
+  }
+  const circuits: Record<string, CalculationJson>[] = [];
+  const loads: Record<string, CalculationJson>[] = [];
+  const cables: Record<string, CalculationJson>[] = [];
+  for (const network of networks) {
+    for (const circuitNode of network.nodes.filter(
+      ({ kind }) => kind === 'CIRCUIT',
+    )) {
+      const board = upstreamNode(network, circuitNode.id);
+      const reach = downstream(network, circuitNode.id);
+      const feeder = feedingEdge(network, circuitNode.id);
+      const voltageV =
+        nodeNumber(circuitNode, 'nominalVoltageV') ??
+        (board === undefined
+          ? undefined
+          : nodeNumber(board, 'nominalVoltageV'));
+      if (voltageV === undefined)
+        settings.reportMissing(
+          'electrical',
+          `circuits/${circuitNode.id}/nominalVoltageV`,
+          'PROJECT',
+          `Circuit ${circuitNode.id} states no nominal voltage.`,
+        );
+      const phases =
+        phaseCount(circuitNode) ??
+        (board === undefined ? undefined : phaseCount(board));
+      if (phases !== 1 && phases !== 3)
+        settings.reportMissing(
+          'electrical',
+          `circuits/${circuitNode.id}/phases`,
+          'PROJECT',
+          `Circuit ${circuitNode.id} states no single- or three-phase configuration.`,
+        );
+      const loadNodes = network.nodes.filter(
+        (node) =>
+          reach.nodeIds.includes(node.id) &&
+          (ELECTRICAL_LOAD_KINDS.has(node.kind) ||
+            nodeNumber(node, 'activePowerW') !== undefined),
+      );
+      if (loadNodes.length === 0)
+        settings.reportMissing(
+          'electrical',
+          `circuits/${circuitNode.id}/loads`,
+          'PROJECT',
+          `Circuit ${circuitNode.id} reaches no load.`,
+        );
+      for (const node of loadNodes) {
+        const equipment = context.equipment.find(
+          ({ id }) =>
+            id === node.equipmentId || id === nodeString(node, 'catalogItemId'),
+        );
+        const activePowerW =
+          nodeNumber(node, 'activePowerW') ??
+          (equipment === undefined
+            ? undefined
+            : equipmentNumber(
+                context,
+                equipment,
+                'electricalPowerW',
+                'electrical',
+              ));
+        if (activePowerW === undefined)
+          settings.reportMissing(
+            'electrical',
+            `loads/${node.id}/activePowerW`,
+            equipment === undefined ? 'PROJECT' : 'EQUIPMENT',
+            `Load ${node.id} states no active power.`,
+          );
+        const powerFactor = nodeNumber(node, 'powerFactor');
+        if (powerFactor === undefined)
+          settings.reportMissing(
+            'electrical',
+            `loads/${node.id}/powerFactor`,
+            'PROJECT',
+            `Load ${node.id} states no power factor.`,
+          );
+        const demandFactor = nodeNumber(node, 'demandFactor');
+        if (demandFactor === undefined)
+          settings.reportMissing(
+            'electrical',
+            `loads/${node.id}/demandFactor`,
+            'PROJECT',
+            `Load ${node.id} states no demand factor.`,
+          );
+        loads.push({
+          loadId: node.id,
+          circuitId: circuitNode.id,
+          name: nodeString(node, 'name') ?? node.id,
+          activePowerW: activePowerW ?? null,
+          powerFactor: powerFactor ?? null,
+          demandFactor: demandFactor ?? null,
+        });
+      }
+      // The feeder carries the whole circuit, so it belongs to its cable path;
+      // the branch runs follow it. A circuit that branches is reported as such
+      // by the module rather than totalled as if it were one run.
+      const circuitCables = [
+        ...(feeder === undefined ? [] : [feeder]),
+        ...reach.edges,
+      ];
+      for (const edge of circuitCables) {
+        const sectionMm2 =
+          numericProperty(edge.properties, 'conductorSectionMm2') ??
+          nodeNumber(circuitNode, 'conductorSectionMm2');
+        if (sectionMm2 === undefined)
+          settings.reportMissing(
+            'electrical',
+            `cables/${edge.id}/conductorSectionMm2`,
+            'PROJECT',
+            `Cable ${edge.id} states no conductor section.`,
+          );
+        settings.note('electrical', `cables/${edge.id}`, 'PROJECT', network.id);
+        cables.push({
+          id: edge.id,
+          circuitId: circuitNode.id,
+          networkId: network.id,
+          path: edge.path.map((point) => ({ ...point })),
+          conductorSectionMm2: sectionMm2 ?? null,
+          conductorMaterial:
+            stringProperty(edge.properties, 'conductorMaterial') ?? 'COPPER',
+          conductorCount:
+            numericProperty(edge.properties, 'conductorCount') ?? null,
+        });
+      }
+      circuits.push({
+        id: circuitNode.id,
+        networkId: network.id,
+        boardId: board?.id ?? null,
+        purpose: nodeString(circuitNode, 'purpose') ?? 'POWER',
+        voltageV: voltageV ?? null,
+        phases: phases === 1 || phases === 3 ? phases : null,
+        voltageReference: phases === 3 ? 'PHASE_PHASE' : 'PHASE_NEUTRAL',
+        loadIds: loadNodes.map(({ id }) => id),
+      });
+    }
+  }
+  if (circuits.length === 0)
+    settings.reportMissing(
+      'electrical',
+      'circuits',
+      'PROJECT',
+      'No electrical network declares a circuit node.',
+    );
+  return {
+    networkIds: networks.map(({ id }) => id),
+    copperResistivityOhmMm2PerM: settings.methodConstant(
+      'electrical',
+      'copperResistivityOhmMm2PerM',
+    ),
+    aluminiumResistivityOhmMm2PerM: settings.methodConstant(
+      'electrical',
+      'aluminiumResistivityOhmMm2PerM',
+    ),
+    circuits,
+    loads,
+    cables,
+  };
+}
+
 function rainwaterInput(context: ProjectCalculationContext): CalculationJson {
   const settings = context.settings;
   const climate = context.climate;
@@ -657,7 +953,13 @@ function rainwaterInput(context: ProjectCalculationContext): CalculationJson {
       'CLIMATE_DATASET',
       climate.datasetId,
     );
-  const tank = (context.equipmentByKind.RAINWATER_TANK ?? [])[0];
+  const tank = theOnly(
+    context.equipmentByKind.RAINWATER_TANK ?? [],
+    settings,
+    'rainwater',
+    'tank',
+    'rainwater tanks',
+  );
   const nominalVolumeL = equipmentNumber(
     context,
     tank,
@@ -820,7 +1122,19 @@ function photovoltaicInput(
         );
     });
   }
-  const roof = context.roofs[0];
+  // A photovoltaic array sits on one plane; with several roofs the project has
+  // not said which, and guessing would fix a slope and an orientation nobody
+  // chose.
+  const roof =
+    context.roofs.length <= 1
+      ? context.roofs[0]
+      : theOnly(
+          context.roofs.map((entry) => ({ ...entry, id: entry.roofId })),
+          settings,
+          'photovoltaic',
+          'roof',
+          'roof planes',
+        );
   const dispatchClimate = context.subDailyClimate;
   return {
     ...(installedPowerWp === undefined ? {} : { installedPowerWp }),
@@ -1132,7 +1446,13 @@ function dhwInput(context: ProjectCalculationContext): CalculationJson {
     'annualOperatingDays',
     'Set the number of operating days per year in the DHW module settings.',
   );
-  const tank = (context.equipmentByKind.DHW_TANK ?? [])[0];
+  const tank = theOnly(
+    context.equipmentByKind.DHW_TANK ?? [],
+    settings,
+    'dhw',
+    'tank',
+    'hot water tanks',
+  );
   const tankVolumeL = equipmentNumber(context, tank, 'tankVolumeL', 'dhw');
   const usefulHeatingPowerW = equipmentNumber(
     context,
@@ -1287,6 +1607,7 @@ export function buildProjectCalculationInputs(
     heating: heatingInput(context),
     dhw: dhwInput(context),
     lighting: lightingInput(context),
+    electrical: electricalInput(context),
     ventilation: ventilationInput(context),
     iaq: iaqInput(context),
     water: waterInput(context),

@@ -53,6 +53,29 @@
           },
           "spaceId": {
             "type": "string"
+          },
+          "equipmentId": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object",
+            "description": "Physical properties the node states about itself. Numbers must be finite; the application never writes a value nobody entered.",
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
           }
         },
         "additionalProperties": true
@@ -130,7 +153,24 @@
             "type": "string"
           },
           "properties": {
-            "type": "object"
+            "type": "object",
+            "description": "Physical properties of the routed segment: bore, material, slope, conductor section.",
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
           }
         },
         "additionalProperties": true

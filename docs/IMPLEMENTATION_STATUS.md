@@ -352,6 +352,58 @@ copié plus haut ou déplacé.
 - Firefox et WebKit en intégration continue (BETA-16) ;
 - publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18).
 
+## Réseaux physiques et module électrique — lots B et C
+
+| Porte   | Constat                                                            | État    |
+| ------- | ------------------------------------------------------------------ | ------- |
+| BETA-06 | les réseaux ne portaient aucune propriété physique éditable        | corrigé |
+| BETA-07 | le moteur électrique existait sans être branché au pipeline projet | corrigé |
+
+**Un nœud et un tronçon disent ce qu'ils sont.** `NetworkNode` possède désormais
+un enregistrement `properties` et un `equipmentId`, tous deux déclarés au schéma
+JSON ; les tronçons avaient déjà le leur. Un catalogue par discipline dit ce que
+chaque objet peut porter — débit, pression, unités de vidange, puissance active,
+facteur de puissance d'un côté ; diamètre, matériau, rugosité, pertes
+singulières, pente, section et âme des conducteurs de l'autre — avec libellé,
+unité et bornes. Le panneau Réseaux ouvre l'inspecteur correspondant sur un nœud
+ou un tronçon, en saisie différée : un champ vidé retire la propriété, une
+valeur hors bornes est refusée en le disant, et rien n'est supposé. Le type de
+système se choisit enfin dans une liste de gabarits par discipline au lieu d'être
+épelé.
+
+Les adaptateurs lisent la propriété dans l'enregistrement puis, à défaut, sur le
+nœud lui-même : un fichier écrit avant cet enregistrement continue de calculer
+ce qu'il calculait. La maison de référence a été migrée vers la forme
+canonique ; le fixture d'intégration garde l'ancienne, pour que le chemin de
+compatibilité reste couvert par les tests.
+
+**Le dix-septième moteur est branché.** Aucun nouveau moteur n'a été écrit :
+`modules/electrical` existait, il manquait l'adaptateur projet. Les circuits sont
+lus depuis le réseau électrique — un nœud CIRCUIT, le tableau qui l'alimente, les
+charges qu'il atteint et les câbles qui y mènent, trouvés en parcourant le
+graphe. La puissance d'une charge vient du nœud ou de l'équipement qu'il
+représente ; la résistance linéique vient de la section et de la résistivité du
+cuivre ou de l'aluminium, déclarées comme constantes de méthode avec leur source.
+Une tension, un nombre de phases, une puissance ou une section que personne n'a
+énoncés sont signalés comme entrées manquantes, et un circuit ramifié est
+rapporté comme tel par le moteur plutôt que totalisé comme s'il n'était qu'une
+seule antenne.
+
+Dans la même veine que la porte BETA-02, trois choix silencieux ont été retirés :
+le premier ballon d'eau chaude, la première cuve de pluie et le premier pan de
+toiture ne sont plus pris par défaut quand le projet en déclare plusieurs —
+l'ambiguïté est signalée, avec les candidats nommés.
+
+### Ce que ces lots n'ont pas traité
+
+- édition géométrique des murs, ouvertures, dalles et toitures
+  (BETA-13 à BETA-15) ;
+- climat portable avec le projet et autosave IndexedDB (BETA-10, BETA-11) ;
+- Firefox et WebKit en intégration continue (BETA-16) ;
+- publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18) ;
+- superpositions graphiques par discipline, qui attendaient ces données ;
+- champ de saisie différée généralisé aux panneaux historiques.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -392,7 +444,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 656 tests sur 102 fichiers
-- tests navigateur : 40 tests Playwright, dont trois sur un écran de téléphone
+- tests unitaires et d'intégration : 677 tests sur 104 fichiers
+- tests navigateur : 41 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

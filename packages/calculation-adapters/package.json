@@ -22,6 +22,7 @@
     "@house-technical-designer/cost": "0.1.0",
     "@house-technical-designer/dhw": "0.1.0",
     "@house-technical-designer/drawing-engine": "0.1.0",
+    "@house-technical-designer/electrical": "0.1.0",
     "@house-technical-designer/energy-balance": "0.1.0",
     "@house-technical-designer/environmental": "0.1.0",
     "@house-technical-designer/geometry": "0.1.0",
