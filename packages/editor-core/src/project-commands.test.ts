@@ -14,6 +14,20 @@ import {
 } from './project-commands.js';
 import { AddWallCommand } from './wall-commands.js';
 
+/**
+ * Everything a command edits, without the stamp the dispatcher owns.
+ *
+ * Undoing an edit restores the model, not the revision: the project has been
+ * edited again, and says so. Comparing the content is what an exact round trip
+ * means here.
+ */
+function content(project: Project): Project {
+  return {
+    ...project,
+    metadata: { ...project.metadata, updatedAt: '', projectRevision: '' },
+  };
+}
+
 const initial: Project = {
   id: entityId<'Project'>('project'),
   metadata: {
@@ -111,7 +125,7 @@ describe('canonical project commands', () => {
     );
     expect(dispatcher.project.building.levels[0]?.walls).toHaveLength(1);
     dispatcher.undo();
-    expect(dispatcher.project).toEqual(project);
+    expect(content(dispatcher.project)).toEqual(content(project));
   });
   it('undoes and redoes cross-domain project mutations exactly', () => {
     const dispatcher = new ProjectCommandDispatcher(initial);
@@ -160,8 +174,8 @@ describe('canonical project commands', () => {
     ).not.toContain('wastewater-topology');
     const completed = structuredClone(dispatcher.project);
     commands.forEach(() => dispatcher.undo());
-    expect(dispatcher.project).toEqual(initial);
+    expect(content(dispatcher.project)).toEqual(content(initial));
     commands.forEach(() => dispatcher.redo());
-    expect(dispatcher.project).toEqual(completed);
+    expect(content(dispatcher.project)).toEqual(content(completed));
   });
 });

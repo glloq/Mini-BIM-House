@@ -5,6 +5,7 @@ import {
   AddScenarioCommand,
   AddScenarioOverrideCommand,
   DuplicateScenarioCommand,
+  RebaseScenarioCommand,
   RemoveScenarioCommand,
   RemoveScenarioOverrideCommand,
   RenameScenarioCommand,
@@ -58,6 +59,13 @@ export function ScenariosPanel({
     () => [...new Set(targets.map(({ group }) => group))],
     [targets],
   );
+  // A scenario recorded against no revision cannot be out of date: it never
+  // claimed a version to begin with.
+  const outdated =
+    active !== undefined &&
+    active.baseProjectRevision !== '' &&
+    project.metadata.projectRevision !== undefined &&
+    active.baseProjectRevision !== project.metadata.projectRevision;
 
   function createScenario(): void {
     const name = newName.trim();
@@ -74,7 +82,9 @@ export function ScenariosPanel({
       new AddScenarioCommand({
         id,
         name,
-        baseProjectRevision: project.metadata.projectRevision ?? '1',
+        // The command records the revision it produces; naming one here would
+        // only be a guess about the project's state after the scenario is added.
+        baseProjectRevision: '',
         overrides: [],
       }),
     );
@@ -354,6 +364,25 @@ export function ScenariosPanel({
             </li>
           ))}
         </ul>
+      )}
+
+      {outdated && (
+        <p className="notice">
+          Ce scénario a été écrit sur la révision {active?.baseProjectRevision}{' '}
+          ; le projet est à la révision {project.metadata.projectRevision}.
+          Vérifiez que ses changements ont toujours le sens voulu, puis
+          rattachez-le.{' '}
+          <button
+            type="button"
+            className="link"
+            onClick={() => {
+              if (active !== undefined)
+                onCommand(new RebaseScenarioCommand(active.id));
+            }}
+          >
+            Rattacher à la révision actuelle
+          </button>
+        </p>
       )}
 
       {comparison !== undefined && comparison.rows.length > 0 && (

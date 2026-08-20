@@ -7,14 +7,23 @@ const statusLabels = {
   NOT_APPLICABLE: 'Non applicable',
 } as const;
 
-export function RuleReportPanel({ report }: { readonly report: RuleReport }) {
+export function RuleReportPanel({
+  report,
+  onLocate,
+}: {
+  readonly report: RuleReport;
+  readonly onLocate?: (objectIds: readonly string[]) => void;
+}) {
   const { summary } = report;
+  // Several packs can be reported side by side, so the heading each panel is
+  // labelled by has to be its own.
+  const titleId = `rule-title-${report.packId}`;
   return (
-    <section className="rule-panel" aria-labelledby="rule-title">
+    <section className="rule-panel" aria-labelledby={titleId}>
       <div className="panel-heading">
         <div>
           <p className="eyebrow">Référentiel actif</p>
-          <h2 id="rule-title">Contrôles et preuves</h2>
+          <h2 id={titleId}>Contrôles et preuves</h2>
         </div>
         <span className={`coverage coverage-${summary.coverage.toLowerCase()}`}>
           Couverture{' '}
@@ -37,7 +46,7 @@ export function RuleReportPanel({ report }: { readonly report: RuleReport }) {
         {report.items.map(({ result, references }) => (
           <article
             className={`rule-card status-${result.status.toLowerCase()}`}
-            key={result.ruleId}
+            key={`${result.ruleId}:${result.objectIds.join(',')}`}
           >
             <header>
               <span className="status-dot" aria-hidden="true" />
@@ -46,7 +55,18 @@ export function RuleReportPanel({ report }: { readonly report: RuleReport }) {
             </header>
             <p>{result.message}</p>
             {result.objectIds.length > 0 && (
-              <p className="objects">Objets : {result.objectIds.join(', ')}</p>
+              <p className="objects">
+                Objets : {result.objectIds.join(', ')}
+                {onLocate !== undefined && (
+                  <button
+                    type="button"
+                    className="link"
+                    onClick={() => onLocate(result.objectIds)}
+                  >
+                    Localiser
+                  </button>
+                )}
+              </p>
             )}
             {result.evidence !== undefined && (
               <details>

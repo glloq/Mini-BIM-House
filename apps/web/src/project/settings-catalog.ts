@@ -25,6 +25,21 @@ export interface ModuleSettingMaterialTable {
 }
 
 /**
+ * A setting held as a list chosen from a fixed set of numbers.
+ *
+ * The octave bands an acoustic study covers are a choice among known bands,
+ * not a free number: a checklist states which are studied and stores them as
+ * the array the module reads.
+ */
+export interface ModuleSettingNumberChoice {
+  readonly key: string;
+  readonly label: string;
+  readonly unit: string;
+  readonly options: readonly number[];
+  readonly hint?: string;
+}
+
+/**
  * A setting held as a map from a fixed set of keys to a number.
  *
  * Occupancy per room category and absorption per octave band are not scalars
@@ -43,6 +58,7 @@ export interface ModuleSettingsDescriptor {
   readonly fields: readonly ModuleSettingField[];
   readonly materialTables?: readonly ModuleSettingMaterialTable[];
   readonly keyedTables?: readonly ModuleSettingKeyedTable[];
+  readonly numberChoices?: readonly ModuleSettingNumberChoice[];
   /** Why this module has no editable field here, when it has none. */
   readonly note?: string;
 }
@@ -300,6 +316,15 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
     moduleId: 'acoustics',
     label: 'Acoustique',
     fields: [],
+    numberChoices: [
+      {
+        key: 'bandsHz',
+        label: 'Bandes étudiées',
+        unit: 'Hz',
+        options: [125, 250, 500, 1000, 2000, 4000],
+        hint: 'Le calcul ne porte que sur les bandes cochées.',
+      },
+    ],
     keyedTables: [
       {
         key: 'defaultSurfaceAbsorption',
@@ -308,7 +333,7 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
         rows: [...OCTAVE_BAND_ROWS],
       },
     ],
-    note: 'Les bandes calculées sont celles renseignées ci-dessous.',
+    note: 'Les bandes calculées et leurs absorptions par défaut se règlent ci-dessous.',
   },
   {
     moduleId: 'cost',
@@ -417,6 +442,39 @@ export function withField(
   return next;
 }
 
+/** The numbers currently chosen for a list-valued setting. */
+export function chosenNumbers(
+  settings: Readonly<Record<string, JsonValue>>,
+  key: string,
+): readonly number[] {
+  const value = settings[key];
+  return Array.isArray(value)
+    ? value.filter((entry): entry is number => typeof entry === 'number')
+    : [];
+}
+
+/**
+ * The settings with one number added to or removed from a list.
+ *
+ * An emptied list is removed rather than stored as `[]`: a study covering no
+ * band is not a study, and the module has to report the input as missing.
+ */
+export function withNumberChoice(
+  settings: Readonly<Record<string, JsonValue>>,
+  key: string,
+  value: number,
+  chosen: boolean,
+): Readonly<Record<string, JsonValue>> {
+  const current = chosenNumbers(settings, key);
+  const next = chosen
+    ? [...new Set([...current, value])].sort((first, second) => first - second)
+    : current.filter((entry) => entry !== value);
+  const settingsNext: Record<string, JsonValue> = { ...settings };
+  if (next.length === 0) delete settingsNext[key];
+  else settingsNext[key] = next;
+  return settingsNext;
+}
+
 /** Whether this catalogue can actually edit a module's setting key. */
 export function canEditSetting(moduleId: string, key: string): boolean {
   const descriptor = MODULE_SETTINGS.find(
@@ -426,7 +484,8 @@ export function canEditSetting(moduleId: string, key: string): boolean {
   return (
     descriptor.fields.some((field) => field.key === key) ||
     (descriptor.materialTables ?? []).some((table) => table.key === key) ||
-    (descriptor.keyedTables ?? []).some((table) => table.key === key)
+    (descriptor.keyedTables ?? []).some((table) => table.key === key) ||
+    (descriptor.numberChoices ?? []).some((choice) => choice.key === key)
   );
 }
 

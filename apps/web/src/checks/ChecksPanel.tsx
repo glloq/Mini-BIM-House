@@ -81,13 +81,16 @@ export function ChecksPanel({
 
       {evaluations.map((evaluation) =>
         evaluation.report === undefined ? (
-          <p className="notice warning" key={evaluation.pack.id}>
-            {evaluation.error}
+          <p className="notice warning" key={evaluation.packId}>
+            {evaluation.notice}
           </p>
         ) : (
           <RuleReportPanel
-            key={evaluation.pack.id}
+            key={evaluation.packId}
             report={evaluation.report}
+            onLocate={(objectIds) =>
+              onFix({ label: 'Localiser', tab: 'networks', objectIds })
+            }
           />
         ),
       )}

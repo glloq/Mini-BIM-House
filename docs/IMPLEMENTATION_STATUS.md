@@ -239,6 +239,60 @@ raison.
 - Firefox, WebKit, axe-core, régression visuelle, budget de bundle ;
 - feuilles, cartouches et PDF.
 
+## Applicabilité, objets et révisions — lot A
+
+Un quatrième audit a confirmé les correctifs précédents et relevé un P0 :
+les référentiels étaient exécutés sans vérifier qu'ils s'appliquent. Les
+points ci-dessous sont traités.
+
+| Point                       | Constat                                                                                | État    |
+| --------------------------- | -------------------------------------------------------------------------------------- | ------- |
+| Applicabilité d'un pack     | pays, région et date de validité n'étaient pas vérifiés avant l'exécution              | corrigé |
+| Verdict par objet           | seul le premier réseau d'eau de pluie était examiné, son verdict valant pour tous      | corrigé |
+| Localiser un objet          | un constat nommait un objet sans permettre d'y aller                                   | corrigé |
+| `id` du rapport de règles   | un identifiant fixe, dupliqué dès qu'un second référentiel était affiché               | corrigé |
+| Équipements et `NaN`        | un champ numérique vidé produisait `NaN`, écrit `null` à la sauvegarde                 | corrigé |
+| Clés brutes des équipements | le panneau affichait `usefulHeatingPowerW` sans libellé ni unité                       | corrigé |
+| `acoustics.bandsHz`         | réglage non éditable : le module réclamait une entrée que l'écran ne savait pas saisir | corrigé |
+| `projectRevision`           | jamais incrémentée, donc `SCENARIO_REVISION_MISMATCH` ne se déclenchait jamais         | corrigé |
+
+Trois décisions valent d'être écrites.
+
+**Un référentiel qui ne s'applique pas ne dit jamais « Validé ».** Le pipeline
+est désormais : contexte réglementaire du projet → pays, région, date de
+référence → registre → applicabilité → version valide → évaluation. Chaque
+sortie porte sa raison : mauvais pays, texte pas encore en vigueur, deux
+versions qui se chevauchent, identifiant inconnu. Une date de référence absente
+n'est pas remplacée par celle du jour : choisir la date reviendrait à choisir le
+texte.
+
+**Une règle est jugée par objet.** Trois cuves de récupération donnent trois
+verdicts, chacun nommant l'objet et pouvant être localisé sur le plan. Le
+rapport accepte donc plusieurs résultats pour une même règle tant qu'ils
+portent sur des objets différents ; ce qu'il refuse toujours, c'est la même
+règle jugée deux fois sur le même objet.
+
+**La révision identifie une édition, pas un état.** Elle est monotone : elle
+avance à chaque commande appliquée, y compris une annulation ou un rétablissement
+— annuler est une édition de plus, pas un retour en arrière du fichier. Le
+dispatcher en est seul propriétaire, avec `updatedAt` ; ni l'un ni l'autre ne se
+saisit à la main, et une commande qui tenterait de les écrire est réécrite. Un
+scénario est enregistré sur la révision que produit la commande qui le crée, et
+un scénario en retard peut être rattaché explicitement à la révision courante
+plutôt que d'attendre que l'avertissement disparaisse tout seul.
+
+### Ce que ce lot n'a pas traité
+
+- moteur électrique absent du pipeline, alors que le README annonce 17 moteurs ;
+- réseaux : type de système en texte libre, aucune propriété de tronçon
+  (diamètre, section, matériau, rugosité, débit terminal) ;
+- champ de saisie différée généralisé aux panneaux matériaux, niveaux et pièces ;
+- portabilité du climat dans un projet unique ;
+- édition géométrique des murs, empreintes des dalles et toitures, zones ;
+- modes QUICK / DESIGN / EXPERT, assistant, palette, navigation regroupée ;
+- Firefox, WebKit, axe-core, régression visuelle, découpage du bundle ;
+- feuilles, cartouches et PDF.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -279,7 +333,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 588 tests sur 90 fichiers
-- tests navigateur : 36 tests Playwright, dont trois sur un écran de téléphone
+- tests unitaires et d'intégration : 624 tests sur 96 fichiers
+- tests navigateur : 38 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

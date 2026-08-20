@@ -589,6 +589,57 @@ test('names the project, its site and its calculation settings', async ({
   ).toBe(-7);
 });
 
+test('chooses the octave bands the acoustic study covers', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await page.getByLabel('Module').selectOption('acoustics');
+
+  const bands = page.getByRole('group', { name: /Bandes étudiées/ });
+  await expect(bands).toBeVisible();
+  await bands.getByRole('checkbox', { name: '500 Hz' }).check();
+  await bands.getByRole('checkbox', { name: '1000 Hz' }).check();
+  await expect(page.getByRole('status')).toContainText(
+    'Modifier un réglage de calcul',
+  );
+
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  const saved = JSON.parse(
+    await readFile(await (await download).path(), 'utf8'),
+  ) as {
+    project: {
+      calculationSettings?: Record<
+        string,
+        { settings: Record<string, unknown> }
+      >;
+    };
+  };
+  // The bands are stored as the list the module reads, in ascending order.
+  expect(
+    saved.project.calculationSettings?.acoustics?.settings.bandsHz,
+  ).toEqual([500, 1000]);
+
+  // Unticking the last band removes the setting instead of storing an empty
+  // study: the module then reports the input as missing.
+  await bands.getByRole('checkbox', { name: '500 Hz' }).uncheck();
+  await bands.getByRole('checkbox', { name: '1000 Hz' }).uncheck();
+  const second = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  const cleared = JSON.parse(
+    await readFile(await (await second).path(), 'utf8'),
+  ) as {
+    project: {
+      calculationSettings?: Record<
+        string,
+        { settings: Record<string, unknown> }
+      >;
+    };
+  };
+  expect(
+    cleared.project.calculationSettings?.acoustics?.settings,
+  ).not.toHaveProperty('bandsHz');
+});
+
 test('associates a climate dataset and reports what it covers', async ({
   page,
 }) => {
@@ -774,12 +825,69 @@ test('activates a rule pack and reports what it checked', async ({ page }) => {
     'Modifier les référentiels activés',
   );
 
+  // The demonstration project states a country but no reference date, and the
+  // date decides which text applies: the pack is not run, and says why.
+  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await expect(page.locator('.library-panel')).toContainText(
+    'date de référence',
+  );
+  await expect(page.locator('.rule-panel')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  // Targeted by id: the pack list explains applicability in words that repeat
+  // the field labels, so a label lookup would match two controls.
+  await page.locator('#regulatory-date').fill('2020-01-01');
+  await page.locator('#regulatory-date').press('Enter');
+  // Before the text came into force: still no verdict, and the reason is the
+  // date rather than the project.
+  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await expect(page.locator('.library-panel')).toContainText('2020-01-01');
+  await expect(page.locator('.rule-panel')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await page.locator('#regulatory-country').fill('BE');
+  await page.locator('#regulatory-country').press('Enter');
+  await page.locator('#regulatory-date').fill('2026-01-01');
+  await page.locator('#regulatory-date').press('Enter');
+  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await expect(page.locator('.library-panel')).toContainText('BE');
+  await expect(page.locator('.rule-panel')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await page.locator('#regulatory-country').fill('FR');
+  await page.locator('#regulatory-country').press('Enter');
+
   await page.getByRole('button', { name: 'Vérifications' }).click();
   const report = page.locator('.rule-panel');
   await expect(report).toBeVisible();
   await expect(report).toContainText('fr-rainwater-example');
-  // Every result is one of the four states, and none of them claims conformity.
+  // The demonstration project harvests no rainwater, so the rule does not
+  // apply — which is not the same answer as "conforme".
   await expect(report.locator('.rule-card')).toHaveCount(1);
+  await expect(report.locator('.rule-card')).toContainText('Non applicable');
+
+  // Two rainwater systems, judged one by one rather than through the first.
+  for (const suffix of ['NORTH', 'SOUTH']) {
+    await page.getByRole('button', { name: 'Réseaux', exact: true }).click();
+    await page
+      .getByLabel('Discipline', { exact: true })
+      .selectOption('RAINWATER');
+    await page.getByLabel('Type de système').fill(`HARVESTING_${suffix}`);
+    await page.getByRole('button', { name: 'Créer le réseau' }).click();
+    await expect(
+      page.locator('.library-table tbody tr', {
+        hasText: `HARVESTING_${suffix}`,
+      }),
+    ).toHaveCount(1);
+  }
+
+  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await expect(report.locator('.rule-card')).toHaveCount(2);
+  const cards = report.locator('.rule-card');
+  await expect(cards.first()).toContainText('Objets :');
+  await expect(
+    cards.first().getByRole('button', { name: 'Localiser' }),
+  ).toBeVisible();
   await expect(page.locator('.library-panel')).not.toContainText(
     'Aucun référentiel activé',
   );
@@ -828,4 +936,45 @@ test('never offers to fix a value the settings screen cannot take', async ({
     .getByRole('button', { name: 'Corriger' })
     .count();
   expect(fixable).toBeGreaterThan(0);
+});
+
+test('an emptied equipment field is gone after a save and a reload', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Équipements', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'equipment-dhw-tank', exact: true })
+    .click();
+
+  const loss = page.getByLabel('Pertes à l’arrêt');
+  await expect(loss).toHaveValue('45');
+  await loss.fill('');
+  await loss.press('Enter');
+  // The property is removed, not stored as zero and not as NaN: nobody chose a
+  // value, so the project stops claiming one.
+  await expect(page.getByLabel('Pertes à l’arrêt')).toHaveCount(0);
+
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  const saved = await (await download).path();
+  expect(saved).not.toBeNull();
+
+  await page.reload();
+  await expect(page.getByRole('status')).toContainText('Nouveau projet');
+  // Exporting clears the local snapshot, so the restore prompt may not appear
+  // at all; when it does, the exported file is the one being reloaded.
+  const prompt = page.getByRole('alertdialog');
+  if ((await prompt.count()) > 0)
+    await prompt.getByRole('button', { name: 'Ignorer et supprimer' }).click();
+  await page.setInputFiles('input[type="file"]', saved);
+  await expect(page.getByRole('status')).toContainText('chargé et validé');
+  await page.getByRole('button', { name: 'Équipements', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'equipment-dhw-tank', exact: true })
+    .click();
+  await expect(page.getByLabel('Volume de ballon')).toHaveValue('200');
+  await expect(page.getByLabel('Pertes à l’arrêt')).toHaveCount(0);
+  expect(errors).toEqual([]);
 });

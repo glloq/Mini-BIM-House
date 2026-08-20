@@ -12,6 +12,8 @@ import {
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import { projectEquipmentFromCatalog } from './library-model.js';
+import { DraftField } from '../DraftField.js';
+import { describeProperties, withProperty } from './property-schema.js';
 
 const CATEGORY_LABELS: Readonly<Record<string, string>> = {
   HEAT_PUMP: 'Pompe à chaleur',
@@ -41,10 +43,12 @@ export interface EquipmentPanelProps {
   readonly onCommand: (command: ProjectCommand) => void;
   readonly selectedId?: string;
   readonly onSelect: (equipmentId: string | undefined) => void;
+  readonly onMessage: (message: string) => void;
 }
 
 export function EquipmentPanel({
   project,
+  onMessage,
   onCommand,
   selectedId,
   onSelect,
@@ -179,62 +183,65 @@ export function EquipmentPanel({
                     }`
                   : 'saisie manuelle'}
               </p>
-              {Object.entries(selected.properties)
-                .filter(([key]) => !key.startsWith('catalogDefinition'))
-                .map(([key, value]) => (
-                  <label key={key} className="property-row">
-                    <span>{key}</span>
-                    {typeof value === 'number' ? (
-                      <input
-                        type="number"
-                        step="any"
-                        value={value}
-                        onChange={(event) =>
-                          onCommand(
-                            new UpdateEquipmentCommand({
-                              ...selected,
-                              properties: {
-                                ...selected.properties,
-                                [key]: event.target.valueAsNumber,
-                              },
-                            }),
-                          )
+              {describeProperties(
+                Object.fromEntries(
+                  Object.entries(selected.properties).filter(
+                    ([key]) => !key.startsWith('catalogDefinition'),
+                  ),
+                ),
+              ).map(({ group, entries }) => (
+                <section key={group} className="property-group">
+                  <h4>{group}</h4>
+                  {entries.map(({ descriptor, value }) => (
+                    <DraftField
+                      key={descriptor.key}
+                      id={`equipment-${selected.id}-${descriptor.key}`}
+                      label={descriptor.label}
+                      kind={descriptor.kind}
+                      value={
+                        typeof value === 'number' ||
+                        typeof value === 'string' ||
+                        typeof value === 'boolean'
+                          ? value
+                          : undefined
+                      }
+                      {...(descriptor.unit === undefined
+                        ? {}
+                        : { unit: descriptor.unit })}
+                      {...(descriptor.hint === undefined
+                        ? {}
+                        : { hint: descriptor.hint })}
+                      {...(descriptor.min === undefined
+                        ? {}
+                        : { min: descriptor.min })}
+                      onCommit={(raw) => {
+                        const properties = withProperty(
+                          selected.properties,
+                          descriptor,
+                          raw,
+                        );
+                        if (properties === undefined) {
+                          onMessage(
+                            `${descriptor.label} : valeur non reconnue, la propriété n'a pas été modifiée.`,
+                          );
+                          return;
                         }
-                      />
-                    ) : typeof value === 'boolean' ? (
-                      <input
-                        type="checkbox"
-                        checked={value}
-                        onChange={(event) =>
-                          onCommand(
-                            new UpdateEquipmentCommand({
-                              ...selected,
-                              properties: {
-                                ...selected.properties,
-                                [key]: event.target.checked,
-                              },
-                            }),
-                          )
-                        }
-                      />
-                    ) : (
-                      <input
-                        value={typeof value === 'string' ? value : ''}
-                        onChange={(event) =>
-                          onCommand(
-                            new UpdateEquipmentCommand({
-                              ...selected,
-                              properties: {
-                                ...selected.properties,
-                                [key]: event.target.value,
-                              },
-                            }),
-                          )
-                        }
-                      />
-                    )}
-                  </label>
-                ))}
+                        onCommand(
+                          new UpdateEquipmentCommand({
+                            ...selected,
+                            properties,
+                          }),
+                        );
+                      }}
+                    />
+                  ))}
+                </section>
+              ))}
+              <p className="notice">
+                Un champ vidé retire la propriété : le calcul signale alors une
+                donnée manquante plutôt que de travailler avec une valeur que
+                personne n'a choisie.
+              </p>
             </article>
           )}
         </div>

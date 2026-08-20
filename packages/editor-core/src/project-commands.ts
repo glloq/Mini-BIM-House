@@ -1,5 +1,8 @@
 import type { Project } from '@house-technical-designer/core-domain';
-import { isDimension } from '@house-technical-designer/core-domain';
+import {
+  isDimension,
+  nextRevision,
+} from '@house-technical-designer/core-domain';
 import type {
   ChangeSet,
   CommandValidation,
@@ -24,18 +27,50 @@ interface HistoryEntry {
   readonly inverse: ProjectCommand;
 }
 
-/** Command dispatcher whose only persisted state is the canonical Project. */
+/**
+ * Command dispatcher whose only persisted state is the canonical Project.
+ *
+ * Every applied command — including an undo or a redo — stamps a new revision
+ * and a new `updatedAt`. The revision is a monotonic edit identifier held by the
+ * dispatcher, not a name for a state: undoing an edit does not put back the
+ * revision the project had before it, because the project has been edited
+ * again. That is what lets a scenario recorded against revision 4 report a
+ * mismatch after an undo instead of silently matching a project that is no
+ * longer the one it was measured on.
+ */
 export class ProjectCommandDispatcher {
   #project: Project;
+  #revision: string | undefined;
   #undo: HistoryEntry[] = [];
   #redo: HistoryEntry[] = [];
+  readonly #now: () => string;
   constructor(
     project: Project,
     readonly historyLimit = 100,
+    now: () => string = () => new Date().toISOString(),
   ) {
     if (!Number.isInteger(historyLimit) || historyLimit < 1)
       throw new RangeError('History limit must be a positive integer.');
     this.#project = project;
+    this.#revision = project.metadata.projectRevision;
+    this.#now = now;
+  }
+  /**
+   * Runs one command against a project already stamped with the revision the
+   * command is about to produce.
+   *
+   * Stamping first is what lets a command record its own revision — a scenario
+   * is measured against the project as the command leaves it, not as it found
+   * it. The stamp is written again afterwards so the revision holds whatever
+   * the command returned, without counting the edit twice.
+   */
+  #apply(command: ProjectCommand): ProjectCommandExecution {
+    const revision = nextRevision(this.#revision);
+    const now = this.#now();
+    const execution = command.execute(stamped(this.#project, revision, now));
+    this.#revision = revision;
+    this.#project = stamped(execution.nextState, revision, now);
+    return execution;
   }
   get project(): Project {
     return this.#project;
@@ -44,8 +79,7 @@ export class ProjectCommandDispatcher {
     const validation = command.validate(this.#project);
     if (!validation.valid)
       return { status: 'REJECTED', errors: validation.errors };
-    const execution = command.execute(this.#project);
-    this.#project = execution.nextState;
+    const execution = this.#apply(command);
     this.#undo.push({ command, inverse: execution.inverse });
     if (this.#undo.length > this.historyLimit) this.#undo.shift();
     this.#redo = [];
@@ -68,12 +102,22 @@ export class ProjectCommandDispatcher {
     const validation = command.validate(this.#project);
     if (!validation.valid)
       return { status: 'REJECTED', errors: validation.errors };
-    const execution = command.execute(this.#project);
     source.pop();
     destination.push(entry);
-    this.#project = execution.nextState;
+    const execution = this.#apply(command);
     return { status: 'APPLIED', changes: execution.changes };
   }
+}
+
+function stamped(project: Project, revision: string, now: string): Project {
+  return {
+    ...project,
+    metadata: {
+      ...project.metadata,
+      updatedAt: now,
+      projectRevision: revision,
+    },
+  };
 }
 
 /** Exact immutable replacement command suitable for building and network slices. */
