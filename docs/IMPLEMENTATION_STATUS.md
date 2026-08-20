@@ -921,11 +921,11 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d’intégration : 807 tests sur 117 fichiers
-- tests navigateur : 50 tests Playwright — 47 sur Chromium et trois sur un
+- tests unitaires et d’intégration : 852 tests sur 121 fichiers
+- tests navigateur : 55 tests Playwright — 52 sur Chromium et trois sur un
   écran de téléphone — dont deux rejoués sur Firefox et WebKit
-- accessibilité : axe-core, onze espaces de travail, WCAG 2.1 AA, aucun
-  manquement
+- accessibilité : axe-core, onze espaces de travail et la palette de
+  commandes, WCAG 2.1 AA, aucun manquement
 - chargement initial : 151 kio compressés pour un budget de 200 kio
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`
