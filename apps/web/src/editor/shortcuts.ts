@@ -16,6 +16,8 @@ export type ShortcutCommandId =
   | 'edit.delete'
   | 'edit.cancel'
   | 'edit.duplicate'
+  | 'edit.rotate'
+  | 'edit.mirror'
   | 'file.save'
   | 'view.zoomFit'
   | 'view.zoomSelection'
@@ -60,6 +62,20 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
     label: 'Dupliquer la sélection',
     key: 'd',
     ctrlOrMeta: true,
+    group: 'Édition',
+  },
+  {
+    id: 'edit.rotate',
+    label: 'Pivoter la sélection d’un quart de tour',
+    key: 'r',
+    shift: true,
+    group: 'Édition',
+  },
+  {
+    id: 'edit.mirror',
+    label: 'Retourner la sélection de gauche à droite',
+    key: 'm',
+    shift: true,
     group: 'Édition',
   },
   {

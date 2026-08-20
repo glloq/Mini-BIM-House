@@ -20,6 +20,7 @@ import {
   MoveWallPointCommand,
   ProjectEditorCommand,
   ProjectTransactionCommand,
+  SetWallPathCommand,
   SplitWallCommand,
   TransactionCommand,
   UpdateNetworkNodeCommand,
@@ -447,6 +448,165 @@ export function moveObjectsCommand(
               : `Déplacer ${objectIds.length} objets`,
             commands,
           ),
+  };
+}
+
+/**
+ * How a selection is being transformed.
+ *
+ * Both are one map from a point to a point: turning around a centre, or
+ * reflecting across an axis. Expressing them the same way is what lets walls,
+ * slabs, roof planes and network nodes all follow the same code.
+ */
+export type PlanTransform =
+  | {
+      readonly kind: 'ROTATE';
+      readonly centre: Point2D;
+      readonly angleDeg: number;
+    }
+  | {
+      readonly kind: 'MIRROR';
+      /** Two points of the axis the selection is reflected across. */
+      readonly from: Point2D;
+      readonly to: Point2D;
+    };
+
+/** The point a transform sends this one to. */
+export function transformPoint(
+  transform: PlanTransform,
+  point: Point2D,
+): Point2D {
+  if (transform.kind === 'ROTATE') {
+    const radians = (transform.angleDeg * Math.PI) / 180;
+    const dx = point.x - transform.centre.x;
+    const dy = point.y - transform.centre.y;
+    return {
+      x: transform.centre.x + dx * Math.cos(radians) - dy * Math.sin(radians),
+      y: transform.centre.y + dx * Math.sin(radians) + dy * Math.cos(radians),
+    };
+  }
+  const axis = {
+    x: transform.to.x - transform.from.x,
+    y: transform.to.y - transform.from.y,
+  };
+  const lengthSquared = axis.x * axis.x + axis.y * axis.y;
+  // An axis of no length reflects nothing; the point stays where it is rather
+  // than becoming a division by zero.
+  if (lengthSquared === 0) return point;
+  const dx = point.x - transform.from.x;
+  const dy = point.y - transform.from.y;
+  const projection = (dx * axis.x + dy * axis.y) / lengthSquared;
+  const foot = {
+    x: transform.from.x + axis.x * projection,
+    y: transform.from.y + axis.y * projection,
+  };
+  return { x: 2 * foot.x - point.x, y: 2 * foot.y - point.y };
+}
+
+function transformedPolygon(
+  polygon: Polygon2D,
+  transform: PlanTransform,
+): Polygon2D {
+  const move = (point: Point2D) => transformPoint(transform, point);
+  return {
+    outer: polygon.outer.map(move),
+    ...(polygon.holes === undefined
+      ? {}
+      : { holes: polygon.holes.map((hole) => hole.map(move)) }),
+  };
+}
+
+/**
+ * Turns or reflects what is selected, as one action.
+ *
+ * A wall is reshaped in a single step rather than point by point: moving its
+ * points one at a time passes through lengths the wall never has, and an
+ * opening that fits before and after would be refused in between.
+ */
+export function transformObjectsCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  objectIds: readonly string[],
+  transform: PlanTransform,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  if (objectIds.length === 0)
+    return { status: 'ERROR', message: 'La sélection est vide.' };
+  if (transform.kind === 'ROTATE' && !Number.isFinite(transform.angleDeg))
+    return { status: 'ERROR', message: 'Angle non mesurable.' };
+  const commands: ProjectCommand[] = [];
+  for (const objectId of objectIds) {
+    const wall = level.walls.find(({ id }) => id === objectId);
+    if (wall !== undefined) {
+      commands.push(
+        new ProjectEditorCommand(
+          `wall:transform:${objectId}`,
+          transform.kind === 'ROTATE' ? 'Pivoter un mur' : 'Retourner un mur',
+          level.id,
+          new SetWallPathCommand(
+            `wall:transform:${objectId}`,
+            wall.id,
+            wall.path.points.map((point) => transformPoint(transform, point)),
+          ),
+        ),
+      );
+      continue;
+    }
+    const slab = level.slabs.find(({ id }) => id === objectId);
+    if (slab !== undefined) {
+      commands.push(
+        new UpdateSlabCommand(level.id, slab.id, {
+          polygon: transformedPolygon(slab.polygon, transform),
+        }),
+      );
+      continue;
+    }
+    const roof = level.roofs.find(({ id }) => id === objectId);
+    if (roof !== undefined) {
+      commands.push(
+        new UpdateRoofCommand(level.id, roof.id, {
+          footprint: transformedPolygon(roof.footprint, transform),
+        }),
+      );
+      continue;
+    }
+    const network = (file.project.systems ?? []).find((candidate) =>
+      candidate.nodes.some(({ id }) => id === objectId),
+    );
+    const node = network?.nodes.find(({ id }) => id === objectId);
+    if (network !== undefined && node !== undefined) {
+      const moved = transformPoint(transform, node.position);
+      commands.push(
+        new UpdateNetworkNodeCommand(network.id, node.id, {
+          position: { x: moved.x, y: moved.y, z: node.position.z },
+        }),
+      );
+      continue;
+    }
+    if (level.openings.some(({ id }) => id === objectId))
+      return {
+        status: 'ERROR',
+        message:
+          'Une ouverture suit son mur : faites pivoter le mur qui la porte.',
+      };
+    return {
+      status: 'ERROR',
+      message: `Cet objet ne se transforme pas depuis le plan : ${objectId}.`,
+    };
+  }
+  const id = `${transform.kind.toLowerCase()}:${objectIds.join(',')}`;
+  const label =
+    transform.kind === 'ROTATE'
+      ? `Pivoter ${objectIds.length} objet(s)`
+      : `Retourner ${objectIds.length} objet(s)`;
+  return {
+    status: 'OK',
+    command:
+      commands.length === 1
+        ? commands[0]!
+        : new ProjectTransactionCommand(id, label, commands),
   };
 }
 

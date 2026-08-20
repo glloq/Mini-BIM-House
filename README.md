@@ -663,13 +663,12 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   (transmission, déperditions, données manquantes) sont branchées ; les
   résultats des réseaux, de la ventilation et de l'électricité se lisent dans
   les tableaux, pas encore sur le dessin.
-- **Productivité CAO** : coller vers un autre niveau, raccord de deux murs,
-  trim/extend, décalage parallèle, rotation et miroir ne sont pas implémentés.
-  Une sélection se déplace en la faisant glisser, se duplique par `Ctrl+D`, et
-  un mur se scinde là où on le désigne ; le reste du remaniement reste à
-  faire. Les extrémités d'un mur se déplacent, un mur se scinde
-  et une ouverture se redimensionne ; le reste du remaniement géométrique reste
-  à faire.
+- **Productivité CAO** : coller vers un autre niveau, rotation d'un angle
+  libre, axe de miroir choisi, raccord de deux murs, trim/extend et décalage
+  parallèle ne sont pas implémentés. Ce qui existe : extrémité de mur déplacée,
+  mur scindé là où on le désigne, ouverture redimensionnée, contour de dalle
+  repris sommet par sommet, sélection déplacée en la faisant glisser,
+  dupliquée par `Ctrl+D`, pivotée d'un quart de tour ou retournée.
 - **Dossier de plans** : `drawingViews` n'est pas encore un contrat typé, si
   bien qu'un projet exporte l'état courant plutôt qu'un jeu de feuilles
   reproductible.

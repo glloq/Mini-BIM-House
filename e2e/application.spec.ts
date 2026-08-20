@@ -895,6 +895,56 @@ test('duplicates a selection and leaves the copies selected', async ({
   expect(errors).toEqual([]);
 });
 
+test('turns and reflects a selection about its own centre', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const frame = (await canvas.boundingBox())!;
+  const shape = (await page
+    .locator('[id="wall:wall-partition-h"]')
+    .boundingBox())!;
+  await canvas.click({
+    position: {
+      x: shape.x - frame.x + shape.width * 0.2,
+      y: shape.y - frame.y + shape.height * 0.5,
+    },
+  });
+  await expect(page.locator('.inspector-subject')).toContainText(
+    'wall-partition-h',
+  );
+  const before = await page
+    .getByRole('spinbutton', { name: 'Angle (°)' })
+    .inputValue();
+  const length = await page
+    .getByRole('spinbutton', { name: 'Longueur (mm)' })
+    .inputValue();
+
+  await page.getByRole('button', { name: /^Pivoter 90°/ }).click();
+  await expect(page.getByRole('status')).toContainText('Pivoter');
+  // A quarter turn changes the bearing and not the length.
+  await expect(
+    page.getByRole('spinbutton', { name: 'Angle (°)' }),
+  ).not.toHaveValue(before);
+  await expect(
+    page.getByRole('spinbutton', { name: 'Longueur (mm)' }),
+  ).toHaveValue(length);
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.getByRole('spinbutton', { name: 'Angle (°)' })).toHaveValue(
+    before,
+  );
+
+  await page.getByRole('button', { name: /^Miroir/ }).click();
+  await expect(page.getByRole('status')).toContainText('Retourner');
+  await expect(
+    page.getByRole('spinbutton', { name: 'Longueur (mm)' }),
+  ).toHaveValue(length);
+  expect(errors).toEqual([]);
+});
+
 test('chooses which contour a slab is built from', async ({ page }) => {
   await loadDemo(page);
   await page.getByRole('button', { name: 'Niveaux et pièces' }).click();

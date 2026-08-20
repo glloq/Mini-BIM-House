@@ -111,6 +111,7 @@ import {
   duplicateObjectsCommand,
   geometryEditCommand,
   moveObjectsCommand,
+  transformObjectsCommand,
 } from './editor/editing-commands.js';
 import type { GeometryEdit } from './editor/grips.js';
 
@@ -627,6 +628,50 @@ function App() {
   }, []);
 
   /**
+   * Turns or reflects the selection about its own centre.
+   *
+   * The centre is the middle of what is selected rather than a point the user
+   * has to place first: it is what a quarter turn or a flip means most of the
+   * time, and the selection can be moved afterwards.
+   */
+  const transformSelection = useCallback(
+    (kind: 'ROTATE' | 'MIRROR') => {
+      const plan = buildPlanView(session.current.file.project, {
+        ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
+        layers: editor.layers,
+      });
+      const bounds = boundsOfObjects(plan.primitives, editor.selection);
+      if (bounds === undefined) {
+        setMessage('Sélectionnez d’abord ce qui doit être transformé.');
+        return;
+      }
+      const centre = {
+        x: (bounds.min.x + bounds.max.x) / 2,
+        y: (bounds.min.y + bounds.max.y) / 2,
+      };
+      const result = transformObjectsCommand(
+        session.current.file,
+        activeLevelId,
+        editor.selection,
+        kind === 'ROTATE'
+          ? { kind, centre, angleDeg: 90 }
+          : {
+              kind,
+              from: centre,
+              // A vertical axis through the centre: left becomes right.
+              to: { x: centre.x, y: centre.y + 1000 },
+            },
+      );
+      if (result.status === 'ERROR') {
+        setMessage(result.message);
+        return;
+      }
+      runCommand(result.command);
+    },
+    [activeLevelId, editor.layers, editor.selection, runCommand],
+  );
+
+  /**
    * Copies the selection a little to the side, and selects the copies.
    *
    * Leaving the originals selected would look like nothing happened, and the
@@ -905,6 +950,12 @@ function App() {
         case 'edit.duplicate':
           duplicateSelection();
           return;
+        case 'edit.rotate':
+          transformSelection('ROTATE');
+          return;
+        case 'edit.mirror':
+          transformSelection('MIRROR');
+          return;
         case 'file.save':
           void saveContainer();
           return;
@@ -926,6 +977,7 @@ function App() {
       dispatchEditor,
       duplicateSelection,
       redo,
+      transformSelection,
       saveContainer,
       undo,
       zoomFit,
@@ -1532,6 +1584,7 @@ function App() {
               onDimensionTypeChange={setDimensionType}
               networkId={activeNetworkId ?? ''}
               onNetworkChange={setSelectedNetworkId}
+              onTransform={transformSelection}
               nodeKind={activeNodeKind}
               onNodeKindChange={setNodeKind}
             />

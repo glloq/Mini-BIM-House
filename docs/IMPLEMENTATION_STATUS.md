@@ -849,9 +849,16 @@ d'ajouter les dizaines de familles d'objets qui manquent.
   l'utilisateur travaille ensuite. Une ouverture ne se duplique qu'avec le mur
   qui la porte, faute de quoi sa copie se poserait exactement sur l'originale.
 
-Restent à faire dans ce lot : coller vers un autre niveau, rotation, miroir,
-décalage parallèle, raccord de deux murs, trim/extend, alignement et cotes
-temporaires éditables.
+- Pivoter d'un quart de tour et retourner de gauche à droite, autour du centre
+  de la sélection. Un mur est remanié en une seule étape : déplacer ses points
+  l'un après l'autre passerait par des longueurs que le mur n'a jamais, et une
+  ouverture qui tient avant et après serait refusée entre les deux. Une
+  commande de domaine remplace donc le tracé entier, ouvertures vérifiées d'un
+  coup.
+
+Restent à faire dans ce lot : coller vers un autre niveau, rotation d'un angle
+libre, axe de miroir choisi, décalage parallèle, raccord de deux murs,
+trim/extend, alignement et cotes temporaires éditables.
 
 ### UI-15 — palette de commandes
 

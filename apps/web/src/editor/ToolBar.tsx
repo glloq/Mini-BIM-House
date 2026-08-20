@@ -37,6 +37,8 @@ export interface ToolBarProps {
   readonly onNetworkChange: (networkId: string) => void;
   readonly nodeKind: string;
   readonly onNodeKindChange: (kind: string) => void;
+  /** Turns or reflects the selection about its own centre. */
+  readonly onTransform?: (kind: 'ROTATE' | 'MIRROR') => void;
 }
 
 export interface OpeningDraft {
@@ -67,6 +69,7 @@ export function ToolBar({
   onNetworkChange,
   nodeKind,
   onNodeKindChange,
+  onTransform,
 }: ToolBarProps) {
   const networks = project.systems ?? [];
   const activeNetwork = networks.find(({ id }) => id === networkId);
@@ -300,6 +303,27 @@ export function ToolBar({
           )}
         </div>
       )}
+
+      <div className="tool-group" role="group" aria-label="Modification">
+        <button
+          type="button"
+          className="secondary"
+          disabled={editor.selection.length === 0}
+          title="Pivoter la sélection d’un quart de tour autour de son centre"
+          onClick={() => onTransform?.('ROTATE')}
+        >
+          Pivoter 90°{hint('edit.rotate')}
+        </button>
+        <button
+          type="button"
+          className="secondary"
+          disabled={editor.selection.length === 0}
+          title="Retourner la sélection de gauche à droite"
+          onClick={() => onTransform?.('MIRROR')}
+        >
+          Miroir{hint('edit.mirror')}
+        </button>
+      </div>
 
       <div className="tool-group" role="group" aria-label="Navigation">
         <button

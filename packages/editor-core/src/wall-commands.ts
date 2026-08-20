@@ -221,6 +221,86 @@ export class MoveWallPointCommand implements EditorCommand {
 }
 
 /**
+ * Replaces the whole path of a wall.
+ *
+ * Turning a wall or reflecting it moves every one of its points at once, and
+ * moving them one at a time is not the same thing: an intermediate state has a
+ * length the wall never has, and an opening that fits before and after would be
+ * refused in between. The new path is therefore validated as a whole, openings
+ * included, and applied in one step.
+ */
+export class SetWallPathCommand implements EditorCommand {
+  readonly label = 'Set wall path';
+  constructor(
+    readonly id: string,
+    readonly wallId: Wall['id'],
+    readonly points: readonly Point2D[],
+  ) {}
+  private reshaped(state: EditorProjectState): Wall | undefined {
+    const wall = state.walls.find(({ id }) => id === this.wallId);
+    if (wall === undefined) return undefined;
+    return {
+      ...wall,
+      path: { points: this.points.map((point) => ({ ...point })) },
+    };
+  }
+  validate(state: EditorProjectState): CommandValidation {
+    const wall = state.walls.find(({ id }) => id === this.wallId);
+    if (wall === undefined)
+      return { valid: false, errors: [`Wall ${this.wallId} does not exist.`] };
+    if (this.points.length !== wall.path.points.length)
+      return {
+        valid: false,
+        errors: [
+          `Wall ${this.wallId} has ${wall.path.points.length} points, not ${this.points.length}.`,
+        ],
+      };
+    if (
+      this.points.some(
+        (point) => !Number.isFinite(point.x) || !Number.isFinite(point.y),
+      )
+    )
+      return { valid: false, errors: ['Wall points must be finite.'] };
+    const next = this.reshaped(state)!;
+    const assembly = state.assemblies.find(({ id }) => id === wall.assemblyId);
+    const issues = validateWall(next, assembly);
+    if (issues.length > 0)
+      return {
+        valid: false,
+        errors: issues.map(({ path, message }) => `${path}: ${message}`),
+      };
+    const errors = state.openings
+      .filter(({ hostElementId }) => hostElementId === this.wallId)
+      .flatMap((opening) =>
+        validateOpening(opening, next).map(
+          ({ message }) => `Opening ${opening.id} ${message}.`,
+        ),
+      );
+    return errors.length === 0 ? { valid: true } : { valid: false, errors };
+  }
+  execute(state: EditorProjectState): CommandExecution {
+    const wall = state.walls.find(({ id }) => id === this.wallId);
+    if (wall === undefined)
+      throw new Error('Set wall path executed without validation.');
+    const next = this.reshaped(state)!;
+    return {
+      nextState: {
+        ...state,
+        walls: state.walls.map((entry) =>
+          entry.id === this.wallId ? next : entry,
+        ),
+      },
+      inverse: new SetWallPathCommand(
+        `${this.id}:inverse`,
+        this.wallId,
+        wall.path.points.map((point) => ({ ...point })),
+      ),
+      changes: changes(this.wallId),
+    };
+  }
+}
+
+/**
  * Cuts a wall in two at a point along its axis.
  *
  * Each piece keeps the assembly, the height and the role of the wall it came
