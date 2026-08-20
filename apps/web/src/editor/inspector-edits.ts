@@ -6,6 +6,8 @@ import type {
 } from '@house-technical-designer/core-domain';
 import { isDimension } from '@house-technical-designer/core-domain';
 import {
+  MoveWallPointCommand,
+  ProjectEditorCommand,
   UpdateDimensionCommand,
   UpdateNetworkNodeCommand,
   UpdateOpeningCommand,
@@ -98,12 +100,79 @@ function parsed(value: string): number | undefined {
   return Number.isFinite(parsedValue) ? parsedValue : undefined;
 }
 
+/**
+ * Length and bearing of a straight wall, as the user reads them on a plan.
+ *
+ * Typing a length moves the far end along the axis the wall already has; typing
+ * an angle turns it around its start. Both are expressed as a move of one
+ * point, so they go through the same validation as dragging that point — an
+ * opening that would end up outside its wall refuses the edit either way.
+ */
+function straightWallEdits(level: Level, wall: Wall): readonly InspectorEdit[] {
+  const start = wall.path.points[0];
+  const end = wall.path.points[1];
+  if (start === undefined || end === undefined || wall.path.points.length !== 2)
+    return [];
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const lengthMm = Math.hypot(dx, dy);
+  const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
+  const moveEnd = (nextLengthMm: number, nextAngleDeg: number) => {
+    const radians = (nextAngleDeg * Math.PI) / 180;
+    return new ProjectEditorCommand(
+      `wall:point:${wall.id}:1`,
+      'Modifier la géométrie du mur',
+      level.id,
+      new MoveWallPointCommand(`wall:point:${wall.id}`, wall.id, 1, {
+        x: start.x + Math.cos(radians) * nextLengthMm,
+        y: start.y + Math.sin(radians) * nextLengthMm,
+      }),
+    );
+  };
+  return [
+    {
+      id: 'lengthMm',
+      label: 'Longueur',
+      control: {
+        kind: 'NUMBER',
+        value: Math.round(lengthMm),
+        unit: 'mm',
+        step: 10,
+        min: 1,
+      },
+      hint: 'Mesurée sur l’axe ; le mur pivote autour de son point de départ.',
+      apply: (value) => {
+        const next = parsed(value);
+        return next === undefined || next <= 0
+          ? undefined
+          : moveEnd(next, angleDeg);
+      },
+    },
+    {
+      id: 'angleDeg',
+      label: 'Angle',
+      control: {
+        kind: 'NUMBER',
+        value: Number(angleDeg.toFixed(2)),
+        unit: '°',
+        step: 0.5,
+      },
+      hint: 'Depuis l’axe X du plan, dans le sens trigonométrique.',
+      apply: (value) => {
+        const next = parsed(value);
+        return next === undefined ? undefined : moveEnd(lengthMm, next);
+      },
+    },
+  ];
+}
+
 function wallEdits(
   project: Project,
   level: Level,
   wall: Wall,
 ): readonly InspectorEdit[] {
   const edits: InspectorEdit[] = [
+    ...straightWallEdits(level, wall),
     {
       id: 'assemblyId',
       label: 'Assemblage',

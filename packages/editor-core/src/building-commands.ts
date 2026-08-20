@@ -18,7 +18,10 @@ import {
   isWallRole,
 } from '@house-technical-designer/core-domain';
 import type { Polygon2D } from '@house-technical-designer/geometry';
-import { polygonArea } from '@house-technical-designer/geometry';
+import {
+  polygonArea,
+  validatePolygon,
+} from '@house-technical-designer/geometry';
 import type { CommandValidation } from './commands.js';
 import type {
   ProjectCommand,
@@ -830,6 +833,8 @@ export interface SlabPatch {
   readonly assemblyId?: string;
   readonly role?: Slab['role'];
   readonly elevationOffsetMm?: number;
+  /** The footprint, when the user reshapes it. */
+  readonly polygon?: Polygon2D;
 }
 
 export class UpdateSlabCommand extends BuildingCommand {
@@ -849,10 +854,13 @@ export class UpdateSlabCommand extends BuildingCommand {
     const slabRole = rejectedEnumValue(this.patch.role, isSlabRole);
     if (slabRole !== undefined)
       return rejected(`Rôle de dalle inconnu : ${slabRole}.`);
-    return this.patch.elevationOffsetMm !== undefined &&
+    if (
+      this.patch.elevationOffsetMm !== undefined &&
       !Number.isFinite(this.patch.elevationOffsetMm)
-      ? rejected('Le décalage de la dalle doit être un nombre fini.')
-      : ok();
+    )
+      return rejected('Le décalage de la dalle doit être un nombre fini.');
+    const shape = badPolygon(this.patch.polygon, 'La dalle');
+    return shape === undefined ? ok() : rejected(...shape);
   }
   protected apply(project: Project): Project {
     return mapLevel(project, this.levelId, (level) => ({
@@ -869,6 +877,8 @@ export interface RoofPatch {
   readonly slopeDeg?: number;
   readonly azimuthDeg?: number;
   readonly baseElevationMm?: number;
+  /** The footprint, when the user reshapes it. */
+  readonly footprint?: Polygon2D;
 }
 
 export class UpdateRoofCommand extends BuildingCommand {
@@ -903,6 +913,9 @@ export class UpdateRoofCommand extends BuildingCommand {
       !Number.isFinite(this.patch.baseElevationMm)
     )
       errors.push("L'altitude de base doit être un nombre fini.");
+    errors.push(
+      ...(badPolygon(this.patch.footprint, 'Le pan de toiture') ?? []),
+    );
     return errors.length > 0 ? rejected(...errors) : ok();
   }
   protected apply(project: Project): Project {
@@ -915,6 +928,24 @@ export class UpdateRoofCommand extends BuildingCommand {
       ),
     }));
   }
+}
+
+/**
+ * Why a reshaped footprint would be refused, when it would.
+ *
+ * A polygon that crosses itself or collapses onto a line is not a surface, and
+ * a quantity taken from it would be meaningless. It is refused while the drag
+ * is still in the user's hands rather than stored and reported later.
+ */
+function badPolygon(
+  polygon: Polygon2D | undefined,
+  what: string,
+): readonly string[] | undefined {
+  if (polygon === undefined) return undefined;
+  const issues = validatePolygon(polygon);
+  return issues.length === 0
+    ? undefined
+    : issues.map(({ message }) => `${what} : ${message}.`);
 }
 
 export interface DimensionPatch {

@@ -13,13 +13,23 @@ import {
   DeleteDimensionCommand,
   DeleteOpeningCommand,
   DeleteWallCommand,
+  MoveWallCommand,
+  MoveWallPointCommand,
   ProjectEditorCommand,
+  SplitWallCommand,
   TransactionCommand,
+  UpdateOpeningCommand,
+  UpdateRoofCommand,
+  UpdateSlabCommand,
   createOpeningInsertionCommand,
+  withInsertedVertex,
+  withMovedVertex,
+  withoutVertex,
   type EditorCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import type { Point2D } from '@house-technical-designer/geometry';
+import type { GeometryEdit } from './grips.js';
 
 /** How far from a wall axis an opening may be dropped, in millimetres. */
 const MAXIMUM_HOST_DISTANCE_MM = 600;
@@ -317,4 +327,120 @@ export function deleteObjectsCommand(
         : new TransactionCommand(id, 'Supprimer la sélection', commands),
     ),
   };
+}
+
+/**
+ * The command a dragged handle produces.
+ *
+ * The canvas reports what was dragged and where it landed; turning that into an
+ * edit of the project happens here, where the commands are known and where a
+ * refusal can be explained.
+ */
+export function geometryEditCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  edit: GeometryEdit,
+  newWallId?: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Aucun niveau actif.' };
+  switch (edit.kind) {
+    case 'WALL_POINT':
+      return {
+        status: 'OK',
+        command: new ProjectEditorCommand(
+          `wall:point:${edit.wallId}:${edit.pointIndex}`,
+          'Déplacer une extrémité de mur',
+          level.id,
+          new MoveWallPointCommand(
+            `wall:point:${edit.wallId}`,
+            edit.wallId as Wall['id'],
+            edit.pointIndex,
+            edit.to,
+          ),
+        ),
+      };
+    case 'WALL_MOVE':
+      return {
+        status: 'OK',
+        command: new ProjectEditorCommand(
+          `wall:move:${edit.wallId}`,
+          'Déplacer un mur',
+          level.id,
+          new MoveWallCommand(
+            `wall:move:${edit.wallId}`,
+            edit.wallId as Wall['id'],
+            edit.delta,
+          ),
+        ),
+      };
+    case 'WALL_SPLIT': {
+      if (newWallId === undefined)
+        return {
+          status: 'ERROR',
+          message: 'Aucun identifiant disponible pour le mur créé.',
+        };
+      return {
+        status: 'OK',
+        command: new ProjectEditorCommand(
+          `wall:split:${edit.wallId}`,
+          'Scinder un mur',
+          level.id,
+          new SplitWallCommand(
+            `wall:split:${edit.wallId}`,
+            edit.wallId as Wall['id'],
+            edit.at,
+            newWallId as Wall['id'],
+          ),
+        ),
+      };
+    }
+    case 'OPENING_OFFSET':
+      return {
+        status: 'OK',
+        command: new UpdateOpeningCommand(level.id, edit.openingId, {
+          offsetAlongHostMm: edit.offsetMm,
+        }),
+      };
+    case 'POLYGON_VERTEX':
+    case 'POLYGON_INSERT':
+    case 'POLYGON_REMOVE': {
+      const slab =
+        edit.objectKind === 'SLAB'
+          ? level.slabs.find(({ id }) => id === edit.objectId)
+          : undefined;
+      const roof =
+        edit.objectKind === 'ROOF'
+          ? level.roofs.find(({ id }) => id === edit.objectId)
+          : undefined;
+      const polygon = slab?.polygon ?? roof?.footprint;
+      if (polygon === undefined)
+        return {
+          status: 'ERROR',
+          message: `${edit.objectId} est introuvable.`,
+        };
+      const next =
+        edit.kind === 'POLYGON_VERTEX'
+          ? withMovedVertex(polygon, edit.vertexIndex, edit.to)
+          : edit.kind === 'POLYGON_INSERT'
+            ? withInsertedVertex(polygon, edit.edgeIndex, edit.at)
+            : withoutVertex(polygon, edit.vertexIndex);
+      if (next === undefined)
+        return {
+          status: 'ERROR',
+          message:
+            'Un contour garde au moins trois sommets : celui-ci ne peut pas en perdre un de plus.',
+        };
+      return {
+        status: 'OK',
+        command:
+          slab === undefined
+            ? new UpdateRoofCommand(level.id, edit.objectId, {
+                footprint: next,
+              })
+            : new UpdateSlabCommand(level.id, edit.objectId, { polygon: next }),
+      };
+    }
+  }
 }

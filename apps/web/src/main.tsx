@@ -60,6 +60,7 @@ import { ProjectPanel } from './project/ProjectPanel.js';
 import { ChecksPanel } from './checks/ChecksPanel.js';
 import type { CheckFix } from './checks/checks-model.js';
 import { placeNodeCommand } from './networks/network-model.js';
+import { nextLibraryId } from './library/library-model.js';
 import { ErrorBoundary } from './ErrorBoundary.js';
 import {
   AUTOSAVE_DELAY_MS,
@@ -96,7 +97,9 @@ import {
   addOpeningCommand,
   addWallCommand,
   deleteObjectsCommand,
+  geometryEditCommand,
 } from './editor/editing-commands.js';
+import type { GeometryEdit } from './editor/grips.js';
 
 function download(content: string, fileName: string, mediaType: string): void {
   downloadBlob(new Blob([content], { type: mediaType }), fileName);
@@ -417,6 +420,59 @@ function App() {
     if (runCommand(command.command))
       dispatchEditor({ type: 'CLEAR_SELECTION' });
   }, [activeLevelId, editor.selection, runCommand]);
+
+  /**
+   * Applies what a dragged handle asked for.
+   *
+   * A refusal is said out loud: dragging a wall end past its own window is a
+   * reasonable thing to try, and the reason it cannot be done belongs on
+   * screen rather than in a silently ignored gesture.
+   */
+  const editGeometry = useCallback(
+    (edit: GeometryEdit) => {
+      const command = geometryEditCommand(
+        session.current.file,
+        activeLevelId,
+        edit,
+        edit.kind === 'WALL_SPLIT'
+          ? nextLibraryId(
+              'wall',
+              'segment',
+              (
+                session.current.file.project.building.levels.find(
+                  ({ id }) => id === activeLevelId,
+                )?.walls ?? []
+              ).map(({ id }) => id),
+            )
+          : undefined,
+      );
+      if (command.status === 'ERROR') {
+        setMessage(command.message);
+        return;
+      }
+      runCommand(command.command);
+    },
+    [activeLevelId, runCommand],
+  );
+
+  /** Cuts the selected wall at its middle, where a drag can then take over. */
+  const splitSelectedWall = useCallback(() => {
+    const level = session.current.file.project.building.levels.find(
+      ({ id }) => id === activeLevelId,
+    );
+    const wall = level?.walls.find(({ id }) => id === editor.selection[0]);
+    const start = wall?.path.points[0];
+    const end = wall?.path.points[1];
+    if (wall === undefined || start === undefined || end === undefined) {
+      setMessage('Sélectionnez un mur droit avant de le scinder.');
+      return;
+    }
+    editGeometry({
+      kind: 'WALL_SPLIT',
+      wallId: wall.id,
+      at: { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 },
+    });
+  }, [activeLevelId, editGeometry, editor.selection]);
 
   const commitPoints = useCallback(
     (points: readonly { x: number; y: number }[]) => {
@@ -1129,12 +1185,14 @@ function App() {
               onNetworkChange={setSelectedNetworkId}
               nodeKind={activeNodeKind}
               onNodeKindChange={setNodeKind}
+              onSplitWall={splitSelectedWall}
             />
             <PlanCanvas
               project={file.project}
               editor={{ ...editor, levelId: activeLevelId } as EditorState}
               dispatch={dispatchEditor}
               onCommitPoints={commitPoints}
+              onEditGeometry={editGeometry}
               wallThicknessMm={wallThicknessMm}
               {...(overlay === undefined ? {} : { overlay })}
             />
@@ -1162,6 +1220,7 @@ function App() {
               onSelectLevel={(levelId) =>
                 dispatchEditor({ type: 'SET_LEVEL', levelId })
               }
+              onSelectObjects={selectOnPlan}
             />
           </section>
         )}

@@ -17,11 +17,33 @@ import {
 } from '@house-technical-designer/view-query';
 import type { EditorAction, EditorState } from './editor-state.js';
 import {
+  gripsFor,
+  offsetAlongWall,
+  type GeometryEdit,
+  type Grip,
+} from './grips.js';
+import {
   constrainPoint,
   constrainsDrafting,
   pointerModelPoint,
   requiredPoints,
 } from './editor-state.js';
+
+/** What a handle does, said out loud for anyone not looking at the screen. */
+function gripLabel(grip: Grip): string {
+  switch (grip.kind) {
+    case 'WALL_POINT':
+      return `Déplacer l’extrémité ${grip.pointIndex + 1} du mur ${grip.wallId}`;
+    case 'WALL_BODY':
+      return `Déplacer le mur ${grip.wallId}`;
+    case 'OPENING':
+      return `Déplacer l’ouverture ${grip.openingId} sur son mur`;
+    case 'POLYGON_VERTEX':
+      return `Déplacer le sommet ${grip.vertexIndex + 1} de ${grip.objectId} · alt-clic pour le retirer`;
+    case 'POLYGON_EDGE':
+      return `Ajouter un sommet sur le côté ${grip.edgeIndex + 1} de ${grip.objectId}`;
+  }
+}
 
 /** Model-space pick tolerance, generous enough for a fingertip on a tablet. */
 const PICK_TOLERANCE_MM = 120;
@@ -34,6 +56,13 @@ export interface PlanCanvasProps {
     points: readonly { x: number; y: number }[],
   ) => void;
   readonly wallThicknessMm: number;
+  /**
+   * What a dragged handle asks of the model.
+   *
+   * The canvas knows where the handles are and where the pointer went; what
+   * that means for the project is decided where the commands live.
+   */
+  readonly onEditGeometry?: (edit: GeometryEdit) => void;
   /** Analysis values projected onto the drawing, when one is selected. */
   readonly overlay?: AnalysisOverlay;
 }
@@ -68,10 +97,15 @@ export function PlanCanvas({
   dispatch,
   onCommitPoints,
   wallThicknessMm,
+  onEditGeometry,
   overlay,
 }: PlanCanvasProps) {
   const container = useRef<HTMLDivElement>(null);
   const panOrigin = useRef<{ x: number; y: number } | undefined>(undefined);
+  /** The handle being dragged, and where it started. */
+  const dragging = useRef<
+    { readonly grip: Grip; readonly from: { x: number; y: number } } | undefined
+  >(undefined);
 
   const preview = useMemo<readonly ScenePrimitive[]>(() => {
     if (editor.pendingPoints.length === 0 || editor.cursorModel === undefined)
@@ -347,6 +381,131 @@ export function PlanCanvas({
       event.currentTarget.releasePointerCapture(event.pointerId);
   }, []);
 
+  const grips = useMemo(
+    () =>
+      editor.activeTool === 'SELECT' && onEditGeometry !== undefined
+        ? gripsFor(project, editor.levelId, editor.selection)
+        : [],
+    [
+      editor.activeTool,
+      editor.levelId,
+      editor.selection,
+      onEditGeometry,
+      project,
+    ],
+  );
+
+  /**
+   * Applies what a released handle means.
+   *
+   * The point committed is the snapped one, so a corner dragged onto another
+   * wall lands on it exactly rather than a few millimetres away.
+   */
+  const commitDrag = useCallback(
+    (grip: Grip, to: { x: number; y: number }): void => {
+      if (onEditGeometry === undefined) return;
+      switch (grip.kind) {
+        case 'WALL_POINT':
+          onEditGeometry({
+            kind: 'WALL_POINT',
+            wallId: grip.wallId,
+            pointIndex: grip.pointIndex,
+            to,
+          });
+          return;
+        case 'WALL_BODY':
+          onEditGeometry({
+            kind: 'WALL_MOVE',
+            wallId: grip.wallId,
+            delta: { x: to.x - grip.at.x, y: to.y - grip.at.y },
+          });
+          return;
+        case 'OPENING': {
+          const level =
+            editor.levelId === undefined
+              ? project.building.levels[0]
+              : project.building.levels.find(({ id }) => id === editor.levelId);
+          const wall = level?.walls.find(({ id }) => id === grip.wallId);
+          const opening = level?.openings.find(
+            ({ id }) => id === grip.openingId,
+          );
+          if (wall === undefined || opening === undefined) return;
+          const along = offsetAlongWall(wall.path.points, to);
+          if (along === undefined) return;
+          onEditGeometry({
+            kind: 'OPENING_OFFSET',
+            openingId: grip.openingId,
+            // The handle sits at the middle of the opening; the model stores
+            // where it starts.
+            offsetMm: Math.round(along - opening.widthMm / 2),
+          });
+          return;
+        }
+        case 'POLYGON_VERTEX':
+          onEditGeometry({
+            kind: 'POLYGON_VERTEX',
+            objectId: grip.objectId,
+            objectKind: grip.objectKind,
+            vertexIndex: grip.vertexIndex,
+            to,
+          });
+          return;
+        case 'POLYGON_EDGE':
+          onEditGeometry({
+            kind: 'POLYGON_INSERT',
+            objectId: grip.objectId,
+            objectKind: grip.objectKind,
+            edgeIndex: grip.edgeIndex,
+            at: to,
+          });
+      }
+    },
+    [editor.levelId, onEditGeometry, project],
+  );
+
+  const handleGripDown = useCallback(
+    (grip: Grip, event: React.PointerEvent<HTMLButtonElement>): void => {
+      event.stopPropagation();
+      event.preventDefault();
+      // Alt-clicking a corner removes it: the same handle, the opposite
+      // intention, as every drawing tool spells it.
+      if (event.altKey && grip.kind === 'POLYGON_VERTEX') {
+        onEditGeometry?.({
+          kind: 'POLYGON_REMOVE',
+          objectId: grip.objectId,
+          objectKind: grip.objectKind,
+          vertexIndex: grip.vertexIndex,
+        });
+        return;
+      }
+      dragging.current = {
+        grip,
+        from: { x: event.clientX, y: event.clientY },
+      };
+      event.currentTarget.setPointerCapture(event.pointerId);
+    },
+    [onEditGeometry],
+  );
+
+  const handleGripUp = useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>): void => {
+      const drag = dragging.current;
+      dragging.current = undefined;
+      if (event.currentTarget.hasPointerCapture(event.pointerId))
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      if (drag === undefined) return;
+      const moved =
+        Math.abs(event.clientX - drag.from.x) +
+        Math.abs(event.clientY - drag.from.y);
+      // A click that never moved is a click on the object, not an edit.
+      if (moved < 2 && drag.grip.kind !== 'POLYGON_EDGE') return;
+      const model = modelPointOf(event);
+      if (model === undefined) return;
+      commitDrag(drag.grip, snapFor(event)?.point ?? model);
+    },
+    [commitDrag, modelPointOf, snapFor],
+  );
+
   const handleWheel = useCallback(
     (event: React.WheelEvent<HTMLDivElement>) => {
       const bounds = container.current?.getBoundingClientRect();
@@ -414,6 +573,20 @@ export function PlanCanvas({
           dangerouslySetInnerHTML={{ __html: rendered.markup }}
         />
       )}
+      {grips.map((grip) => {
+        const at = modelToScreen(editor.camera, grip.at);
+        return (
+          <button
+            key={grip.id}
+            type="button"
+            className={`grip grip-${grip.kind.toLowerCase().replace('_', '-')}`}
+            style={{ left: `${at.x}px`, top: `${at.y}px` }}
+            aria-label={gripLabel(grip)}
+            onPointerDown={(event) => handleGripDown(grip, event)}
+            onPointerUp={handleGripUp}
+          />
+        );
+      })}
       {snapMarker !== undefined && (
         <span
           className={`snap-marker snap-${editor.activeSnap!.kind.toLowerCase()}`}

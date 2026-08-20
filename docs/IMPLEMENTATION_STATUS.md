@@ -440,6 +440,48 @@ ou dit qu'aucune n'a pu être confirmée.
 - Firefox et WebKit en intégration continue (BETA-16) ;
 - publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18).
 
+## Édition géométrique — lot D
+
+| Porte   | Constat                                                        | État    |
+| ------- | -------------------------------------------------------------- | ------- |
+| BETA-13 | un mur se dessinait et se supprimait, mais ne se reprenait pas | corrigé |
+| BETA-14 | une ouverture ne se déplaçait qu'en tapant un nombre           | corrigé |
+| BETA-15 | une dalle ou une toiture se recréait au lieu de se corriger    | corrigé |
+
+**Un objet sélectionné montre ses poignées.** Elles sont dérivées de la
+sélection, jamais stockées : le modèle porte la géométrie, les poignées n'en
+sont qu'une lecture. Un mur en expose ses deux extrémités et une poignée pour le
+déplacer entier ; une ouverture, une poignée qui glisse sur son mur ; une dalle
+ou un pan de toiture, une poignée par sommet et une au milieu de chaque côté,
+qui en insère un — alt-clic sur un sommet le retire. Le tracé se cale sur les
+accroches existantes, si bien qu'un coin déposé sur un mur y atterrit
+exactement.
+
+**Une extrémité déplacée reste vérifiée.** Le mur garde son identité, son
+assemblage et ses ouvertures ; ce que le déplacement ne peut pas faire, c'est
+laisser une ouverture hors du mur qui l'héberge, et un raccourcissement qui le
+ferait est refusé plutôt que de rogner la fenêtre en silence. La longueur et
+l'angle se saisissent aussi comme des nombres dans l'inspecteur, en passant par
+la même commande et donc la même validation.
+
+**Scinder un mur donne deux murs.** Chaque morceau garde l'assemblage, la
+hauteur et le rôle de celui dont il vient, et chaque ouverture suit le morceau
+qui la contient vraiment, son décalage recalculé depuis le nouveau départ. Une
+coupe qui tomberait dans une ouverture est refusée : une demi-fenêtre n'est pas
+une fenêtre, et choisir de quel côté la garder n'est pas à l'application de le
+décider. L'annulation recolle les deux morceaux, ouvertures comprises.
+
+**Un contour reste une surface.** Un polygone qui se croiserait ou s'effondrerait
+sur une ligne est refusé pendant que le geste est encore dans la main de
+l'utilisateur, et il ne reste jamais moins de trois sommets.
+
+### Ce que ce lot n'a pas traité
+
+- copier-coller, joindre deux murs, trim et extend ;
+- édition tactile complète sur téléphone ;
+- Firefox et WebKit en intégration continue (BETA-16) ;
+- publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18).
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -480,7 +522,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 690 tests sur 105 fichiers
-- tests navigateur : 42 tests Playwright, dont trois sur un écran de téléphone
+- tests unitaires et d'intégration : 710 tests sur 108 fichiers
+- tests navigateur : 44 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

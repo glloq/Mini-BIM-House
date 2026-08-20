@@ -1131,6 +1131,39 @@ button.icon {
   color: #4a5d54;
 }
 
+/* Handles for reshaping what is selected: small, square, always on top. */
+.grip {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  padding: 0;
+  border: 1px solid #1f6f4a;
+  border-radius: 2px;
+  background: #ffffff;
+  cursor: grab;
+  z-index: 3;
+}
+.grip:hover,
+.grip:focus-visible {
+  background: #d8f0e2;
+}
+.grip:active {
+  cursor: grabbing;
+}
+.grip-wall-body {
+  border-radius: 50%;
+}
+/* An edge handle offers something that does not exist yet, so it is drawn
+   fainter than a corner that does. */
+.grip-polygon-edge {
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.7);
+}
+
 /* A value the application writes: shown like a field, without a control. */
 .readout {
   margin: 0;

@@ -51,6 +51,8 @@ export interface BuildingPanelProps {
   readonly levelId: string | undefined;
   readonly onCommand: (command: ProjectCommand) => boolean;
   readonly onSelectLevel: (levelId: string) => void;
+  /** Selects objects on the plan, where their handles can be dragged. */
+  readonly onSelectObjects?: (objectIds: readonly string[]) => void;
 }
 
 export function BuildingPanel({
@@ -58,6 +60,7 @@ export function BuildingPanel({
   levelId,
   onCommand,
   onSelectLevel,
+  onSelectObjects,
 }: BuildingPanelProps) {
   const levels = project.building.levels;
   const level = levels.find(({ id }) => id === levelId) ?? levels[0];
@@ -299,6 +302,15 @@ export function BuildingPanel({
                   {slab.id}
                   <span className="hint">{slab.role}</span>
                 </span>
+                {onSelectObjects !== undefined && (
+                  <button
+                    type="button"
+                    className="link"
+                    onClick={() => onSelectObjects([slab.id])}
+                  >
+                    Modifier le contour
+                  </button>
+                )}
                 <button
                   type="button"
                   className="icon danger"
@@ -389,6 +401,15 @@ export function BuildingPanel({
                     {roof.slopeDeg}° · azimut {roof.azimuthDeg}°
                   </span>
                 </span>
+                {onSelectObjects !== undefined && (
+                  <button
+                    type="button"
+                    className="link"
+                    onClick={() => onSelectObjects([roof.id])}
+                  >
+                    Modifier le contour
+                  </button>
+                )}
                 <button
                   type="button"
                   className="icon danger"
@@ -402,6 +423,11 @@ export function BuildingPanel({
               </li>
             ))}
           </ul>
+          <p className="notice">
+            « Modifier le contour » sélectionne l’ouvrage sur le plan : chaque
+            sommet y devient une poignée, le milieu de chaque côté en ajoute un,
+            et alt-clic sur un sommet le retire.
+          </p>
         </div>
 
         <div>

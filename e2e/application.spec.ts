@@ -383,6 +383,86 @@ test('sizes a duct and a terminal from the network inspector', async ({
   expect(errors).toEqual([]);
 });
 
+test('reshapes a wall after drawing it, instead of redrawing it', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  const canvasBox = (await canvas.boundingBox())!;
+  // The east wall carries no opening and no partition crosses it.
+  const east = (await page.locator('[id="wall:wall-east"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: east.x - canvasBox.x + east.width / 2,
+      y: east.y - canvasBox.y + east.height * 0.25,
+    },
+  });
+
+  // A selected wall offers its ends and a handle to move it whole.
+  const grips = page.locator('.grip');
+  await expect(grips).toHaveCount(3);
+
+  // Length and angle are editable as numbers, and the geometry follows.
+  const length = page.getByLabel('Longueur (mm)');
+  await expect(length).toBeVisible();
+  await length.fill('7000');
+  await length.press('Enter');
+  await expect(page.getByRole('status')).toContainText(
+    'Modifier la géométrie du mur',
+  );
+
+  // Dragging the end handle moves that end and nothing else.
+  const box = (await grips.nth(1).boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 60, box.y + 40, { steps: 8 });
+  await page.mouse.up();
+  await expect(page.getByRole('status')).toContainText(
+    'Déplacer une extrémité de mur',
+  );
+
+  // The wall can be cut in two, and the pieces are two walls.
+  const wallsBefore = await page
+    .locator('[data-role="WALL_CUT"][id^="wall:"]')
+    .count();
+  await page.getByRole('button', { name: 'Scinder le mur' }).click();
+  await expect(page.getByRole('status')).toContainText('Scinder un mur');
+  await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
+    wallsBefore + 1,
+  );
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
+    wallsBefore,
+  );
+  expect(errors).toEqual([]);
+});
+
+test('reshapes the footprint of a slab corner by corner', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Niveaux et pièces' }).click();
+  const slab = page.locator('.catalog-list li', { hasText: 'slab' }).first();
+  await slab.getByRole('button', { name: 'Modifier le contour' }).click();
+
+  const vertices = page.locator('.grip-polygon-vertex');
+  const edges = page.locator('.grip-polygon-edge');
+  const corners = await vertices.count();
+  expect(corners).toBeGreaterThanOrEqual(3);
+  await expect(edges).toHaveCount(corners);
+
+  // Clicking a side handle inserts a corner there.
+  await edges.first().click();
+  await expect(page.getByRole('status')).toContainText('Modifier une dalle');
+  await expect(vertices).toHaveCount(corners + 1);
+
+  // Alt-clicking a corner takes it back out.
+  await vertices.nth(1).click({ modifiers: ['Alt'] });
+  await expect(vertices).toHaveCount(corners);
+  expect(errors).toEqual([]);
+});
+
 test('measures between two wall corners and keeps the cote in the project', async ({
   page,
 }) => {
