@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { loadDemoProject } from '../demo-project.js';
 import { SHORTCUTS } from './shortcuts.js';
+import { optionValue } from './tool-options.js';
 import {
   EDITOR_TOOLS,
   constrainsDrafting,
@@ -9,6 +10,7 @@ import {
   requiredPoints,
   toolDefinition,
   toolsInGroup,
+  optionsOf,
   type ToolCommandContext,
 } from './tool-registry.js';
 
@@ -27,18 +29,9 @@ function context(
     points: [],
     picks: [],
     selection: [],
-    drafts: {
-      wallAssemblyId: 'assembly-exterior',
-      wallRole: 'EXTERIOR',
-      opening: {
-        openingType: 'WINDOW',
-        widthMm: 1200,
-        heightMm: 1350,
-        sillHeightMm: 900,
-      },
-      dimensionType: 'ALIGNED',
-      nodeKind: 'FIXTURE',
-    },
+    option: (key) =>
+      optionValue(file().project, 'WALL', optionsOf('WALL'), {}, key),
+    optionNumber: () => undefined,
     newId: (prefix) => (prefix === '' ? 'abcdef12' : `${prefix}-test`),
     ...overrides,
   };
@@ -202,21 +195,110 @@ describe('the tools the editor offers', () => {
   });
 
   it('says why the network tool cannot place a node instead of throwing', () => {
-    // No network is active: the tool refuses in words rather than placing a
-    // node nowhere.
-    const result = toolDefinition('NETWORK').createCommand?.(
-      context({ points: [{ x: 1000, y: 1000 }] }),
-    );
+    // A project with no network at all: the tool refuses in words rather than
+    // placing a node nowhere.
+    const empty = file();
+    const withoutNetworks = {
+      ...empty,
+      project: { ...empty.project, systems: [] },
+    } as typeof empty;
+    const result = toolDefinition('NETWORK').createCommand?.({
+      ...context({ points: [{ x: 1000, y: 1000 }] }),
+      file: withoutNetworks,
+      option: (key) =>
+        optionValue(
+          withoutNetworks.project,
+          'NETWORK',
+          optionsOf('NETWORK'),
+          {},
+          key,
+        ),
+    });
     expect(result?.status).toBe('ERROR');
     if (result?.status !== 'ERROR') return;
     expect(result.message).toContain('réseau');
   });
 
   it('places a node on the level the plan is showing', () => {
+    // No draft at all: the options fall back to what the project holds — its
+    // first network, and the first node kind of that discipline.
+    const opened = file();
     const result = toolDefinition('NETWORK').createCommand?.({
       ...context({ points: [{ x: 1000, y: 1000 }] }),
-      drafts: { ...context().drafts, networkId: 'water', nodeKind: 'FIXTURE' },
+      option: (key) =>
+        optionValue(opened.project, 'NETWORK', optionsOf('NETWORK'), {}, key),
     });
     expect(result?.status).toBe('OK');
+  });
+});
+
+describe('the options a tool asks for', () => {
+  it('falls back to what the project can actually offer', () => {
+    const project = file().project;
+    // Nothing chosen: the wall tool proposes an assembly this project holds
+    // rather than a name written into the code.
+    const assemblyId = optionValue(
+      project,
+      'WALL',
+      optionsOf('WALL'),
+      {},
+      'assemblyId',
+    );
+    expect((project.assemblies ?? []).map(({ id }) => id as string)).toContain(
+      assemblyId,
+    );
+  });
+
+  it('refuses a stored value the project no longer holds', () => {
+    const project = file().project;
+    const chosen = optionValue(
+      project,
+      'WALL',
+      optionsOf('WALL'),
+      { 'WALL.assemblyId': 'assembly-deleted' },
+      'assemblyId',
+    );
+    // Drawing with a reference pointing nowhere is worse than drawing with
+    // what the project has.
+    expect(chosen).not.toBe('assembly-deleted');
+    expect((project.assemblies ?? []).map(({ id }) => id as string)).toContain(
+      chosen,
+    );
+  });
+
+  it('lets one option depend on another', () => {
+    const project = file().project;
+    // The kinds of node belong to the discipline of the chosen network.
+    const kind = optionValue(
+      project,
+      'NETWORK',
+      optionsOf('NETWORK'),
+      {},
+      'nodeKind',
+    );
+    expect(kind).not.toBe('');
+    const water = optionsOf('NETWORK')
+      .find(({ key }) => key === 'nodeKind')!
+      .choices?.({
+        project,
+        value: () => project.systems?.[0]?.id ?? '',
+      });
+    expect(water?.map(({ value }) => value)).toContain(kind);
+  });
+
+  it('proposes the matching role when a partition assembly is chosen', () => {
+    const project = file().project;
+    const partition = (project.assemblies ?? []).find(
+      ({ category }) => category === 'PARTITION',
+    )!;
+    expect(
+      optionValue(
+        project,
+        'WALL',
+        optionsOf('WALL'),
+        { 'WALL.assemblyId': partition.id },
+        'role',
+      ),
+    ).toBe('PARTITION');
   });
 });

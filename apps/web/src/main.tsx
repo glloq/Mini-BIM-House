@@ -12,18 +12,11 @@ import {
   type ReactNode,
 } from 'react';
 import { createRoot } from 'react-dom/client';
-import type {
-  DimensionType,
-  ProjectFile,
-  WallRole,
-} from '@house-technical-designer/core-domain';
+import type { ProjectFile } from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import { validateClimateDataset } from '@house-technical-designer/climate';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
-import {
-  networkNodeTemplates,
-  ReplaceProjectCommand,
-} from '@house-technical-designer/editor-core';
+import { ReplaceProjectCommand } from '@house-technical-designer/editor-core';
 import {
   applyProjectScenario,
   DEFAULT_ZIP_LIMITS,
@@ -53,11 +46,19 @@ import { demoClimateDatasets, loadDemoProject } from './demo-project.js';
 import { PlanCanvas } from './editor/PlanCanvas.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { LayersPanel } from './editor/LayersPanel.js';
-import { ToolBar, type OpeningDraft } from './editor/ToolBar.js';
+import { ToolBar } from './editor/ToolBar.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
 import type { CheckFix } from './checks/checks-model.js';
-import { toolDefinition } from './editor/tool-registry.js';
+import { optionsOf, toolDefinition } from './editor/tool-registry.js';
+import type { Project } from '@house-technical-designer/core-domain';
+import type { EditorTool } from './editor/editor-state.js';
+import {
+  draftKey,
+  optionNumber as readOptionNumber,
+  optionValue as readOptionValue,
+  type ToolDrafts,
+} from './editor/tool-options.js';
 import { nextLibraryId } from './library/library-model.js';
 import { ErrorBoundary } from './ErrorBoundary.js';
 import {
@@ -284,13 +285,6 @@ const WORKSPACE_GROUPS = [
 
 type WorkspaceTab = (typeof WORKSPACE_GROUPS)[number]['tabs'][number]['id'];
 
-const DEFAULT_OPENING: OpeningDraft = {
-  openingType: 'WINDOW',
-  widthMm: 1200,
-  heightMm: 1200,
-  sillHeightMm: 900,
-};
-
 function App() {
   const [file, setFile] = useState<ProjectFile>(() =>
     createBlankProject(new Date().toISOString()),
@@ -300,15 +294,17 @@ function App() {
   const [selectedMaterialId, setSelectedMaterialId] = useState<string>();
   const [selectedAssemblyId, setSelectedAssemblyId] = useState<string>();
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>();
-  const [selectedNetworkId, setSelectedNetworkId] = useState<string>();
-  const [nodeKind, setNodeKind] = useState('');
+  /**
+   * What the user chose in the options of each tool.
+   *
+   * One record rather than one state per tool: a new tool declares its options
+   * in the registry and needs nothing here.
+   */
+  const [toolDrafts, setToolDrafts] = useState<ToolDrafts>({});
   /** A network object another screen asked to open the properties of. */
   const [inspectNetworkObjectId, setInspectNetworkObjectId] =
     useState<string>();
-  const [openingDraft, setOpeningDraft] =
-    useState<OpeningDraft>(DEFAULT_OPENING);
-  const [dimensionType, setDimensionType] = useState<DimensionType>('ALIGNED');
-  const [wallRole, setWallRole] = useState<WallRole>('EXTERIOR');
+
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
   const [saveState, setSaveState] = useState<SaveState>('SAVED');
@@ -332,9 +328,7 @@ function App() {
   const [calculationBusy, setCalculationBusy] = useState(false);
   /** Bumped by an explicit recompute; the effect above watches it. */
   const [calculationGeneration, setCalculationGeneration] = useState(0);
-  const [wallAssemblyId, setWallAssemblyId] = useState(
-    () => file.project.assemblies?.[0]?.id ?? '',
-  );
+
   const importInput = useRef<HTMLInputElement>(null);
   const session = useRef(new ProjectEditingSession(file));
   const [editor, dispatchEditor] = useReducer(
@@ -343,23 +337,43 @@ function App() {
     createEditorState,
   );
 
+  /** Reads one option of a tool, as the toolbar and the tool itself read it. */
+  const toolOption = useCallback(
+    (project: Project, toolId: EditorTool, drafts: ToolDrafts, key: string) =>
+      readOptionValue(project, toolId, optionsOf(toolId), drafts, key),
+    [],
+  );
+  const toolOptionNumber = useCallback(
+    (project: Project, toolId: EditorTool, drafts: ToolDrafts, key: string) =>
+      readOptionNumber(project, toolId, optionsOf(toolId), drafts, key),
+    [],
+  );
+  /** Chooses the network every screen works on. */
+  const selectNetwork = useCallback((networkId: string) => {
+    setToolDrafts((current) => ({
+      ...current,
+      [draftKey('NETWORK', 'networkId')]: networkId,
+    }));
+  }, []);
+
   const summary = useMemo(() => summarizeProject(file), [file]);
   const levels = file.project.building.levels;
   const activeLevelId = editor.levelId ?? levels[0]?.id;
   const networks = file.project.systems ?? [];
-  const activeNetwork =
-    networks.find(({ id }) => id === selectedNetworkId) ?? networks[0];
-  const activeNetworkId = activeNetwork?.id;
-  // The drafted node kind has to belong to the active network's discipline: a
-  // luminaire is not a node an extract duct can carry.
-  const nodeKinds =
-    activeNetwork === undefined
-      ? []
-      : networkNodeTemplates(activeNetwork.discipline);
-  const activeNodeKind =
-    nodeKinds.find(({ kind }) => kind === nodeKind)?.kind ??
-    nodeKinds[0]?.kind ??
-    '';
+  /**
+   * The network the tools work on.
+   *
+   * It is the option of the network tool rather than a state of its own: the
+   * networks workspace and the plan then always speak of the same one, and a
+   * network deleted elsewhere falls back to what the project still holds.
+   */
+  const activeNetworkId = toolOption(
+    file.project,
+    'NETWORK',
+    toolDrafts,
+    'networkId',
+  );
+  const activeNetwork = networks.find(({ id }) => id === activeNetworkId);
 
   /**
    * A project replacement waiting for the user to say what to do with the work
@@ -388,12 +402,10 @@ function App() {
     ): void => {
       setFile(next);
       session.current = new ProjectEditingSession(next);
-      setWallAssemblyId(next.project.assemblies?.[0]?.id ?? '');
       setSelectedMaterialId(undefined);
       setSelectedAssemblyId(undefined);
       setSelectedEquipmentId(undefined);
-      setSelectedNetworkId(next.project.systems?.[0]?.id);
-      setNodeKind('');
+      setToolDrafts({});
       dispatchEditor({ type: 'CANCEL' });
       const firstLevel = next.project.building.levels[0];
       if (firstLevel !== undefined)
@@ -805,16 +817,20 @@ function App() {
         points,
         picks,
         selection: editor.selection,
-        drafts: {
-          wallAssemblyId,
-          wallRole,
-          opening: openingDraft,
-          dimensionType,
-          ...(activeNetworkId === undefined
-            ? {}
-            : { networkId: activeNetworkId }),
-          nodeKind: activeNodeKind,
-        },
+        option: (key) =>
+          toolOption(
+            session.current.file.project,
+            editor.activeTool,
+            toolDrafts,
+            key,
+          ),
+        optionNumber: (key) =>
+          toolOptionNumber(
+            session.current.file.project,
+            editor.activeTool,
+            toolDrafts,
+            key,
+          ),
         newId: (prefix) =>
           prefix === ''
             ? crypto.randomUUID()
@@ -829,15 +845,12 @@ function App() {
     },
     [
       activeLevelId,
-      activeNetworkId,
-      activeNodeKind,
-      dimensionType,
       editor.activeTool,
       editor.selection,
-      openingDraft,
       runCommand,
-      wallAssemblyId,
-      wallRole,
+      toolDrafts,
+      toolOption,
+      toolOptionNumber,
     ],
   );
 
@@ -1255,7 +1268,7 @@ function App() {
               ({ id }) => id === objectId,
             ),
         );
-        if (holder !== undefined) setSelectedNetworkId(holder.id);
+        if (holder !== undefined) selectNetwork(holder.id);
         setInspectNetworkObjectId(objectId);
         setTab('networks');
         return;
@@ -1267,7 +1280,7 @@ function App() {
       }
       setTab(fix.tab);
     },
-    [selectOnPlan],
+    [selectNetwork, selectOnPlan],
   );
 
   // A run computed on an earlier revision — or with another climate file — is
@@ -1290,8 +1303,16 @@ function App() {
   );
 
   const wallThicknessMm = useMemo(() => {
+    // The preview is drawn with the thickness of the assembly the tool is set
+    // to, which is one of its own options.
+    const assemblyId = toolOption(
+      file.project,
+      'WALL',
+      toolDrafts,
+      'assemblyId',
+    );
     const assembly = file.project.assemblies?.find(
-      ({ id }) => id === wallAssemblyId,
+      ({ id }) => id === assemblyId,
     );
     return assembly === undefined
       ? 200
@@ -1299,7 +1320,7 @@ function App() {
           (total, layer) => total + layer.thicknessM * 1000,
           0,
         );
-  }, [file.project.assemblies, wallAssemblyId]);
+  }, [file.project, toolDrafts, toolOption]);
 
   return (
     <main className="workspace">
@@ -1686,30 +1707,15 @@ function App() {
               project={file.project}
               editor={editor}
               dispatch={dispatchEditor}
-              assemblyId={wallAssemblyId}
-              onAssemblyChange={(assemblyId) => {
-                setWallAssemblyId(assemblyId);
-                // Choosing a partition proposes the matching role; the user
-                // stays free to override it, and nothing is inferred silently
-                // at creation time.
-                const category = file.project.assemblies?.find(
-                  ({ id }) => id === assemblyId,
-                )?.category;
-                if (category === 'PARTITION') setWallRole('PARTITION');
-                if (category === 'WALL') setWallRole('EXTERIOR');
-              }}
-              wallRole={wallRole}
-              onWallRoleChange={setWallRole}
-              openingDraft={openingDraft}
-              onOpeningDraftChange={setOpeningDraft}
-              dimensionType={dimensionType}
-              onDimensionTypeChange={setDimensionType}
-              networkId={activeNetworkId ?? ''}
-              onNetworkChange={setSelectedNetworkId}
+              drafts={toolDrafts}
+              onDraftChange={(key, value) =>
+                setToolDrafts((current) => ({
+                  ...current,
+                  [draftKey(editor.activeTool, key)]: value,
+                }))
+              }
               onTransform={transformSelection}
               onAlign={alignSelection}
-              nodeKind={activeNodeKind}
-              onNodeKindChange={setNodeKind}
             />
             <PlanCanvas
               project={file.project}
@@ -1790,8 +1796,10 @@ function App() {
             <NetworksPanel
               project={file.project}
               levelId={activeLevelId}
-              selectedNetworkId={activeNetworkId}
-              onSelectNetwork={setSelectedNetworkId}
+              selectedNetworkId={
+                activeNetworkId === '' ? undefined : activeNetworkId
+              }
+              onSelectNetwork={selectNetwork}
               onCommand={runCommand}
               {...(inspectNetworkObjectId === undefined
                 ? {}

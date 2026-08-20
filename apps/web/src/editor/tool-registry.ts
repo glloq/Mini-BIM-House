@@ -13,9 +13,18 @@ import {
   splitWallCommand,
   transformObjectsCommand,
   type EditingCommandResult,
-  type OpeningToolDraft,
 } from './editing-commands.js';
 import { placeNodeCommand } from '../networks/network-model.js';
+import type { ToolOptionDefinition } from './tool-options.js';
+import {
+  DIMENSION_TYPE_OPTIONS,
+  OPENING_TYPE_OPTIONS,
+  WALL_ROLE_OPTIONS,
+} from './domain-options.js';
+import {
+  NETWORK_DISCIPLINE_LABELS,
+  networkNodeTemplates,
+} from '@house-technical-designer/editor-core';
 
 /**
  * The families a tool belongs to.
@@ -37,23 +46,11 @@ export const TOOL_GROUP_LABELS: Readonly<Record<ToolGroup, string>> = {
   ANNOTATION: 'Annotation',
 };
 
-/** What the toolbar currently holds for each tool that drafts something. */
-export interface ToolDrafts {
-  readonly wallAssemblyId: string;
-  readonly wallRole: WallRole;
-  readonly opening: OpeningToolDraft;
-  readonly dimensionType: DimensionType;
-  /** The network a node is added to, when the project has one. */
-  readonly networkId?: string;
-  readonly nodeKind: string;
-}
-
 /** Everything a tool needs to turn clicks into a command. */
 export interface ToolCommandContext {
   readonly file: ProjectFile;
   readonly levelId?: string;
   readonly points: readonly Point2D[];
-  readonly drafts: ToolDrafts;
   /**
    * What each click landed on, when it landed on something.
    *
@@ -69,6 +66,9 @@ export interface ToolCommandContext {
    * Turning or reflecting asks the plan where, and the selection what.
    */
   readonly selection: readonly string[];
+  /** What the user chose in the tool's own options, by key. */
+  readonly option: (key: string) => string;
+  readonly optionNumber: (key: string) => number | undefined;
   /** A fresh identifier, so a tool never invents its own numbering. */
   readonly newId: (prefix: string) => string;
 }
@@ -113,6 +113,13 @@ export interface EditorToolDefinition {
     readonly length: boolean;
     readonly angle: boolean;
   };
+  /**
+   * What this tool lets the user decide before drawing.
+   *
+   * The toolbar renders whatever is declared here and knows nothing about
+   * walls or ducts, so a new tool brings its own controls with it.
+   */
+  readonly options?: readonly ToolOptionDefinition[];
   /** The command the collected clicks produce, when the tool produces one. */
   readonly createCommand?: (
     context: ToolCommandContext,
@@ -144,14 +151,47 @@ export const EDITOR_TOOLS = [
     requiredPoints: 2,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'assemblyId',
+        kind: 'SELECT',
+        label: 'Assemblage',
+        choices: ({ project }) =>
+          (project.assemblies ?? [])
+            .filter(
+              ({ category }) => category === 'WALL' || category === 'PARTITION',
+            )
+            .map(({ id, name }) => ({ value: id, label: name })),
+        fallback: ({ project }) =>
+          (project.assemblies ?? []).find(
+            ({ category }) => category === 'WALL' || category === 'PARTITION',
+          )?.id ??
+          project.assemblies?.[0]?.id ??
+          '',
+      },
+      {
+        key: 'role',
+        kind: 'SELECT',
+        label: 'Rôle',
+        choices: () => WALL_ROLE_OPTIONS,
+        // A partition assembly proposes the matching role; the user stays free
+        // to say otherwise, and nothing is inferred at creation time.
+        fallback: ({ project, value }) =>
+          (project.assemblies ?? []).find(
+            ({ id }) => id === value('assemblyId'),
+          )?.category === 'PARTITION'
+            ? 'PARTITION'
+            : 'EXTERIOR',
+      },
+    ],
     createCommand: (context) =>
       addWallCommand(
         context.file,
         context.levelId,
         context.points,
         {
-          assemblyId: context.drafts.wallAssemblyId,
-          role: context.drafts.wallRole,
+          assemblyId: context.option('assemblyId'),
+          role: context.option('role') as WallRole,
         },
         context.newId('wall'),
       ),
@@ -163,12 +203,58 @@ export const EDITOR_TOOLS = [
     hint: 'Percer une porte ou une fenêtre dans un mur',
     shortcutId: 'tool.opening',
     requiredPoints: 1,
+    options: [
+      {
+        key: 'openingType',
+        kind: 'SELECT',
+        label: 'Type',
+        choices: () =>
+          OPENING_TYPE_OPTIONS.filter(
+            ({ value }) => value === 'DOOR' || value === 'WINDOW',
+          ),
+        fallback: () => 'WINDOW',
+      },
+      {
+        key: 'widthMm',
+        kind: 'NUMBER',
+        label: 'Largeur',
+        unit: 'mm',
+        min: 100,
+        step: 50,
+        fallback: () => '1200',
+      },
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        min: 100,
+        step: 50,
+        fallback: ({ value }) =>
+          value('openingType') === 'DOOR' ? '2040' : '1350',
+      },
+      {
+        key: 'sillHeightMm',
+        kind: 'NUMBER',
+        label: 'Allège',
+        unit: 'mm',
+        min: 0,
+        step: 50,
+        fallback: ({ value }) =>
+          value('openingType') === 'DOOR' ? '0' : '900',
+      },
+    ],
     createCommand: (context) =>
       addOpeningCommand(
         context.file,
         context.levelId,
         context.points[context.points.length - 1]!,
-        context.drafts.opening,
+        {
+          openingType: context.option('openingType') as 'DOOR' | 'WINDOW',
+          widthMm: context.optionNumber('widthMm') ?? 0,
+          heightMm: context.optionNumber('heightMm') ?? 0,
+          sillHeightMm: context.optionNumber('sillHeightMm') ?? 0,
+        },
         context.newId('opening'),
       ),
   },
@@ -345,12 +431,21 @@ export const EDITOR_TOOLS = [
     hint: 'Coter entre deux extrémités de mur',
     shortcutId: 'tool.dimension',
     requiredPoints: 3,
+    options: [
+      {
+        key: 'dimensionType',
+        kind: 'SELECT',
+        label: 'Type',
+        choices: () => DIMENSION_TYPE_OPTIONS,
+        fallback: () => 'ALIGNED',
+      },
+    ],
     createCommand: (context) =>
       addDimensionCommand(
         context.file,
         context.levelId,
         context.points,
-        { dimensionType: context.drafts.dimensionType },
+        { dimensionType: context.option('dimensionType') as DimensionType },
         context.newId('dimension'),
       ),
   },
@@ -361,9 +456,48 @@ export const EDITOR_TOOLS = [
     hint: 'Poser un nœud sur le réseau actif',
     shortcutId: 'tool.network',
     requiredPoints: 1,
+    options: [
+      {
+        key: 'networkId',
+        kind: 'SELECT',
+        label: 'Réseau',
+        choices: ({ project }) =>
+          (project.systems ?? []).map((network) => ({
+            value: network.id,
+            label: `${NETWORK_DISCIPLINE_LABELS[network.discipline]} · ${network.id}`,
+          })),
+        fallback: ({ project }) => project.systems?.[0]?.id ?? '',
+      },
+      {
+        key: 'nodeKind',
+        kind: 'SELECT',
+        label: 'Type de nœud',
+        // The kinds one can place belong to the discipline of the network
+        // chosen just beside: a luminaire is not a node an extract duct carries.
+        choices: ({ project, value }) => {
+          const network = (project.systems ?? []).find(
+            ({ id }) => id === value('networkId'),
+          );
+          return network === undefined
+            ? []
+            : networkNodeTemplates(network.discipline).map((template) => ({
+                value: template.kind,
+                label: template.label,
+              }));
+        },
+        fallback: ({ project, value }) => {
+          const network = (project.systems ?? []).find(
+            ({ id }) => id === value('networkId'),
+          );
+          return network === undefined
+            ? ''
+            : (networkNodeTemplates(network.discipline)[0]?.kind ?? '');
+        },
+      },
+    ],
     createCommand: (context) => {
-      const networkId = context.drafts.networkId;
-      if (networkId === undefined)
+      const networkId = context.option('networkId');
+      if (networkId === '')
         return {
           status: 'ERROR',
           message:
@@ -373,7 +507,7 @@ export const EDITOR_TOOLS = [
       const level = levelOf(context);
       return placeNodeCommand(context.file.project, networkId, {
         nodeId: `${networkId}:node-${context.newId('').slice(0, 8)}`,
-        kind: context.drafts.nodeKind,
+        kind: context.option('nodeKind'),
         // The node says which storey it belongs to, so moving that storey
         // moves it too rather than leaving it at an elevation nobody edited.
         ...(level === undefined ? {} : { levelId: level.id }),
@@ -412,6 +546,11 @@ export function populatedToolGroups(): readonly ToolGroup[] {
     'ANNOTATION',
   ];
   return order.filter((group) => toolsInGroup(group).length > 0);
+}
+
+/** What this tool lets the user decide before drawing, if anything. */
+export function optionsOf(tool: EditorTool): readonly ToolOptionDefinition[] {
+  return toolDefinition(tool).options ?? [];
 }
 
 /** What the tool accepts being typed while it drafts, if anything. */

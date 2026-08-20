@@ -1,43 +1,22 @@
-import type {
-  DimensionType,
-  Project,
-  WallRole,
-} from '@house-technical-designer/core-domain';
-import {
-  NETWORK_DISCIPLINE_LABELS,
-  networkNodeTemplates,
-} from '@house-technical-designer/editor-core';
+import type { Project } from '@house-technical-designer/core-domain';
 import type { EditorAction, EditorState, EditorTool } from './editor-state.js';
 import type { AlignEdge } from './editing-commands.js';
+import { ToolOptions } from './ToolOptions.js';
+import type { ToolDrafts } from './tool-options.js';
 import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
 import {
   TOOL_GROUP_LABELS,
   populatedToolGroups,
   toolsInGroup,
 } from './tool-registry.js';
-import {
-  DIMENSION_TYPE_OPTIONS,
-  OPENING_TYPE_OPTIONS,
-  WALL_ROLE_OPTIONS,
-} from './domain-options.js';
 
 export interface ToolBarProps {
   readonly project: Project;
   readonly editor: EditorState;
   readonly dispatch: (action: EditorAction) => void;
-  readonly assemblyId: string;
-  readonly onAssemblyChange: (assemblyId: string) => void;
-  readonly wallRole: WallRole;
-  readonly onWallRoleChange: (role: WallRole) => void;
-  readonly openingDraft: OpeningDraft;
-  readonly onOpeningDraftChange: (draft: OpeningDraft) => void;
-  readonly dimensionType: DimensionType;
-  readonly onDimensionTypeChange: (type: DimensionType) => void;
-  /** Network the node tool adds to; empty while the project has none. */
-  readonly networkId: string;
-  readonly onNetworkChange: (networkId: string) => void;
-  readonly nodeKind: string;
-  readonly onNodeKindChange: (kind: string) => void;
+  /** What the user has chosen in the options of each tool. */
+  readonly drafts: ToolDrafts;
+  readonly onDraftChange: (key: string, value: string) => void;
   /** Turns or reflects the selection about its own centre. */
   readonly onTransform?: (kind: 'ROTATE' | 'MIRROR') => void;
   /** Lines the selection up on one edge of its own outline. */
@@ -60,26 +39,11 @@ export function ToolBar({
   project,
   editor,
   dispatch,
-  assemblyId,
-  onAssemblyChange,
-  wallRole,
-  onWallRoleChange,
-  openingDraft,
-  onOpeningDraftChange,
-  dimensionType,
-  onDimensionTypeChange,
-  networkId,
-  onNetworkChange,
-  nodeKind,
-  onNodeKindChange,
+  drafts,
+  onDraftChange,
   onTransform,
   onAlign,
 }: ToolBarProps) {
-  const networks = project.systems ?? [];
-  const activeNetwork = networks.find(({ id }) => id === networkId);
-  const wallAssemblies = (project.assemblies ?? []).filter(
-    ({ category }) => category === 'WALL' || category === 'PARTITION',
-  );
   return (
     <div className="tool-bar">
       {/* One group per family: the toolbar asks the registry what exists
@@ -111,157 +75,12 @@ export function ToolBar({
         </div>
       ))}
 
-      {editor.activeTool === 'WALL' && (
-        <div className="tool-group">
-          <div className="field">
-            <label htmlFor="tool-wall-assembly">Assemblage</label>
-            <select
-              id="tool-wall-assembly"
-              value={assemblyId}
-              onChange={(event) => onAssemblyChange(event.target.value)}
-            >
-              {wallAssemblies.map((assembly) => (
-                <option key={assembly.id} value={assembly.id}>
-                  {assembly.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="field">
-            <label htmlFor="tool-wall-role">Rôle</label>
-            <select
-              id="tool-wall-role"
-              value={wallRole}
-              onChange={(event) =>
-                onWallRoleChange(event.target.value as WallRole)
-              }
-            >
-              {WALL_ROLE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      )}
-
-      {editor.activeTool === 'OPENING' && (
-        <div className="tool-group">
-          <label>
-            Type
-            <select
-              value={openingDraft.openingType}
-              onChange={(event) =>
-                onOpeningDraftChange({
-                  ...openingDraft,
-                  openingType: event.target.value as 'DOOR' | 'WINDOW',
-                })
-              }
-            >
-              {OPENING_TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          {(
-            [
-              ['widthMm', 'Largeur (mm)'],
-              ['heightMm', 'Hauteur (mm)'],
-              ['sillHeightMm', 'Allège (mm)'],
-            ] as const
-          ).map(([field, label]) => (
-            <label key={field}>
-              {label}
-              <input
-                type="number"
-                min="0"
-                step="10"
-                value={openingDraft[field]}
-                onChange={(event) =>
-                  onOpeningDraftChange({
-                    ...openingDraft,
-                    [field]: event.target.valueAsNumber,
-                  })
-                }
-              />
-            </label>
-          ))}
-        </div>
-      )}
-
-      {editor.activeTool === 'DIMENSION' && (
-        <div className="tool-group">
-          <div className="field">
-            <label htmlFor="tool-dimension-type">Type de cote</label>
-            <select
-              id="tool-dimension-type"
-              value={dimensionType}
-              onChange={(event) =>
-                onDimensionTypeChange(event.target.value as DimensionType)
-              }
-            >
-              {DIMENSION_TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <p className="hint">
-            Cliquez deux angles de murs, puis un troisième point pour placer la
-            ligne de cote.
-          </p>
-        </div>
-      )}
-
-      {editor.activeTool === 'NETWORK' && (
-        <div className="tool-group">
-          {networks.length === 0 ? (
-            <p className="hint">
-              Aucun réseau : créez-en un dans l’onglet « Réseaux » avant de
-              poser des nœuds.
-            </p>
-          ) : (
-            <>
-              <div className="field">
-                <label htmlFor="tool-network">Réseau</label>
-                <select
-                  id="tool-network"
-                  value={networkId}
-                  onChange={(event) => onNetworkChange(event.target.value)}
-                >
-                  {networks.map((network) => (
-                    <option key={network.id} value={network.id}>
-                      {NETWORK_DISCIPLINE_LABELS[network.discipline]} ·{' '}
-                      {network.systemType}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="field">
-                <label htmlFor="tool-node-kind">Type de nœud</label>
-                <select
-                  id="tool-node-kind"
-                  value={nodeKind}
-                  onChange={(event) => onNodeKindChange(event.target.value)}
-                >
-                  {(activeNetwork === undefined
-                    ? []
-                    : networkNodeTemplates(activeNetwork.discipline)
-                  ).map((template) => (
-                    <option key={template.kind} value={template.kind}>
-                      {template.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+      <ToolOptions
+        project={project}
+        tool={editor.activeTool}
+        drafts={drafts}
+        onChange={onDraftChange}
+      />
 
       {/* Le quart de tour et le retournement gauche-droite se font autour du
           centre de la sélection, sans rien tracer ; les outils Pivoter et
