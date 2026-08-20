@@ -27,6 +27,7 @@ import {
   applyProjectScenario,
   DEFAULT_ZIP_LIMITS,
   loadProjectJson,
+  ProjectContainerError,
   ProjectSerializationError,
   readProjectContainer,
   serializeProjectFile,
@@ -59,9 +60,11 @@ import { placeNodeCommand } from './networks/network-model.js';
 import { nextLibraryId } from './library/library-model.js';
 import { ErrorBoundary } from './ErrorBoundary.js';
 import {
+  announcesSaved,
   AUTOSAVE_DELAY_MS,
   SAVE_STATE_LABELS,
   discardAutosave,
+  snapshotIdentity,
   lastAutosaveTime,
   readAutosave,
   writeAutosave,
@@ -446,6 +449,20 @@ function App() {
         );
         return true;
       } catch (error) {
+        // A project naming a climate the session does not hold cannot be
+        // written as a container: it would open elsewhere calculating nothing.
+        // The refusal says which dataset is missing and what to do about it.
+        if (error instanceof ProjectContainerError) {
+          const profile = file.project.site.climateProfileId ?? '';
+          setExportFailure([
+            `Le projet désigne le profil climatique « ${profile} », qui n'est pas chargé dans cette session.`,
+            'Importez ce jeu de données depuis l’espace Projet, ou retirez la référence, puis exportez à nouveau.',
+          ]);
+          setMessage(
+            'Export impossible : le climat que le projet désigne ne voyagerait pas avec lui.',
+          );
+          return false;
+        }
         const issues =
           error instanceof ProjectSerializationError ? error.issues : [];
         setExportFailure(
@@ -753,14 +770,21 @@ function App() {
 
   useEffect(() => {
     if (saveState !== 'MODIFIED') return;
-    const revision = file.project.metadata.projectRevision ?? '';
+    const snapshot = snapshotIdentity(file);
     const timer = setTimeout(() => {
       void writeAutosave({ file, climate })
         .then((written) => {
-          // Only the revision that actually reached the store may be reported
-          // as saved. A newer edit landed while this one was being written is
-          // still "modified" until its own snapshot goes through.
-          if (written === revision) setSaveState('AUTOSAVED');
+          // Announcing "saved" for a state that is no longer on screen would
+          // also cancel the newer snapshot's own timer, leaving the edit
+          // unwritten behind a reassuring label.
+          if (
+            announcesSaved(
+              written,
+              snapshot,
+              snapshotIdentity(session.current.file),
+            )
+          )
+            setSaveState('AUTOSAVED');
         })
         .catch(() => setSaveState('FAILED'));
     }, AUTOSAVE_DELAY_MS);
@@ -1143,7 +1167,7 @@ function App() {
           <ul className="alert-list">
             {exportFailure.slice(0, 8).map((issue) => (
               <li key={issue}>
-                <span className="badge missing">référence</span>
+                <span className="badge missing">à corriger</span>
                 <span>{issue}</span>
               </li>
             ))}

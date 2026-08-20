@@ -698,6 +698,34 @@ test('asks before replacing a project that has unexported changes', async ({
   await expect(page.getByRole('status')).toContainText('Nouveau projet');
 });
 
+test('refuses to write a container without the climate the project names', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+  // The reference project names the climate profile it was calculated on. Read
+  // as plain JSON, that dataset is not in the session — and a container written
+  // now would open elsewhere calculating nothing.
+  await page.setInputFiles(
+    'input[type="file"]',
+    'examples/reference-house/reference.houseproj.json',
+  );
+  await expect(page.getByRole('status')).toContainText('chargé et validé');
+
+  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  const refusal = page.getByRole('alertdialog');
+  await expect(refusal).toContainText('reference-temperate');
+  await expect(refusal).toContainText('Importez ce jeu de données');
+  await expect(page.getByRole('status')).toContainText('Export impossible');
+
+  // Nothing was written: the project is still the one that was opened.
+  await refusal.getByRole('button', { name: 'Fermer' }).click();
+  await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
+    6,
+  );
+  expect(errors).toEqual([]);
+});
+
 test('the assistant asks what a new project cannot be guessed', async ({
   page,
 }) => {

@@ -32,7 +32,26 @@ function baseProject(networks: readonly TechnicalNetwork[] = []): Project {
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
     },
-    building: { levels: [] },
+    // A node may name the room it serves, so the project has to hold one: the
+    // commands refuse a node placed in a room that does not exist.
+    building: {
+      levels: [
+        {
+          id: 'ground',
+          name: 'Rez-de-chaussée',
+          elevationMm: 0,
+          defaultStoreyHeightMm: 2500,
+          walls: [],
+          slabs: [],
+          roofs: [],
+          openings: [],
+          stairs: [],
+          annotations: [],
+          spaces: [{ id: 'space:bath', levelId: 'ground', name: 'Bain' }],
+        },
+      ],
+      zones: [],
+    },
     systems: networks,
   } as unknown as Project;
 }
@@ -279,6 +298,75 @@ describe('network commands', () => {
       ).status,
     ).toBe('APPLIED');
     expect(dispatcher.project.systems![0]!.ports).toHaveLength(3);
+  });
+
+  it('refuses to put a node in a room the project does not hold', () => {
+    const dispatcher = new ProjectCommandDispatcher(
+      baseProject([waterNetwork()]),
+    );
+    const rejected = dispatcher.dispatch(
+      new UpdateNetworkNodeCommand('water', 'sink', { spaceId: 'space:gone' }),
+    );
+    expect(rejected.status).toBe('REJECTED');
+    if (rejected.status !== 'REJECTED') return;
+    expect(rejected.errors.join(' ')).toContain('space:gone');
+  });
+
+  it('refuses a node whose level and whose room are not the same level', () => {
+    // Each identifier exists; together they describe a place that does not, and
+    // a project holding one is a project this application refuses to reopen.
+    const project = baseProject([waterNetwork()]) as unknown as {
+      building: { levels: Record<string, unknown>[] };
+    };
+    project.building.levels.push({
+      id: 'first',
+      name: 'Étage',
+      elevationMm: 2500,
+      defaultStoreyHeightMm: 2500,
+      walls: [],
+      slabs: [],
+      roofs: [],
+      openings: [],
+      stairs: [],
+      annotations: [],
+      spaces: [{ id: 'space:bedroom', levelId: 'first', name: 'Chambre' }],
+    });
+    const dispatcher = new ProjectCommandDispatcher(
+      project as unknown as Project,
+    );
+    const rejected = dispatcher.dispatch(
+      new AddNetworkNodeCommand(
+        'water',
+        {
+          id: 'upstairs',
+          kind: 'FIXTURE',
+          position: { x: 0, y: 0, z: 0 },
+          levelId: 'ground',
+          spaceId: 'space:bedroom',
+        },
+        [],
+      ),
+    );
+    expect(rejected.status).toBe('REJECTED');
+    if (rejected.status !== 'REJECTED') return;
+    expect(rejected.errors.join(' ')).toContain('niveau first');
+
+    // The same node on the level its room belongs to is accepted.
+    expect(
+      dispatcher.dispatch(
+        new AddNetworkNodeCommand(
+          'water',
+          {
+            id: 'upstairs',
+            kind: 'FIXTURE',
+            position: { x: 0, y: 0, z: 0 },
+            levelId: 'first',
+            spaceId: 'space:bedroom',
+          },
+          [],
+        ),
+      ).status,
+    ).toBe('APPLIED');
   });
 
   it('drags the ends of the segments that reach a moved node', () => {

@@ -71,17 +71,51 @@ function safeEntryName(id: string): string {
   return stem === '' ? 'dataset' : stem;
 }
 
+/** A container that cannot be written, with what is missing from it. */
+export class ProjectContainerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ProjectContainerError';
+  }
+}
+
+/**
+ * Whether these datasets carry the profile the project names.
+ *
+ * A dataset answers to its entry identifier or to the one written inside it;
+ * both are accepted, because a file renamed on the way in is still the data the
+ * project refers to.
+ */
+function carriesProfile(
+  climate: readonly ContainedClimateDataset[],
+  profile: string,
+): boolean {
+  return climate.some(
+    ({ id, json }) => id === profile || carriesId(json, profile),
+  );
+}
+
 /**
  * The project and its climate, as one file.
  *
  * A project that names a climate profile without carrying it is only half a
  * project: opened on another machine it recalculates nothing. The container
  * keeps them together, and stays a plain ZIP so anyone can look inside.
+ *
+ * The consistency is checked here as well as on the way in. A container written
+ * without the weather its project names would be refused by every reader,
+ * including this one — writing it and discovering that later, on another
+ * machine, is the situation this format exists to prevent.
  */
 export async function writeProjectContainer(
   file: ProjectFile,
   climate: readonly ContainedClimateDataset[] = [],
 ): Promise<Uint8Array> {
+  const profile = file.project.site.climateProfileId;
+  if (profile !== undefined && !carriesProfile(climate, profile))
+    throw new ProjectContainerError(
+      `The project uses the climate profile ${profile}; it has to be carried in the container, or the project must stop naming it.`,
+    );
   const encoder = new TextEncoder();
   const used = new Set<string>();
   const entries = climate.map((dataset) => {
@@ -203,11 +237,21 @@ export async function readProjectContainer(
   // Everything the manifest announces has to be there. A dataset listed and
   // missing would open as "loaded and validated" while the calculations quietly
   // lost the weather they were run on.
-  const declared: readonly string[] = Array.isArray(manifest.climate)
-    ? manifest.climate.filter(
-        (entry): entry is string => typeof entry === 'string',
-      )
-    : [];
+  //
+  // A `climate` field that is not a list of names is a manifest this reader
+  // does not understand. Reading it as "no climate" would turn a malformed
+  // container into a valid one carrying nothing.
+  const listed: unknown = manifest.climate;
+  if (
+    listed !== undefined &&
+    (!Array.isArray(listed) ||
+      !listed.every((entry) => typeof entry === 'string' && entry !== ''))
+  )
+    return {
+      status: 'INVALID_CONTAINER',
+      message: 'The container manifest does not list its climate entries.',
+    };
+  const declared: readonly string[] = (listed ?? []) as readonly string[];
   const climate: ContainedClimateDataset[] = [];
   for (const name of declared) {
     const data = byName.get(name);
@@ -240,12 +284,13 @@ export async function readProjectContainer(
   // A container that carries weather but not the one the project names is
   // inconsistent with itself, and the modules would report the difference as a
   // missing input without anyone knowing why.
+  //
+  // A container carrying no weather at all is the case this used to let
+  // through: the project said it was calculated on Brest, the archive held
+  // nothing, and it opened as valid. An absent dataset is exactly as wrong as
+  // the wrong dataset.
   const profile = loaded.file.project.site.climateProfileId;
-  if (
-    profile !== undefined &&
-    climate.length > 0 &&
-    !climate.some(({ id, json }) => id === profile || carriesId(json, profile))
-  )
+  if (profile !== undefined && !carriesProfile(climate, profile))
     return {
       status: 'INVALID_CONTAINER',
       message: `The project uses the climate profile ${profile}, which this container does not carry.`,

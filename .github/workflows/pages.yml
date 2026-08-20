@@ -31,7 +31,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build --workspace=@house-technical-designer/web
+      # Pages has to be enabled on the repository and set to build from Actions.
+      # Left to the default, the step fails with a bare "Not Found" the first
+      # time and every deployment after it; asking the action to enable Pages
+      # turns that into something the workflow can do by itself.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: apps/web/dist

@@ -212,6 +212,86 @@ export class RemoveNetworkCommand extends NetworkCommand {
 }
 
 /** Node added to an existing network, together with the ports it carries. */
+/**
+ * Where an object of the building sits, and what it is.
+ *
+ * A node names a room and an object it is fixed to; both live on a level, and
+ * the answer is needed to tell whether the node describes a place that exists.
+ */
+function buildingObjectLevel(
+  project: Project,
+  objectId: string,
+): { readonly levelId: string; readonly isSpace: boolean } | undefined {
+  for (const level of project.building.levels) {
+    if (level.spaces.some(({ id }) => id === objectId))
+      return { levelId: level.id, isSpace: true };
+    if (
+      [...level.walls, ...level.slabs, ...level.roofs, ...level.openings].some(
+        ({ id }) => id === objectId,
+      )
+    )
+      return { levelId: level.id, isSpace: false };
+  }
+  return undefined;
+}
+
+/**
+ * What makes a node impossible, beyond each of its references existing.
+ *
+ * A node on the ground floor, in a bedroom upstairs, fixed to a wall of a third
+ * level names three real objects and no real place. The importer refuses such a
+ * project, so the editor must never write one: a file the application cannot
+ * read back is worse than an edit refused.
+ */
+export function incoherentNodePlacement(
+  project: Project,
+  node: NetworkNode,
+): readonly string[] {
+  const errors: string[] = [];
+  const levelId = node.levelId;
+  if (
+    levelId !== undefined &&
+    !project.building.levels.some(({ id }) => id === levelId)
+  )
+    errors.push(`Le niveau ${levelId} est introuvable.`);
+  const space =
+    node.spaceId === undefined
+      ? undefined
+      : buildingObjectLevel(project, node.spaceId);
+  if (node.spaceId !== undefined && space?.isSpace !== true)
+    errors.push(`La pièce ${node.spaceId} est introuvable.`);
+  // Equipment belongs to the project rather than to a level; a node hosted by
+  // one says nothing about where it is, and nothing is claimed about it.
+  const host =
+    node.hostObjectId === undefined
+      ? undefined
+      : buildingObjectLevel(project, node.hostObjectId);
+  if (
+    node.hostObjectId !== undefined &&
+    host === undefined &&
+    !(project.equipment ?? []).some(({ id }) => id === node.hostObjectId)
+  )
+    errors.push(`L'objet support ${node.hostObjectId} est introuvable.`);
+  if (levelId !== undefined) {
+    if (space?.isSpace === true && space.levelId !== levelId)
+      errors.push(
+        `La pièce ${node.spaceId} est au niveau ${space.levelId}, pas au niveau ${levelId}.`,
+      );
+    if (host !== undefined && host.levelId !== levelId)
+      errors.push(
+        `L'objet support ${node.hostObjectId} est au niveau ${host.levelId}, pas au niveau ${levelId}.`,
+      );
+  } else if (
+    space?.isSpace === true &&
+    host !== undefined &&
+    space.levelId !== host.levelId
+  )
+    errors.push(
+      `La pièce ${node.spaceId} est au niveau ${space.levelId} et l'objet support ${node.hostObjectId} au niveau ${host.levelId}.`,
+    );
+  return errors;
+}
+
 export class AddNetworkNodeCommand extends NetworkCommand {
   constructor(
     readonly networkId: string,
@@ -224,6 +304,8 @@ export class AddNetworkNodeCommand extends NetworkCommand {
     );
   }
   validate(project: Project): CommandValidation {
+    const placement = incoherentNodePlacement(project, this.node);
+    if (placement.length > 0) return rejected(...placement);
     return validateEdit(project, this.networkId, (network) =>
       addNode(network, this.node, this.ports),
     );
@@ -316,6 +398,15 @@ export class UpdateNetworkNodeCommand extends NetworkCommand {
         this.patch.properties,
       );
       if (errors.length > 0) return rejected(...errors);
+    }
+    // Assigning a room upstairs to a node declared downstairs would write a
+    // project this application refuses to read back.
+    const edited = updateNode(network, this.nodeId, this.patch).nodes.find(
+      ({ id }) => id === this.nodeId,
+    );
+    if (edited !== undefined) {
+      const placement = incoherentNodePlacement(project, edited);
+      if (placement.length > 0) return rejected(...placement);
     }
     return validateEdit(project, this.networkId, (candidate) =>
       updateNode(candidate, this.nodeId, this.patch),
