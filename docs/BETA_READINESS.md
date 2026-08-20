@@ -8,8 +8,8 @@ Statuts employés : **FAIT**, **BLOQUANT** (la bêta ne sort pas sans),
 **REQUIS** (attendu dans la bêta), **RECOMMANDÉ**, **REPORTÉ** (hors bêta,
 assumé).
 
-Les quinze portes qui portent sur le produit lui-même sont franchies ; les trois
-qui restent relèvent de la publication.
+Un sixième audit a rouvert partiellement certaines portes : ce tableau reflète
+son verdict, pas l'optimisme de la passe précédente.
 
 ## Les portes de la bêta
 

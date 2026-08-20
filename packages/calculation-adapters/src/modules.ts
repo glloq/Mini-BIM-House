@@ -815,13 +815,21 @@ export const ventilationAdapter: CalculationModule = {
     const warnings: CalculationWarning[] = [];
     const segments = rows(data.segments).map((segment) => {
       const id = string(segment.id)!;
+      const shape =
+        string(segment.shape) === 'RECTANGULAR' ? 'RECTANGULAR' : 'ROUND';
       const diameterM = number(segment.diameterM);
+      const widthM = number(segment.widthM);
+      const heightM = number(segment.heightM);
       const flowM3h = number(segment.flowM3h);
-      if (diameterM === undefined || flowM3h === undefined) {
+      const sized =
+        shape === 'ROUND'
+          ? diameterM !== undefined
+          : widthM !== undefined && heightM !== undefined;
+      if (!sized || flowM3h === undefined) {
         warnings.push(
           missingWarning(
             'VENTILATION_INCOMPLETE_SEGMENT',
-            `Duct ${id} has no diameter or no served design flow.`,
+            `Duct ${id} has no section or no served design flow.`,
             [id],
           ),
         );
@@ -846,8 +854,15 @@ export const ventilationAdapter: CalculationModule = {
             kind: 'DUCT',
             properties: {
               airRole: 'SUPPLY',
-              shape: 'ROUND',
-              diameterM,
+              // The section the project stated, whichever it is: the engine
+              // computes the hydraulic diameter of a rectangular duct itself.
+              ...(shape === 'ROUND'
+                ? { shape: 'ROUND' as const, diameterM: diameterM! }
+                : {
+                    shape: 'RECTANGULAR' as const,
+                    widthM: widthM!,
+                    heightM: heightM!,
+                  }),
               roughnessM: number(segment.roughnessM)!,
               localLossCoefficient: number(segment.localLossCoefficient) ?? 0,
             },
@@ -860,7 +875,11 @@ export const ventilationAdapter: CalculationModule = {
         id,
         flowM3h,
         lengthM,
-        diameterM,
+        shape,
+        diameterM: diameterM ?? null,
+        widthM: widthM ?? null,
+        heightM: heightM ?? null,
+        hydraulicDiameterM: result.hydraulicDiameterM ?? null,
         velocityMs: result.velocityMs ?? null,
         pressureLossPa: result.totalPressureLossPa ?? null,
       };

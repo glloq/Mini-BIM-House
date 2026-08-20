@@ -101,6 +101,10 @@ const TEMPLATES: Readonly<
     { kind: 'CIRCUIT', label: 'Circuit', ports: [POWER_SINK, POWER_SOURCE] },
     { kind: 'LUMINAIRE', label: 'Luminaire', ports: [POWER_SINK] },
     { kind: 'OUTLET', label: 'Prise', ports: [POWER_SINK] },
+    // A heat pump, a tank, an oven or a charging point are loads like any
+    // other; without them a real installation could not be drawn.
+    { kind: 'FIXED_LOAD', label: 'Appareil fixe', ports: [POWER_SINK] },
+    { kind: 'EV', label: 'Borne de recharge', ports: [POWER_SINK] },
   ],
   OTHER: [
     { kind: 'SOURCE', label: 'Source', ports: [FLOW_SOURCE] },

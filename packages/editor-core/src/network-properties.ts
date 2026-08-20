@@ -193,17 +193,12 @@ const NODE_PROPERTIES: Readonly<
     ],
   },
   ELECTRICAL: {
-    LUMINAIRE: [
-      ...electricalLoad(),
-      {
-        key: 'catalogItemId',
-        label: 'Équipement de catalogue',
-        kind: 'TEXT',
-        hint: 'Identifiant de l’équipement dont ce point reprend les caractéristiques.',
-      },
-    ],
+    // The equipment a node stands for is chosen in the inspector and stored as
+    // the node's own reference, not as a name typed into its properties.
+    LUMINAIRE: [...electricalLoad()],
     OUTLET: [...electricalLoad()],
     FIXED_LOAD: [...electricalLoad()],
+    EV: [...electricalLoad()],
     CIRCUIT: [
       {
         key: 'nominalVoltageV',
@@ -294,7 +289,6 @@ const EDGE_PROPERTIES: Readonly<
   WASTEWATER: [INTERNAL_DIAMETER, PIPE_MATERIAL, SLOPE],
   RAINWATER: [INTERNAL_DIAMETER, PIPE_MATERIAL, SLOPE],
   VENTILATION: [
-    DUCT_DIAMETER,
     {
       key: 'shape',
       label: 'Section',
@@ -303,6 +297,24 @@ const EDGE_PROPERTIES: Readonly<
         ['ROUND', 'Circulaire'],
         ['RECTANGULAR', 'Rectangulaire'],
       ]),
+      hint: 'Une gaine circulaire se décrit par son diamètre, une gaine rectangulaire par sa largeur et sa hauteur.',
+    },
+    { ...DUCT_DIAMETER, hint: 'Gaine circulaire.' },
+    {
+      key: 'widthM',
+      label: 'Largeur',
+      kind: 'NUMBER',
+      unit: 'm',
+      min: 0,
+      hint: 'Gaine rectangulaire.',
+    },
+    {
+      key: 'heightM',
+      label: 'Hauteur',
+      kind: 'NUMBER',
+      unit: 'm',
+      min: 0,
+      hint: 'Gaine rectangulaire.',
     },
     {
       key: 'airRole',
@@ -445,6 +457,60 @@ export function withNetworkProperty(
     return undefined;
   next[descriptor.key] = raw;
   return next;
+}
+
+/**
+ * The record without the values the stated shape cannot carry.
+ *
+ * Changing a duct from round to rectangular makes its diameter meaningless.
+ * Dropping it is not inventing anything: it is removing a number that no longer
+ * describes the object the user just redefined. What is never dropped is a
+ * value the new shape still uses.
+ */
+export function withoutIncompatibleProperties(
+  discipline: NetworkDiscipline,
+  properties: Readonly<Record<string, JsonValue>>,
+): Readonly<Record<string, JsonValue>> {
+  if (discipline !== 'VENTILATION') return properties;
+  const next = { ...properties };
+  if (next.shape === 'ROUND') {
+    delete next.widthM;
+    delete next.heightM;
+  }
+  if (next.shape === 'RECTANGULAR') delete next.diameterM;
+  return next;
+}
+
+/**
+ * Why a record would describe something the discipline cannot represent.
+ *
+ * A round duct has a diameter and a rectangular one has a width and a height;
+ * offering the choice and then asking for the wrong number is how an interface
+ * makes a value impossible to enter. The contradiction is refused where it is
+ * made rather than reported later as a missing input.
+ */
+export function incoherentNetworkProperties(
+  discipline: NetworkDiscipline,
+  properties: Readonly<Record<string, JsonValue>>,
+): readonly string[] {
+  if (discipline !== 'VENTILATION') return [];
+  const shape = properties.shape;
+  const has = (key: string): boolean => typeof properties[key] === 'number';
+  if (shape === 'ROUND' && (has('widthM') || has('heightM')))
+    return [
+      'Une gaine circulaire se décrit par son diamètre : retirez la largeur et la hauteur.',
+    ];
+  if (shape === 'RECTANGULAR') {
+    if (has('diameterM'))
+      return [
+        'Une gaine rectangulaire se décrit par sa largeur et sa hauteur : retirez le diamètre.',
+      ];
+    if (has('widthM') !== has('heightM'))
+      return [
+        'Une gaine rectangulaire demande sa largeur et sa hauteur, pas l’une des deux.',
+      ];
+  }
+  return [];
 }
 
 /** Why a property record would be refused, when it would. */

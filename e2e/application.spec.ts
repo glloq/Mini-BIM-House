@@ -350,11 +350,24 @@ test('sizes a duct and a terminal from the network inspector', async ({
     .getByRole('button', { name: 'Ventilation' })
     .click();
 
-  // A duct states its bore, its shape and its role; nothing is assumed for it.
+  // A duct states its section, its bore and its role; nothing is assumed.
   const duct = page
     .locator('.library-table tbody tr', { hasText: 'DUCT' })
     .first();
   await duct.getByRole('button', { name: 'Propriétés' }).click();
+
+  // Rectangular is a real choice: it asks for two sides, and the diameter that
+  // no longer describes anything goes away with it.
+  const section = page.getByLabel('Section', { exact: true });
+  await section.selectOption('RECTANGULAR');
+  await expect(page.getByRole('status')).toContainText(
+    'Modifier un tronçon du réseau',
+  );
+  await expect(page.getByLabel('Largeur')).toBeVisible();
+  await expect(page.getByLabel('Hauteur')).toBeVisible();
+  await expect(page.getByLabel('Diamètre intérieur')).toHaveValue('');
+
+  await section.selectOption('ROUND');
   const diameter = page.getByLabel('Diamètre intérieur');
   await expect(diameter).toBeVisible();
   await diameter.fill('0.16');

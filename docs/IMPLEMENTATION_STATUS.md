@@ -523,6 +523,54 @@ redevient « modifié » et le message nomme la révision exportée.
 - durcissement du conteneur `.houseproj` et limites d'archive ;
 - Firefox, WebKit, Pages, migrations et version unique.
 
+## Cohérence des réseaux — lot B du sixième audit
+
+| Point                    | Constat                                                                               | État    |
+| ------------------------ | ------------------------------------------------------------------------------------- | ------- |
+| Racine de réseau         | toute discipline devait porter un nœud SOURCE, que ses propres gabarits ne créent pas | corrigé |
+| Gaine rectangulaire      | l'option existait sans largeur ni hauteur, et le calcul réclamait un diamètre         | corrigé |
+| Cuivre implicite         | un câble sans matériau était calculé en cuivre                                        | corrigé |
+| Pertes singulières       | un tronçon sans donnée était calculé sans raccord, sans le dire                       | corrigé |
+| Liaison luminaire        | la référence d'équipement restait un texte libre dans les propriétés                  | corrigé |
+| Charges fixes            | ni appareil fixe ni borne de recharge ne pouvaient être posés                         | corrigé |
+| Altitude des nœuds       | déplacer un niveau laissait ses nœuds de réseau à l'ancienne hauteur                  | corrigé |
+| « Corriger » d'un réseau | un diamètre manquant renvoyait au plan, incapable de le saisir                        | corrigé |
+
+**Chaque discipline a sa racine.** Une eau usée ne commence pas à une source :
+elle finit à un exutoire. Un réseau de ventilation est ancré par son groupe,
+l'électricité par le tableau qui l'alimente. La validation nomme désormais les
+ancrages qu'elle attendait, au lieu de signaler un défaut sur un réseau que les
+gabarits de l'éditeur venaient de produire.
+
+**Une gaine rectangulaire se décrit par ses deux côtés.** L'inspecteur propose
+largeur et hauteur, l'adaptateur réclame ce que la forme choisie exige — et non
+un diamètre qu'elle ne peut pas avoir — et le moteur calcule le diamètre
+hydraulique lui-même. Changer de forme retire les dimensions que la nouvelle ne
+porte pas ; une contradiction saisie malgré tout est refusée en le disant.
+
+**Deux hypothèses silencieuses en moins.** Un câble sans matériau de conducteur
+est signalé comme donnée manquante : le cuivre est le cas courant, ce qui est
+précisément pourquoi le supposer ne se verrait pas. Un tronçon sans perte
+singulière est toujours calculé sans raccord, mais l'hypothèse est enregistrée
+dans les résultats au lieu de disparaître dans le nombre.
+
+**Ce qu'un nœud représente est une référence, pas un nom.** `equipmentId` est
+lu en premier par l'éclairage, la propriété texte historique restant lue pour
+les fichiers antérieurs. Les gabarits électriques offrent enfin l'appareil fixe
+et la borne de recharge, sans lesquels une installation réelle ne pouvait pas
+être dessinée.
+
+**Un nœud sait sur quel niveau il est posé.** Déplacer ce niveau le déplace ;
+un nœud écrit avant ce champ est repéré par la pièce qu'il dessert, seule chose
+qu'un fichier ancien dise de l'endroit où il se trouve. Et un constat qui nomme
+un tronçon ouvre ce tronçon, dans l'espace Réseaux, propriétés ouvertes.
+
+### Ce que ce lot n'a pas traité
+
+- durcissement du conteneur `.houseproj` et limites d'archive (lot C) ;
+- références de zones, d'annotations et d'objets hôtes (lot D) ;
+- Firefox, WebKit, Pages, migrations et version unique (lot F).
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -563,7 +611,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 722 tests sur 110 fichiers
+- tests unitaires et d'intégration : 740 tests sur 111 fichiers
 - tests navigateur : 45 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

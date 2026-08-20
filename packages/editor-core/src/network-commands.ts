@@ -10,6 +10,7 @@ import type {
 import { validateTechnicalNetwork } from '@house-technical-designer/core-domain';
 import {
   edgePropertySchema,
+  incoherentNetworkProperties,
   invalidNetworkProperties,
   nodePropertySchema,
 } from './network-properties.js';
@@ -437,10 +438,13 @@ export class UpdateNetworkEdgeCommand extends NetworkCommand {
       return rejected(`Le réseau ${this.networkId} est introuvable.`);
     if (!network.edges.some(({ id }) => id === this.edgeId))
       return rejected(`Le tronçon ${this.edgeId} est introuvable.`);
-    const errors = invalidNetworkProperties(
-      edgePropertySchema(network.discipline),
-      this.properties,
-    );
+    const errors = [
+      ...invalidNetworkProperties(
+        edgePropertySchema(network.discipline),
+        this.properties,
+      ),
+      ...incoherentNetworkProperties(network.discipline, this.properties),
+    ];
     if (errors.length > 0) return rejected(...errors);
     return validateEdit(project, this.networkId, (candidate) =>
       updateEdge(candidate, this.edgeId, this.properties),

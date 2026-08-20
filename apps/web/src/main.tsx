@@ -186,6 +186,9 @@ function App() {
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>();
   const [selectedNetworkId, setSelectedNetworkId] = useState<string>();
   const [nodeKind, setNodeKind] = useState('');
+  /** A network object another screen asked to open the properties of. */
+  const [inspectNetworkObjectId, setInspectNetworkObjectId] =
+    useState<string>();
   const [openingDraft, setOpeningDraft] =
     useState<OpeningDraft>(DEFAULT_OPENING);
   const [dimensionType, setDimensionType] = useState<DimensionType>('ALIGNED');
@@ -522,6 +525,9 @@ function App() {
           {
             nodeId: `${activeNetworkId}:node-${crypto.randomUUID().slice(0, 8)}`,
             kind: activeNodeKind,
+            // The node says which storey it belongs to, so moving that storey
+            // moves it too rather than leaving it at an elevation nobody edited.
+            ...(level === undefined ? {} : { levelId: level.id }),
             position: {
               x: point.x,
               y: point.y,
@@ -849,6 +855,21 @@ function App() {
   /** Takes the user where a finding can actually be dealt with. */
   const applyFix = useCallback(
     (fix: CheckFix) => {
+      const objectId = fix.objectIds?.[0];
+      if (fix.tab === 'networks' && objectId !== undefined) {
+        // Take the user to the very segment or node the finding is about, with
+        // its properties open: a workspace is not an answer, a field is.
+        const holder = (session.current.file.project.systems ?? []).find(
+          (network) =>
+            [...network.nodes, ...network.edges].some(
+              ({ id }) => id === objectId,
+            ),
+        );
+        if (holder !== undefined) setSelectedNetworkId(holder.id);
+        setInspectNetworkObjectId(objectId);
+        setTab('networks');
+        return;
+      }
       if (fix.objectIds !== undefined && fix.objectIds.length > 0) {
         selectOnPlan(fix.objectIds);
         if (fix.tab !== 'plan') setTab(fix.tab);
@@ -1292,6 +1313,9 @@ function App() {
               selectedNetworkId={activeNetworkId}
               onSelectNetwork={setSelectedNetworkId}
               onCommand={runCommand}
+              {...(inspectNetworkObjectId === undefined
+                ? {}
+                : { inspectObjectId: inspectNetworkObjectId })}
               onSelectObjects={(objectIds) => {
                 if (activeNetwork !== undefined)
                   dispatchEditor({

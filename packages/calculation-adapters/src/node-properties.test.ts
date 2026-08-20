@@ -95,3 +95,117 @@ describe('where a node states its properties', () => {
     );
   });
 });
+
+describe('what the adapters refuse to assume', () => {
+  it('reports a cable whose conductor material nobody stated', () => {
+    const source = base();
+    const stripped: Project = {
+      ...source,
+      systems: (source.systems ?? []).map((network) =>
+        network.discipline !== 'ELECTRICAL'
+          ? network
+          : {
+              ...network,
+              edges: network.edges.map((edge) => ({
+                ...edge,
+                properties: { conductorSectionMm2: 1.5 },
+              })),
+            },
+      ),
+    };
+    // Copper is the common case, which is exactly why choosing it silently
+    // would never be noticed.
+    expect(
+      inputs(stripped)
+        .missing.filter(({ moduleId }) => moduleId === 'electrical')
+        .map(({ key }) => key),
+    ).toContain('cables/electrical:feeder/conductorMaterial');
+  });
+
+  it('writes down that a segment was sized without any fitting', () => {
+    const source = base();
+    const stripped: Project = {
+      ...source,
+      systems: (source.systems ?? []).map((network) =>
+        network.discipline !== 'WATER'
+          ? network
+          : {
+              ...network,
+              edges: network.edges.map((edge) => ({
+                ...edge,
+                properties: { internalDiameterM: 0.0166 },
+              })),
+            },
+      ),
+    };
+    const built = buildProjectCalculationInputs(
+      createProjectCalculationContext(stripped, {
+        climate: createPreReferenceClimate(),
+      }),
+    );
+    // Not a missing input — a hypothesis, recorded so it travels with the
+    // result instead of hiding inside the number.
+    expect(
+      built.missing.some(({ key }) => key.endsWith('localLossCoefficient')),
+    ).toBe(false);
+    const water = (
+      built.inputs.water as {
+        readonly segments: readonly { readonly localLossCoefficient: number }[];
+      }
+    ).segments;
+    expect(water[0]?.localLossCoefficient).toBe(0);
+  });
+
+  it('asks a rectangular duct for its two sides, not for a diameter', () => {
+    const source = base();
+    const rectangular: Project = {
+      ...source,
+      systems: (source.systems ?? []).map((network) =>
+        network.discipline !== 'VENTILATION'
+          ? network
+          : {
+              ...network,
+              edges: network.edges.map((edge) => ({
+                ...edge,
+                properties: { airRole: 'EXTRACT', shape: 'RECTANGULAR' },
+              })),
+            },
+      ),
+    };
+    const missing = inputs(rectangular)
+      .missing.filter(({ moduleId }) => moduleId === 'ventilation')
+      .map(({ key }) => key);
+    expect(missing.some((key) => key.endsWith('widthM'))).toBe(true);
+    expect(missing.some((key) => key.endsWith('diameterM'))).toBe(false);
+  });
+
+  it('sizes a rectangular duct once both sides are stated', () => {
+    const source = base();
+    const rectangular: Project = {
+      ...source,
+      systems: (source.systems ?? []).map((network) =>
+        network.discipline !== 'VENTILATION'
+          ? network
+          : {
+              ...network,
+              edges: network.edges.map((edge) => ({
+                ...edge,
+                properties: {
+                  airRole: 'EXTRACT',
+                  shape: 'RECTANGULAR',
+                  widthM: 0.2,
+                  heightM: 0.1,
+                  roughnessM: 0.00009,
+                },
+              })),
+            },
+      ),
+    };
+    expect(
+      inputs(rectangular).missing.some(
+        ({ moduleId, key }) =>
+          moduleId === 'ventilation' && key.includes('segments/'),
+      ),
+    ).toBe(false);
+  });
+});

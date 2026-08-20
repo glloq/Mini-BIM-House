@@ -1,5 +1,6 @@
 import {
   validateTechnicalNetwork,
+  type JsonValue,
   type NetworkEdge,
   type NetworkNode,
   type TechnicalNetwork,
@@ -62,7 +63,7 @@ export interface ElectricalCircuit {
   readonly protectiveDeviceId?: string;
 }
 
-export interface CableProperties extends Readonly<Record<string, unknown>> {
+export interface CableProperties extends Readonly<Record<string, JsonValue>> {
   readonly circuitId: string;
   readonly conductorCount: number;
   readonly conductorMaterial?: 'COPPER' | 'ALUMINIUM';

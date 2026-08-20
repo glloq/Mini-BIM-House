@@ -141,6 +141,31 @@ function nodeString(node: NetworkNode, key: string): string | undefined {
  * a module that read only the first one produced a result that looked complete
  * while ignoring half the installation. Each network contributes exactly once.
  */
+/**
+ * The singular pressure losses of a segment, or the hypothesis that it has none.
+ *
+ * A pipe with nothing stated is not necessarily a pipe without a bend. Taking
+ * it as having none is defensible for a first sizing, but it is a choice, and
+ * the choice is written into the assumptions of the result rather than left
+ * inside the number.
+ */
+function localLosses(
+  settings: ProjectCalculationContext['settings'],
+  moduleId: 'water' | 'ventilation',
+  edgeId: string,
+  properties: Readonly<Record<string, unknown>> | undefined,
+): number {
+  const declared = numericProperty(properties, 'localLossCoefficient');
+  if (declared !== undefined) return declared;
+  settings.assume(
+    moduleId,
+    `segments/${edgeId}/localLossCoefficient`,
+    0,
+    'Aucune perte singulière déclarée sur ce tronçon : il est calculé sans raccord.',
+  );
+  return 0;
+}
+
 function networksForDiscipline(
   context: ProjectCalculationContext,
   discipline: string,
@@ -362,7 +387,9 @@ function lightingInput(context: ProjectCalculationContext): CalculationJson {
     .filter((node) => node.kind === 'LUMINAIRE')
     .map((node) => ({
       id: node.id,
-      luminaireId: nodeString(node, 'catalogItemId'),
+      // The binding is a field of the node; the catalogue reference in its
+      // property record is what files written before that field carried.
+      luminaireId: node.equipmentId ?? nodeString(node, 'catalogItemId'),
       roomId: node.spaceId,
       position: { x: node.position.x, y: node.position.y },
     }));
@@ -443,14 +470,32 @@ function ventilationInput(context: ProjectCalculationContext): CalculationJson {
   );
   const segments = networks.flatMap((network) =>
     network.edges.map((edge) => {
+      const shape =
+        stringProperty(edge.properties, 'shape') === 'RECTANGULAR'
+          ? 'RECTANGULAR'
+          : 'ROUND';
       const diameterM = numericProperty(edge.properties, 'diameterM');
+      const widthM = numericProperty(edge.properties, 'widthM');
+      const heightM = numericProperty(edge.properties, 'heightM');
       const flowM3h = flows.get(edge.id);
-      if (diameterM === undefined)
+      // A rectangular duct is sized by its two sides; asking it for a diameter
+      // would report a value it can never have.
+      if (shape === 'ROUND' && diameterM === undefined)
         settings.reportMissing(
           'ventilation',
           `segments/${edge.id}/diameterM`,
           'PROJECT',
           `Duct ${edge.id} has no internal diameter.`,
+        );
+      if (
+        shape === 'RECTANGULAR' &&
+        (widthM === undefined || heightM === undefined)
+      )
+        settings.reportMissing(
+          'ventilation',
+          `segments/${edge.id}/${widthM === undefined ? 'widthM' : 'heightM'}`,
+          'PROJECT',
+          `Rectangular duct ${edge.id} states no width and height.`,
         );
       if (flowM3h === undefined || flowM3h <= 0)
         settings.reportMissing(
@@ -469,10 +514,17 @@ function ventilationInput(context: ProjectCalculationContext): CalculationJson {
         id: edge.id,
         networkId: network.id,
         lengthM: pathLengthM(edge.path),
+        shape,
         diameterM: diameterM ?? null,
+        widthM: widthM ?? null,
+        heightM: heightM ?? null,
         flowM3h: flowM3h ?? null,
-        localLossCoefficient:
-          numericProperty(edge.properties, 'localLossCoefficient') ?? 0,
+        localLossCoefficient: localLosses(
+          settings,
+          'ventilation',
+          edge.id,
+          edge.properties,
+        ),
         roughnessM:
           numericProperty(edge.properties, 'roughnessM') ?? roughnessM,
       };
@@ -561,8 +613,12 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
           simultaneity === undefined
             ? null
             : (cumulatedLps * simultaneity) / 1000,
-        localLossCoefficient:
-          numericProperty(edge.properties, 'localLossCoefficient') ?? 0,
+        localLossCoefficient: localLosses(
+          settings,
+          'water',
+          edge.id,
+          edge.properties,
+        ),
         roughnessM:
           numericProperty(edge.properties, 'roughnessM') ?? roughnessM,
       };
@@ -889,14 +945,24 @@ function electricalInput(context: ProjectCalculationContext): CalculationJson {
             `Cable ${edge.id} states no conductor section.`,
           );
         settings.note('electrical', `cables/${edge.id}`, 'PROJECT', network.id);
+        // The material sets the resistance and therefore the voltage drop.
+        // Copper is the common case, which is exactly why assuming it would go
+        // unnoticed: an unstated material is reported, not chosen.
+        const material = stringProperty(edge.properties, 'conductorMaterial');
+        if (material === undefined)
+          settings.reportMissing(
+            'electrical',
+            `cables/${edge.id}/conductorMaterial`,
+            'PROJECT',
+            `Cable ${edge.id} states no conductor material.`,
+          );
         cables.push({
           id: edge.id,
           circuitId: circuitNode.id,
           networkId: network.id,
           path: edge.path.map((point) => ({ ...point })),
           conductorSectionMm2: sectionMm2 ?? null,
-          conductorMaterial:
-            stringProperty(edge.properties, 'conductorMaterial') ?? 'COPPER',
+          conductorMaterial: material ?? null,
           conductorCount:
             numericProperty(edge.properties, 'conductorCount') ?? null,
         });
