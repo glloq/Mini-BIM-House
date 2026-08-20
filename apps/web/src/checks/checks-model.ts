@@ -5,6 +5,7 @@ import {
   defaultVisibility,
 } from '@house-technical-designer/view-query';
 import { buildBom } from '../quantities/bom-model.js';
+import { canEditSetting } from '../project/settings-catalog.js';
 import type { CalculationRun } from '../calculations/calculation-runner.js';
 
 export type CheckStatus = 'FAIL' | 'UNKNOWN';
@@ -62,22 +63,31 @@ export function sourceLabel(source: CheckSource): string {
   return SOURCE_LABELS[source];
 }
 
-/** Where a missing calculation input has to be filled in. */
-function fixForOrigin(origin: string, moduleId: string): CheckFix {
+/**
+ * Where a missing calculation input has to be filled in.
+ *
+ * Nothing is offered when the screen it would open cannot actually take the
+ * value: a "Corriger" that leads to a form without the field is worse than no
+ * button, because it makes the application look as though it lost the input.
+ */
+function fixForOrigin(
+  origin: string,
+  moduleId: string,
+  key: string,
+): CheckFix | undefined {
   switch (origin) {
     case 'MODULE_SETTINGS':
-      return { label: 'Ouvrir les réglages de calcul', tab: 'project' };
+      return canEditSetting(moduleId, key)
+        ? { label: 'Ouvrir les réglages de calcul', tab: 'project' }
+        : undefined;
     case 'CLIMATE_DATASET':
       return { label: 'Associer un jeu climatique', tab: 'project' };
     case 'EQUIPMENT':
       return { label: 'Ouvrir les équipements', tab: 'equipment' };
-    case 'SCENARIO':
-      return { label: 'Ouvrir le tableau de bord', tab: 'calculations' };
+    case 'PROJECT':
+      return { label: 'Ouvrir le plan', tab: 'plan' };
     default:
-      return {
-        label: `Ouvrir ${moduleId}`,
-        tab: 'calculations',
-      };
+      return undefined;
   }
 }
 
@@ -95,22 +105,29 @@ export function projectChecks(
 ): readonly CheckItem[] {
   const checks: CheckItem[] = [];
 
-  const plan = buildPlanView(project, { layers: defaultVisibility() });
-  for (const issue of plan.issues)
-    checks.push({
-      id: `model:${issue.code}:${issue.objectId ?? 'projet'}`,
-      status: 'FAIL',
-      source: 'MODEL',
-      title: issue.code,
-      detail: issue.message,
-      fix: {
-        label: 'Voir sur le plan',
-        tab: 'plan',
-        ...(issue.objectId === undefined
-          ? {}
-          : { objectIds: [issue.objectId] }),
-      },
+  // Every level, not only the first: without a levelId the plan view falls back
+  // to levels[0], and an upper floor's problems would never be reported.
+  for (const level of project.building.levels) {
+    const plan = buildPlanView(project, {
+      levelId: level.id,
+      layers: defaultVisibility(),
     });
+    for (const issue of plan.issues)
+      checks.push({
+        id: `model:${level.id}:${issue.code}:${issue.objectId ?? 'projet'}`,
+        status: 'FAIL',
+        source: 'MODEL',
+        title: `${level.name} — ${issue.code}`,
+        detail: issue.message,
+        fix: {
+          label: 'Voir sur le plan',
+          tab: 'plan',
+          ...(issue.objectId === undefined
+            ? {}
+            : { objectIds: [issue.objectId] }),
+        },
+      });
+  }
 
   for (const network of project.systems ?? [])
     for (const issue of validateTechnicalNetwork(network))
@@ -134,15 +151,21 @@ export function projectChecks(
           detail: module.message ?? 'Le module n’a pas produit de résultat.',
           fix: { label: 'Ouvrir le tableau de bord', tab: 'calculations' },
         });
-      for (const missing of module.missing)
+      for (const missing of module.missing) {
+        const fix = fixForOrigin(
+          missing.expectedOrigin,
+          module.moduleId,
+          missing.key,
+        );
         checks.push({
           id: `calculation:${module.moduleId}:${missing.key}`,
           status: 'UNKNOWN',
           source: 'CALCULATION',
           title: `${module.label} — ${missing.key}`,
           detail: missing.message,
-          fix: fixForOrigin(missing.expectedOrigin, module.moduleId),
+          ...(fix === undefined ? {} : { fix }),
         });
+      }
     }
   }
 
@@ -189,7 +212,7 @@ export function projectChecks(
       title: 'Aucun référentiel activé',
       detail:
         'Ce projet n’active aucun jeu de règles : rien n’est vérifié par rapport à un texte, et rien n’est donc affirmé conforme.',
-      fix: { label: 'Ouvrir le contexte réglementaire', tab: 'project' },
+      fix: { label: 'Ouvrir les référentiels', tab: 'project' },
     });
 
   return checks;

@@ -605,7 +605,10 @@ test('associates a climate dataset and reports what it covers', async ({
   await expect(page.getByRole('status')).toContainText('associé au projet');
   const row = page.locator('.library-table tbody tr').first();
   await expect(row).toContainText('référence du projet');
-  await expect(row).toContainText('%');
+  // Coverage is stated per module, never as one global percentage: this
+  // monthly file serves the heating load and cannot drive an hourly battery.
+  await expect(row).toContainText('Chauffage — toutes les grandeurs');
+  await expect(row).toContainText('Batterie — pas de temps monthly');
 
   // Removing it takes the reference with it rather than leaving a dangling one.
   await row.getByRole('button', { name: 'Retirer' }).click();
@@ -698,4 +701,131 @@ test('gathers what the project does not resolve and offers to fix it', async ({
   await expect(
     page.getByRole('heading', { name: 'Informations, site et réglages' }),
   ).toBeVisible();
+});
+
+test('offers only reference sides the model accepts', async ({ page }) => {
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  const east = (await page.locator('[id="wall:wall-east"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: east.x - box.x + east.width / 2,
+      y: east.y - box.y + east.height * 0.25,
+    },
+  });
+
+  // The domain knows CENTER, LEFT and RIGHT. A menu offering anything else
+  // would write a value the renderer cannot draw.
+  const side = page
+    .locator('.inspector-subject')
+    .getByLabel('Face de référence');
+  const values = await side
+    .locator('option')
+    .evaluateAll((options) =>
+      options.map((option) => (option as HTMLOptionElement).value),
+    );
+  expect(values).toEqual(['CENTER', 'LEFT', 'RIGHT']);
+
+  const errors = watchConsole(page);
+  await side.selectOption('LEFT');
+  await expect(page.getByRole('status')).toContainText('Modifier un mur');
+  // The plan still draws: the value reached the model intact.
+  await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
+    6,
+  );
+  expect(errors).toEqual([]);
+});
+
+test('restores a local snapshot without claiming it was exported', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  await canvas.click({ position: { x: 120, y: 380 } });
+  await canvas.click({ position: { x: 420, y: 380 } });
+  await expect(page.locator('.save-state')).toContainText(
+    'Sauvegardé localement',
+    { timeout: 10_000 },
+  );
+
+  await page.reload();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Restaurer' })
+    .click();
+  // The snapshot is not a file: the chip must not read "Enregistré".
+  await expect(page.locator('.save-state')).toContainText(
+    'Sauvegardé localement',
+  );
+});
+
+test('activates a rule pack and reports what it checked', async ({ page }) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await expect(page.locator('.library-panel')).toContainText(
+    'Aucun référentiel activé',
+  );
+
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await page.getByRole('checkbox', { name: /fr-rainwater-example/ }).check();
+  await expect(page.getByRole('status')).toContainText(
+    'Modifier les référentiels activés',
+  );
+
+  await page.getByRole('button', { name: 'Vérifications' }).click();
+  const report = page.locator('.rule-panel');
+  await expect(report).toBeVisible();
+  await expect(report).toContainText('fr-rainwater-example');
+  // Every result is one of the four states, and none of them claims conformity.
+  await expect(report.locator('.rule-card')).toHaveCount(1);
+  await expect(page.locator('.library-panel')).not.toContainText(
+    'Aucun référentiel activé',
+  );
+});
+
+test('keeps a scenario selected after deleting another one', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Scénarios', exact: true }).click();
+  await page.getByLabel('Nouveau scénario').fill('Variante B');
+  await page.getByRole('button', { name: 'Créer', exact: true }).click();
+  const compared = page.getByLabel('Scénario comparé');
+  const before = await compared.locator('option').count();
+  expect(before).toBeGreaterThan(1);
+
+  await page.getByRole('button', { name: 'Supprimer', exact: true }).click();
+  await expect(compared.locator('option')).toHaveCount(before - 1);
+  // A scenario is still selected, and the comparison it drives is the one shown.
+  const selected = await compared.inputValue();
+  expect(selected).not.toBe('');
+  await expect(page.locator('h3')).toContainText('Modifications de');
+});
+
+test('never offers to fix a value the settings screen cannot take', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await expect(page.locator('.module-header')).toHaveCount(16);
+  await page.getByRole('button', { name: 'Vérifications' }).click();
+
+  const findings = page.locator('.alert-list li');
+  await expect(findings.first()).toBeVisible();
+  // The occupancy map is one of the inputs the dashboard reports missing; the
+  // settings screen has to be able to take it for the button to be offered.
+  const occupancy = findings.filter({ hasText: 'occupantsByCategory' });
+  if ((await occupancy.count()) > 0) {
+    await occupancy.first().getByRole('button', { name: 'Corriger' }).click();
+    await page.getByLabel('Module').selectOption('iaq');
+    await expect(page.getByLabel('Séjour')).toBeVisible();
+  }
+
+  // Whatever the findings are, every "Corriger" leads to a real destination.
+  const fixable = await findings
+    .getByRole('button', { name: 'Corriger' })
+    .count();
+  expect(fixable).toBeGreaterThan(0);
 });

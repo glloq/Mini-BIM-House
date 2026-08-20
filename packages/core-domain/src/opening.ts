@@ -2,7 +2,12 @@ import { polylineLength } from '@house-technical-designer/geometry';
 import type { OpeningId, WallId } from './ids.js';
 import type { Wall } from './wall.js';
 
-export type OpeningType = 'DOOR' | 'WINDOW' | 'VOID' | 'OTHER';
+export const OPENING_TYPES = ['DOOR', 'WINDOW', 'VOID', 'OTHER'] as const;
+export type OpeningType = (typeof OPENING_TYPES)[number];
+
+export function isOpeningType(value: string): value is OpeningType {
+  return (OPENING_TYPES as readonly string[]).includes(value);
+}
 
 export interface Opening {
   readonly id: OpeningId;

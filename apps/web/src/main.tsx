@@ -199,21 +199,36 @@ function App() {
     readonly run: () => void;
   }>();
 
-  const adopt = useCallback((next: ProjectFile, notice: string): void => {
-    setFile(next);
-    session.current = new ProjectEditingSession(next);
-    setWallAssemblyId(next.project.assemblies?.[0]?.id ?? '');
-    setSelectedMaterialId(undefined);
-    setSelectedAssemblyId(undefined);
-    setSelectedEquipmentId(undefined);
-    setSelectedNetworkId(next.project.systems?.[0]?.id);
-    setNodeKind('');
-    dispatchEditor({ type: 'CANCEL' });
-    const firstLevel = next.project.building.levels[0];
-    if (firstLevel !== undefined)
-      dispatchEditor({ type: 'SET_LEVEL', levelId: firstLevel.id });
-    setMessage(notice);
-  }, []);
+  /**
+   * Replaces the open project.
+   *
+   * The resulting save state is stated by the caller rather than inherited:
+   * a project restored from the local snapshot has never been exported, and
+   * showing it as "Enregistré" would claim a durable copy that does not exist.
+   */
+  const adopt = useCallback(
+    (
+      next: ProjectFile,
+      notice: string,
+      nextSaveState: SaveState = 'SAVED',
+    ): void => {
+      setFile(next);
+      session.current = new ProjectEditingSession(next);
+      setWallAssemblyId(next.project.assemblies?.[0]?.id ?? '');
+      setSelectedMaterialId(undefined);
+      setSelectedAssemblyId(undefined);
+      setSelectedEquipmentId(undefined);
+      setSelectedNetworkId(next.project.systems?.[0]?.id);
+      setNodeKind('');
+      dispatchEditor({ type: 'CANCEL' });
+      const firstLevel = next.project.building.levels[0];
+      if (firstLevel !== undefined)
+        dispatchEditor({ type: 'SET_LEVEL', levelId: firstLevel.id });
+      setSaveState(nextSaveState);
+      setMessage(notice);
+    },
+    [],
+  );
 
   /**
    * Runs a project replacement, asking first when it would discard work.
@@ -792,7 +807,11 @@ function App() {
             <button
               type="button"
               onClick={() => {
-                adopt(recovery.file, 'Sauvegarde locale restaurée.');
+                adopt(
+                  recovery.file,
+                  'Sauvegarde locale restaurée : elle n’a pas encore été exportée.',
+                  'AUTOSAVED',
+                );
                 setRecovery(undefined);
               }}
             >

@@ -57,8 +57,16 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run preview --workspace=@house-technical-designer/web',
+    // The preview script binds 127.0.0.1 explicitly. Vite's default host is
+    // "localhost", which a runner may resolve to ::1 while this URL is polled
+    // on 127.0.0.1 — the server then starts and is never found, and the only
+    // message is a bare two-minute timeout.
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: process.env.CI === undefined,
     timeout: 120_000,
+    // Piped, so a server that refuses to start says why in the CI log instead
+    // of leaving the timeout to be diagnosed by guesswork.
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
 });

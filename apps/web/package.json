@@ -8,7 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "dev": "vite",
     "typecheck": "tsc -b",
-    "preview": "vite preview --port 4173 --strictPort"
+    "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort"
   },
   "dependencies": {
     "@house-technical-designer/assemblies": "0.1.0",
@@ -23,6 +23,7 @@
     "@house-technical-designer/materials": "0.1.0",
     "@house-technical-designer/project-io": "0.1.0",
     "@house-technical-designer/quantities": "0.1.0",
+    "@house-technical-designer/rainwater": "0.1.0",
     "@house-technical-designer/rule-engine": "0.1.0",
     "@house-technical-designer/thermal": "0.1.0",
     "@house-technical-designer/view-query": "0.1.0",

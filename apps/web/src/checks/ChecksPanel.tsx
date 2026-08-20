@@ -8,6 +8,8 @@ import {
   type CheckFix,
   type CheckItem,
 } from './checks-model.js';
+import { evaluateRulePacks } from './rule-packs.js';
+import { RuleReportPanel } from '../RuleReportPanel.js';
 
 export interface ChecksPanelProps {
   readonly project: Project;
@@ -29,6 +31,9 @@ export function ChecksPanel({
 }: ChecksPanelProps) {
   const [onlyFailures, setOnlyFailures] = useState(false);
   const checks = useMemo(() => projectChecks(project, run), [project, run]);
+  // Activated rule packs are run here rather than in a screen of their own:
+  // a compliance verdict belongs beside the findings it has to be read with.
+  const evaluations = useMemo(() => evaluateRulePacks(project), [project]);
   const summary = summarize(checks);
   const shown: readonly CheckItem[] = onlyFailures
     ? checks.filter(({ status }) => status === 'FAIL')
@@ -72,6 +77,19 @@ export function ChecksPanel({
           Les constats de calcul apparaissent une fois les modules exécutés :
           ouvrez le tableau de bord des calculs.
         </p>
+      )}
+
+      {evaluations.map((evaluation) =>
+        evaluation.report === undefined ? (
+          <p className="notice warning" key={evaluation.pack.id}>
+            {evaluation.error}
+          </p>
+        ) : (
+          <RuleReportPanel
+            key={evaluation.pack.id}
+            report={evaluation.report}
+          />
+        ),
       )}
 
       <ul className="alert-list">

@@ -198,6 +198,47 @@ meilleur jalon suivant.
   seuils de couverture et budget de taille de bundle ;
 - feuilles, cartouches et export PDF.
 
+## Correctifs d'audit — passe suivante
+
+Un troisième audit a relevé deux P0 et une série de P1. Les points ci-dessous
+sont traités.
+
+| Point                         | Constat                                                                                                                    | État    |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `referenceSide`               | l'inspecteur proposait INTERIOR/EXTERIOR pour un champ qui n'accepte que CENTER/LEFT/RIGHT                                 | corrigé |
+| Rôle de dalle                 | le même défaut : un rôle CEILING que le domaine ne définit pas                                                             | corrigé |
+| CI navigateur                 | le serveur de prévisualisation n'était jamais joint, deux minutes puis un timeout nu                                       | corrigé |
+| Sauvegarde restaurée          | affichée « Enregistré » alors qu'aucun fichier n'avait été exporté                                                         | corrigé |
+| Vérifications multi-niveaux   | seul le premier niveau était examiné                                                                                       | corrigé |
+| Niveaux et cotes              | un niveau ne contenant que des cotes passait pour vide ; une duplication les perdait                                       | corrigé |
+| Scénario supprimé             | le panneau et la comparaison ne désignaient plus le même scénario                                                          | corrigé |
+| Coordonnées du projet         | conservées d'un projet à l'autre tant que l'écran restait monté                                                            | corrigé |
+| Complétude climat             | un seul pourcentage, calculé sur deux grandeurs, déclarait « complet » un jeu inutilisable pour la pluie ou l'hygrothermie | corrigé |
+| « Corriger » sans destination | des constats renvoyaient vers un écran incapable de saisir la valeur                                                       | corrigé |
+| Rule Engine absent du produit | `RuleReportPanel` existait sans être branché                                                                               | corrigé |
+
+Le défaut de fond derrière les deux premiers : une liste d'énumération
+réécrite à la main dans l'interface, puis castée à la sortie. TypeScript ne
+pouvait rien voir. Les valeurs autorisées sont désormais des constantes du
+domaine dont les types dérivent, les menus se construisent à partir d'elles
+via une table de libellés indexée par le type, et les commandes revalident la
+valeur — parce que l'interface qui l'a produite n'est pas celle qui doit avoir
+raison.
+
+### Ce que cette passe n'a pas traité
+
+- réseaux : création guidée par type de système, inspecteur de tronçon,
+  diamètre, section, matériau, rugosité, débit terminal — le plus gros lot
+  fonctionnel restant ;
+- schéma de propriétés des équipements (libellés et unités au lieu des clés) ;
+- saisie de la provenance d'une propriété de matériau ;
+- champ de saisie différée généralisé aux anciens panneaux ;
+- portabilité du climat dans un projet unique ;
+- édition géométrique des murs, empreintes des dalles et toitures, zones ;
+- modes QUICK / DESIGN / EXPERT, assistant, palette, navigation regroupée ;
+- Firefox, WebKit, axe-core, régression visuelle, budget de bundle ;
+- feuilles, cartouches et PDF.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -238,7 +279,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 578 tests sur 88 fichiers
-- tests navigateur : 31 tests Playwright, dont trois sur un écran de téléphone
+- tests unitaires et d'intégration : 588 tests sur 90 fichiers
+- tests navigateur : 36 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

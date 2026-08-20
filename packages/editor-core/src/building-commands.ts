@@ -11,6 +11,11 @@ import type {
 import {
   detectSpaceBoundaries,
   entityId,
+  isDimensionType,
+  isOpeningType,
+  isSlabRole,
+  isWallReferenceSide,
+  isWallRole,
 } from '@house-technical-designer/core-domain';
 import type { Polygon2D } from '@house-technical-designer/geometry';
 import { polygonArea } from '@house-technical-designer/geometry';
@@ -207,7 +212,20 @@ export class DuplicateLevelCommand extends BuildingCommand {
         levelId,
       })),
       stairs: [],
-      annotations: [],
+      // Dimensions come along, re-pointed at the duplicated walls: a copy that
+      // silently dropped them would look like a faithful copy and not be one.
+      annotations: source.annotations.map((annotation) => ({
+        ...annotation,
+        id: `${annotation.id}${suffix}` as typeof annotation.id,
+        first: {
+          ...annotation.first,
+          wallId: entityId<'Wall'>(`${annotation.first.wallId}${suffix}`),
+        },
+        second: {
+          ...annotation.second,
+          wallId: entityId<'Wall'>(`${annotation.second.wallId}${suffix}`),
+        },
+      })),
     };
     return withLevels(
       project,
@@ -263,7 +281,10 @@ export class RemoveLevelCommand extends BuildingCommand {
       level.openings.length +
       level.slabs.length +
       level.roofs.length +
-      level.spaces.length;
+      level.spaces.length +
+      // Annotations count too: a level holding nothing but dimensions is not
+      // empty, and deleting it would take work with it without warning.
+      level.annotations.length;
     return contents === 0
       ? ok()
       : rejected(
@@ -605,6 +626,22 @@ export interface WallPatch {
   readonly referenceSide?: Wall['referenceSide'];
 }
 
+/**
+ * The value, when it is not one the domain accepts.
+ *
+ * The type system already believes these values are valid, so this check looks
+ * redundant — and it is not. The value may have been cast on its way out of an
+ * interface, and a command must never write something the persisted contract
+ * forbids. Taking it as a plain string is what lets the guard actually run.
+ */
+function rejectedEnumValue(
+  value: string | undefined,
+  accepts: (candidate: string) => boolean,
+): string | undefined {
+  if (value === undefined) return undefined;
+  return accepts(value) ? undefined : value;
+}
+
 function finitePositive(value: number | undefined, label: string): string[] {
   if (value === undefined) return [];
   if (!Number.isFinite(value)) return [`${label} doit être un nombre fini.`];
@@ -632,6 +669,17 @@ export class UpdateWallCommand extends BuildingCommand {
       return rejected(`Le mur ${this.wallId} est introuvable.`);
     if (!assemblyExists(project, this.patch.assemblyId))
       return rejected(`L'assemblage ${this.patch.assemblyId} est introuvable.`);
+    // A command may never write a value the persisted contract forbids, even
+    // when the caller's type says it cannot happen: the interface that built
+    // the value is not the one that has to be right.
+    const side = rejectedEnumValue(
+      this.patch.referenceSide,
+      isWallReferenceSide,
+    );
+    if (side !== undefined)
+      return rejected(`Face de référence inconnue : ${side}.`);
+    const role = rejectedEnumValue(this.patch.role, isWallRole);
+    if (role !== undefined) return rejected(`Rôle de mur inconnu : ${role}.`);
     const wall = level.walls.find(({ id }) => id === this.wallId)!;
     if (this.patch.heightMm !== undefined && wall.heightMode !== 'EXPLICIT')
       return rejected(
@@ -692,6 +740,12 @@ export class UpdateOpeningCommand extends BuildingCommand {
     const opening = level?.openings.find(({ id }) => id === this.openingId);
     if (level === undefined || opening === undefined)
       return rejected(`L'ouverture ${this.openingId} est introuvable.`);
+    const openingType = rejectedEnumValue(
+      this.patch.openingType,
+      isOpeningType,
+    );
+    if (openingType !== undefined)
+      return rejected(`Type d'ouverture inconnu : ${openingType}.`);
     const errors = [
       ...finitePositive(this.patch.widthMm, "La largeur de l'ouverture"),
       ...finitePositive(this.patch.heightMm, "La hauteur de l'ouverture"),
@@ -757,6 +811,9 @@ export class UpdateSlabCommand extends BuildingCommand {
       return rejected(`La dalle ${this.slabId} est introuvable.`);
     if (!assemblyExists(project, this.patch.assemblyId))
       return rejected(`L'assemblage ${this.patch.assemblyId} est introuvable.`);
+    const slabRole = rejectedEnumValue(this.patch.role, isSlabRole);
+    if (slabRole !== undefined)
+      return rejected(`Rôle de dalle inconnu : ${slabRole}.`);
     return this.patch.elevationOffsetMm !== undefined &&
       !Number.isFinite(this.patch.elevationOffsetMm)
       ? rejected('Le décalage de la dalle doit être un nombre fini.')
@@ -844,6 +901,9 @@ export class UpdateDimensionCommand extends BuildingCommand {
     const level = project.building.levels.find(({ id }) => id === this.levelId);
     if (level?.annotations.some(({ id }) => id === this.dimensionId) !== true)
       return rejected(`La cote ${this.dimensionId} est introuvable.`);
+    const dimensionType = rejectedEnumValue(this.patch.type, isDimensionType);
+    if (dimensionType !== undefined)
+      return rejected(`Type de cote inconnu : ${dimensionType}.`);
     return this.patch.offsetMm !== undefined &&
       !Number.isFinite(this.patch.offsetMm)
       ? rejected('Le décalage de la cote doit être un nombre fini.')
