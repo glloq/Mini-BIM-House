@@ -8,7 +8,10 @@ import {
   addDimensionCommand,
   addOpeningCommand,
   addWallCommand,
+  joinWallsCommand,
+  offsetWallCommand,
   splitWallCommand,
+  transformObjectsCommand,
   type EditingCommandResult,
   type OpeningToolDraft,
 } from './editing-commands.js';
@@ -24,11 +27,12 @@ import { placeNodeCommand } from '../networks/network-model.js';
  * appears where it belongs without the toolbar knowing what it is.
  */
 export type ToolGroup =
-  'SELECTION' | 'ARCHITECTURE' | 'NETWORKS' | 'ANNOTATION';
+  'SELECTION' | 'ARCHITECTURE' | 'MODIFICATION' | 'NETWORKS' | 'ANNOTATION';
 
 export const TOOL_GROUP_LABELS: Readonly<Record<ToolGroup, string>> = {
   SELECTION: 'Sélection',
   ARCHITECTURE: 'Architecture',
+  MODIFICATION: 'Modification',
   NETWORKS: 'Réseaux',
   ANNOTATION: 'Annotation',
 };
@@ -51,13 +55,20 @@ export interface ToolCommandContext {
   readonly points: readonly Point2D[];
   readonly drafts: ToolDrafts;
   /**
-   * What the last click landed on, when it landed on something.
+   * What each click landed on, when it landed on something.
    *
-   * A tool acting on an existing object — cutting a wall where the user aimed —
-   * needs to know which one, and the canvas is what knows: it picks with the
-   * tolerance of the screen rather than a distance in millimetres.
+   * A tool acting on existing objects — cutting the wall the user aimed at,
+   * joining the two they pointed to — needs to know which ones, and the canvas
+   * is what knows: it picks with the tolerance of the screen rather than a
+   * distance in millimetres.
    */
-  readonly pickedObjectId?: string;
+  readonly picks: readonly (string | undefined)[];
+  /**
+   * What is selected, for a tool that acts on it.
+   *
+   * Turning or reflecting asks the plan where, and the selection what.
+   */
+  readonly selection: readonly string[];
   /** A fresh identifier, so a tool never invents its own numbering. */
   readonly newId: (prefix: string) => string;
 }
@@ -158,7 +169,9 @@ export const EDITOR_TOOLS = [
     createCommand: (context) => {
       const point = context.points[context.points.length - 1]!;
       const level = levelOf(context);
-      const wall = level?.walls.find(({ id }) => id === context.pickedObjectId);
+      const wall = level?.walls.find(
+        ({ id }) => id === context.picks[context.picks.length - 1],
+      );
       if (wall === undefined)
         return {
           status: 'ERROR',
@@ -175,6 +188,136 @@ export const EDITOR_TOOLS = [
         wall.id,
         point,
         context.newId('wall'),
+      );
+    },
+  },
+  {
+    id: 'OFFSET',
+    group: 'MODIFICATION',
+    label: 'Décaler',
+    hint: 'Tracer un mur parallèle : le mur, puis le côté et la distance',
+    shortcutId: 'tool.offset',
+    requiredPoints: 2,
+    createCommand: (context) => {
+      const wallId = context.picks[0];
+      const towards = context.points[1];
+      if (wallId === undefined || towards === undefined)
+        return {
+          status: 'ERROR',
+          message: 'Cliquez le mur à décaler, puis le côté voulu.',
+        };
+      return offsetWallCommand(
+        context.file,
+        context.levelId,
+        wallId,
+        towards,
+        context.newId('wall'),
+      );
+    },
+  },
+  {
+    id: 'JOIN',
+    group: 'MODIFICATION',
+    label: 'Joindre',
+    hint: 'Amener deux murs à leur intersection',
+    shortcutId: 'tool.join',
+    requiredPoints: 2,
+    createCommand: (context) => {
+      const [firstId, secondId] = context.picks;
+      const [firstAt, secondAt] = context.points;
+      if (
+        firstId === undefined ||
+        secondId === undefined ||
+        firstAt === undefined ||
+        secondAt === undefined
+      )
+        return { status: 'ERROR', message: 'Cliquez deux murs.' };
+      return joinWallsCommand(
+        context.file,
+        context.levelId,
+        { wallId: firstId, at: firstAt },
+        { wallId: secondId, at: secondAt },
+        true,
+      );
+    },
+  },
+  {
+    id: 'TRIM',
+    group: 'MODIFICATION',
+    label: 'Ajuster',
+    hint: 'Allonger ou raccourcir un mur jusqu’à un autre',
+    shortcutId: 'tool.trim',
+    requiredPoints: 2,
+    createCommand: (context) => {
+      const [firstId, secondId] = context.picks;
+      const [firstAt, secondAt] = context.points;
+      if (
+        firstId === undefined ||
+        secondId === undefined ||
+        firstAt === undefined ||
+        secondAt === undefined
+      )
+        return {
+          status: 'ERROR',
+          message:
+            'Cliquez le mur à ajuster, puis celui jusqu’auquel l’amener.',
+        };
+      // Only the first wall moves: the second one is the edge it is brought to.
+      return joinWallsCommand(
+        context.file,
+        context.levelId,
+        { wallId: firstId, at: firstAt },
+        { wallId: secondId, at: secondAt },
+        false,
+      );
+    },
+  },
+  {
+    id: 'ROTATE',
+    group: 'MODIFICATION',
+    label: 'Pivoter',
+    hint: 'Pivoter la sélection : centre, point de référence, position voulue',
+    shortcutId: 'tool.rotate',
+    // Centre, then the direction things point at now, then where that direction
+    // should end up. Three clicks and no number to type.
+    requiredPoints: 3,
+    createCommand: (context) => {
+      const [centre, from, to] = context.points;
+      if (centre === undefined || from === undefined || to === undefined)
+        return { status: 'ERROR', message: 'Trois points sont attendus.' };
+      const bearing = (point: Point2D): number =>
+        Math.atan2(point.y - centre.y, point.x - centre.x);
+      const angleDeg = ((bearing(to) - bearing(from)) * 180) / Math.PI;
+      return transformObjectsCommand(
+        context.file,
+        context.levelId,
+        context.selection,
+        { kind: 'ROTATE', centre, angleDeg },
+      );
+    },
+  },
+  {
+    id: 'MIRROR',
+    group: 'MODIFICATION',
+    label: 'Miroir',
+    hint: 'Retourner la sélection de part et d’autre d’un axe tracé',
+    shortcutId: 'tool.mirror',
+    requiredPoints: 2,
+    constrainsDrafting: true,
+    createCommand: (context) => {
+      const [from, to] = context.points;
+      if (from === undefined || to === undefined)
+        return { status: 'ERROR', message: 'Deux points sont attendus.' };
+      if (from.x === to.x && from.y === to.y)
+        return {
+          status: 'ERROR',
+          message: 'Un axe de miroir demande deux points distincts.',
+        };
+      return transformObjectsCommand(
+        context.file,
+        context.levelId,
+        context.selection,
+        { kind: 'MIRROR', from, to },
       );
     },
   },
@@ -249,6 +392,7 @@ export function populatedToolGroups(): readonly ToolGroup[] {
   const order: readonly ToolGroup[] = [
     'SELECTION',
     'ARCHITECTURE',
+    'MODIFICATION',
     'NETWORKS',
     'ANNOTATION',
   ];

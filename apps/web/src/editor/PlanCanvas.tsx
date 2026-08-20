@@ -53,8 +53,8 @@ export interface PlanCanvasProps {
   readonly dispatch: (action: EditorAction) => void;
   readonly onCommitPoints: (
     points: readonly { x: number; y: number }[],
-    /** What the last click landed on, for a tool that acts on an object. */
-    pickedObjectId?: string,
+    /** What each click landed on, for a tool that acts on objects. */
+    picks: readonly (string | undefined)[],
   ) => void;
   /** Carries the whole selection, once a drag on it has been released. */
   readonly onMoveSelection?: (delta: { x: number; y: number }) => void;
@@ -536,10 +536,6 @@ export function PlanCanvas({
           ? snapped
           : constrainPoint(origin, snapped, editor.snap, editor.directInput);
       const points = [...editor.pendingPoints, point];
-      dispatch({ type: 'COMMIT_POINT', point });
-      // Each tool declares how many points it needs; the canvas does not keep
-      // its own list of which ones are single-click.
-      if (points.length < requiredPoints(editor.activeTool)) return;
       // The click is reported with what it landed on: the canvas is what knows
       // how close is close enough on this screen at this zoom.
       const picked = pickPrimitive(
@@ -547,10 +543,16 @@ export function PlanCanvas({
         model,
         pickToleranceMm(editor.camera, event.pointerType),
       );
-      onCommitPoints(
-        points,
-        ...(picked === undefined ? [] : ([picked.objectId] as const)),
-      );
+      const picks = [...editor.pendingPicks, picked?.objectId];
+      dispatch({
+        type: 'COMMIT_POINT',
+        point,
+        ...(picked === undefined ? {} : { objectId: picked.objectId }),
+      });
+      // Each tool declares how many points it needs; the canvas does not keep
+      // its own list of which ones are single-click.
+      if (points.length < requiredPoints(editor.activeTool)) return;
+      onCommitPoints(points, picks);
     },
     [
       dispatch,

@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { ProjectCommandDispatcher } from '@house-technical-designer/editor-core';
 import { loadDemoProject } from '../demo-project.js';
 import {
+  clipboardIsEmpty,
+  copyObjects,
   duplicateObjectsCommand,
   moveObjectsCommand,
+  pasteClipboardCommand,
 } from './editing-commands.js';
 
 function file() {
@@ -182,5 +185,80 @@ describe('copying a selection a little to the side', () => {
         ids,
       ).status,
     ).toBe('ERROR');
+  });
+});
+
+describe('copying to another storey', () => {
+  const ids = (prefix: string) => `${prefix}-pasted`;
+
+  it('keeps the objects rather than their identifiers', () => {
+    const taken = copyObjects(file(), 'ground', ['wall-south', 'slab-ground']);
+    expect(taken.walls.map(({ id }) => id)).toEqual(['wall-south']);
+    expect(taken.slabs).toHaveLength(1);
+    expect(clipboardIsEmpty(taken)).toBe(false);
+    expect(clipboardIsEmpty(copyObjects(file(), 'ground', []))).toBe(true);
+  });
+
+  it('leaves out an opening whose wall was not copied', () => {
+    // Pasted elsewhere it would have no wall to sit in.
+    const taken = copyObjects(file(), 'ground', ['opening-entry']);
+    expect(taken.openings).toEqual([]);
+  });
+
+  it('puts the copy down on the storey being drawn', () => {
+    const opened = file();
+    const taken = copyObjects(opened, 'ground', ['wall-south']);
+    const result = pasteClipboardCommand(
+      opened,
+      'ground',
+      taken,
+      { x: 200, y: 200 },
+      ids,
+    );
+    expect(result.status).toBe('OK');
+    if (result.status !== 'OK') return;
+    const dispatcher = new ProjectCommandDispatcher(opened.project);
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+    const pasted = walls(dispatcher.project).find(
+      ({ id }) => id === 'wall-pasted',
+    )!;
+    // The copy belongs to the storey it was pasted on, whichever one that is.
+    expect(pasted.levelId).toBe('ground');
+    expect(pasted.path.points[0]).toEqual({
+      x:
+        walls(opened.project).find(({ id }) => id === 'wall-south')!.path
+          .points[0]!.x + 200,
+      y:
+        walls(opened.project).find(({ id }) => id === 'wall-south')!.path
+          .points[0]!.y + 200,
+    });
+  });
+
+  it('survives the original being deleted in between', () => {
+    const opened = file();
+    const taken = copyObjects(opened, 'ground', ['wall-south']);
+    const dispatcher = new ProjectCommandDispatcher(opened.project);
+    // Whatever happens to the original, what was copied is what is pasted.
+    const result = pasteClipboardCommand(
+      { ...opened, project: dispatcher.project },
+      'ground',
+      taken,
+      { x: 0, y: 0 },
+      ids,
+    );
+    expect(result.status).toBe('OK');
+  });
+
+  it('refuses to paste what was never copied', () => {
+    const result = pasteClipboardCommand(
+      file(),
+      'ground',
+      { walls: [], openings: [], slabs: [], roofs: [] },
+      { x: 0, y: 0 },
+      ids,
+    );
+    expect(result.status).toBe('ERROR');
+    if (result.status !== 'ERROR') return;
+    expect(result.message).toContain('copié');
   });
 });

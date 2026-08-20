@@ -937,11 +937,59 @@ test('turns and reflects a selection about its own centre', async ({
     before,
   );
 
-  await page.getByRole('button', { name: /^Miroir/ }).click();
+  await page.getByRole('button', { name: /^Miroir gauche-droite/ }).click();
   await expect(page.getByRole('status')).toContainText('Retourner');
   await expect(
     page.getByRole('spinbutton', { name: 'Longueur (mm)' }),
   ).toHaveValue(length);
+  expect(errors).toEqual([]);
+});
+
+test('offsets, joins and aligns walls from the plan', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  // The canvas moves when the toolbar of the active tool changes height, so
+  // where it is now is read each time rather than once.
+  const onWall = async (id: string, fx: number, fy: number) => {
+    const frame = (await canvas.boundingBox())!;
+    const shape = (await page.locator(`[id="wall:${id}"]`).boundingBox())!;
+    return {
+      x: shape.x - frame.x + shape.width * fx,
+      y: shape.y - frame.y + shape.height * fy,
+    };
+  };
+
+  // Décaler : le mur, puis le côté et la distance.
+  await page.getByRole('button', { name: 'Décaler', exact: true }).click();
+  // A quarter of the way along, away from the partition that crosses this wall
+  // at its middle.
+  const source = await onWall('wall-south', 0.25, 0.5);
+  await canvas.click({ position: source });
+  await canvas.click({ position: { x: source.x, y: source.y + 60 } });
+  await expect(page.getByRole('status')).toContainText('Décaler un mur');
+  await expect(walls).toHaveCount(7);
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(walls).toHaveCount(6);
+
+  // Aligner demande au moins deux objets, et le dit.
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await canvas.click({ position: await onWall('wall-partition-v', 0.5, 0.2) });
+  await expect(
+    page.getByRole('button', { name: 'Aligner à gauche' }),
+  ).toBeDisabled();
+  await canvas.click({
+    position: await onWall('wall-west', 0.5, 0.3),
+    modifiers: ['ControlOrMeta'],
+  });
+  await page.getByRole('button', { name: 'Aligner à gauche' }).click();
+  await expect(page.getByRole('status')).toContainText('Aligner à gauche');
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('annulée');
   expect(errors).toEqual([]);
 });
 

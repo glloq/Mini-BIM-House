@@ -107,8 +107,13 @@ import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
 import { inspectObject } from './editor/object-editors.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import {
+  alignObjectsCommand,
+  copyObjects,
   deleteObjectsCommand,
   duplicateObjectsCommand,
+  pasteClipboardCommand,
+  type AlignEdge,
+  type PlanClipboard,
   geometryEditCommand,
   moveObjectsCommand,
   transformObjectsCommand,
@@ -627,6 +632,24 @@ function App() {
     });
   }, []);
 
+  /** Lines the selection up on one edge of its own outline. */
+  const alignSelection = useCallback(
+    (edge: AlignEdge) => {
+      const result = alignObjectsCommand(
+        session.current.file,
+        activeLevelId,
+        editor.selection,
+        edge,
+      );
+      if (result.status === 'ERROR') {
+        setMessage(result.message);
+        return;
+      }
+      runCommand(result.command);
+    },
+    [activeLevelId, editor.selection, runCommand],
+  );
+
   /**
    * Turns or reflects the selection about its own centre.
    *
@@ -672,6 +695,59 @@ function App() {
   );
 
   /**
+   * What was copied, kept apart from the project it came from.
+   *
+   * The objects themselves are held rather than their identifiers: pasting
+   * must not change because the originals were deleted or edited in between,
+   * and a copy taken on one storey is meant to be put down on another.
+   */
+  const clipboard = useRef<PlanClipboard>({
+    walls: [],
+    openings: [],
+    slabs: [],
+    roofs: [],
+  });
+
+  const copySelection = useCallback(() => {
+    const taken = copyObjects(
+      session.current.file,
+      activeLevelId,
+      editor.selection,
+    );
+    clipboard.current = taken;
+    const count =
+      taken.walls.length +
+      taken.openings.length +
+      taken.slabs.length +
+      taken.roofs.length;
+    setMessage(
+      count === 0
+        ? 'Rien de sélectionné ne se copie depuis le plan.'
+        : `${count} objet(s) copié(s) : collez-les sur ce niveau ou sur un autre.`,
+    );
+  }, [activeLevelId, editor.selection]);
+
+  const pasteClipboard = useCallback(() => {
+    const step =
+      editor.snap.gridSpacingMm > 0 ? editor.snap.gridSpacingMm : 100;
+    const result = pasteClipboardCommand(
+      session.current.file,
+      activeLevelId,
+      clipboard.current,
+      // Pasted onto the storey it was copied from, the copy would land exactly
+      // on the original; onto another one, the offset costs nothing.
+      { x: step * 2, y: step * 2 },
+      (prefix) => `${prefix}-${crypto.randomUUID()}`,
+    );
+    if (result.status === 'ERROR') {
+      setMessage(result.message);
+      return;
+    }
+    if (!runCommand(result.command)) return;
+    dispatchEditor({ type: 'SELECT_MANY', objectIds: result.createdIds });
+  }, [activeLevelId, editor.snap.gridSpacingMm, runCommand]);
+
+  /**
    * Copies the selection a little to the side, and selects the copies.
    *
    * Leaving the originals selected would look like nothing happened, and the
@@ -714,7 +790,10 @@ function App() {
   );
 
   const commitPoints = useCallback(
-    (points: readonly { x: number; y: number }[], pickedObjectId?: string) => {
+    (
+      points: readonly { x: number; y: number }[],
+      picks: readonly (string | undefined)[],
+    ) => {
       // The tool says what its clicks mean. The application only carries them
       // to it: a new tool is a new entry in the registry, not another branch
       // here.
@@ -723,7 +802,8 @@ function App() {
         file: session.current.file,
         ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
         points,
-        ...(pickedObjectId === undefined ? {} : { pickedObjectId }),
+        picks,
+        selection: editor.selection,
         drafts: {
           wallAssemblyId,
           wallRole,
@@ -752,6 +832,7 @@ function App() {
       activeNodeKind,
       dimensionType,
       editor.activeTool,
+      editor.selection,
       openingDraft,
       runCommand,
       wallAssemblyId,
@@ -938,6 +1019,21 @@ function App() {
         case 'tool.split':
           dispatchEditor({ type: 'SET_TOOL', tool: 'SPLIT' });
           return;
+        case 'tool.rotate':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'ROTATE' });
+          return;
+        case 'tool.mirror':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'MIRROR' });
+          return;
+        case 'tool.offset':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'OFFSET' });
+          return;
+        case 'tool.join':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'JOIN' });
+          return;
+        case 'tool.trim':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'TRIM' });
+          return;
         case 'edit.undo':
           undo();
           return;
@@ -949,6 +1045,12 @@ function App() {
           return;
         case 'edit.duplicate':
           duplicateSelection();
+          return;
+        case 'edit.copy':
+          copySelection();
+          return;
+        case 'edit.paste':
+          pasteClipboard();
           return;
         case 'edit.rotate':
           transformSelection('ROTATE');
@@ -973,9 +1075,11 @@ function App() {
       }
     },
     [
+      copySelection,
       deleteSelection,
       dispatchEditor,
       duplicateSelection,
+      pasteClipboard,
       redo,
       transformSelection,
       saveContainer,
@@ -1585,6 +1689,7 @@ function App() {
               networkId={activeNetworkId ?? ''}
               onNetworkChange={setSelectedNetworkId}
               onTransform={transformSelection}
+              onAlign={alignSelection}
               nodeKind={activeNodeKind}
               onNodeKindChange={setNodeKind}
             />

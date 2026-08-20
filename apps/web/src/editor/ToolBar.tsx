@@ -8,6 +8,7 @@ import {
   networkNodeTemplates,
 } from '@house-technical-designer/editor-core';
 import type { EditorAction, EditorState, EditorTool } from './editor-state.js';
+import type { AlignEdge } from './editing-commands.js';
 import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
 import {
   TOOL_GROUP_LABELS,
@@ -39,6 +40,8 @@ export interface ToolBarProps {
   readonly onNodeKindChange: (kind: string) => void;
   /** Turns or reflects the selection about its own centre. */
   readonly onTransform?: (kind: 'ROTATE' | 'MIRROR') => void;
+  /** Lines the selection up on one edge of its own outline. */
+  readonly onAlign?: (edge: AlignEdge) => void;
 }
 
 export interface OpeningDraft {
@@ -70,6 +73,7 @@ export function ToolBar({
   nodeKind,
   onNodeKindChange,
   onTransform,
+  onAlign,
 }: ToolBarProps) {
   const networks = project.systems ?? [];
   const activeNetwork = networks.find(({ id }) => id === networkId);
@@ -304,7 +308,14 @@ export function ToolBar({
         </div>
       )}
 
-      <div className="tool-group" role="group" aria-label="Modification">
+      {/* Le quart de tour et le retournement gauche-droite se font autour du
+          centre de la sélection, sans rien tracer ; les outils Pivoter et
+          Miroir servent quand le centre ou l'axe comptent. */}
+      <div
+        className="tool-group"
+        role="group"
+        aria-label="Transformations rapides"
+      >
         <button
           type="button"
           className="secondary"
@@ -321,8 +332,34 @@ export function ToolBar({
           title="Retourner la sélection de gauche à droite"
           onClick={() => onTransform?.('MIRROR')}
         >
-          Miroir{hint('edit.mirror')}
+          Miroir gauche-droite{hint('edit.mirror')}
         </button>
+      </div>
+
+      <div className="tool-group" role="group" aria-label="Alignement">
+        {(
+          [
+            ['LEFT', 'Aligner à gauche'],
+            ['RIGHT', 'Aligner à droite'],
+            ['TOP', 'Aligner en haut'],
+            ['BOTTOM', 'Aligner en bas'],
+          ] as const
+        ).map(([edge, label]) => (
+          <button
+            key={edge}
+            type="button"
+            className="secondary"
+            disabled={editor.selection.length < 2}
+            title={
+              editor.selection.length < 2
+                ? 'Sélectionnez au moins deux objets à aligner.'
+                : label
+            }
+            onClick={() => onAlign?.(edge)}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       <div className="tool-group" role="group" aria-label="Navigation">

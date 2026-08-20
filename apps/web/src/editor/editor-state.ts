@@ -94,6 +94,13 @@ export interface EditorState {
   readonly levelId?: string;
   /** Points already committed for the tool in progress. */
   readonly pendingPoints: readonly Point2D[];
+  /**
+   * What each of those points landed on, when it landed on something.
+   *
+   * A tool that joins two walls is told which walls by the clicks themselves;
+   * the point and what it touched are one fact and are kept together.
+   */
+  readonly pendingPicks: readonly (string | undefined)[];
   /** The rubber band being dragged, while one is. */
   readonly selectionBox?: { readonly from: Point2D; readonly to: Point2D };
   readonly cursorModel?: Point2D;
@@ -127,6 +134,7 @@ export function createEditorState(viewport: EditorViewport): EditorState {
     layers: defaultVisibility(),
     presetId: 'architecture',
     pendingPoints: [],
+    pendingPicks: [],
     directInput: {},
   };
 }
@@ -166,7 +174,11 @@ export type EditorAction =
       readonly model: Point2D;
       readonly snap?: SnapResult;
     }
-  | { readonly type: 'COMMIT_POINT'; readonly point: Point2D }
+  | {
+      readonly type: 'COMMIT_POINT';
+      readonly point: Point2D;
+      readonly objectId?: string;
+    }
   | { readonly type: 'CANCEL' }
   | { readonly type: 'SET_SNAP'; readonly snap: Partial<SnapSettings> }
   | { readonly type: 'SET_DIRECT_INPUT'; readonly input: DirectInputPatch }
@@ -232,6 +244,7 @@ export function editorReducer(
         ...state,
         activeTool: action.tool,
         pendingPoints: [],
+        pendingPicks: [],
         directInput: {},
       };
     case 'SELECT': {
@@ -326,9 +339,10 @@ export function editorReducer(
     }
     case 'COMMIT_POINT': {
       const points = [...state.pendingPoints, action.point];
+      const picks = [...state.pendingPicks, action.objectId];
       return points.length >= requiredPoints(state.activeTool)
-        ? { ...state, pendingPoints: [], directInput: {} }
-        : { ...state, pendingPoints: points };
+        ? { ...state, pendingPoints: [], pendingPicks: [], directInput: {} }
+        : { ...state, pendingPoints: points, pendingPicks: picks };
     }
     case 'CANCEL': {
       // One step at a time, and the most recent first. Abandoning a wall being
@@ -336,7 +350,12 @@ export function editorReducer(
       // the twelve walls that were about to be edited.
       const { selectionBox: _band, ...rest } = state;
       if (state.pendingPoints.length > 0 || state.selectionBox !== undefined)
-        return { ...rest, pendingPoints: [], directInput: {} };
+        return {
+          ...rest,
+          pendingPoints: [],
+          pendingPicks: [],
+          directInput: {},
+        };
       if (state.activeTool !== 'SELECT')
         return { ...rest, activeTool: 'SELECT', directInput: {} };
       return { ...rest, selection: [] };
@@ -386,6 +405,7 @@ export function editorReducer(
         levelId: action.levelId,
         selection: [],
         pendingPoints: [],
+        pendingPicks: [],
       };
   }
 }

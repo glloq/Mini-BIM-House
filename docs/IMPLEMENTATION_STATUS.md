@@ -856,9 +856,22 @@ d'ajouter les dizaines de familles d'objets qui manquent.
   commande de domaine remplace donc le tracé entier, ouvertures vérifiées d'un
   coup.
 
-Restent à faire dans ce lot : coller vers un autre niveau, rotation d'un angle
-libre, axe de miroir choisi, décalage parallèle, raccord de deux murs,
-trim/extend, alignement et cotes temporaires éditables.
+- Outils Pivoter et Miroir : le premier prend un centre, la direction actuelle
+  et la direction voulue — trois clics, aucun nombre à taper ; le second prend
+  les deux points d'un axe. Les boutons « Pivoter 90° » et « Miroir
+  gauche-droite » restent pour les cas où ni le centre ni l'axe ne comptent.
+- Copier et coller (`Ctrl+C`, `Ctrl+V`) : ce sont les objets qui sont retenus,
+  pas leurs identifiants, si bien qu'un copié-collé survit à la suppression de
+  l'original et se pose sur un autre niveau que celui d'où il vient.
+- Décaler : un mur parallèle, du côté et à la distance montrés par le clic
+  plutôt qu'un nombre à inventer.
+- Joindre et Ajuster : deux murs amenés à l'intersection de leurs axes, ou un
+  seul amené jusqu'à l'autre — allonger et raccourcir sont le même geste, et
+  deux murs parallèles sont refusés en le disant.
+- Aligner à gauche, à droite, en haut, en bas : chaque objet parcourt la
+  distance qui amène son propre bord sur le plus extérieur, sans être remanié.
+
+Restent à faire dans ce lot : cotes temporaires éditables sur le plan.
 
 ### UI-15 — palette de commandes
 

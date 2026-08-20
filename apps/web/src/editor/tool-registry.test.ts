@@ -24,6 +24,8 @@ function context(
     file: file(),
     levelId: 'ground',
     points: [],
+    picks: [],
+    selection: [],
     drafts: {
       wallAssemblyId: 'assembly-exterior',
       wallRole: 'EXTERIOR',
@@ -98,7 +100,7 @@ describe('the tools the editor offers', () => {
     // is given what the canvas picked, and the point that was clicked.
     const result = toolDefinition('SPLIT').createCommand?.({
       ...context({ points: [{ x: 3000, y: 0 }] }),
-      pickedObjectId: 'wall-south',
+      picks: ['wall-south'],
     });
     expect(result?.status).toBe('OK');
     if (result?.status !== 'OK') return;
@@ -112,6 +114,63 @@ describe('the tools the editor offers', () => {
     expect(result?.status).toBe('ERROR');
     if (result?.status !== 'ERROR') return;
     expect(result.message).toContain('mur');
+  });
+
+  it('turns the selection by the angle two clicks describe', () => {
+    // Centre, where things point now, where they should point: a quarter turn
+    // without a number to type.
+    const result = toolDefinition('ROTATE').createCommand?.({
+      ...context({
+        points: [
+          { x: 0, y: 0 },
+          { x: 1000, y: 0 },
+          { x: 0, y: 1000 },
+        ],
+      }),
+      selection: ['wall-south'],
+    });
+    expect(result?.status).toBe('OK');
+    if (result?.status !== 'OK') return;
+    expect(result.command.label).toContain('Pivoter');
+  });
+
+  it('reflects the selection across the axis that was drawn', () => {
+    const result = toolDefinition('MIRROR').createCommand?.({
+      ...context({
+        points: [
+          { x: 0, y: 0 },
+          { x: 0, y: 1000 },
+        ],
+      }),
+      selection: ['wall-south'],
+    });
+    expect(result?.status).toBe('OK');
+  });
+
+  it('refuses an axis of no length rather than reflecting nothing', () => {
+    const result = toolDefinition('MIRROR').createCommand?.({
+      ...context({
+        points: [
+          { x: 500, y: 500 },
+          { x: 500, y: 500 },
+        ],
+      }),
+      selection: ['wall-south'],
+    });
+    expect(result?.status).toBe('ERROR');
+  });
+
+  it('asks for a selection before transforming it', () => {
+    const result = toolDefinition('ROTATE').createCommand?.(
+      context({
+        points: [
+          { x: 0, y: 0 },
+          { x: 1000, y: 0 },
+          { x: 0, y: 1000 },
+        ],
+      }),
+    );
+    expect(result?.status).toBe('ERROR');
   });
 
   it('says why the network tool cannot place a node instead of throwing', () => {
