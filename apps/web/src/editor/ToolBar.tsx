@@ -1,4 +1,8 @@
-import type { Project } from '@house-technical-designer/core-domain';
+import type {
+  DimensionType,
+  Project,
+  WallRole,
+} from '@house-technical-designer/core-domain';
 import {
   NETWORK_DISCIPLINE_LABELS,
   networkNodeTemplates,
@@ -12,6 +16,19 @@ const TOOLS: readonly { readonly id: EditorTool; readonly label: string }[] = [
   { id: 'OPENING', label: 'Ouverture' },
   { id: 'DIMENSION', label: 'Cotation' },
   { id: 'NETWORK', label: 'Réseau' },
+];
+
+/**
+ * What a wall is, which is not the same question as what it is made of.
+ *
+ * The role decides whether the wall belongs to the thermal envelope, so it can
+ * never be inferred silently from the assembly the user happened to pick.
+ */
+const WALL_ROLES: readonly (readonly [WallRole, string])[] = [
+  ['EXTERIOR', 'Extérieur'],
+  ['INTERIOR', 'Intérieur'],
+  ['PARTITION', 'Cloison'],
+  ['OTHER', 'Autre'],
 ];
 
 const SHORTCUT_BY_TOOL: Readonly<Record<EditorTool, string>> = {
@@ -28,8 +45,12 @@ export interface ToolBarProps {
   readonly dispatch: (action: EditorAction) => void;
   readonly assemblyId: string;
   readonly onAssemblyChange: (assemblyId: string) => void;
+  readonly wallRole: WallRole;
+  readonly onWallRoleChange: (role: WallRole) => void;
   readonly openingDraft: OpeningDraft;
   readonly onOpeningDraftChange: (draft: OpeningDraft) => void;
+  readonly dimensionType: DimensionType;
+  readonly onDimensionTypeChange: (type: DimensionType) => void;
   /** Network the node tool adds to; empty while the project has none. */
   readonly networkId: string;
   readonly onNetworkChange: (networkId: string) => void;
@@ -55,8 +76,12 @@ export function ToolBar({
   dispatch,
   assemblyId,
   onAssemblyChange,
+  wallRole,
+  onWallRoleChange,
   openingDraft,
   onOpeningDraftChange,
+  dimensionType,
+  onDimensionTypeChange,
   networkId,
   onNetworkChange,
   nodeKind,
@@ -88,9 +113,10 @@ export function ToolBar({
 
       {editor.activeTool === 'WALL' && (
         <div className="tool-group">
-          <label>
-            Assemblage
+          <div className="field">
+            <label htmlFor="tool-wall-assembly">Assemblage</label>
             <select
+              id="tool-wall-assembly"
               value={assemblyId}
               onChange={(event) => onAssemblyChange(event.target.value)}
             >
@@ -100,7 +126,23 @@ export function ToolBar({
                 </option>
               ))}
             </select>
-          </label>
+          </div>
+          <div className="field">
+            <label htmlFor="tool-wall-role">Rôle</label>
+            <select
+              id="tool-wall-role"
+              value={wallRole}
+              onChange={(event) =>
+                onWallRoleChange(event.target.value as WallRole)
+              }
+            >
+              {WALL_ROLES.map(([role, label]) => (
+                <option key={role} value={role}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
           <label>
             Longueur (m)
             <input
@@ -189,6 +231,29 @@ export function ToolBar({
               />
             </label>
           ))}
+        </div>
+      )}
+
+      {editor.activeTool === 'DIMENSION' && (
+        <div className="tool-group">
+          <div className="field">
+            <label htmlFor="tool-dimension-type">Type de cote</label>
+            <select
+              id="tool-dimension-type"
+              value={dimensionType}
+              onChange={(event) =>
+                onDimensionTypeChange(event.target.value as DimensionType)
+              }
+            >
+              <option value="ALIGNED">Alignée</option>
+              <option value="HORIZONTAL">Horizontale</option>
+              <option value="VERTICAL">Verticale</option>
+            </select>
+          </div>
+          <p className="hint">
+            Cliquez deux angles de murs, puis un troisième point pour placer la
+            ligne de cote.
+          </p>
         </div>
       )}
 

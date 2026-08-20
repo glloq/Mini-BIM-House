@@ -135,6 +135,69 @@ directive.
 - module de conformité réglementaire : le moteur de règles existe, l'interface
   de conformité n'est pas branchée sur les résultats de calcul.
 
+## Product Completion Pass 1
+
+Un second audit a confirmé le diagnostic : moteurs mûrs, produit inachevé. Sa
+priorité n'était plus d'ajouter des calculateurs mais de raccorder ceux qui
+existent, de terminer l'édition interactive et de simplifier le parcours. Cette
+passe traite son lot A en entier, puis les chantiers qu'il désignait comme le
+meilleur jalon suivant.
+
+### Défauts corrigés
+
+| Point                  | Ce qui n'allait pas                                    | État    |
+| ---------------------- | ------------------------------------------------------ | ------- |
+| Cotation               | l'outil était proposé et ne créait rien                | corrigé |
+| Export SVG             | exportait une redite simplifiée du plan                | corrigé |
+| Mobile                 | la navigation disparaissait sous 720 px                | corrigé |
+| Rôle des murs          | toute création forçait `EXTERIOR`                      | corrigé |
+| Dalles et toitures     | construites sur `rooms[0]` en silence                  | corrigé |
+| Erreurs de rendu       | affichées comme « plan vide »                          | corrigé |
+| Remplacement de projet | écrasait le travail non exporté sans un mot            | corrigé |
+| Calculs                | deux exécutions concurrentes du même calcul            | corrigé |
+| Suppression multiple   | une commande par objet, suppression partielle possible | corrigé |
+
+### Ce que l'application sait faire de plus
+
+- **Cotation** — deux angles de murs et un point de décalage ; la cote est une
+  annotation du niveau, typée au schéma, résolue depuis les murs qu'elle
+  mesure, et elle survit à un enregistrement.
+- **Export** — le fichier SVG est le plan affiché, avec ses couches de
+  matériaux, ses ouvertures percées, ses pièces, ses réseaux et ses cotes, au
+  profil d'impression, en nommant son niveau et son échelle.
+- **Inspecteur** — la barre d'outils crée, l'inspecteur modifie : assemblage,
+  rôle, hauteur d'un mur ; type et dimensions d'une ouverture ; nom et usage
+  d'une pièce ; pente et azimut d'un pan de toiture ; position et pièce
+  desservie d'un nœud de réseau. Les valeurs saisies sont validées à
+  l'application et refusées plutôt que rabotées.
+- **Projet** — identité, site, localisation, contexte réglementaire, jeux
+  climatiques et réglages de calcul des seize modules, y compris les prix, la
+  main-d'œuvre, les déchets et les facteurs carbone par matériau.
+- **Scénarios** — création, duplication, renommage, suppression, ajout de
+  changements choisis par ce qu'ils signifient, et promotion d'une variante en
+  projet.
+- **Vérifications** — tout ce que le modèle, les réseaux, les calculs et le
+  métré ne résolvent pas, rassemblé, avec le bouton qui mène là où corriger.
+- **Mobile** — la barre latérale devient un tiroir ; les tableaux larges
+  défilent dans leur cadre ; les cibles tactiles sont dimensionnées pour un
+  doigt. Un projet Playwright dédié le vérifie sur un écran de téléphone.
+
+### Ce que cette passe n'a pas traité
+
+- édition géométrique d'un mur : déplacer une extrémité, scinder, raccorder,
+  copier-coller ;
+- modification de l'empreinte d'une dalle ou d'une toiture existante ;
+- renommage des niveaux et gestion des zones ;
+- libellés et unités des propriétés d'équipement, encore affichées par leur
+  clé interne ;
+- saisie de la provenance d'une propriété de matériau ;
+- création guidée d'un réseau par type de système, et propriétés de tronçon
+  (diamètre, matériau, débit, section) ;
+- modes QUICK / DESIGN / EXPERT, assistant de création, palette de commandes ;
+- Firefox et WebKit en intégration continue, axe-core, régression visuelle,
+  seuils de couverture et budget de taille de bundle ;
+- feuilles, cartouches et export PDF.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -175,7 +238,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 570 tests sur 87 fichiers
-- tests navigateur : 15 tests Playwright sur la construction de production
+- tests unitaires et d'intégration : 578 tests sur 88 fichiers
+- tests navigateur : 31 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

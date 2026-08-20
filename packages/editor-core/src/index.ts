@@ -12,3 +12,5 @@ export * from './project-commands.js';
 export * from './library-commands.js';
 export * from './building-commands.js';
 export * from './network-commands.js';
+export * from './project-settings-commands.js';
+export * from './scenario-commands.js';

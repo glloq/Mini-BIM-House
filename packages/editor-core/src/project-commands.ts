@@ -1,4 +1,5 @@
 import type { Project } from '@house-technical-designer/core-domain';
+import { isDimension } from '@house-technical-designer/core-domain';
 import type {
   ChangeSet,
   CommandValidation,
@@ -6,7 +7,6 @@ import type {
   EditorCommand,
   EditorProjectState,
 } from './commands.js';
-import type { Dimension } from './dimension.js';
 
 export interface ProjectCommandExecution {
   readonly nextState: Project;
@@ -118,7 +118,6 @@ export class ProjectEditorCommand implements ProjectCommand {
     readonly label: string,
     readonly levelId: string,
     readonly command: EditorCommand,
-    readonly dimensions: readonly Dimension[] = [],
   ) {}
   validate(project: Project): CommandValidation {
     const state = this.extract(project);
@@ -137,6 +136,13 @@ export class ProjectEditorCommand implements ProjectCommand {
             ...level,
             walls: execution.nextState.walls,
             openings: execution.nextState.openings,
+            // Dimensions are level annotations, so an edit that adds or drops
+            // one has to land back in the project rather than in a field the
+            // command carried along.
+            annotations: [
+              ...level.annotations.filter((entry) => !isDimension(entry)),
+              ...execution.nextState.dimensions,
+            ],
           }
         : level,
     );
@@ -151,7 +157,6 @@ export class ProjectEditorCommand implements ProjectCommand {
         `Undo ${this.label}`,
         this.levelId,
         execution.inverse,
-        execution.nextState.dimensions,
       ),
       changes: execution.changes,
     };
@@ -164,7 +169,7 @@ export class ProjectEditorCommand implements ProjectCommand {
           walls: level.walls,
           openings: level.openings,
           assemblies: project.assemblies ?? [],
-          dimensions: this.dimensions,
+          dimensions: level.annotations.filter(isDimension),
         };
   }
 }

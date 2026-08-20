@@ -18,6 +18,7 @@ import {
 import type { EditorAction, EditorState } from './editor-state.js';
 import {
   constrainPoint,
+  constrainsDrafting,
   pointerModelPoint,
   requiredPoints,
 } from './editor-state.js';
@@ -55,6 +56,11 @@ function snapSegments(
       });
   return segments;
 }
+
+type RenderResult =
+  | { readonly status: 'OK'; readonly markup: string }
+  | { readonly status: 'EMPTY' }
+  | { readonly status: 'ERROR'; readonly message: string };
 
 export function PlanCanvas({
   project,
@@ -179,17 +185,30 @@ export function PlanCanvas({
     preview,
   ]);
 
-  const markup = useMemo(() => {
+  /**
+   * The drawing, or why there is none.
+   *
+   * An empty level and a renderer that threw are not the same thing, and
+   * showing both as "nothing to display" hides a real failure behind a blank
+   * canvas. The two are kept apart so the second one can be reported.
+   */
+  const rendered = useMemo((): RenderResult => {
     try {
-      return renderSemanticSceneToSvg(
+      const markup = renderSemanticSceneToSvg(
         plan.scene,
         plan.view,
         GENERIC_TECHNICAL_SCREEN.profile,
         GENERIC_TECHNICAL_SCREEN.styles,
         { includeInteractionStates: true, includeSemanticGroups: true },
       );
-    } catch {
-      return undefined;
+      return plan.scene.primitives.length === 0
+        ? { status: 'EMPTY' }
+        : { status: 'OK', markup };
+    } catch (error) {
+      return {
+        status: 'ERROR',
+        message: error instanceof Error ? error.message : String(error),
+      };
     }
   }, [plan]);
 
@@ -308,7 +327,7 @@ export function PlanCanvas({
       const snapped = snapFor(event)?.point ?? model;
       const origin = editor.pendingPoints[editor.pendingPoints.length - 1];
       const point =
-        origin === undefined
+        origin === undefined || !constrainsDrafting(editor.activeTool)
           ? snapped
           : constrainPoint(origin, snapped, editor.snap, editor.directInput);
       const points = [...editor.pendingPoints, point];
@@ -368,12 +387,23 @@ export function PlanCanvas({
       onPointerLeave={handleUp}
       onWheel={handleWheel}
     >
-      {markup === undefined ? (
+      {rendered.status === 'EMPTY' && (
         <div className="empty-state">
           <strong>Rien à afficher sur ce niveau</strong>
           <span>Tracez un mur ou activez d’autres calques.</span>
         </div>
-      ) : (
+      )}
+      {rendered.status === 'ERROR' && (
+        <div className="empty-state error" role="alert">
+          <strong>Impossible d’afficher le plan</strong>
+          <span>
+            Le modèle est intact : seul son dessin a échoué. Les autres espaces
+            de travail restent utilisables.
+          </span>
+          <pre className="crash-detail">{rendered.message}</pre>
+        </div>
+      )}
+      {rendered.status === 'OK' && (
         <div
           className="plan-canvas-scene"
           style={{
@@ -381,7 +411,7 @@ export function PlanCanvas({
             top: `${origin.y}px`,
             width: `${scale}px`,
           }}
-          dangerouslySetInnerHTML={{ __html: markup }}
+          dangerouslySetInnerHTML={{ __html: rendered.markup }}
         />
       )}
       {snapMarker !== undefined && (

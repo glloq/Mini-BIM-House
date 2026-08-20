@@ -97,78 +97,80 @@ export function QuantitiesPanel({
         </div>
       </div>
 
-      <table className="library-table">
-        <caption className="visually-hidden">
-          Nomenclature des matériaux, par lot puis par matériau
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col">Matériau</th>
-            <th scope="col">Lot</th>
-            <th scope="col">Niveau</th>
-            <th scope="col">Net (m³)</th>
-            <th scope="col">Déchets</th>
-            <th scope="col">Achat (m³)</th>
-            <th scope="col">Masse (kg)</th>
-            <th scope="col">Coût</th>
-            <th scope="col">Carbone</th>
-            <th scope="col">Objets</th>
-          </tr>
-        </thead>
-        <tbody>
-          {report.lines.map((line) => (
-            <tr key={`${line.materialId}:${line.levelName}`}>
-              <th scope="row">
-                {line.materialName}
-                <span className="hint">{line.source}</span>
-              </th>
-              <td>{LOT_LABELS[line.lot] ?? line.lot}</td>
-              <td>{line.levelName}</td>
-              <td>{line.netVolumeM3.toFixed(3)}</td>
-              <td>{(line.wasteFactor * 100).toFixed(0)} %</td>
-              <td>{line.purchaseVolumeM3.toFixed(3)}</td>
-              <td>
-                {line.massKg === undefined ? (
-                  <span className="badge missing">inconnue</span>
-                ) : (
-                  Math.round(line.massKg)
-                )}
-              </td>
-              <td>
-                {line.cost === undefined ? (
-                  <span className="badge missing">sans prix</span>
-                ) : (
-                  `${line.cost.toFixed(0)} ${line.currency}`
-                )}
-              </td>
-              <td>
-                {line.carbonKgCo2e === undefined ? (
-                  <span className="badge missing">sans facteur</span>
-                ) : (
-                  Math.round(line.carbonKgCo2e)
-                )}
-              </td>
-              <td>
-                <button
-                  type="button"
-                  className="link"
-                  onClick={() => onSelectObjects(line.sourceEntityIds)}
-                >
-                  {line.sourceEntityIds.length} objet(s)
-                </button>
-              </td>
-            </tr>
-          ))}
-          {report.lines.length === 0 && (
+      <div className="table-scroll">
+        <table className="library-table">
+          <caption className="visually-hidden">
+            Nomenclature des matériaux, par lot puis par matériau
+          </caption>
+          <thead>
             <tr>
-              <td colSpan={10}>
-                Aucun métré : ce projet ne contient pas encore de mur dont
-                l’assemblage et la hauteur soient résolus.
-              </td>
+              <th scope="col">Matériau</th>
+              <th scope="col">Lot</th>
+              <th scope="col">Niveau</th>
+              <th scope="col">Net (m³)</th>
+              <th scope="col">Déchets</th>
+              <th scope="col">Achat (m³)</th>
+              <th scope="col">Masse (kg)</th>
+              <th scope="col">Coût</th>
+              <th scope="col">Carbone</th>
+              <th scope="col">Objets</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {report.lines.map((line) => (
+              <tr key={`${line.materialId}:${line.levelName}`}>
+                <th scope="row">
+                  {line.materialName}
+                  <span className="hint">{line.source}</span>
+                </th>
+                <td>{LOT_LABELS[line.lot] ?? line.lot}</td>
+                <td>{line.levelName}</td>
+                <td>{line.netVolumeM3.toFixed(3)}</td>
+                <td>{(line.wasteFactor * 100).toFixed(0)} %</td>
+                <td>{line.purchaseVolumeM3.toFixed(3)}</td>
+                <td>
+                  {line.massKg === undefined ? (
+                    <span className="badge missing">inconnue</span>
+                  ) : (
+                    Math.round(line.massKg)
+                  )}
+                </td>
+                <td>
+                  {line.cost === undefined ? (
+                    <span className="badge missing">sans prix</span>
+                  ) : (
+                    `${line.cost.toFixed(0)} ${line.currency}`
+                  )}
+                </td>
+                <td>
+                  {line.carbonKgCo2e === undefined ? (
+                    <span className="badge missing">sans facteur</span>
+                  ) : (
+                    Math.round(line.carbonKgCo2e)
+                  )}
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    className="link"
+                    onClick={() => onSelectObjects(line.sourceEntityIds)}
+                  >
+                    {line.sourceEntityIds.length} objet(s)
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {report.lines.length === 0 && (
+              <tr>
+                <td colSpan={10}>
+                  Aucun métré : ce projet ne contient pas encore de mur dont
+                  l’assemblage et la hauteur soient résolus.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {report.warnings.length > 0 && (
         <section>

@@ -49,6 +49,7 @@ const second: Wall = {
 };
 const dimension: Dimension = {
   id: dimensionId('distance'),
+  kind: 'DIMENSION' as const,
   type: 'HORIZONTAL',
   first: { kind: 'WALL_ENDPOINT', wallId: first.id, endpoint: 'END' },
   second: { kind: 'WALL_ENDPOINT', wallId: second.id, endpoint: 'START' },

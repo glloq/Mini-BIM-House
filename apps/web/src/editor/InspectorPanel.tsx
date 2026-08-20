@@ -1,16 +1,25 @@
 import type { Project } from '@house-technical-designer/core-domain';
+import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import { inspectObject } from './inspector-model.js';
+import { editsFor, type InspectorEdit } from './inspector-edits.js';
+import { InspectorField } from './InspectorField.js';
 
 export interface InspectorPanelProps {
   readonly project: Project;
   readonly selection: readonly string[];
   readonly onClear: () => void;
+  readonly onCommand: (command: ProjectCommand) => boolean;
+  readonly onMessage: (message: string) => void;
+  readonly onDelete: () => void;
 }
 
 export function InspectorPanel({
   project,
   selection,
   onClear,
+  onCommand,
+  onMessage,
+  onDelete,
 }: InspectorPanelProps) {
   if (selection.length === 0)
     return (
@@ -34,7 +43,19 @@ export function InspectorPanel({
       </div>
     );
 
-  const subject = inspectObject(project, selection[0]!);
+  const objectId = selection[0]!;
+  const subject = inspectObject(project, objectId);
+  const edits = editsFor(project, objectId);
+
+  function applyEdit(edit: InspectorEdit, value: string): void {
+    const command = edit.apply(value);
+    if (command === undefined) {
+      onMessage(`${edit.label} : valeur non reconnue.`);
+      return;
+    }
+    onCommand(command);
+  }
+
   return (
     <article className="inspector-subject">
       <header>
@@ -63,6 +84,19 @@ export function InspectorPanel({
           </dl>
         </section>
       ))}
+      {edits.length > 0 && (
+        <section className="inspector-edits">
+          <h4>Modifier</h4>
+          {edits.map((edit) => (
+            <InspectorField key={edit.id} edit={edit} onApply={applyEdit} />
+          ))}
+        </section>
+      )}
+      <div className="actions">
+        <button type="button" className="secondary danger" onClick={onDelete}>
+          Supprimer
+        </button>
+      </div>
     </article>
   );
 }

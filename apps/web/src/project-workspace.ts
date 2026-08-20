@@ -13,14 +13,14 @@ import {
   materialId,
 } from '@house-technical-designer/materials';
 import {
-  createSemanticScene,
-  drawingViewId,
   exportSemanticSceneToSvg,
-  graphicProfileId,
+  GENERIC_TECHNICAL_PRINT,
   type DrawingView,
-  type GraphicProfile,
-  type ScenePrimitive,
 } from '@house-technical-designer/drawing-engine';
+import {
+  buildPlanView,
+  type LayerVisibility,
+} from '@house-technical-designer/view-query';
 
 export interface ProjectSummary {
   readonly levels: number;
@@ -325,69 +325,67 @@ export function summarizeProject(file: ProjectFile): ProjectSummary {
   };
 }
 
-export function projectPlan(file: ProjectFile) {
-  const level = file.project.building.levels[0];
-  const points = level?.walls.flatMap(({ path }) => path.points) ?? [];
-  const xs = points.map(({ x }) => x);
-  const ys = points.map(({ y }) => y);
-  const padding = 500;
-  const viewport = {
-    min: {
-      x: points.length === 0 ? 0 : Math.min(...xs) - padding,
-      y: points.length === 0 ? 0 : Math.min(...ys) - padding,
-    },
-    max: {
-      x: points.length === 0 ? 10_000 : Math.max(...xs) + padding,
-      y: points.length === 0 ? 8_000 : Math.max(...ys) + padding,
-    },
-  };
-  const view: DrawingView = {
-    id: drawingViewId('workspace-plan'),
-    type: 'PLAN',
-    ...(level === undefined ? {} : { levelId: level.id }),
-    scale: 50,
-    viewport,
-    visibleDisciplines: ['ARCHITECTURE'],
-    graphicProfileId: graphicProfileId('workspace-profile'),
-  };
-  const primitives: ScenePrimitive[] = (level?.walls ?? []).map((wall) => ({
-    id: `wall:${wall.id}`,
-    sourceObjectId: wall.id,
-    semanticRole: 'WALL_CUT',
-    geometry: {
-      kind: 'POLYLINE',
-      polyline: { points: wall.path.points, closed: false },
-    },
-    layer: 'architecture.walls',
-    zIndex: 10,
-    discipline: 'ARCHITECTURE',
-  }));
-  const profile: GraphicProfile = {
-    id: view.graphicProfileId,
-    name: 'Profil espace de travail',
-    roleTokens: { WALL_CUT: 'wall-cut' },
-  };
-  return { view, profile, scene: createSemanticScene(view, primitives) };
+/** What the export has to be told, because the drawing depends on it. */
+export interface PlanExportOptions {
+  /** Level drawn; the first level when the caller names none. */
+  readonly levelId?: string;
+  /** Layers on at export time, so the sheet matches what the user sees. */
+  readonly layers: LayerVisibility;
+  /** Drawing scale denominator: 50 means 1:50. */
+  readonly scale?: number;
 }
 
-export function exportProjectPlan(file: ProjectFile) {
-  const plan = projectPlan(file);
+/**
+ * Exports the plan the user is looking at.
+ *
+ * The scene comes from the same `buildPlanView` the canvas draws, so the file
+ * carries the layered walls, the cut openings, the rooms, the slabs, the roofs,
+ * the technical networks and the dimensions — not a simplified redrawing of
+ * them. What differs from the screen is deliberate and explicit: the print
+ * profile replaces the screen one, and the exported sheet names its level, its
+ * scale and the layers it was drawn with.
+ */
+export function exportProjectPlan(
+  file: ProjectFile,
+  options: PlanExportOptions,
+) {
+  const level =
+    options.levelId === undefined
+      ? file.project.building.levels[0]
+      : file.project.building.levels.find(({ id }) => id === options.levelId);
+  const plan = buildPlanView(file.project, {
+    ...(level === undefined ? {} : { levelId: level.id }),
+    layers: options.layers,
+    ...(options.scale === undefined ? {} : { scale: options.scale }),
+    graphicProfileId: GENERIC_TECHNICAL_PRINT.profile.id,
+  });
+  const levelSuffix =
+    level === undefined ? '' : `-${safeFileStem(level.name).toLowerCase()}`;
   return exportSemanticSceneToSvg({
-    ...plan,
-    styles: {
-      tokens: {
-        'wall-cut': { stroke: '#172126', strokeWidthPaperMm: 0.5 },
-      },
-    },
-    fileName: `${safeFileStem(file.project.metadata.name)}-plan.svg`,
+    view: plan.view,
+    scene: plan.scene,
+    profile: GENERIC_TECHNICAL_PRINT.profile,
+    styles: GENERIC_TECHNICAL_PRINT.styles,
+    fileName: `${safeFileStem(file.project.metadata.name)}${levelSuffix}-plan.svg`,
     metadata: {
-      title: `${file.project.metadata.name} — plan`,
+      title: `${file.project.metadata.name} — ${level?.name ?? 'plan'} — 1:${plan.view.scale}`,
       projectId: file.project.id,
       ...(file.project.metadata.projectRevision === undefined
         ? {}
         : { revision: file.project.metadata.projectRevision }),
     },
   });
+}
+
+/** Issues the plan raised while it was built, so an export can report them. */
+export function planExportIssues(
+  file: ProjectFile,
+  options: PlanExportOptions,
+) {
+  return buildPlanView(file.project, {
+    ...(options.levelId === undefined ? {} : { levelId: options.levelId }),
+    layers: options.layers,
+  }).issues;
 }
 
 /**

@@ -299,6 +299,70 @@
         }
       },
       "additionalProperties": true
+    },
+    "WallEndpointReference": {
+      "type": "object",
+      "required": [
+        "kind",
+        "wallId",
+        "endpoint"
+      ],
+      "properties": {
+        "kind": {
+          "const": "WALL_ENDPOINT"
+        },
+        "wallId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "endpoint": {
+          "enum": [
+            "START",
+            "END"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Dimension": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "type",
+        "first",
+        "second",
+        "offsetMm"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "const": "DIMENSION"
+        },
+        "type": {
+          "enum": [
+            "ALIGNED",
+            "HORIZONTAL",
+            "VERTICAL"
+          ]
+        },
+        "first": {
+          "$ref": "#/$defs/WallEndpointReference"
+        },
+        "second": {
+          "$ref": "#/$defs/WallEndpointReference"
+        },
+        "offsetMm": {
+          "type": "number"
+        },
+        "overrideText": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
     }
   },
   "oneOf": [

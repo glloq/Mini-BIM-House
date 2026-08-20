@@ -1,22 +1,31 @@
 import type {
+  Dimension,
+  DimensionType,
   Opening,
   Project,
   ProjectFile,
   Wall,
 } from '@house-technical-designer/core-domain';
-import { entityId } from '@house-technical-designer/core-domain';
+import { dimensionId, entityId } from '@house-technical-designer/core-domain';
 import {
+  AddDimensionCommand,
   AddWallCommand,
+  DeleteDimensionCommand,
   DeleteOpeningCommand,
   DeleteWallCommand,
   ProjectEditorCommand,
+  TransactionCommand,
   createOpeningInsertionCommand,
+  type EditorCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import type { Point2D } from '@house-technical-designer/geometry';
 
 /** How far from a wall axis an opening may be dropped, in millimetres. */
 const MAXIMUM_HOST_DISTANCE_MM = 600;
+
+/** How far from a wall endpoint a dimension click may land, in millimetres. */
+const MAXIMUM_ENDPOINT_DISTANCE_MM = 1200;
 
 export interface WallToolDraft {
   readonly assemblyId: string;
@@ -133,43 +142,179 @@ export function addOpeningCommand(
   };
 }
 
-/** Builds the command that deletes whichever object the selection names. */
-export function deleteObjectCommand(
+export interface DimensionToolDraft {
+  readonly dimensionType: DimensionType;
+}
+
+interface EndpointHit {
+  readonly reference: Dimension['first'];
+  readonly point: Point2D;
+  readonly distanceMm: number;
+}
+
+/** The wall endpoint a click landed on, if one is close enough to have been meant. */
+function nearestWallEndpoint(
+  walls: readonly Wall[],
+  point: Point2D,
+): EndpointHit | undefined {
+  const candidates: EndpointHit[] = [];
+  for (const wall of walls) {
+    const ends = [
+      { endpoint: 'START' as const, point: wall.path.points[0] },
+      { endpoint: 'END' as const, point: wall.path.points.at(-1) },
+    ];
+    for (const end of ends) {
+      if (end.point === undefined) continue;
+      candidates.push({
+        reference: {
+          kind: 'WALL_ENDPOINT',
+          wallId: wall.id,
+          endpoint: end.endpoint,
+        },
+        point: end.point,
+        distanceMm: Math.hypot(end.point.x - point.x, end.point.y - point.y),
+      });
+    }
+  }
+  return candidates
+    .filter(({ distanceMm }) => distanceMm <= MAXIMUM_ENDPOINT_DISTANCE_MM)
+    .sort((first, second) => first.distanceMm - second.distanceMm)[0];
+}
+
+/**
+ * Builds the command that adds a dimension between two wall endpoints.
+ *
+ * The two first points name what is measured; the third sets how far the
+ * dimension line sits from it. The offset is signed, so the user places the
+ * line on the side they clicked rather than on a side the application chose.
+ */
+export function addDimensionCommand(
   file: ProjectFile,
   levelId: string | undefined,
-  objectId: string,
+  points: readonly Point2D[],
+  draft: DimensionToolDraft,
+  id: string,
 ): EditingCommandResult {
   const level = levelOf(file.project, levelId);
   if (level === undefined)
     return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
-  if (level.openings.some(({ id }) => id === objectId))
+  if (points.length < 3)
     return {
-      status: 'OK',
-      command: new ProjectEditorCommand(
-        `delete-opening:${objectId}`,
-        'Supprimer une ouverture',
-        level.id,
-        new DeleteOpeningCommand(
-          `delete-opening:${objectId}`,
-          entityId<'Opening'>(objectId),
-        ),
-      ),
+      status: 'ERROR',
+      message: 'Une cote demande deux extrémités puis un point de décalage.',
     };
-  if (level.walls.some(({ id }) => id === objectId))
+  const first = nearestWallEndpoint(level.walls, points[0]!);
+  const second = nearestWallEndpoint(level.walls, points[1]!);
+  if (first === undefined || second === undefined)
     return {
-      status: 'OK',
-      command: new ProjectEditorCommand(
-        `delete-wall:${objectId}`,
-        'Supprimer un mur',
-        level.id,
-        new DeleteWallCommand(
-          `delete-wall:${objectId}`,
-          entityId<'Wall'>(objectId),
-        ),
-      ),
+      status: 'ERROR',
+      message:
+        'Une cote se rattache à deux extrémités de murs : cliquez plus près des angles.',
     };
+  if (
+    first.reference.wallId === second.reference.wallId &&
+    first.reference.endpoint === second.reference.endpoint
+  )
+    return {
+      status: 'ERROR',
+      message: 'Une cote demande deux extrémités distinctes.',
+    };
+  const dimension: Dimension = {
+    id: dimensionId(id),
+    kind: 'DIMENSION',
+    type: draft.dimensionType,
+    first: first.reference,
+    second: second.reference,
+    offsetMm: signedOffsetMm(first.point, second.point, points[2]!),
+  };
   return {
-    status: 'ERROR',
-    message: `Cet objet ne peut pas être supprimé depuis le plan : ${objectId}.`,
+    status: 'OK',
+    command: new ProjectEditorCommand(
+      `add-dimension:${dimension.id}`,
+      'Ajouter une cote',
+      level.id,
+      new AddDimensionCommand(`add-dimension:${dimension.id}`, dimension),
+    ),
+  };
+}
+
+/** Distance from the measured line to the third click, signed by its side. */
+function signedOffsetMm(
+  first: Point2D,
+  second: Point2D,
+  target: Point2D,
+): number {
+  const dx = second.x - first.x;
+  const dy = second.y - first.y;
+  const length = Math.hypot(dx, dy);
+  if (length === 0) return 0;
+  return Math.round(
+    ((target.x - first.x) * -dy + (target.y - first.y) * dx) / length,
+  );
+}
+
+/** The editor command that deletes one object, whatever kind it is. */
+function deleteCommandFor(
+  level: NonNullable<ReturnType<typeof levelOf>>,
+  objectId: string,
+): EditorCommand | undefined {
+  if (level.annotations.some(({ id }) => id === objectId))
+    return new DeleteDimensionCommand(
+      `delete-dimension:${objectId}`,
+      dimensionId(objectId),
+    );
+  if (level.openings.some(({ id }) => id === objectId))
+    return new DeleteOpeningCommand(
+      `delete-opening:${objectId}`,
+      entityId<'Opening'>(objectId),
+    );
+  if (level.walls.some(({ id }) => id === objectId))
+    return new DeleteWallCommand(
+      `delete-wall:${objectId}`,
+      entityId<'Wall'>(objectId),
+    );
+  return undefined;
+}
+
+/**
+ * Builds the single command that deletes everything the selection names.
+ *
+ * One user action is one command: deleting three walls either happens or does
+ * not, and Ctrl+Z brings all three back. Running one command per object could
+ * leave the model half-deleted when the third one is refused.
+ */
+export function deleteObjectsCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  objectIds: readonly string[],
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  if (objectIds.length === 0)
+    return { status: 'ERROR', message: 'La sélection est vide.' };
+  const commands: EditorCommand[] = [];
+  for (const objectId of objectIds) {
+    const command = deleteCommandFor(level, objectId);
+    if (command === undefined)
+      return {
+        status: 'ERROR',
+        message: `Cet objet ne peut pas être supprimé depuis le plan : ${objectId}.`,
+      };
+    commands.push(command);
+  }
+  const id = `delete:${objectIds.join(',')}`;
+  return {
+    status: 'OK',
+    command: new ProjectEditorCommand(
+      id,
+      objectIds.length === 1
+        ? 'Supprimer un objet'
+        : `Supprimer ${objectIds.length} objets`,
+      level.id,
+      commands.length === 1
+        ? commands[0]!
+        : new TransactionCommand(id, 'Supprimer la sélection', commands),
+    ),
   };
 }
