@@ -581,9 +581,13 @@ composer, calculer, superposer, métrer, comparer, exporter.
 ## Ce que fait l'application
 
 - **Plan** — murs en couches de matériaux, ouvertures percées avec leur
-  débattement, pièces remplies et étiquetées, dalles et toitures ; accrochage
-  sur grille, extrémités, milieux et intersections ; contraintes de longueur et
-  d'angle ; annulation et rétablissement de chaque commande.
+  débattement, pièces remplies et étiquetées, dalles, toitures et cotes
+  associatives ; accrochage sur grille, extrémités, milieux et intersections ;
+  contraintes de longueur et d'angle ; annulation et rétablissement de chaque
+  commande.
+- **Inspecteur** — la barre d'outils crée, l'inspecteur modifie : assemblage et
+  rôle d'un mur, dimensions d'une ouverture, usage d'une pièce, pente d'une
+  toiture, position d'un nœud de réseau.
 - **Bibliothèques** — matériaux, assemblages multicouches et équipements
   éditables dans l'application, avec la provenance de chaque propriété et le
   refus de supprimer ce qui est encore référencé.
@@ -595,10 +599,15 @@ composer, calculer, superposer, métrer, comparer, exporter.
   méthode, sa précision, ses hypothèses, ses références et ses entrées
   manquantes.
 - **Analyse** — les résultats se projettent sur le plan en bandes légendées.
+- **Vérifications** — ce que le modèle, les réseaux, les calculs et le métré ne
+  résolvent pas, rassemblé avec le chemin pour le corriger. Aucune conformité
+  réglementaire n'y est constatée.
+- **Projet** — nom, auteur, site, orientation, localisation, contexte
+  réglementaire, jeux climatiques et réglages de calcul des seize modules.
 - **Quantités** — nomenclature par lot et par niveau, masses, coûts et carbone,
   export CSV, avec les matériaux non valorisés signalés comme tels.
-- **Scénarios** — comparaison d'une variante au projet de base, sans dupliquer
-  le projet.
+- **Scénarios** — création, duplication et comparaison d'une variante au projet
+  de base, sans dupliquer le projet, et promotion d'une variante en projet.
 - **Fichiers** — export JSON canonique et SVG, import validé, sauvegarde locale
   automatique et restauration proposée — jamais appliquée en silence.
 
@@ -611,9 +620,13 @@ composer, calculer, superposer, métrer, comparer, exporter.
   éclairage naturel** : hors périmètre de la 0.1.
 - **Modes QUICK / DESIGN / EXPERT, assistant de création, palette de
   commandes** : non implémentés.
+- **Édition géométrique fine** : déplacer l'extrémité d'un mur, le scinder ou
+  le raccorder à la souris n'est pas encore possible ; la géométrie se dessine
+  et se supprime, elle ne se remanie pas.
 - **Conformité réglementaire** : le moteur de règles et les Rule Packs
-  existent, mais l'interface de conformité n'est pas branchée sur les
-  résultats de calcul.
+  existent ; l'espace Vérifications rassemble les constats du modèle et des
+  calculs, mais aucun référentiel réglementaire n'est livré, et rien n'est
+  affirmé conforme.
 - **Données fabricant** : les catalogues livrés sont génériques et le disent.
   Aucune valeur générique n'est présentée comme une donnée fabricant.
 
