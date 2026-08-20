@@ -10,26 +10,15 @@ import {
 import type { EditorAction, EditorState, EditorTool } from './editor-state.js';
 import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
 import {
+  TOOL_GROUP_LABELS,
+  populatedToolGroups,
+  toolsInGroup,
+} from './tool-registry.js';
+import {
   DIMENSION_TYPE_OPTIONS,
   OPENING_TYPE_OPTIONS,
   WALL_ROLE_OPTIONS,
 } from './domain-options.js';
-
-const TOOLS: readonly { readonly id: EditorTool; readonly label: string }[] = [
-  { id: 'SELECT', label: 'Sélection' },
-  { id: 'WALL', label: 'Mur' },
-  { id: 'OPENING', label: 'Ouverture' },
-  { id: 'DIMENSION', label: 'Cotation' },
-  { id: 'NETWORK', label: 'Réseau' },
-];
-
-const SHORTCUT_BY_TOOL: Readonly<Record<EditorTool, string>> = {
-  SELECT: 'tool.select',
-  WALL: 'tool.wall',
-  OPENING: 'tool.opening',
-  DIMENSION: 'tool.dimension',
-  NETWORK: 'tool.network',
-};
 
 export interface ToolBarProps {
   readonly project: Project;
@@ -100,22 +89,34 @@ export function ToolBar({
   );
   return (
     <div className="tool-bar">
-      <div className="tool-group" role="group" aria-label="Outils de dessin">
-        {TOOLS.map((tool) => (
-          <button
-            key={tool.id}
-            type="button"
-            className={
-              tool.id === editor.activeTool ? 'tool-active' : 'secondary'
-            }
-            aria-pressed={tool.id === editor.activeTool}
-            title={`${tool.label} — raccourci${hint(SHORTCUT_BY_TOOL[tool.id])}`}
-            onClick={() => dispatch({ type: 'SET_TOOL', tool: tool.id })}
-          >
-            {tool.label}
-          </button>
-        ))}
-      </div>
+      {/* One group per family: the toolbar asks the registry what exists
+          rather than holding its own list, so a new tool appears beside the
+          ones it belongs with instead of at the end of a growing row. */}
+      {populatedToolGroups().map((group) => (
+        <div
+          className="tool-group"
+          role="group"
+          aria-label={`Outils · ${TOOL_GROUP_LABELS[group]}`}
+          key={group}
+        >
+          {toolsInGroup(group).map((tool) => (
+            <button
+              key={tool.id}
+              type="button"
+              className={
+                tool.id === editor.activeTool ? 'tool-active' : 'secondary'
+              }
+              aria-pressed={tool.id === editor.activeTool}
+              title={`${tool.hint} — raccourci${hint(tool.shortcutId)}`}
+              onClick={() =>
+                dispatch({ type: 'SET_TOOL', tool: tool.id as EditorTool })
+              }
+            >
+              {tool.label}
+            </button>
+          ))}
+        </div>
+      ))}
 
       {editor.activeTool === 'WALL' && (
         <div className="tool-group">

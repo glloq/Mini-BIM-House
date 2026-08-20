@@ -16,12 +16,8 @@ import {
   type PlanViewResult,
 } from '@house-technical-designer/view-query';
 import type { EditorAction, EditorState } from './editor-state.js';
-import {
-  gripsFor,
-  offsetAlongWall,
-  type GeometryEdit,
-  type Grip,
-} from './grips.js';
+import { offsetAlongWall, type GeometryEdit, type Grip } from './grips.js';
+import { gripsFor } from './object-editors.js';
 import {
   constrainPoint,
   constrainsDrafting,

@@ -1,7 +1,7 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
-import { inspectObject } from './inspector-model.js';
-import { editsFor, type InspectorEdit } from './inspector-edits.js';
+import { editsFor, inspectObject } from './object-editors.js';
+import type { InspectorEdit } from './inspector-edits.js';
 import { InspectorField } from './InspectorField.js';
 
 export interface InspectorPanelProps {

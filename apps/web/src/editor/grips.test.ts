@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
 import { entityId } from '@house-technical-designer/core-domain';
 import { assemblyId } from '@house-technical-designer/assemblies';
-import { gripsFor, offsetAlongWall, openingAnchor } from './grips.js';
+import { offsetAlongWall, openingAnchor } from './grips.js';
+import { gripsFor } from './object-editors.js';
 
 const wall = {
   id: entityId<'Wall'>('wall-north'),

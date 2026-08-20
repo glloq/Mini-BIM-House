@@ -16,8 +16,16 @@ import {
   presetVisibility,
 } from '@house-technical-designer/view-query';
 
-export type EditorTool =
-  'SELECT' | 'WALL' | 'OPENING' | 'DIMENSION' | 'NETWORK';
+import { requiredPoints, type EditorTool } from './tool-registry.js';
+
+// The tools themselves are declared in the registry; the state only needs to
+// know which one is active and how many points it is still waiting for.
+export type { EditorTool };
+export {
+  constrainsDrafting,
+  requiredPoints,
+  toolDefinition,
+} from './tool-registry.js';
 
 export interface SnapSettings {
   readonly enabled: boolean;
@@ -199,34 +207,6 @@ export function constrainPoint(
     x: origin.x + Math.cos(radians) * lengthMm,
     y: origin.y + Math.sin(radians) * lengthMm,
   };
-}
-
-/** Number of points a tool needs before it can produce a command. */
-export function requiredPoints(tool: EditorTool): number {
-  switch (tool) {
-    // Two endpoints to measure, then a point setting how far the dimension
-    // line sits from them.
-    case 'DIMENSION':
-      return 3;
-    case 'WALL':
-      return 2;
-    case 'OPENING':
-    case 'NETWORK':
-      return 1;
-    case 'SELECT':
-      return 0;
-  }
-}
-
-/**
- * Whether a tool drafts along constrained angles and lengths.
- *
- * A wall is drawn along the building axes. A dimension is not drawn at all: it
- * points at endpoints that already exist, and constraining the click would pull
- * it off the corner the user aimed at.
- */
-export function constrainsDrafting(tool: EditorTool): boolean {
-  return tool === 'WALL';
 }
 
 export function editorReducer(

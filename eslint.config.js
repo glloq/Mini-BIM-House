@@ -9,6 +9,10 @@ export default tseslint.config(
     ignores: [
       '**/dist/**',
       '**/coverage/**',
+      // Artefacts of a browser run, not sources: a failed run drops a bundled
+      // trace viewer here and linting it says nothing about this project.
+      'playwright-report/**',
+      'test-results/**',
       '**/node_modules/**',
       '**/generated-project-validator.js',
     ],

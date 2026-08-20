@@ -56,7 +56,7 @@ import { ToolBar, type OpeningDraft } from './editor/ToolBar.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
 import type { CheckFix } from './checks/checks-model.js';
-import { placeNodeCommand } from './networks/network-model.js';
+import { toolDefinition } from './editor/tool-registry.js';
 import { nextLibraryId } from './library/library-model.js';
 import { ErrorBoundary } from './ErrorBoundary.js';
 import {
@@ -92,9 +92,6 @@ import {
   shortcutLabel,
 } from './editor/shortcuts.js';
 import {
-  addDimensionCommand,
-  addOpeningCommand,
-  addWallCommand,
   deleteObjectsCommand,
   geometryEditCommand,
 } from './editor/editing-commands.js';
@@ -605,84 +602,35 @@ function App() {
 
   const commitPoints = useCallback(
     (points: readonly { x: number; y: number }[]) => {
-      if (editor.activeTool === 'WALL') {
-        const command = addWallCommand(
-          session.current.file,
-          activeLevelId,
-          points,
-          { assemblyId: wallAssemblyId, role: wallRole },
-          `wall-${crypto.randomUUID()}`,
-        );
-        if (command.status === 'ERROR') {
-          setMessage(command.message);
-          return;
-        }
-        runCommand(command.command);
+      // The tool says what its clicks mean. The application only carries them
+      // to it: a new tool is a new entry in the registry, not another branch
+      // here.
+      const tool = toolDefinition(editor.activeTool);
+      const result = tool.createCommand?.({
+        file: session.current.file,
+        ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
+        points,
+        drafts: {
+          wallAssemblyId,
+          wallRole,
+          opening: openingDraft,
+          dimensionType,
+          ...(activeNetworkId === undefined
+            ? {}
+            : { networkId: activeNetworkId }),
+          nodeKind: activeNodeKind,
+        },
+        newId: (prefix) =>
+          prefix === ''
+            ? crypto.randomUUID()
+            : `${prefix}-${crypto.randomUUID()}`,
+      });
+      if (result === undefined) return;
+      if (result.status === 'ERROR') {
+        setMessage(result.message);
         return;
       }
-      if (editor.activeTool === 'NETWORK') {
-        if (activeNetworkId === undefined) {
-          setMessage(
-            'Aucun réseau actif : créez un réseau dans l’onglet Réseaux.',
-          );
-          return;
-        }
-        const point = points[points.length - 1]!;
-        const level = session.current.file.project.building.levels.find(
-          ({ id }) => id === activeLevelId,
-        );
-        const command = placeNodeCommand(
-          session.current.file.project,
-          activeNetworkId,
-          {
-            nodeId: `${activeNetworkId}:node-${crypto.randomUUID().slice(0, 8)}`,
-            kind: activeNodeKind,
-            // The node says which storey it belongs to, so moving that storey
-            // moves it too rather than leaving it at an elevation nobody edited.
-            ...(level === undefined ? {} : { levelId: level.id }),
-            position: {
-              x: point.x,
-              y: point.y,
-              z: level?.elevationMm ?? 0,
-            },
-          },
-        );
-        if (command.status === 'ERROR') {
-          setMessage(command.message);
-          return;
-        }
-        runCommand(command.command);
-        return;
-      }
-      if (editor.activeTool === 'DIMENSION') {
-        const command = addDimensionCommand(
-          session.current.file,
-          activeLevelId,
-          points,
-          { dimensionType },
-          `dimension-${crypto.randomUUID()}`,
-        );
-        if (command.status === 'ERROR') {
-          setMessage(command.message);
-          return;
-        }
-        runCommand(command.command);
-        return;
-      }
-      if (editor.activeTool === 'OPENING') {
-        const command = addOpeningCommand(
-          session.current.file,
-          activeLevelId,
-          points[points.length - 1]!,
-          openingDraft,
-          `opening-${crypto.randomUUID()}`,
-        );
-        if (command.status === 'ERROR') {
-          setMessage(command.message);
-          return;
-        }
-        runCommand(command.command);
-      }
+      runCommand(result.command);
     },
     [
       activeLevelId,

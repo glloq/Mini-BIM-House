@@ -255,14 +255,25 @@ function wallEdits(
  * The toolbar creates; the inspector modifies. An object with nothing editable
  * returns an empty list rather than a disabled form.
  */
-export function editsFor(
+
+/** Les propriétés modifiables d’un mur, ou rien si l’identifiant n’en désigne pas un. */
+export function wallEditsFor(
   project: Project,
   objectId: string,
-): readonly InspectorEdit[] {
+): readonly InspectorEdit[] | undefined {
   for (const level of project.building.levels) {
     const wall = level.walls.find(({ id }) => id === objectId);
     if (wall !== undefined) return wallEdits(project, level, wall);
+  }
+  return undefined;
+}
 
+/** Les propriétés modifiables d’une ouverture. */
+export function openingEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
     const opening = level.openings.find(({ id }) => id === objectId);
     if (opening !== undefined)
       return [
@@ -304,7 +315,16 @@ export function editsFor(
           },
         })),
       ];
+  }
+  return undefined;
+}
 
+/** Les propriétés modifiables d’une pièce. */
+export function spaceEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
     const space = level.spaces.find(({ id }) => id === objectId);
     if (space !== undefined)
       return [
@@ -327,7 +347,16 @@ export function editsFor(
             new UpdateSpaceCommand(level.id, space.id, { category: value }),
         },
       ];
+  }
+  return undefined;
+}
 
+/** Les propriétés modifiables d’une dalle. */
+export function slabEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
     const slab = level.slabs.find(({ id }) => id === objectId);
     if (slab !== undefined)
       return [
@@ -374,7 +403,16 @@ export function editsFor(
           },
         },
       ];
+  }
+  return undefined;
+}
 
+/** Les propriétés modifiables d’un pan de toiture. */
+export function roofEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
     const roof = level.roofs.find(({ id }) => id === objectId);
     if (roof !== undefined)
       return [
@@ -424,7 +462,16 @@ export function editsFor(
           },
         },
       ];
+  }
+  return undefined;
+}
 
+/** Les propriétés modifiables d’une cote. */
+export function dimensionEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
     const dimension = level.annotations.find(({ id }) => id === objectId);
     if (dimension !== undefined && isDimension(dimension))
       return [
@@ -475,7 +522,14 @@ export function editsFor(
         },
       ];
   }
+  return undefined;
+}
 
+/** Les propriétés modifiables d’un nœud de réseau. */
+export function networkNodeEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
   for (const network of project.systems ?? []) {
     const node = network.nodes.find(({ id }) => id === objectId);
     if (node === undefined) continue;
@@ -522,6 +576,5 @@ export function editsFor(
       })),
     ];
   }
-
-  return [];
+  return undefined;
 }

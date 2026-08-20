@@ -38,7 +38,7 @@ export interface InspectorSubject {
 const metres = (millimetres: number): string =>
   `${(millimetres / 1000).toFixed(2)} m`;
 
-function field(
+export function field(
   label: string,
   value: string | number | undefined,
   hint?: string,
@@ -50,7 +50,7 @@ function field(
   };
 }
 
-function wallSubject(
+export function wallSubject(
   project: Project,
   objectId: string,
 ): InspectorSubject | undefined {
@@ -169,7 +169,7 @@ function wallSubject(
   return undefined;
 }
 
-function openingSubject(
+export function openingSubject(
   project: Project,
   objectId: string,
 ): InspectorSubject | undefined {
@@ -212,7 +212,7 @@ function openingSubject(
   return undefined;
 }
 
-function spaceSubject(
+export function spaceSubject(
   project: Project,
   objectId: string,
 ): InspectorSubject | undefined {
@@ -298,7 +298,7 @@ function spaceSubject(
   return undefined;
 }
 
-function networkSubject(
+export function networkSubject(
   project: Project,
   objectId: string,
 ): InspectorSubject | undefined {
@@ -412,7 +412,7 @@ function networkSubject(
   return undefined;
 }
 
-function buildingElementSubject(
+export function buildingElementSubject(
   project: Project,
   objectId: string,
 ): InspectorSubject | undefined {
@@ -481,7 +481,7 @@ const DIMENSION_TYPE_LABELS: Readonly<Record<string, string>> = {
   VERTICAL: 'Verticale',
 };
 
-function dimensionSubject(
+export function dimensionSubject(
   project: Project,
   objectId: string,
 ): InspectorSubject | undefined {
@@ -532,40 +532,4 @@ function dimensionSubject(
     };
   }
   return undefined;
-}
-
-/**
- * Describes the selected object for the inspector.
- *
- * Every value is derived on read: the inspector shows facts and what follows
- * from them, and says plainly when the model does not carry a value.
- */
-export function inspectObject(
-  project: Project,
-  objectId: string,
-): InspectorSubject {
-  return (
-    wallSubject(project, objectId) ??
-    openingSubject(project, objectId) ??
-    spaceSubject(project, objectId) ??
-    buildingElementSubject(project, objectId) ??
-    networkSubject(project, objectId) ??
-    dimensionSubject(project, objectId) ?? {
-      objectId,
-      kind: 'UNKNOWN',
-      title: objectId,
-      sections: [
-        {
-          title: 'Références',
-          fields: [
-            field(
-              'Identifiant',
-              objectId,
-              'Cet objet n’a pas été retrouvé dans le projet.',
-            ),
-          ],
-        },
-      ],
-    }
-  );
 }
