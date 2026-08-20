@@ -4,35 +4,47 @@ Ce fichier ne raconte pas l'histoire du projet : il dit où en est la version
 `0.2.0-beta.1` aujourd'hui. L'historique des passes d'audit et de leurs
 correctifs reste dans `IMPLEMENTATION_STATUS.md`.
 
-Statuts employés : **FAIT**, **BLOQUANT** (la bêta ne sort pas sans),
-**REQUIS** (attendu dans la bêta), **RECOMMANDÉ**, **REPORTÉ** (hors bêta,
-assumé).
+Statuts employés : **FAIT**, **PARTIEL** (ce qui manque est nommé),
+**BLOQUANT** (la bêta ne sort pas sans), **REQUIS** (attendu dans la bêta),
+**RECOMMANDÉ**, **REPORTÉ** (hors bêta, assumé).
 
-Un sixième audit a rouvert partiellement certaines portes : ce tableau reflète
-son verdict, pas l'optimisme de la passe précédente.
+Un sixième audit a rouvert plusieurs portes que la passe précédente donnait pour
+closes : course d'écriture de la sauvegarde locale, climat absent de
+l'instantané, racine de réseau imposée à toutes les disciplines, gaine
+rectangulaire inutilisable, hypothèses silencieuses, conteneur trop permissif,
+altitude des nœuds de réseau. Les lots A, B et C les referment ; ce tableau dit
+où en est chacune aujourd'hui, et ce qu'il reste dans celles qui ne sont pas
+entièrement closes.
 
 ## Les portes de la bêta
 
-| Porte   | Ce qu'elle exige                                                    | État   |
-| ------- | ------------------------------------------------------------------- | ------ |
-| BETA-01 | aucun résultat de calcul périmé présenté comme actuel               | FAIT   |
-| BETA-02 | plusieurs réseaux d'une même discipline correctement pris en compte | FAIT   |
-| BETA-03 | scénarios fondés sur des identités stables                          | FAIT   |
-| BETA-04 | impossible de promouvoir un scénario structurellement invalide      | FAIT   |
-| BETA-05 | références inter-niveaux et import strictement validés              | FAIT   |
-| BETA-06 | réseaux dotés de propriétés physiques éditables                     | FAIT   |
-| BETA-07 | module électrique existant intégré au pipeline projet               | FAIT   |
-| BETA-08 | duplication et déplacement de niveau sans incohérence d'altitude    | FAIT   |
-| BETA-09 | aucune perte silencieuse d'objets que l'éditeur ne sait pas éditer  | FAIT   |
-| BETA-10 | projet et climat transportables ensemble                            | FAIT   |
-| BETA-11 | sauvegarde automatique dimensionnée pour de vrais projets           | FAIT   |
-| BETA-12 | export impossible à casser silencieusement                          | FAIT   |
-| BETA-13 | mur modifiable après création (extrémités, déplacement, longueur)   | FAIT   |
-| BETA-14 | ouverture déplaçable et redimensionnable                            | FAIT   |
-| BETA-15 | dalles et toitures éditables géométriquement                        | FAIT   |
-| BETA-16 | intégration continue Chromium, Firefox et WebKit                    | REQUIS |
-| BETA-17 | GitHub Pages réellement accessible et vérifié après déploiement     | REQUIS |
-| BETA-18 | migrations et versions figées pour les premiers utilisateurs        | REQUIS |
+| Porte   | Ce qu'elle exige                                                    | État    |
+| ------- | ------------------------------------------------------------------- | ------- |
+| BETA-01 | aucun résultat de calcul périmé présenté comme actuel               | FAIT    |
+| BETA-02 | plusieurs réseaux d'une même discipline correctement pris en compte | FAIT    |
+| BETA-03 | scénarios fondés sur des identités stables                          | FAIT    |
+| BETA-04 | impossible de promouvoir un scénario structurellement invalide      | FAIT    |
+| BETA-05 | références inter-niveaux et import strictement validés              | PARTIEL |
+| BETA-06 | réseaux dotés de propriétés physiques éditables                     | FAIT    |
+| BETA-07 | module électrique existant intégré au pipeline projet               | FAIT    |
+| BETA-08 | duplication et déplacement de niveau sans incohérence d'altitude    | FAIT    |
+| BETA-09 | aucune perte silencieuse d'objets que l'éditeur ne sait pas éditer  | FAIT    |
+| BETA-10 | projet et climat transportables ensemble                            | FAIT    |
+| BETA-11 | sauvegarde automatique dimensionnée pour de vrais projets           | FAIT    |
+| BETA-12 | export impossible à casser silencieusement                          | FAIT    |
+| BETA-13 | mur modifiable après création (extrémités, déplacement, longueur)   | FAIT    |
+| BETA-14 | ouverture déplaçable et redimensionnable                            | FAIT    |
+| BETA-15 | dalles et toitures éditables géométriquement                        | FAIT    |
+| BETA-16 | intégration continue Chromium, Firefox et WebKit                    | REQUIS  |
+| BETA-17 | GitHub Pages réellement accessible et vérifié après déploiement     | REQUIS  |
+| BETA-18 | migrations et versions figées pour les premiers utilisateurs        | REQUIS  |
+
+**BETA-05** : les appartenances de niveau, les références d'assemblage, de
+matériau, de pièce, d'équipement et de port sont vérifiées, ainsi que les
+identifiants dupliqués des familles principales. Restent à couvrir les
+`spaceIds` des zones, le `wallId` des cotes, le `hostObjectId` des nœuds de
+réseau, et une décision explicite sur l'unicité des identifiants — par
+collection ou dans tout le projet.
 
 ## Attendu dans la bêta, hors portes
 
