@@ -58,6 +58,17 @@ export type InspectorControl =
  */
 export interface InspectorEdit {
   readonly id: string;
+  /**
+   * What this property is, across families.
+   *
+   * A wall and a slab both have a `role`, and they are not the same role: one
+   * takes EXTERIOR or PARTITION, the other FLOOR or TERRACE. Editing several
+   * objects at once compares this rather than the field name, so a selection of
+   * both is never offered a single menu that would write nonsense into one of
+   * them. Two families may share a meaning on purpose — that is what giving
+   * them the same value here says.
+   */
+  readonly semanticId: string;
   readonly label: string;
   readonly control: InspectorControl;
   readonly hint?: string;
@@ -132,6 +143,7 @@ function straightWallEdits(level: Level, wall: Wall): readonly InspectorEdit[] {
   return [
     {
       id: 'lengthMm',
+      semanticId: 'wall.lengthMm',
       label: 'Longueur',
       control: {
         kind: 'NUMBER',
@@ -150,6 +162,7 @@ function straightWallEdits(level: Level, wall: Wall): readonly InspectorEdit[] {
     },
     {
       id: 'angleDeg',
+      semanticId: 'wall.angleDeg',
       label: 'Angle',
       control: {
         kind: 'NUMBER',
@@ -175,6 +188,7 @@ function wallEdits(
     ...straightWallEdits(level, wall),
     {
       id: 'assemblyId',
+      semanticId: 'wall.assemblyId',
       label: 'Assemblage',
       control: {
         kind: 'SELECT',
@@ -186,6 +200,7 @@ function wallEdits(
     },
     {
       id: 'role',
+      semanticId: 'wall.role',
       label: 'Rôle',
       control: {
         kind: 'SELECT',
@@ -200,6 +215,7 @@ function wallEdits(
     },
     {
       id: 'referenceSide',
+      semanticId: 'wall.referenceSide',
       label: 'Face de référence',
       control: {
         kind: 'SELECT',
@@ -213,6 +229,7 @@ function wallEdits(
     },
     {
       id: 'baseOffsetMm',
+      semanticId: 'wall.baseOffsetMm',
       label: 'Décalage en pied',
       control: {
         kind: 'NUMBER',
@@ -231,6 +248,7 @@ function wallEdits(
   if (wall.heightMode === 'EXPLICIT')
     edits.push({
       id: 'heightMm',
+      semanticId: 'wall.heightMm',
       label: 'Hauteur',
       control: {
         kind: 'NUMBER',
@@ -279,6 +297,7 @@ export function openingEditsFor(
       return [
         {
           id: 'openingType',
+          semanticId: 'opening.openingType',
           label: 'Type',
           control: {
             kind: 'SELECT',
@@ -303,6 +322,7 @@ export function openingEditsFor(
           ] as const
         ).map(([field, label, value]) => ({
           id: field,
+          semanticId: `opening.${field}`,
           label,
           control: { kind: 'NUMBER' as const, value, unit: 'mm', step: 10 },
           apply: (next: string) => {
@@ -330,6 +350,7 @@ export function spaceEditsFor(
       return [
         {
           id: 'name',
+          semanticId: 'space.name',
           label: 'Nom',
           control: { kind: 'TEXT', value: space.name },
           apply: (value) =>
@@ -337,6 +358,7 @@ export function spaceEditsFor(
         },
         {
           id: 'category',
+          semanticId: 'space.category',
           label: 'Usage',
           control: {
             kind: 'SELECT',
@@ -362,6 +384,7 @@ export function slabEditsFor(
       return [
         {
           id: 'assemblyId',
+          semanticId: 'slab.assemblyId',
           label: 'Assemblage',
           control: {
             kind: 'SELECT',
@@ -373,6 +396,7 @@ export function slabEditsFor(
         },
         {
           id: 'role',
+          semanticId: 'slab.role',
           label: 'Rôle',
           control: {
             kind: 'SELECT',
@@ -386,6 +410,7 @@ export function slabEditsFor(
         },
         {
           id: 'elevationOffsetMm',
+          semanticId: 'slab.elevationOffsetMm',
           label: 'Décalage',
           control: {
             kind: 'NUMBER',
@@ -418,6 +443,7 @@ export function roofEditsFor(
       return [
         {
           id: 'assemblyId',
+          semanticId: 'roof.assemblyId',
           label: 'Assemblage',
           control: {
             kind: 'SELECT',
@@ -429,6 +455,7 @@ export function roofEditsFor(
         },
         {
           id: 'slopeDeg',
+          semanticId: 'roof.slopeDeg',
           label: 'Pente',
           control: {
             kind: 'NUMBER',
@@ -446,6 +473,7 @@ export function roofEditsFor(
         },
         {
           id: 'azimuthDeg',
+          semanticId: 'roof.azimuthDeg',
           label: 'Azimut',
           control: {
             kind: 'NUMBER',
@@ -477,6 +505,7 @@ export function dimensionEditsFor(
       return [
         {
           id: 'type',
+          semanticId: 'dimension.type',
           label: 'Type',
           control: {
             kind: 'SELECT',
@@ -490,6 +519,7 @@ export function dimensionEditsFor(
         },
         {
           id: 'offsetMm',
+          semanticId: 'dimension.offsetMm',
           label: 'Décalage',
           control: {
             kind: 'NUMBER',
@@ -508,6 +538,7 @@ export function dimensionEditsFor(
         },
         {
           id: 'overrideText',
+          semanticId: 'networkNode.overrideText',
           label: 'Texte imposé',
           control: {
             kind: 'TEXT',
@@ -539,6 +570,7 @@ export function networkNodeEditsFor(
     return [
       {
         id: 'spaceId',
+        semanticId: 'networkNode.spaceId',
         label: 'Pièce desservie',
         control: {
           kind: 'SELECT',
@@ -558,6 +590,7 @@ export function networkNodeEditsFor(
         ] as const
       ).map(([axis, label]) => ({
         id: `position-${axis}`,
+        semanticId: `networkNode.position.${axis}`,
         label,
         control: {
           kind: 'NUMBER' as const,

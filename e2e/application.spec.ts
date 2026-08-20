@@ -724,6 +724,8 @@ test('changes a property of several objects in one go', async ({ page }) => {
   // One decision, one undo: both walls go back together.
   await canvas.click({ position: await along('wall-partition-v', 0.5, 0.2) });
   await expect(page.getByLabel('Rôle')).toHaveValue('EXTERIOR');
+  // One decision, one undo: clicking a member of the selection beforehand
+  // selects it and writes nothing.
   await page.getByRole('button', { name: 'Annuler', exact: true }).click();
   await expect(page.getByLabel('Rôle')).toHaveValue('INTERIOR');
   expect(errors).toEqual([]);

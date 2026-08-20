@@ -7,6 +7,7 @@ import {
   editsFor,
   gripsFor,
   inspectObject,
+  removalCommandFor,
   sharedEditsFor,
 } from './object-editors.js';
 
@@ -135,11 +136,92 @@ describe('editing several objects at once', () => {
     ).toEqual(['EXTERIOR', 'EXTERIOR']);
   });
 
+  it('refuses to treat two different meanings as one property', () => {
+    // A wall's role is EXTERIOR or PARTITION; a slab's is FLOOR or TERRACE.
+    // They share a field name and nothing else.
+    const shared = sharedEditsFor(demo(), ['wall-south', 'slab-ground']);
+    expect(shared.map(({ id }) => id)).not.toContain('role');
+    expect(shared.map(({ semanticId }) => semanticId)).not.toContain(
+      'wall.role',
+    );
+  });
+
+  it('refuses two menus that offer different choices', () => {
+    // A wall assembly and a roof assembly are both called `assemblyId` and
+    // never propose the same build-ups.
+    const shared = sharedEditsFor(demo(), ['wall-south', 'roof-south']);
+    expect(shared.map(({ id }) => id)).not.toContain('assemblyId');
+  });
+
+  it('still offers a property two objects of one family share', () => {
+    const shared = sharedEditsFor(demo(), ['wall-south', 'wall-north']);
+    expect(shared.map(({ semanticId }) => semanticId)).toContain('wall.role');
+  });
+
   it('offers nothing when the selection has no property in common', () => {
     expect(sharedEditsFor(demo(), ['wall-south', 'space-living'])).toEqual([]);
   });
 
   it('offers nothing for a selection of one', () => {
     expect(sharedEditsFor(demo(), ['wall-south'])).toEqual([]);
+  });
+});
+
+describe('taking an object back off the plan', () => {
+  it('deletes every family the plan lets the user select', () => {
+    // Selecting, inspecting, editing and deleting are four questions about the
+    // same object: a slab that could be dragged and not deleted was an object
+    // the plan offered and could not take back.
+    const project = demo();
+    for (const [objectId] of SUBJECTS) {
+      if (objectId === 'water:branch-sink') continue;
+      expect(
+        removalCommandFor(project, 'ground', objectId),
+        objectId,
+      ).toBeDefined();
+    }
+  });
+
+  it('applies those deletions on objects nothing else depends on', () => {
+    for (const objectId of [
+      'wall-partition-v',
+      'opening-entry',
+      'slab-ground',
+      'roof-south',
+      'water:sink',
+    ]) {
+      const project = demo();
+      const command = removalCommandFor(project, 'ground', objectId)!;
+      const dispatcher = new ProjectCommandDispatcher(project);
+      expect(dispatcher.dispatch(command).status, objectId).toBe('APPLIED');
+    }
+  });
+
+  it('lets the domain refuse what something else still holds', () => {
+    // Every room of the reference house belongs to the heated zone; deleting
+    // one would leave the zone naming a room that no longer exists.
+    const project = demo();
+    const room = removalCommandFor(project, 'ground', 'space-living')!;
+    const dispatcher = new ProjectCommandDispatcher(project);
+    const refused = dispatcher.dispatch(room);
+    expect(refused.status).toBe('REJECTED');
+    if (refused.status !== 'REJECTED') return;
+    expect(refused.errors.join(' ')).toContain('zone');
+  });
+
+  it('lets the domain refuse a wall something still hangs on', () => {
+    // The refusal belongs to the domain, and it is the right answer: an
+    // opening whose wall is gone is not an opening.
+    const project = demo();
+    const command = removalCommandFor(project, 'ground', 'wall-south')!;
+    const dispatcher = new ProjectCommandDispatcher(project);
+    const result = dispatcher.dispatch(command);
+    expect(result.status).toBe('REJECTED');
+    if (result.status !== 'REJECTED') return;
+    expect(result.errors.join(' ')).toContain('opening');
+  });
+
+  it('says nothing about an object it cannot take back', () => {
+    expect(removalCommandFor(demo(), 'ground', 'nowhere')).toBeUndefined();
   });
 });

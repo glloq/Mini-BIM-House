@@ -101,6 +101,18 @@ export interface EditorToolDefinition {
    * pull it off the corner the user aimed at.
    */
   readonly constrainsDrafting?: boolean;
+  /**
+   * Whether the length and the angle can be typed while this tool drafts.
+   *
+   * A wall is drawn by saying how long and how steep; turning a selection is
+   * three clicks and no number, and offering fields there would invite the user
+   * to type into something nobody reads. A tool says what it accepts rather
+   * than the canvas deciding for all of them.
+   */
+  readonly dynamicInput?: {
+    readonly length: boolean;
+    readonly angle: boolean;
+  };
   /** The command the collected clicks produce, when the tool produces one. */
   readonly createCommand?: (
     context: ToolCommandContext,
@@ -131,6 +143,7 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.wall',
     requiredPoints: 2,
     constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
     createCommand: (context) =>
       addWallCommand(
         context.file,
@@ -304,6 +317,8 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.mirror',
     requiredPoints: 2,
     constrainsDrafting: true,
+    // The axis has a direction that matters and a length that does not.
+    dynamicInput: { length: false, angle: true },
     createCommand: (context) => {
       const [from, to] = context.points;
       if (from === undefined || to === undefined)
@@ -397,6 +412,13 @@ export function populatedToolGroups(): readonly ToolGroup[] {
     'ANNOTATION',
   ];
   return order.filter((group) => toolsInGroup(group).length > 0);
+}
+
+/** What the tool accepts being typed while it drafts, if anything. */
+export function dynamicInputOf(
+  tool: EditorTool,
+): { readonly length: boolean; readonly angle: boolean } | undefined {
+  return toolDefinition(tool).dynamicInput;
 }
 
 /** Number of points a tool needs before it can produce a command. */

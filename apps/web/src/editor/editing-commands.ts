@@ -15,16 +15,12 @@ import {
   AddRoofCommand,
   AddSlabCommand,
   AddWallCommand,
-  DeleteDimensionCommand,
-  DeleteOpeningCommand,
-  DeleteWallCommand,
   MoveWallCommand,
   MoveWallPointCommand,
   ProjectEditorCommand,
   ProjectTransactionCommand,
   SetWallPathCommand,
   SplitWallCommand,
-  TransactionCommand,
   UpdateNetworkNodeCommand,
   UpdateOpeningCommand,
   UpdateRoofCommand,
@@ -33,11 +29,11 @@ import {
   withInsertedVertex,
   withMovedVertex,
   withoutVertex,
-  type EditorCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import type { GeometryEdit } from './grips.js';
+import { removalCommandFor } from './object-editors.js';
 
 /** How far from a wall axis an opening may be dropped, in millimetres. */
 const MAXIMUM_HOST_DISTANCE_MM = 600;
@@ -272,28 +268,6 @@ function signedOffsetMm(
 }
 
 /** The editor command that deletes one object, whatever kind it is. */
-function deleteCommandFor(
-  level: NonNullable<ReturnType<typeof levelOf>>,
-  objectId: string,
-): EditorCommand | undefined {
-  if (level.annotations.some(({ id }) => id === objectId))
-    return new DeleteDimensionCommand(
-      `delete-dimension:${objectId}`,
-      dimensionId(objectId),
-    );
-  if (level.openings.some(({ id }) => id === objectId))
-    return new DeleteOpeningCommand(
-      `delete-opening:${objectId}`,
-      entityId<'Opening'>(objectId),
-    );
-  if (level.walls.some(({ id }) => id === objectId))
-    return new DeleteWallCommand(
-      `delete-wall:${objectId}`,
-      entityId<'Wall'>(objectId),
-    );
-  return undefined;
-}
-
 /**
  * Builds the single command that deletes everything the selection names.
  *
@@ -311,9 +285,11 @@ export function deleteObjectsCommand(
     return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
   if (objectIds.length === 0)
     return { status: 'ERROR', message: 'La sélection est vide.' };
-  const commands: EditorCommand[] = [];
+  const commands: ProjectCommand[] = [];
   for (const objectId of objectIds) {
-    const command = deleteCommandFor(level, objectId);
+    // Each family says how it is deleted, beside where it says how it is drawn
+    // and edited: nothing here knows what a slab or a network node is.
+    const command = removalCommandFor(file.project, level.id, objectId);
     if (command === undefined)
       return {
         status: 'ERROR',
@@ -324,21 +300,22 @@ export function deleteObjectsCommand(
   const id = `delete:${objectIds.join(',')}`;
   return {
     status: 'OK',
-    command: new ProjectEditorCommand(
-      id,
-      objectIds.length === 1
-        ? 'Supprimer un objet'
-        : `Supprimer ${objectIds.length} objets`,
-      level.id,
+    command:
       commands.length === 1
         ? commands[0]!
-        : new TransactionCommand(id, 'Supprimer la sélection', commands),
-    ),
+        : new ProjectTransactionCommand(
+            id,
+            `Supprimer ${objectIds.length} objets`,
+            commands,
+          ),
   };
 }
 
 /** A polygon carried elsewhere, holes included. */
-function translated(polygon: Polygon2D, delta: Point2D): Polygon2D {
+export function translatedPolygon(
+  polygon: Polygon2D,
+  delta: Point2D,
+): Polygon2D {
   const move = (point: Point2D): Point2D => ({
     x: point.x + delta.x,
     y: point.y + delta.y,
@@ -390,7 +367,7 @@ export function moveObjectsCommand(
     if (slab !== undefined) {
       commands.push(
         new UpdateSlabCommand(level.id, slab.id, {
-          polygon: translated(slab.polygon, deltaMm),
+          polygon: translatedPolygon(slab.polygon, deltaMm),
         }),
       );
       continue;
@@ -399,7 +376,7 @@ export function moveObjectsCommand(
     if (roof !== undefined) {
       commands.push(
         new UpdateRoofCommand(level.id, roof.id, {
-          footprint: translated(roof.footprint, deltaMm),
+          footprint: translatedPolygon(roof.footprint, deltaMm),
         }),
       );
       continue;
@@ -505,6 +482,48 @@ export function transformPoint(
   return { x: 2 * foot.x - point.x, y: 2 * foot.y - point.y };
 }
 
+/**
+ * Where a slope faces once the roof it belongs to has been turned or reflected.
+ *
+ * A roof plane is not only an outline: it points somewhere, and that bearing is
+ * what the sun calculations read. Turning the building without turning the
+ * bearing leaves a roof drawn to the east and calculated to the south, which is
+ * exactly the kind of silent inconsistency this project refuses.
+ *
+ * The bearing is carried as a direction rather than as a number so that a
+ * reflection can be applied to it: reflecting a direction is reflecting the two
+ * points it joins.
+ */
+export function transformedAzimuthDeg(
+  transform: PlanTransform,
+  azimuthDeg: number,
+): number {
+  const radians = (azimuthDeg * Math.PI) / 180;
+  const facing = { x: Math.cos(radians), y: Math.sin(radians) };
+  const origin = { x: 0, y: 0 };
+  const moved =
+    transform.kind === 'ROTATE'
+      ? transformPoint(
+          { kind: 'ROTATE', centre: origin, angleDeg: transform.angleDeg },
+          facing,
+        )
+      : // Only the direction of the axis matters to a direction, not where it
+        // sits: the reflection is taken about a parallel axis through zero.
+        transformPoint(
+          {
+            kind: 'MIRROR',
+            from: origin,
+            to: {
+              x: transform.to.x - transform.from.x,
+              y: transform.to.y - transform.from.y,
+            },
+          },
+          facing,
+        );
+  const turned = (Math.atan2(moved.y, moved.x) * 180) / Math.PI;
+  return ((turned % 360) + 360) % 360;
+}
+
 function transformedPolygon(
   polygon: Polygon2D,
   transform: PlanTransform,
@@ -570,6 +589,10 @@ export function transformObjectsCommand(
       commands.push(
         new UpdateRoofCommand(level.id, roof.id, {
           footprint: transformedPolygon(roof.footprint, transform),
+          // The plane faces somewhere, and that is what the sun is calculated
+          // against: an outline turned without its bearing would be drawn one
+          // way and computed another.
+          azimuthDeg: transformedAzimuthDeg(transform, roof.azimuthDeg),
         }),
       );
       continue;
@@ -625,6 +648,16 @@ export interface PlanClipboard {
   readonly openings: readonly Opening[];
   readonly slabs: readonly Slab[];
   readonly roofs: readonly RoofPlane[];
+  /**
+   * The storey the copy was taken from, and how high it sits.
+   *
+   * A copy is not only a shape: a roof plane knows its own altitude and a wall
+   * may be built up to a named storey. Pasted a floor higher, both have to be
+   * read against the storey they land on, or the copy keeps the altitude of the
+   * one it came from — right shape, wrong height, and nothing says so.
+   */
+  readonly sourceLevelId?: string;
+  readonly sourceElevationMm?: number;
 }
 
 /** Whether anything at all was copied. */
@@ -663,6 +696,41 @@ export function copyObjects(
     ),
     slabs: level.slabs.filter(({ id }) => chosen.has(id as string)),
     roofs: level.roofs.filter(({ id }) => chosen.has(id as string)),
+    sourceLevelId: level.id,
+    sourceElevationMm: level.elevationMm,
+  };
+}
+
+/**
+ * The storey a copied wall should now be built up to.
+ *
+ * A wall built up to the first floor, pasted on the first floor, must be built
+ * up to the second — not back down to where it came from. The storey at the
+ * same distance in the list is the one that means the same thing; when there is
+ * none above, the wall keeps an explicit height rather than pointing at a level
+ * that does not exist.
+ */
+function retargetedHeight(
+  project: Project,
+  wall: Wall,
+  sourceLevelId: string | undefined,
+  targetLevel: { readonly id: string; readonly defaultStoreyHeightMm: number },
+): Wall {
+  if (wall.heightMode !== 'TO_LEVEL') return wall;
+  const levels = project.building.levels;
+  const source = levels.findIndex(({ id }) => id === sourceLevelId);
+  const target = levels.findIndex(({ id }) => id === targetLevel.id);
+  const top = levels.findIndex(({ id }) => id === wall.topLevelId);
+  if (source === -1 || target === -1 || top === -1) return wall;
+  const shifted = levels[top + (target - source)];
+  if (shifted !== undefined) return { ...wall, topLevelId: shifted.id };
+  // Nothing that high in this project: the copy keeps a height it can state
+  // rather than a reference nobody can resolve.
+  const { topLevelId: _top, topOffsetMm: _offset, ...rest } = wall;
+  return {
+    ...rest,
+    heightMode: 'EXPLICIT',
+    heightMm: targetLevel.defaultStoreyHeightMm,
   };
 }
 
@@ -692,6 +760,13 @@ export function pasteClipboardCommand(
     x: point.x + deltaMm.x,
     y: point.y + deltaMm.y,
   });
+  // How far up the copy is going. Everything a copy knows about its own
+  // altitude is read against the storey it lands on rather than the one it was
+  // taken from.
+  const risenMm =
+    clipboard.sourceElevationMm === undefined
+      ? 0
+      : level.elevationMm - clipboard.sourceElevationMm;
 
   for (const wall of clipboard.walls) {
     const copyId = newId('wall');
@@ -703,7 +778,12 @@ export function pasteClipboardCommand(
         'Coller un mur',
         level.id,
         new AddWallCommand(`wall:paste:${copyId}`, {
-          ...wall,
+          ...retargetedHeight(
+            file.project,
+            wall,
+            clipboard.sourceLevelId,
+            level,
+          ),
           id: copyId as Wall['id'],
           levelId: level.id,
           path: { points: wall.path.points.map(carried) },
@@ -736,7 +816,7 @@ export function pasteClipboardCommand(
     commands.push(
       new AddSlabCommand(level.id, {
         id: copyId,
-        polygon: translated(slab.polygon, deltaMm),
+        polygon: translatedPolygon(slab.polygon, deltaMm),
         assemblyId: slab.assemblyId,
         role: slab.role,
         elevationOffsetMm: slab.elevationOffsetMm,
@@ -749,11 +829,13 @@ export function pasteClipboardCommand(
     commands.push(
       new AddRoofCommand(level.id, {
         id: copyId,
-        footprint: translated(roof.footprint, deltaMm),
+        footprint: translatedPolygon(roof.footprint, deltaMm),
         assemblyId: roof.assemblyId,
         slopeDeg: roof.slopeDeg,
         azimuthDeg: roof.azimuthDeg,
-        baseElevationMm: roof.baseElevationMm,
+        // The plane rises with the storey: pasted one floor up it sits one
+        // floor higher, not at the altitude of the floor it came from.
+        baseElevationMm: roof.baseElevationMm + risenMm,
       }),
     );
   }
@@ -1171,7 +1253,7 @@ export function duplicateObjectsCommand(
       commands.push(
         new AddSlabCommand(level.id, {
           id: copyId,
-          polygon: translated(slab.polygon, deltaMm),
+          polygon: translatedPolygon(slab.polygon, deltaMm),
           assemblyId: slab.assemblyId,
           role: slab.role,
           elevationOffsetMm: slab.elevationOffsetMm,
@@ -1186,7 +1268,7 @@ export function duplicateObjectsCommand(
       commands.push(
         new AddRoofCommand(level.id, {
           id: copyId,
-          footprint: translated(roof.footprint, deltaMm),
+          footprint: translatedPolygon(roof.footprint, deltaMm),
           assemblyId: roof.assemblyId,
           slopeDeg: roof.slopeDeg,
           azimuthDeg: roof.azimuthDeg,

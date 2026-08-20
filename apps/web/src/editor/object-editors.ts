@@ -22,6 +22,16 @@ import {
   type InspectorEdit,
 } from './inspector-edits.js';
 import { openingGrips, polygonGrips, wallGrips, type Grip } from './grips.js';
+import {
+  dimensionRemoval,
+  networkNodeRemoval,
+  openingRemoval,
+  roofRemoval,
+  slabRemoval,
+  spaceRemoval,
+  wallRemoval,
+  type RemovalProvider,
+} from './object-removal.js';
 
 /**
  * Everything the editor knows how to do with one family of objects.
@@ -56,6 +66,14 @@ export interface ObjectEditorDefinition {
     levelId: string | undefined,
     objectId: string,
   ) => readonly Grip[] | undefined;
+  /**
+   * How an object of this family is deleted.
+   *
+   * Selecting, inspecting, editing and deleting are four questions about the
+   * same object; the fourth used to be answered somewhere else, for three
+   * families out of seven.
+   */
+  readonly remove?: RemovalProvider;
 }
 
 /**
@@ -71,23 +89,27 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     inspect: wallSubject,
     edits: wallEditsFor,
     grips: wallGrips,
+    remove: wallRemoval,
   },
   {
     label: 'Ouverture',
     inspect: openingSubject,
     edits: openingEditsFor,
     grips: openingGrips,
+    remove: openingRemoval,
   },
   {
     label: 'Pièce',
     inspect: spaceSubject,
     edits: spaceEditsFor,
+    remove: spaceRemoval,
   },
   {
     label: 'Dalle',
     inspect: buildingElementSubject,
     edits: slabEditsFor,
     grips: polygonGrips,
+    remove: slabRemoval,
   },
   {
     label: 'Toiture',
@@ -97,16 +119,19 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     inspect: buildingElementSubject,
     edits: roofEditsFor,
     grips: polygonGrips,
+    remove: roofRemoval,
   },
   {
     label: 'Réseau',
     inspect: networkSubject,
     edits: networkNodeEditsFor,
+    remove: networkNodeRemoval,
   },
   {
     label: 'Cote',
     inspect: dimensionSubject,
     edits: dimensionEditsFor,
+    remove: dimensionRemoval,
   },
 ];
 
@@ -186,6 +211,8 @@ export function gripsFor(
  */
 export interface SharedEdit {
   readonly id: string;
+  /** What the property means, which is what made it shareable. */
+  readonly semanticId: string;
   readonly label: string;
   readonly control: InspectorEdit['control'];
   readonly hint?: string;
@@ -193,6 +220,25 @@ export interface SharedEdit {
   readonly uniform: boolean;
   /** The command applying one value to all of them, as a single history entry. */
   readonly apply: (value: string) => ProjectCommand | undefined;
+}
+
+/**
+ * Whether two menus offer the same choices.
+ *
+ * Counting them was not enough: two lists of four assemblies can be four
+ * different assemblies, and applying one to the other would set a wall to a
+ * floor build-up.
+ */
+function sameChoices(
+  first: InspectorEdit['control'],
+  second: InspectorEdit['control'],
+): boolean {
+  if (first.kind !== 'SELECT' || second.kind !== 'SELECT') return true;
+  const values = (control: typeof first) =>
+    control.kind === 'SELECT'
+      ? control.options.map(({ value }) => value).join('\u0000')
+      : '';
+  return values(first) === values(second);
 }
 
 /**
@@ -219,21 +265,22 @@ export function sharedEditsFor(
     const matches = rest.map(({ edits }) =>
       edits.find(
         (edit) =>
-          edit.id === candidate.id &&
-          edit.control.kind === candidate.control.kind,
+          // The meaning is what has to match, not the field name: a wall and a
+          // slab both have a `role`, and writing one into the other would write
+          // nonsense.
+          edit.semanticId === candidate.semanticId &&
+          edit.control.kind === candidate.control.kind &&
+          sameChoices(edit.control, candidate.control),
       ),
     );
     if (matches.some((match) => match === undefined)) continue;
     const others = matches as readonly InspectorEdit[];
     const uniform = others.every(
-      (edit) =>
-        String(edit.control.value) === String(candidate.control.value) &&
-        (edit.control.kind !== 'SELECT' ||
-          candidate.control.kind !== 'SELECT' ||
-          edit.control.options.length === candidate.control.options.length),
+      (edit) => String(edit.control.value) === String(candidate.control.value),
     );
     shared.push({
       id: candidate.id,
+      semanticId: candidate.semanticId,
       label: candidate.label,
       control: candidate.control,
       ...(candidate.hint === undefined ? {} : { hint: candidate.hint }),
@@ -256,4 +303,23 @@ export function sharedEditsFor(
     });
   }
   return shared;
+}
+
+/**
+ * The command that deletes one object, whichever family it belongs to.
+ *
+ * Nothing is returned for an object no family can take back — an equipment
+ * definition, an object of another storey — and the caller says so rather than
+ * deleting something else.
+ */
+export function removalCommandFor(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): ProjectCommand | undefined {
+  for (const editor of OBJECT_EDITORS) {
+    const command = editor.remove?.(project, levelId, objectId);
+    if (command !== undefined) return command;
+  }
+  return undefined;
 }

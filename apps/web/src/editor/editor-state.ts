@@ -16,7 +16,11 @@ import {
   presetVisibility,
 } from '@house-technical-designer/view-query';
 
-import { requiredPoints, type EditorTool } from './tool-registry.js';
+import {
+  constrainsDrafting,
+  requiredPoints,
+  type EditorTool,
+} from './tool-registry.js';
 
 // The tools themselves are declared in the registry; the state only needs to
 // know which one is active and how many points it is still waiting for.
@@ -236,6 +240,33 @@ export function constrainPoint(
     x: origin.x + Math.cos(radians) * lengthMm,
     y: origin.y + Math.sin(radians) * lengthMm,
   };
+}
+
+/**
+ * The point a click, a typed length or a preview all mean.
+ *
+ * There used to be three readings of the same gesture: the click applied the
+ * constraints only for the tools that ask for them, the preview applied them to
+ * every tool, and the dynamic input applied them again on its own. A drawing
+ * where the ghost is not what lands is a drawing nobody can trust, so the three
+ * now ask this one question.
+ */
+export function resolveDraftPoint(options: {
+  readonly tool: EditorTool;
+  readonly pendingPoints: readonly Point2D[];
+  /** Where the pointer is, in model millimetres. */
+  readonly raw: Point2D;
+  /** What the pointer snapped to, when it snapped to something. */
+  readonly snapped?: Point2D;
+  readonly snap: SnapSettings;
+  readonly directInput: DirectInput;
+}): Point2D {
+  const base = options.snapped ?? options.raw;
+  const origin = options.pendingPoints[options.pendingPoints.length - 1];
+  // Nothing to constrain against, or a tool that points at what exists rather
+  // than drawing along the building axes.
+  if (origin === undefined || !constrainsDrafting(options.tool)) return base;
+  return constrainPoint(origin, base, options.snap, options.directInput);
 }
 
 export function editorReducer(

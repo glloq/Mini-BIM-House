@@ -950,6 +950,56 @@ déplacer, copier, pivoter, miroir, décaler, scinder en un point choisi, joindr
 complète, la toiture, l'escalier, les composants placés et l'édition graphique
 des réseaux.
 
+## Stabilisation de l'éditeur — lot A du neuvième audit
+
+Un audit consacré aux nouvelles primitives CAO a relevé neuf défauts nés de la
+passe précédente. Les corriger avant d'ajouter des familles d'objets était sa
+recommandation ; c'est ce lot.
+
+- **Une seule lecture d'un point.** Le clic, l'aperçu et la valeur tapée
+  interprétaient le même geste de trois façons : le clic n'appliquait les
+  contraintes qu'aux outils qui les demandent, l'aperçu les appliquait à tous.
+  Un fantôme qui n'est pas ce qui se pose est un dessin auquel on ne peut pas
+  se fier ; les trois passent désormais par la même fonction.
+- **Saisie dynamique selon le contrat de l'outil.** Un outil déclare s'il lit
+  une longueur et un angle. Pivoter demande trois clics et aucun nombre : lui
+  offrir des champs invitait à taper dans quelque chose que personne ne lit. Un
+  test refuse qu'un outil accepte une valeur qu'il ignorerait ensuite.
+- **Déplacement sans retard d'une image.** Le glissement lisait l'accrochage du
+  rendu précédent et le lâcher relisait l'état ; les deux prennent maintenant
+  l'accroche de l'événement en cours, et le point final est recalculé au
+  relâchement.
+- **Azimut de toiture transformé.** Un pan de toiture ne se contente pas d'une
+  empreinte : il regarde quelque part, et c'est cette direction que lisent les
+  calculs solaires. Faire pivoter le bâtiment sans faire pivoter l'azimut
+  laissait un toit dessiné à l'est et calculé au sud.
+- **Coller garde un sens vertical.** Le presse-papiers retient le niveau
+  d'origine et son altitude ; un pan de toiture collé un étage plus haut monte
+  d'autant, et un mur monté « jusqu'au niveau » vise le niveau qui veut dire la
+  même chose au-dessus de celui où il atterrit — ou reprend une hauteur
+  explicite lorsqu'aucun niveau n'est assez haut, plutôt qu'une référence que
+  personne ne peut résoudre.
+- **Suppression universelle.** Sélectionner, inspecter, modifier et supprimer
+  sont quatre questions sur le même objet ; la quatrième n'était répondue que
+  pour trois familles sur sept. Chaque famille dit maintenant comment elle se
+  supprime, à côté de la façon dont elle se dessine et s'édite — et le domaine
+  reste libre de refuser un mur qui porte encore une ouverture.
+- **Modification multiple sémantique.** Un mur et une dalle ont tous deux un
+  « rôle », et ce n'est pas le même : l'un accepte EXTÉRIEUR, l'autre PLANCHER.
+  Les propriétés se comparent désormais par leur sens et par les choix qu'elles
+  offrent, pas par leur nom ni par le nombre d'options.
+- **Fantôme et résultat indissociables.** Le déplacement d'un contour à trous
+  passe par la fonction même qu'emploie la commande : une trémie oubliée par
+  l'aperçu et emportée par la modification ne peut plus arriver.
+- **npm épinglé en intégration continue.** Le dépôt annonce `npm@11.4.2` ;
+  sans Corepack, le runner employait l'npm qu'il embarque et cette promesse ne
+  voulait rien dire.
+
+Le déploiement Pages du `main` de la PR #20 a de nouveau échoué, et la cause
+est maintenant nommée dans `BETA_READINESS.md` : l'application se construit,
+puis `configure-pages` reçoit « Resource not accessible by integration ». C'est
+un réglage du dépôt, pas un défaut du code.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans

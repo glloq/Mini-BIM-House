@@ -26,12 +26,13 @@ import { DynamicInput } from './DynamicInput.js';
 import { TemporaryDimensions } from './TemporaryDimensions.js';
 import { TEMPORARY_EDIT_IDS } from './temporary-edits.js';
 import { draftedMeasures } from './typed-values.js';
+import { carriedGeometry } from './ghost-geometry.js';
 import {
-  constrainPoint,
-  constrainsDrafting,
+  resolveDraftPoint,
   pointerModelPoint,
   requiredPoints,
 } from './editor-state.js';
+import { dynamicInputOf } from './tool-registry.js';
 
 /** What a handle does, said out loud for anyone not looking at the screen. */
 function gripLabel(grip: Grip): string {
@@ -118,9 +119,23 @@ export function PlanCanvas({
   const dragging = useRef<
     { readonly grip: Grip; readonly from: { x: number; y: number } } | undefined
   >(undefined);
-  /** The selection being dragged, and how far it has travelled so far. */
+  /**
+   * The selection being dragged, where it started and where it stands.
+   *
+   * The travelled distance is kept here as well as in the state: the state is
+   * what the ghost is drawn from, and the reference is what the drop is
+   * computed from. Reading the state on release would use the value of the
+   * previous render, and drop the selection a frame behind the pointer.
+   */
   const moving = useRef<
-    { readonly from: { x: number; y: number } } | undefined
+    | {
+        readonly from: { x: number; y: number };
+        /** Where the press happened on the screen, to tell a click from a drag. */
+        readonly fromClient: { x: number; y: number };
+        readonly objectId: string;
+        delta: { readonly x: number; readonly y: number };
+      }
+    | undefined
   >(undefined);
   const [moveDelta, setMoveDelta] = useState<
     { readonly x: number; readonly y: number } | undefined
@@ -173,12 +188,16 @@ export function PlanCanvas({
     if (editor.pendingPoints.length === 0 || editor.cursorModel === undefined)
       return band;
     const origin = editor.pendingPoints[editor.pendingPoints.length - 1]!;
-    const target = constrainPoint(
-      origin,
-      editor.activeSnap?.point ?? editor.cursorModel,
-      editor.snap,
-      editor.directInput,
-    );
+    const target = resolveDraftPoint({
+      tool: editor.activeTool,
+      pendingPoints: editor.pendingPoints,
+      raw: editor.cursorModel,
+      ...(editor.activeSnap === undefined
+        ? {}
+        : { snapped: editor.activeSnap.point }),
+      snap: editor.snap,
+      directInput: editor.directInput,
+    });
     const footprint =
       editor.activeTool === 'WALL'
         ? previewWallFaces([origin, target], wallThicknessMm)
@@ -264,10 +283,6 @@ export function PlanCanvas({
    */
   const ghost = useMemo<readonly ScenePrimitive[]>(() => {
     if (moveDelta === undefined) return [];
-    const carried = (point: { x: number; y: number }) => ({
-      x: point.x + moveDelta.x,
-      y: point.y + moveDelta.y,
-    });
     return base.primitives
       .filter(
         (primitive) =>
@@ -275,32 +290,9 @@ export function PlanCanvas({
           editor.selection.includes(primitive.sourceObjectId),
       )
       .map((primitive, index): ScenePrimitive => {
-        const geometry =
-          primitive.geometry.kind === 'POLYGON'
-            ? {
-                ...primitive.geometry,
-                polygon: {
-                  ...primitive.geometry.polygon,
-                  outer: primitive.geometry.polygon.outer.map(carried),
-                },
-              }
-            : primitive.geometry.kind === 'POLYLINE'
-              ? {
-                  ...primitive.geometry,
-                  polyline: {
-                    ...primitive.geometry.polyline,
-                    points: primitive.geometry.polyline.points.map(carried),
-                  },
-                }
-              : primitive.geometry.kind === 'POINT'
-                ? {
-                    ...primitive.geometry,
-                    point: carried(primitive.geometry.point),
-                  }
-                : {
-                    ...primitive.geometry,
-                    anchor: carried(primitive.geometry.anchor),
-                  };
+        // The very transformation the command applies, so the ghost and what
+        // lands can never describe two different shapes.
+        const geometry = carriedGeometry(primitive.geometry, moveDelta);
         return {
           ...primitive,
           id: `preview:move:${index}`,
@@ -454,11 +446,14 @@ export function PlanCanvas({
       if (editor.activeTool !== 'SELECT') return;
       const carried = moving.current;
       if (carried !== undefined) {
-        const target = editor.activeSnap?.point ?? model;
-        setMoveDelta({
+        // The snap of this very event, not the one the last render carried.
+        const target = snap?.point ?? model;
+        const delta = {
           x: target.x - carried.from.x,
           y: target.y - carried.from.y,
-        });
+        };
+        carried.delta = delta;
+        setMoveDelta(delta);
         return;
       }
       const pressed = press.current;
@@ -489,7 +484,6 @@ export function PlanCanvas({
     },
     [
       dispatch,
-      editor.activeSnap,
       editor.activeTool,
       editor.camera,
       modelPointOf,
@@ -520,7 +514,12 @@ export function PlanCanvas({
           under !== undefined &&
           editor.selection.includes(under.objectId)
         ) {
-          moving.current = { from: model };
+          moving.current = {
+            from: model,
+            fromClient: { x: event.clientX, y: event.clientY },
+            objectId: under.objectId,
+            delta: { x: 0, y: 0 },
+          };
           event.currentTarget.setPointerCapture(event.pointerId);
           return;
         }
@@ -537,12 +536,15 @@ export function PlanCanvas({
         event.currentTarget.setPointerCapture(event.pointerId);
         return;
       }
-      const snapped = snapFor(event)?.point ?? model;
-      const origin = editor.pendingPoints[editor.pendingPoints.length - 1];
-      const point =
-        origin === undefined || !constrainsDrafting(editor.activeTool)
-          ? snapped
-          : constrainPoint(origin, snapped, editor.snap, editor.directInput);
+      const snapped = snapFor(event)?.point;
+      const point = resolveDraftPoint({
+        tool: editor.activeTool,
+        pendingPoints: editor.pendingPoints,
+        raw: model,
+        ...(snapped === undefined ? {} : { snapped }),
+        snap: editor.snap,
+        directInput: editor.directInput,
+      });
       const points = [...editor.pendingPoints, point];
       // The click is reported with what it landed on: the canvas is what knows
       // how close is close enough on this screen at this zoom.
@@ -584,12 +586,28 @@ export function PlanCanvas({
       const carried = moving.current;
       moving.current = undefined;
       if (carried !== undefined) {
-        const delta = moveDelta;
         setMoveDelta(undefined);
-        // A drag that went nowhere is a click that held still, and moving by
-        // zero would fill the history with nothing.
-        if (delta !== undefined && (delta.x !== 0 || delta.y !== 0))
-          onMoveSelection?.(delta);
+        const travelled = Math.hypot(
+          event.clientX - carried.fromClient.x,
+          event.clientY - carried.fromClient.y,
+        );
+        // Pressing a selected object without travelling is a click on it, not
+        // a move of nothing: it selects that one object. Deciding by the
+        // distance in millimetres instead would let the snap of the release
+        // invent a displacement nobody asked for.
+        if (travelled <= BAND_THRESHOLD_PX) {
+          dispatch({ type: 'SELECT', objectId: carried.objectId });
+          return;
+        }
+        // Where the pointer actually is now, snapped, rather than where the
+        // last render believed it was.
+        const dropped = modelPointOf(event);
+        const target = snapFor(event)?.point ?? dropped;
+        const delta =
+          target === undefined
+            ? carried.delta
+            : { x: target.x - carried.from.x, y: target.y - carried.from.y };
+        if (delta.x !== 0 || delta.y !== 0) onMoveSelection?.(delta);
         return;
       }
       const pressed = press.current;
@@ -622,9 +640,9 @@ export function PlanCanvas({
       editor.camera,
       editor.selectionBox,
       modelPointOf,
-      moveDelta,
       onMoveSelection,
       plan.primitives,
+      snapFor,
     ],
   );
 
@@ -777,15 +795,22 @@ export function PlanCanvas({
    * empty plan.
    */
   const drafting = editor.pendingPoints[editor.pendingPoints.length - 1];
+  const accepts = dynamicInputOf(editor.activeTool);
   const draftTarget =
-    drafting === undefined || editor.cursorModel === undefined
+    drafting === undefined ||
+    editor.cursorModel === undefined ||
+    accepts === undefined
       ? undefined
-      : constrainPoint(
-          drafting,
-          editor.activeSnap?.point ?? editor.cursorModel,
-          editor.snap,
-          editor.directInput,
-        );
+      : resolveDraftPoint({
+          tool: editor.activeTool,
+          pendingPoints: editor.pendingPoints,
+          raw: editor.cursorModel,
+          ...(editor.activeSnap === undefined
+            ? {}
+            : { snapped: editor.activeSnap.point }),
+          snap: editor.snap,
+          directInput: editor.directInput,
+        });
   const draftMeasures =
     drafting === undefined || draftTarget === undefined
       ? undefined

@@ -4,6 +4,7 @@ import { SHORTCUTS } from './shortcuts.js';
 import {
   EDITOR_TOOLS,
   constrainsDrafting,
+  dynamicInputOf,
   populatedToolGroups,
   requiredPoints,
   toolDefinition,
@@ -54,6 +55,33 @@ describe('the tools the editor offers', () => {
     expect(constrainsDrafting('WALL')).toBe(true);
     expect(constrainsDrafting('DIMENSION')).toBe(false);
     expect(toolDefinition('NETWORK').group).toBe('NETWORKS');
+  });
+
+  it('offers fields to type into only where a tool reads them', () => {
+    // Turning a selection is three clicks and no number; offering a length
+    // there would invite the user to type into something nobody reads.
+    expect(dynamicInputOf('WALL')).toEqual({ length: true, angle: true });
+    expect(dynamicInputOf('MIRROR')?.angle).toBe(true);
+    for (const tool of [
+      'ROTATE',
+      'JOIN',
+      'TRIM',
+      'OFFSET',
+      'DIMENSION',
+      'SPLIT',
+      'NETWORK',
+      'OPENING',
+      'SELECT',
+    ] as const)
+      expect(dynamicInputOf(tool), tool).toBeUndefined();
+  });
+
+  it('never accepts a typed value a tool would then ignore', () => {
+    // A tool that does not draft along the axes cannot honour a typed length:
+    // saying it accepts one would be a promise the drawing does not keep.
+    for (const tool of EDITOR_TOOLS)
+      if (dynamicInputOf(tool.id) !== undefined)
+        expect(constrainsDrafting(tool.id), tool.id).toBe(true);
   });
 
   it('gives every tool a shortcut the application actually binds', () => {
