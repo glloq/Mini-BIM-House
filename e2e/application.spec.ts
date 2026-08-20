@@ -669,3 +669,33 @@ test('promotes a scenario into the project', async ({ page }) => {
     .textContent();
   expect(after).not.toBe(before);
 });
+
+test('gathers what the project does not resolve and offers to fix it', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  // Run the modules first: their missing inputs are part of the findings.
+  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await expect(page.locator('.module-header')).toHaveCount(16);
+
+  await page.getByRole('button', { name: 'Vérifications' }).click();
+  const findings = page.locator('.alert-list li');
+  await expect(findings.first()).toBeVisible();
+
+  // A project with no rule pack says so, and does not claim compliance.
+  await expect(page.locator('.library-panel')).toContainText(
+    'Aucun référentiel activé',
+  );
+  await expect(page.locator('.library-panel .notice').last()).toContainText(
+    'ne constatent aucune conformité réglementaire',
+  );
+
+  // "Corriger" takes the user to where the finding can be dealt with.
+  await findings
+    .filter({ hasText: 'Aucun référentiel activé' })
+    .getByRole('button', { name: 'Corriger' })
+    .click();
+  await expect(
+    page.getByRole('heading', { name: 'Informations, site et réglages' }),
+  ).toBeVisible();
+});

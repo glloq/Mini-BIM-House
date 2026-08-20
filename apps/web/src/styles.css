@@ -1132,3 +1132,12 @@ button.icon {
 .inspector-subject .actions {
   margin-top: 0.75rem;
 }
+
+/* The checks list: a finding, where it comes from, and how to act on it. */
+.alert-list li.check-unknown .badge.unknown {
+  background: #fdf3e3;
+  color: #7a5a17;
+}
+.alert-list li > span > strong {
+  display: block;
+}

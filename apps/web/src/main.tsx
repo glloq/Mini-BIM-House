@@ -52,6 +52,8 @@ import { QuantitiesPanel } from './quantities/QuantitiesPanel.js';
 import { ScenariosPanel } from './scenarios/ScenariosPanel.js';
 import { NetworksPanel } from './networks/NetworksPanel.js';
 import { ProjectPanel } from './project/ProjectPanel.js';
+import { ChecksPanel } from './checks/ChecksPanel.js';
+import type { CheckFix } from './checks/checks-model.js';
 import { placeNodeCommand } from './networks/network-model.js';
 import { ErrorBoundary } from './ErrorBoundary.js';
 import {
@@ -116,6 +118,7 @@ const WORKSPACE_TABS = [
   { id: 'calculations', label: 'Calculs' },
   { id: 'quantities', label: 'Quantités' },
   { id: 'scenarios', label: 'Scénarios' },
+  { id: 'checks', label: 'Vérifications' },
 ] as const;
 
 type WorkspaceTab = (typeof WORKSPACE_TABS)[number]['id'];
@@ -602,6 +605,19 @@ function App() {
     setTab('plan');
   }, []);
 
+  /** Takes the user where a finding can actually be dealt with. */
+  const applyFix = useCallback(
+    (fix: CheckFix) => {
+      if (fix.objectIds !== undefined && fix.objectIds.length > 0) {
+        selectOnPlan(fix.objectIds);
+        if (fix.tab !== 'plan') setTab(fix.tab);
+        return;
+      }
+      setTab(fix.tab);
+    },
+    [selectOnPlan],
+  );
+
   const overlay = useMemo(
     () =>
       calculationRun === undefined
@@ -1010,6 +1026,17 @@ function App() {
               onExportCsv={(content, fileName) =>
                 download(content, fileName, 'text/csv;charset=utf-8')
               }
+            />
+          </section>
+        )}
+
+        {tab === 'checks' && (
+          <section className="canvas-panel panel">
+            <ChecksPanel
+              project={file.project}
+              {...(calculationRun === undefined ? {} : { run: calculationRun })}
+              running={calculationBusy}
+              onFix={applyFix}
             />
           </section>
         )}
