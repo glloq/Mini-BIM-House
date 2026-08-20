@@ -608,6 +608,9 @@ fichier de projet promet d'une version à l'autre est écrit dans
   sommet par sommet ; sélection à la bande, fenêtre ou capture selon le sens du
   tracé, et modification en une fois des propriétés communes à la sélection ;
   annulation et rétablissement de chaque commande.
+- **Palette de commandes** — `Ctrl+K` cherche d'un même champ les outils, les
+  espaces de travail, les niveaux, les commandes du clavier et les objets du
+  niveau dessiné, accents et casse indifférents.
 - **Inspecteur** — la barre d'outils crée, l'inspecteur modifie : assemblage et
   rôle d'un mur, dimensions d'une ouverture, usage d'une pièce, pente d'une
   toiture, position d'un nœud de réseau.
@@ -650,7 +653,8 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
 - **Exports DXF et IFC** : hors périmètre de la bêta.
 - **Simulation thermique dynamique, confort d'été avancé, structure,
   géotechnique, éclairage naturel** : hors périmètre de la bêta.
-- **Modes QUICK / DESIGN / EXPERT, palette de commandes** : non implémentés.
+- **Modes QUICK / DESIGN / EXPERT** : non implémentés ; l'interface a une
+  seule densité.
 - **Analyses projetées sur le plan** : seules les trois analyses thermiques
   (transmission, déperditions, données manquantes) sont branchées ; les
   résultats des réseaux, de la ventilation et de l'électricité se lisent dans

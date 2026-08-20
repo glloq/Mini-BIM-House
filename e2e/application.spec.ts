@@ -717,6 +717,51 @@ test('changes a property of several objects in one go', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('reaches tools, workspaces and objects from the command palette', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.locator('.plan-canvas').click({ position: { x: 5, y: 5 } });
+
+  // A tool, by its name.
+  await page.keyboard.press('Control+k');
+  const palette = page.getByRole('dialog', { name: 'Palette de commandes' });
+  await expect(palette).toBeVisible();
+  await palette.getByLabel('Chercher une commande').fill('mur');
+  await page.keyboard.press('Enter');
+  await expect(palette).toBeHidden();
+  await expect(
+    page.getByRole('button', { name: 'Mur', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+
+  // A workspace, without accents and without knowing where its button is.
+  await page.keyboard.press('Control+k');
+  await page.getByLabel('Chercher une commande').fill('reseaux');
+  await page.keyboard.press('Enter');
+  await expect(
+    page.getByRole('heading', { name: 'Réseaux du projet' }),
+  ).toBeVisible();
+
+  // An object of the storey being drawn, by the name the inspector gives it.
+  await page.keyboard.press('Control+k');
+  await page.getByLabel('Chercher une commande').fill('wall-south');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.inspector-subject')).toContainText('wall-south');
+
+  // Escape closes it without running anything.
+  await page.keyboard.press('Control+k');
+  await expect(
+    page.getByRole('dialog', { name: 'Palette de commandes' }),
+  ).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(
+    page.getByRole('dialog', { name: 'Palette de commandes' }),
+  ).toBeHidden();
+  await expect(page.locator('.inspector-subject')).toContainText('wall-south');
+  expect(errors).toEqual([]);
+});
+
 test('chooses which contour a slab is built from', async ({ page }) => {
   await loadDemo(page);
   await page.getByRole('button', { name: 'Niveaux et pièces' }).click();

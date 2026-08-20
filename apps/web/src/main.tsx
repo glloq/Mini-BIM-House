@@ -90,7 +90,12 @@ import {
   shouldIgnoreTarget,
   SHORTCUTS,
   shortcutLabel,
+  type ShortcutCommandId,
 } from './editor/shortcuts.js';
+import { CommandPalette } from './palette/CommandPalette.js';
+import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
+import { inspectObject } from './editor/object-editors.js';
+import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import {
   deleteObjectsCommand,
   geometryEditCommand,
@@ -290,6 +295,7 @@ function App() {
   const [saveState, setSaveState] = useState<SaveState>('SAVED');
   /** Whether the workspace navigation is open as a drawer on a narrow screen. */
   const [menuOpen, setMenuOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [recovery, setRecovery] = useState<{
     readonly savedAt: string;
     readonly file: ProjectFile;
@@ -791,19 +797,14 @@ function App() {
     };
   }, [climate, file.project, overlayId, tab, calculationGeneration]);
 
-  useEffect(() => {
-    function handle(event: KeyboardEvent): void {
-      const target = event.target as HTMLElement | null;
-      if (shouldIgnoreTarget(target?.tagName, event)) return;
-      const command = resolveShortcut(event);
-      if (command === undefined) return;
-      event.preventDefault();
-      // Escape closes the drawer before it touches the drawing: the panel over
-      // the plan is what the user is looking at.
-      if (command === 'tool.select' && menuOpen) {
-        setMenuOpen(false);
-        return;
-      }
+  /**
+   * Runs a command by name, wherever it was asked for.
+   *
+   * The keyboard is one way of asking; the palette is another, and neither
+   * should hold its own copy of what a command does.
+   */
+  const runShortcut = useCallback(
+    (command: ShortcutCommandId): void => {
       switch (command) {
         case 'tool.select':
           // Échap défait une chose à la fois, la plus récente d'abord :
@@ -848,23 +849,100 @@ function App() {
           dispatchEditor({ type: 'RESET_VIEW' });
           return;
         case 'palette.open':
-          setMessage(
-            `Raccourcis : ${SHORTCUTS.map((binding) => `${binding.label} ${shortcutLabel(binding)}`).join(' · ')}`,
-          );
+          setPaletteOpen(true);
       }
+    },
+    [
+      deleteSelection,
+      dispatchEditor,
+      redo,
+      saveContainer,
+      undo,
+      zoomFit,
+      zoomSelection,
+    ],
+  );
+
+  /**
+   * Everything the palette can reach.
+   *
+   * Tools, workspaces, levels, keyboard commands and the objects of the storey
+   * being drawn are unrelated everywhere else in the application and the same
+   * thing here: a line to read and something that happens when it is chosen.
+   */
+  const paletteEntries = useMemo<readonly PaletteEntry[]>(
+    () => [
+      ...EDITOR_TOOLS.map((tool) => ({
+        id: `outil:${tool.id}`,
+        label: tool.label,
+        group: 'Outils',
+        hint: tool.hint,
+        run: () => {
+          setTab('plan');
+          dispatchEditor({ type: 'SET_TOOL', tool: tool.id });
+        },
+      })),
+      ...WORKSPACE_GROUPS.flatMap((group) =>
+        group.tabs.map((entry) => ({
+          id: `espace:${entry.id}`,
+          label: entry.label,
+          group: 'Espaces',
+          hint: group.label,
+          run: () => setTab(entry.id),
+        })),
+      ),
+      ...SHORTCUTS.filter(
+        (binding) =>
+          binding.id !== 'palette.open' && !binding.id.startsWith('tool.'),
+      ).map((binding) => ({
+        id: binding.id,
+        label: binding.label,
+        group: 'Commandes',
+        hint: shortcutLabel(binding),
+        run: () => runShortcut(binding.id),
+      })),
+      ...file.project.building.levels.map((level) => ({
+        id: `niveau:${level.id}`,
+        label: level.name,
+        group: 'Niveaux',
+        hint: `${(level.elevationMm / 1000).toFixed(2)} m`,
+        run: () => {
+          setTab('plan');
+          dispatchEditor({ type: 'SET_LEVEL', levelId: level.id });
+        },
+      })),
+      ...objectEntries({
+        project: file.project,
+        ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
+        describe: (objectId) => inspectObject(file.project, objectId).title,
+        select: (objectId) => {
+          setTab('plan');
+          dispatchEditor({ type: 'SET_TOOL', tool: 'SELECT' });
+          dispatchEditor({ type: 'SELECT', objectId });
+        },
+      }),
+    ],
+    [activeLevelId, file.project, runShortcut],
+  );
+
+  useEffect(() => {
+    function handle(event: KeyboardEvent): void {
+      const target = event.target as HTMLElement | null;
+      if (shouldIgnoreTarget(target?.tagName, event)) return;
+      const command = resolveShortcut(event);
+      if (command === undefined) return;
+      event.preventDefault();
+      // Escape closes the drawer before it touches the drawing: the panel over
+      // the plan is what the user is looking at.
+      if (command === 'tool.select' && menuOpen) {
+        setMenuOpen(false);
+        return;
+      }
+      runShortcut(command);
     }
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
-  }, [
-    deleteSelection,
-    menuOpen,
-    editor.pendingPoints.length,
-    redo,
-    saveContainer,
-    undo,
-    zoomFit,
-    zoomSelection,
-  ]);
+  }, [menuOpen, runShortcut]);
 
   async function importProject(selected: File | undefined): Promise<void> {
     if (selected === undefined) return;
@@ -1191,6 +1269,13 @@ function App() {
             }}
           />
         </Suspense>
+      )}
+
+      {paletteOpen && (
+        <CommandPalette
+          entries={paletteEntries}
+          onClose={() => setPaletteOpen(false)}
+        />
       )}
 
       {recovery !== undefined && (

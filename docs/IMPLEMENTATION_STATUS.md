@@ -831,6 +831,15 @@ d'ajouter les dizaines de familles d'objets qui manquent.
   qu'elle ne sait pas dire, elle le laisse indéfini et la famille suivante
   répond.
 
+### UI-15 — palette de commandes
+
+`Ctrl+K` affichait la liste des raccourcis dans la barre de message. C'est
+maintenant un champ unique qui cherche les outils, les espaces de travail, les
+niveaux, les commandes du clavier et les objets du niveau dessiné, insensible
+aux accents et à la casse, et qui classe d'abord ce qui commence par ce qui est
+tapé. Une commande n'a plus qu'une définition, appelée aussi bien par le clavier
+que par la palette.
+
 ### UI-03 — sélection et modification multiple
 
 - Bande de sélection : vers la droite, une fenêtre qui ne prend que les objets

@@ -1269,3 +1269,69 @@ button.icon {
   gap: 0.35rem;
   align-items: baseline;
 }
+
+/*
+ * The command palette sits over the workspace rather than beside it: it is one
+ * field standing in for every menu, and it disappears the moment it is used.
+ */
+.palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 6vh 1rem 1rem;
+  background: rgba(23, 33, 38, 0.35);
+}
+.palette {
+  width: min(38rem, 100%);
+  max-height: 70vh;
+  overflow: hidden auto;
+  border: 1px solid #d3ddd7;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(30, 55, 42, 0.25);
+}
+.palette-query {
+  width: 100%;
+  padding: 0.9rem 1.1rem;
+  border: 0;
+  border-bottom: 1px solid #e2e9e5;
+  border-radius: 1rem 1rem 0 0;
+  font-size: 1.05rem;
+}
+.palette-query:focus-visible {
+  outline: 2px solid #2f6f4f;
+  outline-offset: -2px;
+}
+.palette-results {
+  margin: 0;
+  padding: 0.4rem;
+  list-style: none;
+}
+.palette-results button {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.palette-results .palette-active,
+.palette-results button:hover {
+  background: #eaf2ed;
+}
+.palette-label {
+  flex: 1;
+}
+.palette-group,
+.palette-hint {
+  color: #5b6b63;
+  font-size: 0.8rem;
+}
