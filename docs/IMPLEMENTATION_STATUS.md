@@ -857,6 +857,21 @@ aux accents et à la casse, et qui classe d'abord ce qui commence par ce qui est
 tapé. Une commande n'a plus qu'une définition, appelée aussi bien par le clavier
 que par la palette.
 
+### UI-02 — poste de travail
+
+- L'espace de travail s'arrêtait à 1480 pixels : sur un écran large, la moitié
+  de la fenêtre montrait le fond au lieu du plan. Ce qui limite le dessin est
+  désormais la largeur des panneaux, et cette largeur appartient à
+  l'utilisateur.
+- Les panneaux se redimensionnent en tirant leur bord — un vrai séparateur, que
+  les flèches du clavier déplacent aussi — et se masquent depuis l'en-tête. Les
+  deux décisions sont gardées dans le navigateur et retrouvées à la session
+  suivante ; elles ne voyagent jamais avec le projet.
+- Une barre d'état longe le bas du dessin : niveau, position du curseur,
+  accroches en service, pas de grille, pas angulaire, échelle et taille de la
+  sélection. Ces réglages occupaient la barre d'outils, qui doit rester la
+  place des outils.
+
 ### UI-03 — sélection et modification multiple
 
 - Bande de sélection : vers la droite, une fenêtre qui ne prend que les objets

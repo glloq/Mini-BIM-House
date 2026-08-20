@@ -8,6 +8,7 @@ import {
   useReducer,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
 } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -93,6 +94,15 @@ import {
   type ShortcutCommandId,
 } from './editor/shortcuts.js';
 import { CommandPalette } from './palette/CommandPalette.js';
+import { PanelSeparator } from './shell/PanelSeparator.js';
+import { StatusBar } from './shell/StatusBar.js';
+import {
+  boundedWidth,
+  gridColumns,
+  loadLayout,
+  saveLayout,
+  type WorkspaceLayout,
+} from './shell/workspace-layout.js';
 import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
 import { inspectObject } from './editor/object-editors.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
@@ -297,6 +307,11 @@ function App() {
   /** Whether the workspace navigation is open as a drawer on a narrow screen. */
   const [menuOpen, setMenuOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  // How wide the panels are is a preference of the person, kept in the browser
+  // and never in the project.
+  const [layout, setLayout] = useState<WorkspaceLayout>(() =>
+    loadLayout(typeof localStorage === 'undefined' ? undefined : localStorage),
+  );
   const [recovery, setRecovery] = useState<{
     readonly savedAt: string;
     readonly file: ProjectFile;
@@ -587,6 +602,28 @@ function App() {
     },
     [activeLevelId, runCommand],
   );
+
+  const columns = gridColumns(layout);
+
+  const changeLayout = useCallback((patch: Partial<WorkspaceLayout>): void => {
+    setLayout((current) => {
+      const next: WorkspaceLayout = {
+        ...current,
+        ...patch,
+        ...(patch.sidebarPx === undefined
+          ? {}
+          : { sidebarPx: boundedWidth(patch.sidebarPx) }),
+        ...(patch.inspectorPx === undefined
+          ? {}
+          : { inspectorPx: boundedWidth(patch.inspectorPx) }),
+      };
+      saveLayout(
+        typeof localStorage === 'undefined' ? undefined : localStorage,
+        next,
+      );
+      return next;
+    });
+  }, []);
 
   /** Carries the whole selection, as one entry in the history. */
   const moveSelection = useCallback(
@@ -1095,6 +1132,26 @@ function App() {
           >
             Espaces de travail
           </button>
+          <button
+            type="button"
+            className="secondary panel-toggle"
+            aria-pressed={layout.sidebarShown}
+            title="Afficher ou masquer le panneau de navigation"
+            onClick={() => changeLayout({ sidebarShown: !layout.sidebarShown })}
+          >
+            Navigation
+          </button>
+          <button
+            type="button"
+            className="secondary panel-toggle"
+            aria-pressed={layout.inspectorShown}
+            title="Afficher ou masquer l’inspecteur"
+            onClick={() =>
+              changeLayout({ inspectorShown: !layout.inspectorShown })
+            }
+          >
+            Inspecteur
+          </button>
           <button className="secondary" onClick={undo}>
             Annuler
           </button>
@@ -1319,7 +1376,10 @@ function App() {
         </section>
       )}
 
-      <div className="workspace-grid">
+      <div
+        className="workspace-grid"
+        style={{ '--workspace-columns': columns } as CSSProperties}
+      >
         {menuOpen && (
           <button
             type="button"
@@ -1330,6 +1390,7 @@ function App() {
         )}
         <aside
           id="workspace-sidebar"
+          hidden={!layout.sidebarShown && !menuOpen}
           className={menuOpen ? 'sidebar panel open' : 'sidebar panel'}
         >
           <p className="panel-label">Modèle</p>
@@ -1395,6 +1456,17 @@ function App() {
           )}
         </aside>
 
+        {layout.sidebarShown ? (
+          <PanelSeparator
+            label="Redimensionner le panneau de navigation"
+            widthPx={layout.sidebarPx}
+            grows="RIGHT"
+            onResize={(sidebarPx) => changeLayout({ sidebarPx })}
+          />
+        ) : (
+          <div className="panel-edge-empty" />
+        )}
+
         {tab === 'plan' && (
           <section className="canvas-panel panel" id="plan">
             <header className="panel-heading">
@@ -1406,9 +1478,6 @@ function App() {
                     'aucun niveau'}
                 </h2>
               </div>
-              <span className="scale-chip">
-                {(editor.camera.pixelsPerMm * 1000).toFixed(0)} px/m · mm
-              </span>
             </header>
             <ToolBar
               project={file.project}
@@ -1446,6 +1515,14 @@ function App() {
               onEditGeometry={editGeometry}
               wallThicknessMm={wallThicknessMm}
               {...(overlay === undefined ? {} : { overlay })}
+            />
+            <StatusBar
+              editor={editor}
+              dispatch={dispatchEditor}
+              levelName={
+                levels.find(({ id }) => id === activeLevelId)?.name ??
+                'aucun niveau'
+              }
             />
           </section>
         )}
@@ -1590,7 +1667,22 @@ function App() {
           </LazyWorkspace>
         )}
 
-        <aside className="inspector panel" id="inventory">
+        {layout.inspectorShown ? (
+          <PanelSeparator
+            label="Redimensionner l’inspecteur"
+            widthPx={layout.inspectorPx}
+            grows="LEFT"
+            onResize={(inspectorPx) => changeLayout({ inspectorPx })}
+          />
+        ) : (
+          <div className="panel-edge-empty" />
+        )}
+
+        <aside
+          className="inspector panel"
+          id="inventory"
+          hidden={!layout.inspectorShown}
+        >
           <p className="panel-label">Inspecteur</p>
           {tab === 'plan' ? (
             <InspectorPanel

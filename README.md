@@ -609,6 +609,9 @@ fichier de projet promet d'une version à l'autre est écrit dans
   faisant glisser ; sélection à la bande, fenêtre ou capture selon le sens du
   tracé, et modification en une fois des propriétés communes à la sélection ;
   annulation et rétablissement de chaque commande.
+- **Poste de travail** — panneaux redimensionnables et masquables, largeurs
+  retrouvées à la session suivante, barre d'état sous le plan : niveau,
+  position, accroches, pas de grille, échelle et taille de la sélection.
 - **Palette de commandes** — `Ctrl+K` cherche d'un même champ les outils, les
   espaces de travail, les niveaux, les commandes du clavier et les objets du
   niveau dessiné, accents et casse indifférents.

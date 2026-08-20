@@ -33,8 +33,15 @@ button.secondary {
   background: #fff;
   color: #31443b;
 }
+/*
+ * A drawing takes the window it is given.
+ *
+ * The workspace used to stop at 1480 pixels, so half of a wide screen showed
+ * background instead of plan. What limits the drawing now is the panels beside
+ * it, and their width is the user's decision.
+ */
 .workspace {
-  width: min(1480px, calc(100% - 2rem));
+  width: calc(100% - 2rem);
   margin: auto;
   padding: 1.25rem 0 2rem;
 }
@@ -94,9 +101,38 @@ h2 {
 }
 .workspace-grid {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr) 280px;
-  gap: 1rem;
+  /* The remembered layout supplies the variable; this is what it starts from. */
+  grid-template-columns: var(
+    --workspace-columns,
+    220px 6px minmax(0, 1fr) 6px 280px
+  );
+  gap: 0.5rem;
   min-height: 680px;
+}
+/*
+ * The edge between a panel and the drawing.
+ *
+ * It is a separator, not decoration: it can be dragged, and the arrow keys move
+ * it for anyone not using a pointer.
+ */
+.panel-separator {
+  align-self: stretch;
+  border-radius: 999px;
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
+}
+.panel-separator:hover,
+.panel-separator:focus-visible {
+  background: #b9cec3;
+  outline: none;
+}
+.panel-edge-empty {
+  display: block;
+}
+.panel-toggle[aria-pressed='true'] {
+  border-color: #2f6f4f;
+  color: #1f4c37;
 }
 .panel {
   border: 1px solid #d3ddd7;
@@ -282,8 +318,16 @@ h2 {
   line-height: 1.5;
 }
 @media (max-width: 1050px) {
+  /*
+   * Below this width there is not enough room to trade between the panels and
+   * the drawing, so the arrangement is fixed and the edges are not offered.
+   */
   .workspace-grid {
     grid-template-columns: 190px minmax(0, 1fr);
+  }
+  .panel-separator,
+  .panel-edge-empty {
+    display: none;
   }
   .inspector {
     grid-column: 1/-1;
@@ -325,6 +369,11 @@ h2 {
   }
   .menu-toggle {
     display: inline-flex;
+  }
+  /* The panels are a drawer on a narrow screen; hiding them is what the
+     drawer already does. */
+  .panel-toggle {
+    display: none;
   }
   .drawer-backdrop {
     display: block;
@@ -1334,4 +1383,36 @@ button.icon {
 .palette-hint {
   color: #5b6b63;
   font-size: 0.8rem;
+}
+
+/*
+ * What the drawing is doing, along its bottom edge: where the pointer is, what
+ * it snaps to, at what scale, and how much is selected. Read constantly,
+ * changed rarely — which is why none of it belongs among the tools.
+ */
+.status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  align-items: center;
+  margin-top: 0.6rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #e0e8e4;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.75);
+  color: #41544a;
+  font-size: 0.76rem;
+}
+.status-cell {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
+  white-space: nowrap;
+}
+.status-number input {
+  width: 4.5rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid #cbd5cf;
+  border-radius: 0.35rem;
+  font-size: 0.76rem;
 }

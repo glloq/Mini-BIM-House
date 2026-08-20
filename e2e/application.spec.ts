@@ -816,6 +816,48 @@ test('carries a selection across the plan by dragging it', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('remembers how wide the panels were made', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const sidebar = page.locator('#workspace-sidebar');
+  const before = (await sidebar.boundingBox())!.width;
+
+  // The edge between the panel and the drawing is a separator: the arrow keys
+  // move it for anyone not using a pointer.
+  const edge = page.getByRole('separator', {
+    name: 'Redimensionner le panneau de navigation',
+  });
+  await edge.focus();
+  for (let press = 0; press < 4; press += 1)
+    await page.keyboard.press('ArrowRight');
+  await expect
+    .poll(async () => (await sidebar.boundingBox())!.width)
+    .toBeGreaterThan(before);
+  const widened = (await sidebar.boundingBox())!.width;
+
+  // Hiding the inspector gives the drawing its width.
+  const canvas = page.locator('.canvas-panel');
+  const plan = (await canvas.boundingBox())!.width;
+  await page.getByRole('button', { name: 'Inspecteur', exact: true }).click();
+  await expect(page.locator('#inventory')).toBeHidden();
+  await expect
+    .poll(async () => (await canvas.boundingBox())!.width)
+    .toBeGreaterThan(plan);
+
+  // Both decisions survive a reload: they are preferences of the person, kept
+  // in the browser and never in the project.
+  await page.reload();
+  await expect(
+    page.getByRole('button', { name: 'Maison de démonstration' }),
+  ).toBeVisible();
+  await expect(page.locator('#inventory')).toBeHidden();
+  expect((await sidebar.boundingBox())!.width).toBeCloseTo(widened, 0);
+
+  await page.getByRole('button', { name: 'Inspecteur', exact: true }).click();
+  await expect(page.locator('#inventory')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test('chooses which contour a slab is built from', async ({ page }) => {
   await loadDemo(page);
   await page.getByRole('button', { name: 'Niveaux et pièces' }).click();

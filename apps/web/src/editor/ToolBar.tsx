@@ -301,46 +301,6 @@ export function ToolBar({
         </div>
       )}
 
-      <div className="tool-group" role="group" aria-label="Accrochage">
-        <label className="checkbox">
-          <input
-            type="checkbox"
-            checked={editor.snap.enabled}
-            onChange={(event) =>
-              dispatch({
-                type: 'SET_SNAP',
-                snap: { enabled: event.target.checked },
-              })
-            }
-          />
-          Accrochage
-        </label>
-        {(
-          [
-            ['grid', 'Grille'],
-            ['endpoint', 'Extrémités'],
-            ['midpoint', 'Milieux'],
-            ['intersection', 'Intersections'],
-            ['orthogonal', 'Angles'],
-          ] as const
-        ).map(([key, label]) => (
-          <label key={key} className="checkbox">
-            <input
-              type="checkbox"
-              disabled={!editor.snap.enabled}
-              checked={editor.snap[key]}
-              onChange={(event) =>
-                dispatch({
-                  type: 'SET_SNAP',
-                  snap: { [key]: event.target.checked },
-                })
-              }
-            />
-            {label}
-          </label>
-        ))}
-      </div>
-
       <div className="tool-group" role="group" aria-label="Navigation">
         <button
           type="button"
