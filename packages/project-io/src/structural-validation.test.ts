@@ -35,6 +35,25 @@ function wall(id: string, levelId: string): Record<string, unknown> {
   };
 }
 
+function space(id: string, levelId: string): Record<string, unknown> {
+  return {
+    id,
+    type: 'SPACE',
+    levelId,
+    name: id,
+    category: 'LIVING',
+    boundaryMode: 'MANUAL',
+    manualPolygon: {
+      outer: [
+        { x: 0, y: 0 },
+        { x: 3000, y: 0 },
+        { x: 3000, y: 3000 },
+        { x: 0, y: 3000 },
+      ],
+    },
+  };
+}
+
 function file(levels: readonly unknown[], extra: object = {}) {
   return {
     format: 'house-technical-designer-project' as const,
@@ -320,6 +339,188 @@ describe('references the rest of the project relies on', () => {
     expect(issues(dangling)).toContain(
       '/project/systems/0/nodes/0/levelId references unknown level attic',
     );
+  });
+
+  it('refuses a node whose room and whose level are not the same level', () => {
+    // Every identifier exists; together they describe a place that does not.
+    const stacked = file(
+      [
+        { ...level, spaces: [space('living-ground', 'ground')] },
+        {
+          ...level,
+          id: 'first',
+          name: 'First',
+          elevationMm: 2500,
+          spaces: [space('bedroom-first', 'first')],
+        },
+      ],
+      {
+        systems: [
+          {
+            id: 'water',
+            discipline: 'WATER',
+            systemType: 'POTABLE_COLD',
+            nodes: [
+              {
+                id: 'water:source',
+                kind: 'SOURCE',
+                position: { x: 0, y: 0, z: 0 },
+                levelId: 'ground',
+                spaceId: 'bedroom-first',
+              },
+            ],
+            ports: [],
+            edges: [],
+          },
+        ],
+      },
+    );
+    expect(issues(stacked)).toContain(
+      '/project/systems/0/nodes/0/spaceId references bedroom-first of level first while the node declares level ground',
+    );
+  });
+
+  it('refuses a node fixed to a wall of another level than its own', () => {
+    const stacked = file(
+      [
+        { ...level, walls: [wall('wall-ground', 'ground')] },
+        {
+          ...level,
+          id: 'first',
+          name: 'First',
+          elevationMm: 2500,
+          walls: [wall('wall-first', 'first')],
+        },
+      ],
+      {
+        systems: [
+          {
+            id: 'water',
+            discipline: 'WATER',
+            systemType: 'POTABLE_COLD',
+            nodes: [
+              {
+                id: 'water:source',
+                kind: 'SOURCE',
+                position: { x: 0, y: 0, z: 0 },
+                levelId: 'ground',
+                hostObjectId: 'wall-first',
+              },
+            ],
+            ports: [],
+            edges: [],
+          },
+        ],
+      },
+    );
+    expect(issues(stacked)).toContain(
+      '/project/systems/0/nodes/0/hostObjectId references wall-first of level first while the node declares level ground',
+    );
+  });
+
+  it('refuses a room and a host that disagree, even with no level declared', () => {
+    const stacked = file(
+      [
+        { ...level, spaces: [space('living-ground', 'ground')] },
+        {
+          ...level,
+          id: 'first',
+          name: 'First',
+          elevationMm: 2500,
+          walls: [wall('wall-first', 'first')],
+        },
+      ],
+      {
+        systems: [
+          {
+            id: 'water',
+            discipline: 'WATER',
+            systemType: 'POTABLE_COLD',
+            nodes: [
+              {
+                id: 'water:source',
+                kind: 'SOURCE',
+                position: { x: 0, y: 0, z: 0 },
+                spaceId: 'living-ground',
+                hostObjectId: 'wall-first',
+              },
+            ],
+            ports: [],
+            edges: [],
+          },
+        ],
+      },
+    );
+    expect(issues(stacked)).toContain(
+      '/project/systems/0/nodes/0/hostObjectId references wall-first of level first while the node sits in a space of level ground',
+    );
+  });
+
+  it('says nothing about a node hosted by an equipment, which has no level', () => {
+    const hosted = file([{ ...level, spaces: [space('living', 'ground')] }], {
+      equipment: [
+        {
+          id: 'boiler',
+          kind: 'BOILER',
+          catalogKind: 'GENERIC',
+          properties: {},
+        },
+      ],
+      systems: [
+        {
+          id: 'water',
+          discipline: 'WATER',
+          systemType: 'POTABLE_COLD',
+          nodes: [
+            {
+              id: 'water:source',
+              kind: 'SOURCE',
+              position: { x: 0, y: 0, z: 0 },
+              levelId: 'ground',
+              spaceId: 'living',
+              hostObjectId: 'boiler',
+            },
+          ],
+          ports: [],
+          edges: [],
+        },
+      ],
+    });
+    expect(issues(hosted)).toEqual([]);
+  });
+
+  it('accepts a node whose level, room and host agree', () => {
+    const coherent = file(
+      [
+        {
+          ...level,
+          walls: [wall('wall-ground', 'ground')],
+          spaces: [space('living-ground', 'ground')],
+        },
+      ],
+      {
+        systems: [
+          {
+            id: 'water',
+            discipline: 'WATER',
+            systemType: 'POTABLE_COLD',
+            nodes: [
+              {
+                id: 'water:source',
+                kind: 'SOURCE',
+                position: { x: 0, y: 0, z: 0 },
+                levelId: 'ground',
+                spaceId: 'living-ground',
+                hostObjectId: 'wall-ground',
+              },
+            ],
+            ports: [],
+            edges: [],
+          },
+        ],
+      },
+    );
+    expect(issues(coherent)).toEqual([]);
   });
 
   it('accepts a node fixed to a wall that is there', () => {

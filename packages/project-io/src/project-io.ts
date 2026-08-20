@@ -250,6 +250,25 @@ export function validateProjectReferences(
     ),
     ...(file.project.equipment?.map(({ id }) => id) ?? []),
   ]);
+  /**
+   * The level each object of the building belongs to.
+   *
+   * Every reference of a network node can exist on its own and the set still be
+   * impossible: a node declared on the ground floor, sitting in a room upstairs
+   * and fixed to a wall of a third level is three valid identifiers describing
+   * a place that does not exist. Knowing where each object lives is what makes
+   * that check possible.
+   */
+  const levelOfObject = new Map<string, string>();
+  for (const level of file.project.building.levels)
+    for (const object of [
+      ...level.walls,
+      ...level.slabs,
+      ...level.roofs,
+      ...level.spaces,
+      ...level.openings,
+    ])
+      levelOfObject.set(object.id, level.id);
   // Identifiers are unique across the whole project, not merely inside their
   // own list. Selection, overlays, dimensions and scenario paths all address
   // objects by identifier alone; two objects sharing one would make a click
@@ -393,6 +412,44 @@ export function validateProjectReferences(
           path: `${path}/hostObjectId`,
           message: `references unknown object ${node.hostObjectId}`,
         });
+      // Each identifier can be real while the three together describe a place
+      // that does not exist. A node cannot be on the ground floor and inside a
+      // room upstairs, and the drawing would put it on one level while the
+      // calculations read the other.
+      if (typeof levelId === 'string')
+        for (const [key, reference] of [
+          ['spaceId', node.spaceId],
+          ['hostObjectId', node.hostObjectId],
+        ] as const) {
+          if (reference === undefined) continue;
+          const objectLevel = levelOfObject.get(reference);
+          // Equipment belongs to the project rather than to a level; nothing
+          // is claimed about a node hosted by one.
+          if (objectLevel === undefined || objectLevel === levelId) continue;
+          issues.push({
+            path: `${path}/${key}`,
+            message: `references ${reference} of level ${objectLevel} while the node declares level ${levelId}`,
+          });
+        }
+      // Without a declared level, the room and the object the node is fixed to
+      // still have to agree with each other.
+      if (
+        typeof levelId !== 'string' &&
+        node.spaceId !== undefined &&
+        node.hostObjectId !== undefined
+      ) {
+        const spaceLevel = levelOfObject.get(node.spaceId);
+        const hostLevel = levelOfObject.get(node.hostObjectId);
+        if (
+          spaceLevel !== undefined &&
+          hostLevel !== undefined &&
+          spaceLevel !== hostLevel
+        )
+          issues.push({
+            path: `${path}/hostObjectId`,
+            message: `references ${node.hostObjectId} of level ${hostLevel} while the node sits in a space of level ${spaceLevel}`,
+          });
+      }
     });
     network.ports.forEach((port, portIndex) => {
       if (!nodeIds.has(port.nodeId))

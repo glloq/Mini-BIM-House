@@ -87,9 +87,37 @@ export function lastAutosaveTime(): string | undefined {
 }
 
 /**
+ * What identifies the state a snapshot holds.
+ *
+ * The revision alone is not enough: two projects can sit at the same revision,
+ * and a snapshot of one would then look like a snapshot of the other. The
+ * project identity is part of what is compared.
+ */
+export function snapshotIdentity(file: ProjectFile): string {
+  return `${file.project.id}@${file.project.metadata.projectRevision ?? ''}`;
+}
+
+/**
+ * Whether a finished write may be announced as "saved locally".
+ *
+ * Both comparisons are needed, and they say different things. The first says
+ * the store holds this snapshot rather than an older write that was still
+ * resolving. The second says the session has not moved on since — an edit made
+ * while the snapshot was being written leaves the store one revision behind
+ * what is on screen, and announcing it as saved would be untrue.
+ */
+export function announcesSaved(
+  written: string | undefined,
+  snapshot: string,
+  current: string,
+): boolean {
+  return written === snapshot && current === snapshot;
+}
+
+/**
  * The queue that writes snapshots, one at a time and newest last.
  *
- * The revision of the snapshot written is what the caller compares against the
+ * The identity of the snapshot written is what the caller compares against the
  * project on screen, so a stale write can never be reported as current.
  */
 const queue = createAutosaveQueue<WorkspaceSnapshot>(async (snapshot) => {
@@ -101,16 +129,16 @@ const queue = createAutosaveQueue<WorkspaceSnapshot>(async (snapshot) => {
     snapshot.climate.map((dataset) => JSON.stringify(dataset)),
   );
   lastSavedAt = record.savedAt;
-  return snapshot.file.project.metadata.projectRevision ?? '';
+  return snapshotIdentity(snapshot.file);
 });
 
 /**
  * Writes a snapshot of the workspace into this browser.
  *
- * Resolves with the revision that actually reached the store, which is not
+ * Resolves with the identity that actually reached the store, which is not
  * necessarily the one this call was given: a newer snapshot queued while this
- * one was being written wins, and the caller can see that its own revision is
- * not the one on disk.
+ * one was being written wins, and the caller can see that its own state is not
+ * the one on disk.
  */
 export async function writeAutosave(
   snapshot: WorkspaceSnapshot,
@@ -132,9 +160,17 @@ export async function readAutosave(): Promise<RecoveryResult> {
   return recoverAutosave(current, AUTOSAVE_KEY);
 }
 
-/** Drops the snapshot once the user has decided what to do with it. */
+/**
+ * Drops the snapshot once the user has decided what to do with it.
+ *
+ * The removal goes through the write queue rather than beside it: a write
+ * already under way finishes first and everything queued behind it is
+ * abandoned, so the snapshot the user asked to delete cannot come back a
+ * moment later.
+ */
 export async function discardAutosave(): Promise<void> {
-  queue.cancelPending();
-  await clearAutosave(store(), AUTOSAVE_KEY);
-  lastSavedAt = undefined;
+  await queue.barrier(async () => {
+    await clearAutosave(store(), AUTOSAVE_KEY);
+    lastSavedAt = undefined;
+  });
 }

@@ -61,6 +61,52 @@ describe('snapshots queued while one is being written', () => {
     expect(writer.started).toEqual(['1']);
   });
 
+  it('never lets a write in flight put back a deleted snapshot', async () => {
+    const writer = controlled();
+    const store = { snapshot: undefined as string | undefined };
+    const queue = createAutosaveQueue(async (revision: string) => {
+      const key = await writer.write(revision);
+      store.snapshot = key;
+      return key;
+    });
+    // The write of 50 has started when the user asks for the snapshot to go.
+    const pending = queue.enqueue('50');
+    expect(writer.started).toEqual(['50']);
+    const cleared = queue.barrier(async () => {
+      store.snapshot = undefined;
+    });
+    writer.releaseAll();
+    await Promise.all([pending, cleared]);
+    // The removal ran after the write that was under way, not before it.
+    expect(store.snapshot).toBeUndefined();
+    expect(queue.written()).toBeUndefined();
+  });
+
+  it('refuses a snapshot handed over while the deletion is running', async () => {
+    const writer = controlled();
+    writer.releaseAll();
+    const store = { snapshot: undefined as string | undefined };
+    const queue = createAutosaveQueue(async (revision: string) => {
+      const key = await writer.write(revision);
+      store.snapshot = key;
+      return key;
+    });
+    await queue.enqueue('50');
+    let during: string | undefined = 'not attempted';
+    await queue.barrier(async () => {
+      store.snapshot = undefined;
+      // An autosave timer firing during the removal belongs to the state being
+      // discarded; writing it would undo what the user just asked for.
+      during = await queue.enqueue('51');
+    });
+    expect(during).toBeUndefined();
+    expect(store.snapshot).toBeUndefined();
+    expect(writer.started).toEqual(['50']);
+    // Once the removal is over, the queue takes snapshots again.
+    expect(await queue.enqueue('52')).toBe('52');
+    expect(store.snapshot).toBe('52');
+  });
+
   it('lets a failing write reject without wedging the queue', async () => {
     let attempts = 0;
     const queue = createAutosaveQueue(async (revision: string) => {

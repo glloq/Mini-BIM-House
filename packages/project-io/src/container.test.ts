@@ -192,11 +192,12 @@ describe('a container carrying an older project', () => {
             format: PROJECT_CONTAINER_FORMAT,
             version: '1.0.0',
             project: 'project.json',
-            climate: [],
+            climate: ['climate/brest.json'],
           }),
         ),
       },
       { name: 'project.json', data: encoder.encode(JSON.stringify(older)) },
+      { name: 'climate/brest.json', data: encoder.encode(dataset) },
     ]);
     const result = await readProjectContainer(bytes);
     expect(result.status).toBe('OK');
@@ -210,7 +211,7 @@ describe('a container carrying an older project', () => {
 
   it('reports no migration for a container already at the current version', async () => {
     const result = await readProjectContainer(
-      await writeProjectContainer(file, []),
+      await writeProjectContainer(file, [{ id: 'brest', json: dataset }]),
     );
     expect(result.status).toBe('OK');
     if (result.status !== 'OK') return;
@@ -313,6 +314,95 @@ describe('an archive that is not what it claims', () => {
     expect(result.status).toBe('INVALID_CONTAINER');
     if (result.status !== 'INVALID_CONTAINER') return;
     expect(result.message).toContain('brest');
+  });
+
+  it('refuses a container that names a profile and carries no weather at all', async () => {
+    // The case the previous check let through: the archive holds nothing, so
+    // "does it hold the right dataset" was never asked. A project calculated
+    // on Brest, reopened elsewhere without Brest, recalculates nothing.
+    const named = structuredClone(file) as unknown as Record<string, unknown>;
+    (named.project as Record<string, unknown>).site = {
+      northAngleDeg: 0,
+      climateProfileId: 'brest',
+    };
+    const result = await read([
+      { name: 'manifest.json', data: manifest({ climate: [] }) },
+      {
+        name: 'project.json',
+        data: new TextEncoder().encode(JSON.stringify(named)),
+      },
+    ]);
+    expect(result.status).toBe('INVALID_CONTAINER');
+    if (result.status !== 'INVALID_CONTAINER') return;
+    expect(result.message).toContain('brest');
+  });
+
+  it('refuses a manifest whose climate field is not a list of entries', async () => {
+    // Read as "no climate", a malformed manifest would become a valid
+    // container carrying nothing.
+    for (const climate of ['climate/brest.json', 42, [7], ['']]) {
+      const result = await read([
+        { name: 'manifest.json', data: manifest({ climate }) },
+        projectEntry,
+      ]);
+      expect(result.status).toBe('INVALID_CONTAINER');
+      if (result.status !== 'INVALID_CONTAINER') continue;
+      expect(result.message).toContain('climate');
+    }
+  });
+});
+
+describe('what a container refuses to be written as', () => {
+  it('refuses to write a project whose climate profile is not carried', async () => {
+    const named = structuredClone(file);
+    const incoherent = {
+      ...named,
+      project: {
+        ...named.project,
+        site: { northAngleDeg: 0, climateProfileId: 'brest' },
+      },
+    } as unknown as typeof file;
+    // Discovering this on another machine, when the project no longer
+    // calculates, is what the format exists to prevent.
+    await expect(writeProjectContainer(incoherent, [])).rejects.toThrow(
+      /brest/u,
+    );
+    await expect(
+      writeProjectContainer(incoherent, [
+        { id: 'paris', json: '{"id":"paris"}' },
+      ]),
+    ).rejects.toThrow(/brest/u);
+  });
+
+  it('writes it once the dataset it names travels with it', async () => {
+    const named = structuredClone(file);
+    const coherent = {
+      ...named,
+      project: {
+        ...named.project,
+        site: { northAngleDeg: 0, climateProfileId: 'brest' },
+      },
+    } as unknown as typeof file;
+    const bytes = await writeProjectContainer(coherent, [
+      { id: 'brest', json: dataset },
+    ]);
+    expect((await readProjectContainer(bytes)).status).toBe('OK');
+  });
+
+  it('accepts a dataset whose entry was renamed but which declares the profile', async () => {
+    const named = structuredClone(file);
+    const coherent = {
+      ...named,
+      project: {
+        ...named.project,
+        site: { northAngleDeg: 0, climateProfileId: 'brest' },
+      },
+    } as unknown as typeof file;
+    // The identifier inside the file is what the project refers to.
+    const bytes = await writeProjectContainer(coherent, [
+      { id: 'météo-locale', json: dataset },
+    ]);
+    expect((await readProjectContainer(bytes)).status).toBe('OK');
   });
 });
 
