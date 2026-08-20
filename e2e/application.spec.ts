@@ -161,6 +161,38 @@ test('saves the project and reloads it unchanged', async ({ page }) => {
   );
 });
 
+test('carries the climate with the project in one file', async ({ page }) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  // The demonstration project comes with its datasets loaded in the session.
+  await expect(page.locator('.library-panel')).not.toContainText(
+    'Aucun jeu de données climatiques',
+  );
+
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  const saved = await (await download).path();
+  await expect(page.getByRole('status')).toContainText('.houseproj');
+  await expect(page.getByRole('status')).toContainText('climatiques');
+
+  // Reopened from nothing — as another machine would — the project still has
+  // the weather it was calculated on.
+  await page.reload();
+  const prompt = page.getByRole('alertdialog');
+  if ((await prompt.count()) > 0)
+    await prompt.getByRole('button', { name: 'Ignorer et supprimer' }).click();
+  await expect(page.getByRole('status')).toContainText('Nouveau projet');
+  await page.setInputFiles('input[type="file"]', saved);
+  await expect(page.getByRole('status')).toContainText('climatiques');
+
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await expect(page.locator('.library-panel')).not.toContainText(
+    'Aucun jeu de données climatiques',
+  );
+  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await expect(page.locator('.dashboard-card').first()).toBeVisible();
+});
+
 test('switches level and discipline view without losing the model', async ({
   page,
 }) => {
@@ -323,7 +355,7 @@ test('sizes a duct and a terminal from the network inspector', async ({
 
   // What was typed is what the file carries.
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
   const saved = JSON.parse(
     await readFile(await (await download).path(), 'utf8'),
   ) as {
@@ -493,7 +525,7 @@ test('chooses which contour a slab is built from', async ({ page }) => {
   // The saved project is the proof: the slab carries the polygon of the
   // contour that was chosen, not of the first one detected.
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
   const saved = JSON.parse(
     await readFile(await (await download).path(), 'utf8'),
   ) as {
@@ -641,7 +673,7 @@ test('names the project, its site and its calculation settings', async ({
 
   // The saved project carries all three.
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
   const saved = JSON.parse(
     await readFile(await (await download).path(), 'utf8'),
   ) as {
@@ -676,7 +708,7 @@ test('chooses the octave bands the acoustic study covers', async ({ page }) => {
   );
 
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
   const saved = JSON.parse(
     await readFile(await (await download).path(), 'utf8'),
   ) as {
@@ -697,7 +729,7 @@ test('chooses the octave bands the acoustic study covers', async ({ page }) => {
   await bands.getByRole('checkbox', { name: '500 Hz' }).uncheck();
   await bands.getByRole('checkbox', { name: '1000 Hz' }).uncheck();
   const second = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
   const cleared = JSON.parse(
     await readFile(await (await second).path(), 'utf8'),
   ) as {

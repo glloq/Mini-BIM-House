@@ -50,7 +50,9 @@ Puis, dans l'application :
 2. l'onglet **Calculs** exécute les dix-sept modules et affiche, pour chacun, sa
    méthode, ses hypothèses et ses entrées manquantes ;
 3. la **Superposition** projette un résultat sur le plan ;
-4. **Sauvegarder** exporte le projet en JSON, **Exporter SVG** le plan.
+4. **Sauvegarder** exporte le projet et ses jeux climatiques dans un seul
+   fichier `.houseproj`, **Exporter le JSON** le projet seul, **Exporter SVG**
+   le plan.
 
 Un **Nouveau projet** part vide mais utilisable : la bibliothèque générique de
 matériaux et d'assemblages est déjà là, l'outil **Mur** dessine tout de suite.
@@ -516,11 +518,24 @@ sous-chemin de projet.
 
 # Format projet
 
-Format de projet :
+Deux formats, le même projet :
 
 ```text
-*.houseproj.json
+*.houseproj        projet et jeux climatiques, archive ZIP
+*.houseproj.json   projet seul, JSON lisible
 ```
+
+L'archive contient ce que son manifeste déclare, et rien d'implicite :
+
+```text
+manifest.json
+project.json
+climate/<jeu>.json
+```
+
+Un projet qui nomme un profil climatique sans le transporter ne recalcule rien
+sur une autre machine : le conteneur les garde ensemble. Le JSON reste le format
+d'inspection et d'outillage, et l'application ouvre indifféremment les deux.
 
 Chaque fichier est versionné :
 

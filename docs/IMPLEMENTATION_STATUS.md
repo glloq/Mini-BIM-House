@@ -404,6 +404,42 @@ l'ambiguïté est signalée, avec les candidats nommés.
 - superpositions graphiques par discipline, qui attendaient ces données ;
 - champ de saisie différée généralisé aux panneaux historiques.
 
+## Portabilité et sauvegarde locale — lot E
+
+| Porte   | Constat                                              | État    |
+| ------- | ---------------------------------------------------- | ------- |
+| BETA-10 | le climat vivait dans la session, pas dans le projet | corrigé |
+| BETA-11 | la sauvegarde de secours tenait dans `localStorage`  | corrigé |
+
+**Le projet voyage avec son climat.** « Sauvegarder » écrit désormais un
+`.houseproj` : une archive ZIP contenant `manifest.json`, `project.json` et un
+`climate/<jeu>.json` par jeu de données associé. Le format ZIP est écrit et relu
+par le dépôt lui-même — en-têtes locaux, répertoire central, `deflate-raw` via
+l'API de compression du navigateur quand elle existe, stockage simple sinon —
+sans dépendance ajoutée, et avec des horodatages fixes pour que le même contenu
+produise les mêmes octets. Chaque entrée est vérifiée contre son CRC à la
+lecture. Le JSON reste exporté à part, pour l'inspection et l'outillage, et
+l'ouverture accepte les deux : les octets disent lequel c'est.
+
+**La sauvegarde de secours a la taille des projets admis.** Les bornes d'import
+acceptent vingt mille murs et cinquante mille nœuds de réseau ; rien de tel ne
+tient dans `localStorage`. L'instantané va dans IndexedDB, `localStorage` restant
+le recours d'un navigateur sans base. Deux instantanés sont conservés — le
+courant et celui qu'il a remplacé — et la relecture bascule sur le précédent
+quand le dernier est illisible, au lieu de ne rien retrouver.
+
+**Le message de crash ne promet plus ce qu'il ignore.** Il affichait « une
+sauvegarde locale est conservée » même lorsqu'aucune n'avait encore été écrite.
+Il indique désormais l'heure de la dernière sauvegarde locale de la session,
+ou dit qu'aucune n'a pu être confirmée.
+
+### Ce que ce lot n'a pas traité
+
+- édition géométrique des murs, ouvertures, dalles et toitures
+  (BETA-13 à BETA-15) ;
+- Firefox et WebKit en intégration continue (BETA-16) ;
+- publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18).
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -444,7 +480,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 677 tests sur 104 fichiers
-- tests navigateur : 41 tests Playwright, dont trois sur un écran de téléphone
+- tests unitaires et d'intégration : 690 tests sur 105 fichiers
+- tests navigateur : 42 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

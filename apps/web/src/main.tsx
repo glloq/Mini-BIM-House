@@ -14,6 +14,7 @@ import type {
   WallRole,
 } from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
+import { validateClimateDataset } from '@house-technical-designer/climate';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import {
   networkNodeTemplates,
@@ -23,8 +24,10 @@ import {
   applyProjectScenario,
   loadProjectJson,
   ProjectSerializationError,
+  readProjectContainer,
   serializeProjectFile,
   validateProjectFile,
+  writeProjectContainer,
 } from '@house-technical-designer/project-io';
 import {
   boundsOfObjects,
@@ -62,6 +65,7 @@ import {
   AUTOSAVE_DELAY_MS,
   SAVE_STATE_LABELS,
   discardAutosave,
+  lastAutosaveTime,
   readAutosave,
   writeAutosave,
   type SaveState,
@@ -95,7 +99,39 @@ import {
 } from './editor/editing-commands.js';
 
 function download(content: string, fileName: string, mediaType: string): void {
-  const url = URL.createObjectURL(new Blob([content], { type: mediaType }));
+  downloadBlob(new Blob([content], { type: mediaType }), fileName);
+}
+
+/**
+ * A dataset carried by a container, once it has been checked.
+ *
+ * A file may hold anything; what is adopted has to satisfy the climate
+ * contract, or the project would recalculate on something that is not weather.
+ */
+function readClimateDataset(json: string): ClimateDataset | undefined {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    return undefined;
+  }
+  const dataset = parsed as ClimateDataset;
+  return validateClimateDataset(dataset).length === 0 ? dataset : undefined;
+}
+
+function downloadBytes(
+  bytes: Uint8Array,
+  fileName: string,
+  mediaType: string,
+): void {
+  downloadBlob(
+    new Blob([bytes as unknown as BlobPart], { type: mediaType }),
+    fileName,
+  );
+}
+
+function downloadBlob(blob: Blob, fileName: string): void {
+  const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
   link.download = fileName;
@@ -263,6 +299,50 @@ function App() {
     setMessage(`${command.label} · appliqué.`);
     return true;
   }, []);
+
+  /**
+   * Writes the project and the climate it uses as one file.
+   *
+   * A project naming a climate profile it does not carry recalculates nothing
+   * on another machine. The plain JSON stays available beside it, for reading
+   * and for tooling.
+   */
+  const saveContainer = useCallback(async (): Promise<boolean> => {
+    {
+      try {
+        const bytes = await writeProjectContainer(
+          file,
+          climate.map((dataset) => ({
+            id: dataset.id,
+            json: JSON.stringify(dataset, null, 2),
+          })),
+        );
+        setExportFailure(undefined);
+        downloadBytes(
+          bytes,
+          `${safeFileStem(file.project.metadata.name)}.houseproj`,
+          'application/zip',
+        );
+        setSaveState('SAVED');
+        setMessage(
+          climate.length === 0
+            ? 'Projet exporté (.houseproj).'
+            : `Projet exporté (.houseproj) avec ${climate.length} jeu(x) climatiques.`,
+        );
+        return true;
+      } catch (error) {
+        const issues =
+          error instanceof ProjectSerializationError ? error.issues : [];
+        setExportFailure(
+          issues.length > 0
+            ? issues.map(({ path, message }) => `${path} ${message}`)
+            : [error instanceof Error ? error.message : String(error)],
+        );
+        setMessage("Export impossible : le projet n'est pas enregistrable.");
+        return false;
+      }
+    }
+  }, [climate, file]);
 
   const saveProject = useCallback((): boolean => {
     // The serialiser refuses to write a project the format would not accept.
@@ -598,7 +678,7 @@ function App() {
           deleteSelection();
           return;
         case 'file.save':
-          saveProject();
+          void saveContainer();
           return;
         case 'view.zoomFit':
           zoomFit();
@@ -622,7 +702,7 @@ function App() {
     menuOpen,
     editor.pendingPoints.length,
     redo,
-    saveProject,
+    saveContainer,
     undo,
     zoomFit,
     zoomSelection,
@@ -630,7 +710,31 @@ function App() {
 
   async function importProject(selected: File | undefined): Promise<void> {
     if (selected === undefined) return;
-    const result = loadProjectJson(await selected.text());
+    const bytes = new Uint8Array(await selected.arrayBuffer());
+    const container = await readProjectContainer(bytes);
+    if (container.status === 'INVALID_CONTAINER') {
+      setMessage(`Import refusé — ${container.message}`);
+      return;
+    }
+    if (container.status === 'OK') {
+      // A container carries its climate: the project reopens with the data it
+      // was calculated on, on this machine or another.
+      const datasets = container.container.climate
+        .map(({ json }) => readClimateDataset(json))
+        .filter((dataset): dataset is ClimateDataset => dataset !== undefined);
+      setClimate(datasets);
+      adopt(
+        container.container.file,
+        datasets.length === 0
+          ? `${selected.name} chargé et validé.`
+          : `${selected.name} chargé et validé, avec ${datasets.length} jeu(x) de données climatiques.`,
+      );
+      return;
+    }
+    const result =
+      container.status === 'INVALID_PROJECT'
+        ? container.result
+        : loadProjectJson(new TextDecoder().decode(bytes));
     if (result.status !== 'OK') {
       const detail =
         result.status === 'INVALID_PROJECT'
@@ -763,8 +867,19 @@ function App() {
           >
             Maison de démonstration
           </button>
-          <button className="secondary" onClick={saveProject}>
+          <button
+            className="secondary"
+            title="Projet et jeux climatiques dans un seul fichier"
+            onClick={() => void saveContainer()}
+          >
             Sauvegarder
+          </button>
+          <button
+            className="secondary"
+            title="Le projet seul, en JSON lisible"
+            onClick={saveProject}
+          >
+            Exporter le JSON
           </button>
           <button
             onClick={() => {
@@ -843,9 +958,11 @@ function App() {
               onClick={() => {
                 // Only an export that actually happened may authorise
                 // replacing the project it was meant to protect.
-                if (!saveProject()) return;
-                pendingReplacement.run();
-                setPendingReplacement(undefined);
+                void saveContainer().then((written) => {
+                  if (!written) return;
+                  pendingReplacement.run();
+                  setPendingReplacement(undefined);
+                });
               }}
             >
               Exporter puis continuer
@@ -1215,6 +1332,7 @@ createRoot(root).render(
   <StrictMode>
     <ErrorBoundary
       applicationVersion={APPLICATION_VERSION}
+      lastAutosaveAt={lastAutosaveTime}
       onDownloadDiagnostic={downloadDiagnostic}
     >
       <App />
