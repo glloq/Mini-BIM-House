@@ -533,3 +533,83 @@ test('refuses an opening that would no longer fit its wall', async ({
   // The model is unchanged: a refused edit changes nothing.
   await expect(inspector).not.toContainText('99.00 m');
 });
+
+test('names the project, its site and its calculation settings', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+
+  // The name is editable, and it names the exported file.
+  const name = page.getByLabel('Nom du projet');
+  await name.fill('Maison Dupont');
+  await name.press('Enter');
+  await expect(page.locator('.project-bar strong')).toHaveText('Maison Dupont');
+
+  // Half a location is refused rather than completed with a zero; the pair is
+  // stored once both halves are given.
+  const latitude = page.getByLabel('Latitude (°)');
+  await latitude.fill('48');
+  await latitude.press('Enter');
+  await expect(page.getByRole('status')).toContainText('Refusé');
+  const longitude = page.getByLabel('Longitude (°)');
+  await longitude.fill('-4.1');
+  await longitude.press('Enter');
+  await expect(page.getByRole('status')).toContainText('Modifier le site');
+
+  // A calculation setting is filled in from the interface, not from JSON.
+  await page.getByLabel('Module').selectOption('heating');
+  const outdoor = page.getByLabel('Température extérieure de base (°C)');
+  await outdoor.fill('-7');
+  await outdoor.press('Enter');
+  await expect(page.getByRole('status')).toContainText(
+    'Modifier un réglage de calcul',
+  );
+
+  // The saved project carries all three.
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  const saved = JSON.parse(
+    await readFile(await (await download).path(), 'utf8'),
+  ) as {
+    project: {
+      metadata: { name: string };
+      site: { location?: { latitudeDeg: number } };
+      calculationSettings?: Record<
+        string,
+        { settings: Record<string, number> }
+      >;
+    };
+  };
+  expect(saved.project.metadata.name).toBe('Maison Dupont');
+  expect(saved.project.site.location?.latitudeDeg).toBe(48);
+  expect(
+    saved.project.calculationSettings?.heating?.settings
+      .designOutdoorTemperatureC,
+  ).toBe(-7);
+});
+
+test('associates a climate dataset and reports what it covers', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await expect(page.locator('.notice.warning')).toContainText(
+    'Aucun jeu de données climatiques',
+  );
+
+  await page.setInputFiles(
+    '#climate-file',
+    'examples/reference-house/climate-monthly.json',
+  );
+  await expect(page.getByRole('status')).toContainText('associé au projet');
+  const row = page.locator('.library-table tbody tr').first();
+  await expect(row).toContainText('référence du projet');
+  await expect(row).toContainText('%');
+
+  // Removing it takes the reference with it rather than leaving a dangling one.
+  await row.getByRole('button', { name: 'Retirer' }).click();
+  await expect(page.locator('.notice.warning')).toContainText(
+    'Aucun jeu de données climatiques',
+  );
+});

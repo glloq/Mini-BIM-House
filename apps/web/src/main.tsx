@@ -47,6 +47,7 @@ import { OverlayControl } from './calculations/OverlayControl.js';
 import { QuantitiesPanel } from './quantities/QuantitiesPanel.js';
 import { ScenariosPanel } from './scenarios/ScenariosPanel.js';
 import { NetworksPanel } from './networks/NetworksPanel.js';
+import { ProjectPanel } from './project/ProjectPanel.js';
 import { placeNodeCommand } from './networks/network-model.js';
 import { ErrorBoundary } from './ErrorBoundary.js';
 import {
@@ -101,6 +102,7 @@ function download(content: string, fileName: string, mediaType: string): void {
 }
 
 const WORKSPACE_TABS = [
+  { id: 'project', label: 'Projet' },
   { id: 'plan', label: 'Plan architectural' },
   { id: 'building', label: 'Niveaux et pièces' },
   { id: 'materials', label: 'Matériaux' },
@@ -873,6 +875,18 @@ function App() {
               onCommitPoints={commitPoints}
               wallThicknessMm={wallThicknessMm}
               {...(overlay === undefined ? {} : { overlay })}
+            />
+          </section>
+        )}
+
+        {tab === 'project' && (
+          <section className="canvas-panel panel">
+            <ProjectPanel
+              project={file.project}
+              climate={climate}
+              onCommand={runCommand}
+              onClimateChange={setClimate}
+              onMessage={setMessage}
             />
           </section>
         )}
