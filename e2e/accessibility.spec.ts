@@ -62,3 +62,18 @@ test('every workspace passes the automated accessibility rules', async ({
     ).toEqual([]);
   }
 });
+
+test('the command palette passes them too', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Maison de démonstration' }).click();
+  await expect(page.getByRole('status')).toContainText('démonstration');
+  // A panel only opened on demand is never seen by the audit of the
+  // workspaces, and it is the one control that reaches all of them.
+  await page.locator('.plan-canvas').click({ position: { x: 5, y: 5 } });
+  await page.keyboard.press('Control+k');
+  await expect(
+    page.getByRole('dialog', { name: 'Palette de commandes' }),
+  ).toBeVisible();
+  const { violations } = await audit(page);
+  expect(violations, describeViolations(violations)).toEqual([]);
+});

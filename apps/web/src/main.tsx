@@ -8,6 +8,7 @@ import {
   useReducer,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
 } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -56,7 +57,7 @@ import { ToolBar, type OpeningDraft } from './editor/ToolBar.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
 import type { CheckFix } from './checks/checks-model.js';
-import { placeNodeCommand } from './networks/network-model.js';
+import { toolDefinition } from './editor/tool-registry.js';
 import { nextLibraryId } from './library/library-model.js';
 import { ErrorBoundary } from './ErrorBoundary.js';
 import {
@@ -90,13 +91,33 @@ import {
   shouldIgnoreTarget,
   SHORTCUTS,
   shortcutLabel,
+  type ShortcutCommandId,
 } from './editor/shortcuts.js';
+import { CommandPalette } from './palette/CommandPalette.js';
+import { PanelSeparator } from './shell/PanelSeparator.js';
+import { StatusBar } from './shell/StatusBar.js';
+import { ProjectTree } from './shell/ProjectTree.js';
 import {
-  addDimensionCommand,
-  addOpeningCommand,
-  addWallCommand,
+  boundedWidth,
+  gridColumns,
+  loadLayout,
+  saveLayout,
+  type WorkspaceLayout,
+} from './shell/workspace-layout.js';
+import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
+import { inspectObject } from './editor/object-editors.js';
+import { EDITOR_TOOLS } from './editor/tool-registry.js';
+import {
+  alignObjectsCommand,
+  copyObjects,
   deleteObjectsCommand,
+  duplicateObjectsCommand,
+  pasteClipboardCommand,
+  type AlignEdge,
+  type PlanClipboard,
   geometryEditCommand,
+  moveObjectsCommand,
+  transformObjectsCommand,
 } from './editor/editing-commands.js';
 import type { GeometryEdit } from './editor/grips.js';
 
@@ -293,6 +314,12 @@ function App() {
   const [saveState, setSaveState] = useState<SaveState>('SAVED');
   /** Whether the workspace navigation is open as a drawer on a narrow screen. */
   const [menuOpen, setMenuOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  // How wide the panels are is a preference of the person, kept in the browser
+  // and never in the project.
+  const [layout, setLayout] = useState<WorkspaceLayout>(() =>
+    loadLayout(typeof localStorage === 'undefined' ? undefined : localStorage),
+  );
   const [recovery, setRecovery] = useState<{
     readonly savedAt: string;
     readonly file: ProjectFile;
@@ -584,105 +611,221 @@ function App() {
     [activeLevelId, runCommand],
   );
 
-  /** Cuts the selected wall at its middle, where a drag can then take over. */
-  const splitSelectedWall = useCallback(() => {
-    const level = session.current.file.project.building.levels.find(
-      ({ id }) => id === activeLevelId,
+  const columns = gridColumns(layout);
+
+  const changeLayout = useCallback((patch: Partial<WorkspaceLayout>): void => {
+    setLayout((current) => {
+      const next: WorkspaceLayout = {
+        ...current,
+        ...patch,
+        ...(patch.sidebarPx === undefined
+          ? {}
+          : { sidebarPx: boundedWidth(patch.sidebarPx) }),
+        ...(patch.inspectorPx === undefined
+          ? {}
+          : { inspectorPx: boundedWidth(patch.inspectorPx) }),
+      };
+      saveLayout(
+        typeof localStorage === 'undefined' ? undefined : localStorage,
+        next,
+      );
+      return next;
+    });
+  }, []);
+
+  /** Lines the selection up on one edge of its own outline. */
+  const alignSelection = useCallback(
+    (edge: AlignEdge) => {
+      const result = alignObjectsCommand(
+        session.current.file,
+        activeLevelId,
+        editor.selection,
+        edge,
+      );
+      if (result.status === 'ERROR') {
+        setMessage(result.message);
+        return;
+      }
+      runCommand(result.command);
+    },
+    [activeLevelId, editor.selection, runCommand],
+  );
+
+  /**
+   * Turns or reflects the selection about its own centre.
+   *
+   * The centre is the middle of what is selected rather than a point the user
+   * has to place first: it is what a quarter turn or a flip means most of the
+   * time, and the selection can be moved afterwards.
+   */
+  const transformSelection = useCallback(
+    (kind: 'ROTATE' | 'MIRROR') => {
+      const plan = buildPlanView(session.current.file.project, {
+        ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
+        layers: editor.layers,
+      });
+      const bounds = boundsOfObjects(plan.primitives, editor.selection);
+      if (bounds === undefined) {
+        setMessage('Sélectionnez d’abord ce qui doit être transformé.');
+        return;
+      }
+      const centre = {
+        x: (bounds.min.x + bounds.max.x) / 2,
+        y: (bounds.min.y + bounds.max.y) / 2,
+      };
+      const result = transformObjectsCommand(
+        session.current.file,
+        activeLevelId,
+        editor.selection,
+        kind === 'ROTATE'
+          ? { kind, centre, angleDeg: 90 }
+          : {
+              kind,
+              from: centre,
+              // A vertical axis through the centre: left becomes right.
+              to: { x: centre.x, y: centre.y + 1000 },
+            },
+      );
+      if (result.status === 'ERROR') {
+        setMessage(result.message);
+        return;
+      }
+      runCommand(result.command);
+    },
+    [activeLevelId, editor.layers, editor.selection, runCommand],
+  );
+
+  /**
+   * What was copied, kept apart from the project it came from.
+   *
+   * The objects themselves are held rather than their identifiers: pasting
+   * must not change because the originals were deleted or edited in between,
+   * and a copy taken on one storey is meant to be put down on another.
+   */
+  const clipboard = useRef<PlanClipboard>({
+    walls: [],
+    openings: [],
+    slabs: [],
+    roofs: [],
+  });
+
+  const copySelection = useCallback(() => {
+    const taken = copyObjects(
+      session.current.file,
+      activeLevelId,
+      editor.selection,
     );
-    const wall = level?.walls.find(({ id }) => id === editor.selection[0]);
-    const start = wall?.path.points[0];
-    const end = wall?.path.points[1];
-    if (wall === undefined || start === undefined || end === undefined) {
-      setMessage('Sélectionnez un mur droit avant de le scinder.');
+    clipboard.current = taken;
+    const count =
+      taken.walls.length +
+      taken.openings.length +
+      taken.slabs.length +
+      taken.roofs.length;
+    setMessage(
+      count === 0
+        ? 'Rien de sélectionné ne se copie depuis le plan.'
+        : `${count} objet(s) copié(s) : collez-les sur ce niveau ou sur un autre.`,
+    );
+  }, [activeLevelId, editor.selection]);
+
+  const pasteClipboard = useCallback(() => {
+    const step =
+      editor.snap.gridSpacingMm > 0 ? editor.snap.gridSpacingMm : 100;
+    const result = pasteClipboardCommand(
+      session.current.file,
+      activeLevelId,
+      clipboard.current,
+      // Pasted onto the storey it was copied from, the copy would land exactly
+      // on the original; onto another one, the offset costs nothing.
+      { x: step * 2, y: step * 2 },
+      (prefix) => `${prefix}-${crypto.randomUUID()}`,
+    );
+    if (result.status === 'ERROR') {
+      setMessage(result.message);
       return;
     }
-    editGeometry({
-      kind: 'WALL_SPLIT',
-      wallId: wall.id,
-      at: { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 },
-    });
-  }, [activeLevelId, editGeometry, editor.selection]);
+    if (!runCommand(result.command)) return;
+    dispatchEditor({ type: 'SELECT_MANY', objectIds: result.createdIds });
+  }, [activeLevelId, editor.snap.gridSpacingMm, runCommand]);
+
+  /**
+   * Copies the selection a little to the side, and selects the copies.
+   *
+   * Leaving the originals selected would look like nothing happened, and the
+   * next edit would land on the wrong objects.
+   */
+  const duplicateSelection = useCallback(() => {
+    const step =
+      editor.snap.gridSpacingMm > 0 ? editor.snap.gridSpacingMm : 100;
+    const result = duplicateObjectsCommand(
+      session.current.file,
+      activeLevelId,
+      editor.selection,
+      { x: step * 2, y: step * 2 },
+      (prefix) => `${prefix}-${crypto.randomUUID()}`,
+    );
+    if (result.status === 'ERROR') {
+      setMessage(result.message);
+      return;
+    }
+    if (!runCommand(result.command)) return;
+    dispatchEditor({ type: 'SELECT_MANY', objectIds: result.createdIds });
+  }, [activeLevelId, editor.selection, editor.snap.gridSpacingMm, runCommand]);
+
+  /** Carries the whole selection, as one entry in the history. */
+  const moveSelection = useCallback(
+    (delta: { x: number; y: number }) => {
+      const result = moveObjectsCommand(
+        session.current.file,
+        activeLevelId,
+        editor.selection,
+        delta,
+      );
+      if (result.status === 'ERROR') {
+        setMessage(result.message);
+        return;
+      }
+      runCommand(result.command);
+    },
+    [activeLevelId, editor.selection, runCommand],
+  );
 
   const commitPoints = useCallback(
-    (points: readonly { x: number; y: number }[]) => {
-      if (editor.activeTool === 'WALL') {
-        const command = addWallCommand(
-          session.current.file,
-          activeLevelId,
-          points,
-          { assemblyId: wallAssemblyId, role: wallRole },
-          `wall-${crypto.randomUUID()}`,
-        );
-        if (command.status === 'ERROR') {
-          setMessage(command.message);
-          return;
-        }
-        runCommand(command.command);
+    (
+      points: readonly { x: number; y: number }[],
+      picks: readonly (string | undefined)[],
+    ) => {
+      // The tool says what its clicks mean. The application only carries them
+      // to it: a new tool is a new entry in the registry, not another branch
+      // here.
+      const tool = toolDefinition(editor.activeTool);
+      const result = tool.createCommand?.({
+        file: session.current.file,
+        ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
+        points,
+        picks,
+        selection: editor.selection,
+        drafts: {
+          wallAssemblyId,
+          wallRole,
+          opening: openingDraft,
+          dimensionType,
+          ...(activeNetworkId === undefined
+            ? {}
+            : { networkId: activeNetworkId }),
+          nodeKind: activeNodeKind,
+        },
+        newId: (prefix) =>
+          prefix === ''
+            ? crypto.randomUUID()
+            : `${prefix}-${crypto.randomUUID()}`,
+      });
+      if (result === undefined) return;
+      if (result.status === 'ERROR') {
+        setMessage(result.message);
         return;
       }
-      if (editor.activeTool === 'NETWORK') {
-        if (activeNetworkId === undefined) {
-          setMessage(
-            'Aucun réseau actif : créez un réseau dans l’onglet Réseaux.',
-          );
-          return;
-        }
-        const point = points[points.length - 1]!;
-        const level = session.current.file.project.building.levels.find(
-          ({ id }) => id === activeLevelId,
-        );
-        const command = placeNodeCommand(
-          session.current.file.project,
-          activeNetworkId,
-          {
-            nodeId: `${activeNetworkId}:node-${crypto.randomUUID().slice(0, 8)}`,
-            kind: activeNodeKind,
-            // The node says which storey it belongs to, so moving that storey
-            // moves it too rather than leaving it at an elevation nobody edited.
-            ...(level === undefined ? {} : { levelId: level.id }),
-            position: {
-              x: point.x,
-              y: point.y,
-              z: level?.elevationMm ?? 0,
-            },
-          },
-        );
-        if (command.status === 'ERROR') {
-          setMessage(command.message);
-          return;
-        }
-        runCommand(command.command);
-        return;
-      }
-      if (editor.activeTool === 'DIMENSION') {
-        const command = addDimensionCommand(
-          session.current.file,
-          activeLevelId,
-          points,
-          { dimensionType },
-          `dimension-${crypto.randomUUID()}`,
-        );
-        if (command.status === 'ERROR') {
-          setMessage(command.message);
-          return;
-        }
-        runCommand(command.command);
-        return;
-      }
-      if (editor.activeTool === 'OPENING') {
-        const command = addOpeningCommand(
-          session.current.file,
-          activeLevelId,
-          points[points.length - 1]!,
-          openingDraft,
-          `opening-${crypto.randomUUID()}`,
-        );
-        if (command.status === 'ERROR') {
-          setMessage(command.message);
-          return;
-        }
-        runCommand(command.command);
-      }
+      runCommand(result.command);
     },
     [
       activeLevelId,
@@ -690,6 +833,7 @@ function App() {
       activeNodeKind,
       dimensionType,
       editor.activeTool,
+      editor.selection,
       openingDraft,
       runCommand,
       wallAssemblyId,
@@ -843,26 +987,20 @@ function App() {
     };
   }, [climate, file.project, overlayId, tab, calculationGeneration]);
 
-  useEffect(() => {
-    function handle(event: KeyboardEvent): void {
-      const target = event.target as HTMLElement | null;
-      if (shouldIgnoreTarget(target?.tagName, event)) return;
-      const command = resolveShortcut(event);
-      if (command === undefined) return;
-      event.preventDefault();
-      // Escape closes the drawer before it touches the drawing: the panel over
-      // the plan is what the user is looking at.
-      if (command === 'tool.select' && menuOpen) {
-        setMenuOpen(false);
-        return;
-      }
+  /**
+   * Runs a command by name, wherever it was asked for.
+   *
+   * The keyboard is one way of asking; the palette is another, and neither
+   * should hold its own copy of what a command does.
+   */
+  const runShortcut = useCallback(
+    (command: ShortcutCommandId): void => {
       switch (command) {
         case 'tool.select':
-          dispatchEditor(
-            editor.pendingPoints.length > 0
-              ? { type: 'CANCEL' }
-              : { type: 'SET_TOOL', tool: 'SELECT' },
-          );
+          // Échap défait une chose à la fois, la plus récente d'abord :
+          // l'action en cours, puis l'outil, puis la sélection. Le réducteur
+          // sait où l'on en est ; la touche ne fait que le lui dire.
+          dispatchEditor({ type: 'CANCEL' });
           return;
         case 'edit.cancel':
           dispatchEditor({ type: 'CANCEL' });
@@ -879,6 +1017,24 @@ function App() {
         case 'tool.network':
           dispatchEditor({ type: 'SET_TOOL', tool: 'NETWORK' });
           return;
+        case 'tool.split':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'SPLIT' });
+          return;
+        case 'tool.rotate':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'ROTATE' });
+          return;
+        case 'tool.mirror':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'MIRROR' });
+          return;
+        case 'tool.offset':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'OFFSET' });
+          return;
+        case 'tool.join':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'JOIN' });
+          return;
+        case 'tool.trim':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'TRIM' });
+          return;
         case 'edit.undo':
           undo();
           return;
@@ -887,6 +1043,21 @@ function App() {
           return;
         case 'edit.delete':
           deleteSelection();
+          return;
+        case 'edit.duplicate':
+          duplicateSelection();
+          return;
+        case 'edit.copy':
+          copySelection();
+          return;
+        case 'edit.paste':
+          pasteClipboard();
+          return;
+        case 'edit.rotate':
+          transformSelection('ROTATE');
+          return;
+        case 'edit.mirror':
+          transformSelection('MIRROR');
           return;
         case 'file.save':
           void saveContainer();
@@ -901,23 +1072,104 @@ function App() {
           dispatchEditor({ type: 'RESET_VIEW' });
           return;
         case 'palette.open':
-          setMessage(
-            `Raccourcis : ${SHORTCUTS.map((binding) => `${binding.label} ${shortcutLabel(binding)}`).join(' · ')}`,
-          );
+          setPaletteOpen(true);
       }
+    },
+    [
+      copySelection,
+      deleteSelection,
+      dispatchEditor,
+      duplicateSelection,
+      pasteClipboard,
+      redo,
+      transformSelection,
+      saveContainer,
+      undo,
+      zoomFit,
+      zoomSelection,
+    ],
+  );
+
+  /**
+   * Everything the palette can reach.
+   *
+   * Tools, workspaces, levels, keyboard commands and the objects of the storey
+   * being drawn are unrelated everywhere else in the application and the same
+   * thing here: a line to read and something that happens when it is chosen.
+   */
+  const paletteEntries = useMemo<readonly PaletteEntry[]>(
+    () => [
+      ...EDITOR_TOOLS.map((tool) => ({
+        id: `outil:${tool.id}`,
+        label: tool.label,
+        group: 'Outils',
+        hint: tool.hint,
+        run: () => {
+          setTab('plan');
+          dispatchEditor({ type: 'SET_TOOL', tool: tool.id });
+        },
+      })),
+      ...WORKSPACE_GROUPS.flatMap((group) =>
+        group.tabs.map((entry) => ({
+          id: `espace:${entry.id}`,
+          label: entry.label,
+          group: 'Espaces',
+          hint: group.label,
+          run: () => setTab(entry.id),
+        })),
+      ),
+      ...SHORTCUTS.filter(
+        (binding) =>
+          binding.id !== 'palette.open' && !binding.id.startsWith('tool.'),
+      ).map((binding) => ({
+        id: binding.id,
+        label: binding.label,
+        group: 'Commandes',
+        hint: shortcutLabel(binding),
+        run: () => runShortcut(binding.id),
+      })),
+      ...file.project.building.levels.map((level) => ({
+        id: `niveau:${level.id}`,
+        label: level.name,
+        group: 'Niveaux',
+        hint: `${(level.elevationMm / 1000).toFixed(2)} m`,
+        run: () => {
+          setTab('plan');
+          dispatchEditor({ type: 'SET_LEVEL', levelId: level.id });
+        },
+      })),
+      ...objectEntries({
+        project: file.project,
+        ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
+        describe: (objectId) => inspectObject(file.project, objectId).title,
+        select: (objectId) => {
+          setTab('plan');
+          dispatchEditor({ type: 'SET_TOOL', tool: 'SELECT' });
+          dispatchEditor({ type: 'SELECT', objectId });
+        },
+      }),
+    ],
+    [activeLevelId, file.project, runShortcut],
+  );
+
+  useEffect(() => {
+    function handle(event: KeyboardEvent): void {
+      const target = event.target as HTMLElement | null;
+      if (shouldIgnoreTarget(target?.tagName, event)) return;
+      const command = resolveShortcut(event);
+      if (command === undefined) return;
+      event.preventDefault();
+      // Escape closes the drawer before it touches the drawing: the panel over
+      // the plan is what the user is looking at.
+      if (command === 'tool.select' && menuOpen) {
+        setMenuOpen(false);
+        return;
+      }
+      runShortcut(command);
     }
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
-  }, [
-    deleteSelection,
-    menuOpen,
-    editor.pendingPoints.length,
-    redo,
-    saveContainer,
-    undo,
-    zoomFit,
-    zoomSelection,
-  ]);
+  }, [menuOpen, runShortcut]);
 
   async function importProject(selected: File | undefined): Promise<void> {
     if (selected === undefined) return;
@@ -1065,6 +1317,26 @@ function App() {
             onClick={() => setMenuOpen((open) => !open)}
           >
             Espaces de travail
+          </button>
+          <button
+            type="button"
+            className="secondary panel-toggle"
+            aria-pressed={layout.sidebarShown}
+            title="Afficher ou masquer le panneau de navigation"
+            onClick={() => changeLayout({ sidebarShown: !layout.sidebarShown })}
+          >
+            Navigation
+          </button>
+          <button
+            type="button"
+            className="secondary panel-toggle"
+            aria-pressed={layout.inspectorShown}
+            title="Afficher ou masquer l’inspecteur"
+            onClick={() =>
+              changeLayout({ inspectorShown: !layout.inspectorShown })
+            }
+          >
+            Inspecteur
           </button>
           <button className="secondary" onClick={undo}>
             Annuler
@@ -1246,6 +1518,13 @@ function App() {
         </Suspense>
       )}
 
+      {paletteOpen && (
+        <CommandPalette
+          entries={paletteEntries}
+          onClose={() => setPaletteOpen(false)}
+        />
+      )}
+
       {recovery !== undefined && (
         <section className="panel recovery-prompt" role="alertdialog">
           <p>
@@ -1283,7 +1562,10 @@ function App() {
         </section>
       )}
 
-      <div className="workspace-grid">
+      <div
+        className="workspace-grid"
+        style={{ '--workspace-columns': columns } as CSSProperties}
+      >
         {menuOpen && (
           <button
             type="button"
@@ -1294,6 +1576,7 @@ function App() {
         )}
         <aside
           id="workspace-sidebar"
+          hidden={!layout.sidebarShown && !menuOpen}
           className={menuOpen ? 'sidebar panel open' : 'sidebar panel'}
         >
           <p className="panel-label">Modèle</p>
@@ -1343,6 +1626,23 @@ function App() {
           </label>
           {tab === 'plan' && (
             <>
+              <ProjectTree
+                project={file.project}
+                {...(activeLevelId === undefined
+                  ? {}
+                  : { levelId: activeLevelId })}
+                selection={editor.selection}
+                onSelectLevel={(levelId) =>
+                  dispatchEditor({ type: 'SET_LEVEL', levelId })
+                }
+                onSelectObject={(objectId) =>
+                  dispatchEditor({ type: 'SELECT', objectId })
+                }
+                onFrameObject={(objectId) => {
+                  dispatchEditor({ type: 'SELECT', objectId });
+                  zoomSelection();
+                }}
+              />
               <LayersPanel editor={editor} dispatch={dispatchEditor} />
               <OverlayControl
                 overlayId={overlayId}
@@ -1359,6 +1659,17 @@ function App() {
           )}
         </aside>
 
+        {layout.sidebarShown ? (
+          <PanelSeparator
+            label="Redimensionner le panneau de navigation"
+            widthPx={layout.sidebarPx}
+            grows="RIGHT"
+            onResize={(sidebarPx) => changeLayout({ sidebarPx })}
+          />
+        ) : (
+          <div className="panel-edge-empty" />
+        )}
+
         {tab === 'plan' && (
           <section className="canvas-panel panel" id="plan">
             <header className="panel-heading">
@@ -1370,9 +1681,6 @@ function App() {
                     'aucun niveau'}
                 </h2>
               </div>
-              <span className="scale-chip">
-                {(editor.camera.pixelsPerMm * 1000).toFixed(0)} px/m · mm
-              </span>
             </header>
             <ToolBar
               project={file.project}
@@ -1398,18 +1706,29 @@ function App() {
               onDimensionTypeChange={setDimensionType}
               networkId={activeNetworkId ?? ''}
               onNetworkChange={setSelectedNetworkId}
+              onTransform={transformSelection}
+              onAlign={alignSelection}
               nodeKind={activeNodeKind}
               onNodeKindChange={setNodeKind}
-              onSplitWall={splitSelectedWall}
             />
             <PlanCanvas
               project={file.project}
               editor={{ ...editor, levelId: activeLevelId } as EditorState}
               dispatch={dispatchEditor}
               onCommitPoints={commitPoints}
+              onMoveSelection={moveSelection}
+              onCommand={runCommand}
               onEditGeometry={editGeometry}
               wallThicknessMm={wallThicknessMm}
               {...(overlay === undefined ? {} : { overlay })}
+            />
+            <StatusBar
+              editor={editor}
+              dispatch={dispatchEditor}
+              levelName={
+                levels.find(({ id }) => id === activeLevelId)?.name ??
+                'aucun niveau'
+              }
             />
           </section>
         )}
@@ -1554,7 +1873,22 @@ function App() {
           </LazyWorkspace>
         )}
 
-        <aside className="inspector panel" id="inventory">
+        {layout.inspectorShown ? (
+          <PanelSeparator
+            label="Redimensionner l’inspecteur"
+            widthPx={layout.inspectorPx}
+            grows="LEFT"
+            onResize={(inspectorPx) => changeLayout({ inspectorPx })}
+          />
+        ) : (
+          <div className="panel-edge-empty" />
+        )}
+
+        <aside
+          className="inspector panel"
+          id="inventory"
+          hidden={!layout.inspectorShown}
+        >
           <p className="panel-label">Inspecteur</p>
           {tab === 'plan' ? (
             <InspectorPanel

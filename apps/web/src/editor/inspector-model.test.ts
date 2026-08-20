@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
 import { loadDemoProject } from '../demo-project.js';
-import { inspectObject } from './inspector-model.js';
+import { inspectObject } from './object-editors.js';
 
 function demo(): Project {
   const result = loadDemoProject();

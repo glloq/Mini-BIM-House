@@ -135,16 +135,14 @@ export function offsetAlongWall(
  * Exactly one object at a time: dragging a corner of one wall while three
  * others are selected would be a gesture nobody asked for.
  */
-export function gripsFor(
+/** Les poignées d’un mur : ses points et, s’il est droit, son corps. */
+export function wallGrips(
   project: Project,
   levelId: string | undefined,
-  selection: readonly string[],
-): readonly Grip[] {
-  if (selection.length !== 1) return [];
-  const objectId = selection[0]!;
+  objectId: string,
+): readonly Grip[] | undefined {
   const level = levelOf(project, levelId);
-  if (level === undefined) return [];
-
+  if (level === undefined) return undefined;
   const wall = level.walls.find(({ id }) => id === objectId);
   if (wall !== undefined) {
     const points = wall.path.points;
@@ -172,7 +170,17 @@ export function gripsFor(
           ]),
     ];
   }
+  return undefined;
+}
 
+/** La poignée qui fait glisser une ouverture le long de son mur. */
+export function openingGrips(
+  project: Project,
+  levelId: string | undefined,
+  objectId: string,
+): readonly Grip[] | undefined {
+  const level = levelOf(project, levelId);
+  if (level === undefined) return undefined;
   const opening = level.openings.find(({ id }) => id === objectId);
   if (opening !== undefined) {
     const host = level.walls.find(({ id }) => id === opening.hostElementId);
@@ -185,7 +193,7 @@ export function gripsFor(
             opening.widthMm,
           );
     return anchor === undefined || host === undefined
-      ? []
+      ? undefined
       : [
           {
             kind: 'OPENING',
@@ -196,11 +204,21 @@ export function gripsFor(
           },
         ];
   }
+  return undefined;
+}
 
+/** Les poignées d’un contour : ses sommets et le milieu de ses côtés. */
+export function polygonGrips(
+  project: Project,
+  levelId: string | undefined,
+  objectId: string,
+): readonly Grip[] | undefined {
+  const level = levelOf(project, levelId);
+  if (level === undefined) return undefined;
   const slab = level.slabs.find(({ id }) => id === objectId);
   const roof = level.roofs.find(({ id }) => id === objectId);
   const polygon = slab?.polygon ?? roof?.footprint;
-  if (polygon === undefined) return [];
+  if (polygon === undefined) return undefined;
   const objectKind = slab === undefined ? 'ROOF' : 'SLAB';
   return [
     ...polygon.outer.map((point, index): Grip => ({

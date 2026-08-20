@@ -16,8 +16,16 @@ import {
   presetVisibility,
 } from '@house-technical-designer/view-query';
 
-export type EditorTool =
-  'SELECT' | 'WALL' | 'OPENING' | 'DIMENSION' | 'NETWORK';
+import { requiredPoints, type EditorTool } from './tool-registry.js';
+
+// The tools themselves are declared in the registry; the state only needs to
+// know which one is active and how many points it is still waiting for.
+export type { EditorTool };
+export {
+  constrainsDrafting,
+  requiredPoints,
+  toolDefinition,
+} from './tool-registry.js';
 
 export interface SnapSettings {
   readonly enabled: boolean;
@@ -86,6 +94,15 @@ export interface EditorState {
   readonly levelId?: string;
   /** Points already committed for the tool in progress. */
   readonly pendingPoints: readonly Point2D[];
+  /**
+   * What each of those points landed on, when it landed on something.
+   *
+   * A tool that joins two walls is told which walls by the clicks themselves;
+   * the point and what it touched are one fact and are kept together.
+   */
+  readonly pendingPicks: readonly (string | undefined)[];
+  /** The rubber band being dragged, while one is. */
+  readonly selectionBox?: { readonly from: Point2D; readonly to: Point2D };
   readonly cursorModel?: Point2D;
   readonly directInput: DirectInput;
 }
@@ -117,6 +134,7 @@ export function createEditorState(viewport: EditorViewport): EditorState {
     layers: defaultVisibility(),
     presetId: 'architecture',
     pendingPoints: [],
+    pendingPicks: [],
     directInput: {},
   };
 }
@@ -129,6 +147,17 @@ export type EditorAction =
       readonly additive?: boolean;
     }
   | { readonly type: 'CLEAR_SELECTION' }
+  | {
+      readonly type: 'SELECT_MANY';
+      readonly objectIds: readonly string[];
+      readonly additive?: boolean;
+    }
+  | {
+      readonly type: 'SET_SELECTION_BOX';
+      readonly from: Point2D;
+      readonly to: Point2D;
+    }
+  | { readonly type: 'CLEAR_SELECTION_BOX' }
   | { readonly type: 'HOVER'; readonly objectId?: string }
   | { readonly type: 'RESIZE'; readonly viewport: EditorViewport }
   | { readonly type: 'PAN'; readonly deltaPx: ScreenPoint }
@@ -145,7 +174,11 @@ export type EditorAction =
       readonly model: Point2D;
       readonly snap?: SnapResult;
     }
-  | { readonly type: 'COMMIT_POINT'; readonly point: Point2D }
+  | {
+      readonly type: 'COMMIT_POINT';
+      readonly point: Point2D;
+      readonly objectId?: string;
+    }
   | { readonly type: 'CANCEL' }
   | { readonly type: 'SET_SNAP'; readonly snap: Partial<SnapSettings> }
   | { readonly type: 'SET_DIRECT_INPUT'; readonly input: DirectInputPatch }
@@ -186,47 +219,23 @@ export function constrainPoint(
   const dx = target.x - origin.x;
   const dy = target.y - origin.y;
   const rawLength = Math.hypot(dx, dy);
-  if (rawLength === 0) return target;
-  const rawAngle = (Math.atan2(dy, dx) * 180) / Math.PI;
+  const lengthMm = direct.lengthMm ?? rawLength;
+  // Nothing to place: neither the pointer nor the keyboard has said how far.
+  if (lengthMm === 0) return target;
+  // A length typed without moving the pointer has no direction of its own; it
+  // goes along the axis until the user says otherwise, rather than refusing to
+  // draw at all.
+  const rawAngle = rawLength === 0 ? 0 : (Math.atan2(dy, dx) * 180) / Math.PI;
   const angleDeg =
     direct.angleDeg ??
     (snap.enabled && snap.orthogonal && snap.angleStepDeg > 0
       ? Math.round(rawAngle / snap.angleStepDeg) * snap.angleStepDeg
       : rawAngle);
-  const lengthMm = direct.lengthMm ?? rawLength;
   const radians = (angleDeg * Math.PI) / 180;
   return {
     x: origin.x + Math.cos(radians) * lengthMm,
     y: origin.y + Math.sin(radians) * lengthMm,
   };
-}
-
-/** Number of points a tool needs before it can produce a command. */
-export function requiredPoints(tool: EditorTool): number {
-  switch (tool) {
-    // Two endpoints to measure, then a point setting how far the dimension
-    // line sits from them.
-    case 'DIMENSION':
-      return 3;
-    case 'WALL':
-      return 2;
-    case 'OPENING':
-    case 'NETWORK':
-      return 1;
-    case 'SELECT':
-      return 0;
-  }
-}
-
-/**
- * Whether a tool drafts along constrained angles and lengths.
- *
- * A wall is drawn along the building axes. A dimension is not drawn at all: it
- * points at endpoints that already exist, and constraining the click would pull
- * it off the corner the user aimed at.
- */
-export function constrainsDrafting(tool: EditorTool): boolean {
-  return tool === 'WALL';
 }
 
 export function editorReducer(
@@ -239,6 +248,7 @@ export function editorReducer(
         ...state,
         activeTool: action.tool,
         pendingPoints: [],
+        pendingPicks: [],
         directInput: {},
       };
     case 'SELECT': {
@@ -251,6 +261,26 @@ export function editorReducer(
             selection: state.selection.filter((id) => id !== action.objectId),
           }
         : { ...state, selection: [...state.selection, action.objectId] };
+    }
+    case 'SELECT_MANY': {
+      const { selectionBox: _band, ...rest } = state;
+      if (action.additive !== true)
+        return { ...rest, selection: [...action.objectIds] };
+      // Adding a band to a selection adds what it caught and removes nothing:
+      // taking objects away is what clicking them again is for.
+      return {
+        ...rest,
+        selection: [...new Set([...state.selection, ...action.objectIds])],
+      };
+    }
+    case 'SET_SELECTION_BOX':
+      return {
+        ...state,
+        selectionBox: { from: action.from, to: action.to },
+      };
+    case 'CLEAR_SELECTION_BOX': {
+      const { selectionBox: _band, ...rest } = state;
+      return rest;
     }
     case 'CLEAR_SELECTION':
       return { ...state, selection: [] };
@@ -313,12 +343,27 @@ export function editorReducer(
     }
     case 'COMMIT_POINT': {
       const points = [...state.pendingPoints, action.point];
+      const picks = [...state.pendingPicks, action.objectId];
       return points.length >= requiredPoints(state.activeTool)
-        ? { ...state, pendingPoints: [], directInput: {} }
-        : { ...state, pendingPoints: points };
+        ? { ...state, pendingPoints: [], pendingPicks: [], directInput: {} }
+        : { ...state, pendingPoints: points, pendingPicks: picks };
     }
-    case 'CANCEL':
-      return { ...state, pendingPoints: [], directInput: {}, selection: [] };
+    case 'CANCEL': {
+      // One step at a time, and the most recent first. Abandoning a wall being
+      // drawn used to clear the selection as well, so a mis-started line cost
+      // the twelve walls that were about to be edited.
+      const { selectionBox: _band, ...rest } = state;
+      if (state.pendingPoints.length > 0 || state.selectionBox !== undefined)
+        return {
+          ...rest,
+          pendingPoints: [],
+          pendingPicks: [],
+          directInput: {},
+        };
+      if (state.activeTool !== 'SELECT')
+        return { ...rest, activeTool: 'SELECT', directInput: {} };
+      return { ...rest, selection: [] };
+    }
     case 'SET_SNAP':
       return { ...state, snap: { ...state.snap, ...action.snap } };
     case 'SET_DIRECT_INPUT':
@@ -364,6 +409,7 @@ export function editorReducer(
         levelId: action.levelId,
         selection: [],
         pendingPoints: [],
+        pendingPicks: [],
       };
   }
 }

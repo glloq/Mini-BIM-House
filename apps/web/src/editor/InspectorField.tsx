@@ -4,6 +4,13 @@ import type { InspectorEdit } from './inspector-edits.js';
 export interface InspectorFieldProps {
   readonly edit: InspectorEdit;
   readonly onApply: (edit: InspectorEdit, value: string) => void;
+  /**
+   * Whether the selected objects disagree on this property.
+   *
+   * Showing the first object's value as if it were everyone's would invite the
+   * user to write it back to all of them without ever deciding to.
+   */
+  readonly mixed?: boolean;
 }
 
 /**
@@ -14,9 +21,14 @@ export interface InspectorFieldProps {
  * invalidate the calculations on each of them. A select commits immediately,
  * because choosing an option is already a decision.
  */
-export function InspectorField({ edit, onApply }: InspectorFieldProps) {
-  const initial =
-    edit.control.kind === 'NUMBER'
+export function InspectorField({
+  edit,
+  onApply,
+  mixed = false,
+}: InspectorFieldProps) {
+  const initial = mixed
+    ? ''
+    : edit.control.kind === 'NUMBER'
       ? String(edit.control.value)
       : edit.control.value;
   const [draft, setDraft] = useState(initial);
@@ -26,7 +38,9 @@ export function InspectorField({ edit, onApply }: InspectorFieldProps) {
   useEffect(() => setDraft(initial), [initial]);
 
   const commit = (): void => {
-    if (draft !== initial) onApply(edit, draft);
+    // Leaving a mixed field untouched must change nothing.
+    if (draft !== initial && !(mixed && draft.trim() === ''))
+      onApply(edit, draft);
   };
 
   return (
@@ -43,9 +57,10 @@ export function InspectorField({ edit, onApply }: InspectorFieldProps) {
           value={draft}
           onChange={(event) => {
             setDraft(event.target.value);
-            onApply(edit, event.target.value);
+            if (event.target.value !== '') onApply(edit, event.target.value);
           }}
         >
+          {mixed && <option value="">— valeurs différentes —</option>}
           {edit.control.options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -71,6 +86,7 @@ export function InspectorField({ edit, onApply }: InspectorFieldProps) {
                   ? {}
                   : { placeholder: edit.control.placeholder }),
               })}
+          {...(mixed ? { placeholder: 'valeurs différentes' } : {})}
           onChange={(event) => setDraft(event.target.value)}
           onBlur={commit}
           onKeyDown={(event) => {

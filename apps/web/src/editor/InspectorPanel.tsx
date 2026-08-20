@@ -1,7 +1,7 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
-import { inspectObject } from './inspector-model.js';
-import { editsFor, type InspectorEdit } from './inspector-edits.js';
+import { editsFor, inspectObject, sharedEditsFor } from './object-editors.js';
+import type { InspectorEdit } from './inspector-edits.js';
 import { InspectorField } from './InspectorField.js';
 
 export interface InspectorPanelProps {
@@ -28,20 +28,53 @@ export function InspectorPanel({
       </p>
     );
 
-  if (selection.length > 1)
+  if (selection.length > 1) {
+    const shared = sharedEditsFor(project, selection);
     return (
-      <div>
+      <div className="inspector-multiple">
         <p className="hint">{selection.length} objets sélectionnés</p>
+        {shared.length > 0 ? (
+          <section className="inspector-edits">
+            <h4>Modifier les {selection.length} objets</h4>
+            {shared.map((edit) => (
+              <InspectorField
+                key={edit.id}
+                edit={edit}
+                mixed={!edit.uniform}
+                onApply={(applied, value) => {
+                  const command = applied.apply(value);
+                  if (command === undefined) {
+                    onMessage(
+                      `${applied.label} : la valeur n'a pas pu être appliquée à toute la sélection.`,
+                    );
+                    return;
+                  }
+                  onCommand(command);
+                }}
+              />
+            ))}
+          </section>
+        ) : (
+          <p className="notice">
+            Ces objets n’ont aucune propriété commune modifiable ensemble.
+          </p>
+        )}
         <ul className="selection-list">
           {selection.map((objectId) => (
             <li key={objectId}>{inspectObject(project, objectId).title}</li>
           ))}
         </ul>
-        <button type="button" className="secondary" onClick={onClear}>
-          Vider la sélection
-        </button>
+        <div className="actions">
+          <button type="button" className="secondary" onClick={onClear}>
+            Vider la sélection
+          </button>
+          <button type="button" className="secondary danger" onClick={onDelete}>
+            Supprimer
+          </button>
+        </div>
       </div>
     );
+  }
 
   const objectId = selection[0]!;
   const subject = inspectObject(project, objectId);

@@ -10,10 +10,21 @@ export type ShortcutCommandId =
   | 'tool.opening'
   | 'tool.dimension'
   | 'tool.network'
+  | 'tool.split'
+  | 'tool.rotate'
+  | 'tool.mirror'
+  | 'tool.offset'
+  | 'tool.join'
+  | 'tool.trim'
   | 'edit.undo'
   | 'edit.redo'
   | 'edit.delete'
   | 'edit.cancel'
+  | 'edit.duplicate'
+  | 'edit.copy'
+  | 'edit.paste'
+  | 'edit.rotate'
+  | 'edit.mirror'
   | 'file.save'
   | 'view.zoomFit'
   | 'view.zoomSelection'
@@ -36,6 +47,12 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
   { id: 'tool.opening', label: 'Ouverture', key: 'o', group: 'Outils' },
   { id: 'tool.dimension', label: 'Cotation', key: 'd', group: 'Outils' },
   { id: 'tool.network', label: 'Réseau', key: 'r', group: 'Outils' },
+  { id: 'tool.split', label: 'Scinder un mur', key: 'x', group: 'Outils' },
+  { id: 'tool.rotate', label: 'Pivoter', key: 'p', group: 'Outils' },
+  { id: 'tool.mirror', label: 'Miroir', key: 'm', group: 'Outils' },
+  { id: 'tool.offset', label: 'Décaler', key: 'e', group: 'Outils' },
+  { id: 'tool.join', label: 'Joindre', key: 'j', group: 'Outils' },
+  { id: 'tool.trim', label: 'Ajuster', key: 't', group: 'Outils' },
   {
     id: 'edit.undo',
     label: 'Annuler',
@@ -52,6 +69,41 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
     group: 'Édition',
   },
   { id: 'edit.delete', label: 'Supprimer', key: 'Delete', group: 'Édition' },
+  {
+    id: 'edit.duplicate',
+    label: 'Dupliquer la sélection',
+    key: 'd',
+    ctrlOrMeta: true,
+    group: 'Édition',
+  },
+  {
+    id: 'edit.copy',
+    label: 'Copier la sélection',
+    key: 'c',
+    ctrlOrMeta: true,
+    group: 'Édition',
+  },
+  {
+    id: 'edit.paste',
+    label: 'Coller sur le niveau affiché',
+    key: 'v',
+    ctrlOrMeta: true,
+    group: 'Édition',
+  },
+  {
+    id: 'edit.rotate',
+    label: 'Pivoter la sélection d’un quart de tour',
+    key: 'r',
+    shift: true,
+    group: 'Édition',
+  },
+  {
+    id: 'edit.mirror',
+    label: 'Retourner la sélection de gauche à droite',
+    key: 'm',
+    shift: true,
+    group: 'Édition',
+  },
   {
     id: 'edit.cancel',
     label: 'Annuler l’action',

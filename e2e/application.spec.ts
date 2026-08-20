@@ -461,11 +461,23 @@ test('reshapes a wall after drawing it, instead of redrawing it', async ({
     'Déplacer une extrémité de mur',
   );
 
-  // The wall can be cut in two, and the pieces are two walls.
+  // The wall can be cut in two, where the user points rather than at its
+  // middle, and the pieces are two walls.
   const wallsBefore = await page
     .locator('[data-role="WALL_CUT"][id^="wall:"]')
     .count();
-  await page.getByRole('button', { name: 'Scinder le mur' }).click();
+  await page.getByRole('button', { name: 'Scinder', exact: true }).click();
+  await canvas.scrollIntoViewIfNeeded();
+  const frame = (await canvas.boundingBox())!;
+  const shape = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  // Aimed a third of the way along the wall, not at its middle: the point that
+  // is clicked is the point where it is cut.
+  await canvas.click({
+    position: {
+      x: shape.x - frame.x + shape.width * 0.3,
+      y: shape.y - frame.y + shape.height / 2,
+    },
+  });
   await expect(page.getByRole('status')).toContainText('Scinder un mur');
   await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
     wallsBefore + 1,
@@ -622,6 +634,463 @@ test('deletes a multiple selection as one undoable action', async ({
   // One action, one undo: both walls come back together.
   await page.getByRole('button', { name: 'Annuler', exact: true }).click();
   await expect(walls).toHaveCount(6);
+});
+
+test('selects several objects with a rubber band', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  // The pointer is driven in viewport coordinates, so the canvas has to be
+  // where the test thinks it is.
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  const at = (fx: number, fy: number) => ({
+    x: box.x + box.width * fx,
+    y: box.y + box.height * fy,
+  });
+
+  // Dragged rightwards, the band takes what it encloses.
+  const from = at(0.02, 0.04);
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  const halfway = at(0.5, 0.5);
+  await page.mouse.move(halfway.x, halfway.y, { steps: 4 });
+  await expect(page.locator('#preview\\:selection-box')).toHaveCount(1);
+  await expect(page.locator('.canvas-status')).toContainText('fenêtre');
+  const to = at(0.98, 0.96);
+  await page.mouse.move(to.x, to.y, { steps: 4 });
+  await page.mouse.up();
+
+  const selection = page.locator('.selection-list li');
+  await expect(selection.first()).toBeVisible();
+  expect(await selection.count()).toBeGreaterThan(1);
+  // The band is gone once released.
+  await expect(page.locator('#preview\\:selection-box')).toHaveCount(0);
+
+  // Escape clears the selection once nothing else is in progress.
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.selection-list li')).toHaveCount(0);
+
+  // Dragged leftwards, the band takes everything it touches: a band far too
+  // small to enclose a wall still catches the ones crossing it.
+  const start = at(0.55, 0.55);
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  const back = at(0.45, 0.45);
+  await page.mouse.move(back.x, back.y, { steps: 4 });
+  await expect(page.locator('.canvas-status')).toContainText('capture');
+  await page.mouse.up();
+  await expect(
+    page.locator('.inspector-subject, .selection-list'),
+  ).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('changes a property of several objects in one go', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  // A point on each partition, away from where the two of them cross: their
+  // bounding boxes share that crossing, and clicking it twice would select and
+  // then deselect the same wall.
+  const along = async (id: string, fx: number, fy: number) => {
+    const shape = (await page.locator(`[id="wall:${id}"]`).boundingBox())!;
+    return {
+      x: shape.x - box.x + shape.width * fx,
+      y: shape.y - box.y + shape.height * fy,
+    };
+  };
+  await canvas.click({ position: await along('wall-partition-v', 0.5, 0.2) });
+  await canvas.click({
+    position: await along('wall-partition-h', 0.2, 0.5),
+    modifiers: ['ControlOrMeta'],
+  });
+  await expect(page.locator('.selection-list li')).toHaveCount(2);
+
+  // Both are partitions, so the shared field shows that value rather than
+  // "different"; their lengths differ, and that field says so.
+  const role = page.getByLabel('Rôle');
+  await expect(role).toHaveValue('INTERIOR');
+  await expect(page.getByLabel('Longueur')).toHaveAttribute(
+    'placeholder',
+    'valeurs différentes',
+  );
+
+  await role.selectOption('EXTERIOR');
+  await expect(page.getByRole('status')).toContainText('2 objets');
+
+  // One decision, one undo: both walls go back together.
+  await canvas.click({ position: await along('wall-partition-v', 0.5, 0.2) });
+  await expect(page.getByLabel('Rôle')).toHaveValue('EXTERIOR');
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.getByLabel('Rôle')).toHaveValue('INTERIOR');
+  expect(errors).toEqual([]);
+});
+
+test('reaches tools, workspaces and objects from the command palette', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.locator('.plan-canvas').click({ position: { x: 5, y: 5 } });
+
+  // A tool, by its name.
+  await page.keyboard.press('Control+k');
+  const palette = page.getByRole('dialog', { name: 'Palette de commandes' });
+  await expect(palette).toBeVisible();
+  await palette.getByLabel('Chercher une commande').fill('mur');
+  await page.keyboard.press('Enter');
+  await expect(palette).toBeHidden();
+  await expect(
+    page.getByRole('button', { name: 'Mur', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+
+  // A workspace, without accents and without knowing where its button is.
+  await page.keyboard.press('Control+k');
+  await page.getByLabel('Chercher une commande').fill('reseaux');
+  await page.keyboard.press('Enter');
+  await expect(
+    page.getByRole('heading', { name: 'Réseaux du projet' }),
+  ).toBeVisible();
+
+  // An object of the storey being drawn, by the name the inspector gives it.
+  await page.keyboard.press('Control+k');
+  await page.getByLabel('Chercher une commande').fill('wall-south');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.inspector-subject')).toContainText('wall-south');
+
+  // Escape closes it without running anything.
+  await page.keyboard.press('Control+k');
+  await expect(
+    page.getByRole('dialog', { name: 'Palette de commandes' }),
+  ).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(
+    page.getByRole('dialog', { name: 'Palette de commandes' }),
+  ).toBeHidden();
+  await expect(page.locator('.inspector-subject')).toContainText('wall-south');
+  expect(errors).toEqual([]);
+});
+
+test('carries a selection across the plan by dragging it', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const frame = (await canvas.boundingBox())!;
+  const onWall = async (id: string, fx: number, fy: number) => {
+    const shape = (await page.locator(`[id="wall:${id}"]`).boundingBox())!;
+    return {
+      x: shape.x - frame.x + shape.width * fx,
+      y: shape.y - frame.y + shape.height * fy,
+    };
+  };
+
+  const grip = await onWall('wall-partition-v', 0.5, 0.2);
+  await canvas.click({ position: grip });
+  await expect(page.locator('.inspector-subject')).toContainText(
+    'wall-partition-v',
+  );
+  const lengthBefore = await page
+    .getByRole('spinbutton', { name: 'Longueur (mm)' })
+    .inputValue();
+
+  // Pressing on something already selected carries it rather than starting a
+  // rubber band.
+  await page.mouse.move(frame.x + grip.x, frame.y + grip.y);
+  await page.mouse.down();
+  await page.mouse.move(frame.x + grip.x + 60, frame.y + grip.y + 20, {
+    steps: 6,
+  });
+  // The wall is shown where it would land before it is dropped.
+  await expect(page.locator('[id^="preview:move:"]').first()).toBeVisible();
+  await page.mouse.up();
+  await expect(page.getByRole('status')).toContainText('Déplacer');
+
+  // Carried, not reshaped: the wall is the same length where it lands.
+  await expect(
+    page.getByRole('spinbutton', { name: 'Longueur (mm)' }),
+  ).toHaveValue(lengthBefore);
+  await expect(page.locator('[id^="preview:move:"]')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('annulée');
+  expect(errors).toEqual([]);
+});
+
+test('remembers how wide the panels were made', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const sidebar = page.locator('#workspace-sidebar');
+  const before = (await sidebar.boundingBox())!.width;
+
+  // The edge between the panel and the drawing is a separator: the arrow keys
+  // move it for anyone not using a pointer.
+  const edge = page.getByRole('separator', {
+    name: 'Redimensionner le panneau de navigation',
+  });
+  await edge.focus();
+  for (let press = 0; press < 4; press += 1)
+    await page.keyboard.press('ArrowRight');
+  await expect
+    .poll(async () => (await sidebar.boundingBox())!.width)
+    .toBeGreaterThan(before);
+  const widened = (await sidebar.boundingBox())!.width;
+
+  // Hiding the inspector gives the drawing its width.
+  const canvas = page.locator('.canvas-panel');
+  const plan = (await canvas.boundingBox())!.width;
+  await page.getByRole('button', { name: 'Inspecteur', exact: true }).click();
+  await expect(page.locator('#inventory')).toBeHidden();
+  await expect
+    .poll(async () => (await canvas.boundingBox())!.width)
+    .toBeGreaterThan(plan);
+
+  // Both decisions survive a reload: they are preferences of the person, kept
+  // in the browser and never in the project.
+  await page.reload();
+  await expect(
+    page.getByRole('button', { name: 'Maison de démonstration' }),
+  ).toBeVisible();
+  await expect(page.locator('#inventory')).toBeHidden();
+  expect((await sidebar.boundingBox())!.width).toBeCloseTo(widened, 0);
+
+  await page.getByRole('button', { name: 'Inspecteur', exact: true }).click();
+  await expect(page.locator('#inventory')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('duplicates a selection and leaves the copies selected', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  await expect(walls).toHaveCount(6);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const frame = (await canvas.boundingBox())!;
+  const shape = (await page
+    .locator('[id="wall:wall-partition-v"]')
+    .boundingBox())!;
+  await canvas.click({
+    position: {
+      x: shape.x - frame.x + shape.width * 0.5,
+      y: shape.y - frame.y + shape.height * 0.2,
+    },
+  });
+  await expect(page.locator('.inspector-subject')).toContainText(
+    'wall-partition-v',
+  );
+
+  await page.keyboard.press('Control+d');
+  await expect(page.getByRole('status')).toContainText('Dupliquer');
+  await expect(walls).toHaveCount(7);
+  // What is selected afterwards is the copy, not the original: the next edit
+  // has to land on what was just created.
+  await expect(page.locator('.inspector-subject')).not.toContainText(
+    'wall-partition-v',
+  );
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(walls).toHaveCount(6);
+  expect(errors).toEqual([]);
+});
+
+test('turns and reflects a selection about its own centre', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const frame = (await canvas.boundingBox())!;
+  const shape = (await page
+    .locator('[id="wall:wall-partition-h"]')
+    .boundingBox())!;
+  await canvas.click({
+    position: {
+      x: shape.x - frame.x + shape.width * 0.2,
+      y: shape.y - frame.y + shape.height * 0.5,
+    },
+  });
+  await expect(page.locator('.inspector-subject')).toContainText(
+    'wall-partition-h',
+  );
+  const before = await page
+    .getByRole('spinbutton', { name: 'Angle (°)' })
+    .inputValue();
+  const length = await page
+    .getByRole('spinbutton', { name: 'Longueur (mm)' })
+    .inputValue();
+
+  await page.getByRole('button', { name: /^Pivoter 90°/ }).click();
+  await expect(page.getByRole('status')).toContainText('Pivoter');
+  // A quarter turn changes the bearing and not the length.
+  await expect(
+    page.getByRole('spinbutton', { name: 'Angle (°)' }),
+  ).not.toHaveValue(before);
+  await expect(
+    page.getByRole('spinbutton', { name: 'Longueur (mm)' }),
+  ).toHaveValue(length);
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.getByRole('spinbutton', { name: 'Angle (°)' })).toHaveValue(
+    before,
+  );
+
+  await page.getByRole('button', { name: /^Miroir gauche-droite/ }).click();
+  await expect(page.getByRole('status')).toContainText('Retourner');
+  await expect(
+    page.getByRole('spinbutton', { name: 'Longueur (mm)' }),
+  ).toHaveValue(length);
+  expect(errors).toEqual([]);
+});
+
+test('offsets, joins and aligns walls from the plan', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  // The canvas moves when the toolbar of the active tool changes height, so
+  // where it is now is read each time rather than once.
+  const onWall = async (id: string, fx: number, fy: number) => {
+    const frame = (await canvas.boundingBox())!;
+    const shape = (await page.locator(`[id="wall:${id}"]`).boundingBox())!;
+    return {
+      x: shape.x - frame.x + shape.width * fx,
+      y: shape.y - frame.y + shape.height * fy,
+    };
+  };
+
+  // Décaler : le mur, puis le côté et la distance.
+  await page.getByRole('button', { name: 'Décaler', exact: true }).click();
+  // A quarter of the way along, away from the partition that crosses this wall
+  // at its middle.
+  const source = await onWall('wall-south', 0.25, 0.5);
+  await canvas.click({ position: source });
+  await canvas.click({ position: { x: source.x, y: source.y + 60 } });
+  await expect(page.getByRole('status')).toContainText('Décaler un mur');
+  await expect(walls).toHaveCount(7);
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(walls).toHaveCount(6);
+
+  // Aligner demande au moins deux objets, et le dit.
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await canvas.click({ position: await onWall('wall-partition-v', 0.5, 0.2) });
+  await expect(
+    page.getByRole('button', { name: 'Aligner à gauche' }),
+  ).toBeDisabled();
+  await canvas.click({
+    position: await onWall('wall-west', 0.5, 0.3),
+    modifiers: ['ControlOrMeta'],
+  });
+  await page.getByRole('button', { name: 'Aligner à gauche' }).click();
+  await expect(page.getByRole('status')).toContainText('Aligner à gauche');
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('annulée');
+  expect(errors).toEqual([]);
+});
+
+test('draws a wall of a typed length, at the cursor', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  await expect(walls).toHaveCount(6);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+
+  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await canvas.click({ position: { x: 80, y: 300 } });
+  // The fields follow the point being placed rather than sitting at the top of
+  // the window.
+  const dynamic = page.locator('.dynamic-input');
+  await expect(dynamic).toBeVisible();
+
+  // A length typed with its unit, then Enter: the wall is placed where the
+  // numbers say, not where the pointer happens to be.
+  await page.getByLabel('Longueur du tracé').fill('4,5 m');
+  await page.getByLabel('Angle du tracé').fill('0');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('status')).toContainText('Ajouter un mur');
+  await expect(walls).toHaveCount(7);
+  await expect(dynamic).toBeHidden();
+
+  // The wall measures what was typed.
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await canvas.click({ position: { x: 200, y: 300 } });
+  await expect(
+    page.getByRole('spinbutton', { name: 'Longueur (mm)' }),
+  ).toHaveValue('4500');
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(walls).toHaveCount(6);
+  expect(errors).toEqual([]);
+});
+
+test('edits a measurement written on the drawing itself', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const frame = (await canvas.boundingBox())!;
+  const shape = (await page
+    .locator('[id="wall:wall-partition-v"]')
+    .boundingBox())!;
+  await canvas.click({
+    position: {
+      x: shape.x - frame.x + shape.width * 0.5,
+      y: shape.y - frame.y + shape.height * 0.2,
+    },
+  });
+
+  // The length is written on the wall, not only in the panel on the right.
+  const onPlan = page.getByLabel('Longueur sur le plan');
+  await expect(onPlan).toBeVisible();
+  const before = await onPlan.inputValue();
+  expect(Number(before)).toBeGreaterThan(0);
+
+  await onPlan.fill('6000');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('status')).toContainText('appliqué');
+  await expect(
+    page.getByRole('spinbutton', { name: 'Longueur (mm)' }),
+  ).toHaveValue('6000');
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.getByLabel('Longueur sur le plan')).toHaveValue(before);
+  expect(errors).toEqual([]);
+});
+
+test('reaches an object through the project tree', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const tree = page.getByRole('navigation', {
+    name: 'Arborescence du projet',
+  });
+  await expect(tree).toBeVisible();
+
+  // The families of the storey being drawn, with what they hold.
+  await tree.getByText(/^Murs/).click();
+  const wall = tree.getByRole('button', { name: 'wall-south' });
+  await expect(wall).toBeVisible();
+  await wall.click();
+  await expect(page.locator('.inspector-subject')).toContainText('wall-south');
+
+  // Rooms read as their names rather than as identifiers.
+  await tree.getByText(/^Pièces/).click();
+  await expect(tree.getByRole('button', { name: 'Séjour' })).toBeVisible();
+
+  // Another storey can be reached, and becomes the one being drawn.
+  await expect(
+    tree.getByRole('button', { name: 'Rez-de-chaussée' }),
+  ).toHaveAttribute('aria-current', 'true');
+  expect(errors).toEqual([]);
 });
 
 test('chooses which contour a slab is built from', async ({ page }) => {

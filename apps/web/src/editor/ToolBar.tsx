@@ -8,28 +8,18 @@ import {
   networkNodeTemplates,
 } from '@house-technical-designer/editor-core';
 import type { EditorAction, EditorState, EditorTool } from './editor-state.js';
+import type { AlignEdge } from './editing-commands.js';
 import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
+import {
+  TOOL_GROUP_LABELS,
+  populatedToolGroups,
+  toolsInGroup,
+} from './tool-registry.js';
 import {
   DIMENSION_TYPE_OPTIONS,
   OPENING_TYPE_OPTIONS,
   WALL_ROLE_OPTIONS,
 } from './domain-options.js';
-
-const TOOLS: readonly { readonly id: EditorTool; readonly label: string }[] = [
-  { id: 'SELECT', label: 'Sélection' },
-  { id: 'WALL', label: 'Mur' },
-  { id: 'OPENING', label: 'Ouverture' },
-  { id: 'DIMENSION', label: 'Cotation' },
-  { id: 'NETWORK', label: 'Réseau' },
-];
-
-const SHORTCUT_BY_TOOL: Readonly<Record<EditorTool, string>> = {
-  SELECT: 'tool.select',
-  WALL: 'tool.wall',
-  OPENING: 'tool.opening',
-  DIMENSION: 'tool.dimension',
-  NETWORK: 'tool.network',
-};
 
 export interface ToolBarProps {
   readonly project: Project;
@@ -48,8 +38,10 @@ export interface ToolBarProps {
   readonly onNetworkChange: (networkId: string) => void;
   readonly nodeKind: string;
   readonly onNodeKindChange: (kind: string) => void;
-  /** Cuts the selected wall in two at its middle, when one is selected. */
-  readonly onSplitWall?: () => void;
+  /** Turns or reflects the selection about its own centre. */
+  readonly onTransform?: (kind: 'ROTATE' | 'MIRROR') => void;
+  /** Lines the selection up on one edge of its own outline. */
+  readonly onAlign?: (edge: AlignEdge) => void;
 }
 
 export interface OpeningDraft {
@@ -80,42 +72,44 @@ export function ToolBar({
   onNetworkChange,
   nodeKind,
   onNodeKindChange,
-  onSplitWall,
+  onTransform,
+  onAlign,
 }: ToolBarProps) {
   const networks = project.systems ?? [];
-  // Splitting takes one straight wall: the action says so rather than failing
-  // once clicked.
-  const splittableWall =
-    onSplitWall !== undefined &&
-    editor.selection.length === 1 &&
-    project.building.levels
-      .flatMap(({ walls }) => walls)
-      .some(
-        (wall) =>
-          wall.id === editor.selection[0] && wall.path.points.length === 2,
-      );
   const activeNetwork = networks.find(({ id }) => id === networkId);
   const wallAssemblies = (project.assemblies ?? []).filter(
     ({ category }) => category === 'WALL' || category === 'PARTITION',
   );
   return (
     <div className="tool-bar">
-      <div className="tool-group" role="group" aria-label="Outils de dessin">
-        {TOOLS.map((tool) => (
-          <button
-            key={tool.id}
-            type="button"
-            className={
-              tool.id === editor.activeTool ? 'tool-active' : 'secondary'
-            }
-            aria-pressed={tool.id === editor.activeTool}
-            title={`${tool.label} — raccourci${hint(SHORTCUT_BY_TOOL[tool.id])}`}
-            onClick={() => dispatch({ type: 'SET_TOOL', tool: tool.id })}
-          >
-            {tool.label}
-          </button>
-        ))}
-      </div>
+      {/* One group per family: the toolbar asks the registry what exists
+          rather than holding its own list, so a new tool appears beside the
+          ones it belongs with instead of at the end of a growing row. */}
+      {populatedToolGroups().map((group) => (
+        <div
+          className="tool-group"
+          role="group"
+          aria-label={`Outils · ${TOOL_GROUP_LABELS[group]}`}
+          key={group}
+        >
+          {toolsInGroup(group).map((tool) => (
+            <button
+              key={tool.id}
+              type="button"
+              className={
+                tool.id === editor.activeTool ? 'tool-active' : 'secondary'
+              }
+              aria-pressed={tool.id === editor.activeTool}
+              title={`${tool.hint} — raccourci${hint(tool.shortcutId)}`}
+              onClick={() =>
+                dispatch({ type: 'SET_TOOL', tool: tool.id as EditorTool })
+              }
+            >
+              {tool.label}
+            </button>
+          ))}
+        </div>
+      ))}
 
       {editor.activeTool === 'WALL' && (
         <div className="tool-group">
@@ -149,51 +143,6 @@ export function ToolBar({
               ))}
             </select>
           </div>
-          <label>
-            Longueur (m)
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="libre"
-              value={
-                editor.directInput.lengthMm === undefined
-                  ? ''
-                  : editor.directInput.lengthMm / 1000
-              }
-              onChange={(event) =>
-                dispatch({
-                  type: 'SET_DIRECT_INPUT',
-                  input: {
-                    lengthMm:
-                      event.target.value === ''
-                        ? null
-                        : event.target.valueAsNumber * 1000,
-                  },
-                })
-              }
-            />
-          </label>
-          <label>
-            Angle (°)
-            <input
-              type="number"
-              step="1"
-              placeholder="libre"
-              value={editor.directInput.angleDeg ?? ''}
-              onChange={(event) =>
-                dispatch({
-                  type: 'SET_DIRECT_INPUT',
-                  input: {
-                    angleDeg:
-                      event.target.value === ''
-                        ? null
-                        : event.target.valueAsNumber,
-                  },
-                })
-              }
-            />
-          </label>
         </div>
       )}
 
@@ -314,60 +263,58 @@ export function ToolBar({
         </div>
       )}
 
-      <div className="tool-group" role="group" aria-label="Accrochage">
-        <label className="checkbox">
-          <input
-            type="checkbox"
-            checked={editor.snap.enabled}
-            onChange={(event) =>
-              dispatch({
-                type: 'SET_SNAP',
-                snap: { enabled: event.target.checked },
-              })
-            }
-          />
-          Accrochage
-        </label>
-        {(
-          [
-            ['grid', 'Grille'],
-            ['endpoint', 'Extrémités'],
-            ['midpoint', 'Milieux'],
-            ['intersection', 'Intersections'],
-            ['orthogonal', 'Angles'],
-          ] as const
-        ).map(([key, label]) => (
-          <label key={key} className="checkbox">
-            <input
-              type="checkbox"
-              disabled={!editor.snap.enabled}
-              checked={editor.snap[key]}
-              onChange={(event) =>
-                dispatch({
-                  type: 'SET_SNAP',
-                  snap: { [key]: event.target.checked },
-                })
-              }
-            />
-            {label}
-          </label>
-        ))}
-      </div>
-
-      <div className="tool-group" role="group" aria-label="Modification">
+      {/* Le quart de tour et le retournement gauche-droite se font autour du
+          centre de la sélection, sans rien tracer ; les outils Pivoter et
+          Miroir servent quand le centre ou l'axe comptent. */}
+      <div
+        className="tool-group"
+        role="group"
+        aria-label="Transformations rapides"
+      >
         <button
           type="button"
           className="secondary"
-          disabled={!splittableWall}
-          title={
-            splittableWall
-              ? undefined
-              : 'Sélectionnez un mur droit sur le plan pour le scinder.'
-          }
-          onClick={() => onSplitWall?.()}
+          disabled={editor.selection.length === 0}
+          title="Pivoter la sélection d’un quart de tour autour de son centre"
+          onClick={() => onTransform?.('ROTATE')}
         >
-          Scinder le mur
+          Pivoter 90°{hint('edit.rotate')}
         </button>
+        <button
+          type="button"
+          className="secondary"
+          disabled={editor.selection.length === 0}
+          title="Retourner la sélection de gauche à droite"
+          onClick={() => onTransform?.('MIRROR')}
+        >
+          Miroir gauche-droite{hint('edit.mirror')}
+        </button>
+      </div>
+
+      <div className="tool-group" role="group" aria-label="Alignement">
+        {(
+          [
+            ['LEFT', 'Aligner à gauche'],
+            ['RIGHT', 'Aligner à droite'],
+            ['TOP', 'Aligner en haut'],
+            ['BOTTOM', 'Aligner en bas'],
+          ] as const
+        ).map(([edge, label]) => (
+          <button
+            key={edge}
+            type="button"
+            className="secondary"
+            disabled={editor.selection.length < 2}
+            title={
+              editor.selection.length < 2
+                ? 'Sélectionnez au moins deux objets à aligner.'
+                : label
+            }
+            onClick={() => onAlign?.(edge)}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       <div className="tool-group" role="group" aria-label="Navigation">

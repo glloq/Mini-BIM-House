@@ -33,8 +33,15 @@ button.secondary {
   background: #fff;
   color: #31443b;
 }
+/*
+ * A drawing takes the window it is given.
+ *
+ * The workspace used to stop at 1480 pixels, so half of a wide screen showed
+ * background instead of plan. What limits the drawing now is the panels beside
+ * it, and their width is the user's decision.
+ */
 .workspace {
-  width: min(1480px, calc(100% - 2rem));
+  width: calc(100% - 2rem);
   margin: auto;
   padding: 1.25rem 0 2rem;
 }
@@ -94,9 +101,38 @@ h2 {
 }
 .workspace-grid {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr) 280px;
-  gap: 1rem;
+  /* The remembered layout supplies the variable; this is what it starts from. */
+  grid-template-columns: var(
+    --workspace-columns,
+    220px 6px minmax(0, 1fr) 6px 280px
+  );
+  gap: 0.5rem;
   min-height: 680px;
+}
+/*
+ * The edge between a panel and the drawing.
+ *
+ * It is a separator, not decoration: it can be dragged, and the arrow keys move
+ * it for anyone not using a pointer.
+ */
+.panel-separator {
+  align-self: stretch;
+  border-radius: 999px;
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
+}
+.panel-separator:hover,
+.panel-separator:focus-visible {
+  background: #b9cec3;
+  outline: none;
+}
+.panel-edge-empty {
+  display: block;
+}
+.panel-toggle[aria-pressed='true'] {
+  border-color: #2f6f4f;
+  color: #1f4c37;
 }
 .panel {
   border: 1px solid #d3ddd7;
@@ -282,8 +318,16 @@ h2 {
   line-height: 1.5;
 }
 @media (max-width: 1050px) {
+  /*
+   * Below this width there is not enough room to trade between the panels and
+   * the drawing, so the arrangement is fixed and the edges are not offered.
+   */
   .workspace-grid {
     grid-template-columns: 190px minmax(0, 1fr);
+  }
+  .panel-separator,
+  .panel-edge-empty {
+    display: none;
   }
   .inspector {
     grid-column: 1/-1;
@@ -325,6 +369,11 @@ h2 {
   }
   .menu-toggle {
     display: inline-flex;
+  }
+  /* The panels are a drawer on a narrow screen; hiding them is what the
+     drawer already does. */
+  .panel-toggle {
+    display: none;
   }
   .drawer-backdrop {
     display: block;
@@ -1268,4 +1317,207 @@ button.icon {
   display: flex;
   gap: 0.35rem;
   align-items: baseline;
+}
+
+/*
+ * The command palette sits over the workspace rather than beside it: it is one
+ * field standing in for every menu, and it disappears the moment it is used.
+ */
+.palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 6vh 1rem 1rem;
+  background: rgba(23, 33, 38, 0.35);
+}
+.palette {
+  width: min(38rem, 100%);
+  max-height: 70vh;
+  overflow: hidden auto;
+  border: 1px solid #d3ddd7;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(30, 55, 42, 0.25);
+}
+.palette-query {
+  width: 100%;
+  padding: 0.9rem 1.1rem;
+  border: 0;
+  border-bottom: 1px solid #e2e9e5;
+  border-radius: 1rem 1rem 0 0;
+  font-size: 1.05rem;
+}
+.palette-query:focus-visible {
+  outline: 2px solid #2f6f4f;
+  outline-offset: -2px;
+}
+.palette-results {
+  margin: 0;
+  padding: 0.4rem;
+  list-style: none;
+}
+.palette-results button {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.palette-results .palette-active,
+.palette-results button:hover {
+  background: #eaf2ed;
+}
+.palette-label {
+  flex: 1;
+}
+.palette-group,
+.palette-hint {
+  color: #5b6b63;
+  font-size: 0.8rem;
+}
+
+/*
+ * What the drawing is doing, along its bottom edge: where the pointer is, what
+ * it snaps to, at what scale, and how much is selected. Read constantly,
+ * changed rarely — which is why none of it belongs among the tools.
+ */
+.status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  align-items: center;
+  margin-top: 0.6rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #e0e8e4;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.75);
+  color: #41544a;
+  font-size: 0.76rem;
+}
+.status-cell {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
+  white-space: nowrap;
+}
+.status-number input {
+  width: 4.5rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid #cbd5cf;
+  border-radius: 0.35rem;
+  font-size: 0.76rem;
+}
+
+/*
+ * The length and the angle, where the user is looking.
+ *
+ * Drawing a wall means watching its far end; the fields that say how long it is
+ * were at the top of the window, and are now beside the point being placed.
+ */
+.dynamic-input {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.3rem 0.4rem;
+  transform: translate(0.8rem, 0.8rem);
+  border: 1px solid #b9cec3;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 18px rgba(30, 55, 42, 0.18);
+  font-size: 0.72rem;
+}
+.dynamic-input label {
+  display: grid;
+  gap: 0.1rem;
+}
+.dynamic-input input {
+  width: 5.5rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid #cbd5cf;
+  border-radius: 0.35rem;
+  font-size: 0.78rem;
+}
+.dynamic-input .lock {
+  color: #2f6f4f;
+  font-weight: 700;
+}
+
+/*
+ * The measurements written on the drawing, where they are measured. Typing over
+ * one moves what it measures, through the same command as the inspector.
+ */
+.temporary-dimensions {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.2rem 0.3rem;
+  transform: translate(-50%, -160%);
+  border: 1px solid #cfe0d6;
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 0.68rem;
+}
+.temporary-dimension {
+  display: grid;
+  gap: 0.05rem;
+  color: #41544a;
+}
+.temporary-dimension input {
+  width: 4.6rem;
+  padding: 0.1rem 0.25rem;
+  border: 1px solid #cbd5cf;
+  border-radius: 0.3rem;
+  font-size: 0.74rem;
+}
+
+/*
+ * The project as a tree: the workspaces say what the user is doing, this says
+ * what is in the building.
+ */
+.project-tree {
+  margin-bottom: 1rem;
+  font-size: 0.78rem;
+}
+.project-tree ul {
+  margin: 0.1rem 0 0.2rem;
+  padding-left: 0.7rem;
+  list-style: none;
+}
+.project-tree summary {
+  padding: 0.15rem 0;
+  color: #31443b;
+  font-weight: 700;
+  cursor: pointer;
+}
+.project-tree button {
+  width: 100%;
+  padding: 0.15rem 0.3rem;
+  border: 0;
+  border-radius: 0.3rem;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.project-tree button:hover,
+.project-tree .tree-active {
+  background: #eaf2ed;
+  color: #1f4c37;
+  font-weight: 700;
+}
+.project-tree .tree-fact {
+  display: block;
+  padding: 0.15rem 0.3rem;
+  color: #5b6b63;
 }

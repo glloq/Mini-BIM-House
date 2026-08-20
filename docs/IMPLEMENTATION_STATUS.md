@@ -808,6 +808,148 @@ l'interdit, il reste à l'activer à la main dans Réglages → Pages, source
   ventilation et de l'électricité sur le plan ; orchestrateur de calcul
   persistant ; protection de `main`, qui est un réglage du dépôt.
 
+## Fondations de l'éditeur — UI-01 et UI-03 du huitième audit
+
+Un audit consacré à l'interface a constaté que le moteur du projet était
+désormais plus mûr que l'éditeur, et que la structure de celui-ci empêchait de
+le faire grandir : cinq outils inscrits dans six endroits différents, trois
+chaînes de conditions parallèles pour décrire, éditer et manipuler un objet.
+Sa première recommandation était de rendre cette structure extensible **avant**
+d'ajouter les dizaines de familles d'objets qui manquent.
+
+### UI-01 — registres
+
+- Un outil se déclare une fois : famille, libellé, raccourci, nombre de clics
+  attendus, respect des axes du bâtiment, commande produite. Le type des outils
+  est dérivé du registre, donc un outil non déclaré ne peut pas être désigné.
+- La barre d'outils lit les familles au lieu de tenir sa propre liste ; un
+  nouvel outil apparaît auprès de ceux auxquels il appartient.
+- La poignée de clics de l'application ne connaît plus les outils un par un :
+  elle porte les points à l'outil actif, qui dit ce qu'ils veulent dire.
+- Une famille d'objets déclare au même endroit ce que l'inspecteur montre, ce
+  que le panneau des propriétés modifie et les poignées que le plan dessine. Ce
+  qu'elle ne sait pas dire, elle le laisse indéfini et la famille suivante
+  répond.
+
+### UI-04 — premières transformations
+
+- Scinder est un outil et non plus un bouton : le mur est coupé là où
+  l'utilisateur clique, au lieu de l'être toujours en son milieu. Le clic est
+  reporté à l'outil avec ce qu'il a touché, la désignation étant faite par le
+  canevas, seul à savoir ce qui est assez proche à ce zoom sur cet écran.
+- Déplacer une sélection : appuyer sur un objet déjà sélectionné le porte, avec
+  un fantôme montrant où l'ensemble atterrirait avant qu'on le lâche. Murs,
+  dalles, pans de toiture et nœuds de réseau voyagent ensemble en une seule
+  entrée d'historique.
+- Ce qui ne se déplace pas seul est refusé en le disant : une ouverture glisse
+  le long de son mur, une pièce est l'espace que ses murs enferment.
+
+- Dupliquer une sélection (`Ctrl+D`) copie murs, ouvertures, dalles et pans de
+  toiture un peu à côté, puis sélectionne les copies : ce sont elles que
+  l'utilisateur travaille ensuite. Une ouverture ne se duplique qu'avec le mur
+  qui la porte, faute de quoi sa copie se poserait exactement sur l'originale.
+
+- Pivoter d'un quart de tour et retourner de gauche à droite, autour du centre
+  de la sélection. Un mur est remanié en une seule étape : déplacer ses points
+  l'un après l'autre passerait par des longueurs que le mur n'a jamais, et une
+  ouverture qui tient avant et après serait refusée entre les deux. Une
+  commande de domaine remplace donc le tracé entier, ouvertures vérifiées d'un
+  coup.
+
+- Outils Pivoter et Miroir : le premier prend un centre, la direction actuelle
+  et la direction voulue — trois clics, aucun nombre à taper ; le second prend
+  les deux points d'un axe. Les boutons « Pivoter 90° » et « Miroir
+  gauche-droite » restent pour les cas où ni le centre ni l'axe ne comptent.
+- Copier et coller (`Ctrl+C`, `Ctrl+V`) : ce sont les objets qui sont retenus,
+  pas leurs identifiants, si bien qu'un copié-collé survit à la suppression de
+  l'original et se pose sur un autre niveau que celui d'où il vient.
+- Décaler : un mur parallèle, du côté et à la distance montrés par le clic
+  plutôt qu'un nombre à inventer.
+- Joindre et Ajuster : deux murs amenés à l'intersection de leurs axes, ou un
+  seul amené jusqu'à l'autre — allonger et raccourcir sont le même geste, et
+  deux murs parallèles sont refusés en le disant.
+- Aligner à gauche, à droite, en haut, en bas : chaque objet parcourt la
+  distance qui amène son propre bord sur le plus extérieur, sans être remanié.
+
+- Cotes temporaires : la longueur d'un mur, la position et la largeur d'une
+  ouverture s'écrivent sur le dessin, là où elles se mesurent, et se modifient
+  en tapant par-dessus. Ce sont les modifications de l'inspecteur elles-mêmes,
+  pas une seconde façon d'écrire la même chose : commande, validation et place
+  dans l'historique sont identiques.
+
+### UI-05 — saisie dynamique
+
+La longueur et l'angle du tracé se saisissaient en haut de la fenêtre alors que
+l'utilisateur regarde l'extrémité de son mur. Les deux champs suivent désormais
+le point en cours de placement : taper une longueur, Tab pour l'angle, Entrée
+pour poser le point, Échap pour abandonner. Un champ laissé libre mesure ce qui
+est dessiné ; un champ rempli verrouille sa valeur et le tracé suit ce qui a été
+tapé plutôt que le pointeur.
+
+L'unité est celle à laquelle la personne pense : `4200`, `4.2 m`, `420 cm` et
+`4,2m` désignent le même mur. Ce qui ne se lit pas est refusé plutôt que deviné.
+
+Une longueur tapée sans avoir bougé le pointeur pose maintenant le point : la
+contrainte refusait de dessiner quand le pointeur n'avait pas quitté le premier
+point, ce qui rendait le clavier inutilisable.
+
+### UI-02 — arbre du projet
+
+Les espaces de travail disent ce que l'on fait ; l'arbre dit ce qu'il y a dans
+le bâtiment. Site, niveaux, familles d'objets du niveau dessiné, réseaux et
+leurs nœuds : un clic sélectionne, un double-clic cadre. Seul le niveau dessiné
+est déplié — un objet d'un autre niveau ne peut pas être montré sans changer le
+plan d'abord — et au-delà de quarante objets par famille, l'arbre renvoie à la
+palette plutôt que d'aligner mille murs.
+
+### UI-15 — palette de commandes
+
+`Ctrl+K` affichait la liste des raccourcis dans la barre de message. C'est
+maintenant un champ unique qui cherche les outils, les espaces de travail, les
+niveaux, les commandes du clavier et les objets du niveau dessiné, insensible
+aux accents et à la casse, et qui classe d'abord ce qui commence par ce qui est
+tapé. Une commande n'a plus qu'une définition, appelée aussi bien par le clavier
+que par la palette.
+
+### UI-02 — poste de travail
+
+- L'espace de travail s'arrêtait à 1480 pixels : sur un écran large, la moitié
+  de la fenêtre montrait le fond au lieu du plan. Ce qui limite le dessin est
+  désormais la largeur des panneaux, et cette largeur appartient à
+  l'utilisateur.
+- Les panneaux se redimensionnent en tirant leur bord — un vrai séparateur, que
+  les flèches du clavier déplacent aussi — et se masquent depuis l'en-tête. Les
+  deux décisions sont gardées dans le navigateur et retrouvées à la session
+  suivante ; elles ne voyagent jamais avec le projet.
+- Une barre d'état longe le bas du dessin : niveau, position du curseur,
+  accroches en service, pas de grille, pas angulaire, échelle et taille de la
+  sélection. Ces réglages occupaient la barre d'outils, qui doit rester la
+  place des outils.
+
+### UI-03 — sélection et modification multiple
+
+- Bande de sélection : vers la droite, une fenêtre qui ne prend que les objets
+  entièrement compris ; vers la gauche, une capture qui prend tout ce qu'elle
+  touche. La barre d'état dit laquelle est en cours.
+- Un appui décide de son sens au relâchement : sur place c'est un clic, traîné
+  c'est une bande. Ctrl ou Cmd ajoute à la sélection.
+- Tolérance de désignation exprimée en pixels — huit au pointeur, dix-huit au
+  doigt — puis convertie par la caméra, au lieu de 120 mm quel que soit le zoom.
+- Échap défait une chose à la fois, la plus récente d'abord : action en cours,
+  puis outil actif, puis sélection.
+- Modification multiple : les propriétés communes à toute la sélection sont
+  offertes une fois, avec la valeur partagée quand elle existe et « valeurs
+  différentes » sinon — jamais la valeur du premier objet présentée comme celle
+  de tous. Appliquer écrit une seule entrée d'historique : une décision, une
+  annulation.
+
+Restent ouverts, dans l'ordre recommandé par l'audit : le poste de travail
+redimensionnable et l'arbre du projet (UI-02), les transformations CAO —
+déplacer, copier, pivoter, miroir, décaler, scinder en un point choisi, joindre
+(UI-04), la saisie dynamique près du curseur (UI-05), puis l'architecture
+complète, la toiture, l'escalier, les composants placés et l'édition graphique
+des réseaux.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -848,11 +990,11 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d’intégration : 807 tests sur 117 fichiers
-- tests navigateur : 50 tests Playwright — 47 sur Chromium et trois sur un
+- tests unitaires et d’intégration : 897 tests sur 125 fichiers
+- tests navigateur : 62 tests Playwright — 59 sur Chromium et trois sur un
   écran de téléphone — dont deux rejoués sur Firefox et WebKit
-- accessibilité : axe-core, onze espaces de travail, WCAG 2.1 AA, aucun
-  manquement
+- accessibilité : axe-core, onze espaces de travail et la palette de
+  commandes, WCAG 2.1 AA, aucun manquement
 - chargement initial : 151 kio compressés pour un budget de 200 kio
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

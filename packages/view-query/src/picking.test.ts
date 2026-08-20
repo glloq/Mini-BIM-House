@@ -3,7 +3,9 @@ import type { ScenePrimitive } from '@house-technical-designer/drawing-engine';
 import {
   boundsOfObjects,
   distanceToPrimitive,
+  objectsInBox,
   pickPrimitive,
+  selectionBoxOf,
 } from './picking.js';
 
 const wall: ScenePrimitive = {
@@ -89,5 +91,69 @@ describe('picking', () => {
       max: { x: 5000, y: 150 },
     });
     expect(boundsOfObjects([wall], ['missing'])).toBeUndefined();
+  });
+});
+
+describe('what a rubber band catches', () => {
+  const scene = [wall, label, pipe];
+
+  it('reads the direction of the drag as the question being asked', () => {
+    expect(selectionBoxOf({ x: 0, y: 0 }, { x: 100, y: 100 }).mode).toBe(
+      'WINDOW',
+    );
+    expect(selectionBoxOf({ x: 100, y: 0 }, { x: 0, y: 100 }).mode).toBe(
+      'CROSSING',
+    );
+    // Either direction describes the same rectangle.
+    expect(selectionBoxOf({ x: 100, y: 100 }, { x: 0, y: 0 }).box).toEqual({
+      min: { x: 0, y: 0 },
+      max: { x: 100, y: 100 },
+    });
+  });
+
+  it('takes only what lies entirely inside, dragged rightwards', () => {
+    const { box, mode } = selectionBoxOf(
+      { x: -500, y: -500 },
+      { x: 6000, y: 500 },
+    );
+    // The wall fits; the pipe at y = 2000 does not, and neither does half of it.
+    expect(objectsInBox(scene, box, mode)).toEqual(['w1', 's1']);
+  });
+
+  it('takes everything it touches, dragged leftwards', () => {
+    const { box, mode } = selectionBoxOf(
+      { x: 3000, y: 2500 },
+      { x: 2000, y: -500 },
+    );
+    expect([...objectsInBox(scene, box, mode)].sort()).toEqual([
+      'p1',
+      's1',
+      'w1',
+    ]);
+  });
+
+  it('refuses an object a window band only half covers', () => {
+    const { box, mode } = selectionBoxOf(
+      { x: -500, y: -500 },
+      { x: 2000, y: 500 },
+    );
+    expect(objectsInBox(scene, box, mode)).not.toContain('w1');
+  });
+
+  it('catches a filled shape a crossing band is drawn inside', () => {
+    const { box, mode } = selectionBoxOf(
+      { x: 2100, y: 50 },
+      { x: 2000, y: -50 },
+    );
+    expect(objectsInBox(scene, box, mode)).toContain('w1');
+  });
+
+  it('ignores decoration that belongs to no object', () => {
+    const { sourceObjectId: _owned, ...decoration } = wall;
+    const { box, mode } = selectionBoxOf(
+      { x: -500, y: -500 },
+      { x: 6000, y: 3000 },
+    );
+    expect(objectsInBox([decoration as ScenePrimitive], box, mode)).toEqual([]);
   });
 });

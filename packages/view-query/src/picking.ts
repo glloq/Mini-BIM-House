@@ -127,6 +127,137 @@ export function pickPrimitive(
   return best;
 }
 
+/** How a rubber band decides what it caught. */
+export type BoxSelectionMode =
+  /** Only what lies entirely inside the band, as dragging rightwards means. */
+  | 'WINDOW'
+  /** Everything the band touches, as dragging leftwards means. */
+  | 'CROSSING';
+
+export interface SelectionBox {
+  readonly min: Point2D;
+  readonly max: Point2D;
+}
+
+/** The band a drag between two points describes, and what it means. */
+export function selectionBoxOf(
+  from: Point2D,
+  to: Point2D,
+): { readonly box: SelectionBox; readonly mode: BoxSelectionMode } {
+  return {
+    box: {
+      min: { x: Math.min(from.x, to.x), y: Math.min(from.y, to.y) },
+      max: { x: Math.max(from.x, to.x), y: Math.max(from.y, to.y) },
+    },
+    // Dragging rightwards takes what is wholly inside; dragging leftwards takes
+    // whatever is touched. It is the convention every drawing tool shares, and
+    // it is the difference between selecting a room and selecting the walls
+    // that pass through it.
+    mode: to.x >= from.x ? 'WINDOW' : 'CROSSING',
+  };
+}
+
+function pointsOf(primitive: ScenePrimitive): readonly Point2D[] {
+  const { geometry } = primitive;
+  if (geometry.kind === 'POINT') return [geometry.point];
+  if (geometry.kind === 'TEXT') return [geometry.anchor];
+  if (geometry.kind === 'POLYLINE') return geometry.polyline.points;
+  return geometry.polygon.outer;
+}
+
+function inside(box: SelectionBox, point: Point2D): boolean {
+  return (
+    point.x >= box.min.x &&
+    point.x <= box.max.x &&
+    point.y >= box.min.y &&
+    point.y <= box.max.y
+  );
+}
+
+function segmentsCross(
+  first: readonly [Point2D, Point2D],
+  second: readonly [Point2D, Point2D],
+): boolean {
+  const side = (a: Point2D, b: Point2D, c: Point2D): number =>
+    (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+  const [p1, p2] = first;
+  const [p3, p4] = second;
+  const d1 = side(p3, p4, p1);
+  const d2 = side(p3, p4, p2);
+  const d3 = side(p1, p2, p3);
+  const d4 = side(p1, p2, p4);
+  return (
+    ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
+    ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))
+  );
+}
+
+function edgesOf(
+  points: readonly Point2D[],
+  closed: boolean,
+): readonly (readonly [Point2D, Point2D])[] {
+  const edges: (readonly [Point2D, Point2D])[] = [];
+  for (let index = 1; index < points.length; index += 1)
+    edges.push([points[index - 1]!, points[index]!]);
+  if (closed && points.length > 2)
+    edges.push([points[points.length - 1]!, points[0]!]);
+  return edges;
+}
+
+function boxEdges(box: SelectionBox): readonly (readonly [Point2D, Point2D])[] {
+  const corners: readonly Point2D[] = [
+    box.min,
+    { x: box.max.x, y: box.min.y },
+    box.max,
+    { x: box.min.x, y: box.max.y },
+  ];
+  return edgesOf(corners, true);
+}
+
+/**
+ * The objects a rubber band selects.
+ *
+ * Selecting one object at a time is enough to draw a room and not enough to
+ * change the assembly of every wall of a storey. A band answers that: it is the
+ * gesture the user already knows from every other drawing tool, and the two
+ * directions mean two different questions.
+ */
+export function objectsInBox(
+  primitives: readonly ScenePrimitive[],
+  box: SelectionBox,
+  mode: BoxSelectionMode,
+): readonly string[] {
+  const selected = new Set<string>();
+  const refused = new Set<string>();
+  for (const primitive of primitives) {
+    const objectId = primitive.sourceObjectId;
+    if (objectId === undefined) continue;
+    const points = pointsOf(primitive);
+    if (points.length === 0) continue;
+    const closed = primitive.geometry.kind === 'POLYGON';
+    const caught =
+      mode === 'WINDOW'
+        ? points.every((point) => inside(box, point))
+        : points.some((point) => inside(box, point)) ||
+          edgesOf(points, closed).some((edge) =>
+            boxEdges(box).some((side) => segmentsCross(edge, side)),
+          ) ||
+          // A band drawn wholly inside a filled shape touches it, even though
+          // no outline of either crosses the other.
+          (primitive.geometry.kind === 'POLYGON' &&
+            pointInPolygon(primitive.geometry.polygon, box.min));
+    // An object is drawn by several primitives — a wall has its cut and its
+    // outline. Under a window band all of them have to fit, or half a wall
+    // would be reported as a whole one.
+    if (caught) selected.add(objectId);
+    else refused.add(objectId);
+  }
+  const kept = [...selected].filter(
+    (objectId) => mode === 'CROSSING' || !refused.has(objectId),
+  );
+  return kept;
+}
+
 /** Bounding box of the primitives belonging to a set of objects. */
 export function boundsOfObjects(
   primitives: readonly ScenePrimitive[],
