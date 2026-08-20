@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Project } from '@house-technical-designer/core-domain';
 import {
   GENERIC_TECHNICAL_SCREEN,
@@ -53,7 +53,11 @@ export interface PlanCanvasProps {
   readonly dispatch: (action: EditorAction) => void;
   readonly onCommitPoints: (
     points: readonly { x: number; y: number }[],
+    /** What the last click landed on, for a tool that acts on an object. */
+    pickedObjectId?: string,
   ) => void;
+  /** Carries the whole selection, once a drag on it has been released. */
+  readonly onMoveSelection?: (delta: { x: number; y: number }) => void;
   readonly wallThicknessMm: number;
   /**
    * What a dragged handle asks of the model.
@@ -97,6 +101,7 @@ export function PlanCanvas({
   onCommitPoints,
   wallThicknessMm,
   onEditGeometry,
+  onMoveSelection,
   overlay,
 }: PlanCanvasProps) {
   const container = useRef<HTMLDivElement>(null);
@@ -104,6 +109,13 @@ export function PlanCanvas({
   /** The handle being dragged, and where it started. */
   const dragging = useRef<
     { readonly grip: Grip; readonly from: { x: number; y: number } } | undefined
+  >(undefined);
+  /** The selection being dragged, and how far it has travelled so far. */
+  const moving = useRef<
+    { readonly from: { x: number; y: number } } | undefined
+  >(undefined);
+  const [moveDelta, setMoveDelta] = useState<
+    { readonly x: number; readonly y: number } | undefined
   >(undefined);
   /** Where the pointer went down, while it is deciding between click and band. */
   const press = useRef<
@@ -236,8 +248,63 @@ export function PlanCanvas({
     ],
   );
 
+  /**
+   * The selection as it would be once dropped.
+   *
+   * A move nobody can see before releasing is a move made blind: the ghost is
+   * the same primitives, carried by the distance travelled so far.
+   */
+  const ghost = useMemo<readonly ScenePrimitive[]>(() => {
+    if (moveDelta === undefined) return [];
+    const carried = (point: { x: number; y: number }) => ({
+      x: point.x + moveDelta.x,
+      y: point.y + moveDelta.y,
+    });
+    return base.primitives
+      .filter(
+        (primitive) =>
+          primitive.sourceObjectId !== undefined &&
+          editor.selection.includes(primitive.sourceObjectId),
+      )
+      .map((primitive, index): ScenePrimitive => {
+        const geometry =
+          primitive.geometry.kind === 'POLYGON'
+            ? {
+                ...primitive.geometry,
+                polygon: {
+                  ...primitive.geometry.polygon,
+                  outer: primitive.geometry.polygon.outer.map(carried),
+                },
+              }
+            : primitive.geometry.kind === 'POLYLINE'
+              ? {
+                  ...primitive.geometry,
+                  polyline: {
+                    ...primitive.geometry.polyline,
+                    points: primitive.geometry.polyline.points.map(carried),
+                  },
+                }
+              : primitive.geometry.kind === 'POINT'
+                ? {
+                    ...primitive.geometry,
+                    point: carried(primitive.geometry.point),
+                  }
+                : {
+                    ...primitive.geometry,
+                    anchor: carried(primitive.geometry.anchor),
+                  };
+        return {
+          ...primitive,
+          id: `preview:move:${index}`,
+          geometry,
+          zIndex: 93,
+          state: 'GHOST' as const,
+        };
+      });
+  }, [base.primitives, editor.selection, moveDelta]);
+
   const plan: PlanViewResult = useMemo(() => {
-    if (overlay === undefined) return base;
+    if (overlay === undefined && ghost.length === 0) return base;
     return buildPlanView(project, {
       ...(editor.levelId === undefined ? {} : { levelId: editor.levelId }),
       layers: { ...editor.layers, 'analysis.overlay': true },
@@ -247,12 +314,16 @@ export function PlanCanvas({
         : { hoveredId: editor.hoveredId }),
       extraPrimitives: [
         ...preview,
-        ...overlayPrimitives(base.primitives, overlay),
+        ...ghost,
+        ...(overlay === undefined
+          ? []
+          : overlayPrimitives(base.primitives, overlay)),
       ],
       graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
     });
   }, [
     base,
+    ghost,
     overlay,
     project,
     editor.levelId,
@@ -373,6 +444,15 @@ export function PlanCanvas({
         ...(snap === undefined ? {} : { snap }),
       });
       if (editor.activeTool !== 'SELECT') return;
+      const carried = moving.current;
+      if (carried !== undefined) {
+        const target = editor.activeSnap?.point ?? model;
+        setMoveDelta({
+          x: target.x - carried.from.x,
+          y: target.y - carried.from.y,
+        });
+        return;
+      }
       const pressed = press.current;
       if (pressed !== undefined) {
         const travelled = Math.hypot(
@@ -401,6 +481,7 @@ export function PlanCanvas({
     },
     [
       dispatch,
+      editor.activeSnap,
       editor.activeTool,
       editor.camera,
       modelPointOf,
@@ -419,6 +500,22 @@ export function PlanCanvas({
       const model = modelPointOf(event);
       if (model === undefined) return;
       if (editor.activeTool === 'SELECT') {
+        const under = pickPrimitive(
+          plan.primitives,
+          model,
+          pickToleranceMm(editor.camera, event.pointerType),
+        );
+        // Pressing on something already selected carries it: that is what a
+        // drag means everywhere else, and it is how a selection is moved.
+        if (
+          onMoveSelection !== undefined &&
+          under !== undefined &&
+          editor.selection.includes(under.objectId)
+        ) {
+          moving.current = { from: model };
+          event.currentTarget.setPointerCapture(event.pointerId);
+          return;
+        }
         // What this press means is not known yet: released where it started it
         // is a click on one object, dragged it is a band over several. The
         // decision is taken when the pointer comes back up.
@@ -442,10 +539,28 @@ export function PlanCanvas({
       dispatch({ type: 'COMMIT_POINT', point });
       // Each tool declares how many points it needs; the canvas does not keep
       // its own list of which ones are single-click.
-      if (points.length >= requiredPoints(editor.activeTool))
-        onCommitPoints(points);
+      if (points.length < requiredPoints(editor.activeTool)) return;
+      // The click is reported with what it landed on: the canvas is what knows
+      // how close is close enough on this screen at this zoom.
+      const picked = pickPrimitive(
+        plan.primitives,
+        model,
+        pickToleranceMm(editor.camera, event.pointerType),
+      );
+      onCommitPoints(
+        points,
+        ...(picked === undefined ? [] : ([picked.objectId] as const)),
+      );
     },
-    [dispatch, editor, modelPointOf, onCommitPoints, snapFor],
+    [
+      dispatch,
+      editor,
+      modelPointOf,
+      onCommitPoints,
+      onMoveSelection,
+      plan.primitives,
+      snapFor,
+    ],
   );
 
   const handleUp = useCallback(
@@ -454,6 +569,17 @@ export function PlanCanvas({
         event.currentTarget.releasePointerCapture(event.pointerId);
       if (panOrigin.current !== undefined) {
         panOrigin.current = undefined;
+        return;
+      }
+      const carried = moving.current;
+      moving.current = undefined;
+      if (carried !== undefined) {
+        const delta = moveDelta;
+        setMoveDelta(undefined);
+        // A drag that went nowhere is a click that held still, and moving by
+        // zero would fill the history with nothing.
+        if (delta !== undefined && (delta.x !== 0 || delta.y !== 0))
+          onMoveSelection?.(delta);
         return;
       }
       const pressed = press.current;
@@ -486,6 +612,8 @@ export function PlanCanvas({
       editor.camera,
       editor.selectionBox,
       modelPointOf,
+      moveDelta,
+      onMoveSelection,
       plan.primitives,
     ],
   );

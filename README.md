@@ -605,7 +605,8 @@ fichier de projet promet d'une version à l'autre est écrit dans
   associatives ; accrochage sur grille, extrémités, milieux et intersections ;
   contraintes de longueur et d'angle ; remaniement après coup — extrémité
   déplacée, mur scindé, ouverture redimensionnée, contour de dalle repris
-  sommet par sommet ; sélection à la bande, fenêtre ou capture selon le sens du
+  sommet par sommet, mur scindé à l'endroit désigné, sélection déplacée en la
+  faisant glisser ; sélection à la bande, fenêtre ou capture selon le sens du
   tracé, et modification en une fois des propriétés communes à la sélection ;
   annulation et rétablissement de chaque commande.
 - **Palette de commandes** — `Ctrl+K` cherche d'un même champ les outils, les
@@ -660,8 +661,9 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   résultats des réseaux, de la ventilation et de l'électricité se lisent dans
   les tableaux, pas encore sur le dessin.
 - **Productivité CAO** : copier-coller, duplication géométrique, raccord de
-  deux murs, trim/extend, décalage parallèle, rotation, miroir et déplacement
-  d'une sélection ne sont pas implémentés. Les extrémités d'un mur se déplacent, un mur se scinde
+  deux murs, trim/extend, décalage parallèle, rotation et miroir ne sont pas
+  implémentés. Une sélection se déplace en la faisant glisser et un mur se
+  scinde là où on le désigne ; le reste du remaniement reste à faire. Les extrémités d'un mur se déplacent, un mur se scinde
   et une ouverture se redimensionne ; le reste du remaniement géométrique reste
   à faire.
 - **Dossier de plans** : `drawingViews` n'est pas encore un contrat typé, si

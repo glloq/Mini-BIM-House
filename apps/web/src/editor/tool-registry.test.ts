@@ -93,6 +93,27 @@ describe('the tools the editor offers', () => {
     expect(result.command.label).toContain('mur');
   });
 
+  it('cuts the wall the click landed on, where it landed', () => {
+    // Splitting used to cut at the middle whatever the user aimed at; the tool
+    // is given what the canvas picked, and the point that was clicked.
+    const result = toolDefinition('SPLIT').createCommand?.({
+      ...context({ points: [{ x: 3000, y: 0 }] }),
+      pickedObjectId: 'wall-south',
+    });
+    expect(result?.status).toBe('OK');
+    if (result?.status !== 'OK') return;
+    expect(result.command.label).toContain('Scinder');
+  });
+
+  it('asks for a wall rather than cutting nothing', () => {
+    const result = toolDefinition('SPLIT').createCommand?.(
+      context({ points: [{ x: 3000, y: 0 }] }),
+    );
+    expect(result?.status).toBe('ERROR');
+    if (result?.status !== 'ERROR') return;
+    expect(result.message).toContain('mur');
+  });
+
   it('says why the network tool cannot place a node instead of throwing', () => {
     // No network is active: the tool refuses in words rather than placing a
     // node nowhere.

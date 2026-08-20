@@ -461,11 +461,23 @@ test('reshapes a wall after drawing it, instead of redrawing it', async ({
     'Déplacer une extrémité de mur',
   );
 
-  // The wall can be cut in two, and the pieces are two walls.
+  // The wall can be cut in two, where the user points rather than at its
+  // middle, and the pieces are two walls.
   const wallsBefore = await page
     .locator('[data-role="WALL_CUT"][id^="wall:"]')
     .count();
-  await page.getByRole('button', { name: 'Scinder le mur' }).click();
+  await page.getByRole('button', { name: 'Scinder', exact: true }).click();
+  await canvas.scrollIntoViewIfNeeded();
+  const frame = (await canvas.boundingBox())!;
+  const shape = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  // Aimed a third of the way along the wall, not at its middle: the point that
+  // is clicked is the point where it is cut.
+  await canvas.click({
+    position: {
+      x: shape.x - frame.x + shape.width * 0.3,
+      y: shape.y - frame.y + shape.height / 2,
+    },
+  });
   await expect(page.getByRole('status')).toContainText('Scinder un mur');
   await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
     wallsBefore + 1,
@@ -759,6 +771,48 @@ test('reaches tools, workspaces and objects from the command palette', async ({
     page.getByRole('dialog', { name: 'Palette de commandes' }),
   ).toBeHidden();
   await expect(page.locator('.inspector-subject')).toContainText('wall-south');
+  expect(errors).toEqual([]);
+});
+
+test('carries a selection across the plan by dragging it', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const frame = (await canvas.boundingBox())!;
+  const onWall = async (id: string, fx: number, fy: number) => {
+    const shape = (await page.locator(`[id="wall:${id}"]`).boundingBox())!;
+    return {
+      x: shape.x - frame.x + shape.width * fx,
+      y: shape.y - frame.y + shape.height * fy,
+    };
+  };
+
+  const grip = await onWall('wall-partition-v', 0.5, 0.2);
+  await canvas.click({ position: grip });
+  await expect(page.locator('.inspector-subject')).toContainText(
+    'wall-partition-v',
+  );
+  const lengthBefore = await page.getByLabel('Longueur').inputValue();
+
+  // Pressing on something already selected carries it rather than starting a
+  // rubber band.
+  await page.mouse.move(frame.x + grip.x, frame.y + grip.y);
+  await page.mouse.down();
+  await page.mouse.move(frame.x + grip.x + 60, frame.y + grip.y + 20, {
+    steps: 6,
+  });
+  // The wall is shown where it would land before it is dropped.
+  await expect(page.locator('[id^="preview:move:"]').first()).toBeVisible();
+  await page.mouse.up();
+  await expect(page.getByRole('status')).toContainText('Déplacer');
+
+  // Carried, not reshaped: the wall is the same length where it lands.
+  await expect(page.getByLabel('Longueur')).toHaveValue(lengthBefore);
+  await expect(page.locator('[id^="preview:move:"]')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('annulée');
   expect(errors).toEqual([]);
 });
 

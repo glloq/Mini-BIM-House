@@ -8,6 +8,7 @@ import {
   addDimensionCommand,
   addOpeningCommand,
   addWallCommand,
+  splitWallCommand,
   type EditingCommandResult,
   type OpeningToolDraft,
 } from './editing-commands.js';
@@ -49,6 +50,14 @@ export interface ToolCommandContext {
   readonly levelId?: string;
   readonly points: readonly Point2D[];
   readonly drafts: ToolDrafts;
+  /**
+   * What the last click landed on, when it landed on something.
+   *
+   * A tool acting on an existing object — cutting a wall where the user aimed —
+   * needs to know which one, and the canvas is what knows: it picks with the
+   * tolerance of the screen rather than a distance in millimetres.
+   */
+  readonly pickedObjectId?: string;
   /** A fresh identifier, so a tool never invents its own numbering. */
   readonly newId: (prefix: string) => string;
 }
@@ -138,6 +147,36 @@ export const EDITOR_TOOLS = [
         context.drafts.opening,
         context.newId('opening'),
       ),
+  },
+  {
+    id: 'SPLIT',
+    group: 'ARCHITECTURE',
+    label: 'Scinder',
+    hint: 'Couper un mur à l’endroit désigné',
+    shortcutId: 'tool.split',
+    requiredPoints: 1,
+    createCommand: (context) => {
+      const point = context.points[context.points.length - 1]!;
+      const level = levelOf(context);
+      const wall = level?.walls.find(({ id }) => id === context.pickedObjectId);
+      if (wall === undefined)
+        return {
+          status: 'ERROR',
+          message: 'Cliquez sur le mur à scinder.',
+        };
+      if (wall.path.points.length !== 2)
+        return {
+          status: 'ERROR',
+          message: 'Seul un mur droit peut être scindé.',
+        };
+      return splitWallCommand(
+        context.file,
+        context.levelId,
+        wall.id,
+        point,
+        context.newId('wall'),
+      );
+    },
   },
   {
     id: 'DIMENSION',

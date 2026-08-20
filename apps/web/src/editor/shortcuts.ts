@@ -10,6 +10,7 @@ export type ShortcutCommandId =
   | 'tool.opening'
   | 'tool.dimension'
   | 'tool.network'
+  | 'tool.split'
   | 'edit.undo'
   | 'edit.redo'
   | 'edit.delete'
@@ -36,6 +37,7 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
   { id: 'tool.opening', label: 'Ouverture', key: 'o', group: 'Outils' },
   { id: 'tool.dimension', label: 'Cotation', key: 'd', group: 'Outils' },
   { id: 'tool.network', label: 'Réseau', key: 'r', group: 'Outils' },
+  { id: 'tool.split', label: 'Scinder un mur', key: 'x', group: 'Outils' },
   {
     id: 'edit.undo',
     label: 'Annuler',

@@ -831,6 +831,23 @@ d'ajouter les dizaines de familles d'objets qui manquent.
   qu'elle ne sait pas dire, elle le laisse indéfini et la famille suivante
   répond.
 
+### UI-04 — premières transformations
+
+- Scinder est un outil et non plus un bouton : le mur est coupé là où
+  l'utilisateur clique, au lieu de l'être toujours en son milieu. Le clic est
+  reporté à l'outil avec ce qu'il a touché, la désignation étant faite par le
+  canevas, seul à savoir ce qui est assez proche à ce zoom sur cet écran.
+- Déplacer une sélection : appuyer sur un objet déjà sélectionné le porte, avec
+  un fantôme montrant où l'ensemble atterrirait avant qu'on le lâche. Murs,
+  dalles, pans de toiture et nœuds de réseau voyagent ensemble en une seule
+  entrée d'historique.
+- Ce qui ne se déplace pas seul est refusé en le disant : une ouverture glisse
+  le long de son mur, une pièce est l'espace que ses murs enferment.
+
+Restent à faire dans ce lot : copier-coller, rotation, miroir, décalage
+parallèle, raccord de deux murs, trim/extend, alignement et cotes temporaires
+éditables.
+
 ### UI-15 — palette de commandes
 
 `Ctrl+K` affichait la liste des raccourcis dans la barre de message. C'est

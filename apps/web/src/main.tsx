@@ -99,6 +99,7 @@ import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import {
   deleteObjectsCommand,
   geometryEditCommand,
+  moveObjectsCommand,
 } from './editor/editing-commands.js';
 import type { GeometryEdit } from './editor/grips.js';
 
@@ -587,27 +588,26 @@ function App() {
     [activeLevelId, runCommand],
   );
 
-  /** Cuts the selected wall at its middle, where a drag can then take over. */
-  const splitSelectedWall = useCallback(() => {
-    const level = session.current.file.project.building.levels.find(
-      ({ id }) => id === activeLevelId,
-    );
-    const wall = level?.walls.find(({ id }) => id === editor.selection[0]);
-    const start = wall?.path.points[0];
-    const end = wall?.path.points[1];
-    if (wall === undefined || start === undefined || end === undefined) {
-      setMessage('Sélectionnez un mur droit avant de le scinder.');
-      return;
-    }
-    editGeometry({
-      kind: 'WALL_SPLIT',
-      wallId: wall.id,
-      at: { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 },
-    });
-  }, [activeLevelId, editGeometry, editor.selection]);
+  /** Carries the whole selection, as one entry in the history. */
+  const moveSelection = useCallback(
+    (delta: { x: number; y: number }) => {
+      const result = moveObjectsCommand(
+        session.current.file,
+        activeLevelId,
+        editor.selection,
+        delta,
+      );
+      if (result.status === 'ERROR') {
+        setMessage(result.message);
+        return;
+      }
+      runCommand(result.command);
+    },
+    [activeLevelId, editor.selection, runCommand],
+  );
 
   const commitPoints = useCallback(
-    (points: readonly { x: number; y: number }[]) => {
+    (points: readonly { x: number; y: number }[], pickedObjectId?: string) => {
       // The tool says what its clicks mean. The application only carries them
       // to it: a new tool is a new entry in the registry, not another branch
       // here.
@@ -616,6 +616,7 @@ function App() {
         file: session.current.file,
         ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
         points,
+        ...(pickedObjectId === undefined ? {} : { pickedObjectId }),
         drafts: {
           wallAssemblyId,
           wallRole,
@@ -826,6 +827,9 @@ function App() {
           return;
         case 'tool.network':
           dispatchEditor({ type: 'SET_TOOL', tool: 'NETWORK' });
+          return;
+        case 'tool.split':
+          dispatchEditor({ type: 'SET_TOOL', tool: 'SPLIT' });
           return;
         case 'edit.undo':
           undo();
@@ -1432,13 +1436,13 @@ function App() {
               onNetworkChange={setSelectedNetworkId}
               nodeKind={activeNodeKind}
               onNodeKindChange={setNodeKind}
-              onSplitWall={splitSelectedWall}
             />
             <PlanCanvas
               project={file.project}
               editor={{ ...editor, levelId: activeLevelId } as EditorState}
               dispatch={dispatchEditor}
               onCommitPoints={commitPoints}
+              onMoveSelection={moveSelection}
               onEditGeometry={editGeometry}
               wallThicknessMm={wallThicknessMm}
               {...(overlay === undefined ? {} : { overlay })}

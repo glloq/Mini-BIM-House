@@ -16,8 +16,10 @@ import {
   MoveWallCommand,
   MoveWallPointCommand,
   ProjectEditorCommand,
+  ProjectTransactionCommand,
   SplitWallCommand,
   TransactionCommand,
+  UpdateNetworkNodeCommand,
   UpdateOpeningCommand,
   UpdateRoofCommand,
   UpdateSlabCommand,
@@ -28,7 +30,7 @@ import {
   type EditorCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
-import type { Point2D } from '@house-technical-designer/geometry';
+import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import type { GeometryEdit } from './grips.js';
 
 /** How far from a wall axis an opening may be dropped, in millimetres. */
@@ -327,6 +329,145 @@ export function deleteObjectsCommand(
         : new TransactionCommand(id, 'Supprimer la sélection', commands),
     ),
   };
+}
+
+/** A polygon carried elsewhere, holes included. */
+function translated(polygon: Polygon2D, delta: Point2D): Polygon2D {
+  const move = (point: Point2D): Point2D => ({
+    x: point.x + delta.x,
+    y: point.y + delta.y,
+  });
+  return {
+    outer: polygon.outer.map(move),
+    ...(polygon.holes === undefined
+      ? {}
+      : { holes: polygon.holes.map((hole) => hole.map(move)) }),
+  };
+}
+
+/**
+ * Moves what is selected, as one action.
+ *
+ * Not everything moves on its own: an opening belongs to its wall and slides
+ * along it, a room is the space its walls enclose. Those are refused by name
+ * rather than moved into an inconsistency, and the rest — walls, slabs, roof
+ * planes and network nodes — travel together in a single history entry.
+ */
+export function moveObjectsCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  objectIds: readonly string[],
+  deltaMm: Point2D,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  if (objectIds.length === 0)
+    return { status: 'ERROR', message: 'La sélection est vide.' };
+  if (!Number.isFinite(deltaMm.x) || !Number.isFinite(deltaMm.y))
+    return { status: 'ERROR', message: 'Déplacement non mesurable.' };
+  const commands: ProjectCommand[] = [];
+  for (const objectId of objectIds) {
+    const wall = level.walls.find(({ id }) => id === objectId);
+    if (wall !== undefined) {
+      commands.push(
+        new ProjectEditorCommand(
+          `wall:move:${objectId}`,
+          'Déplacer un mur',
+          level.id,
+          new MoveWallCommand(`wall:move:${objectId}`, wall.id, deltaMm),
+        ),
+      );
+      continue;
+    }
+    const slab = level.slabs.find(({ id }) => id === objectId);
+    if (slab !== undefined) {
+      commands.push(
+        new UpdateSlabCommand(level.id, slab.id, {
+          polygon: translated(slab.polygon, deltaMm),
+        }),
+      );
+      continue;
+    }
+    const roof = level.roofs.find(({ id }) => id === objectId);
+    if (roof !== undefined) {
+      commands.push(
+        new UpdateRoofCommand(level.id, roof.id, {
+          footprint: translated(roof.footprint, deltaMm),
+        }),
+      );
+      continue;
+    }
+    const network = (file.project.systems ?? []).find((candidate) =>
+      candidate.nodes.some(({ id }) => id === objectId),
+    );
+    const node = network?.nodes.find(({ id }) => id === objectId);
+    if (network !== undefined && node !== undefined) {
+      commands.push(
+        new UpdateNetworkNodeCommand(network.id, node.id, {
+          position: {
+            x: node.position.x + deltaMm.x,
+            y: node.position.y + deltaMm.y,
+            z: node.position.z,
+          },
+        }),
+      );
+      continue;
+    }
+    if (level.openings.some(({ id }) => id === objectId))
+      return {
+        status: 'ERROR',
+        message:
+          'Une ouverture se déplace le long de son mur : faites glisser sa poignée.',
+      };
+    if (level.spaces.some(({ id }) => id === objectId))
+      return {
+        status: 'ERROR',
+        message:
+          'Une pièce est l’espace que ses murs enferment : déplacez les murs.',
+      };
+    return {
+      status: 'ERROR',
+      message: `Cet objet ne se déplace pas depuis le plan : ${objectId}.`,
+    };
+  }
+  const id = `move:${objectIds.join(',')}`;
+  return {
+    status: 'OK',
+    command:
+      commands.length === 1
+        ? commands[0]!
+        : new ProjectTransactionCommand(
+            id,
+            objectIds.length === 1
+              ? 'Déplacer un objet'
+              : `Déplacer ${objectIds.length} objets`,
+            commands,
+          ),
+  };
+}
+
+/**
+ * Cuts a wall where the user pointed.
+ *
+ * Splitting from the toolbar cut at the middle, whatever the user had in mind;
+ * the domain command has always taken a point, and this is what hands it the
+ * one that was clicked. The point is projected onto the wall, so a click a
+ * little beside it still cuts where it was aimed.
+ */
+export function splitWallCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  wallId: string,
+  at: Point2D,
+  newWallId: string,
+): EditingCommandResult {
+  return geometryEditCommand(
+    file,
+    levelId,
+    { kind: 'WALL_SPLIT', wallId, at },
+    newWallId,
+  );
 }
 
 /**
