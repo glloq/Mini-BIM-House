@@ -346,3 +346,129 @@ test('exports the plan it draws, not a simplified redrawing of it', async ({
   const plumbing = await exportSvg();
   expect(plumbing).toContain('water.pipes');
 });
+
+test('creates a partition as a partition, not as an exterior wall', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  // Choosing a partition assembly proposes the matching role rather than
+  // leaving every drawn wall in the thermal envelope.
+  await page.getByLabel('Assemblage').selectOption('assembly-partition');
+  await expect(page.getByLabel('Rôle')).toHaveValue('PARTITION');
+
+  const canvas = page.locator('.plan-canvas');
+  await canvas.click({ position: { x: 120, y: 380 } });
+  await canvas.click({ position: { x: 420, y: 380 } });
+  await expect(page.getByRole('status')).toContainText('Ajouter un mur');
+
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await canvas.click({ position: { x: 270, y: 380 } });
+  await expect(page.locator('.inspector-subject')).toContainText('PARTITION');
+});
+
+test('deletes a multiple selection as one undoable action', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  await expect(walls).toHaveCount(6);
+
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  const south = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  const west = (await page.locator('[id="wall:wall-west"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: south.x - box.x + south.width / 2,
+      y: south.y - box.y + south.height / 2,
+    },
+  });
+  await canvas.click({
+    position: {
+      x: west.x - box.x + west.width / 2,
+      y: west.y - box.y + west.height / 2,
+    },
+    modifiers: ['ControlOrMeta'],
+  });
+  await page.keyboard.press('Delete');
+  await expect(page.getByRole('status')).toContainText('Supprimer 2 objets');
+  await expect(walls).toHaveCount(4);
+
+  // One action, one undo: both walls come back together.
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(walls).toHaveCount(6);
+});
+
+test('chooses which contour a slab is built from', async ({ page }) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Niveaux et pièces' }).click();
+  const contour = page.getByLabel('Contour');
+  await expect(contour).toBeVisible();
+  const options = await contour.locator('option').allTextContents();
+  expect(options.length).toBeGreaterThan(1);
+
+  // The second contour, explicitly: the panel used to take the first one
+  // whatever the user had chosen.
+  await contour.selectOption({ index: 1 });
+  const chosenAreaM2 = Number(
+    options[1]!.split('—')[1]!.trim().split(' m²')[0]!.replace(',', '.'),
+  );
+  await page.getByRole('button', { name: 'Dalle depuis le contour' }).click();
+  await expect(page.getByRole('status')).toContainText('appliqué');
+
+  // The saved project is the proof: the slab carries the polygon of the
+  // contour that was chosen, not of the first one detected.
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  const saved = JSON.parse(
+    await readFile(await (await download).path(), 'utf8'),
+  ) as {
+    project: {
+      building: {
+        levels: readonly {
+          slabs: readonly {
+            polygon: { outer: readonly { x: number; y: number }[] };
+          }[];
+        }[];
+      };
+    };
+  };
+  const slabs = saved.project.building.levels[0]!.slabs;
+  const outer = slabs.at(-1)!.polygon.outer;
+  const areaM2 =
+    Math.abs(
+      outer.reduce((total, point, index) => {
+        const next = outer[(index + 1) % outer.length]!;
+        return total + point.x * next.y - next.x * point.y;
+      }, 0) / 2,
+    ) / 1_000_000;
+  expect(areaM2).toBeCloseTo(chosenAreaM2, 1);
+});
+
+test('asks before replacing a project that has unexported changes', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  await canvas.click({ position: { x: 120, y: 380 } });
+  await canvas.click({ position: { x: 420, y: 380 } });
+  await expect(page.locator('.save-state')).not.toHaveText('Enregistré');
+
+  await page.getByRole('button', { name: 'Nouveau projet' }).click();
+  const prompt = page.getByRole('alertdialog');
+  await expect(prompt).toContainText('n’ont pas été exportées');
+  // Cancelling keeps the work.
+  await prompt.getByRole('button', { name: 'Annuler' }).click();
+  await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
+    7,
+  );
+
+  await page.getByRole('button', { name: 'Nouveau projet' }).click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Continuer sans exporter' })
+    .click();
+  await expect(page.getByRole('status')).toContainText('Nouveau projet');
+});

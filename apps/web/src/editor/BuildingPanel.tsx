@@ -80,6 +80,7 @@ export function BuildingPanel({
     () => roofAssemblies[0]?.id ?? '',
   );
   const [roofSlopeDeg, setRoofSlopeDeg] = useState(30);
+  const [contourIndex, setContourIndex] = useState(0);
   const [roofAzimuthDeg, setRoofAzimuthDeg] = useState(180);
 
   if (level === undefined)
@@ -90,6 +91,14 @@ export function BuildingPanel({
     spaces.map(({ id }) => id),
   );
   const nextElevationMm = level.elevationMm + level.defaultStoreyHeightMm;
+  // Which closed contour a slab or a roof is built from. With several rooms on
+  // a level, taking the first one silently would build the ouvrage somewhere
+  // the user did not choose.
+  const contour = rooms[contourIndex] ?? rooms[0];
+  const contourLabel = (index: number): string => {
+    const room = rooms[index]!;
+    return `Contour ${index + 1} — ${room.areaM2.toFixed(2)} m² · ${room.sourceWallIds.length} murs`;
+  };
 
   return (
     <section className="library-panel" aria-labelledby="building-heading">
@@ -220,6 +229,26 @@ export function BuildingPanel({
 
           <h3>Ouvrages horizontaux</h3>
           <div className="tool-group">
+            <div className="field">
+              <label htmlFor="building-contour">Contour</label>
+              <select
+                id="building-contour"
+                value={rooms.length === 0 ? '' : String(contourIndex)}
+                disabled={rooms.length === 0}
+                onChange={(event) =>
+                  setContourIndex(Number(event.target.value))
+                }
+              >
+                {rooms.length === 0 && (
+                  <option value="">Aucun contour détecté</option>
+                )}
+                {rooms.map((room, index) => (
+                  <option key={`${room.areaM2}:${index}`} value={String(index)}>
+                    {contourLabel(index)}
+                  </option>
+                ))}
+              </select>
+            </div>
             <label>
               Assemblage de dalle
               <select
@@ -236,14 +265,14 @@ export function BuildingPanel({
             <button
               type="button"
               className="secondary"
-              disabled={rooms.length === 0 || slabAssemblyId === ''}
+              disabled={contour === undefined || slabAssemblyId === ''}
               title={
                 rooms.length === 0
                   ? 'Aucun contour fermé détecté sur ce niveau.'
                   : undefined
               }
               onClick={() => {
-                const room = rooms[0];
+                const room = contour;
                 if (room === undefined) return;
                 onCommand(
                   new AddSlabCommand(level.id, {
@@ -327,9 +356,9 @@ export function BuildingPanel({
             <button
               type="button"
               className="secondary"
-              disabled={rooms.length === 0 || roofAssemblyId === ''}
+              disabled={contour === undefined || roofAssemblyId === ''}
               onClick={() => {
-                const room = rooms[0];
+                const room = contour;
                 if (room === undefined) return;
                 onCommand(
                   new AddRoofCommand(level.id, {
@@ -445,7 +474,10 @@ export function BuildingPanel({
           </label>
           <ul className="catalog-list">
             {rooms.map((room, index) => (
-              <li key={`${room.areaM2}:${index}`}>
+              <li
+                key={`${room.areaM2}:${index}`}
+                className={index === contourIndex ? 'selected' : undefined}
+              >
                 <span>
                   {room.areaM2.toFixed(2)} m²
                   <span className="hint">
@@ -455,6 +487,14 @@ export function BuildingPanel({
                       : ` · déjà couvert par ${room.existingSpaceId}`}
                   </span>
                 </span>
+                <button
+                  type="button"
+                  className="link"
+                  aria-pressed={index === contourIndex}
+                  onClick={() => setContourIndex(index)}
+                >
+                  Choisir ce contour
+                </button>
                 <button
                   type="button"
                   className="secondary"
@@ -484,8 +524,9 @@ export function BuildingPanel({
           </ul>
           <p className="notice">
             Les contours sont détectés à la lecture et ne sont jamais
-            enregistrés : ils deviennent des pièces seulement quand vous les
-            créez.
+            enregistrés : ils deviennent des pièces, des dalles ou des pans de
+            toiture seulement quand vous les créez, et toujours à partir du
+            contour choisi ci-dessus.
           </p>
         </div>
       </div>

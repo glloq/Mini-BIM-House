@@ -11,6 +11,7 @@ import { createRoot } from 'react-dom/client';
 import type {
   DimensionType,
   ProjectFile,
+  WallRole,
 } from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
@@ -80,7 +81,7 @@ import {
   addDimensionCommand,
   addOpeningCommand,
   addWallCommand,
-  deleteObjectCommand,
+  deleteObjectsCommand,
 } from './editor/editing-commands.js';
 
 function download(content: string, fileName: string, mediaType: string): void {
@@ -137,14 +138,20 @@ function App() {
   const [openingDraft, setOpeningDraft] =
     useState<OpeningDraft>(DEFAULT_OPENING);
   const [dimensionType, setDimensionType] = useState<DimensionType>('ALIGNED');
+  const [wallRole, setWallRole] = useState<WallRole>('EXTERIOR');
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
   const [saveState, setSaveState] = useState<SaveState>('SAVED');
+  /** Whether the workspace navigation is open as a drawer on a narrow screen. */
+  const [menuOpen, setMenuOpen] = useState(false);
   const [recovery, setRecovery] = useState<{
     readonly savedAt: string;
     readonly file: ProjectFile;
   }>();
   const [calculationRun, setCalculationRun] = useState<CalculationRun>();
+  const [calculationBusy, setCalculationBusy] = useState(false);
+  /** Bumped by an explicit recompute; the effect above watches it. */
+  const [calculationGeneration, setCalculationGeneration] = useState(0);
   const [wallAssemblyId, setWallAssemblyId] = useState(
     () => file.project.assemblies?.[0]?.id ?? '',
   );
@@ -174,6 +181,15 @@ function App() {
     nodeKinds[0]?.kind ??
     '';
 
+  /**
+   * A project replacement waiting for the user to say what to do with the work
+   * already in the editor.
+   */
+  const [pendingReplacement, setPendingReplacement] = useState<{
+    readonly label: string;
+    readonly run: () => void;
+  }>();
+
   const adopt = useCallback((next: ProjectFile, notice: string): void => {
     setFile(next);
     session.current = new ProjectEditingSession(next);
@@ -189,6 +205,23 @@ function App() {
       dispatchEditor({ type: 'SET_LEVEL', levelId: firstLevel.id });
     setMessage(notice);
   }, []);
+
+  /**
+   * Runs a project replacement, asking first when it would discard work.
+   *
+   * The local snapshot is not an export: replacing a modified project without
+   * a word would lose whatever has not been written to a file.
+   */
+  const replaceProject = useCallback(
+    (label: string, run: () => void): void => {
+      if (saveState === 'SAVED') {
+        run();
+        return;
+      }
+      setPendingReplacement({ label, run });
+    },
+    [saveState],
+  );
 
   const runCommand = useCallback((command: ProjectCommand): boolean => {
     const result = session.current.dispatch(command);
@@ -243,19 +276,17 @@ function App() {
       setMessage('Rien à supprimer : la sélection est vide.');
       return;
     }
-    for (const objectId of editor.selection) {
-      const command = deleteObjectCommand(
-        session.current.file,
-        activeLevelId,
-        objectId,
-      );
-      if (command.status === 'ERROR') {
-        setMessage(command.message);
-        return;
-      }
-      if (!runCommand(command.command)) return;
+    const command = deleteObjectsCommand(
+      session.current.file,
+      activeLevelId,
+      editor.selection,
+    );
+    if (command.status === 'ERROR') {
+      setMessage(command.message);
+      return;
     }
-    dispatchEditor({ type: 'CLEAR_SELECTION' });
+    if (runCommand(command.command))
+      dispatchEditor({ type: 'CLEAR_SELECTION' });
   }, [activeLevelId, editor.selection, runCommand]);
 
   const commitPoints = useCallback(
@@ -265,7 +296,7 @@ function App() {
           session.current.file,
           activeLevelId,
           points,
-          { assemblyId: wallAssemblyId, role: 'EXTERIOR' },
+          { assemblyId: wallAssemblyId, role: wallRole },
           `wall-${crypto.randomUUID()}`,
         );
         if (command.status === 'ERROR') {
@@ -345,6 +376,7 @@ function App() {
       openingDraft,
       runCommand,
       wallAssemblyId,
+      wallRole,
     ],
   );
 
@@ -389,6 +421,18 @@ function App() {
     return () => clearTimeout(timer);
   }, [file, saveState]);
 
+  // Closing the tab with work that was never exported deserves the browser's
+  // own warning. The local snapshot survives, but a file the user meant to keep
+  // would not.
+  useEffect(() => {
+    if (saveState === 'SAVED') return;
+    function warn(event: BeforeUnloadEvent): void {
+      event.preventDefault();
+    }
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [saveState]);
+
   // A snapshot left by a previous session is offered, never applied silently.
   useEffect(() => {
     void readAutosave().then((result) => {
@@ -397,16 +441,24 @@ function App() {
     });
   }, []);
 
+  // One run feeds both the dashboard and the overlay. Two independent effects
+  // used to compute the same thing twice whenever the calculation tab was
+  // opened with an overlay already on.
   useEffect(() => {
     if (overlayId === 'none' && tab !== 'calculations') return;
     let current = true;
-    void runProjectCalculations(file.project, climate).then((result) => {
-      if (current) setCalculationRun(result);
-    });
+    setCalculationBusy(true);
+    void runProjectCalculations(file.project, climate)
+      .then((result) => {
+        if (current) setCalculationRun(result);
+      })
+      .finally(() => {
+        if (current) setCalculationBusy(false);
+      });
     return () => {
       current = false;
     };
-  }, [climate, file.project, overlayId, tab]);
+  }, [climate, file.project, overlayId, tab, calculationGeneration]);
 
   useEffect(() => {
     function handle(event: KeyboardEvent): void {
@@ -415,6 +467,12 @@ function App() {
       const command = resolveShortcut(event);
       if (command === undefined) return;
       event.preventDefault();
+      // Escape closes the drawer before it touches the drawing: the panel over
+      // the plan is what the user is looking at.
+      if (command === 'tool.select' && menuOpen) {
+        setMenuOpen(false);
+        return;
+      }
       switch (command) {
         case 'tool.select':
           dispatchEditor(
@@ -469,6 +527,7 @@ function App() {
     return () => window.removeEventListener('keydown', handle);
   }, [
     deleteSelection,
+    menuOpen,
     editor.pendingPoints.length,
     redo,
     saveProject,
@@ -537,6 +596,15 @@ function App() {
           <h1>House Technical Designer</h1>
         </div>
         <div className="actions">
+          <button
+            type="button"
+            className="secondary menu-toggle"
+            aria-expanded={menuOpen}
+            aria-controls="workspace-sidebar"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            Espaces de travail
+          </button>
           <button className="secondary" onClick={undo}>
             Annuler
           </button>
@@ -545,33 +613,41 @@ function App() {
           </button>
           <button
             className="secondary"
-            onClick={() => {
-              setClimate([]);
-              adopt(
-                createBlankProject(new Date().toISOString()),
-                'Nouveau projet local prêt, bibliothèque générique incluse.',
-              );
-            }}
+            onClick={() =>
+              replaceProject('Nouveau projet', () => {
+                setClimate([]);
+                adopt(
+                  createBlankProject(new Date().toISOString()),
+                  'Nouveau projet local prêt, bibliothèque générique incluse.',
+                );
+              })
+            }
           >
             Nouveau projet
           </button>
           <button
             className="secondary"
-            onClick={() => importInput.current?.click()}
+            onClick={() =>
+              replaceProject('Ouvrir un projet', () =>
+                importInput.current?.click(),
+              )
+            }
           >
             Ouvrir
           </button>
           <button
             className="secondary"
-            onClick={() => {
-              const demo = loadDemoProject();
-              if (demo.status === 'ERROR') {
-                setMessage(demo.message);
-                return;
-              }
-              setClimate(demoClimateDatasets());
-              adopt(demo.file, 'Maison de démonstration chargée.');
-            }}
+            onClick={() =>
+              replaceProject('Maison de démonstration', () => {
+                const demo = loadDemoProject();
+                if (demo.status === 'ERROR') {
+                  setMessage(demo.message);
+                  return;
+                }
+                setClimate(demoClimateDatasets());
+                adopt(demo.file, 'Maison de démonstration chargée.');
+              })
+            }
           >
             Maison de démonstration
           </button>
@@ -614,6 +690,44 @@ function App() {
         </span>
       </section>
 
+      {pendingReplacement !== undefined && (
+        <section className="panel recovery-prompt" role="alertdialog">
+          <p>
+            Ce projet contient des modifications qui n’ont pas été exportées. «{' '}
+            {pendingReplacement.label} » les remplacerait.
+          </p>
+          <div className="actions">
+            <button
+              type="button"
+              onClick={() => {
+                saveProject();
+                pendingReplacement.run();
+                setPendingReplacement(undefined);
+              }}
+            >
+              Exporter puis continuer
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => {
+                pendingReplacement.run();
+                setPendingReplacement(undefined);
+              }}
+            >
+              Continuer sans exporter
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => setPendingReplacement(undefined)}
+            >
+              Annuler
+            </button>
+          </div>
+        </section>
+      )}
+
       {recovery !== undefined && (
         <section className="panel recovery-prompt" role="alertdialog">
           <p>
@@ -645,7 +759,18 @@ function App() {
       )}
 
       <div className="workspace-grid">
-        <aside className="sidebar panel">
+        {menuOpen && (
+          <button
+            type="button"
+            className="drawer-backdrop"
+            aria-label="Fermer les espaces de travail"
+            onClick={() => setMenuOpen(false)}
+          />
+        )}
+        <aside
+          id="workspace-sidebar"
+          className={menuOpen ? 'sidebar panel open' : 'sidebar panel'}
+        >
           <p className="panel-label">Modèle</p>
           <nav aria-label="Sections du projet" className="workspace-tabs">
             {WORKSPACE_TABS.map((entry) => (
@@ -654,7 +779,10 @@ function App() {
                 type="button"
                 className={entry.id === tab ? 'active' : undefined}
                 aria-current={entry.id === tab ? 'page' : undefined}
-                onClick={() => setTab(entry.id)}
+                onClick={() => {
+                  setTab(entry.id);
+                  setMenuOpen(false);
+                }}
               >
                 {entry.label}
               </button>
@@ -716,7 +844,19 @@ function App() {
               editor={editor}
               dispatch={dispatchEditor}
               assemblyId={wallAssemblyId}
-              onAssemblyChange={setWallAssemblyId}
+              onAssemblyChange={(assemblyId) => {
+                setWallAssemblyId(assemblyId);
+                // Choosing a partition proposes the matching role; the user
+                // stays free to override it, and nothing is inferred silently
+                // at creation time.
+                const category = file.project.assemblies?.find(
+                  ({ id }) => id === assemblyId,
+                )?.category;
+                if (category === 'PARTITION') setWallRole('PARTITION');
+                if (category === 'WALL') setWallRole('EXTERIOR');
+              }}
+              wallRole={wallRole}
+              onWallRoleChange={setWallRole}
               openingDraft={openingDraft}
               onOpeningDraftChange={setOpeningDraft}
               dimensionType={dimensionType}
@@ -802,6 +942,11 @@ function App() {
             <CalculationsPanel
               project={file.project}
               climate={climate}
+              {...(calculationRun === undefined ? {} : { run: calculationRun })}
+              running={calculationBusy}
+              onRecompute={() =>
+                setCalculationGeneration((generation) => generation + 1)
+              }
               onSelectObjects={selectOnPlan}
             />
           </section>

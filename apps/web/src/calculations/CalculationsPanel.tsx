@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { Project } from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import type { CalculationJson } from '@house-technical-designer/calculation-core';
 import {
   dashboardCards,
   runAlerts,
-  runProjectCalculations,
   type CalculationRun,
   type ModuleRun,
 } from './calculation-runner.js';
@@ -45,26 +44,22 @@ function formatValue(value: CalculationJson): string {
 export interface CalculationsPanelProps {
   readonly project: Project;
   readonly climate: readonly ClimateDataset[];
+  /** The run the application holds; the panel never starts its own. */
+  readonly run?: CalculationRun;
+  readonly running: boolean;
+  readonly onRecompute: () => void;
   readonly onSelectObjects: (objectIds: readonly string[]) => void;
 }
 
 export function CalculationsPanel({
   project,
   climate,
+  run,
+  running,
+  onRecompute,
   onSelectObjects,
 }: CalculationsPanelProps) {
-  const [run, setRun] = useState<CalculationRun>();
-  const [running, setRunning] = useState(false);
   const [expanded, setExpanded] = useState<string>();
-
-  const compute = useCallback(() => {
-    setRunning(true);
-    void runProjectCalculations(project, climate)
-      .then((result) => setRun(result))
-      .finally(() => setRunning(false));
-  }, [climate, project]);
-
-  useEffect(compute, [compute]);
 
   const cards = run === undefined ? [] : dashboardCards(project, run.runs);
   const alerts = run === undefined ? [] : runAlerts(run.runs);
@@ -77,7 +72,7 @@ export function CalculationsPanel({
           <h2 id="calculations-heading">Tableau de bord technique</h2>
         </div>
         <div className="actions">
-          <button type="button" className="secondary" onClick={compute}>
+          <button type="button" className="secondary" onClick={onRecompute}>
             Recalculer
           </button>
         </div>

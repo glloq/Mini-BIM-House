@@ -14,7 +14,9 @@ import {
   DeleteOpeningCommand,
   DeleteWallCommand,
   ProjectEditorCommand,
+  TransactionCommand,
   createOpeningInsertionCommand,
+  type EditorCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import type { Point2D } from '@house-technical-designer/geometry';
@@ -251,56 +253,68 @@ function signedOffsetMm(
   );
 }
 
-/** Builds the command that deletes whichever object the selection names. */
-export function deleteObjectCommand(
+/** The editor command that deletes one object, whatever kind it is. */
+function deleteCommandFor(
+  level: NonNullable<ReturnType<typeof levelOf>>,
+  objectId: string,
+): EditorCommand | undefined {
+  if (level.annotations.some(({ id }) => id === objectId))
+    return new DeleteDimensionCommand(
+      `delete-dimension:${objectId}`,
+      dimensionId(objectId),
+    );
+  if (level.openings.some(({ id }) => id === objectId))
+    return new DeleteOpeningCommand(
+      `delete-opening:${objectId}`,
+      entityId<'Opening'>(objectId),
+    );
+  if (level.walls.some(({ id }) => id === objectId))
+    return new DeleteWallCommand(
+      `delete-wall:${objectId}`,
+      entityId<'Wall'>(objectId),
+    );
+  return undefined;
+}
+
+/**
+ * Builds the single command that deletes everything the selection names.
+ *
+ * One user action is one command: deleting three walls either happens or does
+ * not, and Ctrl+Z brings all three back. Running one command per object could
+ * leave the model half-deleted when the third one is refused.
+ */
+export function deleteObjectsCommand(
   file: ProjectFile,
   levelId: string | undefined,
-  objectId: string,
+  objectIds: readonly string[],
 ): EditingCommandResult {
   const level = levelOf(file.project, levelId);
   if (level === undefined)
     return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
-  if (level.annotations.some(({ id }) => id === objectId))
-    return {
-      status: 'OK',
-      command: new ProjectEditorCommand(
-        `delete-dimension:${objectId}`,
-        'Supprimer une cote',
-        level.id,
-        new DeleteDimensionCommand(
-          `delete-dimension:${objectId}`,
-          dimensionId(objectId),
-        ),
-      ),
-    };
-  if (level.openings.some(({ id }) => id === objectId))
-    return {
-      status: 'OK',
-      command: new ProjectEditorCommand(
-        `delete-opening:${objectId}`,
-        'Supprimer une ouverture',
-        level.id,
-        new DeleteOpeningCommand(
-          `delete-opening:${objectId}`,
-          entityId<'Opening'>(objectId),
-        ),
-      ),
-    };
-  if (level.walls.some(({ id }) => id === objectId))
-    return {
-      status: 'OK',
-      command: new ProjectEditorCommand(
-        `delete-wall:${objectId}`,
-        'Supprimer un mur',
-        level.id,
-        new DeleteWallCommand(
-          `delete-wall:${objectId}`,
-          entityId<'Wall'>(objectId),
-        ),
-      ),
-    };
+  if (objectIds.length === 0)
+    return { status: 'ERROR', message: 'La sélection est vide.' };
+  const commands: EditorCommand[] = [];
+  for (const objectId of objectIds) {
+    const command = deleteCommandFor(level, objectId);
+    if (command === undefined)
+      return {
+        status: 'ERROR',
+        message: `Cet objet ne peut pas être supprimé depuis le plan : ${objectId}.`,
+      };
+    commands.push(command);
+  }
+  const id = `delete:${objectIds.join(',')}`;
   return {
-    status: 'ERROR',
-    message: `Cet objet ne peut pas être supprimé depuis le plan : ${objectId}.`,
+    status: 'OK',
+    command: new ProjectEditorCommand(
+      id,
+      objectIds.length === 1
+        ? 'Supprimer un objet'
+        : `Supprimer ${objectIds.length} objets`,
+      level.id,
+      commands.length === 1
+        ? commands[0]!
+        : new TransactionCommand(id, 'Supprimer la sélection', commands),
+    ),
   };
 }

@@ -502,7 +502,7 @@
       {
         "id": "assembly-partition",
         "name": "Cloison de référence",
-        "category": "WALL",
+        "category": "PARTITION",
         "layers": [
           {
             "id": "layer-partition",

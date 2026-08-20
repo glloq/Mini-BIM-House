@@ -24,10 +24,27 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testIgnore: /mobile\.spec\.ts/,
       use: {
         ...devices['Desktop Chrome'],
         // Continuous integration downloads the browser Playwright expects; a
         // sandbox that already ships one points at it instead of re-downloading.
+        ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE === undefined
+          ? {}
+          : {
+              launchOptions: {
+                executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,
+              },
+            }),
+      },
+    },
+    {
+      // A phone is not a narrow desktop: the tests tagged @mobile check that
+      // the workspace stays reachable on one.
+      name: 'mobile',
+      testMatch: /mobile\.spec\.ts/,
+      use: {
+        ...devices['Pixel 7'],
         ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE === undefined
           ? {}
           : {

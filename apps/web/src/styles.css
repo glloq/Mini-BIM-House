@@ -300,6 +300,17 @@ h2 {
     grid-column: span 2;
   }
 }
+/*
+ * The workspace navigation is a drawer on a narrow screen, not a casualty of
+ * it: hiding the sidebar took the workspaces, the level, the layers, the
+ * discipline view and the overlay away from every phone.
+ */
+.menu-toggle {
+  display: none;
+}
+.drawer-backdrop {
+  display: none;
+}
 @media (max-width: 720px) {
   .app-header,
   .project-bar {
@@ -312,14 +323,63 @@ h2 {
   .workspace-grid {
     grid-template-columns: 1fr;
   }
+  .menu-toggle {
+    display: inline-flex;
+  }
+  .drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    border: 0;
+    padding: 0;
+    background: rgba(12, 24, 19, 0.45);
+  }
   .sidebar {
-    display: none;
+    position: fixed;
+    z-index: 31;
+    background: #fff;
+    inset: 0 auto 0 0;
+    width: min(20rem, 86vw);
+    max-height: 100vh;
+    overflow-y: auto;
+    border-radius: 0 1rem 1rem 0;
+    transform: translateX(-102%);
+    transition: transform 160ms ease;
+    box-shadow: 0 0 2rem rgba(12, 24, 19, 0.3);
+  }
+  .sidebar.open {
+    transform: none;
   }
   .metrics {
     grid-template-columns: repeat(2, 1fr);
   }
   .drawing-canvas {
     min-height: 420px;
+  }
+  .plan-canvas {
+    min-height: 60vh;
+  }
+  /* The inspector reads as a panel under the plan rather than a third column. */
+  .inspector {
+    max-height: 45vh;
+    overflow-y: auto;
+  }
+  .library-table {
+    min-width: 32rem;
+  }
+}
+
+/* A finger is not a mouse pointer: give it something it can actually hit. */
+@media (pointer: coarse) {
+  button,
+  select,
+  input:not([type='checkbox']) {
+    min-height: 2.75rem;
+  }
+  input[type='checkbox'] {
+    width: 1.15rem;
+    height: 1.15rem;
   }
 }
 .drawing-canvas.drawing-active {
