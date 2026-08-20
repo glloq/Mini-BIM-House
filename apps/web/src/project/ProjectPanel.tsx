@@ -17,6 +17,8 @@ import {
   moduleContract,
   chosenNumbers,
   moduleSettings,
+  flagValue,
+  withFlag,
   withField,
   withNumberChoice,
   withMaterialValue,
@@ -551,27 +553,47 @@ export function ProjectPanel({
             </p>
           )}
           <div className="tool-group">
-            {descriptor.fields.map((field) => (
-              <TextField
-                key={field.key}
-                id={`setting-${field.key}`}
-                label={field.label}
-                {...(field.unit === undefined ? {} : { unit: field.unit })}
-                {...(field.hint === undefined ? {} : { hint: field.hint })}
-                numeric={field.kind === 'NUMBER'}
-                value={fieldValue(settings, field.key)}
-                onCommit={(value) =>
-                  writeSettings(
-                    withField(
-                      settings,
-                      field.key,
-                      value,
-                      field.kind === 'NUMBER',
-                    ),
-                  )
-                }
-              />
-            ))}
+            {descriptor.fields.map((field) =>
+              field.kind === 'BOOLEAN' ? (
+                <div className="field" key={field.key}>
+                  <label className="checkbox">
+                    <input
+                      type="checkbox"
+                      checked={flagValue(settings, field.key)}
+                      onChange={(event) =>
+                        writeSettings(
+                          withFlag(settings, field.key, event.target.checked),
+                        )
+                      }
+                    />
+                    <span>{field.label}</span>
+                  </label>
+                  {field.hint !== undefined && (
+                    <p className="hint">{field.hint}</p>
+                  )}
+                </div>
+              ) : (
+                <TextField
+                  key={field.key}
+                  id={`setting-${field.key}`}
+                  label={field.label}
+                  {...(field.unit === undefined ? {} : { unit: field.unit })}
+                  {...(field.hint === undefined ? {} : { hint: field.hint })}
+                  numeric={field.kind === 'NUMBER'}
+                  value={fieldValue(settings, field.key)}
+                  onCommit={(value) =>
+                    writeSettings(
+                      withField(
+                        settings,
+                        field.key,
+                        value,
+                        field.kind === 'NUMBER',
+                      ),
+                    )
+                  }
+                />
+              ),
+            )}
           </div>
 
           {(descriptor.numberChoices ?? []).map((choice) => (

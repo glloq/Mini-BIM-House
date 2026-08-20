@@ -86,7 +86,7 @@ h2 {
 }
 .project-bar span,
 .project-bar p {
-  color: #68766f;
+  color: #5a6860;
   font-size: 0.74rem;
 }
 .project-bar p {
@@ -190,7 +190,7 @@ h2 {
 .wall-toolbar label {
   display: grid;
   gap: 0.25rem;
-  color: #6b7871;
+  color: #5a6860;
   font-size: 0.62rem;
   text-transform: uppercase;
 }
@@ -220,7 +220,7 @@ h2 {
   place-content: center;
   gap: 0.4rem;
   padding: 1.5rem 1rem;
-  color: #6b7871;
+  color: #5a6860;
   text-align: center;
 }
 .drawing-canvas > .empty-state,
@@ -247,7 +247,7 @@ h2 {
   background: #f0f4f1;
 }
 .metrics dt {
-  color: #718078;
+  color: #5a6860;
   font-size: 0.68rem;
   text-transform: capitalize;
 }
@@ -277,7 +277,7 @@ h2 {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid #e0e6e2;
-  color: #6b7871;
+  color: #5a6860;
   font-size: 0.75rem;
   line-height: 1.5;
 }
@@ -441,7 +441,20 @@ button.icon {
 /* Library panels: materials, assemblies and equipment. */
 .workspace-tabs {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.6rem;
+}
+.workspace-group {
+  display: grid;
+  gap: 0.15rem;
+}
+.workspace-group-label {
+  margin: 0 0 0.1rem;
+  padding: 0 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 750;
+  color: #5a6860;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 .workspace-tabs button {
   border: 0;
@@ -538,7 +551,7 @@ button.icon {
 }
 .hint {
   display: block;
-  color: #6b7871;
+  color: #5a6860;
   font-size: 0.72rem;
   font-weight: 500;
 }
@@ -616,15 +629,22 @@ button.icon {
   padding: 0.3rem 0;
 }
 .property-row em {
-  color: #6b7871;
+  color: #5a6860;
   font-style: normal;
   font-weight: 500;
 }
 .property-row .provenance {
   grid-column: 1 / -1;
-  color: #6b7871;
+  display: grid;
+  grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+  gap: 0.35rem 0.75rem;
+  align-items: end;
+  color: #5a6860;
   font-size: 0.68rem;
   font-weight: 500;
+}
+.property-row .provenance select {
+  width: 100%;
 }
 .notice.warning {
   border-top-color: #e5c9a3;
@@ -856,7 +876,7 @@ button.icon {
   padding-bottom: 0.2rem;
 }
 .inspector-fields dt {
-  color: #6b7871;
+  color: #5a6860;
 }
 .inspector-fields dd {
   margin: 0;
@@ -898,7 +918,7 @@ button.icon {
 .dashboard-card-value small {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #6b7871;
+  color: #5a6860;
 }
 .module-list,
 .alert-list {
@@ -1072,11 +1092,16 @@ button.icon {
 }
 .delta small {
   font-weight: 500;
-  color: #6b7871;
+  color: #5a6860;
 }
 
 /* Save state and crash handling. */
-.save-state {
+/*
+ * The save state is a pill with a colour of its own; written as `.save-state`
+ * alone it lost to `.project-bar span` and was drawn in the muted grey of the
+ * text beside it — unreadable on its own background, and no longer a state.
+ */
+.project-bar .save-state {
   border-radius: 999px;
   padding: 0.2rem 0.7rem;
   font-size: 0.72rem;
@@ -1104,6 +1129,25 @@ button.icon {
   justify-content: space-between;
   margin-bottom: 1rem;
   padding: 0.85rem 1rem;
+}
+.new-project-wizard {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+  padding: 1.1rem 1.25rem;
+}
+.new-project-wizard fieldset {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.6rem 0.9rem;
+  align-items: end;
+}
+.new-project-wizard legend {
+  font-size: 0.72rem;
+  font-weight: 750;
+  color: #4a5d54;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .crash-panel {
   display: grid;

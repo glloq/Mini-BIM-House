@@ -11,6 +11,9 @@ import {
   materialRows,
   nextLibraryId,
   projectEquipmentFromCatalog,
+  propertySource,
+  withEditedProperty,
+  withPropertySource,
 } from './library-model.js';
 
 function project(): Project {
@@ -148,5 +151,71 @@ describe('equipment placed from the catalogue', () => {
     const first = projectEquipmentFromCatalog(definition, []);
     const second = projectEquipmentFromCatalog(definition, [first.id]);
     expect(second.id).not.toBe(first.id);
+  });
+});
+
+describe('material property provenance', () => {
+  function rockWool() {
+    return (project().materialLibrary?.materials ?? []).find(
+      ({ id }) => id === 'generic-rock-wool',
+    )!;
+  }
+
+  it('declares where a value comes from and lets the reference be written', () => {
+    const material = withPropertySource(rockWool(), 'lambdaWmK', {
+      sourceType: 'MANUFACTURER',
+      reference: 'Fiche technique 2026',
+    });
+    expect(propertySource(material, 'lambdaWmK')).toEqual({
+      property: 'lambdaWmK',
+      sourceType: 'MANUFACTURER',
+      reference: 'Fiche technique 2026',
+    });
+    // Other properties keep the provenance they had.
+    expect(propertySource(material, 'densityKgM3')?.sourceType).toBe(
+      'STANDARD',
+    );
+  });
+
+  it('drops the entry when the provenance is cleared, reference included', () => {
+    const material = withPropertySource(rockWool(), 'lambdaWmK', {
+      sourceType: '',
+    });
+    expect(propertySource(material, 'lambdaWmK')).toBeUndefined();
+  });
+
+  it('never leaves a standard reference attached to a value the user changed', () => {
+    const before = rockWool();
+    expect(propertySource(before, 'lambdaWmK')?.sourceType).toBe('STANDARD');
+    const material = withEditedProperty(before, 'lambdaWmK', 0.031);
+    expect(material.properties.lambdaWmK).toBe(0.031);
+    expect(propertySource(material, 'lambdaWmK')).toEqual({
+      property: 'lambdaWmK',
+      sourceType: 'USER',
+    });
+  });
+
+  it('leaves the provenance alone when the value is retyped unchanged', () => {
+    const before = rockWool();
+    const same = before.properties.lambdaWmK as number;
+    expect(
+      propertySource(withEditedProperty(before, 'lambdaWmK', same), 'lambdaWmK')
+        ?.sourceType,
+    ).toBe('STANDARD');
+  });
+
+  it('takes the provenance away with the property it described', () => {
+    const material = withEditedProperty(rockWool(), 'lambdaWmK', undefined);
+    expect(material.properties.lambdaWmK).toBeUndefined();
+    expect(propertySource(material, 'lambdaWmK')).toBeUndefined();
+  });
+
+  it('invents no provenance for a material that declared none', () => {
+    const custom = withEditedProperty(
+      { ...rockWool(), sources: [] },
+      'lambdaWmK',
+      0.04,
+    );
+    expect(custom.sources).toEqual([]);
   });
 });

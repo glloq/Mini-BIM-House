@@ -1,6 +1,7 @@
 import type {
   Dimension,
   Level,
+  NetworkNode,
   Opening,
   Project,
   RoofPlane,
@@ -270,7 +271,14 @@ export class UpdateLevelCommand extends BuildingCommand {
     return ok();
   }
   protected apply(project: Project): Project {
-    return withLevels(
+    const previous = project.building.levels.find(
+      ({ id }) => id === this.levelId,
+    );
+    const deltaZ =
+      previous === undefined || this.changes.elevationMm === undefined
+        ? 0
+        : this.changes.elevationMm - previous.elevationMm;
+    const moved = withLevels(
       project,
       sortedByElevation(
         project.building.levels.map((level) =>
@@ -278,7 +286,45 @@ export class UpdateLevelCommand extends BuildingCommand {
         ),
       ),
     );
+    return deltaZ === 0 ? moved : withRaisedNodes(moved, this.levelId, deltaZ);
   }
+}
+
+/**
+ * The project with the network nodes of one level moved with it.
+ *
+ * A node's position is absolute, like a roof elevation. A node says which level
+ * it belongs to; one written before that field is placed by the space it
+ * serves, which is the only thing an older file states about where it is.
+ */
+function withRaisedNodes(
+  project: Project,
+  levelId: string,
+  deltaZ: number,
+): Project {
+  const spacesOfLevel = new Set(
+    project.building.levels
+      .filter((level) => level.id === levelId)
+      .flatMap(({ spaces }) => spaces.map(({ id }) => id as string)),
+  );
+  const belongs = (node: NetworkNode): boolean =>
+    node.levelId === undefined
+      ? node.spaceId !== undefined && spacesOfLevel.has(node.spaceId)
+      : node.levelId === levelId;
+  return {
+    ...project,
+    systems: (project.systems ?? []).map((network) => ({
+      ...network,
+      nodes: network.nodes.map((node) =>
+        belongs(node)
+          ? {
+              ...node,
+              position: { ...node.position, z: node.position.z + deltaZ },
+            }
+          : node,
+      ),
+    })),
+  };
 }
 
 /**

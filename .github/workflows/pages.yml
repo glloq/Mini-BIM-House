@@ -38,3 +38,8 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+      # A deployment that succeeded is not a page that opens: a wrong base path
+      # publishes an index.html whose script answers 404, and the pipeline stays
+      # green behind a blank page.
+      - name: Vérifier que la page déployée sert l'application
+        run: node scripts/smoke-deployment.mjs "${{ steps.deployment.outputs.page_url }}"

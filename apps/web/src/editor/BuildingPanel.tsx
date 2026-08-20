@@ -1,21 +1,40 @@
 import { useMemo, useState } from 'react';
-import type { Project } from '@house-technical-designer/core-domain';
+import type { Project, ZoneType } from '@house-technical-designer/core-domain';
+import { ZONE_TYPES } from '@house-technical-designer/core-domain';
 import {
   AddLevelCommand,
   AddRoofCommand,
   AddSlabCommand,
   AddSpaceCommand,
+  AddZoneCommand,
   DuplicateLevelCommand,
   RemoveLevelCommand,
   RemoveRoofCommand,
   RemoveSlabCommand,
   RemoveSpaceCommand,
+  RemoveZoneCommand,
+  SetZoneMembershipCommand,
   UpdateLevelCommand,
   UpdateSpaceCommand,
+  UpdateZoneCommand,
   detectRooms,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import { nextLibraryId } from '../library/library-model.js';
+import { DraftField } from '../DraftField.js';
+
+/** What each kind of zone groups rooms for. */
+const ZONE_TYPE_LABELS: Readonly<Record<ZoneType, string>> = {
+  THERMAL: 'Thermique',
+  VENTILATION: 'Ventilation',
+  ELECTRICAL: 'Électricité',
+  ACOUSTIC: 'Acoustique',
+  LIGHTING: 'Éclairage',
+  FIRE: 'Incendie',
+  WATER: 'Eau',
+  SECURITY: 'Sécurité',
+  CUSTOM: 'Autre',
+};
 
 /** Room categories offered when a detected boundary becomes a space. */
 const SPACE_CATEGORIES = [
@@ -65,6 +84,12 @@ export function BuildingPanel({
   const levels = project.building.levels;
   const level = levels.find(({ id }) => id === levelId) ?? levels[0];
   const [category, setCategory] = useState<string>('LIVING');
+  const [zoneName, setZoneName] = useState('');
+  const [zoneType, setZoneType] = useState<ZoneType>('THERMAL');
+  const zones = project.building.zones;
+  // A zone groups rooms wherever they are: a heated volume rarely stops at one
+  // storey.
+  const allSpaces = project.building.levels.flatMap(({ spaces }) => spaces);
   const rooms = useMemo(
     () => (level === undefined ? [] : detectRooms(project, level.id)),
     [project, level],
@@ -140,38 +165,59 @@ export function BuildingPanel({
                       className="link"
                       onClick={() => onSelectLevel(entry.id)}
                     >
-                      {entry.name}
+                      Ouvrir
                     </button>
+                    <DraftField
+                      id={`level-${entry.id}-name`}
+                      label={`Nom du niveau ${entry.name}`}
+                      kind="TEXT"
+                      value={entry.name}
+                      onCommit={(name) =>
+                        name.trim() === ''
+                          ? undefined
+                          : onCommand(
+                              new UpdateLevelCommand(entry.id, { name }),
+                            )
+                      }
+                    />
                   </th>
                   <td>
-                    <input
-                      type="number"
-                      step="10"
-                      aria-label={`Altitude du niveau ${entry.name}`}
+                    <DraftField
+                      id={`level-${entry.id}-elevation`}
+                      label={`Altitude du niveau ${entry.name}`}
+                      unit="mm"
+                      kind="NUMBER"
+                      step={10}
                       value={entry.elevationMm}
-                      onChange={(event) =>
+                      onCommit={(raw) => {
+                        const elevationMm = Number(raw.replace(',', '.'));
+                        if (!Number.isFinite(elevationMm)) return;
                         onCommand(
-                          new UpdateLevelCommand(entry.id, {
-                            elevationMm: event.target.valueAsNumber,
-                          }),
-                        )
-                      }
+                          new UpdateLevelCommand(entry.id, { elevationMm }),
+                        );
+                      }}
                     />
                   </td>
                   <td>
-                    <input
-                      type="number"
-                      min="1"
-                      step="10"
-                      aria-label={`Hauteur d’étage du niveau ${entry.name}`}
+                    <DraftField
+                      id={`level-${entry.id}-height`}
+                      label={`Hauteur d’étage du niveau ${entry.name}`}
+                      unit="mm"
+                      kind="NUMBER"
+                      min={1}
+                      step={10}
                       value={entry.defaultStoreyHeightMm}
-                      onChange={(event) =>
+                      onCommit={(raw) => {
+                        const defaultStoreyHeightMm = Number(
+                          raw.replace(',', '.'),
+                        );
+                        if (!Number.isFinite(defaultStoreyHeightMm)) return;
                         onCommand(
                           new UpdateLevelCommand(entry.id, {
-                            defaultStoreyHeightMm: event.target.valueAsNumber,
+                            defaultStoreyHeightMm,
                           }),
-                        )
-                      }
+                        );
+                      }}
                     />
                   </td>
                   <td>
@@ -435,19 +481,23 @@ export function BuildingPanel({
           <ul className="catalog-list">
             {level.spaces.map((space) => (
               <li key={space.id}>
-                <label className="detail-name">
-                  <span className="visually-hidden">Nom de la pièce</span>
-                  <input
+                <div className="detail-name">
+                  <DraftField
+                    id={`space-${space.id}-name`}
+                    label={`Nom de la pièce ${space.name}`}
+                    kind="TEXT"
                     value={space.name}
-                    onChange={(event) =>
-                      onCommand(
-                        new UpdateSpaceCommand(level.id, space.id, {
-                          name: event.target.value,
-                        }),
-                      )
+                    onCommit={(name) =>
+                      name.trim() === ''
+                        ? undefined
+                        : onCommand(
+                            new UpdateSpaceCommand(level.id, space.id, {
+                              name,
+                            }),
+                          )
                     }
                   />
-                </label>
+                </div>
                 <select
                   aria-label={`Type de la pièce ${space.name}`}
                   value={space.category}
@@ -553,6 +603,137 @@ export function BuildingPanel({
             enregistrés : ils deviennent des pièces, des dalles ou des pans de
             toiture seulement quand vous les créez, et toujours à partir du
             contour choisi ci-dessus.
+          </p>
+
+          <h3>Zones du bâtiment</h3>
+          <form
+            className="tool-group"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const name = zoneName.trim();
+              if (name === '') return;
+              onCommand(
+                new AddZoneCommand({
+                  id: nextLibraryId(
+                    'zone',
+                    name,
+                    zones.map(({ id }) => id),
+                  ),
+                  name,
+                  type: zoneType,
+                }),
+              );
+              setZoneName('');
+            }}
+          >
+            <div className="field">
+              <label htmlFor="zone-name">Nouvelle zone</label>
+              <input
+                id="zone-name"
+                value={zoneName}
+                placeholder="Volume chauffé"
+                onChange={(event) => setZoneName(event.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="zone-type">Type</label>
+              <select
+                id="zone-type"
+                value={zoneType}
+                onChange={(event) =>
+                  setZoneType(event.target.value as ZoneType)
+                }
+              >
+                {ZONE_TYPES.map((entry) => (
+                  <option key={entry} value={entry}>
+                    {ZONE_TYPE_LABELS[entry]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="submit">Créer la zone</button>
+          </form>
+
+          <ul className="catalog-list">
+            {zones.map((zone) => (
+              <li key={zone.id} className="zone-entry">
+                <div className="detail-name">
+                  <DraftField
+                    id={`zone-${zone.id}-name`}
+                    label={`Nom de la zone ${zone.name}`}
+                    kind="TEXT"
+                    value={zone.name}
+                    onCommit={(name) =>
+                      name.trim() === ''
+                        ? undefined
+                        : onCommand(new UpdateZoneCommand(zone.id, { name }))
+                    }
+                  />
+                </div>
+                <select
+                  aria-label={`Type de la zone ${zone.name}`}
+                  value={zone.type}
+                  onChange={(event) =>
+                    onCommand(
+                      new UpdateZoneCommand(zone.id, {
+                        type: event.target.value as ZoneType,
+                      }),
+                    )
+                  }
+                >
+                  {ZONE_TYPES.map((entry) => (
+                    <option key={entry} value={entry}>
+                      {ZONE_TYPE_LABELS[entry]}
+                    </option>
+                  ))}
+                </select>
+                <fieldset className="tool-group choice-group">
+                  <legend>Pièces</legend>
+                  {allSpaces.map((space) => (
+                    <label className="checkbox" key={space.id}>
+                      <input
+                        type="checkbox"
+                        checked={zone.spaceIds.includes(space.id)}
+                        onChange={(event) =>
+                          onCommand(
+                            new SetZoneMembershipCommand(
+                              zone.id,
+                              space.id,
+                              event.target.checked,
+                            ),
+                          )
+                        }
+                      />
+                      {space.name}
+                    </label>
+                  ))}
+                  {allSpaces.length === 0 && (
+                    <p className="hint">
+                      Ce projet ne déclare encore aucune pièce.
+                    </p>
+                  )}
+                </fieldset>
+                <button
+                  type="button"
+                  className="icon danger"
+                  aria-label={`Supprimer la zone ${zone.name}`}
+                  onClick={() => onCommand(new RemoveZoneCommand(zone.id))}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+            {zones.length === 0 && (
+              <li className="empty-state">
+                Aucune zone : les pièces sont considérées une à une.
+              </li>
+            )}
+          </ul>
+          <p className="notice">
+            Une zone regroupe des pièces pour un usage — volume chauffé, groupe
+            de ventilation, compartiment. Une pièce appartenant à une zone ne
+            peut pas être supprimée tant qu’elle en fait partie ; c’est ici
+            qu’on l’en retire.
           </p>
         </div>
       </div>

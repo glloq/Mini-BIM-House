@@ -482,6 +482,257 @@ l'utilisateur, et il ne reste jamais moins de trois sommets.
 - Firefox et WebKit en intégration continue (BETA-16) ;
 - publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18).
 
+## Sécurité des données — lot A du sixième audit
+
+| Point                  | Constat                                                                        | État    |
+| ---------------------- | ------------------------------------------------------------------------------ | ------- |
+| Course d'autosave      | une écriture ancienne pouvait faire dire « sauvegardé » d'une révision récente | corrigé |
+| Climat non sauvegardé  | l'instantané portait le projet sans les jeux climatiques de la session         | corrigé |
+| Migration localStorage | un instantané écrit par la version précédente n'était plus proposé             | corrigé |
+| Repli IndexedDB        | le stockage était choisi sur l'existence de l'API, pas sur ce qu'elle accepte  | corrigé |
+| Course d'export        | le fichier pouvait porter une révision plus ancienne que l'état affiché        | corrigé |
+| Identité du projet     | un résultat de calcul pouvait passer pour frais après changement de projet     | corrigé |
+
+**Une écriture ne parle que de ce qu'elle a écrit.** Les instantanés passent par
+une file : une seule écriture à la fois, et une demande arrivée pendant une
+écriture remplace celle qui attendait — les états intermédiaires n'ont pas de
+valeur, seul le dernier en a. La file rend la révision réellement posée sur le
+disque, et l'application ne se dit « sauvegardé localement » que si c'est celle
+qui est à l'écran.
+
+**L'instantané porte l'atelier, pas seulement le projet.** Les jeux climatiques
+y sont sérialisés et reviennent avec la restauration ; un instantané écrit avant
+ce champ se relit sans, et n'en réclame pas.
+
+**Le stockage se choisit sur ce qu'il accepte.** IndexedDB existe ne veut pas
+dire qu'IndexedDB écrit : navigation privée, quota épuisé, base corrompue
+échouent à la première transaction. Le magasin bascule alors sur `localStorage`,
+et l'échec des deux est signalé au lieu d'être avalé. Un instantané laissé par
+la version précédente est déplacé vers le nouveau magasin — copié, relu pour
+vérification, et seulement ensuite retiré de l'ancien.
+
+**Un export dit quelle révision il contient.** La compression est asynchrone ;
+si le projet a bougé pendant, le fichier écrit reste valide mais l'état
+redevient « modifié » et le message nomme la révision exportée.
+
+### Ce que ce lot n'a pas traité
+
+- cohérence des réseaux : racine par discipline, gaine rectangulaire, cuivre
+  implicite, pertes singulières supposées nulles, `equipmentId` canonique,
+  charges fixes, altitude des nœuds ;
+- durcissement du conteneur `.houseproj` et limites d'archive ;
+- Firefox, WebKit, Pages, migrations et version unique.
+
+## Cohérence des réseaux — lot B du sixième audit
+
+| Point                    | Constat                                                                               | État    |
+| ------------------------ | ------------------------------------------------------------------------------------- | ------- |
+| Racine de réseau         | toute discipline devait porter un nœud SOURCE, que ses propres gabarits ne créent pas | corrigé |
+| Gaine rectangulaire      | l'option existait sans largeur ni hauteur, et le calcul réclamait un diamètre         | corrigé |
+| Cuivre implicite         | un câble sans matériau était calculé en cuivre                                        | corrigé |
+| Pertes singulières       | un tronçon sans donnée était calculé sans raccord, sans le dire                       | corrigé |
+| Liaison luminaire        | la référence d'équipement restait un texte libre dans les propriétés                  | corrigé |
+| Charges fixes            | ni appareil fixe ni borne de recharge ne pouvaient être posés                         | corrigé |
+| Altitude des nœuds       | déplacer un niveau laissait ses nœuds de réseau à l'ancienne hauteur                  | corrigé |
+| « Corriger » d'un réseau | un diamètre manquant renvoyait au plan, incapable de le saisir                        | corrigé |
+
+**Chaque discipline a sa racine.** Une eau usée ne commence pas à une source :
+elle finit à un exutoire. Un réseau de ventilation est ancré par son groupe,
+l'électricité par le tableau qui l'alimente. La validation nomme désormais les
+ancrages qu'elle attendait, au lieu de signaler un défaut sur un réseau que les
+gabarits de l'éditeur venaient de produire.
+
+**Une gaine rectangulaire se décrit par ses deux côtés.** L'inspecteur propose
+largeur et hauteur, l'adaptateur réclame ce que la forme choisie exige — et non
+un diamètre qu'elle ne peut pas avoir — et le moteur calcule le diamètre
+hydraulique lui-même. Changer de forme retire les dimensions que la nouvelle ne
+porte pas ; une contradiction saisie malgré tout est refusée en le disant.
+
+**Deux hypothèses silencieuses en moins.** Un câble sans matériau de conducteur
+est signalé comme donnée manquante : le cuivre est le cas courant, ce qui est
+précisément pourquoi le supposer ne se verrait pas. Un tronçon sans perte
+singulière est toujours calculé sans raccord, mais l'hypothèse est enregistrée
+dans les résultats au lieu de disparaître dans le nombre.
+
+**Ce qu'un nœud représente est une référence, pas un nom.** `equipmentId` est
+lu en premier par l'éclairage, la propriété texte historique restant lue pour
+les fichiers antérieurs. Les gabarits électriques offrent enfin l'appareil fixe
+et la borne de recharge, sans lesquels une installation réelle ne pouvait pas
+être dessinée.
+
+**Un nœud sait sur quel niveau il est posé.** Déplacer ce niveau le déplace ;
+un nœud écrit avant ce champ est repéré par la pièce qu'il dessert, seule chose
+qu'un fichier ancien dise de l'endroit où il se trouve. Et un constat qui nomme
+un tronçon ouvre ce tronçon, dans l'espace Réseaux, propriétés ouvertes.
+
+### Ce que ce lot n'a pas traité
+
+- durcissement du conteneur `.houseproj` et limites d'archive (lot C) ;
+- références de zones, d'annotations et d'objets hôtes (lot D) ;
+- Firefox, WebKit, Pages, migrations et version unique (lot F).
+
+## Durcissement du conteneur — lot C du sixième audit
+
+| Point                      | Constat                                                                    | État    |
+| -------------------------- | -------------------------------------------------------------------------- | ------- |
+| Manifeste permissif        | un jeu climatique annoncé et absent était simplement ignoré                | corrigé |
+| Version du conteneur       | aucune vérification : une archive plus récente s'ouvrait à moitié          | corrigé |
+| Jeux climatiques invalides | l'import filtrait en silence ce qui ne respectait pas le contrat           | corrigé |
+| Profil référencé absent    | le projet pouvait nommer un climat que l'archive ne transportait pas       | corrigé |
+| Archive sans limites       | taille, nombre d'entrées, taille décompressée et taux n'étaient pas bornés | corrigé |
+| Méthodes de compression    | toute méthode non nulle était traitée comme du deflate                     | corrigé |
+
+**Ce que le manifeste annonce doit être là.** Une entrée déclarée et manquante,
+un JSON illisible, un jeu de données qui ne satisfait pas le contrat climatique,
+ou un projet nommant un profil que l'archive ne porte pas : chacun rend le
+conteneur invalide, avec le fichier nommé. Un « chargé et validé » sur un projet
+dont la météo a disparu en route est exactement ce qu'il fallait rendre
+impossible.
+
+**Une archive a des bornes.** 128 Mo d'archive, 128 entrées, 32 Mo par entrée
+décompressée, 256 Mo au total et un facteur d'expansion plafonné : tout cela
+s'exécute dans le navigateur du lecteur, où un fichier démesuré ne menace aucun
+serveur — il fige l'onglet. L'interface regarde la taille du fichier avant d'en
+lire les octets, et le lecteur refuse les méthodes de compression autres que
+« stocké » et « deflate » au lieu de traiter tout le reste comme du deflate.
+
+### Ce que ce lot n'a pas traité
+
+- Firefox, WebKit, Pages, migrations et version unique (lot F).
+
+## Intégrité du projet — lot D du sixième audit
+
+| Point                     | Constat                                                              | État    |
+| ------------------------- | -------------------------------------------------------------------- | ------- |
+| `spaceIds` des zones      | une zone pouvait grouper une pièce que le projet ne contenait plus   | corrigé |
+| `wallId` des cotes        | une cote pouvait mesurer un mur absent, ou d'un autre niveau         | corrigé |
+| `hostObjectId` des nœuds  | un nœud pouvait être fixé à un objet inexistant                      | corrigé |
+| `levelId` des nœuds       | l'altitude d'un nœud pouvait renvoyer à un niveau supprimé           | corrigé |
+| Identifiants dupliqués    | seules quelques familles étaient vérifiées, et jamais entre familles | corrigé |
+| Unicité : quelle portée ? | le contrat n'était écrit nulle part                                  | tranché |
+
+**Une référence qui ne mène à rien est refusée à l'import.** Seize familles
+d'objets sont recensées à la lecture d'un fichier ; chaque référence est
+confrontée à ce recensement. Une zone qui nomme une pièce disparue la protège
+d'une suppression qu'elle ne pourra jamais lever ; une cote dont le mur a été
+effacé affiche une longueur que le modèle ne sait plus justifier ; un nœud fixé
+à rien reste sur place quand l'objet qui le portait bouge. Chacun de ces cas
+nomme désormais le chemin exact dans le fichier.
+
+**L'unicité est celle du projet entier, et c'est écrit.** La question était
+ouverte : un identifiant unique par collection, ou unique partout ? La sélection
+sur le plan, les superpositions, les cotes et les chemins de scénario désignent
+un objet par son seul identifiant — deux objets qui le partagent rendent un clic
+ambigu et un scénario applicable à l'un comme à l'autre. Le contrat retenu est
+donc l'unicité dans tout le projet ; il figure dans `02_DOMAIN_MODEL.md` avec la
+liste des familles concernées, et l'import refuse une collision, y compris entre
+deux familles différentes.
+
+## Ergonomie de la bêta — lot E du sixième audit
+
+| Point                          | Constat                                                              | État    |
+| ------------------------------ | -------------------------------------------------------------------- | ------- |
+| Saisie caractère par caractère | matériaux, assemblages, niveaux et pièces validaient à chaque touche | corrigé |
+| Renommage de niveau            | impossible depuis l'interface                                        | corrigé |
+| Zones                          | le modèle les portait, rien ne permettait d'en créer                 | corrigé |
+| Provenance d'une propriété     | affichée, jamais saisissable                                         | corrigé |
+| `battery.offGrid`              | saisi comme « 0 ou 1 »                                               | corrigé |
+| Bornes hautes des équipements  | un rendement de 1,4 était accepté                                    | corrigé |
+| Navigation                     | onze espaces de travail en liste plate                               | corrigé |
+| Création d'un projet           | apparaissait sans nom, sans lieu et avec un seul niveau              | corrigé |
+
+**Une frappe n'est pas une décision.** `DraftField` couvre maintenant les
+panneaux matériaux, assemblages, niveaux et pièces : la commande part au blur ou
+sur Entrée, Échap remet ce que le modèle porte. L'historique d'annulation cesse
+de se remplir de lettres et les calculs de s'invalider à chaque caractère.
+
+**Les zones se créent, se nomment, se peuplent et se suppriment.** Une zone
+groupe des pièces pour un domaine — thermique, ventilation, acoustique — et le
+panneau « Niveaux et pièces » la traite comme un objet du projet : commandes
+inversibles, appartenance par case à cocher, refus d'un type inconnu.
+
+**Une valeur dit d'où elle vient.** Chaque propriété de matériau porte sa
+provenance et sa référence, saisissables. Écraser un nombre tiré d'une norme
+bascule la provenance en « saisie » plutôt que de laisser la référence décrire
+une valeur qui n'est plus là ; une propriété effacée emporte sa provenance ; un
+matériau qui n'en déclarait aucune n'en reçoit pas d'office.
+
+**Ce qui est physiquement impossible est refusé, avec la borne dite.** Les
+rendements et les états de charge sont bornés à 1, et quatre invariants croisés
+sont vérifiés — état de charge minimal sous le maximal, état initial dans ces
+bornes, volume initial sous le volume nominal, pertes à l'arrêt sous la
+puissance nominale. Une règle ne parle que si les deux valeurs qu'elle compare
+sont présentes : une donnée inconnue reste inconnue, elle ne devient pas une
+violation. Une saisie n'est tenue pour responsable que de la règle qu'elle
+casse, jamais d'une incohérence qui existait déjà.
+
+**Un projet commence par ce qu'on ne peut pas deviner.** L'assistant demande le
+nom, l'auteur, le pays, le nombre de niveaux hors sol, la hauteur d'étage, le
+sous-sol, l'orientation du nord et, s'ils sont connus, la latitude, la longitude
+et l'altitude. Ce qui est laissé vide reste vide : une latitude sans longitude
+ne situe rien et n'est pas écrite, et les modules qui ont besoin d'un lieu le
+signaleront plutôt que d'en supposer un. Les onze espaces de travail sont
+regroupés en cinq familles — projet, conception, bibliothèques, technique,
+résultats — pour dire dans quel ordre un projet se décrit.
+
+## Publication de la bêta — lot F du sixième audit
+
+| Point                 | Constat                                                       | État    |
+| --------------------- | ------------------------------------------------------------- | ------- |
+| Un seul moteur testé  | l'intégration continue ne connaissait que Chromium            | corrigé |
+| Pages jamais vérifié  | un déploiement réussi pouvait servir une page blanche         | corrigé |
+| Version applicative   | écrite en dur dans le code, à côté de celle de `package.json` | corrigé |
+| Migration silencieuse | un fichier ancien était mis à jour sans que rien ne le dise   | corrigé |
+| Taille du chargement  | 861 kio d'un bloc, sans budget                                | corrigé |
+| Accessibilité         | aucune vérification automatisée                               | corrigé |
+| Régression du dessin  | rien ne signalait un calque qui cesse d'être dessiné          | corrigé |
+| Version publiable     | le dépôt était encore en 0.1.0, sans journal des versions     | corrigé |
+
+**Trois moteurs, et ce qui les distingue.** Chromium exécute toute la suite ;
+Firefox et WebKit exécutent le parcours qui dépend réellement du moteur —
+géométrie du pointeur sur le canevas, IndexedDB, téléchargement, champ fichier,
+compression du conteneur. Le reste est le même code partout, et les tests
+unitaires le couvrent déjà.
+
+**Un déploiement réussi n'est pas une page qui s'ouvre.** Un chemin de base
+erroné publie un `index.html` dont le script répond 404 : la page reste blanche
+derrière une pipeline verte. Après publication, la page est chargée, ses
+fichiers sont demandés, et leur type est vérifié — un hébergeur qui répond
+`index.html` à tout renvoie 200 pour un script absent.
+
+**La version vient d'un seul endroit.** Le `package.json` du dépôt, injecté à
+la construction et aux tests. Une constante recopiée dans le code aurait été
+une seconde source, et le jour où les deux divergent, un fichier de projet
+porte une version qui n'a jamais existé. Un test compare les deux.
+
+**Une mise à jour de format se dit.** Un projet écrit dans un schéma antérieur
+est migré à l'ouverture, y compris à l'intérieur d'un conteneur ; l'application
+nomme la version d'origine, celle d'arrivée, et prévient que c'est cette
+dernière qui sera enregistrée.
+
+**Ce que la première visite télécharge est décidé.** Les dix espaces de travail
+et les dix-sept modules de calcul arrivent à la demande : le chargement initial
+passe de 861 kio à 151 kio compressés, pour un budget de 200 kio vérifié en
+intégration continue. Dépasser le budget est permis ; le dépasser sans s'en
+apercevoir ne l'est pas.
+
+**Ce qu'une machine peut vérifier de l'accessibilité l'est.** axe-core passe sur
+les onze espaces de travail, aux règles WCAG 2.1 AA, et un manquement est un
+échec. Il a immédiatement trouvé deux textes illisibles, dont l'étiquette d'état
+de sauvegarde qui perdait sa couleur au profit du gris du texte voisin.
+
+**Le dessin a une référence.** Le plan de la maison de démonstration est comparé
+à un fichier SVG de référence : un calque qui cesse d'être dessiné, une hachure
+qui change, un cadrage qui bouge se lisent comme une différence de texte. Une
+comparaison pixel par pixel sur trois moteurs répondrait à une autre question,
+et différemment sur chaque machine ; elle reste hors bêta.
+
+### Ce que ce lot n'a pas traité
+
+- feuilles et export PDF ; orchestrateur de calcul persistant et invalidation
+  sélective ; régression visuelle pixel par pixel ; réglages encore invisibles
+  alors que les moteurs les lisent.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -522,7 +773,11 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 710 tests sur 108 fichiers
-- tests navigateur : 44 tests Playwright, dont trois sur un écran de téléphone
+- tests unitaires et d'intégration : 788 tests sur 116 fichiers
+- tests navigateur : 49 tests Playwright — 46 sur Chromium et trois sur un
+  écran de téléphone — dont deux rejoués sur Firefox et WebKit
+- accessibilité : axe-core, onze espaces de travail, WCAG 2.1 AA, aucun
+  manquement
+- chargement initial : 151 kio compressés pour un budget de 200 kio
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

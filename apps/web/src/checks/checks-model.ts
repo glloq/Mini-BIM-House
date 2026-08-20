@@ -70,6 +70,18 @@ export function sourceLabel(source: CheckSource): string {
  * value: a "Corriger" that leads to a form without the field is worse than no
  * button, because it makes the application look as though it lost the input.
  */
+/**
+ * The network object a missing input is about, when it is about one.
+ *
+ * The adapters name what they could not read: `segments/<id>/diameterM`,
+ * `cables/<id>/conductorSectionMm2`. The identifier in the middle is the object
+ * whose properties the user has to open.
+ */
+function networkObjectOf(key: string): string | undefined {
+  const match = /^(?:segments|cables)\/([^/]+)\//u.exec(key);
+  return match?.[1];
+}
+
 function fixForOrigin(
   origin: string,
   moduleId: string,
@@ -84,8 +96,19 @@ function fixForOrigin(
       return { label: 'Associer un jeu climatique', tab: 'project' };
     case 'EQUIPMENT':
       return { label: 'Ouvrir les équipements', tab: 'equipment' };
-    case 'PROJECT':
-      return { label: 'Ouvrir le plan', tab: 'plan' };
+    case 'PROJECT': {
+      // A missing diameter or section is a network fact, and the plan cannot
+      // take it: the button leads to the segment it is about, in the workspace
+      // that can.
+      const object = networkObjectOf(key);
+      return object === undefined
+        ? { label: 'Ouvrir le plan', tab: 'plan' }
+        : {
+            label: 'Ouvrir le tronçon',
+            tab: 'networks',
+            objectIds: [object],
+          };
+    }
     default:
       return undefined;
   }

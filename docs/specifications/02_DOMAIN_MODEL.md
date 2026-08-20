@@ -17,7 +17,16 @@ Le modèle doit être :
 - extensible ;
 - validable.
 
-Les identifiants sont stables et uniques dans un projet.
+Les identifiants sont stables et uniques **dans tout le projet**, et non
+seulement dans la collection qui les porte. Ce contrat est vérifié à
+l'import : la sélection sur le plan, les superpositions d'analyse, les cotes et
+les chemins de scénario désignent un objet par son seul identifiant, si bien que
+deux objets partageant le même rendraient un clic ambigu et un scénario
+applicable à l'un comme à l'autre.
+
+Sont concernés : niveaux, murs, ouvertures, dalles, pans de toiture, pièces,
+annotations, zones, assemblages, matériaux, équipements, réseaux, nœuds, ports,
+tronçons et scénarios.
 
 ```ts
 export type EntityId = string;

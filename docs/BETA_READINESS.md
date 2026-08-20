@@ -4,57 +4,75 @@ Ce fichier ne raconte pas l'histoire du projet : il dit où en est la version
 `0.2.0-beta.1` aujourd'hui. L'historique des passes d'audit et de leurs
 correctifs reste dans `IMPLEMENTATION_STATUS.md`.
 
-Statuts employés : **FAIT**, **BLOQUANT** (la bêta ne sort pas sans),
-**REQUIS** (attendu dans la bêta), **RECOMMANDÉ**, **REPORTÉ** (hors bêta,
-assumé).
+Statuts employés : **FAIT**, **PARTIEL** (ce qui manque est nommé),
+**BLOQUANT** (la bêta ne sort pas sans), **REQUIS** (attendu dans la bêta),
+**RECOMMANDÉ**, **REPORTÉ** (hors bêta, assumé).
 
-Les quinze portes qui portent sur le produit lui-même sont franchies ; les trois
-qui restent relèvent de la publication.
+Les six lots du sixième audit sont clos. Le dépôt est en `0.2.0-beta.1`, avec
+son journal des versions et son contrat de compatibilité dans `CHANGELOG.md`.
+
+Un sixième audit avait rouvert plusieurs portes que la passe précédente donnait pour
+closes : course d'écriture de la sauvegarde locale, climat absent de
+l'instantané, racine de réseau imposée à toutes les disciplines, gaine
+rectangulaire inutilisable, hypothèses silencieuses, conteneur trop permissif,
+altitude des nœuds de réseau. Les six lots les referment ; ce tableau dit où en
+est chaque porte aujourd'hui.
 
 ## Les portes de la bêta
 
-| Porte   | Ce qu'elle exige                                                    | État   |
-| ------- | ------------------------------------------------------------------- | ------ |
-| BETA-01 | aucun résultat de calcul périmé présenté comme actuel               | FAIT   |
-| BETA-02 | plusieurs réseaux d'une même discipline correctement pris en compte | FAIT   |
-| BETA-03 | scénarios fondés sur des identités stables                          | FAIT   |
-| BETA-04 | impossible de promouvoir un scénario structurellement invalide      | FAIT   |
-| BETA-05 | références inter-niveaux et import strictement validés              | FAIT   |
-| BETA-06 | réseaux dotés de propriétés physiques éditables                     | FAIT   |
-| BETA-07 | module électrique existant intégré au pipeline projet               | FAIT   |
-| BETA-08 | duplication et déplacement de niveau sans incohérence d'altitude    | FAIT   |
-| BETA-09 | aucune perte silencieuse d'objets que l'éditeur ne sait pas éditer  | FAIT   |
-| BETA-10 | projet et climat transportables ensemble                            | FAIT   |
-| BETA-11 | sauvegarde automatique dimensionnée pour de vrais projets           | FAIT   |
-| BETA-12 | export impossible à casser silencieusement                          | FAIT   |
-| BETA-13 | mur modifiable après création (extrémités, déplacement, longueur)   | FAIT   |
-| BETA-14 | ouverture déplaçable et redimensionnable                            | FAIT   |
-| BETA-15 | dalles et toitures éditables géométriquement                        | FAIT   |
-| BETA-16 | intégration continue Chromium, Firefox et WebKit                    | REQUIS |
-| BETA-17 | GitHub Pages réellement accessible et vérifié après déploiement     | REQUIS |
-| BETA-18 | migrations et versions figées pour les premiers utilisateurs        | REQUIS |
+| Porte   | Ce qu'elle exige                                                    | État    |
+| ------- | ------------------------------------------------------------------- | ------- |
+| BETA-01 | aucun résultat de calcul périmé présenté comme actuel               | FAIT    |
+| BETA-02 | plusieurs réseaux d'une même discipline correctement pris en compte | FAIT    |
+| BETA-03 | scénarios fondés sur des identités stables                          | FAIT    |
+| BETA-04 | impossible de promouvoir un scénario structurellement invalide      | FAIT    |
+| BETA-05 | références inter-niveaux et import strictement validés              | PARTIEL |
+| BETA-06 | réseaux dotés de propriétés physiques éditables                     | FAIT    |
+| BETA-07 | module électrique existant intégré au pipeline projet               | FAIT    |
+| BETA-08 | duplication et déplacement de niveau sans incohérence d'altitude    | FAIT    |
+| BETA-09 | aucune perte silencieuse d'objets que l'éditeur ne sait pas éditer  | FAIT    |
+| BETA-10 | projet et climat transportables ensemble                            | FAIT    |
+| BETA-11 | sauvegarde automatique dimensionnée pour de vrais projets           | FAIT    |
+| BETA-12 | export impossible à casser silencieusement                          | FAIT    |
+| BETA-13 | mur modifiable après création (extrémités, déplacement, longueur)   | FAIT    |
+| BETA-14 | ouverture déplaçable et redimensionnable                            | FAIT    |
+| BETA-15 | dalles et toitures éditables géométriquement                        | FAIT    |
+| BETA-16 | intégration continue Chromium, Firefox et WebKit                    | REQUIS  |
+| BETA-17 | GitHub Pages réellement accessible et vérifié après déploiement     | REQUIS  |
+| BETA-18 | migrations et versions figées pour les premiers utilisateurs        | REQUIS  |
+
+**BETA-05** : seize familles d'objets sont recensées à l'import et toutes les
+références y sont confrontées — appartenance de niveau, assemblage, matériau,
+pièce, équipement, port, `spaceIds` des zones, `wallId` des cotes,
+`hostObjectId` et `levelId` des nœuds de réseau. L'unicité des identifiants est
+tranchée et écrite : elle vaut pour tout le projet, pas seulement pour la
+collection qui les porte, et une collision entre deux familles est refusée.
 
 ## Attendu dans la bêta, hors portes
 
-- champ de saisie différée généralisé aux panneaux matériaux, assemblages,
-  niveaux et pièces ;
-- commandes de zones, renommage de niveau depuis l'interface ;
-- saisie de la provenance d'une propriété de matériau ;
-- navigation regroupée et assistant de création de projet ;
-- feuilles et export PDF, dont le moteur existe déjà dans `drawing-engine` ;
-- découpage du bundle et budget de taille en intégration continue ;
-- version applicative issue d'une seule source.
+- feuilles et export PDF, dont le moteur existe déjà dans `drawing-engine`.
 
 ## Recommandé
 
 - orchestrateur de calcul persistant et cache réutilisé entre exécutions ;
 - invalidation sélective fondée sur les `ChangeSet` des commandes ;
-- vérification d'accessibilité automatisée (axe-core) et régression visuelle ;
+- régression visuelle pixel par pixel sur les trois moteurs ;
 - benchmark d'un projet réaliste de plusieurs centaines de murs ;
 - réglages encore invisibles alors que les moteurs les lisent
-  (`heatRecoveryEfficiency`, températures extérieures de repli) ;
-- `battery.offGrid` saisi comme une case à cocher ;
-- bornes hautes et invariants croisés des propriétés d'équipement.
+  (`heatRecoveryEfficiency`, températures extérieures de repli).
+
+## Fait depuis le sixième audit
+
+Trois moteurs en intégration continue ; vérification de la page déployée ;
+version applicative issue du seul `package.json` ; migrations annoncées à
+l'ouverture ; chargement à la demande des espaces de travail et des modules de
+calcul, sous budget vérifié ; axe-core sur les onze espaces ; référence de
+dessin du plan. Saisie différée sur les panneaux matériaux, assemblages, niveaux et pièces ;
+commandes de zones et renommage de niveau depuis l'interface ; provenance d'une
+propriété de matériau saisissable, qui bascule en « saisie » quand la valeur
+d'une norme est écrasée ; `battery.offGrid` en case à cocher, l'ancien `1`
+restant lu ; bornes hautes et invariants croisés des propriétés d'équipement ;
+navigation regroupée en cinq familles ; assistant de création de projet.
 
 ## Reporté, assumé hors bêta
 

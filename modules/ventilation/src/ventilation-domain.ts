@@ -1,5 +1,6 @@
 import {
   validateTechnicalNetwork,
+  type JsonValue,
   type NetworkEdge,
   type NetworkNode,
   type TechnicalNetwork,
@@ -50,7 +51,7 @@ export interface VentilationNode extends NetworkNode {
   readonly equipment?: VentilationEquipment;
 }
 
-export interface DuctProperties extends Readonly<Record<string, unknown>> {
+export interface DuctProperties extends Readonly<Record<string, JsonValue>> {
   /** Length is deliberately absent: calculations derive it from the millimetre path. */
   readonly airRole: AirTerminalRole;
   readonly shape: 'ROUND' | 'RECTANGULAR';

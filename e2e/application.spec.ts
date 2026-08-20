@@ -245,6 +245,32 @@ test('autosaves an edit and offers to restore it after a reload', async ({
   );
 });
 
+test('restores the climate along with the autosaved project', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  await canvas.click({ position: { x: 120, y: 380 } });
+  await canvas.click({ position: { x: 420, y: 380 } });
+  await expect(page.locator('.save-state')).toContainText(
+    'Sauvegardé localement',
+    { timeout: 10_000 },
+  );
+
+  await page.reload();
+  const prompt = page.getByRole('alertdialog');
+  await expect(prompt).toContainText('sauvegarde locale');
+  await prompt.getByRole('button', { name: 'Restaurer' }).click();
+  // The weather the session was calculating with comes back with the project;
+  // without it the modules would silently report missing inputs again.
+  await expect(page.getByRole('status')).toContainText('climatiques');
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await expect(page.locator('.library-panel')).not.toContainText(
+    'Aucun jeu de données climatiques',
+  );
+});
+
 test('discards the local snapshot when the user declines it', async ({
   page,
 }) => {
@@ -324,11 +350,24 @@ test('sizes a duct and a terminal from the network inspector', async ({
     .getByRole('button', { name: 'Ventilation' })
     .click();
 
-  // A duct states its bore, its shape and its role; nothing is assumed for it.
+  // A duct states its section, its bore and its role; nothing is assumed.
   const duct = page
     .locator('.library-table tbody tr', { hasText: 'DUCT' })
     .first();
   await duct.getByRole('button', { name: 'Propriétés' }).click();
+
+  // Rectangular is a real choice: it asks for two sides, and the diameter that
+  // no longer describes anything goes away with it.
+  const section = page.getByLabel('Section', { exact: true });
+  await section.selectOption('RECTANGULAR');
+  await expect(page.getByRole('status')).toContainText(
+    'Modifier un tronçon du réseau',
+  );
+  await expect(page.getByLabel('Largeur')).toBeVisible();
+  await expect(page.getByLabel('Hauteur')).toBeVisible();
+  await expect(page.getByLabel('Diamètre intérieur')).toHaveValue('');
+
+  await section.selectOption('ROUND');
   const diameter = page.getByLabel('Diamètre intérieur');
   await expect(diameter).toBeVisible();
   await diameter.fill('0.16');
@@ -655,7 +694,38 @@ test('asks before replacing a project that has unexported changes', async ({
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Continuer sans exporter' })
     .click();
+  await page.getByRole('button', { name: 'Créer le projet' }).click();
   await expect(page.getByRole('status')).toContainText('Nouveau projet');
+});
+
+test('the assistant asks what a new project cannot be guessed', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Nouveau projet' }).click();
+  const wizard = page.getByRole('dialog', { name: 'Nouveau projet' });
+  await wizard.getByLabel('Nom du projet').fill('Maison des Lilas');
+  await wizard.getByLabel('Niveaux hors sol').fill('2');
+  await wizard.getByLabel('Hauteur d’étage').fill('2700');
+  await wizard.getByLabel('Sous-sol').check();
+  await wizard.getByLabel('Latitude').fill('48.85');
+  await wizard.getByLabel('Longitude').fill('2.35');
+  await page.getByRole('button', { name: 'Créer le projet' }).click();
+
+  await expect(page.getByRole('status')).toContainText('3 niveau(x)');
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await expect(page.getByLabel('Nom du projet')).toHaveValue(
+    'Maison des Lilas',
+  );
+  await expect(page.getByLabel('Latitude')).toHaveValue('48.85');
+  // The building was stacked as it was described, basement included.
+  await expect(page.locator('.level-selector select option')).toHaveText([
+    'Sous-sol',
+    'Rez-de-chaussée',
+    'Étage 1',
+  ]);
+  expect(errors).toEqual([]);
 });
 
 test('edits the selected wall from the inspector', async ({ page }) => {

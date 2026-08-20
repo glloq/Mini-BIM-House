@@ -144,3 +144,78 @@ describe('objects this version cannot edit', () => {
     expect(result.errors[0]).toContain('objet(s)');
   });
 });
+
+describe('what sits on a level when the level moves', () => {
+  function withNetwork(): Project {
+    const source = project();
+    return {
+      ...source,
+      systems: [
+        {
+          id: 'water',
+          discipline: 'WATER',
+          systemType: 'POTABLE_COLD',
+          nodes: [
+            {
+              id: 'water:source',
+              kind: 'SOURCE',
+              levelId: 'ground',
+              position: { x: 0, y: 0, z: 0 },
+            },
+            {
+              id: 'water:legacy',
+              kind: 'FIXTURE',
+              spaceId: 'kitchen',
+              position: { x: 1000, y: 0, z: 400 },
+            },
+            {
+              id: 'water:elsewhere',
+              kind: 'FIXTURE',
+              levelId: 'first',
+              position: { x: 2000, y: 0, z: 3000 },
+            },
+          ],
+          ports: [],
+          edges: [],
+        },
+      ],
+      building: {
+        ...source.building,
+        levels: source.building.levels.map((entry) => ({
+          ...entry,
+          spaces: [
+            {
+              id: entityId<'Space'>('kitchen'),
+              type: 'SPACE' as const,
+              levelId: entry.id,
+              name: 'Cuisine',
+              category: 'KITCHEN',
+              boundaryMode: 'AUTOMATIC' as const,
+            },
+          ],
+        })),
+      },
+    } as unknown as Project;
+  }
+
+  const nodeZ = (source: Project, id: string): number | undefined =>
+    source.systems?.[0]?.nodes.find((node) => node.id === id)?.position.z;
+
+  it('raises the nodes that belong to it', () => {
+    const commands = new ProjectCommandDispatcher(withNetwork());
+    commands.dispatch(new UpdateLevelCommand('ground', { elevationMm: 500 }));
+    expect(nodeZ(commands.project, 'water:source')).toBe(500);
+  });
+
+  it('places a node written before levels were named by the space it serves', () => {
+    const commands = new ProjectCommandDispatcher(withNetwork());
+    commands.dispatch(new UpdateLevelCommand('ground', { elevationMm: 500 }));
+    expect(nodeZ(commands.project, 'water:legacy')).toBe(900);
+  });
+
+  it('leaves the nodes of another storey where they are', () => {
+    const commands = new ProjectCommandDispatcher(withNetwork());
+    commands.dispatch(new UpdateLevelCommand('ground', { elevationMm: 500 }));
+    expect(nodeZ(commands.project, 'water:elsewhere')).toBe(3000);
+  });
+});

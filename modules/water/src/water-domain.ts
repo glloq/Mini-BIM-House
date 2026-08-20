@@ -1,5 +1,6 @@
 import {
   validateTechnicalNetwork,
+  type JsonValue,
   type NetworkEdge,
   type NetworkNode,
   type TechnicalNetwork,
@@ -26,7 +27,9 @@ export interface WaterNode extends NetworkNode {
   readonly fixture?: WaterFixtureProperties;
 }
 
-export interface WaterPipeProperties extends Readonly<Record<string, unknown>> {
+export interface WaterPipeProperties extends Readonly<
+  Record<string, JsonValue>
+> {
   readonly internalDiameterM?: number;
   readonly materialId?: string;
   readonly roughnessM?: number;

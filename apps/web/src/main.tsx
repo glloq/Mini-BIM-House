@@ -1,11 +1,14 @@
 import {
+  lazy,
   StrictMode,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
   useReducer,
   useRef,
   useState,
+  type ReactNode,
 } from 'react';
 import { createRoot } from 'react-dom/client';
 import type {
@@ -22,6 +25,7 @@ import {
 } from '@house-technical-designer/editor-core';
 import {
   applyProjectScenario,
+  DEFAULT_ZIP_LIMITS,
   loadProjectJson,
   ProjectSerializationError,
   readProjectContainer,
@@ -37,27 +41,19 @@ import {
 import './styles.css';
 import {
   createBlankProject,
+  projectFromDraft,
   exportProjectPlan,
   ProjectEditingSession,
   safeFileStem,
   summarizeProject,
 } from './project-workspace.js';
 import { demoClimateDatasets, loadDemoProject } from './demo-project.js';
-import { MaterialsPanel } from './library/MaterialsPanel.js';
-import { AssembliesPanel } from './library/AssembliesPanel.js';
-import { EquipmentPanel } from './library/EquipmentPanel.js';
 import { PlanCanvas } from './editor/PlanCanvas.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { LayersPanel } from './editor/LayersPanel.js';
 import { ToolBar, type OpeningDraft } from './editor/ToolBar.js';
-import { BuildingPanel } from './editor/BuildingPanel.js';
-import { CalculationsPanel } from './calculations/CalculationsPanel.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
-import { QuantitiesPanel } from './quantities/QuantitiesPanel.js';
-import { ScenariosPanel } from './scenarios/ScenariosPanel.js';
-import { NetworksPanel } from './networks/NetworksPanel.js';
-import { ProjectPanel } from './project/ProjectPanel.js';
-import { ChecksPanel } from './checks/ChecksPanel.js';
+import { APPLICATION_VERSION } from './version.js';
 import type { CheckFix } from './checks/checks-model.js';
 import { placeNodeCommand } from './networks/network-model.js';
 import { nextLibraryId } from './library/library-model.js';
@@ -101,6 +97,62 @@ import {
 } from './editor/editing-commands.js';
 import type { GeometryEdit } from './editor/grips.js';
 
+/**
+ * Workspaces loaded when they are opened.
+ *
+ * Opening a project and drawing does not need the calculation dashboard, the
+ * libraries or the checks; downloading them before the first line is drawn
+ * only delays the drawing. Each workspace arrives when it is asked for, and
+ * stays for the rest of the session.
+ */
+const MaterialsPanel = lazy(async () => ({
+  default: (await import('./library/MaterialsPanel.js')).MaterialsPanel,
+}));
+const AssembliesPanel = lazy(async () => ({
+  default: (await import('./library/AssembliesPanel.js')).AssembliesPanel,
+}));
+const EquipmentPanel = lazy(async () => ({
+  default: (await import('./library/EquipmentPanel.js')).EquipmentPanel,
+}));
+const BuildingPanel = lazy(async () => ({
+  default: (await import('./editor/BuildingPanel.js')).BuildingPanel,
+}));
+const CalculationsPanel = lazy(async () => ({
+  default: (await import('./calculations/CalculationsPanel.js'))
+    .CalculationsPanel,
+}));
+const QuantitiesPanel = lazy(async () => ({
+  default: (await import('./quantities/QuantitiesPanel.js')).QuantitiesPanel,
+}));
+const ScenariosPanel = lazy(async () => ({
+  default: (await import('./scenarios/ScenariosPanel.js')).ScenariosPanel,
+}));
+const NetworksPanel = lazy(async () => ({
+  default: (await import('./networks/NetworksPanel.js')).NetworksPanel,
+}));
+const ProjectPanel = lazy(async () => ({
+  default: (await import('./project/ProjectPanel.js')).ProjectPanel,
+}));
+const ChecksPanel = lazy(async () => ({
+  default: (await import('./checks/ChecksPanel.js')).ChecksPanel,
+}));
+const NewProjectWizard = lazy(async () => ({
+  default: (await import('./project/NewProjectWizard.js')).NewProjectWizard,
+}));
+
+/** One workspace panel, with what to show while its code is still arriving. */
+function LazyWorkspace({ children }: { readonly children: ReactNode }) {
+  return (
+    <section className="canvas-panel panel">
+      <Suspense
+        fallback={<p className="notice">Chargement de l’espace de travail…</p>}
+      >
+        {children}
+      </Suspense>
+    </section>
+  );
+}
+
 function download(content: string, fileName: string, mediaType: string): void {
   downloadBlob(new Blob([content], { type: mediaType }), fileName);
 }
@@ -111,6 +163,22 @@ function download(content: string, fileName: string, mediaType: string): void {
  * A file may hold anything; what is adopted has to satisfy the climate
  * contract, or the project would recalculate on something that is not weather.
  */
+/**
+ * What to add to an import notice when the file came from an older schema.
+ *
+ * A project written by an earlier version is brought up to date on the way in.
+ * Saying nothing would give back a file that is no longer the one that was
+ * saved, without the user ever having been told.
+ */
+function migrationNotice(
+  journal: readonly { readonly from: string; readonly to: string }[],
+): string {
+  if (journal.length === 0) return '';
+  const from = journal[0]!.from;
+  const to = journal[journal.length - 1]!.to;
+  return ` Le fichier était au format ${from} : il a été mis à jour en ${to}, et c'est cette version qui sera enregistrée.`;
+}
+
 function readClimateDataset(json: string): ClimateDataset | undefined {
   let parsed: unknown;
   try {
@@ -149,24 +217,48 @@ function downloadBlob(blob: Blob, fileName: string): void {
   }, 0);
 }
 
-const WORKSPACE_TABS = [
-  { id: 'project', label: 'Projet' },
-  { id: 'plan', label: 'Plan architectural' },
-  { id: 'building', label: 'Niveaux et pièces' },
-  { id: 'materials', label: 'Matériaux' },
-  { id: 'assemblies', label: 'Assemblages' },
-  { id: 'equipment', label: 'Équipements' },
-  { id: 'networks', label: 'Réseaux' },
-  { id: 'calculations', label: 'Calculs' },
-  { id: 'quantities', label: 'Quantités' },
-  { id: 'scenarios', label: 'Scénarios' },
-  { id: 'checks', label: 'Vérifications' },
+/**
+ * The workspaces, gathered by what the user is doing rather than listed flat.
+ *
+ * Eleven entries in one column read as eleven unrelated places; grouped, they
+ * say that a project is described, then drawn, then furnished from libraries,
+ * then serviced, and only then calculated.
+ */
+const WORKSPACE_GROUPS = [
+  { label: 'Projet', tabs: [{ id: 'project', label: 'Projet' }] },
+  {
+    label: 'Conception',
+    tabs: [
+      { id: 'plan', label: 'Plan architectural' },
+      { id: 'building', label: 'Niveaux et pièces' },
+    ],
+  },
+  {
+    label: 'Bibliothèques',
+    tabs: [
+      { id: 'materials', label: 'Matériaux' },
+      { id: 'assemblies', label: 'Assemblages' },
+    ],
+  },
+  {
+    label: 'Technique',
+    tabs: [
+      { id: 'equipment', label: 'Équipements' },
+      { id: 'networks', label: 'Réseaux' },
+    ],
+  },
+  {
+    label: 'Résultats',
+    tabs: [
+      { id: 'calculations', label: 'Calculs' },
+      { id: 'quantities', label: 'Quantités' },
+      { id: 'scenarios', label: 'Scénarios' },
+      { id: 'checks', label: 'Vérifications' },
+    ],
+  },
 ] as const;
 
-type WorkspaceTab = (typeof WORKSPACE_TABS)[number]['id'];
-
-/** Version reported in diagnostics; it matches the project file it writes. */
-const APPLICATION_VERSION = '0.1.0';
+type WorkspaceTab = (typeof WORKSPACE_GROUPS)[number]['tabs'][number]['id'];
 
 const DEFAULT_OPENING: OpeningDraft = {
   openingType: 'WINDOW',
@@ -186,6 +278,9 @@ function App() {
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>();
   const [selectedNetworkId, setSelectedNetworkId] = useState<string>();
   const [nodeKind, setNodeKind] = useState('');
+  /** A network object another screen asked to open the properties of. */
+  const [inspectNetworkObjectId, setInspectNetworkObjectId] =
+    useState<string>();
   const [openingDraft, setOpeningDraft] =
     useState<OpeningDraft>(DEFAULT_OPENING);
   const [dimensionType, setDimensionType] = useState<DimensionType>('ALIGNED');
@@ -198,6 +293,8 @@ function App() {
   const [recovery, setRecovery] = useState<{
     readonly savedAt: string;
     readonly file: ProjectFile;
+    /** The datasets the snapshot carried, restored with it. */
+    readonly climate: readonly ClimateDataset[];
   }>();
   /** Why the last export was refused, when it was. */
   const [exportFailure, setExportFailure] = useState<readonly string[]>();
@@ -243,6 +340,9 @@ function App() {
     readonly run: () => void;
   }>();
 
+  /** Whether the creation assistant is open, waiting for its answers. */
+  const [creating, setCreating] = useState(false);
+
   /**
    * Replaces the open project.
    *
@@ -268,6 +368,9 @@ function App() {
       const firstLevel = next.project.building.levels[0];
       if (firstLevel !== undefined)
         dispatchEditor({ type: 'SET_LEVEL', levelId: firstLevel.id });
+      // Results belong to the project they were computed from; opening another
+      // one leaves nothing to show until it has been calculated.
+      setCalculationRun(undefined);
       setSaveState(nextSaveState);
       setMessage(notice);
     },
@@ -312,6 +415,10 @@ function App() {
    */
   const saveContainer = useCallback(async (): Promise<boolean> => {
     {
+      // Compressing takes time, and the project may be edited while it runs.
+      // What the file holds is the revision captured here, and the state bar
+      // says so rather than claiming the current one was written.
+      const exported = file.project.metadata.projectRevision ?? '';
       try {
         const bytes = await writeProjectContainer(
           file,
@@ -326,11 +433,16 @@ function App() {
           `${safeFileStem(file.project.metadata.name)}.houseproj`,
           'application/zip',
         );
-        setSaveState('SAVED');
+        const current =
+          session.current.file.project.metadata.projectRevision ?? '';
+        const moved = current !== exported;
+        setSaveState(moved ? 'MODIFIED' : 'SAVED');
         setMessage(
-          climate.length === 0
-            ? 'Projet exporté (.houseproj).'
-            : `Projet exporté (.houseproj) avec ${climate.length} jeu(x) climatiques.`,
+          moved
+            ? `Révision ${exported} exportée (.houseproj) ; le projet a été modifié depuis.`
+            : climate.length === 0
+              ? 'Projet exporté (.houseproj).'
+              : `Projet exporté (.houseproj) avec ${climate.length} jeu(x) climatiques.`,
         );
         return true;
       } catch (error) {
@@ -508,6 +620,9 @@ function App() {
           {
             nodeId: `${activeNetworkId}:node-${crypto.randomUUID().slice(0, 8)}`,
             kind: activeNodeKind,
+            // The node says which storey it belongs to, so moving that storey
+            // moves it too rather than leaving it at an elevation nobody edited.
+            ...(level === undefined ? {} : { levelId: level.id }),
             position: {
               x: point.x,
               y: point.y,
@@ -638,13 +753,19 @@ function App() {
 
   useEffect(() => {
     if (saveState !== 'MODIFIED') return;
+    const revision = file.project.metadata.projectRevision ?? '';
     const timer = setTimeout(() => {
-      void writeAutosave(file)
-        .then(() => setSaveState('AUTOSAVED'))
+      void writeAutosave({ file, climate })
+        .then((written) => {
+          // Only the revision that actually reached the store may be reported
+          // as saved. A newer edit landed while this one was being written is
+          // still "modified" until its own snapshot goes through.
+          if (written === revision) setSaveState('AUTOSAVED');
+        })
         .catch(() => setSaveState('FAILED'));
     }, AUTOSAVE_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [file, saveState]);
+  }, [climate, file, saveState]);
 
   // Closing the tab with work that was never exported deserves the browser's
   // own warning. The local snapshot survives, but a file the user meant to keep
@@ -662,7 +783,17 @@ function App() {
   useEffect(() => {
     void readAutosave().then((result) => {
       if (result.status === 'RECOVERED')
-        setRecovery({ savedAt: result.savedAt, file: result.file });
+        setRecovery({
+          savedAt: result.savedAt,
+          file: result.file,
+          // A project restored without the weather it was calculated on is not
+          // the session that was interrupted.
+          climate: result.climateJson
+            .map((json) => readClimateDataset(json))
+            .filter(
+              (dataset): dataset is ClimateDataset => dataset !== undefined,
+            ),
+        });
     });
   }, []);
 
@@ -766,24 +897,39 @@ function App() {
 
   async function importProject(selected: File | undefined): Promise<void> {
     if (selected === undefined) return;
+    // The size is read before the bytes are: a file far past what the reader
+    // accepts should not be pulled into memory to be refused afterwards.
+    if (selected.size > DEFAULT_ZIP_LIMITS.maxArchiveBytes) {
+      setMessage(
+        `Import refusé — ce fichier fait ${Math.round(selected.size / 1024 / 1024)} Mo ; la limite est de ${Math.round(DEFAULT_ZIP_LIMITS.maxArchiveBytes / 1024 / 1024)} Mo.`,
+      );
+      return;
+    }
     const bytes = new Uint8Array(await selected.arrayBuffer());
-    const container = await readProjectContainer(bytes);
+    const container = await readProjectContainer(bytes, {
+      // A dataset that does not satisfy the contract makes the container
+      // invalid; dropping it silently would open a project whose weather
+      // quietly went missing.
+      validateClimate: (json) => readClimateDataset(json) !== undefined,
+    });
     if (container.status === 'INVALID_CONTAINER') {
       setMessage(`Import refusé — ${container.message}`);
       return;
     }
     if (container.status === 'OK') {
       // A container carries its climate: the project reopens with the data it
-      // was calculated on, on this machine or another.
+      // was calculated on, on this machine or another. Every entry has already
+      // been checked, so nothing is dropped here.
       const datasets = container.container.climate
         .map(({ json }) => readClimateDataset(json))
         .filter((dataset): dataset is ClimateDataset => dataset !== undefined);
       setClimate(datasets);
       adopt(
         container.container.file,
-        datasets.length === 0
+        (datasets.length === 0
           ? `${selected.name} chargé et validé.`
-          : `${selected.name} chargé et validé, avec ${datasets.length} jeu(x) de données climatiques.`,
+          : `${selected.name} chargé et validé, avec ${datasets.length} jeu(x) de données climatiques.`) +
+          migrationNotice(container.migrationJournal),
       );
       return;
     }
@@ -806,7 +952,11 @@ function App() {
       return;
     }
     setClimate([]);
-    adopt(result.file, `${selected.name} chargé et validé.`);
+    adopt(
+      result.file,
+      `${selected.name} chargé et validé.` +
+        migrationNotice(result.migrationJournal),
+    );
   }
 
   const selectOnPlan = useCallback((objectIds: readonly string[]): void => {
@@ -819,6 +969,21 @@ function App() {
   /** Takes the user where a finding can actually be dealt with. */
   const applyFix = useCallback(
     (fix: CheckFix) => {
+      const objectId = fix.objectIds?.[0];
+      if (fix.tab === 'networks' && objectId !== undefined) {
+        // Take the user to the very segment or node the finding is about, with
+        // its properties open: a workspace is not an answer, a field is.
+        const holder = (session.current.file.project.systems ?? []).find(
+          (network) =>
+            [...network.nodes, ...network.edges].some(
+              ({ id }) => id === objectId,
+            ),
+        );
+        if (holder !== undefined) setSelectedNetworkId(holder.id);
+        setInspectNetworkObjectId(objectId);
+        setTab('networks');
+        return;
+      }
       if (fix.objectIds !== undefined && fix.objectIds.length > 0) {
         selectOnPlan(fix.objectIds);
         if (fix.tab !== 'plan') setTab(fix.tab);
@@ -886,13 +1051,7 @@ function App() {
           <button
             className="secondary"
             onClick={() =>
-              replaceProject('Nouveau projet', () => {
-                setClimate([]);
-                adopt(
-                  createBlankProject(new Date().toISOString()),
-                  'Nouveau projet local prêt, bibliothèque générique incluse.',
-                );
-              })
+              replaceProject('Nouveau projet', () => setCreating(true))
             }
           >
             Nouveau projet
@@ -1044,6 +1203,25 @@ function App() {
         </section>
       )}
 
+      {creating && (
+        <Suspense
+          fallback={<p className="notice">Chargement de l’assistant…</p>}
+        >
+          <NewProjectWizard
+            onCancel={() => setCreating(false)}
+            onCreate={(draft) => {
+              setCreating(false);
+              setClimate([]);
+              const created = projectFromDraft(draft, new Date().toISOString());
+              adopt(
+                created,
+                `Nouveau projet « ${created.project.metadata.name} » prêt : ${created.project.building.levels.length} niveau(x), bibliothèque générique incluse.`,
+              );
+            }}
+          />
+        </Suspense>
+      )}
+
       {recovery !== undefined && (
         <section className="panel recovery-prompt" role="alertdialog">
           <p>
@@ -1054,9 +1232,12 @@ function App() {
             <button
               type="button"
               onClick={() => {
+                setClimate(recovery.climate);
                 adopt(
                   recovery.file,
-                  'Sauvegarde locale restaurée : elle n’a pas encore été exportée.',
+                  recovery.climate.length === 0
+                    ? 'Sauvegarde locale restaurée : elle n’a pas encore été exportée.'
+                    : `Sauvegarde locale restaurée avec ${recovery.climate.length} jeu(x) climatiques : elle n’a pas encore été exportée.`,
                   'AUTOSAVED',
                 );
                 setRecovery(undefined);
@@ -1093,19 +1274,29 @@ function App() {
         >
           <p className="panel-label">Modèle</p>
           <nav aria-label="Sections du projet" className="workspace-tabs">
-            {WORKSPACE_TABS.map((entry) => (
-              <button
-                key={entry.id}
-                type="button"
-                className={entry.id === tab ? 'active' : undefined}
-                aria-current={entry.id === tab ? 'page' : undefined}
-                onClick={() => {
-                  setTab(entry.id);
-                  setMenuOpen(false);
-                }}
+            {WORKSPACE_GROUPS.map((group) => (
+              <div
+                key={group.label}
+                className="workspace-group"
+                role="group"
+                aria-label={group.label}
               >
-                {entry.label}
-              </button>
+                <p className="workspace-group-label">{group.label}</p>
+                {group.tabs.map((entry) => (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    className={entry.id === tab ? 'active' : undefined}
+                    aria-current={entry.id === tab ? 'page' : undefined}
+                    onClick={() => {
+                      setTab(entry.id);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    {entry.label}
+                  </button>
+                ))}
+              </div>
             ))}
           </nav>
           <label className="level-selector">
@@ -1200,7 +1391,7 @@ function App() {
         )}
 
         {tab === 'project' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <ProjectPanel
               project={file.project}
               climate={climate}
@@ -1208,11 +1399,11 @@ function App() {
               onClimateChange={setClimate}
               onMessage={setMessage}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'building' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <BuildingPanel
               project={file.project}
               levelId={activeLevelId}
@@ -1222,11 +1413,11 @@ function App() {
               }
               onSelectObjects={selectOnPlan}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'materials' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <MaterialsPanel
               project={file.project}
               onCommand={runCommand}
@@ -1235,11 +1426,11 @@ function App() {
                 : { selectedId: selectedMaterialId })}
               onSelect={setSelectedMaterialId}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'assemblies' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <AssembliesPanel
               project={file.project}
               onCommand={runCommand}
@@ -1248,17 +1439,20 @@ function App() {
                 : { selectedId: selectedAssemblyId })}
               onSelect={setSelectedAssemblyId}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'networks' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <NetworksPanel
               project={file.project}
               levelId={activeLevelId}
               selectedNetworkId={activeNetworkId}
               onSelectNetwork={setSelectedNetworkId}
               onCommand={runCommand}
+              {...(inspectNetworkObjectId === undefined
+                ? {}
+                : { inspectObjectId: inspectNetworkObjectId })}
               onSelectObjects={(objectIds) => {
                 if (activeNetwork !== undefined)
                   dispatchEditor({
@@ -1269,11 +1463,11 @@ function App() {
               }}
               onMessage={setMessage}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'calculations' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <CalculationsPanel
               project={file.project}
               climate={climate}
@@ -1284,11 +1478,11 @@ function App() {
               }
               onSelectObjects={selectOnPlan}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'quantities' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <QuantitiesPanel
               project={file.project}
               onSelectObjects={selectOnPlan}
@@ -1296,22 +1490,22 @@ function App() {
                 download(content, fileName, 'text/csv;charset=utf-8')
               }
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'checks' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <ChecksPanel
               project={file.project}
               {...(currentRun === undefined ? {} : { run: currentRun })}
               running={calculationBusy}
               onFix={applyFix}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'scenarios' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <ScenariosPanel
               project={file.project}
               climate={climate}
@@ -1319,11 +1513,11 @@ function App() {
               onMessage={setMessage}
               onPromote={promoteScenario}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         {tab === 'equipment' && (
-          <section className="canvas-panel panel">
+          <LazyWorkspace>
             <EquipmentPanel
               project={file.project}
               onCommand={runCommand}
@@ -1333,7 +1527,7 @@ function App() {
                 : { selectedId: selectedEquipmentId })}
               onSelect={setSelectedEquipmentId}
             />
-          </section>
+          </LazyWorkspace>
         )}
 
         <aside className="inspector panel" id="inventory">

@@ -5,14 +5,9 @@ import type {
   CalculationJson,
   CalculationResult,
 } from '@house-technical-designer/calculation-core';
-import { CalculationOrchestrator } from '@house-technical-designer/calculation-core';
-import {
-  PROJECT_CALCULATION_MODULES,
-  PROJECT_CALCULATION_MODULE_IDS,
-  buildProjectCalculationInputs,
-  createProjectCalculationContext,
-  type MissingCalculationInput,
-  type ProjectCalculationInputs,
+import type {
+  MissingCalculationInput,
+  ProjectCalculationInputs,
 } from '@house-technical-designer/calculation-adapters';
 
 /** Human labels for the modules, in the order the dashboard shows them. */
@@ -54,6 +49,8 @@ export interface CalculationRun {
   readonly runs: readonly ModuleRun[];
   readonly missing: readonly MissingCalculationInput[];
   readonly provenance: ProjectCalculationInputs['provenance'];
+  /** The project these results were computed from. */
+  readonly projectId: string;
   /** The project revision these results were computed from. */
   readonly projectRevision: string;
   /** The climate datasets they were computed with. */
@@ -90,15 +87,12 @@ export function isCurrentRun(
 ): run is CalculationRun {
   if (run === undefined) return false;
   return (
+    // Two projects can sit at the same revision with the same climate; only
+    // the identity tells their results apart.
+    run.projectId === project.id &&
     run.projectRevision === (project.metadata.projectRevision ?? '') &&
     run.climateFingerprint === climateSignature(climate)
   );
-}
-
-function orchestrator(): CalculationOrchestrator {
-  const engine = new CalculationOrchestrator();
-  PROJECT_CALCULATION_MODULES.forEach((module) => engine.register(module));
-  return engine;
 }
 
 /**
@@ -107,15 +101,31 @@ function orchestrator(): CalculationOrchestrator {
  * A module whose inputs the project cannot supply is reported as missing input
  * rather than run on a placeholder, and the missing entries name where the value
  * is expected to come from.
+ *
+ * The seventeen calculation modules and the orchestrator are loaded here rather
+ * than with the application: they are a large part of the code and none of it
+ * is needed to open a project and draw. The first run pays for the download,
+ * the following ones do not.
  */
 export async function runProjectCalculations(
   project: Project,
   climate: readonly ClimateDataset[],
 ): Promise<CalculationRun> {
   const startedAt = new Date().toISOString();
+  const [{ CalculationOrchestrator }, adapters] = await Promise.all([
+    import('@house-technical-designer/calculation-core'),
+    import('@house-technical-designer/calculation-adapters'),
+  ]);
+  const {
+    PROJECT_CALCULATION_MODULES,
+    PROJECT_CALCULATION_MODULE_IDS,
+    buildProjectCalculationInputs,
+    createProjectCalculationContext,
+  } = adapters;
   const context = createProjectCalculationContext(project, { climate });
   const built = buildProjectCalculationInputs(context);
-  const engine = orchestrator();
+  const engine = new CalculationOrchestrator();
+  for (const module of PROJECT_CALCULATION_MODULES) engine.register(module);
   const runs: ModuleRun[] = [];
   for (const moduleId of PROJECT_CALCULATION_MODULE_IDS) {
     const missing = built.missing.filter(
@@ -148,6 +158,7 @@ export async function runProjectCalculations(
     runs,
     missing: built.missing,
     provenance: built.provenance,
+    projectId: project.id,
     projectRevision: project.metadata.projectRevision ?? '',
     climateFingerprint: climateSignature(climate),
     startedAt,

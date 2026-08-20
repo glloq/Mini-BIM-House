@@ -239,6 +239,22 @@ export class ProjectCalculationSettings {
     this.#record(moduleId, key, origin, sourceId);
   }
 
+  /**
+   * Records a hypothesis the adapter made rather than read.
+   *
+   * Some values have a defensible default that is still a choice: a segment
+   * with no fitting stated is taken as having none. Written down here, it
+   * travels with the result instead of disappearing into it.
+   */
+  assume(
+    moduleId: string,
+    id: string,
+    value: CalculationJson,
+    source: string,
+  ): void {
+    this.#declare(moduleId, { id, value, source });
+  }
+
   /** Records that a required value could not be resolved anywhere. */
   reportMissing(
     moduleId: string,
@@ -272,6 +288,19 @@ export class ProjectCalculationSettings {
   optionalNumber(moduleId: string, key: string): number | undefined {
     const value = this.#raw(moduleId, key);
     if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
+    this.#record(
+      moduleId,
+      key,
+      'MODULE_SETTINGS',
+      this.#settings[moduleId]?.methodId ?? moduleId,
+    );
+    return value;
+  }
+
+  /** A setting stored as a flag, when the project declares one. */
+  optionalBoolean(moduleId: string, key: string): boolean | undefined {
+    const value = this.#raw(moduleId, key);
+    if (typeof value !== 'boolean') return undefined;
     this.#record(
       moduleId,
       key,

@@ -21,6 +21,14 @@ export interface NetworkNode {
   /** The equipment this node stands for, when it stands for one. */
   readonly equipmentId?: string;
   /**
+   * The level the node belongs to.
+   *
+   * Its position is absolute in the project, so moving a storey has to move
+   * what sits on it. Without this, a node placed on the ground floor stayed at
+   * the height the ground floor used to have.
+   */
+  readonly levelId?: string;
+  /**
    * What the node carries beyond its position: a design flow, a discharge
    * count, an electrical load.
    *
@@ -46,7 +54,13 @@ export interface NetworkEdge {
   readonly path: readonly Point3D[];
   readonly kind: string;
   readonly catalogItemId?: string;
-  readonly properties?: Readonly<Record<string, unknown>>;
+  /**
+   * What the segment is made of: bore, material, slope, conductor section.
+   *
+   * Scalars only, like the node record and like the schema: a value TypeScript
+   * accepted and serialisation refused would be a project that cannot be saved.
+   */
+  readonly properties?: Readonly<Record<string, JsonValue>>;
 }
 
 export interface TechnicalNetwork {
@@ -206,16 +220,39 @@ export function validateTechnicalNetwork(
         ),
       );
   }
-  if (!network.nodes.some(({ kind }) => kind === 'SOURCE'))
+  const roots = NETWORK_ROOT_KINDS[network.discipline];
+  if (!network.nodes.some(({ kind }) => roots.includes(kind)))
     issues.push(
       issue(
         'NETWORK_MISSING_SOURCE',
         'nodes',
-        'Network requires an explicit SOURCE node.',
+        `A ${network.discipline} network is anchored by one of: ${roots.join(', ')}.`,
       ),
     );
   return issues;
 }
+
+/**
+ * What anchors a network of each discipline.
+ *
+ * Not every system starts at a source. Waste water starts nowhere and ends at
+ * an outfall; a ventilation system is anchored by its unit; electricity by the
+ * board that feeds it. Requiring a node called SOURCE everywhere flagged
+ * networks the editor's own templates had just produced.
+ */
+export const NETWORK_ROOT_KINDS: Readonly<
+  Record<NetworkDiscipline, readonly string[]>
+> = {
+  WATER: ['SOURCE'],
+  HEATING: ['SOURCE'],
+  RAINWATER: ['SOURCE', 'TANK'],
+  WASTEWATER: ['OUTLET'],
+  // The ventilation domain names its own anchors: a unit, an intake, or the
+  // generic source a simple extract system starts from.
+  VENTILATION: ['FAN', 'AIR_HANDLING_UNIT', 'INTAKE', 'SOURCE'],
+  ELECTRICAL: ['DISTRIBUTION_BOARD', 'SOURCE'],
+  OTHER: ['SOURCE'],
+};
 
 function validateEntityIds(
   entities: readonly { readonly id: string }[],

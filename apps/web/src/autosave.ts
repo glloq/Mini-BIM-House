@@ -1,13 +1,17 @@
 import type { ProjectFile } from '@house-technical-designer/core-domain';
+import type { ClimateDataset } from '@house-technical-designer/climate';
 import {
   autosaveProject,
   clearAutosave,
+  createFallbackAutosaveStore,
   createIndexedDbAutosaveStore,
   createStorageAutosaveStore,
+  migrateAutosave,
   recoverAutosave,
   type AutosaveStore,
   type RecoveryResult,
 } from '@house-technical-designer/project-io';
+import { createAutosaveQueue } from './autosave-queue.js';
 
 export const AUTOSAVE_KEY = 'house-technical-designer:autosave';
 
@@ -31,19 +35,48 @@ export const SAVE_STATE_LABELS: Readonly<Record<SaveState, string>> = {
   FAILED: 'Sauvegarde locale impossible',
 };
 
+/** What a snapshot has to hold to restore the session as it was. */
+export interface WorkspaceSnapshot {
+  readonly file: ProjectFile;
+  readonly climate: readonly ClimateDataset[];
+}
+
 /**
  * Where a snapshot of the open project is kept.
  *
  * A project the import limits admit — twenty thousand walls, fifty thousand
  * network nodes — does not fit in local storage, so the snapshot lives in
- * IndexedDB. Local storage remains the fallback for a runtime that has no
- * database, and it is honest about being one: the state bar reports a failed
- * save rather than a silent one.
+ * IndexedDB. Local storage is not chosen on the mere absence of the database
+ * API: a private window or a spent quota fails at the first transaction, so it
+ * is used whenever the database actually refuses, and a failure of both is
+ * reported rather than swallowed.
  */
+function localStore(): AutosaveStore | undefined {
+  try {
+    return createStorageAutosaveStore(window.localStorage);
+  } catch {
+    return undefined;
+  }
+}
+
+let cachedStore: AutosaveStore | undefined;
+
 function store(): AutosaveStore {
-  if (typeof indexedDB !== 'undefined')
-    return createIndexedDbAutosaveStore(indexedDB);
-  return createStorageAutosaveStore(window.localStorage);
+  if (cachedStore !== undefined) return cachedStore;
+  const fallback = localStore();
+  const database =
+    typeof indexedDB === 'undefined'
+      ? undefined
+      : createIndexedDbAutosaveStore(indexedDB);
+  if (database === undefined && fallback === undefined)
+    throw new Error("Ce navigateur n'offre aucun stockage local.");
+  cachedStore =
+    database === undefined
+      ? fallback!
+      : fallback === undefined
+        ? database
+        : createFallbackAutosaveStore(database, fallback);
+  return cachedStore;
 }
 
 /** When the last snapshot was written in this session, if one was. */
@@ -53,21 +86,55 @@ export function lastAutosaveTime(): string | undefined {
   return lastSavedAt;
 }
 
-/** Writes a snapshot of the project into this browser. */
-export async function writeAutosave(file: ProjectFile): Promise<void> {
-  const record = await autosaveProject(store(), AUTOSAVE_KEY, file, () =>
-    new Date().toISOString(),
+/**
+ * The queue that writes snapshots, one at a time and newest last.
+ *
+ * The revision of the snapshot written is what the caller compares against the
+ * project on screen, so a stale write can never be reported as current.
+ */
+const queue = createAutosaveQueue<WorkspaceSnapshot>(async (snapshot) => {
+  const record = await autosaveProject(
+    store(),
+    AUTOSAVE_KEY,
+    snapshot.file,
+    () => new Date().toISOString(),
+    snapshot.climate.map((dataset) => JSON.stringify(dataset)),
   );
   lastSavedAt = record.savedAt;
+  return snapshot.file.project.metadata.projectRevision ?? '';
+});
+
+/**
+ * Writes a snapshot of the workspace into this browser.
+ *
+ * Resolves with the revision that actually reached the store, which is not
+ * necessarily the one this call was given: a newer snapshot queued while this
+ * one was being written wins, and the caller can see that its own revision is
+ * not the one on disk.
+ */
+export async function writeAutosave(
+  snapshot: WorkspaceSnapshot,
+): Promise<string | undefined> {
+  return queue.enqueue(snapshot);
 }
 
 /** Reads back a snapshot left by a previous session, if any. */
 export async function readAutosave(): Promise<RecoveryResult> {
-  return recoverAutosave(store(), AUTOSAVE_KEY);
+  const current = store();
+  const previous = localStore();
+  // A snapshot written by an earlier version lived in local storage; it is
+  // moved rather than left behind, so updating the application never looks
+  // like losing the work in progress.
+  if (previous !== undefined)
+    await migrateAutosave(previous, current, AUTOSAVE_KEY).catch(
+      () => undefined,
+    );
+  return recoverAutosave(current, AUTOSAVE_KEY);
 }
 
 /** Drops the snapshot once the user has decided what to do with it. */
 export async function discardAutosave(): Promise<void> {
+  queue.cancelPending();
   await clearAutosave(store(), AUTOSAVE_KEY);
   lastSavedAt = undefined;
 }

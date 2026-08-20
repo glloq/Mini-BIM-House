@@ -14,6 +14,7 @@ import {
   networkSystemTemplates,
   nodePropertySchema,
   withNetworkProperty,
+  withoutIncompatibleProperties,
   type NetworkPropertyDescriptor,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
@@ -44,6 +45,8 @@ export interface NetworksPanelProps {
   readonly onCommand: (command: ProjectCommand) => boolean;
   readonly onSelectObjects: (objectIds: readonly string[]) => void;
   readonly onMessage: (message: string) => void;
+  /** A node or segment another screen asked to open the properties of. */
+  readonly inspectObjectId?: string;
 }
 
 function metres(millimetres: number): string {
@@ -155,6 +158,7 @@ export function NetworksPanel({
   onCommand,
   onSelectObjects,
   onMessage,
+  inspectObjectId,
 }: NetworksPanelProps) {
   const rows = useMemo(() => networkRows(project), [project]);
   const selected =
@@ -176,6 +180,17 @@ export function NetworksPanel({
   const [inspected, setInspected] = useState<
     { readonly kind: 'NODE' | 'EDGE'; readonly id: string } | undefined
   >();
+  // Another screen may ask for one object in particular — a check whose missing
+  // value is a diameter names the segment it belongs to.
+  const [shownRequest, setShownRequest] = useState(inspectObjectId);
+  if (shownRequest !== inspectObjectId) {
+    setShownRequest(inspectObjectId);
+    const requested = (project.systems ?? []).flatMap((entry) => [
+      ...entry.nodes.map((node) => ({ kind: 'NODE' as const, id: node.id })),
+      ...entry.edges.map((edge) => ({ kind: 'EDGE' as const, id: edge.id })),
+    ]);
+    setInspected(requested.find(({ id }) => id === inspectObjectId));
+  }
   const [fromPortId, setFromPortId] = useState('');
   const [toPortId, setToPortId] = useState('');
 
@@ -641,9 +656,7 @@ export function NetworksPanel({
                     ({ id }) => id === inspected.id,
                   );
                   if (edge === undefined) return null;
-                  const properties = (edge.properties ?? {}) as Readonly<
-                    Record<string, JsonValue>
-                  >;
+                  const properties = edge.properties ?? {};
                   return (
                     <PropertyInspector
                       idPrefix={`edge-${edge.id}`}
@@ -656,7 +669,12 @@ export function NetworksPanel({
                           new UpdateNetworkEdgeCommand(
                             network.id,
                             edge.id,
-                            next,
+                            // Redefining the section drops the dimensions the
+                            // other one used; they no longer describe anything.
+                            withoutIncompatibleProperties(
+                              network.discipline,
+                              next,
+                            ),
                           ),
                         )
                       }

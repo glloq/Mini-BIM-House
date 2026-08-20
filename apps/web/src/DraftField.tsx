@@ -12,6 +12,7 @@ export interface DraftFieldProps {
   readonly hint?: string;
   readonly placeholder?: string;
   readonly min?: number;
+  readonly max?: number;
   readonly step?: number;
   readonly disabled?: boolean;
   /**
@@ -46,6 +47,7 @@ export function DraftField({
   hint,
   placeholder,
   min,
+  max,
   step,
   disabled,
   onCommit,
@@ -93,6 +95,7 @@ export function DraftField({
         disabled={disabled === true}
         {...(kind === 'NUMBER' ? { step: step ?? 'any' } : {})}
         {...(min === undefined ? {} : { min })}
+        {...(max === undefined ? {} : { max })}
         {...(placeholder === undefined ? {} : { placeholder })}
         onChange={(event) => setDraft(event.target.value)}
         onBlur={commit}

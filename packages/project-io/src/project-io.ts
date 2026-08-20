@@ -237,33 +237,36 @@ export function validateProjectReferences(
     ),
   );
   const equipment = new Set(file.project.equipment?.map(({ id }) => id) ?? []);
-  for (const [what, ids] of [
-    ['level', file.project.building.levels.map(({ id }) => id)],
-    [
-      'wall',
-      file.project.building.levels.flatMap(({ walls }) =>
-        walls.map(({ id }) => id),
-      ),
-    ],
-    [
-      'space',
-      file.project.building.levels.flatMap(({ spaces }) =>
-        spaces.map(({ id }) => id),
-      ),
-    ],
-    ['assembly', file.project.assemblies?.map(({ id }) => id) ?? []],
-    [
-      'material',
-      file.project.materialLibrary?.materials.map(({ id }) => id) ?? [],
-    ],
-    ['equipment', file.project.equipment?.map(({ id }) => id) ?? []],
-    ['network', file.project.systems?.map(({ id }) => id) ?? []],
-  ] as const)
+  /** What a network node may be fixed to. */
+  const hosts = new Set<string>([
+    ...file.project.building.levels.flatMap(
+      ({ walls, slabs, roofs, spaces: rooms, openings }) => [
+        ...walls.map(({ id }) => id as string),
+        ...slabs.map(({ id }) => id as string),
+        ...roofs.map(({ id }) => id as string),
+        ...rooms.map(({ id }) => id as string),
+        ...openings.map(({ id }) => id as string),
+      ],
+    ),
+    ...(file.project.equipment?.map(({ id }) => id) ?? []),
+  ]);
+  // Identifiers are unique across the whole project, not merely inside their
+  // own list. Selection, overlays, dimensions and scenario paths all address
+  // objects by identifier alone; two objects sharing one would make a click
+  // ambiguous and a scenario point at either of them.
+  for (const [what, ids] of identifiedObjects(file))
     for (const duplicate of repeated(ids))
       issues.push({
-        path: `/project/${what}s`,
-        message: `declares ${what} ${duplicate} more than once`,
+        path: `/project/${what}`,
+        message: `declares the identifier ${duplicate} more than once`,
       });
+  for (const duplicate of repeated(
+    identifiedObjects(file).flatMap(([, ids]) => ids),
+  ))
+    issues.push({
+      path: '/project',
+      message: `uses the identifier ${duplicate} for more than one object`,
+    });
   const materials = new Set(
     file.project.materialLibrary?.materials.map(({ id }) => id) ?? [],
   );
@@ -307,6 +310,26 @@ export function validateProjectReferences(
           message: `is stored on level ${level.id} but hosted by wall ${opening.hostElementId} of another level`,
         });
     });
+    level.annotations.forEach((annotation, index) => {
+      // A dimension measures two wall endpoints; a dimension whose wall is
+      // gone measures nothing, and the drawing would show a length nobody can
+      // trace back to the model.
+      for (const [side, reference] of [
+        ['first', annotation.first],
+        ['second', annotation.second],
+      ] as const) {
+        if (!walls.has(reference.wallId))
+          issues.push({
+            path: `${base}/annotations/${index}/${side}/wallId`,
+            message: `references unknown wall ${reference.wallId}`,
+          });
+        else if (!levelWalls.has(reference.wallId))
+          issues.push({
+            path: `${base}/annotations/${index}/${side}/wallId`,
+            message: `is stored on level ${level.id} but measures wall ${reference.wallId} of another level`,
+          });
+      }
+    });
     level.spaces.forEach((space, index) => {
       if (!levels.has(space.levelId))
         issues.push({
@@ -320,6 +343,17 @@ export function validateProjectReferences(
         });
     });
   });
+  file.project.building.zones?.forEach((zone, zoneIndex) =>
+    zone.spaceIds.forEach((spaceId, index) => {
+      // A zone groups rooms; one that names a room the project no longer holds
+      // can protect that room from deletion and never let go of it.
+      if (!spaces.has(spaceId))
+        issues.push({
+          path: `/project/building/zones/${zoneIndex}/spaceIds/${index}`,
+          message: `references unknown space ${spaceId}`,
+        });
+    }),
+  );
   file.project.assemblies?.forEach((assembly, assemblyIndex) =>
     assembly.layers.forEach((layer, layerIndex) => {
       if (!materials.has(layer.materialId))
@@ -346,6 +380,19 @@ export function validateProjectReferences(
           path: `${path}/equipmentId`,
           message: `references unknown equipment ${equipmentId}`,
         });
+      const levelId = (node as { readonly levelId?: unknown }).levelId;
+      if (typeof levelId === 'string' && !levels.has(levelId as never))
+        issues.push({
+          path: `${path}/levelId`,
+          message: `references unknown level ${levelId}`,
+        });
+      // A node fixed to a wall, a slab or a roof follows it; fixed to nothing
+      // it would be left behind by the object it was meant to sit on.
+      if (node.hostObjectId !== undefined && !hosts.has(node.hostObjectId))
+        issues.push({
+          path: `${path}/hostObjectId`,
+          message: `references unknown object ${node.hostObjectId}`,
+        });
     });
     network.ports.forEach((port, portIndex) => {
       if (!nodeIds.has(port.nodeId))
@@ -364,6 +411,61 @@ export function validateProjectReferences(
     });
   });
   return issues;
+}
+
+/**
+ * Every object the project identifies, by family.
+ *
+ * What is listed here is what the rest of the application can select, dimension
+ * or address from a scenario — which is exactly the set that has to be free of
+ * collisions.
+ */
+function identifiedObjects(
+  file: ProjectFile,
+): readonly (readonly [string, readonly string[]])[] {
+  const levels = file.project.building.levels;
+  const perLevel = (
+    pick: (
+      level: (typeof levels)[number],
+    ) => readonly { readonly id: string }[],
+  ): readonly string[] =>
+    levels.flatMap((level) => pick(level).map(({ id }) => id));
+  return [
+    ['levels', levels.map(({ id }) => id)],
+    ['walls', perLevel(({ walls }) => walls)],
+    ['openings', perLevel(({ openings }) => openings)],
+    ['slabs', perLevel(({ slabs }) => slabs)],
+    ['roofs', perLevel(({ roofs }) => roofs)],
+    ['spaces', perLevel(({ spaces }) => spaces)],
+    ['annotations', perLevel(({ annotations }) => annotations)],
+    ['zones', file.project.building.zones?.map(({ id }) => id) ?? []],
+    ['assemblies', file.project.assemblies?.map(({ id }) => id) ?? []],
+    [
+      'materials',
+      file.project.materialLibrary?.materials.map(({ id }) => id) ?? [],
+    ],
+    ['equipment', file.project.equipment?.map(({ id }) => id) ?? []],
+    ['systems', file.project.systems?.map(({ id }) => id) ?? []],
+    [
+      'systems/nodes',
+      (file.project.systems ?? []).flatMap(({ nodes }) =>
+        nodes.map(({ id }) => id),
+      ),
+    ],
+    [
+      'systems/ports',
+      (file.project.systems ?? []).flatMap(({ ports }) =>
+        ports.map(({ id }) => id),
+      ),
+    ],
+    [
+      'systems/edges',
+      (file.project.systems ?? []).flatMap(({ edges }) =>
+        edges.map(({ id }) => id),
+      ),
+    ],
+    ['scenarios', file.project.scenarios?.map(({ id }) => id) ?? []],
+  ];
 }
 
 /** Identifiers a list declares more than once. */

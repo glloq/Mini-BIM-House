@@ -1,4 +1,5 @@
 import type {
+  JsonValue,
   NetworkEdge,
   NetworkNode,
   TechnicalNetwork,
@@ -35,7 +36,7 @@ export interface WastewaterNode extends NetworkNode {
 }
 
 export interface GravityPipeProperties extends Readonly<
-  Record<string, unknown>
+  Record<string, JsonValue>
 > {
   readonly internalDiameterM?: number;
   readonly materialId?: string;

@@ -7,9 +7,9 @@ import {
   type CalculationRun,
 } from './calculation-runner.js';
 
-function project(revision: string): Project {
+function project(revision: string, id = 'project'): Project {
   return {
-    id: 'project' as Project['id'],
+    id: id as Project['id'],
     metadata: {
       name: 'Révisions',
       createdAt: '2026-01-01T00:00:00Z',
@@ -44,6 +44,7 @@ function run(
     runs: [],
     missing: [],
     provenance: [],
+    projectId: project.id,
     projectRevision: project.metadata.projectRevision ?? '',
     climateFingerprint: climateSignature(climate),
     startedAt: '2026-01-01T00:00:00Z',
@@ -74,6 +75,13 @@ describe('results that no longer describe the project', () => {
       false,
     );
     expect(isCurrentRun(stale, project('20'), [])).toBe(false);
+  });
+
+  it('withholds a run computed for another project at the same revision', () => {
+    const climate = [dataset('brest', 11)];
+    const other = run(project('20', 'maison-a'), climate);
+    // Same revision, same weather, another house.
+    expect(isCurrentRun(other, project('20', 'maison-b'), climate)).toBe(false);
   });
 
   it('has nothing to show before the first run', () => {

@@ -10,10 +10,12 @@ import {
   UpdateNetworkEdgeCommand,
   UpdateNetworkNodeCommand,
   edgePropertySchema,
+  incoherentNetworkProperties,
   invalidNetworkProperties,
   networkSystemTemplates,
   nodePropertySchema,
   withNetworkProperty,
+  withoutIncompatibleProperties,
 } from './index.js';
 
 function network(): TechnicalNetwork {
@@ -74,6 +76,10 @@ describe('what a network object may be given', () => {
     expect(
       nodePropertySchema('WATER', 'FIXTURE').map(({ key }) => key),
     ).toEqual(['designFlowLps', 'minimumPressurePa']);
+    // A fixed appliance is a load like any other, and can be placed as one.
+    expect(nodePropertySchema('ELECTRICAL', 'FIXED_LOAD')[0]?.key).toBe(
+      'activePowerW',
+    );
     expect(nodePropertySchema('VENTILATION', 'TERMINAL')[0]?.key).toBe(
       'targetFlowM3h',
     );
@@ -203,5 +209,86 @@ describe('writing properties onto a network', () => {
       }),
     );
     expect(rejected.status).toBe('REJECTED');
+  });
+});
+
+describe('a duct and the section it declares', () => {
+  const shapeOf = (value: string) => ({ shape: value });
+
+  it('asks a round duct for a diameter and a rectangular one for two sides', () => {
+    const keys = edgePropertySchema('VENTILATION').map(({ key }) => key);
+    expect(keys).toContain('diameterM');
+    expect(keys).toContain('widthM');
+    expect(keys).toContain('heightM');
+  });
+
+  it('refuses a round duct given a width', () => {
+    expect(
+      incoherentNetworkProperties('VENTILATION', {
+        ...shapeOf('ROUND'),
+        widthM: 0.3,
+      })[0],
+    ).toContain('diamètre');
+  });
+
+  it('refuses a rectangular duct given a diameter', () => {
+    expect(
+      incoherentNetworkProperties('VENTILATION', {
+        ...shapeOf('RECTANGULAR'),
+        diameterM: 0.16,
+      })[0],
+    ).toContain('largeur');
+  });
+
+  it('refuses a rectangular duct given one side only', () => {
+    expect(
+      incoherentNetworkProperties('VENTILATION', {
+        ...shapeOf('RECTANGULAR'),
+        widthM: 0.4,
+      }),
+    ).toHaveLength(1);
+    expect(
+      incoherentNetworkProperties('VENTILATION', {
+        ...shapeOf('RECTANGULAR'),
+        widthM: 0.4,
+        heightM: 0.2,
+      }),
+    ).toEqual([]);
+  });
+
+  it('leaves the other disciplines alone', () => {
+    expect(
+      incoherentNetworkProperties('WATER', { internalDiameterM: 0.016 }),
+    ).toEqual([]);
+  });
+});
+
+describe('changing the section of a duct', () => {
+  it('drops the dimensions the new shape cannot carry', () => {
+    expect(
+      withoutIncompatibleProperties('VENTILATION', {
+        shape: 'RECTANGULAR',
+        diameterM: 0.16,
+        widthM: 0.2,
+        heightM: 0.1,
+      }),
+    ).toEqual({ shape: 'RECTANGULAR', widthM: 0.2, heightM: 0.1 });
+    expect(
+      withoutIncompatibleProperties('VENTILATION', {
+        shape: 'ROUND',
+        diameterM: 0.16,
+        widthM: 0.2,
+      }),
+    ).toEqual({ shape: 'ROUND', diameterM: 0.16 });
+  });
+
+  it('keeps everything the shape still uses', () => {
+    const kept = withoutIncompatibleProperties('VENTILATION', {
+      shape: 'ROUND',
+      diameterM: 0.16,
+      roughnessM: 0.00009,
+      airRole: 'EXTRACT',
+    });
+    expect(kept).toMatchObject({ roughnessM: 0.00009, airRole: 'EXTRACT' });
   });
 });

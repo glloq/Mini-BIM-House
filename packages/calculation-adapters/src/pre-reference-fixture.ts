@@ -215,7 +215,7 @@ function preReferenceNetworks(): readonly TechnicalNetwork[] {
           toPortId: 'electrical:circuit-in',
           path: [point(4800, 0, 1400), point(4800, 200, 1400)],
           kind: 'CABLE',
-          properties: { conductorSectionMm2: 1.5 },
+          properties: { conductorSectionMm2: 1.5, conductorMaterial: 'COPPER' },
         },
         {
           id: 'electrical:cable',
@@ -223,7 +223,7 @@ function preReferenceNetworks(): readonly TechnicalNetwork[] {
           toPortId: 'electrical:in',
           path: [point(4800, 200, 1400), point(2500, 2000, 2400)],
           kind: 'CABLE',
-          properties: { conductorSectionMm2: 1.5 },
+          properties: { conductorSectionMm2: 1.5, conductorMaterial: 'COPPER' },
         },
       ],
     },

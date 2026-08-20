@@ -209,6 +209,8 @@ export interface NodeDraft {
   readonly nodeId: string;
   readonly kind: string;
   readonly position: Point3D;
+  /** The storey the node sits on, so it follows when that storey moves. */
+  readonly levelId?: string;
   readonly spaceId?: string;
 }
 
@@ -233,6 +235,7 @@ export function placeNodeCommand(
     id: draft.nodeId,
     kind: template.kind,
     position: draft.position,
+    ...(draft.levelId === undefined ? {} : { levelId: draft.levelId }),
     ...(draft.spaceId === undefined || draft.spaceId === ''
       ? {}
       : { spaceId: draft.spaceId }),
