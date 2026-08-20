@@ -4,11 +4,17 @@ import { loadDemoProject } from '../demo-project.js';
 import { ProjectCommandDispatcher } from '@house-technical-designer/editor-core';
 import {
   OBJECT_EDITORS,
+  OBJECT_FAMILIES,
+  boundsOf,
+  contextActionsFor,
   editsFor,
+  familyOf,
   gripsFor,
   inspectObject,
+  relationshipsOf,
   removalCommandFor,
   sharedEditsFor,
+  similarTo,
 } from './object-editors.js';
 
 function demo(): Project {
@@ -223,5 +229,193 @@ describe('taking an object back off the plan', () => {
 
   it('says nothing about an object it cannot take back', () => {
     expect(removalCommandFor(demo(), 'ground', 'nowhere')).toBeUndefined();
+  });
+});
+
+describe('measuring an object without drawing it', () => {
+  it('measures every family that stands somewhere on the plan', () => {
+    const project = demo();
+    for (const objectId of [
+      'wall-south',
+      'opening-entry',
+      'space-living',
+      'slab-ground',
+      'roof-south',
+      'water:sink',
+    ]) {
+      const bounds = boundsOf(project, 'ground', objectId);
+      expect(bounds, objectId).toBeDefined();
+      if (bounds === undefined) continue;
+      expect(bounds.max.x, objectId).toBeGreaterThanOrEqual(bounds.min.x);
+      expect(bounds.max.y, objectId).toBeGreaterThanOrEqual(bounds.min.y);
+    }
+  });
+
+  it('measures a wall along the path it was drawn on', () => {
+    // The south wall runs from the origin to ten metres east.
+    expect(boundsOf(demo(), 'ground', 'wall-south')).toEqual({
+      min: { x: 0, y: 0 },
+      max: { x: 10_000, y: 0 },
+    });
+  });
+
+  it('reads an opening from the wall that hosts it', () => {
+    // An opening holds a distance along its wall and no position of its own;
+    // its extent is a fact of the wall, and it is as wide as the opening.
+    const bounds = boundsOf(demo(), 'ground', 'opening-entry')!;
+    expect(bounds.max.x - bounds.min.x).toBeCloseTo(900, 6);
+  });
+
+  it('says nothing rather than guessing for what it cannot measure', () => {
+    // A dimension is an annotation the drawing places; it is not a thing the
+    // model gives an outline to.
+    expect(boundsOf(demo(), 'ground', 'nowhere')).toBeUndefined();
+  });
+});
+
+describe('the objects that are like another one', () => {
+  it('gathers the walls of the same assembly playing the same part', () => {
+    const similar = similarTo(demo(), 'ground', 'wall-south');
+    expect([...similar].sort()).toEqual([
+      'wall-east',
+      'wall-north',
+      'wall-south',
+      'wall-west',
+    ]);
+  });
+
+  it('leaves out a wall built the same way and used differently', () => {
+    // The partitions share neither the assembly nor the role of the shell.
+    expect(similarTo(demo(), 'ground', 'wall-south')).not.toContain(
+      'wall-partition-v',
+    );
+    expect([...similarTo(demo(), 'ground', 'wall-partition-v')].sort()).toEqual(
+      ['wall-partition-h', 'wall-partition-v'],
+    );
+  });
+
+  it('gathers the openings of the same kind and the same size', () => {
+    // The two windows differ in width, so they are not the same opening twice.
+    expect(similarTo(demo(), 'ground', 'opening-living')).toEqual([
+      'opening-living',
+    ]);
+  });
+
+  it('answers nothing for a family that does not say what alike means', () => {
+    // A room alike another room is not a notion the model carries, and a list
+    // of every room would not be one.
+    expect(similarTo(demo(), 'ground', 'space-living')).toEqual([]);
+    expect(similarTo(demo(), 'ground', 'nowhere')).toEqual([]);
+  });
+});
+
+describe('what one family offers that the others do not', () => {
+  it('offers a wall the reversal of its reference face', () => {
+    const project = demo();
+    const walls = project.building.levels[0]!.walls;
+    const left: Project = {
+      ...project,
+      building: {
+        ...project.building,
+        levels: [
+          {
+            ...project.building.levels[0]!,
+            walls: walls.map((wall) =>
+              wall.id === 'wall-south'
+                ? { ...wall, referenceSide: 'LEFT' as const }
+                : wall,
+            ),
+          },
+          ...project.building.levels.slice(1),
+        ],
+      },
+    };
+    const actions = contextActionsFor(left, 'ground', 'wall-south');
+    const flip = actions.find(({ id }) => id === 'wall.flipReference');
+    expect(flip?.label).toContain('droite');
+    const command = flip?.command();
+    expect(command).toBeDefined();
+    if (command === undefined) return;
+    const dispatcher = new ProjectCommandDispatcher(left);
+    expect(dispatcher.dispatch(command).status).toBe('APPLIED');
+    expect(
+      dispatcher.project.building.levels[0]!.walls.find(
+        ({ id }) => id === 'wall-south',
+      )?.referenceSide,
+    ).toBe('RIGHT');
+  });
+
+  it('offers nothing to apply on a wall already drawn on its axis', () => {
+    // Every wall of the reference house is drawn on its axis; there is no
+    // other side to move it to, and the entry says so instead of vanishing.
+    const flip = contextActionsFor(demo(), 'ground', 'wall-south').find(
+      ({ id }) => id === 'wall.flipReference',
+    );
+    expect(flip?.command()).toBeUndefined();
+  });
+
+  it('offers nothing for a family with no actions of its own', () => {
+    expect(contextActionsFor(demo(), 'ground', 'space-living')).toEqual([]);
+    expect(contextActionsFor(demo(), 'ground', 'nowhere')).toEqual([]);
+  });
+});
+
+describe('what an object is tied to', () => {
+  it('names the openings a wall carries', () => {
+    // The domain refuses to delete this wall because of them; before, the
+    // refusal named a rule and the user looked for the openings by eye.
+    const ties = relationshipsOf(demo(), 'ground', 'wall-south');
+    expect(ties.map(({ role }) => role)).toEqual(['Ouvertures portées']);
+    expect(ties[0]?.objectIds.length).toBeGreaterThan(0);
+    for (const objectId of ties[0]?.objectIds ?? [])
+      expect(inspectObject(demo(), objectId).kind).toBe('OPENING');
+  });
+
+  it('names the wall an opening is cut into', () => {
+    const ties = relationshipsOf(demo(), 'ground', 'opening-entry');
+    expect(ties).toHaveLength(1);
+    expect(inspectObject(demo(), ties[0]!.objectIds[0]!).kind).toBe('WALL');
+  });
+
+  it('follows the segments of a network to the nodes they join', () => {
+    // A segment joins two ports and a port belongs to a node; what a manifold
+    // feeds is at the end of that chain and nowhere else.
+    const ties = relationshipsOf(demo(), 'ground', 'water:manifold');
+    expect(ties.map(({ role }) => role)).toEqual(['Nœuds raccordés']);
+    expect(ties[0]?.objectIds).toContain('water:sink');
+    expect(ties[0]?.objectIds).not.toContain('water:manifold');
+  });
+
+  it('says nothing for a family that ties to nothing', () => {
+    expect(relationshipsOf(demo(), 'ground', 'space-living')).toEqual([]);
+    expect(relationshipsOf(demo(), 'ground', 'nowhere')).toEqual([]);
+  });
+});
+
+describe('the families a selection can be restricted to', () => {
+  it('offers one entry per family the registry declares', () => {
+    // Built from the registry rather than beside it: a family added tomorrow
+    // appears in the filter without anyone remembering to add it.
+    expect(OBJECT_FAMILIES).toHaveLength(OBJECT_EDITORS.length);
+    for (const family of OBJECT_FAMILIES)
+      expect(family.kinds.length).toBeGreaterThan(0);
+  });
+
+  it('tells a slab from a roof, which share one description', () => {
+    const project = demo();
+    expect(familyOf(project, 'slab-ground')?.label).toBe('Dalle');
+    expect(familyOf(project, 'roof-south')?.label).toBe('Toiture');
+    expect(familyOf(project, 'wall-south')?.label).toBe('Mur');
+  });
+
+  it('places both ends of a network in one family', () => {
+    const project = demo();
+    expect(familyOf(project, 'water:sink')?.id).toBe(
+      familyOf(project, 'water:branch-sink')?.id,
+    );
+  });
+
+  it('places an object the project does not hold in no family', () => {
+    expect(familyOf(demo(), 'nowhere')).toBeUndefined();
   });
 });

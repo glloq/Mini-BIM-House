@@ -23,6 +23,21 @@ import {
 } from './inspector-edits.js';
 import { openingGrips, polygonGrips, wallGrips, type Grip } from './grips.js';
 import {
+  networkNodeBounds,
+  networkNodeRelationships,
+  openingBounds,
+  openingRelationships,
+  roofBounds,
+  similarOpenings,
+  similarSlabs,
+  similarWalls,
+  slabBounds,
+  spaceBounds,
+  wallBounds,
+  wallContextActions,
+  wallRelationships,
+} from './object-facts.js';
+import {
   dimensionRemoval,
   networkNodeRemoval,
   openingRemoval,
@@ -32,6 +47,9 @@ import {
   wallRemoval,
   type RemovalProvider,
 } from './object-removal.js';
+
+/** What an object is, as the inspector names it. */
+export type ObjectKind = Exclude<InspectorSubject['kind'], 'UNKNOWN'>;
 
 /**
  * Everything the editor knows how to do with one family of objects.
@@ -50,6 +68,15 @@ import {
 export interface ObjectEditorDefinition {
   /** What this family is called in the interface. */
   readonly label: string;
+  /**
+   * The kinds of subject this family stands for.
+   *
+   * Two entries share one description — a slab and a roof are both building
+   * elements — so the label alone does not say which object belongs to which
+   * family. Filtering a selection, and telling the user what was filtered,
+   * both need that answer.
+   */
+  readonly kinds: readonly ObjectKind[];
   /** What the inspector shows, or nothing when the id is not of this family. */
   readonly inspect: (
     project: Project,
@@ -74,6 +101,73 @@ export interface ObjectEditorDefinition {
    * families out of seven.
    */
   readonly remove?: RemovalProvider;
+  /**
+   * The extent of one object on the plan.
+   *
+   * Framing an object, placing a menu beside it and telling what a band caught
+   * all ask the same question; asking the drawing engine for it means building
+   * a whole view to measure one wall.
+   */
+  readonly bounds?: (
+    project: Project,
+    levelId: string,
+    objectId: string,
+  ) => ObjectBounds | undefined;
+  /**
+   * The objects of this family that are like this one.
+   *
+   * What « like » means belongs to the family: two walls of the same assembly
+   * and the same role, two openings of the same type and size. Changing the
+   * assembly of every partition of a storey starts with finding them.
+   */
+  readonly similar?: (
+    project: Project,
+    levelId: string,
+    objectId: string,
+  ) => readonly string[];
+  /**
+   * What this family offers beyond what every object offers.
+   *
+   * Deleting, duplicating and framing are the same for all of them and belong
+   * to the application; reversing the reference face of a wall belongs to
+   * walls.
+   */
+  readonly contextActions?: (
+    project: Project,
+    levelId: string,
+    objectId: string,
+  ) => readonly ObjectContextAction[];
+  /**
+   * The objects this one holds, hangs on, or is joined to.
+   *
+   * The domain already refuses to delete a wall that still hosts an opening;
+   * the refusal named a rule, and the user then looked for the openings by
+   * eye. What an object is tied to is a fact of its family, and nothing but
+   * the family can state it.
+   */
+  readonly relationships?: (
+    project: Project,
+    levelId: string,
+    objectId: string,
+  ) => readonly ObjectRelationship[];
+}
+
+/** One tie an object has to others, named as the user would name it. */
+export interface ObjectRelationship {
+  readonly role: string;
+  readonly objectIds: readonly string[];
+}
+
+export interface ObjectBounds {
+  readonly min: { readonly x: number; readonly y: number };
+  readonly max: { readonly x: number; readonly y: number };
+}
+
+/** One action a family offers on one of its objects. */
+export interface ObjectContextAction {
+  readonly id: string;
+  readonly label: string;
+  readonly command: () => ProjectCommand | undefined;
 }
 
 /**
@@ -86,33 +180,48 @@ export interface ObjectEditorDefinition {
 export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
   {
     label: 'Mur',
+    kinds: ['WALL'],
     inspect: wallSubject,
     edits: wallEditsFor,
     grips: wallGrips,
     remove: wallRemoval,
+    bounds: wallBounds,
+    similar: similarWalls,
+    contextActions: wallContextActions,
+    relationships: wallRelationships,
   },
   {
     label: 'Ouverture',
+    kinds: ['OPENING'],
     inspect: openingSubject,
     edits: openingEditsFor,
     grips: openingGrips,
     remove: openingRemoval,
+    bounds: openingBounds,
+    similar: similarOpenings,
+    relationships: openingRelationships,
   },
   {
     label: 'Pièce',
+    kinds: ['SPACE'],
     inspect: spaceSubject,
     edits: spaceEditsFor,
     remove: spaceRemoval,
+    bounds: spaceBounds,
   },
   {
     label: 'Dalle',
+    kinds: ['SLAB'],
     inspect: buildingElementSubject,
     edits: slabEditsFor,
     grips: polygonGrips,
     remove: slabRemoval,
+    bounds: slabBounds,
+    similar: similarSlabs,
   },
   {
     label: 'Toiture',
+    kinds: ['ROOF'],
     // Slabs and roofs share one description; only their editable properties
     // differ, so the roof entry answers for the properties the slab entry
     // declined.
@@ -120,15 +229,20 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     edits: roofEditsFor,
     grips: polygonGrips,
     remove: roofRemoval,
+    bounds: roofBounds,
   },
   {
     label: 'Réseau',
+    kinds: ['NETWORK_NODE', 'NETWORK_EDGE'],
     inspect: networkSubject,
     edits: networkNodeEditsFor,
     remove: networkNodeRemoval,
+    bounds: networkNodeBounds,
+    relationships: networkNodeRelationships,
   },
   {
     label: 'Cote',
+    kinds: ['DIMENSION'],
     inspect: dimensionSubject,
     edits: dimensionEditsFor,
     remove: dimensionRemoval,
@@ -322,4 +436,100 @@ export function removalCommandFor(
     if (command !== undefined) return command;
   }
   return undefined;
+}
+
+/** The extent of one object, whichever family it belongs to. */
+export function boundsOf(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): ObjectBounds | undefined {
+  for (const editor of OBJECT_EDITORS) {
+    const bounds = editor.bounds?.(project, levelId, objectId);
+    if (bounds !== undefined) return bounds;
+  }
+  return undefined;
+}
+
+/**
+ * The objects like this one, itself included.
+ *
+ * Nothing is returned for a family that does not say what « like » means: an
+ * empty answer is honest, a list of everything would not be.
+ */
+export function similarTo(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): readonly string[] {
+  for (const editor of OBJECT_EDITORS) {
+    const similar = editor.similar?.(project, levelId, objectId);
+    if (similar !== undefined && similar.length > 0) return similar;
+  }
+  return [];
+}
+
+/** What this object's own family offers on it. */
+export function contextActionsFor(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): readonly ObjectContextAction[] {
+  for (const editor of OBJECT_EDITORS) {
+    const actions = editor.contextActions?.(project, levelId, objectId);
+    if (actions !== undefined && actions.length > 0) return actions;
+  }
+  return [];
+}
+
+/**
+ * What this object is tied to, whichever family it belongs to.
+ *
+ * A family with nothing to say answers nothing: an empty list is honest, and
+ * a list of everything on the storey would not be.
+ */
+export function relationshipsOf(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): readonly ObjectRelationship[] {
+  for (const editor of OBJECT_EDITORS) {
+    const ties = editor.relationships?.(project, levelId, objectId);
+    if (ties !== undefined && ties.length > 0) return ties;
+  }
+  return [];
+}
+
+/** One family, as the interface offers it for filtering. */
+export interface ObjectFamily {
+  readonly id: string;
+  readonly label: string;
+  readonly kinds: readonly ObjectKind[];
+}
+
+/**
+ * The families a selection can be restricted to.
+ *
+ * Built from the registry rather than written beside it: a family added
+ * tomorrow appears in the filter without anyone remembering to add it, which
+ * is the whole point of the registry.
+ */
+export const OBJECT_FAMILIES: readonly ObjectFamily[] = OBJECT_EDITORS.flatMap(
+  (editor) => {
+    const first = editor.kinds[0];
+    return first === undefined
+      ? []
+      : [{ id: first, label: editor.label, kinds: editor.kinds }];
+  },
+);
+
+/** The family one object belongs to, or nothing when there is no such object. */
+export function familyOf(
+  project: Project,
+  objectId: string,
+): ObjectFamily | undefined {
+  const { kind } = inspectObject(project, objectId);
+  return OBJECT_FAMILIES.find((family) =>
+    (family.kinds as readonly string[]).includes(kind),
+  );
 }

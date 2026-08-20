@@ -16,6 +16,7 @@ import {
 } from './editing-commands.js';
 import { placeNodeCommand } from '../networks/network-model.js';
 import type { ToolOptionDefinition } from './tool-options.js';
+import { OBJECT_FAMILIES } from './object-editors.js';
 import {
   DIMENSION_TYPE_OPTIONS,
   OPENING_TYPE_OPTIONS,
@@ -141,6 +142,21 @@ export const EDITOR_TOOLS = [
     hint: 'Sélectionner et modifier un objet',
     shortcutId: 'tool.select',
     requiredPoints: 0,
+    options: [
+      {
+        key: 'family',
+        kind: 'SELECT',
+        label: 'Filtrer sur',
+        hint: 'Un clic ou une bande ne prend que cette famille.',
+        choices: () => [
+          { value: 'ALL', label: 'Tous les objets' },
+          ...OBJECT_FAMILIES.map(({ id, label }) => ({ value: id, label })),
+        ],
+        // Nothing is filtered until the user asks for it: an editor that
+        // silently ignored half the plan would be one nobody could trust.
+        fallback: () => 'ALL',
+      },
+    ],
   },
   {
     id: 'WALL',

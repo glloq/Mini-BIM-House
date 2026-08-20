@@ -13,6 +13,7 @@ import {
   buildPlanView,
   overlayPrimitives,
   objectsInBox,
+  pickCandidates,
   pickPrimitive,
   selectionBoxOf,
   previewWallFaces,
@@ -20,7 +21,7 @@ import {
 } from '@house-technical-designer/view-query';
 import type { EditorAction, EditorState } from './editor-state.js';
 import { offsetAlongWall, type GeometryEdit, type Grip } from './grips.js';
-import { editsFor, gripsFor } from './object-editors.js';
+import { editsFor, familyOf, gripsFor } from './object-editors.js';
 import { pickToleranceMm } from './pick-tolerance.js';
 import { DynamicInput } from './DynamicInput.js';
 import { TemporaryDimensions } from './TemporaryDimensions.js';
@@ -66,6 +67,25 @@ export interface PlanCanvasProps {
   readonly onMoveSelection?: (delta: { x: number; y: number }) => void;
   /** Applies an edit typed on the drawing itself. */
   readonly onCommand?: (command: ProjectCommand) => boolean;
+  /**
+   * Opens the actions of the object the pointer is on.
+   *
+   * What can be done to an object is decided where the commands live; the
+   * canvas only says which object, and where in the window the pointer was.
+   */
+  readonly onObjectMenu?: (
+    objectId: string,
+    atPx: { readonly x: number; readonly y: number },
+  ) => void;
+  /**
+   * The only family a click or a band may take, when one is asked for.
+   *
+   * Picking a room in a house where every room is covered by a slab, or a wall
+   * under a dimension line, is a fight the drawing always wins. Nothing is
+   * filtered unless the user asks: an editor quietly ignoring half the plan
+   * would be one nobody could trust.
+   */
+  readonly selectableFamily?: string;
   readonly wallThicknessMm: number;
   /**
    * What a dragged handle asks of the model.
@@ -111,6 +131,8 @@ export function PlanCanvas({
   onEditGeometry,
   onMoveSelection,
   onCommand,
+  onObjectMenu,
+  selectableFamily,
   overlay,
 }: PlanCanvasProps) {
   const container = useRef<HTMLDivElement>(null);
@@ -133,12 +155,28 @@ export function PlanCanvas({
         /** Where the press happened on the screen, to tell a click from a drag. */
         readonly fromClient: { x: number; y: number };
         readonly objectId: string;
+        readonly pointerType: string;
         delta: { readonly x: number; readonly y: number };
       }
     | undefined
   >(undefined);
   const [moveDelta, setMoveDelta] = useState<
     { readonly x: number; readonly y: number } | undefined
+  >(undefined);
+  /**
+   * What the last click at this spot offered, and which one it took.
+   *
+   * A duct crossing a wall inside a room puts three objects under one pixel.
+   * Clicking again at the same spot offers the next one rather than the same
+   * one for ever.
+   */
+  const cycling = useRef<
+    | {
+        readonly atPx: { readonly x: number; readonly y: number };
+        readonly objectIds: readonly string[];
+        readonly index: number;
+      }
+    | undefined
   >(undefined);
   /** Where the pointer went down, while it is deciding between click and band. */
   const press = useRef<
@@ -518,6 +556,7 @@ export function PlanCanvas({
             from: model,
             fromClient: { x: event.clientX, y: event.clientY },
             objectId: under.objectId,
+            pointerType: event.pointerType,
             delta: { x: 0, y: 0 },
           };
           event.currentTarget.setPointerCapture(event.pointerId);
@@ -575,6 +614,57 @@ export function PlanCanvas({
     ],
   );
 
+  /** Whether the family filter lets this object be taken. */
+  const selectable = useCallback(
+    (objectId: string): boolean =>
+      selectableFamily === undefined ||
+      selectableFamily === 'ALL' ||
+      familyOf(project, objectId)?.id === selectableFamily,
+    [project, selectableFamily],
+  );
+
+  /**
+   * Takes what a click at this point means.
+   *
+   * Clicking the same spot again offers the next object under it rather than
+   * the same one for ever, whether that spot held nothing selected or the
+   * object the previous click had already taken.
+   */
+  const selectAt = useCallback(
+    (
+      atPx: { readonly x: number; readonly y: number },
+      model: { readonly x: number; readonly y: number },
+      pointerType: string,
+      additive: boolean,
+    ) => {
+      const candidates = pickCandidates(
+        plan.primitives,
+        model,
+        pickToleranceMm(editor.camera, pointerType),
+      )
+        .map(({ objectId }) => objectId)
+        .filter(selectable);
+      const previous = cycling.current;
+      const sameSpot =
+        previous !== undefined &&
+        Math.hypot(atPx.x - previous.atPx.x, atPx.y - previous.atPx.y) <=
+          BAND_THRESHOLD_PX &&
+        previous.objectIds.join(',') === candidates.join(',');
+      const index = sameSpot ? (previous.index + 1) % candidates.length : 0;
+      const chosen = candidates[index];
+      cycling.current =
+        chosen === undefined
+          ? undefined
+          : { atPx, objectIds: candidates, index };
+      dispatch({
+        type: 'SELECT',
+        ...(chosen === undefined ? {} : { objectId: chosen }),
+        additive,
+      });
+    },
+    [dispatch, editor.camera, plan.primitives, selectable],
+  );
+
   const handleUp = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
       if (event.currentTarget.hasPointerCapture(event.pointerId))
@@ -596,7 +686,12 @@ export function PlanCanvas({
         // distance in millimetres instead would let the snap of the release
         // invent a displacement nobody asked for.
         if (travelled <= BAND_THRESHOLD_PX) {
-          dispatch({ type: 'SELECT', objectId: carried.objectId });
+          selectAt(
+            carried.fromClient,
+            carried.from,
+            carried.pointerType,
+            false,
+          );
           return;
         }
         // Where the pointer actually is now, snapped, rather than where the
@@ -619,29 +714,28 @@ export function PlanCanvas({
         dispatch({ type: 'CLEAR_SELECTION_BOX' });
         dispatch({
           type: 'SELECT_MANY',
-          objectIds: objectsInBox(plan.primitives, box, mode),
+          objectIds: objectsInBox(plan.primitives, box, mode).filter(
+            selectable,
+          ),
           additive: pressed.additive,
         });
         return;
       }
-      const picked = pickPrimitive(
-        plan.primitives,
+      selectAt(
+        { x: pressed.clientX, y: pressed.clientY },
         pressed.model,
-        pickToleranceMm(editor.camera, pressed.pointerType),
+        pressed.pointerType,
+        pressed.additive,
       );
-      dispatch({
-        type: 'SELECT',
-        ...(picked === undefined ? {} : { objectId: picked.objectId }),
-        additive: pressed.additive,
-      });
     },
     [
       dispatch,
-      editor.camera,
       editor.selectionBox,
       modelPointOf,
       onMoveSelection,
       plan.primitives,
+      selectAt,
+      selectable,
       snapFor,
     ],
   );
@@ -862,6 +956,25 @@ export function PlanCanvas({
       aria-label="Plan du niveau"
       onPointerMove={handleMove}
       onPointerDown={handleDown}
+      onContextMenu={(event) => {
+        if (onObjectMenu === undefined) return;
+        const model = modelPointOf(event);
+        if (model === undefined) return;
+        // A context menu comes from a mouse or from a long press the browser
+        // reports as one; the coarse tolerance is the safe reading of both.
+        const picked = pickPrimitive(
+          plan.primitives,
+          model,
+          pickToleranceMm(editor.camera, 'touch'),
+        );
+        if (picked === undefined || !selectable(picked.objectId)) return;
+        // Only when there is something to act on: a menu over an empty plan
+        // would take the browser's own away for nothing.
+        event.preventDefault();
+        if (!editor.selection.includes(picked.objectId))
+          dispatch({ type: 'SELECT', objectId: picked.objectId });
+        onObjectMenu(picked.objectId, { x: event.clientX, y: event.clientY });
+      }}
       onPointerUp={handleUp}
       onPointerLeave={handleUp}
       onWheel={handleWheel}

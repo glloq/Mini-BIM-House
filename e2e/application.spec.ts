@@ -1798,3 +1798,121 @@ test('an emptied equipment field is gone after a save and a reload', async ({
   await expect(page.getByLabel('Pertes à l’arrêt')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('acts on an object from a menu opened where the object is', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  const south = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  const at = {
+    x: south.x - box.x + south.width * 0.25,
+    y: south.y - box.y + south.height / 2,
+  };
+
+  await canvas.click({ button: 'right', position: at });
+  const menu = page.getByRole('menu');
+  await expect(menu).toBeVisible();
+  // The object is selected by the same gesture that opened its menu.
+  await expect(page.locator('.inspector-subject h3')).toContainText(
+    'wall-south',
+  );
+
+  // What every object offers, and what a wall alone offers.
+  await expect(
+    menu.getByRole('menuitem', { name: 'Sélectionner les objets semblables' }),
+  ).toBeEnabled();
+  await expect(
+    menu.getByRole('menuitem', { name: /Face de référence/ }),
+  ).toBeDisabled();
+
+  // The openings this wall carries: the reason the domain refuses to delete
+  // it, named rather than left for the user to find by eye.
+  await menu
+    .getByRole('menuitem', { name: /Sélectionner : ouvertures/ })
+    .click();
+  await expect(menu).toBeHidden();
+  await expect(page.getByRole('status')).toContainText('lié');
+
+  // The walls built the same way and playing the same part: the four of the
+  // shell, and neither partition.
+  await canvas.click({ button: 'right', position: at });
+  await page
+    .getByRole('menuitem', { name: 'Sélectionner les objets semblables' })
+    .click();
+  await expect(page.locator('.selection-list li')).toHaveCount(4);
+
+  // Escape closes the menu without doing anything.
+  await canvas.click({ button: 'right', position: at });
+  await expect(page.getByRole('menu')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('menu')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test('offers the objects stacked under one point, one after the other', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  // A partition, the two rooms it separates and the slab under all of them
+  // meet at this point: four objects and one pixel. A point away from the
+  // middle of the wall, where its own handles would take the click first.
+  const wall = (await page
+    .locator('[id="wall:wall-partition-h"]')
+    .boundingBox())!;
+  const stacked = {
+    x: wall.x - box.x + wall.width * 0.25,
+    y: wall.y - box.y + wall.height / 2,
+  };
+
+  const title = page.locator('.inspector-subject h3');
+  const seen: string[] = [];
+  for (let click = 0; click < 4; click += 1) {
+    await canvas.click({ position: stacked });
+    await expect(title).toBeVisible();
+    seen.push((await title.textContent()) ?? '');
+  }
+  // Each click offers the next one rather than the same one for ever.
+  expect(seen[0]).toContain('wall-partition-h');
+  expect(new Set(seen).size).toBe(4);
+
+  // And round again, so nothing under the pointer is out of reach.
+  await canvas.click({ position: stacked });
+  await expect(title).toHaveText(seen[0] ?? '');
+  expect(errors).toEqual([]);
+});
+
+test('restricts what a click may take to one family', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  const filter = page.getByLabel('Filtrer sur');
+  await expect(filter).toHaveValue('ALL');
+  await filter.selectOption('SPACE');
+
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  const south = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  const onTheWall = {
+    x: south.x - box.x + south.width * 0.25,
+    y: south.y - box.y + south.height / 2,
+  };
+  await canvas.click({ position: onTheWall });
+  // A room lies under that wall; asked for rooms, the click takes the room.
+  const title = page.locator('.inspector-subject h3');
+  await expect(title).toBeVisible();
+  await expect(title).not.toContainText('Mur');
+
+  // Asked for walls, the same point answers with the wall.
+  await filter.selectOption('WALL');
+  await canvas.click({ position: onTheWall });
+  await expect(title).toContainText('wall-south');
+  expect(errors).toEqual([]);
+});

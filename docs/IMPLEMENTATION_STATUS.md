@@ -1000,6 +1000,54 @@ est maintenant nommée dans `BETA_READINESS.md` : l'application se construit,
 puis `configure-pages` reçoit « Resource not accessible by integration ». C'est
 un réglage du dépôt, pas un défaut du code.
 
+## Architecture de l'éditeur — lot B du neuvième audit
+
+Le neuvième audit demandait de terminer l'architecture de l'éditeur avant
+d'ajouter des familles d'objets : « à la fin de ce lot, l'ajout de nouvelles
+familles sera réellement bon marché ».
+
+- **Une barre d'outils qui ne connaît plus les murs.** Un outil déclare ce
+  qu'il demande — assemblage et rôle du mur, type et dimensions de l'ouverture,
+  réseau et nœud — et la barre affiche ce qui est déclaré. Une option calcule
+  ses choix et sa valeur par défaut à partir du projet : le premier assemblage
+  de ce projet, le premier réseau qu'il porte, jamais une constante écrite dans
+  le code. Une valeur retenue qui n'existe plus n'est pas employée.
+- **Étendue d'un objet sans construire une vue.** Cadrer un objet, poser un
+  menu à côté de lui et dire ce qu'une bande a pris posent la même question ;
+  la poser au moteur de dessin revenait à construire une vue entière pour
+  mesurer un mur. Chaque famille répond pour elle-même, et une ouverture — qui
+  ne porte qu'une distance le long de son mur — se lit sur le mur qui la porte.
+- **Objets semblables.** Ce que « semblable » veut dire appartient à la
+  famille : deux murs du même assemblage jouant le même rôle, deux ouvertures
+  du même type et de la même taille. Une famille qui ne le dit pas ne répond
+  rien, plutôt que de proposer tout l'étage.
+- **Liens entre objets.** Le domaine refuse déjà de supprimer un mur qui porte
+  encore une ouverture ; le refus nommait une règle, et les ouvertures
+  restaient à chercher à l'œil. Un mur nomme ce qu'il porte, une ouverture son
+  mur hôte, un nœud de réseau ceux auxquels il est raccordé — en suivant les
+  segments et les ports, ce que rien d'autre ne faisait.
+- **Menu contextuel.** Traverser la fenêtre pour supprimer le mur qu'on
+  regarde est un trajet que le dessin n'a pas besoin d'imposer. Les entrées
+  communes à tous les objets viennent de l'application ; celles qu'un mur seul
+  offre — basculer sa face de référence — viennent de sa famille, si bien
+  qu'une famille nouvelle arrive avec ses actions.
+- **Objets superposés.** Une cloison, les deux pièces qu'elle sépare et la
+  dalle sous les trois se rencontrent en un point : quatre objets, un pixel.
+  Cliquer de nouveau au même endroit propose le suivant, puis revient au
+  premier, de sorte que rien sous le curseur ne reste hors d'atteinte.
+- **Filtre de sélection.** Le filtre est une option de l'outil Sélection,
+  construite à partir du registre des familles : une famille ajoutée demain y
+  paraît sans que personne ait à y penser. Rien n'est filtré tant que
+  l'utilisateur ne le demande pas — un éditeur qui ignorerait la moitié du plan
+  en silence serait un éditeur auquel personne ne pourrait se fier.
+
+Restent ouverts pour l'éditeur, dans l'ordre de l'audit : l'architecture de la
+maison (chaînes de murs, pièces et dalles dessinées directement, trémies,
+ouvertures enrichies, composants placés, plafond, escalier, toiture v2),
+l'édition graphique des réseaux, les superpositions techniques, les vues et
+feuilles typées avec export PDF, les scénarios visuels, le terrain et la
+structure.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans

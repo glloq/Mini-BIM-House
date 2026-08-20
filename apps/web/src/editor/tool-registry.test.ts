@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { loadDemoProject } from '../demo-project.js';
 import { SHORTCUTS } from './shortcuts.js';
 import { optionValue } from './tool-options.js';
+import { OBJECT_FAMILIES } from './object-editors.js';
 import {
   EDITOR_TOOLS,
   constrainsDrafting,
@@ -300,5 +301,24 @@ describe('the options a tool asks for', () => {
         'role',
       ),
     ).toBe('PARTITION');
+  });
+});
+
+describe('restricting what a click may take', () => {
+  it('filters nothing until the user asks for it', () => {
+    // An editor quietly ignoring half the plan would be one nobody trusts.
+    expect(
+      optionValue(file().project, 'SELECT', optionsOf('SELECT'), {}, 'family'),
+    ).toBe('ALL');
+  });
+
+  it('offers every family the object registry declares', () => {
+    const choices = optionsOf('SELECT')
+      .find(({ key }) => key === 'family')!
+      .choices?.({ project: file().project, value: () => '' });
+    expect(choices?.map(({ value }) => value)).toEqual([
+      'ALL',
+      ...OBJECT_FAMILIES.map(({ id }) => id),
+    ]);
   });
 });

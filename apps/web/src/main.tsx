@@ -51,6 +51,14 @@ import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
 import type { CheckFix } from './checks/checks-model.js';
 import { optionsOf, toolDefinition } from './editor/tool-registry.js';
+import { ObjectMenu, type ObjectMenuEntry } from './editor/ObjectMenu.js';
+import {
+  boundsOf,
+  contextActionsFor,
+  inspectObject,
+  relationshipsOf,
+  similarTo,
+} from './editor/object-editors.js';
 import type { Project } from '@house-technical-designer/core-domain';
 import type { EditorTool } from './editor/editor-state.js';
 import {
@@ -106,7 +114,6 @@ import {
   type WorkspaceLayout,
 } from './shell/workspace-layout.js';
 import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
-import { inspectObject } from './editor/object-editors.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import {
   alignObjectsCommand,
@@ -249,6 +256,9 @@ function downloadBlob(blob: Blob, fileName: string): void {
  * say that a project is described, then drawn, then furnished from libraries,
  * then serviced, and only then calculated.
  */
+/** The smallest window framing one object leaves around it. */
+const FRAMING_MINIMUM_MM = 1000;
+
 const WORKSPACE_GROUPS = [
   { label: 'Projet', tabs: [{ id: 'project', label: 'Projet' }] },
   {
@@ -374,6 +384,19 @@ function App() {
     'networkId',
   );
   const activeNetwork = networks.find(({ id }) => id === activeNetworkId);
+  /**
+   * The family a click or a band is allowed to take.
+   *
+   * It is an option of the selection tool rather than a state of its own, for
+   * the same reason as the network: the toolbar renders it because the tool
+   * declares it, and nothing here knows that walls exist.
+   */
+  const selectableFamily = toolOption(
+    file.project,
+    'SELECT',
+    toolDrafts,
+    'family',
+  );
 
   /**
    * A project replacement waiting for the user to say what to do with the work
@@ -645,6 +668,71 @@ function App() {
     });
   }, []);
 
+  /** The object whose actions are open, and where the menu sits. */
+  const [objectMenu, setObjectMenu] = useState<
+    | {
+        readonly objectId: string;
+        readonly atPx: { readonly x: number; readonly y: number };
+      }
+    | undefined
+  >(undefined);
+
+  /** Frames one object without building a whole view to measure it. */
+  const frameObject = useCallback(
+    (objectId: string) => {
+      if (activeLevelId === undefined) return;
+      const bounds = boundsOf(
+        session.current.file.project,
+        activeLevelId,
+        objectId,
+      );
+      if (bounds === undefined) {
+        setMessage('Cet objet n’a pas d’étendue mesurable sur le plan.');
+        return;
+      }
+      // A node has a position and no extent; framing it exactly would fill the
+      // window with one millimetre. A metre around it shows where it stands.
+      const half = FRAMING_MINIMUM_MM / 2;
+      const centre = {
+        x: (bounds.min.x + bounds.max.x) / 2,
+        y: (bounds.min.y + bounds.max.y) / 2,
+      };
+      dispatchEditor({
+        type: 'ZOOM_SELECTION',
+        bounds: {
+          min: {
+            x: Math.min(bounds.min.x, centre.x - half),
+            y: Math.min(bounds.min.y, centre.y - half),
+          },
+          max: {
+            x: Math.max(bounds.max.x, centre.x + half),
+            y: Math.max(bounds.max.y, centre.y + half),
+          },
+        },
+      });
+    },
+    [activeLevelId],
+  );
+
+  /** Selects everything of the same family that is built the same way. */
+  const selectSimilar = useCallback(
+    (objectId: string) => {
+      if (activeLevelId === undefined) return;
+      const similar = similarTo(
+        session.current.file.project,
+        activeLevelId,
+        objectId,
+      );
+      if (similar.length === 0) {
+        setMessage('Cette famille ne dit pas ce que « semblable » veut dire.');
+        return;
+      }
+      dispatchEditor({ type: 'SELECT_MANY', objectIds: similar });
+      setMessage(`${similar.length} objet(s) semblable(s) sélectionné(s).`);
+    },
+    [activeLevelId],
+  );
+
   /** Lines the selection up on one edge of its own outline. */
   const alignSelection = useCallback(
     (edge: AlignEdge) => {
@@ -783,6 +871,70 @@ function App() {
     if (!runCommand(result.command)) return;
     dispatchEditor({ type: 'SELECT_MANY', objectIds: result.createdIds });
   }, [activeLevelId, editor.selection, editor.snap.gridSpacingMm, runCommand]);
+
+  /**
+   * What can be done to one object, from the plan.
+   *
+   * The entries every object shares are the application's; the ones a wall
+   * alone offers come from its own family, so a new family arrives with its
+   * own actions rather than with a new branch here.
+   */
+  const objectMenuEntries = useCallback(
+    (objectId: string): readonly ObjectMenuEntry[] => {
+      const project = session.current.file.project;
+      const levelId = activeLevelId ?? '';
+      return [
+        {
+          id: 'frame',
+          label: 'Cadrer sur cet objet',
+          run: () => frameObject(objectId),
+        },
+        {
+          id: 'similar',
+          label: 'Sélectionner les objets semblables',
+          disabled: similarTo(project, levelId, objectId).length === 0,
+          run: () => selectSimilar(objectId),
+        },
+        {
+          id: 'duplicate',
+          label: 'Dupliquer',
+          run: () => duplicateSelection(),
+        },
+        ...relationshipsOf(project, levelId, objectId).map((tie) => ({
+          id: `tie:${tie.role}`,
+          label: `Sélectionner : ${tie.role.toLowerCase()} (${tie.objectIds.length})`,
+          run: () => {
+            dispatchEditor({ type: 'SELECT_MANY', objectIds: tie.objectIds });
+            setMessage(
+              `${tie.objectIds.length} objet(s) lié(s) sélectionné(s) : ${tie.role.toLowerCase()}.`,
+            );
+          },
+        })),
+        ...contextActionsFor(project, levelId, objectId).map((action) => ({
+          id: action.id,
+          label: action.label,
+          disabled: action.command() === undefined,
+          run: () => {
+            const command = action.command();
+            if (command !== undefined) runCommand(command);
+          },
+        })),
+        {
+          id: 'delete',
+          label: 'Supprimer',
+          run: () => deleteSelection(),
+        },
+      ];
+    },
+    [
+      activeLevelId,
+      deleteSelection,
+      duplicateSelection,
+      frameObject,
+      runCommand,
+      selectSimilar,
+    ],
+  );
 
   /** Carries the whole selection, as one entry in the history. */
   const moveSelection = useCallback(
@@ -1539,6 +1691,15 @@ function App() {
         </Suspense>
       )}
 
+      {objectMenu !== undefined && activeLevelId !== undefined && (
+        <ObjectMenu
+          title={inspectObject(file.project, objectMenu.objectId).title}
+          atPx={objectMenu.atPx}
+          entries={objectMenuEntries(objectMenu.objectId)}
+          onClose={() => setObjectMenu(undefined)}
+        />
+      )}
+
       {paletteOpen && (
         <CommandPalette
           entries={paletteEntries}
@@ -1724,6 +1885,10 @@ function App() {
               onCommitPoints={commitPoints}
               onMoveSelection={moveSelection}
               onCommand={runCommand}
+              onObjectMenu={(objectId, atPx) =>
+                setObjectMenu({ objectId, atPx })
+              }
+              selectableFamily={selectableFamily}
               onEditGeometry={editGeometry}
               wallThicknessMm={wallThicknessMm}
               {...(overlay === undefined ? {} : { overlay })}
