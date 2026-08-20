@@ -9,6 +9,11 @@ import {
 } from '@house-technical-designer/editor-core';
 import type { EditorAction, EditorState, EditorTool } from './editor-state.js';
 import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
+import {
+  DIMENSION_TYPE_OPTIONS,
+  OPENING_TYPE_OPTIONS,
+  WALL_ROLE_OPTIONS,
+} from './domain-options.js';
 
 const TOOLS: readonly { readonly id: EditorTool; readonly label: string }[] = [
   { id: 'SELECT', label: 'Sélection' },
@@ -16,19 +21,6 @@ const TOOLS: readonly { readonly id: EditorTool; readonly label: string }[] = [
   { id: 'OPENING', label: 'Ouverture' },
   { id: 'DIMENSION', label: 'Cotation' },
   { id: 'NETWORK', label: 'Réseau' },
-];
-
-/**
- * What a wall is, which is not the same question as what it is made of.
- *
- * The role decides whether the wall belongs to the thermal envelope, so it can
- * never be inferred silently from the assembly the user happened to pick.
- */
-const WALL_ROLES: readonly (readonly [WallRole, string])[] = [
-  ['EXTERIOR', 'Extérieur'],
-  ['INTERIOR', 'Intérieur'],
-  ['PARTITION', 'Cloison'],
-  ['OTHER', 'Autre'],
 ];
 
 const SHORTCUT_BY_TOOL: Readonly<Record<EditorTool, string>> = {
@@ -136,9 +128,9 @@ export function ToolBar({
                 onWallRoleChange(event.target.value as WallRole)
               }
             >
-              {WALL_ROLES.map(([role, label]) => (
-                <option key={role} value={role}>
-                  {label}
+              {WALL_ROLE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
@@ -204,8 +196,11 @@ export function ToolBar({
                 })
               }
             >
-              <option value="DOOR">Porte</option>
-              <option value="WINDOW">Fenêtre</option>
+              {OPENING_TYPE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </label>
           {(
@@ -245,9 +240,11 @@ export function ToolBar({
                 onDimensionTypeChange(event.target.value as DimensionType)
               }
             >
-              <option value="ALIGNED">Alignée</option>
-              <option value="HORIZONTAL">Horizontale</option>
-              <option value="VERTICAL">Verticale</option>
+              {DIMENSION_TYPE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
           <p className="hint">

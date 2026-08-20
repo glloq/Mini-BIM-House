@@ -44,6 +44,10 @@ export function ScenariosPanel({
 
   const targets = useMemo(() => scenarioTargets(project), [project]);
   const active = scenarios.find(({ id }) => id === scenarioId) ?? scenarios[0];
+  // What the panel shows and what the comparison computes must be the same
+  // scenario, including after a project is opened with a different set.
+  const activeId = active?.id ?? '';
+  if (scenarioId !== activeId) setScenarioId(activeId);
   const target = targets.find(({ path }) => path === targetPath);
   const changes = useMemo(
     () =>
@@ -81,13 +85,13 @@ export function ScenariosPanel({
   }
 
   useEffect(() => {
-    if (scenarioId === '') {
+    if (activeId === '') {
       setComparison(undefined);
       return;
     }
     let current = true;
     setRunning(true);
-    void compareScenario(project, scenarioId, climate)
+    void compareScenario(project, activeId, climate)
       .then((result) => {
         if (current) setComparison(result);
       })
@@ -97,7 +101,7 @@ export function ScenariosPanel({
     return () => {
       current = false;
     };
-  }, [climate, project, scenarioId]);
+  }, [climate, project, activeId]);
 
   return (
     <section className="library-panel" aria-labelledby="scenarios-heading">
@@ -189,8 +193,14 @@ export function ScenariosPanel({
               type="button"
               className="secondary danger"
               onClick={() => {
+                // Falling back to the empty string would leave the panel
+                // showing the first remaining scenario while the comparison
+                // effect believed nothing was selected.
+                const remaining = scenarios.filter(
+                  ({ id }) => id !== active.id,
+                );
                 if (onCommand(new RemoveScenarioCommand(active.id)))
-                  setScenarioId('');
+                  setScenarioId(remaining[0]?.id ?? '');
               }}
             >
               Supprimer

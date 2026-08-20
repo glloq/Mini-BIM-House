@@ -5,7 +5,12 @@ import {
 import type { AssemblyId } from '@house-technical-designer/assemblies';
 import type { LevelId, SlabId } from './ids.js';
 
-export type SlabRole = 'FLOOR' | 'FOUNDATION' | 'TERRACE' | 'OTHER';
+export const SLAB_ROLES = ['FLOOR', 'FOUNDATION', 'TERRACE', 'OTHER'] as const;
+export type SlabRole = (typeof SLAB_ROLES)[number];
+
+export function isSlabRole(value: string): value is SlabRole {
+  return (SLAB_ROLES as readonly string[]).includes(value);
+}
 
 export interface Slab {
   readonly id: SlabId;
@@ -21,5 +26,7 @@ export function validateSlab(slab: Slab): readonly string[] {
   const issues = validatePolygon(slab.polygon).map(({ message }) => message);
   if (!Number.isFinite(slab.elevationOffsetMm))
     issues.push('elevationOffsetMm must be finite');
+  if (!isSlabRole(slab.role))
+    issues.push(`role must be one of ${SLAB_ROLES.join(', ')}`);
   return issues;
 }

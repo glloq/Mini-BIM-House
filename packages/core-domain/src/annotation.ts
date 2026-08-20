@@ -4,7 +4,12 @@ import type { Wall } from './wall.js';
 declare const dimensionIdBrand: unique symbol;
 export type DimensionId = string & { readonly [dimensionIdBrand]: true };
 
-export type DimensionType = 'ALIGNED' | 'HORIZONTAL' | 'VERTICAL';
+export const DIMENSION_TYPES = ['ALIGNED', 'HORIZONTAL', 'VERTICAL'] as const;
+export type DimensionType = (typeof DIMENSION_TYPES)[number];
+
+export function isDimensionType(value: string): value is DimensionType {
+  return (DIMENSION_TYPES as readonly string[]).includes(value);
+}
 
 /**
  * What a dimension measures.

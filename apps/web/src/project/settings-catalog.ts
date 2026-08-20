@@ -24,14 +24,48 @@ export interface ModuleSettingMaterialTable {
   readonly unit: string;
 }
 
+/**
+ * A setting held as a map from a fixed set of keys to a number.
+ *
+ * Occupancy per room category and absorption per octave band are not scalars
+ * and not per-material either: they are short tables the user fills row by row.
+ */
+export interface ModuleSettingKeyedTable {
+  readonly key: string;
+  readonly label: string;
+  readonly unit: string;
+  readonly rows: readonly { readonly key: string; readonly label: string }[];
+}
+
 export interface ModuleSettingsDescriptor {
   readonly moduleId: string;
   readonly label: string;
   readonly fields: readonly ModuleSettingField[];
   readonly materialTables?: readonly ModuleSettingMaterialTable[];
+  readonly keyedTables?: readonly ModuleSettingKeyedTable[];
   /** Why this module has no editable field here, when it has none. */
   readonly note?: string;
 }
+
+const SPACE_CATEGORY_ROWS = [
+  { key: 'LIVING', label: 'Séjour' },
+  { key: 'KITCHEN', label: 'Cuisine' },
+  { key: 'BEDROOM', label: 'Chambre' },
+  { key: 'BATHROOM', label: 'Salle de bains' },
+  { key: 'WC', label: 'WC' },
+  { key: 'HALL', label: 'Entrée' },
+  { key: 'CORRIDOR', label: 'Dégagement' },
+  { key: 'OTHER', label: 'Autre' },
+] as const;
+
+const OCTAVE_BAND_ROWS = [
+  { key: '125', label: '125 Hz' },
+  { key: '250', label: '250 Hz' },
+  { key: '500', label: '500 Hz' },
+  { key: '1000', label: '1000 Hz' },
+  { key: '2000', label: '2000 Hz' },
+  { key: '4000', label: '4000 Hz' },
+] as const;
 
 export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   { moduleId: 'thermal', label: 'Thermique', fields: [] },
@@ -142,6 +176,14 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
         kind: 'NUMBER',
         label: 'Durée simulée',
         unit: 'h',
+      },
+    ],
+    keyedTables: [
+      {
+        key: 'occupantsByCategory',
+        label: 'Occupants',
+        unit: 'personnes',
+        rows: [...SPACE_CATEGORY_ROWS],
       },
     ],
   },
@@ -258,7 +300,15 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
     moduleId: 'acoustics',
     label: 'Acoustique',
     fields: [],
-    note: 'Les bandes d’octave et leurs absorptions par défaut se saisissent dans le fichier projet : ce sont des tableaux, pas des valeurs simples.',
+    keyedTables: [
+      {
+        key: 'defaultSurfaceAbsorption',
+        label: 'Absorption par défaut',
+        unit: '0 à 1',
+        rows: [...OCTAVE_BAND_ROWS],
+      },
+    ],
+    note: 'Les bandes calculées sont celles renseignées ci-dessous.',
   },
   {
     moduleId: 'cost',
@@ -365,6 +415,19 @@ export function withField(
   if (!Number.isFinite(value)) return undefined;
   next[key] = value;
   return next;
+}
+
+/** Whether this catalogue can actually edit a module's setting key. */
+export function canEditSetting(moduleId: string, key: string): boolean {
+  const descriptor = MODULE_SETTINGS.find(
+    (entry) => entry.moduleId === moduleId,
+  );
+  if (descriptor === undefined) return false;
+  return (
+    descriptor.fields.some((field) => field.key === key) ||
+    (descriptor.materialTables ?? []).some((table) => table.key === key) ||
+    (descriptor.keyedTables ?? []).some((table) => table.key === key)
+  );
 }
 
 export function withMaterialValue(

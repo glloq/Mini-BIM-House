@@ -1,5 +1,6 @@
 import type {
   Level,
+  Opening,
   Project,
   Wall,
 } from '@house-technical-designer/core-domain';
@@ -14,6 +15,13 @@ import {
   UpdateWallCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
+import {
+  DIMENSION_TYPE_OPTIONS,
+  OPENING_TYPE_OPTIONS,
+  REFERENCE_SIDE_OPTIONS,
+  SLAB_ROLE_OPTIONS,
+  WALL_ROLE_OPTIONS,
+} from './domain-options.js';
 
 /** A control the inspector offers for one editable property. */
 export type InspectorControl =
@@ -54,26 +62,17 @@ export interface InspectorEdit {
   readonly apply: (value: string) => ProjectCommand | undefined;
 }
 
-const WALL_ROLES = [
-  { value: 'EXTERIOR', label: 'Extérieur' },
-  { value: 'INTERIOR', label: 'Intérieur' },
-  { value: 'PARTITION', label: 'Cloison' },
-  { value: 'OTHER', label: 'Autre' },
-];
-
-const REFERENCE_SIDES = [
-  { value: 'CENTER', label: 'Axe' },
-  { value: 'INTERIOR', label: 'Face intérieure' },
-  { value: 'EXTERIOR', label: 'Face extérieure' },
-];
-
-const SLAB_ROLES = [
-  { value: 'FLOOR', label: 'Plancher' },
-  { value: 'CEILING', label: 'Plafond' },
-  { value: 'TERRACE', label: 'Terrasse' },
-];
-
-const SPACE_CATEGORIES = [
+/**
+ * Usages a room can be given.
+ *
+ * The domain keeps the category a free string, so this list is the
+ * application's proposal rather than a closed set: a project may carry a
+ * category this menu does not offer, and it is shown as it is.
+ */
+const SPACE_CATEGORIES: readonly {
+  readonly value: string;
+  readonly label: string;
+}[] = [
   { value: 'LIVING', label: 'Séjour' },
   { value: 'KITCHEN', label: 'Cuisine' },
   { value: 'BEDROOM', label: 'Chambre' },
@@ -85,12 +84,6 @@ const SPACE_CATEGORIES = [
   { value: 'STORAGE', label: 'Cellier' },
   { value: 'TECHNICAL', label: 'Local technique' },
   { value: 'OTHER', label: 'Autre' },
-];
-
-const DIMENSION_TYPES = [
-  { value: 'ALIGNED', label: 'Alignée' },
-  { value: 'HORIZONTAL', label: 'Horizontale' },
-  { value: 'VERTICAL', label: 'Verticale' },
 ];
 
 function assemblyOptions(project: Project, categories: readonly string[]) {
@@ -125,7 +118,11 @@ function wallEdits(
     {
       id: 'role',
       label: 'Rôle',
-      control: { kind: 'SELECT', value: wall.role, options: WALL_ROLES },
+      control: {
+        kind: 'SELECT',
+        value: wall.role,
+        options: WALL_ROLE_OPTIONS,
+      },
       hint: "Le rôle décide de l'appartenance à l'enveloppe thermique.",
       apply: (value) =>
         new UpdateWallCommand(level.id, wall.id, {
@@ -138,7 +135,7 @@ function wallEdits(
       control: {
         kind: 'SELECT',
         value: wall.referenceSide,
-        options: REFERENCE_SIDES,
+        options: REFERENCE_SIDE_OPTIONS,
       },
       apply: (value) =>
         new UpdateWallCommand(level.id, wall.id, {
@@ -206,14 +203,11 @@ export function editsFor(
           control: {
             kind: 'SELECT',
             value: opening.openingType,
-            options: [
-              { value: 'DOOR', label: 'Porte' },
-              { value: 'WINDOW', label: 'Fenêtre' },
-            ],
+            options: OPENING_TYPE_OPTIONS,
           },
           apply: (value) =>
             new UpdateOpeningCommand(level.id, opening.id, {
-              openingType: value as 'DOOR' | 'WINDOW',
+              openingType: value as Opening['openingType'],
             }),
         },
         ...(
@@ -282,7 +276,11 @@ export function editsFor(
         {
           id: 'role',
           label: 'Rôle',
-          control: { kind: 'SELECT', value: slab.role, options: SLAB_ROLES },
+          control: {
+            kind: 'SELECT',
+            value: slab.role,
+            options: SLAB_ROLE_OPTIONS,
+          },
           apply: (value) =>
             new UpdateSlabCommand(level.id, slab.id, {
               role: value as typeof slab.role,
@@ -367,7 +365,7 @@ export function editsFor(
           control: {
             kind: 'SELECT',
             value: dimension.type,
-            options: DIMENSION_TYPES,
+            options: DIMENSION_TYPE_OPTIONS,
           },
           apply: (value) =>
             new UpdateDimensionCommand(level.id, dimension.id, {

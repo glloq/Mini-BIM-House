@@ -1141,3 +1141,18 @@ button.icon {
 .alert-list li > span > strong {
   display: block;
 }
+
+/* Climate coverage: one verdict per module, never a single global percentage. */
+.coverage-list {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+}
+.coverage-list li {
+  display: flex;
+  gap: 0.35rem;
+  align-items: baseline;
+}

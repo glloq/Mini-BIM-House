@@ -437,3 +437,87 @@ describe('slab and roof commands', () => {
     expect(commands.project.building.levels[0]!.slabs).toHaveLength(0);
   });
 });
+
+describe('levels and the annotations they carry', () => {
+  function withDimension(): Project {
+    const base = project();
+    const level = base.building.levels[0]!;
+    return {
+      ...base,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            annotations: [
+              {
+                id: 'width' as never,
+                kind: 'DIMENSION' as const,
+                type: 'ALIGNED' as const,
+                first: {
+                  kind: 'WALL_ENDPOINT' as const,
+                  wallId: entityId<'Wall'>('south'),
+                  endpoint: 'START' as const,
+                },
+                second: {
+                  kind: 'WALL_ENDPOINT' as const,
+                  wallId: entityId<'Wall'>('south'),
+                  endpoint: 'END' as const,
+                },
+                offsetMm: 800,
+              },
+            ],
+          },
+          {
+            ...level,
+            id: entityId<'Level'>('upper'),
+            name: 'Étage',
+            elevationMm: 2500,
+            walls: [],
+            annotations: [],
+          },
+        ],
+      },
+    };
+  }
+
+  it('refuses to delete a level whose only content is a dimension', () => {
+    const base = withDimension();
+    const empty = {
+      ...base,
+      building: {
+        ...base.building,
+        levels: base.building.levels.map((level) =>
+          level.id === ground ? { ...level, walls: [] } : level,
+        ),
+      },
+    };
+    const dispatcher = new ProjectCommandDispatcher(empty);
+    const result = dispatcher.dispatch(new RemoveLevelCommand(ground));
+    expect(result.status).toBe('REJECTED');
+    if (result.status === 'REJECTED')
+      expect(result.errors[0]).toContain('1 objet');
+  });
+
+  it('carries the dimensions of a duplicated level onto its copied walls', () => {
+    const dispatcher = new ProjectCommandDispatcher(withDimension());
+    expect(
+      dispatcher.dispatch(
+        new DuplicateLevelCommand(ground, {
+          id: 'copy',
+          name: 'Copie',
+          elevationMm: 5000,
+          defaultStoreyHeightMm: 2500,
+        }),
+      ).status,
+    ).toBe('APPLIED');
+    const copy = dispatcher.project.building.levels.find(
+      ({ id }) => id === 'copy',
+    )!;
+    expect(copy.annotations).toHaveLength(1);
+    // The copy measures its own walls, not the ones it was copied from.
+    expect(copy.annotations[0]!.first.wallId).toBe('south@copy');
+    expect(copy.annotations[0]!.second.wallId).toBe('south@copy');
+    expect(copy.walls.some(({ id }) => id === 'south@copy')).toBe(true);
+  });
+});

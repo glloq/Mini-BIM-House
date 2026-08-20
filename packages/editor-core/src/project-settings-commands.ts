@@ -292,6 +292,36 @@ export class UpdateRegulatoryContextCommand extends SettingsCommand {
 }
 
 /**
+ * Activates or deactivates the rule packs the project is checked against.
+ *
+ * The list is what the project claims to be assessed under. Nothing is added
+ * implicitly: a project with an empty list is checked against no text, and the
+ * interface says so rather than implying a default jurisdiction.
+ */
+export class SetEnabledRulePacksCommand extends SettingsCommand {
+  constructor(readonly packIds: readonly string[]) {
+    super('project:rule-packs', 'Modifier les référentiels activés');
+  }
+  validate(): CommandValidation {
+    return this.packIds.some((id) => id.trim() === '')
+      ? rejected('Un identifiant de référentiel ne peut pas être vide.')
+      : new Set(this.packIds).size === this.packIds.length
+        ? ok()
+        : rejected('Un référentiel ne peut être activé qu’une fois.');
+  }
+  protected apply(project: Project): Project {
+    const current: RegulatoryContext = project.regulatoryContext ?? {
+      country: 'FR',
+      enabledRulePacks: [],
+    };
+    return {
+      ...project,
+      regulatoryContext: { ...current, enabledRulePacks: [...this.packIds] },
+    };
+  }
+}
+
+/**
  * Writes one module's calculation settings.
  *
  * A setting the user clears is removed rather than stored as zero: the module

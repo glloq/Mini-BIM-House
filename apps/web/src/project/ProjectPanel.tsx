@@ -1,17 +1,12 @@
 import { useMemo, useState } from 'react';
 import type { Project } from '@house-technical-designer/core-domain';
-import type {
-  ClimateDataset,
-  ClimateSampleProperty,
-} from '@house-technical-designer/climate';
-import {
-  analyzeClimateCompleteness,
-  validateClimateDataset,
-} from '@house-technical-designer/climate';
+import type { ClimateDataset } from '@house-technical-designer/climate';
+import { validateClimateDataset } from '@house-technical-designer/climate';
 import {
   UpdateModuleSettingsCommand,
   UpdateProjectMetadataCommand,
   UpdateRegulatoryContextCommand,
+  SetEnabledRulePacksCommand,
   UpdateSiteCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
@@ -24,6 +19,11 @@ import {
   withField,
   withMaterialValue,
 } from './settings-catalog.js';
+import { coverageDetail, moduleCoverage } from './climate-coverage.js';
+import {
+  AVAILABLE_RULE_PACKS,
+  enabledRulePackIds,
+} from '../checks/rule-packs.js';
 
 export interface ProjectPanelProps {
   readonly project: Project;
@@ -86,12 +86,6 @@ function TextField({
   );
 }
 
-/** What the weather-dependent modules read from a dataset. */
-const REQUIRED_PROPERTIES = [
-  'airTemperatureC',
-  'globalHorizontalIrradianceWhM2',
-] as const satisfies readonly ClimateSampleProperty[];
-
 function coordinate(value: number | undefined): string {
   return value === undefined ? '' : String(value);
 }
@@ -112,19 +106,29 @@ export function ProjectPanel({
   const [longitude, setLongitude] = useState(() =>
     coordinate(project.site.location?.longitudeDeg),
   );
+  // The drafts follow the project. Without this, opening another project while
+  // this panel stays mounted would leave the previous one's coordinates in the
+  // fields, and committing either would write them onto the new project.
+  const storedLocation = `${coordinate(project.site.location?.latitudeDeg)}|${coordinate(project.site.location?.longitudeDeg)}`;
+  const [shownLocation, setShownLocation] = useState(storedLocation);
+  if (shownLocation !== storedLocation) {
+    setShownLocation(storedLocation);
+    setLatitude(coordinate(project.site.location?.latitudeDeg));
+    setLongitude(coordinate(project.site.location?.longitudeDeg));
+  }
   const materials = project.materialLibrary?.materials ?? [];
   const descriptor =
     MODULE_SETTINGS.find((entry) => entry.moduleId === moduleId) ??
     MODULE_SETTINGS[0]!;
   const settings = moduleSettings(project, descriptor.moduleId);
 
-  // Completeness is measured against the properties the modules actually read,
-  // so a dataset is called complete only for what it will be asked for.
+  // There is no single "complete": a file of temperatures serves the heating
+  // load and not the rainwater balance, so coverage is stated per module.
   const coverage = useMemo(
     () =>
       climate.map((dataset) => ({
         dataset,
-        completeness: analyzeClimateCompleteness(dataset, REQUIRED_PROPERTIES),
+        modules: moduleCoverage(dataset),
       })),
     [climate],
   );
@@ -317,13 +321,13 @@ export function ProjectPanel({
                     <th scope="col">Jeu</th>
                     <th scope="col">Lieu</th>
                     <th scope="col">Pas de temps</th>
-                    <th scope="col">Couverture</th>
+                    <th scope="col">Ce que le jeu permet</th>
                     <th scope="col">Source</th>
                     <th scope="col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {coverage.map(({ dataset, completeness }) => (
+                  {coverage.map(({ dataset, modules }) => (
                     <tr key={dataset.id}>
                       <th scope="row">
                         {dataset.id}
@@ -337,12 +341,24 @@ export function ProjectPanel({
                       </td>
                       <td>{dataset.resolution}</td>
                       <td>
-                        {(completeness.ratio * 100).toFixed(0)} %
-                        {completeness.gaps.length > 0 && (
-                          <span className="badge missing">
-                            {completeness.gaps.length} lacune(s)
-                          </span>
-                        )}
+                        <ul className="coverage-list">
+                          {modules.map((entry) => (
+                            <li key={entry.moduleId}>
+                              <span
+                                className={
+                                  entry.verdict === 'COVERED'
+                                    ? 'badge'
+                                    : 'badge missing'
+                                }
+                              >
+                                {entry.verdict === 'COVERED' ? '✓' : '✕'}
+                              </span>
+                              <span>
+                                {entry.label} — {coverageDetail(entry, dataset)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
                       </td>
                       <td>{dataset.source.provider}</td>
                       <td className="row-actions">
@@ -399,9 +415,12 @@ export function ProjectPanel({
           </div>
           <p className="notice">
             Le jeu est validé avant d’être accepté : lacunes et valeurs
-            manquantes restent déclarées, elles ne sont jamais comblées. Le
-            projet enregistre l’identifiant du jeu qu’il attend ; les mesures
-            elles-mêmes restent dans leur fichier.
+            manquantes restent déclarées, elles ne sont jamais comblées. Un jeu
+            n’est jamais « complet » dans l’absolu : il l’est pour les modules
+            dont il porte les grandeurs, et le tableau le dit module par module.
+            Le projet enregistre l’identifiant du jeu qu’il attend ; les mesures
+            elles-mêmes restent dans leur fichier et doivent être rechargées à
+            la réouverture.
           </p>
         </section>
 
@@ -434,6 +453,52 @@ export function ProjectPanel({
               }
             />
           </div>
+        </section>
+
+        <section>
+          <h3>Référentiels réglementaires</h3>
+          <ul className="catalog-list">
+            {AVAILABLE_RULE_PACKS.map((pack) => {
+              const enabled = enabledRulePackIds(project).includes(pack.id);
+              return (
+                <li key={pack.id}>
+                  <label className="checkbox">
+                    <input
+                      type="checkbox"
+                      checked={enabled}
+                      onChange={() =>
+                        onCommand(
+                          new SetEnabledRulePacksCommand(
+                            enabled
+                              ? enabledRulePackIds(project).filter(
+                                  (id) => id !== pack.id,
+                                )
+                              : [...enabledRulePackIds(project), pack.id],
+                          ),
+                        )
+                      }
+                    />
+                    <span>
+                      {pack.id} · version {pack.version}
+                      <span className="hint">
+                        {pack.jurisdiction.country}
+                        {pack.jurisdiction.domain === undefined
+                          ? ''
+                          : ` · ${pack.jurisdiction.domain}`}{' '}
+                        · {pack.rules.length} règle(s)
+                      </span>
+                    </span>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="notice">
+            Un référentiel dit ce qu’il vérifie et sur quel texte. Activer un
+            référentiel exécute ses règles ; cela ne délivre aucune attestation
+            de conformité, et une règle dont la preuve manque au projet répond «
+            non vérifiable » plutôt que « conforme ».
+          </p>
         </section>
 
         <section>
@@ -490,6 +555,28 @@ export function ProjectPanel({
               />
             ))}
           </div>
+
+          {(descriptor.keyedTables ?? []).map((table) => (
+            <div className="tool-group" key={table.key}>
+              <p className="hint">
+                {table.label} <small>({table.unit})</small>
+              </p>
+              {table.rows.map((row) => (
+                <TextField
+                  key={row.key}
+                  id={`setting-${table.key}-${row.key}`}
+                  label={row.label}
+                  numeric
+                  value={materialValue(settings, table.key, row.key)}
+                  onCommit={(value) =>
+                    writeSettings(
+                      withMaterialValue(settings, table.key, row.key, value),
+                    )
+                  }
+                />
+              ))}
+            </div>
+          ))}
 
           {descriptor.materialTables !== undefined && (
             <div className="table-scroll">
