@@ -108,8 +108,41 @@ export class AddScenarioCommand extends ScenarioCommand {
   protected apply(project: Project): Project {
     return withScenarios(project, [
       ...projectScenarios(project),
-      structuredClone(this.scenario),
+      {
+        ...structuredClone(this.scenario),
+        // A scenario is measured against a version of the project, and the
+        // version it starts from is the one this very command produces. The
+        // caller does not have to guess it, and cannot get it wrong.
+        baseProjectRevision: project.metadata.projectRevision ?? '',
+      },
     ]);
+  }
+}
+
+/**
+ * Records a scenario against the project's current revision.
+ *
+ * A mismatch says the scenario was written for another version of the project;
+ * only the user knows whether it still means what it meant. Rebasing is that
+ * decision, made explicitly, rather than a warning that quietly disappears.
+ */
+export class RebaseScenarioCommand extends ScenarioCommand {
+  constructor(readonly scenarioId: string) {
+    super(
+      `scenario:rebase:${scenarioId}`,
+      'Rattacher un scénario à la révision actuelle',
+    );
+  }
+  validate(project: Project): CommandValidation {
+    return projectScenarios(project).some(({ id }) => id === this.scenarioId)
+      ? ok()
+      : rejected(`Le scénario ${this.scenarioId} est introuvable.`);
+  }
+  protected apply(project: Project): Project {
+    return mapScenario(project, this.scenarioId, (scenario) => ({
+      ...scenario,
+      baseProjectRevision: project.metadata.projectRevision ?? '',
+    }));
   }
 }
 
@@ -173,7 +206,12 @@ export class DuplicateScenarioCommand extends ScenarioCommand {
     )!;
     return withScenarios(project, [
       ...projectScenarios(project),
-      { ...structuredClone(source), id: this.newId, name: this.newName },
+      {
+        ...structuredClone(source),
+        id: this.newId,
+        name: this.newName,
+        baseProjectRevision: project.metadata.projectRevision ?? '',
+      },
     ]);
   }
 }

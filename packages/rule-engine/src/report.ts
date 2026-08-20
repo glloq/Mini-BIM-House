@@ -27,7 +27,14 @@ export interface RuleReport {
   readonly items: readonly RuleReportItem[];
 }
 
-/** Builds display data without claiming overall regulatory compliance. */
+/**
+ * Builds display data without claiming overall regulatory compliance.
+ *
+ * A rule may be judged once per object it applies to, so several results may
+ * share a rule identifier as long as they judge different objects. Collapsing
+ * them would let a pass on one system hide a failure on another; what is still
+ * refused is the same rule judged twice on the same object.
+ */
 export function buildRuleReport(
   pack: RulePack,
   results: readonly RuleResult[],
@@ -40,9 +47,12 @@ export function buildRuleReport(
   const items = results.map((result): RuleReportItem => {
     if (!rules.has(result.ruleId))
       throw new RangeError(`Result references unknown rule ${result.ruleId}`);
-    if (seen.has(result.ruleId))
-      throw new RangeError(`Duplicate result for rule ${result.ruleId}`);
-    seen.add(result.ruleId);
+    const subject = `${result.ruleId}\u0000${[...result.objectIds].sort().join(',')}`;
+    if (seen.has(subject))
+      throw new RangeError(
+        `Duplicate result for rule ${result.ruleId} on ${result.objectIds.join(', ') || 'the project'}`,
+      );
+    seen.add(subject);
     return {
       result: structuredClone(result),
       references: result.referenceIds.map((id) => {
@@ -55,17 +65,20 @@ export function buildRuleReport(
   });
   const count = (status: RuleStatus): number =>
     results.filter((result) => result.status === status).length;
+  const judged = new Set(results.map(({ ruleId }) => ruleId));
   return {
     packId: pack.id,
     packVersion: pack.version,
     summary: {
-      checked: results.length,
+      // Coverage counts rules, not verdicts: a rule judged on three systems is
+      // one rule checked, and three results.
+      checked: judged.size,
       total: pack.rules.length,
       pass: count('PASS'),
       fail: count('FAIL'),
       unknown: count('UNKNOWN'),
       notApplicable: count('NOT_APPLICABLE'),
-      coverage: results.length === pack.rules.length ? 'COMPLETE' : 'PARTIAL',
+      coverage: judged.size === pack.rules.length ? 'COMPLETE' : 'PARTIAL',
     },
     items,
   };

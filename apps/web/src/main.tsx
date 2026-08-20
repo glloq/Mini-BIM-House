@@ -1077,6 +1077,7 @@ function App() {
             <EquipmentPanel
               project={file.project}
               onCommand={runCommand}
+              onMessage={setMessage}
               {...(selectedEquipmentId === undefined
                 ? {}
                 : { selectedId: selectedEquipmentId })}

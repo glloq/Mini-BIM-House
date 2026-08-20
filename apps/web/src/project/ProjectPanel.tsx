@@ -15,15 +15,19 @@ import {
   fieldValue,
   materialValue,
   moduleContract,
+  chosenNumbers,
   moduleSettings,
   withField,
+  withNumberChoice,
   withMaterialValue,
 } from './settings-catalog.js';
 import { coverageDetail, moduleCoverage } from './climate-coverage.js';
 import {
   AVAILABLE_RULE_PACKS,
+  assessmentContext,
   enabledRulePackIds,
 } from '../checks/rule-packs.js';
+import { jurisdictionApplies } from '@house-technical-designer/rule-engine';
 
 export interface ProjectPanelProps {
   readonly project: Project;
@@ -121,6 +125,8 @@ export function ProjectPanel({
     MODULE_SETTINGS.find((entry) => entry.moduleId === moduleId) ??
     MODULE_SETTINGS[0]!;
   const settings = moduleSettings(project, descriptor.moduleId);
+  // Where and when the project is assessed; undefined until it says both.
+  const assessment = assessmentContext(project);
 
   // There is no single "complete": a file of temperatures serves the heating
   // load and not the rainwater balance, so coverage is stated per module.
@@ -224,14 +230,19 @@ export function ProjectPanel({
                 onCommand(new UpdateProjectMetadataCommand({ author }))
               }
             />
-            <TextField
-              id="project-revision"
-              label="Révision"
-              value={project.metadata.projectRevision ?? ''}
-              onCommit={(projectRevision) =>
-                onCommand(new UpdateProjectMetadataCommand({ projectRevision }))
-              }
-            />
+            <div className="field">
+              <span className="field-label">Révision</span>
+              <p id="project-revision" className="readout">
+                {project.metadata.projectRevision ?? 'aucune'}
+                {' — modifié le '}
+                {project.metadata.updatedAt}
+              </p>
+              <small className="hint">
+                La révision change à chaque modification, y compris une
+                annulation : elle identifie une édition, pas un état. Les
+                scénarios s’y réfèrent, elle n’est donc pas saisie à la main.
+              </small>
+            </div>
             <TextField
               id="project-description"
               label="Description"
@@ -460,6 +471,12 @@ export function ProjectPanel({
           <ul className="catalog-list">
             {AVAILABLE_RULE_PACKS.map((pack) => {
               const enabled = enabledRulePackIds(project).includes(pack.id);
+              // Whether a pack applies is stated here, in front of the user,
+              // rather than discovered later as an absence of verdict.
+              const applicability =
+                assessment === undefined
+                  ? 'Renseignez le pays et la date de référence pour savoir si ce référentiel s’applique.'
+                  : jurisdictionApplies(pack, assessment).explanation;
               return (
                 <li key={pack.id}>
                   <label className="checkbox">
@@ -487,6 +504,7 @@ export function ProjectPanel({
                           : ` · ${pack.jurisdiction.domain}`}{' '}
                         · {pack.rules.length} règle(s)
                       </span>
+                      <span className="hint">{applicability}</span>
                     </span>
                   </label>
                 </li>
@@ -555,6 +573,38 @@ export function ProjectPanel({
               />
             ))}
           </div>
+
+          {(descriptor.numberChoices ?? []).map((choice) => (
+            <fieldset className="tool-group choice-group" key={choice.key}>
+              <legend>
+                {choice.label} <small>({choice.unit})</small>
+              </legend>
+              {choice.options.map((option) => (
+                <label className="checkbox" key={option}>
+                  <input
+                    type="checkbox"
+                    checked={chosenNumbers(settings, choice.key).includes(
+                      option,
+                    )}
+                    onChange={(event) =>
+                      writeSettings(
+                        withNumberChoice(
+                          settings,
+                          choice.key,
+                          option,
+                          event.target.checked,
+                        ),
+                      )
+                    }
+                  />
+                  {option} {choice.unit}
+                </label>
+              ))}
+              {choice.hint !== undefined && (
+                <p className="hint">{choice.hint}</p>
+              )}
+            </fieldset>
+          ))}
 
           {(descriptor.keyedTables ?? []).map((table) => (
             <div className="tool-group" key={table.key}>

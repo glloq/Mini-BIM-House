@@ -97,11 +97,17 @@ export class RestoreSettingsCommand implements ProjectCommand {
   }
 }
 
+/**
+ * Metadata a user edits.
+ *
+ * `projectRevision` and `updatedAt` are not here: the dispatcher writes them on
+ * every command, so a value typed by hand would be overwritten by the very
+ * command carrying it.
+ */
 export interface ProjectMetadataPatch {
   readonly name?: string;
   readonly description?: string | null;
   readonly author?: string | null;
-  readonly projectRevision?: string | null;
   readonly notes?: string | null;
 }
 

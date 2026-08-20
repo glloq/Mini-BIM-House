@@ -579,6 +579,35 @@ button.icon {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+/* A group of checkboxes is a fieldset, so its legend names what they answer. */
+.choice-group {
+  border: 1px solid #d8e0da;
+  border-radius: 0.4rem;
+  padding: 0.6rem 0.75rem;
+}
+.choice-group > legend {
+  padding: 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 750;
+  color: #4a5d54;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Properties are read group by group, each one titled by what it describes. */
+.property-group {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.6rem 0 0;
+}
+.property-group > h4 {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 750;
+  color: #4a5d54;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 .property-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 7rem;
@@ -1095,10 +1124,17 @@ button.icon {
   display: grid;
   gap: 0.2rem;
 }
-.field > label {
+.field > label,
+.field > .field-label {
   font-size: 0.72rem;
   font-weight: 650;
   color: #4a5d54;
+}
+
+/* A value the application writes: shown like a field, without a control. */
+.readout {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 /* A wide table scrolls inside its column instead of spilling over the next. */

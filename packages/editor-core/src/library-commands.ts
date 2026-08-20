@@ -459,6 +459,27 @@ export function setAssemblyLayerMaterialCommand(
   );
 }
 
+/**
+ * Property values an equipment may carry.
+ *
+ * A form can produce NaN from an emptied number field, and NaN is not a value
+ * JSON can hold: written into a project it would survive in memory and vanish
+ * on save. A value that cannot be persisted is refused here rather than
+ * discovered later.
+ */
+function invalidProperties(equipment: EquipmentDefinition): readonly string[] {
+  const errors: string[] = [];
+  for (const [key, value] of Object.entries(equipment.properties)) {
+    if (typeof value === 'number' && !Number.isFinite(value))
+      errors.push(
+        `La propriété ${key} n'est pas un nombre : videz le champ pour la retirer plutôt que d'y laisser une valeur invalide.`,
+      );
+    if (typeof value === 'function' || typeof value === 'undefined')
+      errors.push(`La propriété ${key} n'est pas une valeur enregistrable.`);
+  }
+  return errors;
+}
+
 export class AddEquipmentCommand extends LibraryCommand {
   constructor(readonly equipment: EquipmentDefinition) {
     super(
@@ -469,6 +490,8 @@ export class AddEquipmentCommand extends LibraryCommand {
   validate(project: Project): CommandValidation {
     if (this.equipment.id.trim() === '')
       return rejected("L'identifiant de l'équipement ne peut pas être vide.");
+    const invalid = invalidProperties(this.equipment);
+    if (invalid.length > 0) return rejected(...invalid);
     return equipment(project).some(({ id }) => id === this.equipment.id)
       ? rejected(`L'équipement ${this.equipment.id} existe déjà.`)
       : ok();
@@ -486,9 +509,10 @@ export class UpdateEquipmentCommand extends LibraryCommand {
     );
   }
   validate(project: Project): CommandValidation {
-    return equipment(project).some(({ id }) => id === this.equipment.id)
-      ? ok()
-      : rejected(`L'équipement ${this.equipment.id} est introuvable.`);
+    if (!equipment(project).some(({ id }) => id === this.equipment.id))
+      return rejected(`L'équipement ${this.equipment.id} est introuvable.`);
+    const invalid = invalidProperties(this.equipment);
+    return invalid.length > 0 ? rejected(...invalid) : ok();
   }
   protected apply(project: Project): Project {
     return {
