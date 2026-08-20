@@ -482,6 +482,47 @@ l'utilisateur, et il ne reste jamais moins de trois sommets.
 - Firefox et WebKit en intégration continue (BETA-16) ;
 - publication GitHub Pages vérifiée et migrations figées (BETA-17, BETA-18).
 
+## Sécurité des données — lot A du sixième audit
+
+| Point                  | Constat                                                                        | État    |
+| ---------------------- | ------------------------------------------------------------------------------ | ------- |
+| Course d'autosave      | une écriture ancienne pouvait faire dire « sauvegardé » d'une révision récente | corrigé |
+| Climat non sauvegardé  | l'instantané portait le projet sans les jeux climatiques de la session         | corrigé |
+| Migration localStorage | un instantané écrit par la version précédente n'était plus proposé             | corrigé |
+| Repli IndexedDB        | le stockage était choisi sur l'existence de l'API, pas sur ce qu'elle accepte  | corrigé |
+| Course d'export        | le fichier pouvait porter une révision plus ancienne que l'état affiché        | corrigé |
+| Identité du projet     | un résultat de calcul pouvait passer pour frais après changement de projet     | corrigé |
+
+**Une écriture ne parle que de ce qu'elle a écrit.** Les instantanés passent par
+une file : une seule écriture à la fois, et une demande arrivée pendant une
+écriture remplace celle qui attendait — les états intermédiaires n'ont pas de
+valeur, seul le dernier en a. La file rend la révision réellement posée sur le
+disque, et l'application ne se dit « sauvegardé localement » que si c'est celle
+qui est à l'écran.
+
+**L'instantané porte l'atelier, pas seulement le projet.** Les jeux climatiques
+y sont sérialisés et reviennent avec la restauration ; un instantané écrit avant
+ce champ se relit sans, et n'en réclame pas.
+
+**Le stockage se choisit sur ce qu'il accepte.** IndexedDB existe ne veut pas
+dire qu'IndexedDB écrit : navigation privée, quota épuisé, base corrompue
+échouent à la première transaction. Le magasin bascule alors sur `localStorage`,
+et l'échec des deux est signalé au lieu d'être avalé. Un instantané laissé par
+la version précédente est déplacé vers le nouveau magasin — copié, relu pour
+vérification, et seulement ensuite retiré de l'ancien.
+
+**Un export dit quelle révision il contient.** La compression est asynchrone ;
+si le projet a bougé pendant, le fichier écrit reste valide mais l'état
+redevient « modifié » et le message nomme la révision exportée.
+
+### Ce que ce lot n'a pas traité
+
+- cohérence des réseaux : racine par discipline, gaine rectangulaire, cuivre
+  implicite, pertes singulières supposées nulles, `equipmentId` canonique,
+  charges fixes, altitude des nœuds ;
+- durcissement du conteneur `.houseproj` et limites d'archive ;
+- Firefox, WebKit, Pages, migrations et version unique.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans
@@ -522,7 +563,7 @@ Mesuré sur la branche courante :
 - typecheck : pass sur tous les espaces de travail
 - schémas : 16 paires schéma/exemple validées
 - licences : pass, 221 paquets audités
-- tests unitaires et d'intégration : 710 tests sur 108 fichiers
-- tests navigateur : 44 tests Playwright, dont trois sur un écran de téléphone
+- tests unitaires et d'intégration : 722 tests sur 110 fichiers
+- tests navigateur : 45 tests Playwright, dont trois sur un écran de téléphone
 - build : pass sur tous les espaces de travail
 - benchmarks : consignés dans `PERFORMANCE_BASELINE.md`

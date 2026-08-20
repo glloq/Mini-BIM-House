@@ -198,6 +198,8 @@ function App() {
   const [recovery, setRecovery] = useState<{
     readonly savedAt: string;
     readonly file: ProjectFile;
+    /** The datasets the snapshot carried, restored with it. */
+    readonly climate: readonly ClimateDataset[];
   }>();
   /** Why the last export was refused, when it was. */
   const [exportFailure, setExportFailure] = useState<readonly string[]>();
@@ -268,6 +270,9 @@ function App() {
       const firstLevel = next.project.building.levels[0];
       if (firstLevel !== undefined)
         dispatchEditor({ type: 'SET_LEVEL', levelId: firstLevel.id });
+      // Results belong to the project they were computed from; opening another
+      // one leaves nothing to show until it has been calculated.
+      setCalculationRun(undefined);
       setSaveState(nextSaveState);
       setMessage(notice);
     },
@@ -312,6 +317,10 @@ function App() {
    */
   const saveContainer = useCallback(async (): Promise<boolean> => {
     {
+      // Compressing takes time, and the project may be edited while it runs.
+      // What the file holds is the revision captured here, and the state bar
+      // says so rather than claiming the current one was written.
+      const exported = file.project.metadata.projectRevision ?? '';
       try {
         const bytes = await writeProjectContainer(
           file,
@@ -326,11 +335,16 @@ function App() {
           `${safeFileStem(file.project.metadata.name)}.houseproj`,
           'application/zip',
         );
-        setSaveState('SAVED');
+        const current =
+          session.current.file.project.metadata.projectRevision ?? '';
+        const moved = current !== exported;
+        setSaveState(moved ? 'MODIFIED' : 'SAVED');
         setMessage(
-          climate.length === 0
-            ? 'Projet exporté (.houseproj).'
-            : `Projet exporté (.houseproj) avec ${climate.length} jeu(x) climatiques.`,
+          moved
+            ? `Révision ${exported} exportée (.houseproj) ; le projet a été modifié depuis.`
+            : climate.length === 0
+              ? 'Projet exporté (.houseproj).'
+              : `Projet exporté (.houseproj) avec ${climate.length} jeu(x) climatiques.`,
         );
         return true;
       } catch (error) {
@@ -638,13 +652,19 @@ function App() {
 
   useEffect(() => {
     if (saveState !== 'MODIFIED') return;
+    const revision = file.project.metadata.projectRevision ?? '';
     const timer = setTimeout(() => {
-      void writeAutosave(file)
-        .then(() => setSaveState('AUTOSAVED'))
+      void writeAutosave({ file, climate })
+        .then((written) => {
+          // Only the revision that actually reached the store may be reported
+          // as saved. A newer edit landed while this one was being written is
+          // still "modified" until its own snapshot goes through.
+          if (written === revision) setSaveState('AUTOSAVED');
+        })
         .catch(() => setSaveState('FAILED'));
     }, AUTOSAVE_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [file, saveState]);
+  }, [climate, file, saveState]);
 
   // Closing the tab with work that was never exported deserves the browser's
   // own warning. The local snapshot survives, but a file the user meant to keep
@@ -662,7 +682,17 @@ function App() {
   useEffect(() => {
     void readAutosave().then((result) => {
       if (result.status === 'RECOVERED')
-        setRecovery({ savedAt: result.savedAt, file: result.file });
+        setRecovery({
+          savedAt: result.savedAt,
+          file: result.file,
+          // A project restored without the weather it was calculated on is not
+          // the session that was interrupted.
+          climate: result.climateJson
+            .map((json) => readClimateDataset(json))
+            .filter(
+              (dataset): dataset is ClimateDataset => dataset !== undefined,
+            ),
+        });
     });
   }, []);
 
@@ -1054,9 +1084,12 @@ function App() {
             <button
               type="button"
               onClick={() => {
+                setClimate(recovery.climate);
                 adopt(
                   recovery.file,
-                  'Sauvegarde locale restaurée : elle n’a pas encore été exportée.',
+                  recovery.climate.length === 0
+                    ? 'Sauvegarde locale restaurée : elle n’a pas encore été exportée.'
+                    : `Sauvegarde locale restaurée avec ${recovery.climate.length} jeu(x) climatiques : elle n’a pas encore été exportée.`,
                   'AUTOSAVED',
                 );
                 setRecovery(undefined);

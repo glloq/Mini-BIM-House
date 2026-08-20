@@ -245,6 +245,32 @@ test('autosaves an edit and offers to restore it after a reload', async ({
   );
 });
 
+test('restores the climate along with the autosaved project', async ({
+  page,
+}) => {
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  await canvas.click({ position: { x: 120, y: 380 } });
+  await canvas.click({ position: { x: 420, y: 380 } });
+  await expect(page.locator('.save-state')).toContainText(
+    'Sauvegardé localement',
+    { timeout: 10_000 },
+  );
+
+  await page.reload();
+  const prompt = page.getByRole('alertdialog');
+  await expect(prompt).toContainText('sauvegarde locale');
+  await prompt.getByRole('button', { name: 'Restaurer' }).click();
+  // The weather the session was calculating with comes back with the project;
+  // without it the modules would silently report missing inputs again.
+  await expect(page.getByRole('status')).toContainText('climatiques');
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await expect(page.locator('.library-panel')).not.toContainText(
+    'Aucun jeu de données climatiques',
+  );
+});
+
 test('discards the local snapshot when the user declines it', async ({
   page,
 }) => {

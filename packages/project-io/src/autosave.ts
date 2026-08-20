@@ -18,6 +18,15 @@ export interface AutosaveRecord {
   readonly format: 'house-technical-designer-autosave';
   readonly savedAt: string;
   readonly projectJson: string;
+  /**
+   * The climate datasets the session was working with, serialised.
+   *
+   * A project restored without them recalculates something else than what the
+   * user was looking at, so the snapshot carries the whole workspace rather
+   * than the project alone. Records written before this field simply have
+   * none.
+   */
+  readonly climateJson?: readonly string[];
 }
 
 export type RecoveryResult =
@@ -26,6 +35,8 @@ export type RecoveryResult =
       readonly status: 'RECOVERED';
       readonly savedAt: string;
       readonly file: ProjectFile;
+      /** The datasets the snapshot carried, as they were serialised. */
+      readonly climateJson: readonly string[];
       readonly migrationJournal: readonly MigrationJournalEntry[];
     }
   | { readonly status: 'CORRUPT'; readonly message: string };
@@ -47,6 +58,7 @@ export async function autosaveProject(
   key: string,
   file: ProjectFile,
   now: () => string,
+  climateJson: readonly string[] = [],
 ): Promise<AutosaveRecord> {
   if (key.trim() === '') throw new TypeError('Autosave key must not be empty.');
   const savedAt = now();
@@ -58,6 +70,7 @@ export async function autosaveProject(
     format: 'house-technical-designer-autosave',
     savedAt,
     projectJson: serializeProjectFile(file),
+    climateJson: [...climateJson],
   };
   const current = await store.get(key);
   if (current !== undefined) await store.set(previousKey(key), current);
@@ -116,6 +129,11 @@ async function readSnapshot(
     status: 'RECOVERED',
     savedAt: record.savedAt,
     file: loaded.file,
+    climateJson: Array.isArray(record.climateJson)
+      ? record.climateJson.filter(
+          (entry): entry is string => typeof entry === 'string',
+        )
+      : [],
     migrationJournal: loaded.migrationJournal,
   };
 }
@@ -187,6 +205,83 @@ export function createIndexedDbAutosaveStore(
       await run('readwrite', (store) => store.delete(key));
     },
   };
+}
+
+/**
+ * A store that falls back when the preferred one refuses to work.
+ *
+ * A database that exists is not a database that writes: a private window, a
+ * spent quota or a corrupt file all fail at the first transaction rather than
+ * at `open`. What matters to the user is that the snapshot lands somewhere, or
+ * that the failure is reported — never that it silently did not happen.
+ */
+export function createFallbackAutosaveStore(
+  primary: AutosaveStore,
+  fallback: AutosaveStore,
+  onFallback?: (error: unknown) => void,
+): AutosaveStore {
+  const attempt = async <T>(
+    first: () => Promise<T>,
+    second: () => Promise<T>,
+  ): Promise<T> => {
+    try {
+      return await first();
+    } catch (error: unknown) {
+      onFallback?.(error);
+      return second();
+    }
+  };
+  return {
+    get: async (key) =>
+      attempt(
+        () => primary.get(key),
+        () => fallback.get(key),
+      ),
+    set: async (key, value) =>
+      attempt(
+        () => primary.set(key, value),
+        () => fallback.set(key, value),
+      ),
+    remove: async (key) => {
+      // Both are cleared: a snapshot left in the one that is no longer read
+      // would come back the next time the other one fails.
+      const failures: unknown[] = [];
+      for (const store of [primary, fallback])
+        try {
+          await store.remove(key);
+        } catch (error: unknown) {
+          failures.push(error);
+        }
+      if (failures.length === 2) throw failures[0];
+    },
+  };
+}
+
+/**
+ * Moves a snapshot left by an earlier version into the store now in use.
+ *
+ * The application used to keep its snapshot in local storage. Someone who
+ * updates with unexported work in progress must not find it gone because the
+ * application changed where it looks; the record is copied, read back to check
+ * it arrived, and only then removed from where it was.
+ */
+export async function migrateAutosave(
+  from: AutosaveStore,
+  to: AutosaveStore,
+  key: string,
+): Promise<'MIGRATED' | 'NOTHING_TO_MIGRATE' | 'KEPT_SOURCE'> {
+  const existing = await to.get(key).catch(() => undefined);
+  if (existing !== undefined) return 'NOTHING_TO_MIGRATE';
+  const previous = await from.get(key).catch(() => undefined);
+  if (previous === undefined) return 'NOTHING_TO_MIGRATE';
+  try {
+    await to.set(key, previous);
+    if ((await to.get(key)) !== previous) return 'KEPT_SOURCE';
+  } catch {
+    return 'KEPT_SOURCE';
+  }
+  await from.remove(key).catch(() => undefined);
+  return 'MIGRATED';
 }
 
 export function createStorageAutosaveStore(

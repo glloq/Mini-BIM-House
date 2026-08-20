@@ -54,6 +54,8 @@ export interface CalculationRun {
   readonly runs: readonly ModuleRun[];
   readonly missing: readonly MissingCalculationInput[];
   readonly provenance: ProjectCalculationInputs['provenance'];
+  /** The project these results were computed from. */
+  readonly projectId: string;
   /** The project revision these results were computed from. */
   readonly projectRevision: string;
   /** The climate datasets they were computed with. */
@@ -90,6 +92,9 @@ export function isCurrentRun(
 ): run is CalculationRun {
   if (run === undefined) return false;
   return (
+    // Two projects can sit at the same revision with the same climate; only
+    // the identity tells their results apart.
+    run.projectId === project.id &&
     run.projectRevision === (project.metadata.projectRevision ?? '') &&
     run.climateFingerprint === climateSignature(climate)
   );
@@ -148,6 +153,7 @@ export async function runProjectCalculations(
     runs,
     missing: built.missing,
     provenance: built.provenance,
+    projectId: project.id,
     projectRevision: project.metadata.projectRevision ?? '',
     climateFingerprint: climateSignature(climate),
     startedAt,
