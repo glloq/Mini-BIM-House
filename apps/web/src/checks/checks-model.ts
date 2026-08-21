@@ -1,5 +1,6 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import {
+  clearanceReport,
   stairDimensions,
   unresolvedRoofs,
   validateTechnicalNetwork,
@@ -201,6 +202,38 @@ export function projectChecks(
       });
     }
   }
+
+  // The room the machines need around them. A geometric statement and nothing
+  // more — these volumes overlap, and these two kinds may not — because
+  // whether that breaks a rule of a particular country is a question for a
+  // rule pack, which knows which country and which year.
+  const clearances = clearanceReport(project);
+  for (const conflict of clearances.conflicts)
+    checks.push({
+      id: `clearance:${conflict.first.objectId}:${conflict.first.zone}:${conflict.second.objectId}:${conflict.second.zone}`,
+      status: 'FAIL',
+      source: 'MODEL',
+      title: `Dégagements — ${conflict.first.objectId} et ${conflict.second.objectId}`,
+      detail: conflict.message,
+      fix: {
+        label: 'Voir sur le plan',
+        tab: 'plan',
+        objectIds: [conflict.first.objectId, conflict.second.objectId],
+      },
+    });
+  for (const missing of clearances.unmeasured)
+    checks.push({
+      id: `clearance-unknown:${missing.objectId}:${missing.zone}`,
+      status: 'UNKNOWN',
+      source: 'MODEL',
+      title: `Dégagements — ${missing.objectId}`,
+      detail: missing.message,
+      fix: {
+        label: 'Voir sur le plan',
+        tab: 'plan',
+        objectIds: [missing.objectId],
+      },
+    });
 
   for (const network of project.systems ?? [])
     for (const issue of validateTechnicalNetwork(network))

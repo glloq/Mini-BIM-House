@@ -276,7 +276,25 @@ Les côtés sont locaux à l'objet : une rotation les emporte avec lui.
 `clearanceZones()` en déduit les volumes réels d'un objet posé — jamais
 enregistrés, puisqu'ils sont la fiche et la pose vues ensemble — et
 `clearanceConflicts()` dit lesquels se disputent le même volume, avec la
-raison. Le mètre carré devant une chaudière et celui devant un lave-linge
+raison.
+
+`PHYSICAL` ne se déclare jamais : un objet occupe ses propres dimensions, et
+le lui faire écrire serait lui faire répéter ce qu'il dit déjà. À l'inverse,
+une zone que la famille demande et que personne n'a mesurée revient
+**inconnue** plutôt qu'absente — « personne ne l'a dit » n'est pas « il n'en
+faut pas », et la dessiner à zéro mettrait une machine contre un mur en
+déclarant le plan vérifié. Une zone inconnue n'est ni dessinée ni comparée à
+quoi que ce soit ; elle est signalée dans les vérifications.
+
+Le plan les montre par groupes — encombrement, entretien et usage, air,
+chaleur et feu, travail électrique — parce que toutes les zones de tous les
+appareils à la fois font un plan couvert de rectangles que personne ne lit.
+
+**Ce que la géométrie dit et ce qu'elle ne dit pas.** « Ces volumes se
+chevauchent, et ces deux natures de volume ne le peuvent pas » est une
+constatation géométrique. « C'est interdit » dépend d'un pays et d'une année :
+c'est l'affaire d'un Rule Pack, qui sait lesquels. Une géométrie qui trancherait
+répondrait pour toutes les juridictions à la fois. Le mètre carré devant une chaudière et celui devant un lave-linge
 peuvent être le même : une personne s'y tient, jamais dans les deux à la fois.
 Le volume où une machine prend son air et celui où une autre rejette le sien ne
 le peuvent pas, quelle que soit la distance entre les deux.

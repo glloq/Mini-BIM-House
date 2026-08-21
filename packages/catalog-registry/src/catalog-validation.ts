@@ -195,7 +195,13 @@ export function validateCatalogEntry(
       at(`clearances/${index}`, `unknown clearance zone ${clearance.zone}`);
       continue;
     }
-    if (!zones.has(clearance.zone))
+    // What an object occupies is its own dimensions, which it already states.
+    if (clearance.zone === 'PHYSICAL')
+      at(
+        `clearances/${index}`,
+        'the volume a thing occupies is its own dimensions and is not declared',
+      );
+    else if (!zones.has(clearance.zone))
       at(
         `clearances/${index}`,
         `${family.id} declares no ${CLEARANCE_LABELS[clearance.zone]} zone`,

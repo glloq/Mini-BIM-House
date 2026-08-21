@@ -1658,3 +1658,20 @@ button.icon {
   padding: 0.15rem 0.3rem;
   color: #5b6b63;
 }
+
+/* The clearance switches: one line per kind of room, so that turning on the
+   air of a heat pump does not also draw every maintenance rectangle. */
+.clearance-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+}
+
+.clearance-groups label {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.35rem;
+}

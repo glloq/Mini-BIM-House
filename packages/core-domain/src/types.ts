@@ -225,6 +225,15 @@ export interface EquipmentDefinition {
       readonly z: number;
     };
   }[];
+  /**
+   * The zones a thing of this family has, whether or not this entry says how
+   * far each reaches.
+   *
+   * Copied from the family with the entry, like `allowedHosts`: a zone the
+   * model requires and nobody has measured has to be reportable, and it cannot
+   * be reported from a list the file does not carry.
+   */
+  readonly requiredClearances?: readonly ClearanceZone[];
   /** The room it needs around it, zone by zone and side by side. */
   readonly clearances?: readonly {
     readonly zone: ClearanceZone;

@@ -613,25 +613,55 @@ describe('the room a thing needs around it', () => {
   };
 
   it('puts each zone on the side the entry asks for, turned with the object', () => {
-    const [zone] = clearanceZones(placement, [
+    const zone = clearanceZones(placement, [
       { zone: 'AIR_EXHAUST', frontMm: 2000 },
-    ]);
+    ]).find(({ zone: kind }) => kind === 'AIR_EXHAUST');
     // Front is the object's own forward direction: at rest it points east, so
     // the exhaust reaches 2.2 m along x and nothing behind.
     expect(Math.max(...zone!.footprint.map(({ x }) => x))).toBeCloseTo(2200);
     expect(Math.min(...zone!.footprint.map(({ x }) => x))).toBeCloseTo(-200);
-    const [turned] = clearanceZones({ ...placement, rotationDeg: 90 }, [
+    const turned = clearanceZones({ ...placement, rotationDeg: 90 }, [
       { zone: 'AIR_EXHAUST', frontMm: 2000 },
-    ]);
+    ]).find(({ zone: kind }) => kind === 'AIR_EXHAUST');
     expect(Math.max(...turned!.footprint.map(({ y }) => y))).toBeCloseTo(2200);
   });
 
   it('measures height from the underside of the thing', () => {
-    const [zone] = clearanceZones(placement, [
+    const zone = clearanceZones(placement, [
       { zone: 'SERVICE', aboveMm: 500, belowMm: 100 },
-    ]);
+    ]).find(({ zone: kind }) => kind === 'SERVICE');
     expect(zone!.baseMm).toBe(-100);
     expect(zone!.topMm).toBe(1300);
+  });
+
+  it('always draws the volume the thing itself occupies', () => {
+    // An object occupies its own dimensions; asking an entry to state that
+    // would be asking it to repeat what it already says.
+    const physical = clearanceZones(placement, []).find(
+      ({ zone }) => zone === 'PHYSICAL',
+    );
+    expect(physical?.known).toBe(true);
+    expect(Math.max(...physical!.footprint.map(({ x }) => x))).toBeCloseTo(200);
+    expect(physical?.topMm).toBe(800);
+  });
+
+  it('says when a zone is required and nobody has measured it', () => {
+    // « Nobody has said » is not « none »: drawing it as zero would put a
+    // machine against a wall and call the plan checked.
+    const zones = clearanceZones(placement, [], ['MAINTENANCE', 'AIR_INTAKE']);
+    expect(zones.filter(({ known }) => !known).map(({ zone }) => zone)).toEqual(
+      ['MAINTENANCE', 'AIR_INTAKE'],
+    );
+  });
+
+  it('never tests a volume nobody has measured', () => {
+    const first = clearanceZones(placement, [], ['AIR_EXHAUST']);
+    const second = clearanceZones(
+      { ...placement, objectId: 'other', position: { x: 5000, y: 0 } },
+      [],
+      ['AIR_INTAKE'],
+    );
+    expect(clearanceConflicts([...first, ...second])).toEqual([]);
   });
 
   it('lets two people share the space in front of two appliances', () => {

@@ -389,6 +389,7 @@ export function projectEquipmentFromCatalog(
   definition: EquipmentDefinition,
   takenIds: readonly string[],
   allowedHosts?: readonly HostType[],
+  requiredClearances?: readonly ClearanceZone[],
 ): ProjectEquipment {
   return {
     id: nextLibraryId('equipment', definition.name, takenIds),
@@ -406,6 +407,7 @@ export function projectEquipmentFromCatalog(
       ? {}
       : { dimensions: definition.dimensions }),
     ...(allowedHosts === undefined ? {} : { allowedHosts }),
+    ...(requiredClearances === undefined ? {} : { requiredClearances }),
     ports: definition.ports.map((port) => ({
       id: port.id,
       portTypeId: port.portTypeId,

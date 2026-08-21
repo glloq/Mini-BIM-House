@@ -127,6 +127,7 @@ export function EquipmentPanel({
                       definition,
                       takenIds,
                       allowedHostsOfFamily(definition.familyId),
+                      family(definition.familyId)?.clearances,
                     );
                     onCommand(new AddEquipmentCommand(added));
                     onSelect(added.id);

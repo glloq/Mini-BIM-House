@@ -43,6 +43,8 @@ export interface ResolvedPlacedEquipment {
     readonly id: string;
     readonly portTypeId?: string;
   }[];
+  /** The zones this kind of thing has, measured or not. */
+  readonly requiredClearances: readonly ClearanceZone[];
   readonly clearances: readonly {
     readonly zone: ClearanceZone;
     readonly frontMm?: number;
@@ -121,6 +123,7 @@ function resolveOne(
     resolvedProperties: { ...definitionProperties, ...instanceProperties },
     ports: definition?.ports ?? [],
     clearances: definition?.clearances ?? [],
+    requiredClearances: definition?.requiredClearances ?? [],
     ...(definition?.dimensions === undefined
       ? {}
       : { dimensions: definition.dimensions }),
