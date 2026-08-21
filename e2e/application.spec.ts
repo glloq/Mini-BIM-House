@@ -2529,3 +2529,34 @@ test('draws the ground the house sits on and its structure', async ({
   );
   expect(errors).toEqual([]);
 });
+
+test('browses the whole nomenclature and places what can be placed', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Équipements', exact: true }).click();
+
+  // The panel used to list the nineteen generic entries while the rest of the
+  // application had been checking five hundred and eighteen families.
+  const browser = page.getByRole('region', { name: 'Nomenclature' });
+  await expect(browser).toContainText('518 famille(s) sur 518');
+
+  const filters = page.getByRole('group', { name: 'Filtrer la nomenclature' });
+  await filters.getByLabel('Métier').selectOption('HEATING');
+  await expect(browser).not.toContainText('518 famille(s) sur 518');
+
+  // « What can I actually place today » is a question the size makes worth
+  // asking, and most families cannot answer it yet.
+  await filters.getByLabel('Seulement ce qui est posable').check();
+  await browser
+    .getByRole('button', { name: /Pompe à chaleur air\/eau monobloc/ })
+    .click();
+  // A family says what it is, not only what it is called.
+  await expect(browser).toContainText('Départ chauffage');
+  await expect(browser).toContainText('Prise d’air');
+
+  await browser.getByRole('button', { name: 'Ajouter au projet' }).click();
+  await expect(page.getByRole('status')).toBeVisible();
+  expect(errors).toEqual([]);
+});

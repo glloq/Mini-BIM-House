@@ -1,9 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { Project } from '@house-technical-designer/core-domain';
-import {
-  genericEquipmentCatalog,
-  queryEquipment,
-} from '@house-technical-designer/equipment-catalog';
+import type { EquipmentDefinition } from '@house-technical-designer/equipment-catalog';
+import { genericEquipmentCatalog } from '@house-technical-designer/equipment-catalog';
+import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
 import {
   AddEquipmentCommand,
   RemoveEquipmentCommand,
@@ -15,6 +14,7 @@ import { family } from '@house-technical-designer/catalog-registry';
 import type { HostType } from '@house-technical-designer/core-domain';
 import { isHostType } from '@house-technical-designer/core-domain';
 import { projectEquipmentFromCatalog } from './library-model.js';
+import { CatalogBrowser } from './CatalogBrowser.js';
 import { DraftField } from '../DraftField.js';
 import {
   describeProperties,
@@ -22,29 +22,6 @@ import {
   propertyIssue,
   withProperty,
 } from './property-schema.js';
-
-const CATEGORY_LABELS: Readonly<Record<string, string>> = {
-  HEAT_PUMP: 'Pompe à chaleur',
-  BOILER: 'Chaudière',
-  RADIATOR: 'Émetteur',
-  UNDERFLOOR_HEATING: 'Plancher chauffant',
-  DHW_TANK: 'Ballon ECS',
-  VENTILATION_UNIT: 'Centrale de ventilation',
-  AIR_TERMINAL: 'Bouche',
-  FAN: 'Ventilateur',
-  PUMP: 'Pompe',
-  PV_MODULE: 'Module photovoltaïque',
-  INVERTER: 'Onduleur',
-  BATTERY: 'Batterie',
-  LUMINAIRE: 'Luminaire',
-  SOCKET: 'Prise',
-  DISTRIBUTION_BOARD: 'Tableau',
-  PROTECTION_DEVICE: 'Protection',
-  SANITARY_FIXTURE: 'Appareil sanitaire',
-  RAINWATER_TANK: 'Cuve de pluie',
-  SENSOR: 'Capteur',
-  OTHER: 'Autre',
-};
 
 export interface EquipmentPanelProps {
   readonly project: Project;
@@ -75,11 +52,25 @@ export function EquipmentPanel({
   selectedId,
   onSelect,
 }: EquipmentPanelProps) {
-  const [search, setSearch] = useState('');
   const catalog = useMemo(() => genericEquipmentCatalog(), []);
-  const matches = useMemo(
-    () => queryEquipment(catalog, search === '' ? {} : { search }),
-    [catalog, search],
+  /**
+   * The catalogue entries of each family, worked out once.
+   *
+   * The browser asks « what can I place from this family » five hundred times
+   * while somebody scrolls; asking the catalogue each time would be walking it
+   * five hundred times over.
+   */
+  const entriesByFamily = useMemo(() => {
+    const groups: Record<string, EquipmentDefinition[]> = {};
+    for (const entry of catalog) (groups[entry.familyId] ??= []).push(entry);
+    return groups;
+  }, [catalog]);
+  const known = useMemo(
+    () => ({
+      symbols: new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions)),
+      entries: catalog,
+    }),
+    [catalog],
   );
   const equipment = project.equipment ?? [];
   const takenIds = equipment.map(({ id }) => id);
@@ -94,55 +85,22 @@ export function EquipmentPanel({
         </div>
       </header>
 
-      <div className="filters" role="search">
-        <label>
-          Rechercher dans le catalogue générique
-          <input
-            type="search"
-            value={search}
-            placeholder="Pompe, VMC, ballon, luminaire…"
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </label>
-      </div>
-
       <div className="library-split">
         <div>
-          <h3>Catalogue générique</h3>
-          <ul className="catalog-list">
-            {matches.map((definition) => (
-              <li key={definition.id}>
-                <div>
-                  <strong>{definition.name}</strong>
-                  <span className="hint">
-                    {CATEGORY_LABELS[definition.category] ??
-                      definition.category}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() => {
-                    const added = projectEquipmentFromCatalog(
-                      definition,
-                      takenIds,
-                      allowedHostsOfFamily(definition.familyId),
-                      family(definition.familyId)?.clearances,
-                    );
-                    onCommand(new AddEquipmentCommand(added));
-                    onSelect(added.id);
-                  }}
-                >
-                  Ajouter au projet
-                </button>
-              </li>
-            ))}
-            {matches.length === 0 && (
-              <li className="empty-state">
-                Aucun équipement générique trouvé.
-              </li>
-            )}
-          </ul>
+          <CatalogBrowser
+            entriesByFamily={entriesByFamily}
+            known={known}
+            onAdd={(definition) => {
+              const added = projectEquipmentFromCatalog(
+                definition,
+                takenIds,
+                allowedHostsOfFamily(definition.familyId),
+                family(definition.familyId)?.clearances,
+              );
+              onCommand(new AddEquipmentCommand(added));
+              onSelect(added.id);
+            }}
+          />
           <p className="notice">
             Les valeurs du catalogue générique servent au dimensionnement
             préliminaire. Elles ne sont pas des données fabricant : un produit
