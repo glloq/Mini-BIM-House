@@ -5,6 +5,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube PER 12×1.1",
+      "version": "1.0.0",
       "properties": {
         "material": "PEX",
         "outerDiameterMm": 12,
@@ -24,6 +25,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube PER 16×1.5",
+      "version": "1.0.0",
       "properties": {
         "material": "PEX",
         "outerDiameterMm": 16,
@@ -43,6 +45,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube PER 20×1.9",
+      "version": "1.0.0",
       "properties": {
         "material": "PEX",
         "outerDiameterMm": 20,
@@ -62,6 +65,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube PER 25×2.3",
+      "version": "1.0.0",
       "properties": {
         "material": "PEX",
         "outerDiameterMm": 25,
@@ -81,6 +85,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube PER 32×2.9",
+      "version": "1.0.0",
       "properties": {
         "material": "PEX",
         "outerDiameterMm": 32,
@@ -100,6 +105,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube multicouche 16×2.0",
+      "version": "1.0.0",
       "properties": {
         "material": "MULTILAYER",
         "outerDiameterMm": 16,
@@ -119,6 +125,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube multicouche 20×2.0",
+      "version": "1.0.0",
       "properties": {
         "material": "MULTILAYER",
         "outerDiameterMm": 20,
@@ -138,6 +145,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube multicouche 26×3.0",
+      "version": "1.0.0",
       "properties": {
         "material": "MULTILAYER",
         "outerDiameterMm": 26,
@@ -157,6 +165,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube multicouche 32×3.0",
+      "version": "1.0.0",
       "properties": {
         "material": "MULTILAYER",
         "outerDiameterMm": 32,
@@ -176,6 +185,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube cuivre 12×1.0",
+      "version": "1.0.0",
       "properties": {
         "material": "COPPER",
         "outerDiameterMm": 12,
@@ -195,6 +205,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube cuivre 14×1.0",
+      "version": "1.0.0",
       "properties": {
         "material": "COPPER",
         "outerDiameterMm": 14,
@@ -214,6 +225,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube cuivre 16×1.0",
+      "version": "1.0.0",
       "properties": {
         "material": "COPPER",
         "outerDiameterMm": 16,
@@ -233,6 +245,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube cuivre 18×1.0",
+      "version": "1.0.0",
       "properties": {
         "material": "COPPER",
         "outerDiameterMm": 18,
@@ -252,6 +265,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube cuivre 22×1.0",
+      "version": "1.0.0",
       "properties": {
         "material": "COPPER",
         "outerDiameterMm": 22,
@@ -271,6 +285,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube cuivre 28×1.0",
+      "version": "1.0.0",
       "properties": {
         "material": "COPPER",
         "outerDiameterMm": 28,
@@ -290,6 +305,7 @@
       "family": "WATER_PIPE",
       "domain": "PLUMBING",
       "label": "Tube cuivre 35×1.5",
+      "version": "1.0.0",
       "properties": {
         "material": "COPPER",
         "outerDiameterMm": 35,
@@ -309,6 +325,7 @@
       "family": "HEATING_PIPE",
       "domain": "HEATING",
       "label": "Tube chauffage multicouche 16×2.0",
+      "version": "1.0.0",
       "properties": {
         "material": "MULTILAYER",
         "outerDiameterMm": 16,
@@ -328,6 +345,7 @@
       "family": "HEATING_PIPE",
       "domain": "HEATING",
       "label": "Tube chauffage multicouche 20×2.0",
+      "version": "1.0.0",
       "properties": {
         "material": "MULTILAYER",
         "outerDiameterMm": 20,
@@ -347,6 +365,7 @@
       "family": "HEATING_PIPE",
       "domain": "HEATING",
       "label": "Tube chauffage multicouche 26×3.0",
+      "version": "1.0.0",
       "properties": {
         "material": "MULTILAYER",
         "outerDiameterMm": 26,
@@ -366,6 +385,7 @@
       "family": "HEATING_PIPE",
       "domain": "HEATING",
       "label": "Tube chauffage multicouche 32×3.0",
+      "version": "1.0.0",
       "properties": {
         "material": "MULTILAYER",
         "outerDiameterMm": 32,
@@ -385,6 +405,7 @@
       "family": "HEATING_PIPE",
       "domain": "HEATING",
       "label": "Tube chauffage multicouche 40×3.5",
+      "version": "1.0.0",
       "properties": {
         "material": "MULTILAYER",
         "outerDiameterMm": 40,
@@ -404,6 +425,7 @@
       "family": "WASTEWATER_PIPE",
       "domain": "WASTEWATER",
       "label": "Tube PVC évacuation Ø32",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC",
         "outerDiameterMm": 32,
@@ -423,6 +445,7 @@
       "family": "WASTEWATER_PIPE",
       "domain": "WASTEWATER",
       "label": "Tube PVC évacuation Ø40",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC",
         "outerDiameterMm": 40,
@@ -442,6 +465,7 @@
       "family": "WASTEWATER_PIPE",
       "domain": "WASTEWATER",
       "label": "Tube PVC évacuation Ø50",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC",
         "outerDiameterMm": 50,
@@ -461,6 +485,7 @@
       "family": "WASTEWATER_PIPE",
       "domain": "WASTEWATER",
       "label": "Tube PVC évacuation Ø75",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC",
         "outerDiameterMm": 75,
@@ -480,6 +505,7 @@
       "family": "WASTEWATER_PIPE",
       "domain": "WASTEWATER",
       "label": "Tube PVC évacuation Ø100",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC",
         "outerDiameterMm": 100,
@@ -499,6 +525,7 @@
       "family": "WASTEWATER_PIPE",
       "domain": "WASTEWATER",
       "label": "Tube PVC évacuation Ø125",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC",
         "outerDiameterMm": 125,
@@ -518,6 +545,7 @@
       "family": "RAINWATER_PIPE",
       "domain": "RAINWATER",
       "label": "Descente PVC Ø80",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC",
         "outerDiameterMm": 80,
@@ -537,6 +565,7 @@
       "family": "RAINWATER_PIPE",
       "domain": "RAINWATER",
       "label": "Descente PVC Ø100",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC",
         "outerDiameterMm": 100,
@@ -556,6 +585,7 @@
       "family": "RAINWATER_PIPE",
       "domain": "RAINWATER",
       "label": "Descente PVC Ø125",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC",
         "outerDiameterMm": 125,
@@ -575,6 +605,7 @@
       "family": "RAINWATER_PIPE",
       "domain": "RAINWATER",
       "label": "Descente PVC Ø160",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC",
         "outerDiameterMm": 160,
@@ -594,6 +625,7 @@
       "family": "ROUND_DUCT",
       "domain": "VENTILATION",
       "label": "Gaine circulaire Ø80",
+      "version": "1.0.0",
       "properties": {
         "shape": "ROUND",
         "diameterMm": 80,
@@ -610,6 +642,7 @@
       "family": "ROUND_DUCT",
       "domain": "VENTILATION",
       "label": "Gaine circulaire Ø100",
+      "version": "1.0.0",
       "properties": {
         "shape": "ROUND",
         "diameterMm": 100,
@@ -626,6 +659,7 @@
       "family": "ROUND_DUCT",
       "domain": "VENTILATION",
       "label": "Gaine circulaire Ø125",
+      "version": "1.0.0",
       "properties": {
         "shape": "ROUND",
         "diameterMm": 125,
@@ -642,6 +676,7 @@
       "family": "ROUND_DUCT",
       "domain": "VENTILATION",
       "label": "Gaine circulaire Ø150",
+      "version": "1.0.0",
       "properties": {
         "shape": "ROUND",
         "diameterMm": 150,
@@ -658,6 +693,7 @@
       "family": "ROUND_DUCT",
       "domain": "VENTILATION",
       "label": "Gaine circulaire Ø160",
+      "version": "1.0.0",
       "properties": {
         "shape": "ROUND",
         "diameterMm": 160,
@@ -674,6 +710,7 @@
       "family": "ROUND_DUCT",
       "domain": "VENTILATION",
       "label": "Gaine circulaire Ø200",
+      "version": "1.0.0",
       "properties": {
         "shape": "ROUND",
         "diameterMm": 200,
@@ -690,6 +727,7 @@
       "family": "ROUND_DUCT",
       "domain": "VENTILATION",
       "label": "Gaine circulaire Ø250",
+      "version": "1.0.0",
       "properties": {
         "shape": "ROUND",
         "diameterMm": 250,
@@ -706,6 +744,7 @@
       "family": "FLEXIBLE_DUCT",
       "domain": "VENTILATION",
       "label": "Gaine souple Ø80",
+      "version": "1.0.0",
       "properties": {
         "shape": "FLEXIBLE",
         "diameterMm": 80,
@@ -723,6 +762,7 @@
       "family": "FLEXIBLE_DUCT",
       "domain": "VENTILATION",
       "label": "Gaine souple Ø125",
+      "version": "1.0.0",
       "properties": {
         "shape": "FLEXIBLE",
         "diameterMm": 125,
@@ -740,6 +780,7 @@
       "family": "FLEXIBLE_DUCT",
       "domain": "VENTILATION",
       "label": "Gaine souple Ø160",
+      "version": "1.0.0",
       "properties": {
         "shape": "FLEXIBLE",
         "diameterMm": 160,
@@ -757,6 +798,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 3G1,5",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 1.5,
@@ -776,6 +818,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 5G1,5",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 1.5,
@@ -795,6 +838,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 3G2,5",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 2.5,
@@ -814,6 +858,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 5G2,5",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 2.5,
@@ -833,6 +878,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 3G4",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 4,
@@ -852,6 +898,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 5G4",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 4,
@@ -871,6 +918,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 3G6",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 6,
@@ -890,6 +938,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 5G6",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 6,
@@ -909,6 +958,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 3G10",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 10,
@@ -928,6 +978,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 5G10",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 10,
@@ -947,6 +998,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 3G16",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 16,
@@ -966,6 +1018,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 5G16",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 16,
@@ -985,6 +1038,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 3G25",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 25,
@@ -1004,6 +1058,7 @@
       "family": "ELECTRICAL_CABLE",
       "domain": "ELECTRICAL",
       "label": "Câble cuivre 5G25",
+      "version": "1.0.0",
       "properties": {
         "conductor": "COPPER",
         "conductorSectionMm2": 25,
@@ -1023,6 +1078,7 @@
       "family": "FLEXIBLE_CONDUIT",
       "domain": "ELECTRICAL",
       "label": "Gaine ICTA Ø16",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC annelé",
         "outerDiameterMm": 16,
@@ -1039,6 +1095,7 @@
       "family": "FLEXIBLE_CONDUIT",
       "domain": "ELECTRICAL",
       "label": "Gaine ICTA Ø20",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC annelé",
         "outerDiameterMm": 20,
@@ -1055,6 +1112,7 @@
       "family": "FLEXIBLE_CONDUIT",
       "domain": "ELECTRICAL",
       "label": "Gaine ICTA Ø25",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC annelé",
         "outerDiameterMm": 25,
@@ -1071,6 +1129,7 @@
       "family": "FLEXIBLE_CONDUIT",
       "domain": "ELECTRICAL",
       "label": "Gaine ICTA Ø32",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC annelé",
         "outerDiameterMm": 32,
@@ -1087,6 +1146,7 @@
       "family": "FLEXIBLE_CONDUIT",
       "domain": "ELECTRICAL",
       "label": "Gaine ICTA Ø40",
+      "version": "1.0.0",
       "properties": {
         "material": "PVC annelé",
         "outerDiameterMm": 40,
@@ -1103,6 +1163,7 @@
       "family": "FLUE_PIPE",
       "domain": "FLUE",
       "label": "Conduit isolé Ø80",
+      "version": "1.0.0",
       "properties": {
         "material": "Inox double paroi",
         "innerDiameterMm": 80,
@@ -1121,6 +1182,7 @@
       "family": "FLUE_PIPE",
       "domain": "FLUE",
       "label": "Conduit isolé Ø100",
+      "version": "1.0.0",
       "properties": {
         "material": "Inox double paroi",
         "innerDiameterMm": 100,
@@ -1139,6 +1201,7 @@
       "family": "FLUE_PIPE",
       "domain": "FLUE",
       "label": "Conduit isolé Ø125",
+      "version": "1.0.0",
       "properties": {
         "material": "Inox double paroi",
         "innerDiameterMm": 125,
@@ -1157,6 +1220,7 @@
       "family": "FLUE_PIPE",
       "domain": "FLUE",
       "label": "Conduit isolé Ø150",
+      "version": "1.0.0",
       "properties": {
         "material": "Inox double paroi",
         "innerDiameterMm": 150,
@@ -1175,6 +1239,7 @@
       "family": "FLUE_PIPE",
       "domain": "FLUE",
       "label": "Conduit isolé Ø180",
+      "version": "1.0.0",
       "properties": {
         "material": "Inox double paroi",
         "innerDiameterMm": 180,
@@ -1193,6 +1258,7 @@
       "family": "FLUE_PIPE",
       "domain": "FLUE",
       "label": "Conduit isolé Ø200",
+      "version": "1.0.0",
       "properties": {
         "material": "Inox double paroi",
         "innerDiameterMm": 200,

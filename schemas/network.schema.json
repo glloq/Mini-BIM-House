@@ -161,6 +161,12 @@
           "catalogItemId": {
             "type": "string"
           },
+          "productId": {
+            "type": "string"
+          },
+          "productVersion": {
+            "type": "string"
+          },
           "properties": {
             "type": "object",
             "description": "Physical properties of the routed segment: bore, material, slope, conductor section.",

@@ -1,8 +1,11 @@
 import type { CalculationJson } from '@house-technical-designer/calculation-core';
 import type {
+  JsonValue,
+  NetworkEdge,
   NetworkNode,
   TechnicalNetwork,
 } from '@house-technical-designer/core-domain';
+import { resolvedSegmentProperties } from '@house-technical-designer/network-products';
 import type {
   ProjectCalculationContext,
   ProjectClimateContext,
@@ -89,6 +92,22 @@ function pathLengthM(
     );
   }
   return total / 1000;
+}
+
+/**
+ * What a run is made of, the product first and the segment having the last
+ * word.
+ *
+ * Everything reading a segment's physical properties goes through this, so
+ * that naming a product and typing its figures onto the run are the same
+ * thing said once instead of two things that can disagree.
+ */
+function segmentProperties(
+  edge: NetworkEdge,
+): Readonly<Record<string, JsonValue>> {
+  return resolvedSegmentProperties(edge.productId, edge.properties) as Readonly<
+    Record<string, JsonValue>
+  >;
 }
 
 function numericProperty(
@@ -498,12 +517,12 @@ function ventilationInput(context: ProjectCalculationContext): CalculationJson {
   const segments = networks.flatMap((network) =>
     network.edges.map((edge) => {
       const shape =
-        stringProperty(edge.properties, 'shape') === 'RECTANGULAR'
+        stringProperty(segmentProperties(edge), 'shape') === 'RECTANGULAR'
           ? 'RECTANGULAR'
           : 'ROUND';
-      const diameterM = numericProperty(edge.properties, 'diameterM');
-      const widthM = numericProperty(edge.properties, 'widthM');
-      const heightM = numericProperty(edge.properties, 'heightM');
+      const diameterM = numericProperty(segmentProperties(edge), 'diameterM');
+      const widthM = numericProperty(segmentProperties(edge), 'widthM');
+      const heightM = numericProperty(segmentProperties(edge), 'heightM');
       const flowM3h = flows.get(edge.id);
       // A rectangular duct is sized by its two sides; asking it for a diameter
       // would report a value it can never have.
@@ -550,10 +569,10 @@ function ventilationInput(context: ProjectCalculationContext): CalculationJson {
           settings,
           'ventilation',
           edge.id,
-          edge.properties,
+          segmentProperties(edge),
         ),
         roughnessM:
-          numericProperty(edge.properties, 'roughnessM') ?? roughnessM,
+          numericProperty(segmentProperties(edge), 'roughnessM') ?? roughnessM,
       };
     }),
   );
@@ -613,7 +632,10 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
   );
   const segments = networks.flatMap((network) =>
     network.edges.map((edge) => {
-      const diameterM = numericProperty(edge.properties, 'internalDiameterM');
+      const diameterM = numericProperty(
+        segmentProperties(edge),
+        'internalDiameterM',
+      );
       const cumulatedLps = flows.get(edge.id) ?? 0;
       if (diameterM === undefined)
         settings.reportMissing(
@@ -644,10 +666,10 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
           settings,
           'water',
           edge.id,
-          edge.properties,
+          segmentProperties(edge),
         ),
         roughnessM:
-          numericProperty(edge.properties, 'roughnessM') ?? roughnessM,
+          numericProperty(segmentProperties(edge), 'roughnessM') ?? roughnessM,
       };
     }),
   );
@@ -695,7 +717,10 @@ function wastewaterInput(context: ProjectCalculationContext): CalculationJson {
   );
   const edges = networks.flatMap((network) =>
     network.edges.map((edge) => {
-      const diameterM = numericProperty(edge.properties, 'internalDiameterM');
+      const diameterM = numericProperty(
+        segmentProperties(edge),
+        'internalDiameterM',
+      );
       if (diameterM === undefined)
         settings.reportMissing(
           'wastewater',
@@ -962,7 +987,7 @@ function electricalInput(context: ProjectCalculationContext): CalculationJson {
       ];
       for (const edge of circuitCables) {
         const sectionMm2 =
-          numericProperty(edge.properties, 'conductorSectionMm2') ??
+          numericProperty(segmentProperties(edge), 'conductorSectionMm2') ??
           nodeNumber(circuitNode, 'conductorSectionMm2');
         if (sectionMm2 === undefined)
           settings.reportMissing(
@@ -975,7 +1000,10 @@ function electricalInput(context: ProjectCalculationContext): CalculationJson {
         // The material sets the resistance and therefore the voltage drop.
         // Copper is the common case, which is exactly why assuming it would go
         // unnoticed: an unstated material is reported, not chosen.
-        const material = stringProperty(edge.properties, 'conductorMaterial');
+        const material = stringProperty(
+          segmentProperties(edge),
+          'conductorMaterial',
+        );
         if (material === undefined)
           settings.reportMissing(
             'electrical',
@@ -991,7 +1019,7 @@ function electricalInput(context: ProjectCalculationContext): CalculationJson {
           conductorSectionMm2: sectionMm2 ?? null,
           conductorMaterial: material ?? null,
           conductorCount:
-            numericProperty(edge.properties, 'conductorCount') ?? null,
+            numericProperty(segmentProperties(edge), 'conductorCount') ?? null,
         });
       }
       circuits.push({

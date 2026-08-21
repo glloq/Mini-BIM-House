@@ -2,6 +2,7 @@ import type {
   HostType,
   ProjectFile,
 } from '@house-technical-designer/core-domain';
+import { networkProduct } from '@house-technical-designer/network-products';
 import {
   connectionRefusalBetween,
   entityCollisions,
@@ -689,6 +690,26 @@ export function validateProjectReferences(
           : connectionRefusalBetween(from, to);
       if (refusal !== undefined)
         issues.push({ path: `${at}/toPortId`, message: refusal });
+      // A run made of a product nobody has is a run whose bore, roughness and
+      // material are all unknown while the file claims to state them.
+      const product =
+        edge.productId === undefined
+          ? undefined
+          : networkProduct(edge.productId);
+      if (edge.productId !== undefined && product === undefined)
+        issues.push({
+          path: `${at}/productId`,
+          message: `references unknown network product ${edge.productId}`,
+        });
+      if (
+        product?.version !== undefined &&
+        edge.productVersion !== undefined &&
+        product.version !== edge.productVersion
+      )
+        issues.push({
+          path: `${at}/productVersion`,
+          message: `was drawn with ${edge.productId}@${edge.productVersion}, and the catalogue offers ${product.version}`,
+        });
     });
   });
   return issues;

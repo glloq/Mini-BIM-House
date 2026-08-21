@@ -140,6 +140,18 @@ export interface NetworkEdge {
   readonly kind: string;
   readonly catalogItemId?: string;
   /**
+   * The product this run is made of.
+   *
+   * A bore, a roughness, a conductor section and a pressure class are
+   * properties of a tube, not of a run of it; a project uses the same tube on
+   * forty runs. They were copied onto every segment by hand, from a datasheet,
+   * forty times per project — and a figure entered by hand forty times is a
+   * figure wrong at least once, with nothing to say which.
+   */
+  readonly productId?: string;
+  /** The version of that product this run was drawn with. */
+  readonly productVersion?: string;
+  /**
    * What the segment is made of: bore, material, slope, conductor section.
    *
    * Scalars only, like the node record and like the schema: a value TypeScript

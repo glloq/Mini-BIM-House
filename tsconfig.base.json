@@ -21,6 +21,9 @@
       "@house-technical-designer/technical-types": [
         "./packages/technical-types/src/index.ts"
       ],
+      "@house-technical-designer/network-products": [
+        "./packages/network-products/src/index.ts"
+      ],
       "@house-technical-designer/calculation-core": [
         "./packages/calculation-core/src/index.ts"
       ],

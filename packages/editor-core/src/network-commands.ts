@@ -8,6 +8,10 @@ import type {
   TechnicalNetwork,
 } from '@house-technical-designer/core-domain';
 import {
+  networkProduct,
+  type NetworkProduct,
+} from '@house-technical-designer/network-products';
+import {
   connectionRefusalBetween,
   levelEntities,
   validateTechnicalNetwork,
@@ -551,6 +555,64 @@ export class UpdateNetworkEdgeCommand extends NetworkCommand {
         this.properties,
       ),
     );
+  }
+}
+
+/**
+ * States what product a run is made of.
+ *
+ * Naming the tube is what stops its bore, its roughness and its material from
+ * being typed onto forty segments by hand — and a figure typed forty times is
+ * a figure wrong at least once, with nothing to say which. The version is
+ * recorded with it for the same reason a placed component records one: the
+ * catalogue will be corrected, and this run must not change because of it
+ * without saying so.
+ */
+export class SetNetworkEdgeProductCommand extends NetworkCommand {
+  constructor(
+    readonly networkId: string,
+    readonly edgeId: string,
+    readonly productId: string | undefined,
+  ) {
+    super(
+      `network:edge:product:${networkId}:${edgeId}`,
+      'Choisir le produit d’un tronçon',
+    );
+  }
+  private product(): NetworkProduct | undefined {
+    return this.productId === undefined
+      ? undefined
+      : networkProduct(this.productId);
+  }
+  validate(project: Project): CommandValidation {
+    const network = findNetwork(project, this.networkId);
+    if (network === undefined)
+      return rejected(`Le réseau ${this.networkId} est introuvable.`);
+    if (!network.edges.some(({ id }) => id === this.edgeId))
+      return rejected(`Le tronçon ${this.edgeId} est introuvable.`);
+    if (this.productId !== undefined && this.product() === undefined)
+      return rejected(`Le produit ${this.productId} est introuvable.`);
+    return ok();
+  }
+  protected apply(project: Project): Project {
+    const network = requireNetwork(project, this.networkId);
+    const product = this.product();
+    return replaceNetwork(project, {
+      ...network,
+      edges: network.edges.map((edge) => {
+        if (edge.id !== this.edgeId) return edge;
+        const { productId: _id, productVersion: _version, ...rest } = edge;
+        return product === undefined
+          ? rest
+          : {
+              ...rest,
+              productId: product.id,
+              ...(product.version === undefined
+                ? {}
+                : { productVersion: product.version }),
+            };
+      }),
+    });
   }
 }
 

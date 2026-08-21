@@ -189,6 +189,25 @@ describe('real calculation orchestration adapters', () => {
     );
   });
 
+  it('sizes a run from the product it names, not from figures retyped on it', () => {
+    // A bore and a roughness belong to a tube, not to a run of it; they were
+    // copied onto every segment by hand from a datasheet.
+    const sized = projectInputs((project) => {
+      for (const network of project.systems ?? [])
+        if (network.discipline === 'WATER')
+          (network as unknown as { edges: unknown[] }).edges =
+            network.edges.map((edge) => {
+              const { properties: _own, ...rest } = edge;
+              return { ...rest, productId: 'pipe-pex-16x1.5' };
+            });
+    }).inputs.water as {
+      segments: readonly { readonly internalDiameterM?: number | null }[];
+    };
+    expect(sized.segments.length).toBeGreaterThan(0);
+    for (const segment of sized.segments)
+      expect(segment.internalDiameterM).toBeCloseTo(0.013, 6);
+  });
+
   it('counts a luminaire drawn on the plan, not only one wired to a circuit', () => {
     // The lighting calculation read the electrical network alone, so a
     // luminaire placed on the plan lit nothing: the building had to be drawn

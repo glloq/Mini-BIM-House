@@ -1,5 +1,5 @@
 {
-  "name": "@house-technical-designer/project-io",
+  "name": "@house-technical-designer/network-products",
   "version": "0.1.0",
   "private": true,
   "license": "AGPL-3.0-only",
@@ -9,12 +9,10 @@
   },
   "scripts": {
     "build": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@house-technical-designer/core-domain": "0.1.0",
-    "@house-technical-designer/network-products": "0.1.0",
-    "ajv": "^8.17.1"
+    "@house-technical-designer/technical-types": "0.1.0"
   }
 }

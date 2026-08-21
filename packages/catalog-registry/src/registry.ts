@@ -14,7 +14,6 @@ import networkProducts from '../data/families/network-products.json' with { type
 import openings from '../data/families/openings.json' with { type: 'json' };
 import plumbing from '../data/families/plumbing.json' with { type: 'json' };
 import wastewaterRainwater from '../data/families/wastewater-rainwater.json' with { type: 'json' };
-import networkProductCatalog from '../data/network-products/generic.json' with { type: 'json' };
 import propertySchemas from '../data/property-schemas/schemas.json' with { type: 'json' };
 import type {
   CatalogEntryCandidate,
@@ -27,8 +26,11 @@ import {
 import fingerprints from '../data/fingerprints.json' with { type: 'json' };
 import type { FamilyDefinition, FamilyIssue } from './families.js';
 import { validateFamily } from './families.js';
-import type { NetworkProduct } from './network-products.js';
 import { invalidBore } from './network-products.js';
+import {
+  NETWORK_PRODUCT_REGISTRY,
+  networkProductsOfFamily,
+} from '@house-technical-designer/network-products';
 import {
   validateProperties,
   validatePropertySchema,
@@ -79,9 +81,6 @@ export const FAMILY_REGISTRY: readonly FamilyDefinition[] = SOURCES.flatMap(
  * is what the run is made of, and one project uses the same product on forty
  * edges.
  */
-export const NETWORK_PRODUCT_REGISTRY: readonly NetworkProduct[] = (
-  networkProductCatalog as { readonly products: readonly NetworkProduct[] }
-).products;
 
 export const PROPERTY_SCHEMA_REGISTRY: readonly PropertySchema[] = (
   propertySchemas as { readonly schemas: readonly PropertySchema[] }
@@ -98,9 +97,6 @@ export const CATALOG_FINGERPRINTS: Readonly<Record<string, string>> = (
 ).entries;
 
 const BY_ID = new Map(FAMILY_REGISTRY.map((family) => [family.id, family]));
-const PRODUCT_BY_ID = new Map(
-  NETWORK_PRODUCT_REGISTRY.map((product) => [product.id, product]),
-);
 const SCHEMA_BY_FAMILY = new Map(
   PROPERTY_SCHEMA_REGISTRY.map((schema) => [schema.family, schema]),
 );
@@ -121,16 +117,8 @@ export function schemaOfFamily(id: string): PropertySchema | undefined {
     : SCHEMA_BY_FAMILY.get(found.propertySchema);
 }
 
-export function networkProduct(id: string): NetworkProduct | undefined {
-  return PRODUCT_BY_ID.get(id);
-}
-
 /** Every product of one family, which is what a run may be made of. */
-export function productsOfFamily(familyId: string): readonly NetworkProduct[] {
-  return NETWORK_PRODUCT_REGISTRY.filter(
-    (product) => product.family === familyId,
-  );
-}
+export const productsOfFamily = networkProductsOfFamily;
 
 export interface ProductIssue {
   readonly productId: string;
@@ -157,6 +145,11 @@ export function validateNetworkProducts(): readonly ProductIssue[] {
       at('family', `unknown family ${product.family}`);
       continue;
     }
+    // A run records which version of a product it was drawn with, so every
+    // product has to state one, and state it the way versions are compared.
+    if (product.version === undefined) at('version', 'must state a version');
+    else if (!/^\d+\.\d+\.\d+$/u.test(product.version))
+      at('version', `${product.version} is not a version of the form 1.0.0`);
     if (owner.registry !== 'NETWORK_PRODUCT')
       at('family', `${product.family} is not a network product family`);
     if (owner.domain !== product.domain)
