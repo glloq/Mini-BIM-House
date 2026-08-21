@@ -2,10 +2,9 @@ import type {
   Project,
   SavedDrawingView,
 } from '@house-technical-designer/core-domain';
-import { GENERIC_TECHNICAL_SCREEN } from '@house-technical-designer/drawing-engine';
 import {
-  buildPlanView,
-  defaultVisibility,
+  buildSavedDrawing,
+  type BuiltDrawing,
 } from '@house-technical-designer/view-query';
 import type { BoundingBox2D } from '@house-technical-designer/geometry';
 
@@ -46,23 +45,28 @@ export function contentCentreOf(
   project: Project,
   view: SavedDrawingView,
 ): { readonly x: number; readonly y: number } {
-  const { viewport } = planOf(project, view).view;
+  const { viewport } = drawingOf(project, view).view;
   return {
     x: (viewport.min.x + viewport.max.x) / 2,
     y: (viewport.min.y + viewport.max.y) / 2,
   };
 }
 
-export function planOf(
+/**
+ * The drawing a saved view names — a plan, a section, a façade, a roof plan or
+ * a plan of the ground it stands on.
+ *
+ * Everything that renders a view goes through here, so a section printed on a
+ * sheet is the same section the screen shows.
+ */
+export function drawingOf(
   project: Project,
   view: SavedDrawingView,
   viewport?: BoundingBox2D,
-) {
-  return buildPlanView(project, {
-    ...(view.levelId === undefined ? {} : { levelId: view.levelId }),
-    layers: { ...defaultVisibility(), ...view.layers },
-    graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
-    scale: view.scaleDenominator,
-    ...(viewport === undefined ? {} : { viewport }),
-  });
+): BuiltDrawing {
+  return buildSavedDrawing(
+    project,
+    view,
+    viewport === undefined ? {} : { viewport },
+  );
 }

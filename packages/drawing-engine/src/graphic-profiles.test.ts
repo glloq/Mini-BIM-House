@@ -5,6 +5,10 @@ import {
   FR_INITIAL_SCREEN,
   GENERIC_TECHNICAL_PRINT,
   GENERIC_TECHNICAL_SCREEN,
+  GRAPHIC_PROFILE_REGISTRY,
+  graphicProfileBundle,
+  graphicProfileForMode,
+  graphicProfilesForMode,
   validateGraphicProfileBundle,
 } from './graphic-profiles.js';
 import {
@@ -118,5 +122,41 @@ describe('graphic profiles v1', () => {
         },
       }),
     ).toThrow('dash pattern');
+  });
+});
+
+describe('the charters this version ships', () => {
+  it('finds every one of them by the identifier a file carries', () => {
+    // Four profiles existed and one was findable: everything else a saved view
+    // named came back as « une charte que cette version ne connaît pas ».
+    for (const entry of GRAPHIC_PROFILE_REGISTRY)
+      expect(graphicProfileBundle(entry.id)).toBe(entry);
+    expect(graphicProfileBundle('charte-agence')).toBeUndefined();
+  });
+
+  it('separates what is drawn on a screen from what is printed', () => {
+    expect(
+      graphicProfilesForMode('PRINT').every(({ mode }) => mode === 'PRINT'),
+    ).toBe(true);
+    expect(graphicProfilesForMode('SCREEN')).toHaveLength(
+      GRAPHIC_PROFILE_REGISTRY.length - graphicProfilesForMode('PRINT').length,
+    );
+  });
+
+  it('prints a screen charter with its own printed counterpart', () => {
+    // Colour that separates five networks on a screen becomes five
+    // indistinguishable greys on paper; the pair is stated, not guessed.
+    expect(graphicProfileForMode(FR_INITIAL_SCREEN.id, 'PRINT')).toBe(
+      FR_INITIAL_PRINT,
+    );
+    expect(graphicProfileForMode(FR_INITIAL_PRINT.id, 'PRINT')).toBe(
+      FR_INITIAL_PRINT,
+    );
+    expect(graphicProfileForMode('charte-agence', 'PRINT')).toBeUndefined();
+  });
+
+  it('holds nothing it could not render', () => {
+    for (const entry of GRAPHIC_PROFILE_REGISTRY)
+      expect(() => validateGraphicProfileBundle(entry)).not.toThrow();
   });
 });

@@ -8,7 +8,8 @@ l'application dit ce qui l'a écrit.
 ## 0.3.0-beta.3 — non publiée
 
 Les quatre verrous que l'audit jugeait bloquants avant le remplissage massif
-des catalogues, et deux dettes qu'ils ont mises à nu.
+des catalogues, deux dettes qu'ils ont mises à nu, et le dossier de plans
+terminé.
 
 ### Compatibilité
 
@@ -46,7 +47,26 @@ des catalogues, et deux dettes qu'ils ont mises à nu.
 - une bibliothèque de produits réseau **dans le projet**, et des mises à jour
   du catalogue proposées plutôt qu'appliquées ;
 - le métré compte ce que la maison tient et les mètres de chaque produit
-  qu'elle fait courir ; le module de coût dit ce qu'il ne chiffre pas.
+  qu'elle fait courir ; le module de coût dit ce qu'il ne chiffre pas ;
+- **les coupes, les façades, le plan de toiture et le plan de masse sont
+  dessinés.** Une coupe est une projection : chaque mur que le trait traverse
+  devient une bande à l'endroit du passage, aussi haute que le mur, posée sur
+  son niveau et aussi épaisse que ce dont il est fait ; une fenêtre que la scie
+  a traversée devient le vide qu'elle est ; ce qui se tient derrière le trait,
+  dans la profondeur demandée, est dessiné en arrière-plan et non en
+  maçonnerie. Une façade est la même projection posée dehors, et laisse de côté
+  ce qui est plus profond que ce qu'on a demandé de voir. Le plan de toiture
+  nomme les arêtes où deux pans se rencontrent et dit de quel côté chacun
+  tombe. Le plan de masse montre le terrain, ce qui s'y tient et l'empreinte de
+  la maison ;
+- une coupe porte sa **ligne de coupe**, une façade sa **direction**, et l'une
+  et l'autre leur profondeur et leur tranche de hauteur : une vue qui ne les
+  portait pas était une vue que personne ne pouvait rouvrir. L'éditeur refuse
+  d'en enregistrer une sans, et l'importeur refuse d'en relire une sans ;
+- un **registre des chartes graphiques** : quatre profils existaient, un seul
+  était trouvable, et les trois autres revenaient comme « une charte que cette
+  version ne connaît pas ». Une feuille imprimée prend le pendant imprimé de la
+  charte de l'écran.
 
 ## 0.3.0-beta.2 — non publiée
 

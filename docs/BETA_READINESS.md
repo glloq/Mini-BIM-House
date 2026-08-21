@@ -187,6 +187,10 @@ complète, congés et chanfreins, contraintes paramétriques avancées,
 collaboration en ligne, édition tactile complète sur téléphone. Les Web Workers
 ne seront ajoutés que si les mesures de performance l'exigent.
 
+Le dossier de plans non plus n'est plus reporté : la coupe, la façade, le plan
+de toiture et le plan de masse sont dessinés à partir du modèle, et une coupe
+porte la ligne où elle coupe.
+
 Le remaniement CAO courant, lui, n'est plus reporté : déplacer, dupliquer,
 copier-coller entre niveaux, pivoter, retourner, décaler, joindre, ajuster,
 aligner et scinder à l'endroit désigné existent, avec la saisie de la longueur

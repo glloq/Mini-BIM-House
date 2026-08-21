@@ -18,13 +18,21 @@ import {
   renderSheet,
   renderViewToSvg,
 } from './documents-model.js';
+import {
+  FACADES,
+  SECTION_AXES,
+  VIEW_CAPTURE_KINDS,
+  type Facade,
+  type SectionAxis,
+  type ViewCaptureKind,
+} from './view-capture.js';
 
 export interface DocumentsPanelProps {
   readonly project: Project;
   readonly onCommand: (command: ProjectCommand) => boolean;
   readonly onMessage: (message: string) => void;
   /** Saves the plan as it stands, which is what a view is made of. */
-  readonly onCaptureView: (name: string) => void;
+  readonly onCaptureView: (name: string, kind: ViewCaptureKind) => void;
   readonly onApplyView: (view: SavedDrawingView) => void;
   readonly onExport: (sheets: readonly ProjectSheet[]) => void;
   readonly newId: (prefix: string) => string;
@@ -57,6 +65,10 @@ export function DocumentsPanel({
   const views = project.drawingViews ?? [];
   const sheets = useMemo(() => project.sheets ?? [], [project.sheets]);
   const [viewName, setViewName] = useState('Plan du niveau');
+  const [viewKind, setViewKind] =
+    useState<(typeof VIEW_CAPTURE_KINDS)[number]['id']>('PLAN');
+  const [sectionAxis, setSectionAxis] = useState<SectionAxis>('EAST_WEST');
+  const [facade, setFacade] = useState<Facade>('SOUTH');
   const [sheetTitle, setSheetTitle] = useState('Plan');
   const [format, setFormat] = useState<ProjectSheet['format']>('A3');
   const [orientation, setOrientation] =
@@ -107,10 +119,10 @@ export function DocumentsPanel({
     >
       <h2 id="documents-heading">Vues et feuilles</h2>
       <p className="hint">
-        Une vue ne contient aucun dessin : elle retient le niveau, l’échelle,
-        les calques et le profil graphique, et le dessin est refait à partir du
-        modèle. Une vue rouverte après qu’un mur a bougé montre le mur où il
-        est.
+        Une vue ne contient aucun dessin : elle retient les décisions — le
+        niveau, l’échelle, les calques, le profil graphique, et pour une coupe
+        la ligne où elle coupe — et le dessin est refait à partir du modèle. Une
+        vue rouverte après qu’un mur a bougé montre le mur où il est.
       </p>
 
       <section aria-labelledby="views-heading">
@@ -123,12 +135,73 @@ export function DocumentsPanel({
               onChange={(event) => setViewName(event.target.value)}
             />
           </label>
+          <label>
+            Type de vue
+            <select
+              value={viewKind}
+              onChange={(event) => {
+                setViewKind(
+                  event.target
+                    .value as (typeof VIEW_CAPTURE_KINDS)[number]['id'],
+                );
+              }}
+            >
+              {VIEW_CAPTURE_KINDS.map(({ id, label }) => (
+                <option key={id} value={id}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          {viewKind === 'SECTION' ? (
+            <label>
+              Sens de la coupe
+              <select
+                value={sectionAxis}
+                onChange={(event) => {
+                  setSectionAxis(event.target.value as SectionAxis);
+                }}
+              >
+                {SECTION_AXES.map(({ id, label }) => (
+                  <option key={id} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : undefined}
+          {viewKind === 'ELEVATION' ? (
+            <label>
+              Façade
+              <select
+                value={facade}
+                onChange={(event) => {
+                  setFacade(event.target.value as Facade);
+                }}
+              >
+                {FACADES.map(({ id, label }) => (
+                  <option key={id} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : undefined}
           <button
             type="button"
-            onClick={() => onCaptureView(viewName)}
+            onClick={() => {
+              onCaptureView(
+                viewName,
+                viewKind === 'SECTION'
+                  ? { type: 'SECTION', axis: sectionAxis }
+                  : viewKind === 'ELEVATION'
+                    ? { type: 'ELEVATION', facade }
+                    : { type: viewKind },
+              );
+            }}
             disabled={viewName.trim() === ''}
           >
-            Enregistrer le plan tel qu’il est
+            Enregistrer cette vue
           </button>
         </div>
         {views.length === 0 ? (
@@ -159,7 +232,13 @@ export function DocumentsPanel({
                     <button
                       type="button"
                       className="secondary"
-                      onClick={() => onApplyView(view)}
+                      onClick={() => {
+                        // Only a plan is edited in the plan. A section opened
+                        // « in the plan » would be a plan of a storey wearing
+                        // the section's name, which is what this used to do.
+                        if (view.type === 'PLAN') onApplyView(view);
+                        else setPreview(renderViewToSvg(project, view));
+                      }}
                     >
                       Ouvrir
                     </button>

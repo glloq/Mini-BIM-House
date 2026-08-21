@@ -2300,9 +2300,7 @@ test('keeps a view, lays it on a sheet and draws the sheet', async ({
   ).toBeVisible();
 
   await page.getByLabel('Nom de la vue').fill('Plan RDC');
-  await page
-    .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
-    .click();
+  await page.getByRole('button', { name: 'Enregistrer cette vue' }).click();
   await expect(page.getByRole('status')).toContainText('enregistrée');
 
   await page.getByLabel('Titre de la feuille').fill('Plan du rez-de-chaussée');
@@ -2336,6 +2334,48 @@ test('keeps a view, lays it on a sheet and draws the sheet', async ({
   expect(errors).toEqual([]);
 });
 
+test('keeps a section, a façade, a roof plan and a site plan', async ({
+  page,
+}) => {
+  // The drawing set held four kinds of view the application could not draw:
+  // opening one gave a plan of a storey wearing the section's name.
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page
+    .getByRole('button', { name: 'Vues et feuilles', exact: true })
+    .click();
+
+  for (const [kind, name] of [
+    ['Coupe', 'Coupe AA'],
+    ['Façade', 'Façade sud'],
+    ['Plan de toiture', 'Toiture'],
+    ['Plan de masse', 'Masse'],
+  ] as const) {
+    await page.getByLabel('Type de vue').selectOption({ label: kind });
+    await page.getByLabel('Nom de la vue').fill(name);
+    await page.getByRole('button', { name: 'Enregistrer cette vue' }).click();
+    await expect(page.getByRole('status')).toContainText(name);
+  }
+
+  const views = page.getByRole('region', { name: 'Vues enregistrées' });
+  await expect(views.getByRole('cell', { name: 'SECTION' })).toBeVisible();
+  await expect(views.getByRole('cell', { name: 'ELEVATION' })).toBeVisible();
+  await expect(views.getByRole('cell', { name: 'ROOF' })).toBeVisible();
+  await expect(views.getByRole('cell', { name: 'SITE' })).toBeVisible();
+
+  // Opening a section shows the section, drawn from the model.
+  await views
+    .getByRole('row')
+    .filter({ hasText: 'Coupe AA' })
+    .getByRole('button', { name: 'Ouvrir' })
+    .click();
+  const drawing = page.locator('.sheet-preview svg').first();
+  await expect(drawing).toBeVisible();
+  // A section stands on its storey: it carries the cut walls a plan has not.
+  await expect(drawing.locator('[data-role="WALL_CUT"]').first()).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test('lays two views at two scales on one sheet', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
@@ -2347,9 +2387,7 @@ test('lays two views at two scales on one sheet', async ({ page }) => {
   // ordinary case of a drawing set, and it could not be expressed at all.
   for (const name of ['Plan RDC', 'Plan masse']) {
     await page.getByLabel('Nom de la vue').fill(name);
-    await page
-      .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
-      .click();
+    await page.getByRole('button', { name: 'Enregistrer cette vue' }).click();
     await expect(page.getByRole('status')).toContainText('enregistrée');
   }
 
@@ -2405,9 +2443,7 @@ test('reopens a saved view exactly as it was saved', async ({ page }) => {
     .getByRole('button', { name: 'Vues et feuilles', exact: true })
     .click();
   await page.getByLabel('Nom de la vue').fill('Sans les escaliers');
-  await page
-    .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
-    .click();
+  await page.getByRole('button', { name: 'Enregistrer cette vue' }).click();
   await expect(page.getByRole('status')).toContainText('enregistrée');
 
   // The layer turned back on, and the view reopened. Restoring used to turn

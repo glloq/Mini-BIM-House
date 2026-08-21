@@ -677,6 +677,12 @@ fichier de projet promet d'une version à l'autre est écrit dans
   export CSV, avec les matériaux non valorisés signalés comme tels.
 - **Scénarios** — création, duplication et comparaison d'une variante au projet
   de base, sans dupliquer le projet, et promotion d'une variante en projet.
+- **Dossier de plans** — cinq sortes de vue dessinées à partir du modèle et
+  jamais enregistrées comme images : plan de niveau, coupe, façade, plan de
+  toiture et plan de masse. Une coupe retient la ligne où elle coupe, une
+  façade la direction d'où elle est vue, l'une et l'autre leur profondeur et
+  leur tranche de hauteur ; ces vues se posent sur les feuilles et s'exportent
+  comme les plans.
 - **Fichiers** — conteneur `.houseproj` transportant le projet et son climat,
   export JSON canonique et SVG, import validé, sauvegarde locale automatique
   dans IndexedDB et restauration proposée — jamais appliquée en silence.

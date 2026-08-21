@@ -81,6 +81,10 @@ import {
   scaleDenominatorForZoom,
 } from './documents/saved-view.js';
 import {
+  capturedView,
+  type ViewCaptureKind,
+} from './documents/view-capture.js';
+import {
   boundsOf,
   capabilitiesOf,
   contextActionsFor,
@@ -1287,12 +1291,12 @@ function App() {
    * reopened after a wall moved shows the wall where it is now.
    */
   const captureView = useCallback(
-    (name: string) => {
+    (name: string, kind: ViewCaptureKind) => {
       const levelId = activeLevelId as SavedDrawingView['levelId'] | undefined;
-      const view: SavedDrawingView = {
+      const view = capturedView(session.current.file.project, {
         id: `view-${crypto.randomUUID()}`,
-        type: 'PLAN',
         name,
+        kind,
         ...(levelId === undefined ? {} : { levelId }),
         // A drawing at 1:1 puts one model millimetre on one paper
         // millimetre, and a CSS pixel is 1/96 inch: the denominator is how
@@ -1302,7 +1306,7 @@ function App() {
         graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
         centreMm: editor.camera.centerModelMm,
         ...(overlayId === 'none' ? {} : { analysisOverlayId: overlayId }),
-      };
+      });
       if (runCommand(new SaveDrawingViewCommand(view)))
         setMessage(`Vue « ${name} » enregistrée.`);
     },

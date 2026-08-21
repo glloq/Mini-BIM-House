@@ -190,3 +190,66 @@ describe('drawing a sheet', () => {
     expect(svg).toContain('Vue non rendue');
   });
 });
+
+describe('a drawing set that holds more than plans', () => {
+  const CUT = {
+    start: { x: 0, y: 2000 },
+    end: { x: 12_000, y: 2000 },
+  } as const;
+
+  it('refuses a section that does not say where it cuts', () => {
+    // The type said « coupe » and the file said nothing else: reopening it,
+    // the only honest thing left was to draw a plan and admit it.
+    const dispatcher = new ProjectCommandDispatcher(project());
+    const result = dispatcher.dispatch(
+      new SaveDrawingViewCommand({ ...VIEW, id: 'view-cut', type: 'SECTION' }),
+    );
+    expect(result.status).toBe('REJECTED');
+  });
+
+  it('refuses a façade that does not say where it is seen from', () => {
+    const dispatcher = new ProjectCommandDispatcher(project());
+    expect(
+      dispatcher.dispatch(
+        new SaveDrawingViewCommand({
+          ...VIEW,
+          id: 'view-face',
+          type: 'ELEVATION',
+        }),
+      ).status,
+    ).toBe('REJECTED');
+  });
+
+  it('keeps a section and prints it as a section', () => {
+    const dispatcher = new ProjectCommandDispatcher(project());
+    const view: SavedDrawingView = {
+      ...VIEW,
+      id: 'view-cut',
+      name: 'Coupe AA',
+      type: 'SECTION',
+      cut: CUT,
+      viewDepthMm: 6000,
+    };
+    expect(dispatcher.dispatch(new SaveDrawingViewCommand(view)).status).toBe(
+      'APPLIED',
+    );
+    const svg = renderViewToSvg(dispatcher.project, view);
+    // A section is drawn in elevation: the walls stand on their storey, so the
+    // drawing carries heights the plan never had.
+    expect(svg).toContain('data-role="WALL_CUT"');
+    // The saw shows the storey it went through, not the outline of a plan.
+    expect(svg).toContain('data-role="WALL_BELOW"');
+    expect(svg).not.toBe(renderViewToSvg(dispatcher.project, VIEW));
+  });
+
+  it('draws a roof plan and a site plan without a storey to stand on', () => {
+    for (const type of ['ROOF', 'SITE'] as const) {
+      const view: SavedDrawingView = {
+        ...VIEW,
+        id: `view-${type.toLowerCase()}`,
+        type,
+      };
+      expect(renderViewToSvg(project(), view)).toContain('<svg');
+    }
+  });
+});

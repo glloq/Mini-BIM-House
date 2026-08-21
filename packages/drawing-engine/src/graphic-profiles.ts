@@ -366,3 +366,55 @@ export const GENERIC_TECHNICAL_SCREEN = bundle('generic', 'SCREEN');
 export const GENERIC_TECHNICAL_PRINT = bundle('generic', 'PRINT');
 export const FR_INITIAL_SCREEN = bundle('fr', 'SCREEN');
 export const FR_INITIAL_PRINT = bundle('fr', 'PRINT');
+
+/**
+ * Every graphic profile this version ships.
+ *
+ * Four profiles existed and one was findable: the application compared a saved
+ * view's profile against the generic screen bundle and reported anything else
+ * as « une charte que cette version ne connaît pas » — including the three it
+ * was shipping. A registry is what makes the choice a choice.
+ */
+export const GRAPHIC_PROFILE_REGISTRY: readonly GraphicProfileBundle[] = [
+  GENERIC_TECHNICAL_SCREEN,
+  GENERIC_TECHNICAL_PRINT,
+  FR_INITIAL_SCREEN,
+  FR_INITIAL_PRINT,
+];
+
+const PROFILES_BY_ID = new Map(
+  GRAPHIC_PROFILE_REGISTRY.map((entry) => [entry.id, entry]),
+);
+
+export function graphicProfileBundle(
+  id: string,
+): GraphicProfileBundle | undefined {
+  return PROFILES_BY_ID.get(id);
+}
+
+/** The profiles for one output, so a screen never offers a print charter. */
+export function graphicProfilesForMode(
+  mode: GraphicOutputMode,
+): readonly GraphicProfileBundle[] {
+  return GRAPHIC_PROFILE_REGISTRY.filter((entry) => entry.mode === mode);
+}
+
+/**
+ * The profile to print a screen profile with, and the other way round.
+ *
+ * The same drawing, printed, is not the same drawing: colour that separates
+ * networks on a screen becomes five indistinguishable greys on paper. The pair
+ * is stated here so exporting never silently changes the charter's locale.
+ */
+export function graphicProfileForMode(
+  id: string,
+  mode: GraphicOutputMode,
+): GraphicProfileBundle | undefined {
+  const held = graphicProfileBundle(id);
+  if (held === undefined) return undefined;
+  if (held.mode === mode) return held;
+  return GRAPHIC_PROFILE_REGISTRY.find(
+    (entry) =>
+      entry.mode === mode && entry.profile.locale === held.profile.locale,
+  );
+}
