@@ -20,8 +20,16 @@ const METRIC_LABELS: Readonly<Record<string, string>> = {
   VENT_VELOCITY: 'Vitesse dans les gaines',
   VENT_PRESSURE_LOSS: 'Pertes de charge des gaines',
   WASTEWATER_SLOPE: 'Pente des collecteurs',
+  DISCHARGE_UNITS: 'Unités de décharge cumulées',
   VOLTAGE_DROP: 'Chute de tension par circuit',
   DESIGN_POWER: 'Puissance foisonnée par circuit',
+  HEATING_POWER: 'Puissance de chauffage par pièce',
+  HEATING_DENSITY: 'Puissance de chauffage au mètre carré',
+  ILLUMINANCE: 'Éclairement moyen',
+  LIGHTING_DENSITY: 'Puissance d’éclairage au mètre carré',
+  CO2: 'Concentration maximale en CO₂',
+  REVERBERATION: 'Temps de réverbération à 1 kHz',
+  CONDENSATION_RISK: 'Risque de condensation',
   SCENARIO_DIFF: 'Ce que la variante change',
 };
 

@@ -94,6 +94,14 @@ terminé.
   les deux nombres qu'il a comparés — un verdict dont on ne voit pas les chiffres
   est un verdict qu'on ne peut que croire — et aucun ne dit « conforme » : c'est
   l'affaire d'un référentiel, qui sait de quel pays et de quelle année ;
+- **huit analyses de plus sur le plan.** Ce qu'une pièce demande en chauffage,
+  au total et au mètre carré ; ce qu'elle reçoit en éclairement et en puissance
+  d'éclairage ; le CO₂ qu'elle atteint ; son temps de réverbération à 1 kHz ; le
+  risque de condensation d'une paroi ; les unités de décharge cumulées d'un
+  collecteur. Tous ces chiffres étaient calculés et ne se lisaient qu'en
+  tableau. Une analyse reste une ligne de description — où sont ses nombres —
+  et non une fonction de plus : deux mécanismes nouveaux y suffisent, choisir
+  une bande d'octave et montrer un oui/non comme un et zéro ;
 - un champ photovoltaïque posé sur un pan de toiture dit sur lequel ; le module
   demandait de le redire dans un réglage, et les deux réponses auraient divergé
   au premier déplacement ;

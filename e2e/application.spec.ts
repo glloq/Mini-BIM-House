@@ -2319,6 +2319,27 @@ test('colours the networks with what their own engines computed', async ({
   expect(errors).toEqual([]);
 });
 
+test('colours a room by what it needs, gets and breathes', async ({ page }) => {
+  // The heating load of a room, its illuminance and its CO₂ were all computed
+  // and only ever read in a table.
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const overlay = page.getByLabel('Superposition');
+  const legend = page.locator('.overlay-legend');
+  for (const [id, title] of [
+    ['heating-room-power', 'Puissance de chauffage par pièce'],
+    ['lighting-illuminance', 'Éclairement moyen'],
+    ['iaq-co2', 'Concentration maximale en CO₂'],
+  ] as const) {
+    await overlay.selectOption(id);
+    await expect(legend).toBeVisible({ timeout: 15_000 });
+    await expect(legend).toContainText(title);
+    // A room is a surface, and a surface is coloured like a wall is.
+    await expect(page.locator(`[id^="overlay:${id}:"]`)).not.toHaveCount(0);
+  }
+  expect(errors).toEqual([]);
+});
+
 test('keeps a view, lays it on a sheet and draws the sheet', async ({
   page,
 }) => {

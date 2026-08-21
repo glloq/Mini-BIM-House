@@ -665,7 +665,12 @@ fichier de projet promet d'une version à l'autre est écrit dans
 - **Calculs** — dix-sept modules exécutés depuis l'interface, chacun affichant sa
   méthode, sa précision, ses hypothèses, ses références et ses entrées
   manquantes.
-- **Analyse** — les résultats se projettent sur le plan en bandes légendées.
+- **Analyse** — dix-huit résultats se projettent sur le plan en bandes
+  légendées : transmission et déperditions des parois, risque de condensation,
+  vitesse et pertes de charge de l'eau et des gaines, pente et unités de
+  décharge des collecteurs, chute de tension et puissance foisonnée par
+  circuit, puissance de chauffage par pièce et au mètre carré, éclairement,
+  puissance d'éclairage au mètre carré, CO₂ maximal et temps de réverbération.
 - **Vérifications** — ce que le modèle, les réseaux, les calculs et le métré ne
   résolvent pas, rassemblé avec le chemin pour le corriger, et ce qu'il faut mis
   en regard de ce qui est posé : générateur contre demande de chauffage,

@@ -31,6 +31,21 @@ export interface OverlayOption {
   readonly discipline?: string;
   /** What the value stands for when a row has none. */
   readonly missingHint?: string;
+  /**
+   * Where the value hides one level down, when a row is a row of rows.
+   *
+   * A room's reverberation is not one figure but one per octave band, and the
+   * plan colours by one number. Saying which band here keeps the analysis
+   * declarative instead of earning a function of its own.
+   */
+  readonly band?: {
+    readonly rowsKey: string;
+    readonly matchKey: string;
+    readonly matchValue: number;
+    readonly valueKey: string;
+  };
+  /** Whether the value is a yes/no the plan shows as one and zero. */
+  readonly boolean?: boolean;
 }
 
 export const OVERLAY_OPTIONS = [
@@ -112,6 +127,96 @@ export const OVERLAY_OPTIONS = [
     metric: 'VOLTAGE_DROP',
     unit: '%',
   },
+  // What a room needs, what it gets and what it breathes. These figures were
+  // all computed and only ever read in a table.
+  {
+    id: 'heating-room-power',
+    label: 'Chauffage · puissance par pièce',
+    moduleId: 'heating',
+    rowsKey: 'rooms',
+    idKey: 'roomId',
+    valueKey: 'totalW',
+    metric: 'HEATING_POWER',
+    unit: 'W',
+  },
+  {
+    id: 'heating-room-density',
+    label: 'Chauffage · puissance surfacique',
+    moduleId: 'heating',
+    rowsKey: 'rooms',
+    idKey: 'roomId',
+    valueKey: 'wattsPerM2',
+    metric: 'HEATING_DENSITY',
+    unit: 'W/m²',
+  },
+  {
+    id: 'lighting-illuminance',
+    label: 'Éclairage · éclairement moyen',
+    moduleId: 'lighting',
+    rowsKey: 'rooms',
+    idKey: 'roomId',
+    valueKey: 'averageIlluminanceLux',
+    metric: 'ILLUMINANCE',
+    unit: 'lx',
+  },
+  {
+    id: 'lighting-power-density',
+    label: 'Éclairage · puissance surfacique',
+    moduleId: 'lighting',
+    rowsKey: 'rooms',
+    idKey: 'roomId',
+    valueKey: 'powerDensityWm2',
+    metric: 'LIGHTING_DENSITY',
+    unit: 'W/m²',
+  },
+  {
+    id: 'iaq-co2',
+    label: 'Air intérieur · CO₂ maximal',
+    moduleId: 'iaq',
+    rowsKey: 'rooms',
+    idKey: 'roomId',
+    valueKey: 'maximumConcentrationPpm',
+    metric: 'CO2',
+    unit: 'ppm',
+  },
+  {
+    id: 'acoustics-reverberation',
+    label: 'Acoustique · temps de réverbération (1 kHz)',
+    moduleId: 'acoustics',
+    rowsKey: 'rooms',
+    idKey: 'roomId',
+    valueKey: 'reverberationTimeS',
+    band: {
+      rowsKey: 'bands',
+      matchKey: 'bandHz',
+      matchValue: 1000,
+      valueKey: 'reverberationTimeS',
+    },
+    metric: 'REVERBERATION',
+    unit: 's',
+  },
+  {
+    id: 'hygrothermal-condensation',
+    label: 'Hygrothermie · risque de condensation',
+    moduleId: 'hygrothermal',
+    rowsKey: 'assemblies',
+    idKey: 'elementId',
+    valueKey: 'condensationRisk',
+    boolean: true,
+    metric: 'CONDENSATION_RISK',
+    unit: '—',
+  },
+  {
+    id: 'wastewater-discharge-units',
+    label: 'Évacuation · unités de décharge',
+    moduleId: 'wastewater',
+    discipline: 'WASTEWATER',
+    rowsKey: 'segments',
+    idKey: 'id',
+    valueKey: 'totalDischargeUnits',
+    metric: 'DISCHARGE_UNITS',
+    unit: 'UD',
+  },
   {
     id: 'electrical-design-power',
     label: 'Électricité · puissance foisonnée',
@@ -150,6 +255,32 @@ function number(value: CalculationJson | undefined): number | undefined {
 
 function text(value: CalculationJson | undefined): string | undefined {
   return typeof value === 'string' && value !== '' ? value : undefined;
+}
+
+/**
+ * The one number this analysis colours by, out of a row of the module.
+ *
+ * A yes/no is shown as one and zero — the plan has one colour scale and a risk
+ * of condensation is a risk or it is not. A figure buried one level down, per
+ * octave band, is picked by the band the analysis names.
+ */
+function valueOf(
+  declared: OverlayOption,
+  row: Readonly<Record<string, CalculationJson>>,
+): number | null {
+  if (declared.band !== undefined) {
+    const band = rows(row[declared.band.rowsKey]).find(
+      (entry) =>
+        number(entry[declared.band!.matchKey]) === declared.band!.matchValue,
+    );
+    return band === undefined
+      ? null
+      : (number(band[declared.band.valueKey]) ?? null);
+  }
+  const raw = row[declared.valueKey!];
+  if (declared.boolean === true)
+    return typeof raw === 'boolean' ? (raw ? 1 : 0) : null;
+  return number(raw) ?? null;
 }
 
 function scaleOf(values: readonly number[]): AnalysisOverlay['scale'] {
@@ -192,7 +323,7 @@ export function buildOverlay(
       if (id === undefined) return [];
       // A row that carries no value is not a row worth zero: it stays unknown
       // and the legend counts it as such.
-      return [[id, number(row[declared.valueKey!]) ?? null] as const];
+      return [[id, valueOf(declared, row)] as const];
     });
     if (entries.length === 0) return undefined;
     const numeric = entries
