@@ -177,45 +177,157 @@ export type RoofTopology =
       readonly planes: readonly RoofPlane[];
     };
 
-/** Whether four corners describe a rectangle, within a tenth of a millimetre. */
-function isRectangle(outline: readonly Point2D[]): boolean {
-  if (outline.length !== 4) return false;
-  for (let index = 0; index < 4; index += 1) {
-    const previous = outline[(index + 3) % 4]!;
+/** Whether an outline turns the same way at every corner. */
+function isConvex(outline: readonly Point2D[]): boolean {
+  if (outline.length < 3) return false;
+  let sign = 0;
+  for (let index = 0; index < outline.length; index += 1) {
+    const previous = outline[(index + outline.length - 1) % outline.length]!;
     const current = outline[index]!;
-    const next = outline[(index + 1) % 4]!;
-    const ax = current.x - previous.x;
-    const ay = current.y - previous.y;
-    const bx = next.x - current.x;
-    const by = next.y - current.y;
-    if (Math.abs(ax * bx + ay * by) > 0.1) return false;
+    const next = outline[(index + 1) % outline.length]!;
+    const cross =
+      (current.x - previous.x) * (next.y - current.y) -
+      (current.y - previous.y) * (next.x - current.x);
+    if (Math.abs(cross) < 1e-6) continue;
+    const turn = cross > 0 ? 1 : -1;
+    if (sign === 0) sign = turn;
+    else if (sign !== turn) return false;
   }
-  return true;
+  return sign !== 0;
+}
+
+/** A half-plane `a·x + b·y <= c`, used to cut a face out of an outline. */
+interface HalfPlane {
+  readonly a: number;
+  readonly b: number;
+  readonly c: number;
+}
+
+/**
+ * Cuts a convex outline down to the part satisfying a half-plane.
+ *
+ * Sutherland and Hodgman's clip: each side of the outline is walked, and a
+ * side crossing the cut is split exactly at the crossing. Cutting a convex
+ * shape by a half-plane leaves a convex shape, so this can be applied once per
+ * constraint without ever leaving the family it started in.
+ */
+function clipped(
+  outline: readonly Point2D[],
+  { a, b, c }: HalfPlane,
+): readonly Point2D[] {
+  const inside = (point: Point2D): number => c - (a * point.x + b * point.y);
+  const result: Point2D[] = [];
+  for (let index = 0; index < outline.length; index += 1) {
+    const current = outline[index]!;
+    const next = outline[(index + 1) % outline.length]!;
+    const here = inside(current);
+    const there = inside(next);
+    if (here >= -TOLERANCE_MM) result.push(current);
+    if ((here > 0 && there < 0) || (here < 0 && there > 0)) {
+      const ratio = here / (here - there);
+      result.push({
+        x: current.x + (next.x - current.x) * ratio,
+        y: current.y + (next.y - current.y) * ratio,
+      });
+    }
+  }
+  return dedupedCorners(result);
+}
+
+/** How close two corners have to be to count as one, in millimetres. */
+const TOLERANCE_MM = 0.001;
+
+function dedupedCorners(outline: readonly Point2D[]): readonly Point2D[] {
+  const result: Point2D[] = [];
+  for (const point of outline) {
+    const last = result[result.length - 1];
+    if (
+      last !== undefined &&
+      Math.abs(last.x - point.x) < TOLERANCE_MM &&
+      Math.abs(last.y - point.y) < TOLERANCE_MM
+    )
+      continue;
+    result.push(point);
+  }
+  const first = result[0];
+  const last = result[result.length - 1];
+  if (
+    result.length > 1 &&
+    first !== undefined &&
+    last !== undefined &&
+    Math.abs(first.x - last.x) < TOLERANCE_MM &&
+    Math.abs(first.y - last.y) < TOLERANCE_MM
+  )
+    result.pop();
+  return result;
+}
+
+/** The line an eave runs along, as an inward distance from any point. */
+interface EaveLine {
+  readonly index: number;
+  /** Inward unit normal. */
+  readonly nx: number;
+  readonly ny: number;
+  /** Distance from the origin, so that inward distance is n·p − offset. */
+  readonly offset: number;
+  /** How fast the roof climbs away from this eave. */
+  readonly tangent: number;
+}
+
+function eaveLinesOf(
+  outline: readonly Point2D[],
+  edges: readonly RoofEdge[],
+  clockwise: boolean,
+): readonly EaveLine[] {
+  const lines: EaveLine[] = [];
+  for (const [index, edge] of edges.entries()) {
+    if (edge.kind !== 'SLOPED') continue;
+    const from = outline[index];
+    const to = outline[(index + 1) % outline.length];
+    if (from === undefined || to === undefined) continue;
+    const outward = outwardNormal(from, to, clockwise);
+    const nx = -outward.x;
+    const ny = -outward.y;
+    lines.push({
+      index,
+      nx,
+      ny,
+      offset: nx * from.x + ny * from.y,
+      tangent: Math.tan((edge.slopeDeg * Math.PI) / 180),
+    });
+  }
+  return lines;
 }
 
 /**
  * The planes a roof is made of, derived and never stored.
  *
- * A rectangular outline is solved exactly, whatever the mix of sloped and
- * gable sides and whatever the pitches: opposite sides meet where their two
- * climbs reach the same height, which is a division and not a guess.
+ * A roof is the lowest of the surfaces climbing from its eaves: at any point
+ * under it, the covering plane is the one that reaches that point lowest, and
+ * a plane's face is exactly where it is that lowest one. Building the faces
+ * that way is what makes them a partition — they cover the roof once and only
+ * once — instead of four independent quadrilaterals that overlap in the middle
+ * and count the same square metre twice.
  *
- * Any other outline needs a straight skeleton, which this version does not
- * compute. It says so and returns the planes it is sure of — one per sloped
- * side, standing on that side — rather than inventing a ridge nobody drew.
+ * The construction is exact for any convex outline, whatever the mix of sloped
+ * and gable sides and whatever the pitches: a gable raises no surface, so the
+ * sides that do slope share the whole roof between them. A non-convex outline
+ * needs a straight skeleton, which this version does not compute; it says so,
+ * and what it says is then kept out of every area the project counts.
  */
 export function deriveRoofPlanes(roof: Roof): RoofTopology {
   const outline = roof.footprint.outer;
-  const clockwise = signedAreaOf(outline) < 0;
-  const planeOf = (index: number, footprint: Polygon2D): RoofPlane => {
+  const eave = roofEaveOutline(roof).outer;
+  const clockwise = signedAreaOf(eave) < 0;
+  const planeOf = (index: number, face: readonly Point2D[]): RoofPlane => {
     const from = outline[index]!;
     const to = outline[(index + 1) % outline.length]!;
-    const normal = outwardNormal(from, to, clockwise);
+    const normal = outwardNormal(from, to, signedAreaOf(outline) < 0);
     return {
       id: entityId<'RoofPlane'>(`${roof.id}:plane:${index}`),
       type: 'ROOF_PLANE',
       levelId: roof.levelId,
-      footprint,
+      footprint: { outer: [...face] },
       assemblyId: roof.assemblyId,
       slopeDeg: roof.edges[index]?.slopeDeg ?? 0,
       // The plane climbs away from its eave, so it faces the way the eave
@@ -224,98 +336,77 @@ export function deriveRoofPlanes(roof: Roof): RoofTopology {
       baseElevationMm: roof.baseElevationMm,
     };
   };
-  const eave = roofEaveOutline(roof).outer;
-  const sloped = roof.edges
-    .map((edge, index) => ({ edge, index }))
-    .filter(({ edge }) => edge.kind === 'SLOPED');
 
-  if (!isRectangle(outline))
-    return {
-      status: 'NOT_DERIVABLE',
-      reason:
-        'Cette version ne déduit la rencontre des pans que sur un contour rectangulaire.',
-      planes: sloped.map(({ index }) =>
-        planeOf(index, {
-          outer: [
-            eave[index]!,
-            eave[(index + 1) % eave.length]!,
-            outline[(index + 1) % outline.length]!,
-            outline[index]!,
-          ],
-        }),
-      ),
-    };
+  const lines = eaveLinesOf(eave, roof.edges, clockwise);
+  const unresolved = (reason: string): RoofTopology => ({
+    status: 'NOT_DERIVABLE',
+    reason,
+    // One strip per sloped side, standing on that side and reaching the
+    // outline. It is what the drawing can honestly show and nothing counts it.
+    planes: lines.map(({ index }) =>
+      planeOf(index, [
+        eave[index]!,
+        eave[(index + 1) % eave.length]!,
+        outline[(index + 1) % outline.length]!,
+        outline[index]!,
+      ]),
+    ),
+  });
 
-  // On a rectangle, sides 0 and 2 face each other, and so do 1 and 3. Two
-  // facing climbs meet where they reach the same height: the distance from the
-  // first is the span times the tangent of the second over the sum of both.
-  const meeting = (first: number, second: number): number | undefined => {
-    const one = roof.edges[first];
-    const other = roof.edges[second];
-    if (one === undefined || other === undefined) return undefined;
-    const a = outline[first]!;
-    const b = outline[second]!;
-    const next = outline[(first + 1) % 4]!;
-    const normal = outwardNormal(a, next, clockwise);
-    const span = Math.abs((b.x - a.x) * normal.x + (b.y - a.y) * normal.y);
-    if (one.kind === 'SLOPED' && other.kind === 'SLOPED') {
-      const tangents =
-        Math.tan((one.slopeDeg * Math.PI) / 180) +
-        Math.tan((other.slopeDeg * Math.PI) / 180);
-      return tangents === 0
-        ? undefined
-        : (span * Math.tan((other.slopeDeg * Math.PI) / 180)) / tangents;
-    }
-    // A slope facing a gable climbs the whole span on its own.
-    return one.kind === 'SLOPED' ? span : undefined;
-  };
+  if (!isConvex(eave))
+    return unresolved(
+      'Cette version ne déduit la rencontre des pans que sur un contour convexe.',
+    );
+  if (lines.some(({ tangent }) => !Number.isFinite(tangent) || tangent <= 0))
+    return unresolved(
+      'Une pente nulle ou plate ne fait pas se rencontrer les pans.',
+    );
 
   const planes: RoofPlane[] = [];
-  for (const { index } of sloped) {
-    const facing = (index + 2) % 4;
-    const depth = meeting(index, facing);
-    if (depth === undefined) continue;
-    const from = outline[index]!;
-    const to = outline[(index + 1) % 4]!;
-    const normal = outwardNormal(from, to, clockwise);
-    const inward = { x: -normal.x * depth, y: -normal.y * depth };
-    planes.push(
-      planeOf(index, {
-        outer: [
-          eave[index]!,
-          eave[(index + 1) % 4]!,
-          { x: to.x + inward.x, y: to.y + inward.y },
-          { x: from.x + inward.x, y: from.y + inward.y },
-        ],
-      }),
-    );
+  for (const line of lines) {
+    let face = eave;
+    for (const other of lines) {
+      if (other.index === line.index) continue;
+      // This plane covers the point when it reaches it lowest:
+      //   d_line · t_line <= d_other · t_other
+      // Both distances are affine inside a convex outline, so the condition
+      // is a half-plane and the face stays convex.
+      face = clipped(face, {
+        a: line.tangent * line.nx - other.tangent * other.nx,
+        b: line.tangent * line.ny - other.tangent * other.ny,
+        c: line.tangent * line.offset - other.tangent * other.offset,
+      });
+      if (face.length < 3) break;
+    }
+    if (face.length >= 3) planes.push(planeOf(line.index, face));
   }
   return { status: 'DERIVED', planes };
 }
 
-/** How high the highest point of a roof stands, when that can be derived. */
+/**
+ * How high the highest point of a roof stands, when that can be derived.
+ *
+ * The ridge is where the lowest of the climbing surfaces is highest, which is
+ * always at a corner of one of the faces: a plane is flat, so its maximum over
+ * a convex face is at a vertex.
+ */
 export function roofRidgeElevationMm(roof: Roof): number | undefined {
-  const outline = roof.footprint.outer;
-  if (!isRectangle(outline)) return undefined;
-  const clockwise = signedAreaOf(outline) < 0;
+  const topology = deriveRoofPlanes(roof);
+  if (topology.status !== 'DERIVED') return undefined;
+  const eave = roofEaveOutline(roof).outer;
+  const lines = eaveLinesOf(eave, roof.edges, signedAreaOf(eave) < 0);
   let highest: number | undefined;
-  for (const [index, edge] of roof.edges.entries()) {
-    if (edge.kind !== 'SLOPED') continue;
-    const facing = roof.edges[(index + 2) % 4];
-    if (facing === undefined) continue;
-    const a = outline[index]!;
-    const b = outline[(index + 2) % 4]!;
-    const next = outline[(index + 1) % 4]!;
-    const normal = outwardNormal(a, next, clockwise);
-    const span = Math.abs((b.x - a.x) * normal.x + (b.y - a.y) * normal.y);
-    const tangent = Math.tan((edge.slopeDeg * Math.PI) / 180);
-    const depth =
-      facing.kind === 'SLOPED'
-        ? (span * Math.tan((facing.slopeDeg * Math.PI) / 180)) /
-          (tangent + Math.tan((facing.slopeDeg * Math.PI) / 180))
-        : span;
-    const height = roof.baseElevationMm + depth * tangent;
-    highest = highest === undefined ? height : Math.max(highest, height);
+  for (const plane of topology.planes) {
+    const line = lines.find(
+      ({ index }) => plane.id === `${roof.id}:plane:${index}`,
+    );
+    if (line === undefined) continue;
+    for (const corner of plane.footprint.outer) {
+      const climb =
+        (line.nx * corner.x + line.ny * corner.y - line.offset) * line.tangent;
+      const height = roof.baseElevationMm + climb;
+      highest = highest === undefined ? height : Math.max(highest, height);
+    }
   }
   return highest;
 }
@@ -334,8 +425,27 @@ export function allRoofPlanes(level: {
 }): readonly RoofPlane[] {
   return [
     ...level.roofs,
-    ...(level.roofStructures ?? []).flatMap(
-      (roof) => deriveRoofPlanes(roof).planes,
-    ),
+    ...(level.roofStructures ?? []).flatMap((roof) => {
+      const topology = deriveRoofPlanes(roof);
+      // A roof this version cannot partition contributes nothing to what the
+      // project counts. Its strips are drawn so the shape can be seen, and a
+      // drawing that overstates itself is a nuisance; an area that overstates
+      // itself reaches the quantities, the thermal envelope and the solar
+      // gains, and nothing downstream would say where the extra square metres
+      // came from.
+      return topology.status === 'DERIVED' ? topology.planes : [];
+    }),
   ];
+}
+
+/** The roofs of a storey whose planes could not be worked out. */
+export function unresolvedRoofs(level: {
+  readonly roofStructures?: readonly Roof[];
+}): readonly { readonly roof: Roof; readonly reason: string }[] {
+  return (level.roofStructures ?? []).flatMap((roof) => {
+    const topology = deriveRoofPlanes(roof);
+    return topology.status === 'DERIVED'
+      ? []
+      : [{ roof, reason: topology.reason }];
+  });
 }

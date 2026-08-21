@@ -1,0 +1,51 @@
+{
+  "format": "house-technical-designer-project",
+  "schemaVersion": "1.0.0",
+  "project": {
+    "id": "legacy-opaque",
+    "metadata": {
+      "name": "Migration fixture",
+      "createdAt": "2026-01-01T00:00:00Z",
+      "updatedAt": "2026-01-01T00:00:00Z"
+    },
+    "site": {
+      "northAngleDeg": 0
+    },
+    "building": {
+      "levels": [
+        {
+          "id": "ground",
+          "name": "Rez-de-chaussée",
+          "elevationMm": 0,
+          "defaultStoreyHeightMm": 2500,
+          "walls": [],
+          "slabs": [],
+          "roofs": [],
+          "openings": [],
+          "stairs": [
+            {
+              "id": "stair-imported",
+              "source": "IFC",
+              "steps": 17,
+              "note": "escalier importé"
+            },
+            {
+              "kind": "STRAIGHT"
+            }
+          ],
+          "spaces": [],
+          "annotations": []
+        }
+      ],
+      "zones": []
+    },
+    "drawingViews": [
+      {
+        "id": "view-legacy",
+        "label": "Plan RDC",
+        "zoom": 1.4
+      },
+      "plan-rdc"
+    ]
+  }
+}

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ProjectCommandDispatcher } from '@house-technical-designer/editor-core';
 import { loadDemoProject } from '../demo-project.js';
 import {
+  EMPTY_CLIPBOARD,
   clipboardIsEmpty,
   copyObjects,
   duplicateObjectsCommand,
@@ -75,7 +76,9 @@ describe('carrying a selection across the plan', () => {
     });
     expect(result.status).toBe('ERROR');
     if (result.status !== 'ERROR') return;
-    expect(result.message).toContain('le long de son mur');
+    // One refusal for the three verbs: an opening belongs to its wall whether
+    // the wall is being moved, turned or reflected.
+    expect(result.message).toContain('appartient à son mur');
   });
 
   it('refuses a room, which is what its walls enclose', () => {
@@ -253,7 +256,7 @@ describe('copying to another storey', () => {
     const result = pasteClipboardCommand(
       file(),
       'ground',
-      { walls: [], openings: [], slabs: [], roofs: [] },
+      EMPTY_CLIPBOARD,
       { x: 0, y: 0 },
       ids,
     );

@@ -22,6 +22,7 @@ import {
   roofStructureEditsFor,
   stairEditsFor,
   structureEditsFor,
+  networkEdgeEditsFor,
   networkNodeEditsFor,
   openingEditsFor,
   roofEditsFor,
@@ -46,13 +47,14 @@ import {
   stairBounds,
   structureBounds,
   stairRelationships,
-  networkNodeBounds,
+  networkBounds,
   networkNodeRelationships,
   networkRelationships,
   openingBounds,
   openingRelationships,
   roofBounds,
   similarComponents,
+  similarNetworkObjects,
   similarOpenings,
   similarSlabs,
   similarWalls,
@@ -63,13 +65,43 @@ import {
   wallRelationships,
 } from './object-facts.js';
 import {
+  EVERYTHING_MOVES,
+  NOTHING_MOVES,
+  componentDuplicate,
+  componentTransform,
+  dimensionTransform,
+  openingDuplicate,
+  networkDuplicate,
+  networkTransform,
+  openingTransform,
+  roofDuplicate,
+  roofStructureDuplicate,
+  roofStructureTransform,
+  roofTransform,
+  siteDuplicate,
+  siteTransform,
+  slabDuplicate,
+  slabTransform,
+  spaceTransform,
+  stairDuplicate,
+  stairTransform,
+  structureDuplicate,
+  structureTransform,
+  wallDuplicate,
+  wallTransform,
+  type DuplicateProvider,
+  type ObjectCapabilities,
+  type PlanTransform,
+  type TransformProvider,
+} from './object-transform.js';
+import {
   componentRemoval,
   dimensionRemoval,
   roofStructureRemoval,
   siteRemoval,
   stairRemoval,
   structureRemoval,
-  networkNodeRemoval,
+  networkRemoval,
   openingRemoval,
   roofRemoval,
   slabRemoval,
@@ -180,6 +212,27 @@ export interface ObjectEditorDefinition {
     levelId: string,
     objectId: string,
   ) => readonly ObjectRelationship[];
+  /**
+   * What can be done to an object of this family: move, turn, reflect, copy.
+   *
+   * Declared rather than discovered. Moving, turning and duplicating were three
+   * chains of `if` over four families each, written when there were four
+   * families; the ten added since fell through all three and were answered with
+   * « cet objet ne se déplace pas depuis le plan », which was true of the code
+   * and false of the object. A family that declares nothing here declares that
+   * nothing moves, and the menu says so before the user tries.
+   *
+   * A function when one family holds objects that do not all behave alike: the
+   * site holds obstacles, which move, and the parcel, which is the limit of the
+   * ground and does not.
+   */
+  readonly capabilities?:
+    | ObjectCapabilities
+    | ((project: Project, objectId: string) => ObjectCapabilities);
+  /** How an object of this family follows a move, a rotation or a mirror. */
+  readonly transform?: TransformProvider;
+  /** How an object of this family is copied a little to the side. */
+  readonly duplicate?: DuplicateProvider;
 }
 
 /** One tie an object has to others, named as the user would name it. */
@@ -219,6 +272,9 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     similar: similarWalls,
     contextActions: wallContextActions,
     relationships: wallRelationships,
+    capabilities: EVERYTHING_MOVES,
+    transform: wallTransform,
+    duplicate: wallDuplicate,
   },
   {
     label: 'Ouverture',
@@ -230,6 +286,12 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     bounds: openingBounds,
     similar: similarOpenings,
     relationships: openingRelationships,
+    // An opening is duplicated by the wall that carries it, and by nothing
+    // else: put back on the same wall at the same place it would sit exactly
+    // under the original.
+    capabilities: { ...NOTHING_MOVES, duplicable: true },
+    transform: openingTransform,
+    duplicate: openingDuplicate,
   },
   {
     label: 'Pièce',
@@ -238,6 +300,8 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     edits: spaceEditsFor,
     remove: spaceRemoval,
     bounds: spaceBounds,
+    capabilities: NOTHING_MOVES,
+    transform: spaceTransform,
   },
   {
     label: 'Dalle',
@@ -248,6 +312,9 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     remove: slabRemoval,
     bounds: slabBounds,
     similar: similarSlabs,
+    capabilities: EVERYTHING_MOVES,
+    transform: slabTransform,
+    duplicate: slabDuplicate,
   },
   {
     label: 'Toiture',
@@ -260,21 +327,40 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     grips: polygonGrips,
     remove: roofRemoval,
     bounds: roofBounds,
+    capabilities: EVERYTHING_MOVES,
+    transform: roofTransform,
+    duplicate: roofDuplicate,
   },
   {
     label: 'Réseau',
     kinds: ['NETWORK_NODE', 'NETWORK_EDGE'],
     inspect: networkSubject,
-    edits: networkNodeEditsFor,
+    // A node and a segment are both of this family and are not edited alike:
+    // a node stands somewhere, a segment is made of something.
+    edits: (project, objectId) =>
+      networkNodeEditsFor(project, objectId) ??
+      networkEdgeEditsFor(project, objectId),
     grips: routeGrips,
-    remove: networkNodeRemoval,
-    bounds: networkNodeBounds,
+    remove: networkRemoval,
+    bounds: networkBounds,
+    similar: similarNetworkObjects,
     relationships: (project, levelId, objectId) => {
       const node = networkNodeRelationships(project, levelId, objectId);
       return node.length > 0
         ? node
         : networkRelationships(project, levelId, objectId);
     },
+    // A node travels and its segments follow; a segment carries its own
+    // corners when its two nodes travel with it. Neither is copied alone: a
+    // node reached by nothing is not a network.
+    capabilities: {
+      movable: true,
+      rotatable: true,
+      mirrorable: true,
+      duplicable: false,
+    },
+    transform: networkTransform,
+    duplicate: networkDuplicate,
   },
   {
     label: 'Cote',
@@ -282,6 +368,8 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     inspect: dimensionSubject,
     edits: dimensionEditsFor,
     remove: dimensionRemoval,
+    capabilities: NOTHING_MOVES,
+    transform: dimensionTransform,
   },
   {
     label: 'Toiture complète',
@@ -290,6 +378,9 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     edits: roofStructureEditsFor,
     remove: roofStructureRemoval,
     bounds: roofStructureBounds,
+    capabilities: EVERYTHING_MOVES,
+    transform: roofStructureTransform,
+    duplicate: roofStructureDuplicate,
   },
   {
     label: 'Escalier',
@@ -299,6 +390,9 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     remove: stairRemoval,
     bounds: stairBounds,
     relationships: stairRelationships,
+    capabilities: EVERYTHING_MOVES,
+    transform: stairTransform,
+    duplicate: stairDuplicate,
   },
   {
     label: 'Structure',
@@ -308,6 +402,9 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     remove: structureRemoval,
     bounds: structureBounds,
     similar: similarStructure,
+    capabilities: EVERYTHING_MOVES,
+    transform: structureTransform,
+    duplicate: structureDuplicate,
   },
   {
     label: 'Terrain',
@@ -315,6 +412,12 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     inspect: siteSubject,
     remove: siteRemoval,
     bounds: siteBounds,
+    // An obstacle moves and is copied; the parcel is the limit of the ground
+    // and stays where the ground is.
+    capabilities: (_project, objectId) =>
+      objectId === 'site:parcel' ? NOTHING_MOVES : EVERYTHING_MOVES,
+    transform: siteTransform,
+    duplicate: siteDuplicate,
   },
   {
     label: 'Composant',
@@ -325,6 +428,9 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     bounds: componentBounds,
     similar: similarComponents,
     relationships: componentRelationships,
+    capabilities: EVERYTHING_MOVES,
+    transform: componentTransform,
+    duplicate: componentDuplicate,
   },
 ];
 
@@ -513,6 +619,78 @@ export function removalCommandFor(
   for (const editor of OBJECT_EDITORS) {
     const command = editor.remove?.(project, levelId, objectId);
     if (command !== undefined) return command;
+  }
+  return undefined;
+}
+
+/**
+ * What the family of one object allows to be done to it.
+ *
+ * An identifier no family claims can have nothing done to it, which is not the
+ * same as a family that refuses: the first is an object the project does not
+ * hold, the second is an object that does not move.
+ */
+export function capabilitiesOf(
+  project: Project,
+  objectId: string,
+): ObjectCapabilities {
+  for (const editor of OBJECT_EDITORS) {
+    if (editor.inspect(project, objectId) === undefined) continue;
+    const declared = editor.capabilities;
+    if (declared === undefined) return NOTHING_MOVES;
+    return typeof declared === 'function'
+      ? declared(project, objectId)
+      : declared;
+  }
+  return NOTHING_MOVES;
+}
+
+/**
+ * What a whole selection allows: what every one of its objects allows.
+ *
+ * One object that cannot turn makes the selection unable to turn, because
+ * turning the rest around it would take the drawing apart.
+ */
+export function selectionCapabilities(
+  project: Project,
+  selection: readonly string[],
+): ObjectCapabilities {
+  if (selection.length === 0) return NOTHING_MOVES;
+  return selection
+    .map((objectId) => capabilitiesOf(project, objectId))
+    .reduce((all, one) => ({
+      movable: all.movable && one.movable,
+      rotatable: all.rotatable && one.rotatable,
+      mirrorable: all.mirrorable && one.mirrorable,
+      duplicable: all.duplicable && one.duplicable,
+    }));
+}
+
+/**
+ * How one object follows a transform, whichever family it belongs to.
+ *
+ * `undefined` is an object no family claims; a refusal is a family that owns
+ * it and says why it does not do that, in words the user reads.
+ */
+export function transformCommandsFor(
+  project: Project,
+  levelId: string,
+  objectId: string,
+  transform: PlanTransform,
+  selection: ReadonlySet<string>,
+):
+  | { readonly status: 'OK'; readonly commands: readonly ProjectCommand[] }
+  | { readonly status: 'REFUSED'; readonly message: string }
+  | undefined {
+  for (const editor of OBJECT_EDITORS) {
+    const outcome = editor.transform?.(
+      project,
+      levelId,
+      objectId,
+      transform,
+      selection,
+    );
+    if (outcome !== undefined) return outcome;
   }
   return undefined;
 }

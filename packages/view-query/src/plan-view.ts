@@ -32,7 +32,11 @@ import {
   drawingViewId,
   graphicProfileId,
 } from '@house-technical-designer/drawing-engine';
-import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
+import type {
+  BoundingBox2D,
+  Point2D,
+  Polygon2D,
+} from '@house-technical-designer/geometry';
 import {
   offsetPolyline,
   polygonArea,
@@ -69,6 +73,15 @@ export interface PlanViewOptions {
   readonly extraPrimitives?: readonly ScenePrimitive[];
   /** Model-space padding around the drawn content, in millimetres. */
   readonly paddingMm?: number;
+  /**
+   * The model window the view shows, when the caller states one.
+   *
+   * Without it the view frames whatever it drew, which is what a screen wants
+   * and what a printed drawing must not do: a sheet says 1:50 and 1:50 is a
+   * fixed number of model millimetres per paper millimetre, not whatever makes
+   * the content fit.
+   */
+  readonly viewport?: BoundingBox2D;
 }
 
 export interface PlanViewResult {
@@ -642,15 +655,68 @@ function networkRole(network: TechnicalNetwork): SemanticRole {
   }
 }
 
+/**
+ * Which storey a network object belongs to, when the model says.
+ *
+ * A node states its level. A segment belongs to the level of the nodes it
+ * joins; joining two levels, it is a riser and belongs to both. Nothing is
+ * guessed from a height: a plan that placed a duct on a storey because its
+ * z looked right would be a plan that moves objects between floors on its own.
+ */
+function networkLevelsOf(network: TechnicalNetwork): {
+  readonly nodes: ReadonlyMap<string, string | undefined>;
+  readonly edges: ReadonlyMap<string, readonly (string | undefined)[]>;
+} {
+  const nodes = new Map<string, string | undefined>(
+    network.nodes.map((node) => [node.id, node.levelId]),
+  );
+  const nodeOfPort = new Map(
+    network.ports.map((port) => [port.id, port.nodeId] as const),
+  );
+  const edges = new Map<string, readonly (string | undefined)[]>();
+  for (const edge of network.edges) {
+    const ends = [edge.fromPortId, edge.toPortId].map((portId) => {
+      const nodeId = nodeOfPort.get(portId);
+      return nodeId === undefined ? undefined : nodes.get(nodeId);
+    });
+    edges.set(edge.id, [...new Set(ends)]);
+  }
+  return { nodes, edges };
+}
+
+/**
+ * Whether an object of the network belongs on the storey being drawn.
+ *
+ * An object that names no level is not placed on a floor: it is unassigned,
+ * and it is shown wherever one looks rather than hidden on every storey — the
+ * plan cannot invent a level the model does not state, and hiding it would
+ * make it invisible everywhere.
+ */
+function onLevel(
+  levels: readonly (string | undefined)[],
+  levelId: string | undefined,
+): boolean {
+  if (levelId === undefined) return true;
+  if (levels.every((level) => level === undefined)) return true;
+  return levels.includes(levelId);
+}
+
 function networkPrimitives(
   network: TechnicalNetwork,
+  levelId: string | undefined,
 ): readonly PrimitiveDraft[] {
   const mapping = NETWORK_LAYERS[network.discipline] ?? NETWORK_LAYERS.OTHER!;
   const role = networkRole(network);
+  const placement = networkLevelsOf(network);
   const drafts: PrimitiveDraft[] = [];
   for (const edge of network.edges) {
+    const ends = placement.edges.get(edge.id) ?? [];
+    if (!onLevel(ends, levelId)) continue;
     const points = edge.path.map(({ x, y }) => ({ x, y }));
     if (points.length < 2) continue;
+    // A segment joining two storeys is drawn on both, because that is what a
+    // riser is: it passes through this floor on its way to the other.
+    const rises = ends.filter((level) => level !== undefined).length > 1;
     drafts.push({
       id: `network-edge:${network.id}:${edge.id}`,
       sourceObjectId: edge.id,
@@ -664,6 +730,7 @@ function networkPrimitives(
         discipline: network.discipline,
         systemType: network.systemType,
         edgeKind: edge.kind,
+        riser: rises,
       },
     });
   }
@@ -674,6 +741,7 @@ function networkPrimitives(
   for (const port of network.ports) {
     const at = anchors.get(port.id);
     if (at === undefined) continue;
+    if (!onLevel([placement.nodes.get(port.nodeId)], levelId)) continue;
     drafts.push({
       id: `network-port:${network.id}:${port.id}`,
       sourceObjectId: port.id,
@@ -691,6 +759,7 @@ function networkPrimitives(
     });
   }
   for (const node of network.nodes) {
+    if (!onLevel([node.levelId], levelId)) continue;
     drafts.push({
       id: `network-node:${network.id}:${node.id}`,
       sourceObjectId: node.id,
@@ -814,8 +883,20 @@ function stairPrimitives(level: Level): readonly PrimitiveDraft[] {
     // One fewer tread than risers: the last riser arrives on the storey above.
     const treads = Math.max(0, stair.riserCount - 1);
     const totalMm = polylineLengthOf(points);
+    // Each nosing sits one tread further up the line than the one below it,
+    // and a landing pushes the ones above it by its own depth. Spreading the
+    // treads evenly over the line instead would draw any riser count at any
+    // tread depth as a full flight, so a stair whose steps do not fit the
+    // space it was given would look exactly like one that does.
+    let along = 0;
     for (let index = 1; index <= treads; index += 1) {
-      const along = (totalMm * index) / (treads + 1);
+      const landing = (stair.landings ?? []).find(
+        ({ afterRiser }) => afterRiser === index,
+      );
+      along += landing?.depthMm ?? stair.treadDepthMm;
+      // Past the end of the drawn line there is no floor to put a tread on.
+      // Stopping leaves the flight visibly short of its own walking line.
+      if (along > totalMm) break;
       const at = pointAlong(points, along);
       const direction = directionAlong(points, along);
       if (at === undefined || direction === undefined) continue;
@@ -1130,7 +1211,7 @@ export function buildPlanView(
   }
   drafts.push(...sitePrimitives(project));
   for (const network of project.systems ?? [])
-    drafts.push(...networkPrimitives(network));
+    drafts.push(...networkPrimitives(network, level?.id));
 
   const layers = options.layers ?? defaultVisibility();
   const selection = new Set(options.selection ?? []);
@@ -1159,7 +1240,9 @@ export function buildPlanView(
     type: 'PLAN',
     ...(level === undefined ? {} : { levelId: level.id }),
     scale: options.scale ?? DEFAULT_SCALE,
-    viewport: boundsOf(drafts, options.paddingMm ?? DEFAULT_PADDING_MM),
+    viewport:
+      options.viewport ??
+      boundsOf(drafts, options.paddingMm ?? DEFAULT_PADDING_MM),
     visibleDisciplines: visibleDisciplines(layers),
     graphicProfileId: graphicProfileId(
       options.graphicProfileId ?? 'generic-technical-screen',

@@ -243,7 +243,7 @@ export function stairRelationships(
     : [{ role: 'Niveau d’arrivée', objectIds: [stair.topLevelId] }];
 }
 
-export function networkNodeBounds(
+export function networkBounds(
   project: Project,
   _levelId: string,
   objectId: string,
@@ -444,6 +444,33 @@ export function networkNodeRelationships(
     return neighbours.size === 0
       ? []
       : [{ role: 'Nœuds raccordés', objectIds: [...neighbours] }];
+  }
+  return [];
+}
+
+/**
+ * Network objects of the same kind on the same network.
+ *
+ * Two branches of the same discipline carrying the same kind of thing are
+ * alike; a branch and a riser are not, and neither are two networks that
+ * merely happen to be water.
+ */
+export function similarNetworkObjects(
+  project: Project,
+  _levelId: string,
+  objectId: string,
+): readonly string[] {
+  for (const network of project.systems ?? []) {
+    const node = network.nodes.find(({ id }) => id === objectId);
+    if (node !== undefined)
+      return network.nodes
+        .filter((candidate) => candidate.kind === node.kind)
+        .map(({ id }) => id);
+    const edge = network.edges.find(({ id }) => id === objectId);
+    if (edge !== undefined)
+      return network.edges
+        .filter((candidate) => candidate.kind === edge.kind)
+        .map(({ id }) => id);
   }
   return [];
 }

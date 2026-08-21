@@ -54,10 +54,33 @@ function space(id: string, levelId: string): Record<string, unknown> {
   };
 }
 
+function stair(
+  id: string,
+  levelId: string,
+  topLevelId: string,
+): Record<string, unknown> {
+  return {
+    id,
+    type: 'STAIR',
+    levelId,
+    topLevelId,
+    stairType: 'STRAIGHT',
+    widthMm: 900,
+    riserCount: 16,
+    treadDepthMm: 270,
+    path: {
+      points: [
+        { x: 0, y: 0 },
+        { x: 4050, y: 0 },
+      ],
+    },
+  };
+}
+
 function file(levels: readonly unknown[], extra: object = {}) {
   return {
     format: 'house-technical-designer-project' as const,
-    schemaVersion: '1.0.0',
+    schemaVersion: '1.1.0',
     project: {
       id: 'project',
       metadata: {
@@ -157,6 +180,27 @@ describe('structural validation of a project file', () => {
     expect(issues(crossLevel)).toEqual([
       '/project/building/levels/1/openings/0/hostElementId is stored on level first but hosted by wall wall-ground of another level',
     ]);
+  });
+
+  it('refuses a stair that arrives at a storey no higher than its own', () => {
+    // The commands already refuse to draw one; a file can be written by
+    // anything, and a stair with a rise of zero has no riser height, no
+    // Blondel and no place in the quantities.
+    const flat = file([
+      { ...level, stairs: [stair('stair', 'ground', 'basement')] },
+      { ...level, id: 'basement', name: 'Basement', elevationMm: -2500 },
+    ]);
+    expect(issues(flat)).toEqual([
+      '/project/building/levels/0/stairs/0/topLevelId arrives at level basement, which is not above level ground',
+    ]);
+  });
+
+  it('accepts a stair that climbs', () => {
+    const climbing = file([
+      { ...level, stairs: [stair('stair', 'ground', 'first')] },
+      { ...level, id: 'first', name: 'First', elevationMm: 2500 },
+    ]);
+    expect(issues(climbing)).toEqual([]);
   });
 
   it('refuses the same identifier declared twice', () => {
@@ -624,7 +668,67 @@ describe('the things placed in the building', () => {
         ]),
       ),
     ).toEqual([
-      '/project/building/levels/0/components/0/hostObjectId references unknown object nowhere',
+      '/project/building/levels/0/components/0/hostObjectId references nowhere, which is not a wall, a slab or a roof',
+    ]);
+  });
+
+  it('refuses a component hung on something that is not a support', () => {
+    // A room is a volume, not a surface a thing can be hung on; a catalogue
+    // entry is a description, not a place.
+    expect(
+      issues(
+        file([
+          {
+            ...level,
+            spaces: [space('space-living', 'ground')],
+            components: [component('c', { hostObjectId: 'space-living' })],
+          },
+        ]),
+      ),
+    ).toEqual([
+      '/project/building/levels/0/components/0/hostObjectId references space-living, which is not a wall, a slab or a roof',
+    ]);
+  });
+
+  it('refuses a component whose room is on another storey', () => {
+    // Three real identifiers can still describe a place that does not exist.
+    expect(
+      issues(
+        file([
+          { ...level, components: [component('c', { spaceId: 'space-up' })] },
+          {
+            ...level,
+            id: 'first',
+            name: 'First',
+            elevationMm: 2500,
+            spaces: [space('space-up', 'first')],
+          },
+        ]),
+      ),
+    ).toEqual([
+      '/project/building/levels/0/components/0/spaceId references space-up of level first while the component declares level ground',
+    ]);
+  });
+
+  it('refuses a component fixed to a wall of another storey', () => {
+    expect(
+      issues(
+        file([
+          {
+            ...level,
+            components: [component('c', { hostObjectId: 'wall-first' })],
+          },
+          {
+            ...level,
+            id: 'first',
+            name: 'First',
+            elevationMm: 2500,
+            walls: [wall('wall-first', 'first')],
+          },
+        ]),
+      ),
+    ).toEqual([
+      '/project/building/levels/0/components/0/hostObjectId references wall-first of level first while the component declares level ground',
     ]);
   });
 
@@ -639,6 +743,26 @@ describe('the things placed in the building', () => {
     ).toEqual([
       '/project/building/levels/0/components/0/levelId is stored on level ground but declares level first',
     ]);
+  });
+
+  it('accepts a component fixed to a wall of its own storey', () => {
+    expect(
+      issues(
+        file([
+          {
+            ...level,
+            walls: [wall('wall-ground', 'ground')],
+            spaces: [space('space-living', 'ground')],
+            components: [
+              component('c', {
+                hostObjectId: 'wall-ground',
+                spaceId: 'space-living',
+              }),
+            ],
+          },
+        ]),
+      ),
+    ).toEqual([]);
   });
 
   it('lets a network node stand for a component that is placed', () => {

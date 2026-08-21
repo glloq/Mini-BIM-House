@@ -7,7 +7,7 @@ import {
   type ProjectMigration,
 } from './migrations.js';
 
-export const CURRENT_PROJECT_SCHEMA_VERSION = '1.0.0';
+export const CURRENT_PROJECT_SCHEMA_VERSION = '1.1.0';
 
 /**
  * Bounds an imported file has to respect.
@@ -254,6 +254,23 @@ export function validateProjectReferences(
     ...(file.project.equipment?.map(({ id }) => id) ?? []),
   ]);
   /**
+   * What a placed component may be physically fixed to.
+   *
+   * A surface a thing can be hung on: a wall, a slab, a roof. Not a room,
+   * which is a volume and is named by `spaceId`; not a catalogue entry, which
+   * is a description and is named by `definitionId`. A node may be bound to
+   * far more than that — it stands for what it feeds — and lending a component
+   * the node's list is how a radiator ends up « fixed to » the model of a
+   * radiator.
+   */
+  const supports = new Set<string>(
+    file.project.building.levels.flatMap(({ walls, slabs, roofs }) => [
+      ...walls.map(({ id }) => id as string),
+      ...slabs.map(({ id }) => id as string),
+      ...roofs.map(({ id }) => id as string),
+    ]),
+  );
+  /**
    * The level each object of the building belongs to.
    *
    * Every reference of a network node can exist on its own and the set still be
@@ -390,12 +407,28 @@ export function validateProjectReferences(
         });
       if (
         component.hostObjectId !== undefined &&
-        !hosts.has(component.hostObjectId)
+        !supports.has(component.hostObjectId)
       )
         issues.push({
           path: `${path}/hostObjectId`,
-          message: `references unknown object ${component.hostObjectId}`,
+          message: `references ${component.hostObjectId}, which is not a wall, a slab or a roof`,
         });
+      // Each identifier can be real while the three together describe a place
+      // that does not exist: a radiator on the ground floor, in a bedroom
+      // upstairs, fixed to a wall of a third storey.
+      for (const [key, reference] of [
+        ['spaceId', component.spaceId],
+        ['hostObjectId', component.hostObjectId],
+      ] as const) {
+        if (reference === undefined) continue;
+        const objectLevel = levelOfObject.get(reference);
+        if (objectLevel === undefined || objectLevel === component.levelId)
+          continue;
+        issues.push({
+          path: `${path}/${key}`,
+          message: `references ${reference} of level ${objectLevel} while the component declares level ${component.levelId}`,
+        });
+      }
     });
     // A structural member made of a material the project no longer holds is a
     // member nothing can ever check.
@@ -440,10 +473,23 @@ export function validateProjectReferences(
           path: `${path}/levelId`,
           message: `is stored on level ${level.id} but declares level ${stair.levelId}`,
         });
-      if (!levels.has(stair.topLevelId))
+      const top = file.project.building.levels.find(
+        ({ id }) => id === stair.topLevelId,
+      );
+      if (top === undefined)
         issues.push({
           path: `${path}/topLevelId`,
           message: `references unknown level ${stair.topLevelId}`,
+        });
+      // A stair climbs. The commands refuse to draw one that arrives at or
+      // below the storey it leaves, but a file can be written by anything, and
+      // such a stair has a rise of zero or less: its riser height, its Blondel
+      // and its place in the quantities would all be answers to a question
+      // that has none.
+      else if (top.elevationMm <= level.elevationMm)
+        issues.push({
+          path: `${path}/topLevelId`,
+          message: `arrives at level ${top.id}, which is not above level ${level.id}`,
         });
     });
     level.spaces.forEach((space, index) => {

@@ -54,7 +54,15 @@ export interface ComponentInstance {
   readonly elevationMm: number;
   /** Which way it faces, in degrees counter-clockwise from east. */
   readonly rotationDeg: number;
-  /** The wall, slab or roof it is fixed to, when it is fixed to one. */
+  /**
+   * The building element it is physically fixed to, when it is fixed to one.
+   *
+   * A wall, a slab or a roof — something with a surface a thing can be hung
+   * on. Not a room, which is a volume rather than a support, and not a
+   * catalogue entry, which is a description rather than a place: those are
+   * `spaceId` and `definitionId`, and confusing the three is how a radiator
+   * ends up « fixed to » the model of a radiator.
+   */
   readonly hostObjectId?: string;
   /** The room it stands in, when the model states one. */
   readonly spaceId?: SpaceId;

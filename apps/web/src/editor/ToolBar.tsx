@@ -4,6 +4,7 @@ import type { AlignEdge } from './editing-commands.js';
 import { ToolOptions } from './ToolOptions.js';
 import type { ToolDrafts } from './tool-options.js';
 import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
+import { selectionCapabilities } from './object-editors.js';
 import {
   TOOL_GROUP_LABELS,
   populatedToolGroups,
@@ -44,6 +45,7 @@ export function ToolBar({
   onTransform,
   onAlign,
 }: ToolBarProps) {
+  const allowed = selectionCapabilities(project, editor.selection);
   return (
     <div className="tool-bar">
       {/* One group per family: the toolbar asks the registry what exists
@@ -84,7 +86,10 @@ export function ToolBar({
 
       {/* Le quart de tour et le retournement gauche-droite se font autour du
           centre de la sélection, sans rien tracer ; les outils Pivoter et
-          Miroir servent quand le centre ou l'axe comptent. */}
+          Miroir servent quand le centre ou l'axe comptent. Ce que la sélection
+          ne sait pas faire est grisé : une ouverture suit son mur, une pièce
+          suit les siens, et le proposer pour le refuser ensuite se lit comme
+          une panne. */}
       <div
         className="tool-group"
         role="group"
@@ -93,7 +98,7 @@ export function ToolBar({
         <button
           type="button"
           className="secondary"
-          disabled={editor.selection.length === 0}
+          disabled={!allowed.rotatable}
           title="Pivoter la sélection d’un quart de tour autour de son centre"
           onClick={() => onTransform?.('ROTATE')}
         >
@@ -102,7 +107,7 @@ export function ToolBar({
         <button
           type="button"
           className="secondary"
-          disabled={editor.selection.length === 0}
+          disabled={!allowed.mirrorable}
           title="Retourner la sélection de gauche à droite"
           onClick={() => onTransform?.('MIRROR')}
         >

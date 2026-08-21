@@ -544,11 +544,16 @@ Chaque fichier est versionné :
 
 ```json
 {
-  "schemaVersion": "1.0.0"
+  "schemaVersion": "1.1.0"
 }
 ```
 
-Les évolutions du format passent par des migrations explicites.
+Les évolutions du format passent par des migrations explicites, y compris quand
+elles ne font que resserrer un contrat : `1.1.0` donne une forme à `stairs` et
+`drawingViews`, que `1.0.0` acceptait comme des tableaux de n'importe quoi. Un
+fichier `1.0.0` s'ouvre donc toujours ; ce qui correspond à la nouvelle forme
+devient lisible, et ce qui n'y correspond pas est conservé sous l'extension
+`legacy.1-0-0` plutôt que jeté.
 
 ---
 

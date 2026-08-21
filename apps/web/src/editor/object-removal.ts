@@ -9,6 +9,7 @@ import {
   RemoveSiteObstacleCommand,
   RemoveStairCommand,
   RemoveStructuralMemberCommand,
+  RemoveNetworkEdgeCommand,
   RemoveNetworkNodeCommand,
   RemoveRoofCommand,
   RemoveRoofStructureCommand,
@@ -105,22 +106,27 @@ export const roofRemoval: RemovalProvider = (project, levelId, objectId) =>
     : undefined;
 
 /**
- * A network node, with the ports and segments that only existed for it.
+ * How a network object is taken back off the plan.
  *
- * The command of the domain drops them together: a segment reaching a node that
- * is gone is not a segment, it is a dangling reference the reader refuses.
+ * A run of pipe is selected, inspected, framed and dragged like everything
+ * else; it was the one thing on the plan that could not be deleted, because
+ * removal only knew about nodes. A node still goes with the ports and the
+ * segments that existed only for it: the command of the domain drops them
+ * together, because a segment reaching a node that is gone is not a segment
+ * but a dangling reference the reader refuses.
  */
-export const networkNodeRemoval: RemovalProvider = (
+export const networkRemoval: RemovalProvider = (
   project,
   _levelId,
   objectId,
 ) => {
-  const network = (project.systems ?? []).find((candidate) =>
-    candidate.nodes.some(({ id }) => id === objectId),
-  );
-  return network === undefined
-    ? undefined
-    : new RemoveNetworkNodeCommand(network.id, objectId);
+  for (const network of project.systems ?? []) {
+    if (network.nodes.some(({ id }) => id === objectId))
+      return new RemoveNetworkNodeCommand(network.id, objectId);
+    if (network.edges.some(({ id }) => id === objectId))
+      return new RemoveNetworkEdgeCommand(network.id, objectId);
+  }
+  return undefined;
 };
 
 export const componentRemoval: RemovalProvider = (

@@ -10,7 +10,12 @@ import { portAnchors } from '@house-technical-designer/core-domain';
 import { loadDemoProject } from '../demo-project.js';
 import { branchCommand, routeCommand } from './network-model.js';
 import { routeGrips } from '../editor/grips.js';
-import { boundsOf, relationshipsOf } from '../editor/object-editors.js';
+import {
+  boundsOf,
+  editsFor,
+  relationshipsOf,
+  removalCommandFor,
+} from '../editor/object-editors.js';
 
 function project() {
   const result = loadDemoProject();
@@ -263,5 +268,60 @@ describe('a routed segment as an object of the plan', () => {
     expect(boundsOf(source, 'ground', 'water:trunk')).toBeDefined();
     const ties = relationshipsOf(source, 'ground', 'water:trunk');
     expect(ties.map(({ role }) => role)).toContain('Nœuds reliés');
+  });
+
+  it('is edited where it is drawn, with the fields of its discipline', () => {
+    // What a pipe is made of used to be sayable only in the networks
+    // workspace, so a segment on the plan could be selected and not changed.
+    const edits = editsFor(project(), 'water:trunk');
+    expect(edits.map(({ id }) => id)).toContain('internalDiameterM');
+    expect(
+      edits.every(({ semanticId }) => semanticId.startsWith('networkEdge.')),
+    ).toBe(true);
+  });
+
+  it('writes what is typed into the segment itself', () => {
+    const source = project();
+    const edit = editsFor(source, 'water:trunk').find(
+      ({ id }) => id === 'internalDiameterM',
+    )!;
+    const command = edit.apply('0.016');
+    expect(command).toBeDefined();
+    const dispatcher = new ProjectCommandDispatcher(source);
+    expect(dispatcher.dispatch(command!).status).toBe('APPLIED');
+    const edge = (dispatcher.project.systems ?? [])
+      .flatMap(({ edges }) => edges)
+      .find(({ id }) => id === 'water:trunk')!;
+    expect(edge.properties?.internalDiameterM).toBe(0.016);
+  });
+
+  it('forgets a property that is emptied rather than calling it zero', () => {
+    const source = project();
+    const edit = editsFor(source, 'water:trunk').find(
+      ({ id }) => id === 'internalDiameterM',
+    )!;
+    const dispatcher = new ProjectCommandDispatcher(source);
+    dispatcher.dispatch(edit.apply('')!);
+    const edge = (dispatcher.project.systems ?? [])
+      .flatMap(({ edges }) => edges)
+      .find(({ id }) => id === 'water:trunk')!;
+    expect(edge.properties?.internalDiameterM).toBeUndefined();
+  });
+
+  it('can be taken back off the plan like anything else', () => {
+    const source = project();
+    const command = removalCommandFor(source, 'ground', 'water:trunk');
+    expect(command).toBeDefined();
+    const dispatcher = new ProjectCommandDispatcher(source);
+    expect(dispatcher.dispatch(command!).status).toBe('APPLIED');
+    expect(
+      (dispatcher.project.systems ?? [])
+        .flatMap(({ edges }) => edges)
+        .some(({ id }) => id === 'water:trunk'),
+    ).toBe(false);
+    // Only the segment: the nodes it joined are still there to be re-routed.
+    expect(
+      (dispatcher.project.systems ?? []).flatMap(({ nodes }) => nodes).length,
+    ).toBe((source.systems ?? []).flatMap(({ nodes }) => nodes).length);
   });
 });

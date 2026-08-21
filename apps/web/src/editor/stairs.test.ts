@@ -117,6 +117,60 @@ describe('what a stair measures', () => {
     const { blondelMm } = stairDimensions(stair, 2720);
     expect(blondelMm).toBe(2 * 170 + 270);
   });
+
+  it('measures the line that is drawn beside the flight it carries', () => {
+    // The drawn line is 4000 mm; fifteen treads of 270 need 4050. The two are
+    // two answers to the same question and the stair states both.
+    const measured = stairDimensions(stair, 2720);
+    expect(measured.pathLengthMm).toBe(4000);
+    expect(measured.runMm).toBe(4050);
+    expect(measured.pathDifferenceMm).toBe(-50);
+    expect(measured.pathMatchesRun).toBe(false);
+  });
+
+  it('calls a line that carries its flight to the millimetre a match', () => {
+    const fitted: Stair = {
+      ...stair,
+      path: {
+        points: [
+          { x: 1000, y: 1000 },
+          { x: 1000 + 15 * 270, y: 1000 },
+        ],
+      },
+    };
+    const measured = stairDimensions(fitted, 2720);
+    expect(measured.pathDifferenceMm).toBe(0);
+    expect(measured.pathMatchesRun).toBe(true);
+  });
+
+  it('forgives a difference no drawing could hold', () => {
+    // Five millimetres over four metres is where the pointer landed, not a
+    // stair that does not fit; a centimetre is the line between the two.
+    const off: Stair = {
+      ...stair,
+      path: {
+        points: [
+          { x: 1000, y: 1000 },
+          { x: 1000 + 15 * 270 + 5, y: 1000 },
+        ],
+      },
+    };
+    expect(stairDimensions(off, 2720).pathMatchesRun).toBe(true);
+    expect(
+      stairDimensions(
+        {
+          ...off,
+          path: {
+            points: [
+              { x: 1000, y: 1000 },
+              { x: 1000 + 15 * 270 + 11, y: 1000 },
+            ],
+          },
+        },
+        2720,
+      ).pathMatchesRun,
+    ).toBe(false);
+  });
 });
 
 describe('building a stair from the plan', () => {
@@ -166,6 +220,41 @@ describe('building a stair from the plan', () => {
     ).toBe('REJECTED');
   });
 
+  it('fits the drawn line to the flight it has to carry', () => {
+    // Fifteen treads of 270 mm need 4050 mm of floor. The user drew 4000, so
+    // the line is stretched by fifty: a stair drawn shorter than its own
+    // steps would show fewer marches on the plan than the metrés count.
+    const stair = built().project.building.levels[0]!.stairs[0]!;
+    const measured = stairDimensions(stair, 2700);
+    expect(measured.pathLengthMm).toBeCloseTo(4050, 6);
+    expect(measured.pathMatchesRun).toBe(true);
+    expect(stair.path.points[1]).toEqual({ x: 5050, y: 1000 });
+  });
+
+  it('keeps every turn of the line it was given', () => {
+    // An L-shaped flight is drawn in two stretches; fitting moves the end,
+    // never the corner the user placed.
+    const result = addStairCommand(
+      twoStoreys(),
+      'ground',
+      [
+        { x: 0, y: 0 },
+        { x: 2000, y: 0 },
+        { x: 2000, y: 1000 },
+      ],
+      DRAFT,
+      'stair-l',
+    );
+    if (result.status !== 'OK') throw new Error(result.message);
+    const dispatcher = new ProjectCommandDispatcher(twoStoreys().project);
+    dispatcher.dispatch(result.command);
+    const points =
+      dispatcher.project.building.levels[0]!.stairs[0]!.path.points;
+    expect(points[0]).toEqual({ x: 0, y: 0 });
+    expect(points[1]).toEqual({ x: 2000, y: 0 });
+    expect(points[2]).toEqual({ x: 2000, y: 2050 });
+  });
+
   it('refuses to arrive at a storey that is not above', () => {
     const dispatcher = built();
     expect(
@@ -204,9 +293,11 @@ describe('a stair as an object of the editor', () => {
 
   it('can be measured, named and taken back off the plan', () => {
     const project = built().project;
+    // 5050 and not the 5000 that was drawn: fifteen treads of 270 mm need
+    // 4050 mm of floor, and the line was fitted to them.
     expect(boundsOf(project, 'ground', 'stair-main')).toEqual({
       min: { x: 1000, y: 1000 },
-      max: { x: 5000, y: 1000 },
+      max: { x: 5050, y: 1000 },
     });
     expect(relationshipsOf(project, 'ground', 'stair-main')).toEqual([
       { role: 'Niveau d’arrivée', objectIds: ['upper'] },

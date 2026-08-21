@@ -126,7 +126,7 @@ describe('turning and reflecting a selection', () => {
     );
     expect(result.status).toBe('ERROR');
     if (result.status !== 'ERROR') return;
-    expect(result.message).toContain('suit son mur');
+    expect(result.message).toContain('appartient à son mur');
   });
 
   it('refuses an angle that is not a number', () => {

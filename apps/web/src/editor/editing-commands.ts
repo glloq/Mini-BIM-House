@@ -1,5 +1,6 @@
 import type {
   ComponentCategory,
+  ComponentInstance,
   Dimension,
   DimensionType,
   SiteObstacleKind,
@@ -8,8 +9,11 @@ import type {
   Opening,
   Project,
   ProjectFile,
+  Roof,
   RoofPlane,
   Slab,
+  Stair,
+  StructuralMember,
   Wall,
 } from '@house-technical-designer/core-domain';
 import { dimensionId, entityId } from '@house-technical-designer/core-domain';
@@ -33,8 +37,6 @@ import {
   SetParcelBoundaryCommand,
   SetWallPathCommand,
   SplitWallCommand,
-  UpdateComponentCommand,
-  UpdateNetworkNodeCommand,
   UpdateOpeningCommand,
   UpdateRoofCommand,
   UpdateSlabCommand,
@@ -47,7 +49,28 @@ import {
 } from '@house-technical-designer/editor-core';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import type { GeometryEdit } from './grips.js';
-import { removalCommandFor } from './object-editors.js';
+import {
+  OBJECT_EDITORS,
+  capabilitiesOf,
+  removalCommandFor,
+  transformCommandsFor,
+} from './object-editors.js';
+import {
+  transformPoint,
+  transformedAzimuthDeg,
+  translatedPolygon,
+  type PlanTransform,
+} from './object-transform.js';
+
+// Moving, turning and reflecting are one map from a point to a point, and the
+// families answer them all at once; what the rest of the application imports
+// from here keeps working.
+export {
+  transformPoint,
+  transformedAzimuthDeg,
+  translatedPolygon,
+  type PlanTransform,
+};
 
 /** How far from a wall axis an opening may be dropped, in millimetres. */
 const MAXIMUM_HOST_DISTANCE_MM = 600;
@@ -299,11 +322,50 @@ export function placeComponentCommand(
 }
 
 /**
+ * Cuts or extends a walking line so that it is exactly `lengthMm` long.
+ *
+ * The line keeps its start and every turn it takes; only its end moves, along
+ * the direction of its last stretch. A shorter line loses the stretches past
+ * the mark, a longer one grows out of its last one.
+ */
+function fittedToLength(
+  points: readonly Point2D[],
+  lengthMm: number,
+): readonly Point2D[] {
+  const kept: Point2D[] = [{ ...points[0]! }];
+  let travelled = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const from = points[index - 1]!;
+    const to = points[index]!;
+    const segment = Math.hypot(to.x - from.x, to.y - from.y);
+    if (segment === 0) continue;
+    const last = index === points.length - 1;
+    if (travelled + segment >= lengthMm || last) {
+      const ratio = (lengthMm - travelled) / segment;
+      kept.push({
+        x: from.x + (to.x - from.x) * ratio,
+        y: from.y + (to.y - from.y) * ratio,
+      });
+      return kept;
+    }
+    kept.push({ ...to });
+    travelled += segment;
+  }
+  return kept;
+}
+
+/**
  * Builds a stair along the line the user walked with the pointer.
  *
  * The storey it arrives at is the one just above, because that is what a stair
  * between two floors does; the inspector lets it be sent elsewhere. Its riser
  * height is never asked for: the storeys already answer it.
+ *
+ * The line is then fitted to the flight it has to carry: so many risers of so
+ * deep a tread need a known length of floor, and a line drawn shorter or
+ * longer than that would be a stair whose plan and whose dimensions describe
+ * two different objects. The user says where the stair goes and which way it
+ * turns; how far it reaches follows from its steps.
  */
 export function addStairCommand(
   file: ProjectFile,
@@ -342,7 +404,10 @@ export function addStairCommand(
       widthMm: draft.widthMm,
       riserCount: draft.riserCount,
       treadDepthMm: draft.treadDepthMm,
-      path: points.map((point) => ({ ...point })),
+      path: fittedToLength(
+        points,
+        Math.max(0, draft.riserCount - 1) * draft.treadDepthMm,
+      ),
     }),
   };
 }
@@ -897,30 +962,12 @@ export function deleteObjectsCommand(
   };
 }
 
-/** A polygon carried elsewhere, holes included. */
-export function translatedPolygon(
-  polygon: Polygon2D,
-  delta: Point2D,
-): Polygon2D {
-  const move = (point: Point2D): Point2D => ({
-    x: point.x + delta.x,
-    y: point.y + delta.y,
-  });
-  return {
-    outer: polygon.outer.map(move),
-    ...(polygon.holes === undefined
-      ? {}
-      : { holes: polygon.holes.map((hole) => hole.map(move)) }),
-  };
-}
-
 /**
  * Moves what is selected, as one action.
  *
- * Not everything moves on its own: an opening belongs to its wall and slides
- * along it, a room is the space its walls enclose. Those are refused by name
- * rather than moved into an inconsistency, and the rest — walls, slabs, roof
- * planes and network nodes — travel together in a single history entry.
+ * A move is a transform like the other two; it is kept as its own function
+ * because the rest of the application says « move » and because a wall moved
+ * carries its openings, which a rewritten path would not.
  */
 export function moveObjectsCommand(
   file: ProjectFile,
@@ -928,221 +975,28 @@ export function moveObjectsCommand(
   objectIds: readonly string[],
   deltaMm: Point2D,
 ): EditingCommandResult {
-  const level = levelOf(file.project, levelId);
-  if (level === undefined)
-    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
-  if (objectIds.length === 0)
-    return { status: 'ERROR', message: 'La sélection est vide.' };
   if (!Number.isFinite(deltaMm.x) || !Number.isFinite(deltaMm.y))
     return { status: 'ERROR', message: 'Déplacement non mesurable.' };
-  const commands: ProjectCommand[] = [];
-  for (const objectId of objectIds) {
-    const wall = level.walls.find(({ id }) => id === objectId);
-    if (wall !== undefined) {
-      commands.push(
-        new ProjectEditorCommand(
-          `wall:move:${objectId}`,
-          'Déplacer un mur',
-          level.id,
-          new MoveWallCommand(`wall:move:${objectId}`, wall.id, deltaMm),
-        ),
-      );
-      continue;
-    }
-    const slab = level.slabs.find(({ id }) => id === objectId);
-    if (slab !== undefined) {
-      commands.push(
-        new UpdateSlabCommand(level.id, slab.id, {
-          polygon: translatedPolygon(slab.polygon, deltaMm),
-        }),
-      );
-      continue;
-    }
-    const roof = level.roofs.find(({ id }) => id === objectId);
-    if (roof !== undefined) {
-      commands.push(
-        new UpdateRoofCommand(level.id, roof.id, {
-          footprint: translatedPolygon(roof.footprint, deltaMm),
-        }),
-      );
-      continue;
-    }
-    const network = (file.project.systems ?? []).find((candidate) =>
-      candidate.nodes.some(({ id }) => id === objectId),
-    );
-    const node = network?.nodes.find(({ id }) => id === objectId);
-    if (network !== undefined && node !== undefined) {
-      commands.push(
-        new UpdateNetworkNodeCommand(network.id, node.id, {
-          position: {
-            x: node.position.x + deltaMm.x,
-            y: node.position.y + deltaMm.y,
-            z: node.position.z,
-          },
-        }),
-      );
-      continue;
-    }
-    const component = (level.components ?? []).find(
-      ({ id }) => id === objectId,
-    );
-    if (component !== undefined) {
-      commands.push(
-        new UpdateComponentCommand(level.id, component.id, {
-          position: {
-            x: component.position.x + deltaMm.x,
-            y: component.position.y + deltaMm.y,
-          },
-        }),
-      );
-      continue;
-    }
-    if (level.openings.some(({ id }) => id === objectId))
-      return {
-        status: 'ERROR',
-        message:
-          'Une ouverture se déplace le long de son mur : faites glisser sa poignée.',
-      };
-    if (level.spaces.some(({ id }) => id === objectId))
-      return {
-        status: 'ERROR',
-        message:
-          'Une pièce est l’espace que ses murs enferment : déplacez les murs.',
-      };
-    return {
-      status: 'ERROR',
-      message: `Cet objet ne se déplace pas depuis le plan : ${objectId}.`,
-    };
-  }
-  const id = `move:${objectIds.join(',')}`;
-  return {
-    status: 'OK',
-    command:
-      commands.length === 1
-        ? commands[0]!
-        : new ProjectTransactionCommand(
-            id,
-            objectIds.length === 1
-              ? 'Déplacer un objet'
-              : `Déplacer ${objectIds.length} objets`,
-            commands,
-          ),
-  };
+  return transformObjectsCommand(file, levelId, objectIds, {
+    kind: 'TRANSLATE',
+    deltaMm,
+  });
 }
+
+const TRANSFORM_LABELS: Readonly<Record<PlanTransform['kind'], string>> = {
+  TRANSLATE: 'Déplacer',
+  ROTATE: 'Pivoter',
+  MIRROR: 'Retourner',
+};
 
 /**
- * How a selection is being transformed.
+ * Moves, turns or reflects what is selected, as one action.
  *
- * Both are one map from a point to a point: turning around a centre, or
- * reflecting across an axis. Expressing them the same way is what lets walls,
- * slabs, roof planes and network nodes all follow the same code.
- */
-export type PlanTransform =
-  | {
-      readonly kind: 'ROTATE';
-      readonly centre: Point2D;
-      readonly angleDeg: number;
-    }
-  | {
-      readonly kind: 'MIRROR';
-      /** Two points of the axis the selection is reflected across. */
-      readonly from: Point2D;
-      readonly to: Point2D;
-    };
-
-/** The point a transform sends this one to. */
-export function transformPoint(
-  transform: PlanTransform,
-  point: Point2D,
-): Point2D {
-  if (transform.kind === 'ROTATE') {
-    const radians = (transform.angleDeg * Math.PI) / 180;
-    const dx = point.x - transform.centre.x;
-    const dy = point.y - transform.centre.y;
-    return {
-      x: transform.centre.x + dx * Math.cos(radians) - dy * Math.sin(radians),
-      y: transform.centre.y + dx * Math.sin(radians) + dy * Math.cos(radians),
-    };
-  }
-  const axis = {
-    x: transform.to.x - transform.from.x,
-    y: transform.to.y - transform.from.y,
-  };
-  const lengthSquared = axis.x * axis.x + axis.y * axis.y;
-  // An axis of no length reflects nothing; the point stays where it is rather
-  // than becoming a division by zero.
-  if (lengthSquared === 0) return point;
-  const dx = point.x - transform.from.x;
-  const dy = point.y - transform.from.y;
-  const projection = (dx * axis.x + dy * axis.y) / lengthSquared;
-  const foot = {
-    x: transform.from.x + axis.x * projection,
-    y: transform.from.y + axis.y * projection,
-  };
-  return { x: 2 * foot.x - point.x, y: 2 * foot.y - point.y };
-}
-
-/**
- * Where a slope faces once the roof it belongs to has been turned or reflected.
- *
- * A roof plane is not only an outline: it points somewhere, and that bearing is
- * what the sun calculations read. Turning the building without turning the
- * bearing leaves a roof drawn to the east and calculated to the south, which is
- * exactly the kind of silent inconsistency this project refuses.
- *
- * The bearing is carried as a direction rather than as a number so that a
- * reflection can be applied to it: reflecting a direction is reflecting the two
- * points it joins.
- */
-export function transformedAzimuthDeg(
-  transform: PlanTransform,
-  azimuthDeg: number,
-): number {
-  const radians = (azimuthDeg * Math.PI) / 180;
-  const facing = { x: Math.cos(radians), y: Math.sin(radians) };
-  const origin = { x: 0, y: 0 };
-  const moved =
-    transform.kind === 'ROTATE'
-      ? transformPoint(
-          { kind: 'ROTATE', centre: origin, angleDeg: transform.angleDeg },
-          facing,
-        )
-      : // Only the direction of the axis matters to a direction, not where it
-        // sits: the reflection is taken about a parallel axis through zero.
-        transformPoint(
-          {
-            kind: 'MIRROR',
-            from: origin,
-            to: {
-              x: transform.to.x - transform.from.x,
-              y: transform.to.y - transform.from.y,
-            },
-          },
-          facing,
-        );
-  const turned = (Math.atan2(moved.y, moved.x) * 180) / Math.PI;
-  return ((turned % 360) + 360) % 360;
-}
-
-function transformedPolygon(
-  polygon: Polygon2D,
-  transform: PlanTransform,
-): Polygon2D {
-  const move = (point: Point2D) => transformPoint(transform, point);
-  return {
-    outer: polygon.outer.map(move),
-    ...(polygon.holes === undefined
-      ? {}
-      : { holes: polygon.holes.map((hole) => hole.map(move)) }),
-  };
-}
-
-/**
- * Turns or reflects what is selected, as one action.
- *
- * A wall is reshaped in a single step rather than point by point: moving its
- * points one at a time passes through lengths the wall never has, and an
- * opening that fits before and after would be refused in between.
+ * Nothing here knows what a wall or a stair is: each family declares how it
+ * follows a transform, beside where it declares how it is drawn, inspected and
+ * deleted. This used to be a chain of `if` over four families, written when
+ * there were four; every family added since fell through it and was told it
+ * did not move, which was true of the code and false of the object.
  */
 export function transformObjectsCommand(
   file: ProjectFile,
@@ -1157,75 +1011,36 @@ export function transformObjectsCommand(
     return { status: 'ERROR', message: 'La sélection est vide.' };
   if (transform.kind === 'ROTATE' && !Number.isFinite(transform.angleDeg))
     return { status: 'ERROR', message: 'Angle non mesurable.' };
+  const selection = new Set(objectIds);
   const commands: ProjectCommand[] = [];
   for (const objectId of objectIds) {
-    const wall = level.walls.find(({ id }) => id === objectId);
-    if (wall !== undefined) {
-      commands.push(
-        new ProjectEditorCommand(
-          `wall:transform:${objectId}`,
-          transform.kind === 'ROTATE' ? 'Pivoter un mur' : 'Retourner un mur',
-          level.id,
-          new SetWallPathCommand(
-            `wall:transform:${objectId}`,
-            wall.id,
-            wall.path.points.map((point) => transformPoint(transform, point)),
-          ),
-        ),
-      );
-      continue;
-    }
-    const slab = level.slabs.find(({ id }) => id === objectId);
-    if (slab !== undefined) {
-      commands.push(
-        new UpdateSlabCommand(level.id, slab.id, {
-          polygon: transformedPolygon(slab.polygon, transform),
-        }),
-      );
-      continue;
-    }
-    const roof = level.roofs.find(({ id }) => id === objectId);
-    if (roof !== undefined) {
-      commands.push(
-        new UpdateRoofCommand(level.id, roof.id, {
-          footprint: transformedPolygon(roof.footprint, transform),
-          // The plane faces somewhere, and that is what the sun is calculated
-          // against: an outline turned without its bearing would be drawn one
-          // way and computed another.
-          azimuthDeg: transformedAzimuthDeg(transform, roof.azimuthDeg),
-        }),
-      );
-      continue;
-    }
-    const network = (file.project.systems ?? []).find((candidate) =>
-      candidate.nodes.some(({ id }) => id === objectId),
+    const outcome = transformCommandsFor(
+      file.project,
+      level.id,
+      objectId,
+      transform,
+      selection,
     );
-    const node = network?.nodes.find(({ id }) => id === objectId);
-    if (network !== undefined && node !== undefined) {
-      const moved = transformPoint(transform, node.position);
-      commands.push(
-        new UpdateNetworkNodeCommand(network.id, node.id, {
-          position: { x: moved.x, y: moved.y, z: node.position.z },
-        }),
-      );
-      continue;
-    }
-    if (level.openings.some(({ id }) => id === objectId))
+    if (outcome === undefined)
       return {
         status: 'ERROR',
-        message:
-          'Une ouverture suit son mur : faites pivoter le mur qui la porte.',
+        message: `Cet objet n’appartient pas à ce niveau : ${objectId}.`,
       };
+    if (outcome.status === 'REFUSED')
+      return { status: 'ERROR', message: outcome.message };
+    commands.push(...outcome.commands);
+  }
+  // Every object of the selection answered, and none of them had anything to
+  // do: a segment whose corners are all its ends, an object already in place.
+  if (commands.length === 0)
     return {
       status: 'ERROR',
-      message: `Cet objet ne se transforme pas depuis le plan : ${objectId}.`,
+      message: 'Rien à déplacer dans cette sélection.',
     };
-  }
   const id = `${transform.kind.toLowerCase()}:${objectIds.join(',')}`;
-  const label =
-    transform.kind === 'ROTATE'
-      ? `Pivoter ${objectIds.length} objet(s)`
-      : `Retourner ${objectIds.length} objet(s)`;
+  const label = `${TRANSFORM_LABELS[transform.kind]} ${
+    objectIds.length === 1 ? 'un objet' : `${objectIds.length} objets`
+  }`;
   return {
     status: 'OK',
     command:
@@ -1249,6 +1064,17 @@ export interface PlanClipboard {
   readonly slabs: readonly Slab[];
   readonly roofs: readonly RoofPlane[];
   /**
+   * The families the lots C to H added, which the clipboard did not know.
+   *
+   * Copying a storey onto the one above is what this exists for, and it copied
+   * the walls and left the stairs, the roof, the posts and the radiators
+   * behind — silently, because nothing said what had not been taken.
+   */
+  readonly stairs: readonly Stair[];
+  readonly roofStructures: readonly Roof[];
+  readonly structure: readonly StructuralMember[];
+  readonly components: readonly ComponentInstance[];
+  /**
    * The storey the copy was taken from, and how high it sits.
    *
    * A copy is not only a shape: a roof plane knows its own altitude and a wall
@@ -1260,15 +1086,36 @@ export interface PlanClipboard {
   readonly sourceElevationMm?: number;
 }
 
-/** Whether anything at all was copied. */
-export function clipboardIsEmpty(clipboard: PlanClipboard): boolean {
+/** How many objects the clipboard holds, across every family. */
+export function clipboardCount(clipboard: PlanClipboard): number {
   return (
-    clipboard.walls.length === 0 &&
-    clipboard.openings.length === 0 &&
-    clipboard.slabs.length === 0 &&
-    clipboard.roofs.length === 0
+    clipboard.walls.length +
+    clipboard.openings.length +
+    clipboard.slabs.length +
+    clipboard.roofs.length +
+    clipboard.stairs.length +
+    clipboard.roofStructures.length +
+    clipboard.structure.length +
+    clipboard.components.length
   );
 }
+
+/** Whether anything at all was copied. */
+export function clipboardIsEmpty(clipboard: PlanClipboard): boolean {
+  return clipboardCount(clipboard) === 0;
+}
+
+/** A clipboard holding nothing, which is what a session starts with. */
+export const EMPTY_CLIPBOARD: PlanClipboard = {
+  walls: [],
+  openings: [],
+  slabs: [],
+  roofs: [],
+  stairs: [],
+  roofStructures: [],
+  structure: [],
+  components: [],
+};
 
 /**
  * Takes a copy of what is selected.
@@ -1282,10 +1129,12 @@ export function copyObjects(
   objectIds: readonly string[],
 ): PlanClipboard {
   const level = levelOf(file.project, levelId);
-  if (level === undefined)
-    return { walls: [], openings: [], slabs: [], roofs: [] };
+  if (level === undefined) return EMPTY_CLIPBOARD;
   const chosen = new Set(objectIds);
-  const walls = level.walls.filter(({ id }) => chosen.has(id as string));
+  const kept = <T extends { readonly id: string }>(
+    objects: readonly T[] | undefined,
+  ): readonly T[] => (objects ?? []).filter(({ id }) => chosen.has(id));
+  const walls = kept(level.walls);
   const hosts = new Set(walls.map(({ id }) => id as string));
   return {
     walls,
@@ -1294,8 +1143,12 @@ export function copyObjects(
         chosen.has(opening.id as string) &&
         hosts.has(opening.hostElementId as string),
     ),
-    slabs: level.slabs.filter(({ id }) => chosen.has(id as string)),
-    roofs: level.roofs.filter(({ id }) => chosen.has(id as string)),
+    slabs: kept(level.slabs),
+    roofs: kept(level.roofs),
+    stairs: kept(level.stairs),
+    roofStructures: kept(level.roofStructures),
+    structure: kept(level.structure),
+    components: kept(level.components),
     sourceLevelId: level.id,
     sourceElevationMm: level.elevationMm,
   };
@@ -1332,6 +1185,28 @@ function retargetedHeight(
     heightMode: 'EXPLICIT',
     heightMm: targetLevel.defaultStoreyHeightMm,
   };
+}
+
+/**
+ * The storey a copied reference should now point at.
+ *
+ * The storey at the same distance in the list is the one that means the same
+ * thing: a stair from the ground floor to the first, pasted on the first, goes
+ * to the second. Nothing that high in the project and there is no answer, which
+ * the caller says rather than guessing one.
+ */
+function retargetedLevel(
+  project: Project,
+  referenced: string,
+  sourceLevelId: string | undefined,
+  targetLevelId: string,
+): string | undefined {
+  const levels = project.building.levels;
+  const source = levels.findIndex(({ id }) => id === sourceLevelId);
+  const target = levels.findIndex(({ id }) => id === targetLevelId);
+  const pointed = levels.findIndex(({ id }) => id === referenced);
+  if (source === -1 || target === -1 || pointed === -1) return undefined;
+  return levels[pointed + (target - source)]?.id;
 }
 
 /**
@@ -1436,6 +1311,95 @@ export function pasteClipboardCommand(
         // The plane rises with the storey: pasted one floor up it sits one
         // floor higher, not at the altitude of the floor it came from.
         baseElevationMm: roof.baseElevationMm + risenMm,
+      }),
+    );
+  }
+  for (const roof of clipboard.roofStructures) {
+    const copyId = newId('roof');
+    createdIds.push(copyId);
+    commands.push(
+      new AddRoofStructureCommand(level.id, {
+        id: copyId,
+        footprint: translatedPolygon(roof.footprint, deltaMm),
+        edges: roof.edges,
+        assemblyId: roof.assemblyId,
+        // The eaves rise with the storey, like a roof plane's altitude.
+        baseElevationMm: roof.baseElevationMm + risenMm,
+      }),
+    );
+  }
+  for (const member of clipboard.structure) {
+    const copyId = newId('member');
+    createdIds.push(copyId);
+    commands.push(
+      new AddStructuralMemberCommand(level.id, {
+        id: copyId,
+        kind: member.kind,
+        path: member.path.map(carried),
+        widthMm: member.widthMm,
+        depthMm: member.depthMm,
+        ...(member.elevationMm === undefined
+          ? {}
+          : { elevationMm: member.elevationMm }),
+        ...(member.heightMm === undefined ? {} : { heightMm: member.heightMm }),
+        ...(member.materialId === undefined
+          ? {}
+          : { materialId: member.materialId }),
+      }),
+    );
+  }
+  for (const stair of clipboard.stairs) {
+    // A stair joins two storeys. Pasted a floor up it has to arrive a floor
+    // higher; keeping the storey it came from would make it a stair that goes
+    // down, which the commands and the reader both refuse.
+    const arrival = retargetedLevel(
+      file.project,
+      stair.topLevelId,
+      clipboard.sourceLevelId,
+      level.id,
+    );
+    if (arrival === undefined)
+      return {
+        status: 'ERROR',
+        message: `Aucun niveau ne se trouve au-dessus de ${level.name} : l’escalier collé n’y monterait pas.`,
+      };
+    const copyId = newId('stair');
+    createdIds.push(copyId);
+    commands.push(
+      new AddStairCommand(level.id, {
+        id: copyId,
+        topLevelId: arrival,
+        stairType: stair.stairType,
+        widthMm: stair.widthMm,
+        riserCount: stair.riserCount,
+        treadDepthMm: stair.treadDepthMm,
+        path: stair.path.points.map(carried),
+        ...(stair.landings === undefined ? {} : { landings: stair.landings }),
+      }),
+    );
+  }
+  for (const component of clipboard.components) {
+    const copyId = newId('component');
+    createdIds.push(copyId);
+    const host =
+      component.hostObjectId === undefined
+        ? undefined
+        : copiedWalls.get(component.hostObjectId);
+    commands.push(
+      new AddComponentCommand(level.id, {
+        id: copyId,
+        category: component.category,
+        position: carried(component.position),
+        elevationMm: component.elevationMm,
+        rotationDeg: component.rotationDeg,
+        ...(component.name === undefined ? {} : { name: component.name }),
+        ...(component.definitionId === undefined
+          ? {}
+          : { definitionId: component.definitionId }),
+        // A support and a room belong to a storey. Pasted onto another one,
+        // what the copy was fixed to is not there: the copy stands where it
+        // was put and says so, rather than pointing at a wall downstairs.
+        ...(host === undefined ? {} : { hostObjectId: host }),
       }),
     );
   }
@@ -1773,9 +1737,10 @@ export type DuplicationResult =
  * reported: a duplication that leaves the originals selected looks like
  * nothing happened.
  *
- * An opening belongs to a wall. Its copy is hosted by the copy of that wall
- * when the wall was duplicated too, and refused otherwise: put back on the same
- * wall at the same place it would sit exactly under the original.
+ * The families are asked in the order they are declared, which is why what
+ * hangs on something finds it already copied: an opening lands in the copy of
+ * its wall, a radiator on the copy of its support. A family that declines says
+ * why, and the whole duplication stops rather than half happening.
  */
 export function duplicateObjectsCommand(
   file: ProjectFile,
@@ -1791,98 +1756,39 @@ export function duplicateObjectsCommand(
     return { status: 'ERROR', message: 'La sélection est vide.' };
   const commands: ProjectCommand[] = [];
   const createdIds: string[] = [];
-  /** The copy each duplicated wall got, so its openings can follow it. */
-  const copiedWalls = new Map<string, string>();
-
-  for (const objectId of objectIds) {
-    const wall = level.walls.find(({ id }) => id === objectId);
-    if (wall === undefined) continue;
-    const copyId = newId('wall');
-    copiedWalls.set(wall.id, copyId);
-    createdIds.push(copyId);
-    commands.push(
-      new ProjectEditorCommand(
-        `wall:duplicate:${copyId}`,
-        'Dupliquer un mur',
+  const copies = new Map<string, string>();
+  const context = { newId, copies };
+  // In the order of the families rather than of the selection: a wall has to
+  // be copied before the opening it carries can be put into the copy.
+  const pending = new Set(objectIds);
+  for (const editor of OBJECT_EDITORS) {
+    for (const objectId of objectIds) {
+      if (!pending.has(objectId)) continue;
+      const outcome = editor.duplicate?.(
+        file.project,
         level.id,
-        new AddWallCommand(`wall:duplicate:${copyId}`, {
-          ...wall,
-          id: copyId as Wall['id'],
-          path: {
-            points: wall.path.points.map((point) => ({
-              x: point.x + deltaMm.x,
-              y: point.y + deltaMm.y,
-            })),
-          },
-        }),
-      ),
-    );
+        objectId,
+        deltaMm,
+        context,
+      );
+      if (outcome === undefined) continue;
+      pending.delete(objectId);
+      if (outcome.status === 'REFUSED')
+        return { status: 'ERROR', message: outcome.message };
+      copies.set(objectId, outcome.createdId);
+      createdIds.push(outcome.createdId);
+      commands.push(...outcome.commands);
+    }
   }
-
-  for (const objectId of objectIds) {
-    if (copiedWalls.has(objectId)) continue;
-    const opening = level.openings.find(({ id }) => id === objectId);
-    if (opening !== undefined) {
-      const host = copiedWalls.get(opening.hostElementId);
-      if (host === undefined)
-        return {
-          status: 'ERROR',
-          message:
-            'Une ouverture ne se duplique qu’avec son mur : sélectionnez aussi le mur qui la porte.',
-        };
-      const copyId = newId('opening');
-      createdIds.push(copyId);
-      commands.push(
-        new ProjectEditorCommand(
-          `opening:duplicate:${copyId}`,
-          'Dupliquer une ouverture',
-          level.id,
-          new AddOpeningCommand(`opening:duplicate:${copyId}`, {
-            ...opening,
-            id: copyId as Opening['id'],
-            hostElementId: host as Opening['hostElementId'],
-          }),
-        ),
-      );
-      continue;
-    }
-    const slab = level.slabs.find(({ id }) => id === objectId);
-    if (slab !== undefined) {
-      const copyId = newId('slab');
-      createdIds.push(copyId);
-      commands.push(
-        new AddSlabCommand(level.id, {
-          id: copyId,
-          polygon: translatedPolygon(slab.polygon, deltaMm),
-          assemblyId: slab.assemblyId,
-          role: slab.role,
-          elevationOffsetMm: slab.elevationOffsetMm,
-        }),
-      );
-      continue;
-    }
-    const roof = level.roofs.find(({ id }) => id === objectId);
-    if (roof !== undefined) {
-      const copyId = newId('roof');
-      createdIds.push(copyId);
-      commands.push(
-        new AddRoofCommand(level.id, {
-          id: copyId,
-          footprint: translatedPolygon(roof.footprint, deltaMm),
-          assemblyId: roof.assemblyId,
-          slopeDeg: roof.slopeDeg,
-          azimuthDeg: roof.azimuthDeg,
-          baseElevationMm: roof.baseElevationMm,
-        }),
-      );
-      continue;
-    }
+  for (const objectId of pending) {
+    const { duplicable } = capabilitiesOf(file.project, objectId);
     return {
       status: 'ERROR',
-      message: `Cet objet ne se duplique pas depuis le plan : ${objectId}.`,
+      message: duplicable
+        ? `Cet objet n’appartient pas à ce niveau : ${objectId}.`
+        : `Cet objet ne se duplique pas depuis le plan : ${objectId}.`,
     };
   }
-
   if (commands.length === 0)
     return {
       status: 'ERROR',

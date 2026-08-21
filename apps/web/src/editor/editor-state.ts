@@ -191,6 +191,30 @@ export type EditorAction =
   | { readonly type: 'SET_DIRECT_INPUT'; readonly input: DirectInputPatch }
   | { readonly type: 'TOGGLE_LAYER'; readonly layerId: string }
   | { readonly type: 'SHOW_LAYERS'; readonly layerIds: readonly string[] }
+  /**
+   * Every layer set to exactly what is stated, hiding included.
+   *
+   * `SHOW_LAYERS` never hides, which is right when a discipline is being
+   * revealed and wrong when a saved view is being restored: a view that had
+   * the networks off came back with them on, and the drawing that reappeared
+   * was not the drawing that had been saved.
+   */
+  | {
+      readonly type: 'SET_LAYERS';
+      readonly layers: Readonly<Record<string, boolean>>;
+    }
+  /**
+   * The camera put exactly where it is told: a centre and a zoom.
+   *
+   * Restoring a saved view is the reason: framing what happens to be drawn is
+   * not the framing the view recorded, and a scale of 1:50 that comes back as
+   * « whatever fits » is not a scale.
+   */
+  | {
+      readonly type: 'SET_CAMERA';
+      readonly centreModelMm: Point2D;
+      readonly pixelsPerMm: number;
+    }
   | { readonly type: 'APPLY_PRESET'; readonly presetId: string }
   | { readonly type: 'SET_LEVEL'; readonly levelId: string };
 
@@ -435,6 +459,27 @@ export function editorReducer(
               ...Object.fromEntries(hidden.map((id) => [id, true])),
             },
           };
+    }
+    case 'SET_LAYERS':
+      return { ...state, layers: { ...state.layers, ...action.layers } };
+    case 'SET_CAMERA': {
+      const { centreModelMm, pixelsPerMm } = action;
+      // A zoom of zero or of infinity is not a framing; the camera keeps the
+      // one it has rather than dividing the model by nothing.
+      if (!Number.isFinite(pixelsPerMm) || pixelsPerMm <= 0) return state;
+      if (
+        !Number.isFinite(centreModelMm.x) ||
+        !Number.isFinite(centreModelMm.y)
+      )
+        return state;
+      return {
+        ...state,
+        camera: {
+          ...state.camera,
+          centerModelMm: { x: centreModelMm.x, y: centreModelMm.y },
+          pixelsPerMm,
+        },
+      };
     }
     case 'APPLY_PRESET': {
       const preset = LAYER_PRESETS.find(({ id }) => id === action.presetId);

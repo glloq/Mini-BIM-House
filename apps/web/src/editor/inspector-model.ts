@@ -717,6 +717,28 @@ export function stairSubject(
             field(
               'Longueur au sol',
               measured === undefined ? undefined : metres(measured.runMm),
+              'Déduite du nombre de marches, du giron et des paliers.',
+            ),
+            field(
+              'Ligne de foulée tracée',
+              measured === undefined
+                ? undefined
+                : metres(measured.pathLengthMm),
+            ),
+            field(
+              'Écart tracé / marches',
+              measured === undefined
+                ? undefined
+                : `${measured.pathDifferenceMm >= 0 ? '+' : '−'}${Math.abs(
+                    measured.pathDifferenceMm,
+                  ).toFixed(0)} mm`,
+              measured === undefined
+                ? undefined
+                : measured.pathMatchesRun
+                  ? 'La ligne tracée porte exactement les marches décrites.'
+                  : measured.pathDifferenceMm < 0
+                    ? 'Les marches décrites ne tiennent pas sur la ligne tracée : le plan montre moins de marches qu’il n’en faut.'
+                    : 'La ligne tracée est plus longue que les marches décrites : le haut de la volée reste sans marche.',
             ),
             field(
               'Formule de Blondel',
@@ -805,7 +827,24 @@ export function roofStructureSubject(
                 : undefined,
               topology.status === 'DERIVED'
                 ? 'Les pans sont déduits et jamais enregistrés.'
-                : topology.reason,
+                : `${topology.reason} Cette toiture ne compte donc dans aucune surface du projet.`,
+            ),
+            field(
+              'Surface des pans',
+              topology.status === 'DERIVED'
+                ? `${(
+                    topology.planes.reduce(
+                      (total, plane) =>
+                        total +
+                        Math.abs(polygonArea(plane.footprint)) /
+                          Math.cos((plane.slopeDeg * Math.PI) / 180),
+                      0,
+                    ) / 1_000_000
+                  ).toFixed(2)} m²`
+                : undefined,
+              topology.status === 'DERIVED'
+                ? 'Somme des pans, mesurée dans leur plan.'
+                : undefined,
             ),
           ],
         },

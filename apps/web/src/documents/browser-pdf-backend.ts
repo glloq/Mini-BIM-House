@@ -3,13 +3,7 @@ import type {
   PdfBackendRequest,
 } from '@house-technical-designer/drawing-engine';
 
-/**
- * How many pixels one paper millimetre becomes when a page is rasterised.
- *
- * About 200 dots per inch: readable when printed at size, and small enough
- * that an A1 sheet does not exhaust the tab it is drawn in.
- */
-const PIXELS_PER_MM = 8;
+import { rasterPlanFor } from './raster-plan.js';
 
 /**
  * Turns the sheets into a PDF, in the browser, with no library.
@@ -26,21 +20,29 @@ const PIXELS_PER_MM = 8;
  * size and cannot be selected, searched or zoomed without loss — which is why
  * the interface says so beside the button rather than letting the file be
  * mistaken for a vector drawing.
+ *
+ * They are produced **one at a time**, and each page's resolution comes from a
+ * pixel budget rather than from a constant. Rasterising ten A0 sheets at once
+ * at eight pixels a millimetre asked the tab for two and a half gigabytes of
+ * canvas; what came back was a crash with no file and no message.
  */
 export class BrowserPdfBackend implements PdfBackend {
   readonly id = 'browser-canvas-jpeg';
   readonly version = '1.0.0';
 
   async generate(request: PdfBackendRequest): Promise<Uint8Array> {
-    const pages: readonly RasterPage[] = await Promise.all(
-      request.pages.map((page) =>
-        rasterise(
+    const pages: RasterPage[] = [];
+    // One after another, on purpose: a page's canvas is released before the
+    // next one is asked for, so the memory a drawing set needs is the memory
+    // of its largest sheet and not of all of them together.
+    for (const page of request.pages)
+      pages.push(
+        await rasterise(
           page.svg,
           page.paperSizeMm,
           request.colorMode === 'GRAYSCALE',
         ),
-      ),
-    );
+      );
     return assemblePdf(request, pages);
   }
 }
@@ -58,11 +60,7 @@ async function rasterise(
   paperSizeMm: { readonly width: number; readonly height: number },
   grayscale: boolean,
 ): Promise<RasterPage> {
-  const pixelWidth = Math.max(1, Math.round(paperSizeMm.width * PIXELS_PER_MM));
-  const pixelHeight = Math.max(
-    1,
-    Math.round(paperSizeMm.height * PIXELS_PER_MM),
-  );
+  const { pixelWidth, pixelHeight } = rasterPlanFor(paperSizeMm);
   const canvas = document.createElement('canvas');
   canvas.width = pixelWidth;
   canvas.height = pixelHeight;
@@ -101,12 +99,17 @@ async function rasterise(
   });
   if (blob === null)
     throw new TypeError('Le navigateur n’a pas produit d’image de la feuille.');
+  const jpeg = new Uint8Array(await blob.arrayBuffer());
+  // The canvas is what holds the megapixels; giving it up here is what makes
+  // rasterising page by page worth anything.
+  canvas.width = 0;
+  canvas.height = 0;
   return {
     widthMm: paperSizeMm.width,
     heightMm: paperSizeMm.height,
     pixelWidth,
     pixelHeight,
-    jpeg: new Uint8Array(await blob.arrayBuffer()),
+    jpeg,
   };
 }
 

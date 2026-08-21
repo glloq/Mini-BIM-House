@@ -1095,6 +1095,84 @@ test('reaches an object through the project tree', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('reaches a column and a component through the project tree', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+
+  // A column, then a radiator: the two families whose tree lines used to send
+  // « member-1 Poteau member-1 » where an identifier was expected, so that
+  // clicking them selected nothing at all.
+  await page.getByRole('button', { name: 'Poteau', exact: true }).click();
+  await page.getByLabel('Élément').selectOption('COLUMN');
+  await canvas.click({ position: { x: box.width * 0.4, y: box.height * 0.4 } });
+  await expect(page.locator('[id^="structure:member-"]')).toHaveCount(1);
+
+  await page.getByRole('button', { name: 'Composant', exact: true }).click();
+  await page.getByLabel('Catégorie').selectOption('HEATING');
+  await page.getByLabel('Nom').fill('Radiateur séjour');
+  await canvas.click({
+    position: { x: box.width * 0.3, y: box.height * 0.35 },
+  });
+  await expect(page.getByRole('status')).toContainText('composant');
+
+  const tree = page.getByRole('navigation', {
+    name: 'Arborescence du projet',
+  });
+  await tree.getByText(/^Structure/).click();
+  await tree.getByRole('button', { name: /^Poteau / }).click();
+  await expect(page.locator('.inspector-subject h3')).toContainText('Poteau');
+
+  await tree.getByText(/^Composants/).click();
+  await tree.getByRole('button', { name: 'Radiateur séjour' }).click();
+  await expect(page.locator('.inspector-subject h3')).toContainText(
+    'Radiateur séjour',
+  );
+  expect(errors).toEqual([]);
+});
+
+test('offers on an object only what its family can do', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+
+  // A room is the space its walls enclose: it neither moves, nor turns, nor
+  // is copied. Offering the three and refusing them afterwards reads as a
+  // defect; greying them out reads as a property of the room, which it is.
+  const living = (await page
+    .locator('[id="space:space-living"]')
+    .boundingBox())!;
+  await canvas.click({
+    button: 'right',
+    position: {
+      x: living.x - box.x + living.width / 2,
+      y: living.y - box.y + living.height / 2,
+    },
+  });
+  const menu = page.getByRole('menu');
+  await expect(menu).toBeVisible();
+  await expect(page.locator('.inspector-subject h3')).toContainText('Séjour');
+  for (const action of ['Dupliquer', 'Pivoter d’un quart de tour', 'Retourner'])
+    await expect(menu.getByRole('menuitem', { name: action })).toBeDisabled();
+  // Framing and deleting are the application's, not the family's, and stay.
+  await expect(
+    menu.getByRole('menuitem', { name: 'Cadrer sur cet objet' }),
+  ).toBeEnabled();
+  await page.keyboard.press('Escape');
+
+  // The quick transformations of the toolbar follow the same declaration.
+  await expect(
+    page.getByRole('button', { name: /^Pivoter 90°/ }),
+  ).toBeDisabled();
+  expect(errors).toEqual([]);
+});
+
 test('chooses which contour a slab is built from', async ({ page }) => {
   await loadDemo(page);
   await page.getByRole('button', { name: 'Niveaux et pièces' }).click();
@@ -1828,6 +1906,10 @@ test('acts on an object from a menu opened where the object is', async ({
   await expect(
     menu.getByRole('menuitem', { name: /Face de référence/ }),
   ).toBeDisabled();
+  // A wall moves, turns, reflects and is copied: its family says so, and the
+  // menu offers exactly what the family says.
+  for (const action of ['Dupliquer', 'Pivoter d’un quart de tour', 'Retourner'])
+    await expect(menu.getByRole('menuitem', { name: action })).toBeEnabled();
 
   // The openings this wall carries: the reason the domain refuses to delete
   // it, named rather than left for the user to find by eye.
@@ -2103,9 +2185,11 @@ test('keeps a view, lays it on a sheet and draws the sheet', async ({
   await expect(page.getByRole('status')).toContainText('enregistrée');
 
   await page.getByLabel('Titre de la feuille').fill('Plan du rez-de-chaussée');
-  await page.getByLabel('Format').selectOption('A3');
+  await page.getByLabel('Format de la nouvelle feuille').selectOption('A3');
   await page.getByRole('button', { name: 'Ajouter une feuille' }).click();
-  await expect(page.getByRole('cell', { name: 'A-001' })).toBeVisible();
+  await expect(
+    page.getByRole('cell', { name: 'A-001', exact: true }),
+  ).toBeVisible();
 
   // The sheet is drawn from the model, not from a picture kept aside.
   await page
@@ -2128,6 +2212,101 @@ test('keeps a view, lays it on a sheet and draws the sheet', async ({
     .getByRole('button', { name: 'Supprimer' })
     .click();
   await expect(page.getByRole('status')).toContainText('A-001');
+  expect(errors).toEqual([]);
+});
+
+test('lays two views at two scales on one sheet', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page
+    .getByRole('button', { name: 'Vues et feuilles', exact: true })
+    .click();
+
+  // Two views to lay out: a sheet carrying a plan and its neighbour is the
+  // ordinary case of a drawing set, and it could not be expressed at all.
+  for (const name of ['Plan RDC', 'Plan masse']) {
+    await page.getByLabel('Nom de la vue').fill(name);
+    await page
+      .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
+      .click();
+    await expect(page.getByRole('status')).toContainText('enregistrée');
+  }
+
+  await page.getByLabel('Titre de la feuille').fill('Dossier');
+  await page.getByLabel('Format de la nouvelle feuille').selectOption('A3');
+  await page
+    .getByLabel('Orientation de la nouvelle feuille')
+    .selectOption('PORTRAIT');
+  await page.getByRole('button', { name: 'Ajouter une feuille' }).click();
+
+  const row = page.getByRole('row').filter({ hasText: 'A-001' });
+  await row.getByRole('button', { name: 'Ajouter une vue' }).click();
+  await row
+    .getByRole('combobox', { name: 'Vue 2 de la feuille A-001' })
+    .selectOption({ label: 'Plan masse' });
+  await row
+    .getByRole('spinbutton', {
+      name: 'Échelle de la vue 2 de la feuille A-001',
+    })
+    .fill('200');
+  await row
+    .getByRole('textbox', { name: 'Indice de la feuille A-001' })
+    .fill('B');
+
+  // Two frames on the paper, and the title block carries the revision.
+  await row.getByRole('button', { name: 'Aperçu' }).click();
+  const preview = page.locator('.sheet-preview');
+  await expect(preview.locator('svg').first()).toBeVisible();
+  await expect(preview.locator('[data-viewport-id]')).toHaveCount(2);
+  await expect(preview).toContainText('B');
+
+  // Turning the paper relays the frames rather than leaving them off it.
+  await row
+    .getByRole('combobox', { name: 'Orientation de la feuille A-001' })
+    .selectOption('LANDSCAPE');
+  await row.getByRole('button', { name: 'Aperçu' }).click();
+  await expect(preview.locator('[data-viewport-id]')).toHaveCount(2);
+
+  // What the export will really be worth, said before it is asked for.
+  await expect(page.getByText(/tramé à \d+ ppp/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('reopens a saved view exactly as it was saved', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+
+  // A view saved with a family of objects hidden.
+  const stairs = page.getByRole('checkbox', { name: 'Escaliers' });
+  await expect(stairs).toBeChecked();
+  await stairs.uncheck();
+  await page
+    .getByRole('button', { name: 'Vues et feuilles', exact: true })
+    .click();
+  await page.getByLabel('Nom de la vue').fill('Sans les escaliers');
+  await page
+    .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
+    .click();
+  await expect(page.getByRole('status')).toContainText('enregistrée');
+
+  // The layer turned back on, and the view reopened. Restoring used to turn
+  // layers on and never off, so the view came back showing what it had been
+  // saved without.
+  await page
+    .getByRole('button', { name: 'Plan architectural', exact: true })
+    .click();
+  await stairs.check();
+  await expect(stairs).toBeChecked();
+  await page
+    .getByRole('button', { name: 'Vues et feuilles', exact: true })
+    .click();
+  await page
+    .getByRole('row')
+    .filter({ hasText: 'Sans les escaliers' })
+    .getByRole('button', { name: 'Ouvrir' })
+    .click();
+  await expect(page.getByRole('status')).toContainText('rétablie');
+  await expect(stairs).not.toBeChecked();
   expect(errors).toEqual([]);
 });
 

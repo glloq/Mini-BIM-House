@@ -1256,6 +1256,276 @@ aucune famille structurelle dans le niveau.
   reste. Un matériau que le projet ne contient plus est refusé à l'écriture et
   relevé à la lecture du fichier.
 
+## Trois défauts d'intégrité — lot A du dixième audit
+
+Un audit du `main` après la PR #21 a relevé trois défauts capables de produire
+un résultat faux sans que rien ne le signale. Ce sont les seuls de cette nature,
+et ils passent avant toute nouvelle fonctionnalité.
+
+### Toiture quatre pans : des mètres carrés comptés deux fois
+
+Les pans étaient déduits rive par rive : chaque rive inclinée produisait un
+quadrilatère occupant toute sa longueur jusqu'à la rencontre avec la rive
+opposée. Sur un deux-pans, c'est exact. Sur une croupe, les quatre pans se
+recouvraient au milieu : une maison de 10 × 8 m produisait 160 m² de projection
+pour 80 m² d'emprise. Et comme `allRoofPlanes()` alimente les métrés,
+l'enveloppe thermique et les apports solaires, ces mètres carrés en trop
+sortaient du dessin pour entrer dans les calculs. Le pire est que l'outil crée
+toutes les rives en pente par défaut : le cas faux était le cas ordinaire.
+
+La déduction repose maintenant sur ce qu'est une toiture : la plus basse des
+surfaces qui montent depuis ses rives. En tout point sous le toit, le pan qui
+couvre est celui qui atteint ce point le plus bas, et la face d'un pan est
+exactement l'endroit où il est ce plus bas. Construits ainsi, les pans sont une
+partition — ils couvrent le toit une fois et une seule — au lieu de
+quadrilatères indépendants. La construction est exacte pour **tout contour
+convexe**, quel que soit le mélange de pans et de pignons et quelles que soient
+les pentes ; un pignon ne fait monter aucune surface, donc les rives en pente se
+partagent tout le toit. Un contour non convexe demande un squelette droit, que
+cette version ne calcule pas.
+
+Ce qu'elle ne sait pas partitionner ne compte plus dans aucune surface du
+projet : ni métrés, ni thermique, ni solaire. Ce silence est le comportement
+sûr, mais c'est un silence — l'utilisateur a dessiné une toiture et les
+quantités n'en parlent pas. L'espace Vérifications le dit donc à voix haute, et
+« Voir sur le plan » mène à la toiture concernée.
+
+Les tests qui manquaient sont ceux d'invariants : compter les pans ne dit rien
+de leur recouvrement. Six configurations — deux pans, deux pans dissymétriques,
+monopente, quatre pans, quatre pentes différentes, trois pans et un pignon —
+vérifient désormais que la somme des projections vaut l'emprise sous égouts et
+qu'aucun pan n'en recouvre un autre.
+
+### Le contrat de fichier `1.0.0` resserré sans version
+
+Sous `1.0.0`, le schéma acceptait `stairs` et `drawingViews` comme des tableaux
+de n'importe quoi : le fichier les transportait et rien ne les lisait. La PR #21
+leur a donné un contrat — sans changer de version. Un fichier accepté hier
+pouvait donc être refusé aujourd'hui, ce qu'une version de schéma existe
+précisément pour empêcher.
+
+Le schéma courant passe à `1.1.0`, avec une migration `1.0.0 → 1.1.0`. Ce qui
+correspond au nouveau contrat est conservé et devient lisible ; ce qui n'y
+correspond pas est rangé sous une extension `legacy.1-0-0`, nommée et
+retrouvable. Le jeter en silence perdrait des données que personne n'a accepté
+de perdre ; refuser le fichier enfermerait l'utilisateur dehors de son propre
+projet. Deux jeux d'essai `1.0.0` — l'un déjà conforme, l'autre opaque — sont
+conservés et vérifiés à chaque exécution.
+
+### L'échelle des feuilles n'en était pas une
+
+Une vue était rendue avec le cadrage automatique de son contenu, puis imbriquée
+dans le rectangle papier avec `preserveAspectRatio="xMidYMid meet"`. Autrement
+dit : le dessin s'adaptait au cadre. Le dénominateur d'échelle ne servait qu'au
+texte du cartouche, si bien qu'une feuille pouvait annoncer 1:50 et imprimer au
+1:30.
+
+La fenêtre modèle est maintenant calculée depuis le cadre et l'échelle : un
+cadre de 300 mm au 1:50 montre exactement 15 000 mm de bâtiment, centrés là où
+la vue le dit. Le cadre ne décide plus rien — un cadre deux fois plus étroit
+montre deux fois moins de bâtiment, il ne dézoome pas. L'échelle employée est
+celle du viewport et non celle de la vue, puisqu'une même vue peut figurer sur
+deux feuilles à deux échelles.
+
+Le test physique demandé existe : dix mètres de mur mesurent 200 mm au 1:50,
+100 mm au 1:100 et 50 mm au 1:200, mesurés sur le SVG de feuille réellement
+produit — et la feuille se déclare en millimètres avec un `viewBox` un pour un,
+ce qui est ce qui porte l'échelle jusque dans le PDF.
+
+## Cohérence des objets récents — lot B du dixième audit
+
+Les familles ajoutées par les lots C à H sont arrivées avec des incohérences
+qui n'étaient visibles qu'en s'en servant. Elles ne rendaient rien faux dans
+les calculs ; elles rendaient l'application impossible à utiliser sur les
+objets concernés, ce qui revient au même pour la personne qui dessine.
+
+### L'arborescence renvoyait un libellé là où un identifiant était attendu
+
+Chaque famille de l'arbre produisait une chaîne unique où l'identifiant et le
+nom voyageaient collés, à charge pour l'affichage de les séparer. Les pièces
+utilisaient un `\0` comme séparateur ; la structure et les composants avaient
+utilisé une espace. Un clic sur « Poteau member-1 » ou sur « Radiateur séjour »
+envoyait donc `member-1 Poteau` — libellé compris — là où l'application
+attendait `member-1`, et ne sélectionnait rien. Deux familles sur neuf, et
+précisément les deux dernières ajoutées.
+
+Le format n'a pas été corrigé, il a été supprimé : une entrée de l'arbre est
+maintenant `{ objectId, label }`, deux champs qu'aucune famille ne peut coller
+l'un à l'autre. Un test navigateur fait le trajet complet pour les deux
+familles fautives — arbre → Structure → clic sur le poteau → inspecteur du
+poteau, arbre → Composants → clic sur le radiateur → inspecteur du radiateur.
+
+### Un tronçon de réseau ne pouvait ni être modifié ni être supprimé
+
+Le tronçon était sélectionnable, mesurable, encadrable et déplaçable, mais
+`edits` et `remove` de sa famille ne connaissaient que les nœuds. Ce qu'un tuyau
+est fait de ne pouvait donc se dire que dans l'espace de travail des réseaux,
+et la touche Suppr ne faisait rien sur lui.
+
+L'édition vient maintenant du schéma de la discipline — `edgePropertySchema`,
+le même que celui du panneau réseaux — de sorte qu'une discipline nouvelle
+apporte ses champs sans que l'inspecteur ait à les connaître. Un champ vidé
+efface la propriété au lieu d'y écrire zéro, et le pas des flèches suit l'unité
+du champ : un diamètre en mètres ne se règle pas par pas de un.
+
+### Les réseaux se dessinaient en entier sur tous les niveaux
+
+Un nœud déclare le niveau où il se trouve ; le plan les dessinait tous, quel
+que soit l'étage affiché. La vue filtre désormais nœuds, ports et tronçons par
+le niveau demandé — un tronçon appartient aux niveaux de ses deux extrémités —
+et un objet qui ne déclare aucun niveau reste visible partout, parce qu'il n'y
+a rien à filtrer dessus. Un tronçon qui relie deux étages est marqué comme
+colonne montante plutôt que masqué.
+
+### Un composant pouvait être fixé à autre chose qu'une surface
+
+`hostObjectId` était vérifié contre la liste des cibles d'un nœud de réseau,
+qui contient les pièces et les équipements du catalogue. Un radiateur pouvait
+donc être « fixé » au modèle de radiateur qui le décrit. Un composant se fixe à
+un mur, une dalle ou une toiture ; le support et la pièce doivent de plus se
+trouver sur le niveau du composant, faute de quoi le dessin le pose à un étage
+et son support à un autre. La lecture de fichier et les commandes le refusent
+toutes les deux.
+
+### Un escalier décrivait deux escaliers différents
+
+La ligne de foulée était tracée à la main et les marches choisies dans les
+options de l'outil : rien ne forçait la longueur tracée à correspondre au
+nombre de marches et au giron. Le plan répartissait les marches uniformément
+sur la ligne, si bien que seize contremarches de 27 cm tenaient visuellement
+sur trois mètres comme sur cinq. Le dessin et les métrés décrivaient deux
+objets.
+
+Trois changements. Les marches sont maintenant posées au giron déclaré, en
+partant du bas et en s'arrêtant au bout de la ligne : une volée qui ne tient
+pas dans la place qu'on lui a donnée se voit. La création ajuste la ligne
+tracée à la longueur que la volée demande, en gardant le départ et chaque
+angle : l'utilisateur dit où l'escalier va et comment il tourne, sa longueur
+suit de ses marches. Enfin `stairDimensions` rend la longueur tracée, la
+longueur demandée et leur écart, et les Vérifications signalent tout écart de
+plus d'un centimètre en nommant les deux longueurs — ce qui reste possible
+après une modification du nombre de marches depuis l'inspecteur.
+
+Un escalier qui arrive à un niveau non supérieur au sien est refusé à la
+lecture du fichier, et plus seulement par les commandes : sa montée serait
+nulle ou négative, donc sa hauteur de marche, son Blondel et sa place dans les
+métrés seraient des réponses à une question qui n'en a pas.
+
+## Déplacer, pivoter, retourner, copier — lot C du dixième audit
+
+Déplacer, transformer et dupliquer étaient trois chaînes de `if` portant chacune
+sur quatre familles, écrites quand il y en avait quatre. Les dix familles
+ajoutées depuis tombaient au bout des trois et recevaient « cet objet ne se
+déplace pas depuis le plan » : vrai du code, faux de l'objet. Un escalier, une
+toiture complète, un poteau, un composant posé, un obstacle de terrain ne
+pouvaient être ni déplacés, ni pivotés, ni retournés, ni dupliqués.
+
+### Ce que fait une famille, elle le déclare
+
+Une famille du registre déclare maintenant ses `capabilities` —
+`movable / rotatable / mirrorable / duplicable` — et fournit deux
+implémentations : comment un de ses objets suit une transformation, et comment
+il se copie de côté. Déplacer, pivoter et retourner sont une seule application
+d'un point vers un point, donc une seule fonction par famille répond aux trois :
+la famille qui suivait la rotation et oubliait le miroir n'existe plus.
+
+Ce qu'une famille ne fait pas, elle le dit aussi, et en français : une ouverture
+appartient à son mur, une pièce est l'espace que ses murs enferment, une cote
+suit les murs qu'elle mesure, une parcelle est la limite du terrain. Le menu
+contextuel et la barre d'outils grisent ce qui n'est pas offert au lieu de le
+proposer puis de le refuser — une action proposée puis refusée se lit comme une
+panne, une action visiblement indisponible se lit comme une propriété de
+l'objet, ce qu'elle est.
+
+Une sélection ne peut que ce que tous ses objets peuvent : une pièce dans la
+sélection et rien ne pivote, parce que faire tourner les murs autour d'elle
+démonterait le dessin.
+
+### Deux cas qui ne sont pas des cas généraux
+
+Un **tronçon de réseau** ne se déplace pas seul : ses extrémités appartiennent à
+leurs ports. Il porte en revanche ses propres coudes quand ses deux nœuds
+voyagent avec lui — sans quoi déplacer une branche entière déformait les
+tronçons au lieu de les déplacer, les extrémités suivant les nœuds et les coudes
+restant sur place. Sélectionné seul, il dit lequel des deux il attend.
+
+Un **objet de réseau ne se duplique pas depuis le plan** : un nœud que rien ne
+rejoint et un tronçon qui ne relie rien sont des fragments. La copie d'un réseau
+appartient à l'espace Réseaux, et le refus le dit.
+
+### Le presse-papiers connaît enfin tout l'étage
+
+Copier un niveau sur celui du dessus est la raison d'être du presse-papiers, et
+il copiait les murs en laissant derrière lui les escaliers, la toiture, les
+poteaux et les radiateurs — sans le dire. Il transporte maintenant les huit
+familles, et ce qui connaît sa propre altitude est relu contre le niveau où il
+atterrit : les rives d'une toiture montent d'un étage, et un escalier collé un
+étage plus haut arrive un étage plus haut. Quand rien ne se trouve au-dessus du
+niveau d'arrivée, le collage est refusé en le disant, plutôt que d'écrire un
+escalier qui descend.
+
+Un `UpdateSiteObstacleCommand` est apparu au passage : un arbre pouvait être
+planté et arraché, et rien entre les deux.
+
+## Vues et documents — lot D du dixième audit
+
+### Une vue rouverte n'était pas la vue enregistrée
+
+`applySavedView` rétablissait le niveau, puis appelait `SHOW_LAYERS` avec les
+calques allumés. Or `SHOW_LAYERS` n'éteint jamais — c'est le bon comportement
+quand on révèle une discipline, et le mauvais quand on rétablit une vue. Une
+vue enregistrée réseaux masqués revenait réseaux visibles, au zoom où
+l'utilisateur se trouvait, avec l'analyse qui était affichée. C'était un autre
+dessin portant le même nom.
+
+Une vue rétablit maintenant tout ce qu'elle décrit : le niveau, chaque calque
+tel qu'il était — masqués compris —, le centre, l'échelle et l'analyse. Et ce
+qu'elle ne peut pas rétablir, elle le nomme : un niveau supprimé depuis, une
+analyse que cette version n'affiche plus, une charte graphique inconnue, un type
+de vue que le plan ne dessine pas encore. Une vue qui revient fausse en silence
+est pire qu'une vue qui dit ce qu'elle a perdu.
+
+Deux actions de l'éditeur sont apparues pour cela : `SET_LAYERS`, qui pose la
+visibilité exacte au lieu de ne faire qu'allumer, et `SET_CAMERA`, qui pose un
+centre et un zoom au lieu de cadrer ce qui se trouve dessiné. Le pont entre une
+échelle et un zoom est une fonction unique, vérifiée dans les deux sens.
+
+### Une feuille ne portait qu'une vue, en paysage
+
+Un plan et sa coupe sur la même feuille est le cas ordinaire d'un dossier, et il
+ne pouvait pas s'exprimer : le panneau créait une feuille paysage avec un seul
+cadre, et la seule chose modifiable ensuite était quelle vue s'y trouvait.
+
+Une feuille porte maintenant autant de vues qu'on lui en ajoute, chacune avec sa
+propre échelle ; le format, l'orientation et l'indice se changent après coup.
+Les cadres ne sont pas placés à la main : ils sont déduits du papier, de son
+orientation et du nombre de vues, en une grille aussi carrée que le compte le
+permet, la bande du cartouche laissée libre sur toute la largeur. C'est ce qui
+garantit qu'aucun cadre ne sort de la zone imprimable ni ne passe sous le
+cartouche — le moteur de dessin refuse les deux — et c'est pourquoi tourner le
+papier redéduit les cadres au lieu de les laisser pendre hors de la feuille.
+
+### Un A0 faisait tomber l'onglet
+
+Les pages étaient tramées **toutes en même temps** — `Promise.all` sur les
+feuilles — à huit pixels par millimètre quel que soit le format. Un A0 fait
+alors 6 728 × 9 512 pixels, soit soixante-quatre mégapixels et un quart de
+gigaoctet de canevas pour une page. Un dossier de dix A0 demandait deux
+gigaoctets et demi à l'onglet et recevait un plantage : pas de fichier, pas
+d'erreur, pas d'explication.
+
+Les pages sont maintenant tramées **une par une**, et le canevas de chacune est
+rendu avant de demander la suivante : la mémoire nécessaire à un dossier est
+celle de sa plus grande feuille, pas celle de toutes ensemble. La densité vient
+d'un budget de vingt-cinq mégapixels par page plutôt que d'une constante : les
+petits formats gardent leurs 203 ppp, un A1 descend à 180, un A0 à 127.
+
+Et cette densité est **annoncée**. L'interface affichait « pages tramées à
+200 ppp », ce qui était faux dès qu'un grand format entrait dans le dossier. Le
+panneau annonce désormais, avant l'export, la densité de la feuille la plus
+réduite — celle qui borne la netteté de l'ensemble — et le message de fin dit la
+même chose.
+
 ## Ce qui reste ouvert après les lots A à H
 
 Les huit lots du neuvième audit sont traités. Ce qui n'a pas été fait, et

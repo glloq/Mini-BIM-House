@@ -1,6 +1,6 @@
 {
   "format": "house-technical-designer-project",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "applicationVersion": "0.1.0",
   "project": {
     "id": "project-example-minimal",
