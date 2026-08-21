@@ -22,7 +22,7 @@ describe('a house nobody would call small', () => {
     expect(() =>
       serializeProjectFile({
         format: 'house-technical-designer-project',
-        schemaVersion: '1.1.0',
+        schemaVersion: '1.2.0',
         project: house,
         references: {},
         extensions: {},

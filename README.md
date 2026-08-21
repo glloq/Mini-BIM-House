@@ -562,7 +562,7 @@ Chaque fichier est versionné :
 
 ```json
 {
-  "schemaVersion": "1.1.0"
+  "schemaVersion": "1.2.0"
 }
 ```
 
@@ -572,6 +572,18 @@ elles ne font que resserrer un contrat : `1.1.0` donne une forme à `stairs` et
 fichier `1.0.0` s'ouvre donc toujours ; ce qui correspond à la nouvelle forme
 devient lisible, et ce qui n'y correspond pas est conservé sous l'extension
 `legacy.1-0-0` plutôt que jeté.
+
+`1.2.0` remet à leur place les valeurs qu'une version antérieure de l'interface
+rangeait ailleurs : l'identifiant et la version de la fiche catalogue étaient
+écrits **dans** `properties`, sous des noms que rien ne lisait, si bien que
+l'épinglage cherchait `version` en tête de fiche et ne trouvait rien. Elle
+nomme aussi le genre des ports de réseau **là où l'ancien fichier le
+déterminait** : l'eau froide qui sort d'une nourrice est l'eau froide qui
+arrive à un robinet, donc ce cas est certain ; dans une extraction, une bouche
+envoie de l'air extrait _vers_ la gaine pendant que le caisson envoie de l'air
+rejeté _vers_ l'extérieur, donc le sens ne tranche rien et le port garde ce
+qu'il disait. Une déduction que personne ne peut vérifier est pire qu'un
+ancien champ que quelqu'un peut encore lire.
 
 ---
 

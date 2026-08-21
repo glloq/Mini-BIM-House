@@ -55,7 +55,7 @@ describe('core project entities', () => {
     const timestamp = '2026-08-18T20:00:00Z';
     const file: ProjectFile = {
       format: 'house-technical-designer-project',
-      schemaVersion: '1.1.0',
+      schemaVersion: '1.2.0',
       project: {
         id: entityId<'Project'>('project-1'),
         metadata: createProjectMetadata('House', timestamp),
