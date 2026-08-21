@@ -101,6 +101,9 @@
           "nodeId": {
             "type": "string"
           },
+          "portTypeId": {
+            "type": "string"
+          },
           "role": {
             "type": "string"
           },

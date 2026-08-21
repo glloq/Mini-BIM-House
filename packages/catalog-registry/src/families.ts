@@ -2,10 +2,12 @@ import {
   isClearanceZone,
   isDataDomain,
   isDataRegistry,
-  isPortType,
+  portRequirement,
+  unknownPortKinds,
   type ClearanceZone,
   type DataDomain,
   type DataRegistry,
+  type PortRequirementCandidate,
 } from '@house-technical-designer/technical-types';
 import { isHostType, HOST_TYPES } from '@house-technical-designer/core-domain';
 import {
@@ -66,9 +68,9 @@ export interface FamilyDefinition {
    * heat pump — belongs in `optionalPorts`, so that requiring the rest stays
    * meaningful.
    */
-  readonly ports?: readonly string[];
+  readonly ports?: readonly PortRequirementCandidate[];
   /** What such an object may also be connected by, without having to be. */
-  readonly optionalPorts?: readonly string[];
+  readonly optionalPorts?: readonly PortRequirementCandidate[];
   /** The calculation modules that read an object of this family. */
   readonly calculators?: readonly string[];
   readonly placement?: FamilyPlacement;
@@ -94,8 +96,8 @@ export interface FamilyCandidate extends Omit<
 > {
   readonly domain: string;
   readonly registry: string;
-  readonly ports?: readonly string[];
-  readonly optionalPorts?: readonly string[];
+  readonly ports?: readonly PortRequirementCandidate[];
+  readonly optionalPorts?: readonly PortRequirementCandidate[];
   readonly clearances?: readonly string[];
   readonly status?: Readonly<Record<string, string>>;
 }
@@ -132,13 +134,34 @@ export function validateFamily(
     at('registry', `unknown ${family.registry}`);
   if (!Number.isInteger(family.priority) || family.priority < 1)
     at('priority', 'must be a wave number of at least one');
-  for (const [index, port] of (family.ports ?? []).entries())
-    if (!isPortType(port)) at(`ports/${index}`, `unknown port type ${port}`);
-  for (const [index, port] of (family.optionalPorts ?? []).entries()) {
-    if (!isPortType(port))
-      at(`optionalPorts/${index}`, `unknown port type ${port}`);
-    else if ((family.ports ?? []).includes(port))
-      at(`optionalPorts/${index}`, `${port} is already required`);
+  const required = (family.ports ?? []).map(portRequirement);
+  for (const [index, requirement] of required.entries()) {
+    for (const kind of unknownPortKinds(requirement))
+      at(`ports/${index}`, `unknown port type ${kind}`);
+    if (requirement.anyOf.length === 0)
+      at(`ports/${index}`, 'names no port kind at all');
+    if (!Number.isInteger(requirement.minCount) || requirement.minCount < 0)
+      at(
+        `ports/${index}`,
+        'must ask for a whole number of ports, at least zero',
+      );
+    if (
+      requirement.maxCount !== undefined &&
+      requirement.maxCount < requirement.minCount
+    )
+      at(
+        `ports/${index}`,
+        'takes fewer ports than it needs, which nothing can satisfy',
+      );
+  }
+  const alreadyRequired = new Set(required.flatMap(({ anyOf }) => anyOf));
+  for (const [index, candidate] of (family.optionalPorts ?? []).entries()) {
+    const requirement = portRequirement(candidate);
+    for (const kind of unknownPortKinds(requirement))
+      at(`optionalPorts/${index}`, `unknown port type ${kind}`);
+    for (const kind of requirement.anyOf)
+      if (alreadyRequired.has(kind))
+        at(`optionalPorts/${index}`, `${kind} is already required`);
   }
   for (const [index, zone] of (family.clearances ?? []).entries())
     if (!isClearanceZone(zone))

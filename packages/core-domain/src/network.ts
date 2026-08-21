@@ -1,4 +1,8 @@
 import type { Point3D } from '@house-technical-designer/geometry';
+import {
+  connectionRefusal,
+  portType,
+} from '@house-technical-designer/technical-types';
 import type { JsonValue } from './types.js';
 
 export type NetworkDiscipline =
@@ -41,10 +45,82 @@ export interface NetworkNode {
 export interface NetworkPort {
   readonly id: string;
   readonly nodeId: string;
+  /**
+   * What kind of port this is, as the registry names them.
+   *
+   * One field, from which the fluid, the service, the direction and the way it
+   * is joined are all read. `role`, `direction` and `connectionType` said the
+   * same things separately and in free text, so `HEATING_FLOW`,
+   * `heating-flow` and `FLOW_HEATING` were three different roles that
+   * connected to nothing, and four fields could disagree with each other about
+   * one port.
+   *
+   * Optional because files written before it exist, and a file that opened
+   * yesterday has to open today.
+   */
+  readonly portTypeId?: string;
+  /** What it was called before the kinds were named. Free text. */
   readonly role: string;
   readonly direction: PortDirection;
   readonly connectionType?: string;
   readonly nominalSize?: number;
+}
+
+/** What a port is called: its kind's name when it has one, its role if not. */
+export function portRole(port: NetworkPort): string {
+  const kind =
+    port.portTypeId === undefined ? undefined : portType(port.portTypeId);
+  return kind?.label ?? port.role;
+}
+
+/**
+ * Which way it faces, read from its kind when the kind settles the question.
+ *
+ * Many kinds do not: an eau froide is the same water leaving a manifold and
+ * arriving at a tap, so `WATER_COLD` is bidirectional and the port itself says
+ * which end of the run it is.
+ */
+export function portFacing(port: NetworkPort): PortDirection {
+  const kind =
+    port.portTypeId === undefined ? undefined : portType(port.portTypeId);
+  return kind === undefined || kind.direction === 'BIDIRECTIONAL'
+    ? port.direction
+    : kind.direction;
+}
+
+/**
+ * Where a port says two different things about itself.
+ *
+ * A port that declares a kind and then a direction the kind contradicts is a
+ * port whose meaning depends on which field the reader happens to trust.
+ */
+export function portDisagreements(port: NetworkPort): readonly string[] {
+  if (port.portTypeId === undefined) return [];
+  const kind = portType(port.portTypeId);
+  if (kind === undefined) return [`unknown port type ${port.portTypeId}`];
+  // A bidirectional kind settles nothing about the end of the run this port
+  // is, so the port is the only one saying, and it cannot contradict itself.
+  return kind.direction === 'BIDIRECTIONAL' || kind.direction === port.direction
+    ? []
+    : [
+        `declares ${port.portTypeId}, which is ${kind.direction}, and says ${port.direction}`,
+      ];
+}
+
+/**
+ * Why two ports may not be joined, when they may not.
+ *
+ * The same answer the catalogue gives, from the same registry: a network drawn
+ * in the building and a catalogue entry have to agree about what can be
+ * connected to what, or one of them is drawing something that cannot be built.
+ */
+export function connectionRefusalBetween(
+  first: NetworkPort,
+  second: NetworkPort,
+): string | undefined {
+  if (first.portTypeId === undefined || second.portTypeId === undefined)
+    return undefined;
+  return connectionRefusal(first.portTypeId, second.portTypeId);
 }
 
 export interface NetworkEdge {

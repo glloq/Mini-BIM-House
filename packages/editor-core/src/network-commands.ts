@@ -7,7 +7,11 @@ import type {
   Project,
   TechnicalNetwork,
 } from '@house-technical-designer/core-domain';
-import { validateTechnicalNetwork } from '@house-technical-designer/core-domain';
+import {
+  connectionRefusalBetween,
+  levelEntities,
+  validateTechnicalNetwork,
+} from '@house-technical-designer/core-domain';
 import {
   edgePropertySchema,
   incoherentNetworkProperties,
@@ -222,16 +226,13 @@ function buildingObjectLevel(
   project: Project,
   objectId: string,
 ): { readonly levelId: string; readonly isSpace: boolean } | undefined {
-  for (const level of project.building.levels) {
-    if (level.spaces.some(({ id }) => id === objectId))
-      return { levelId: level.id, isSpace: true };
-    if (
-      [...level.walls, ...level.slabs, ...level.roofs, ...level.openings].some(
-        ({ id }) => id === objectId,
-      )
-    )
-      return { levelId: level.id, isSpace: false };
-  }
+  // Read from the project's own index rather than from four arrays named here:
+  // the four had already fallen behind — a node fixed to a whole roof, a post
+  // or another appliance belonged to no level as far as this could tell.
+  for (const level of project.building.levels)
+    for (const entity of levelEntities(level))
+      if (entity.id === objectId && entity.family !== 'LEVEL')
+        return { levelId: level.id, isSpace: entity.family === 'SPACE' };
   return undefined;
 }
 
@@ -779,5 +780,16 @@ function addEdge(
 ): TechnicalNetwork {
   if (network.edges.some(({ id }) => id === edge.id))
     throw new RangeError(`Le tronçon ${edge.id} existe déjà.`);
+  // The rule the catalogue applies, applied here: an eau froide arriving at an
+  // évacuation, an air intake fed by an exhaust. The editor drew them happily
+  // and the importer refused the file, so the application wrote projects it
+  // could not read back.
+  const from = network.ports.find(({ id }) => id === edge.fromPortId);
+  const to = network.ports.find(({ id }) => id === edge.toPortId);
+  const refusal =
+    from === undefined || to === undefined
+      ? undefined
+      : connectionRefusalBetween(from, to);
+  if (refusal !== undefined) throw new RangeError(refusal);
   return { ...network, edges: [...network.edges, structuredClone(edge)] };
 }

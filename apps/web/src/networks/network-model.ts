@@ -251,7 +251,7 @@ export function placeNodeCommand(
     command: new AddNetworkNodeCommand(
       networkId,
       node,
-      templatePorts(node.id, template),
+      templatePorts(node.id, template, network.systemType),
     ),
   };
 }
@@ -435,7 +435,7 @@ export function branchCommand(
     kind: template.kind,
     position,
   };
-  const ports = templatePorts(node.id, template);
+  const ports = templatePorts(node.id, template, network.systemType);
   const inlet = ports.find(({ direction }) => direction === 'IN');
   const outlet = ports.find(({ direction }) => direction === 'OUT');
   if (inlet === undefined || outlet === undefined)

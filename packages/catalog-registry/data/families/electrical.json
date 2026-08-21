@@ -86,7 +86,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 64
+        },
+        "EARTH"
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -209,7 +216,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],

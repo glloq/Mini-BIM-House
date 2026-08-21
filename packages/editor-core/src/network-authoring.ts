@@ -142,17 +142,72 @@ export const NETWORK_DISCIPLINE_LABELS: Readonly<
   OTHER: 'Autre',
 };
 
+/**
+ * What each kind of system carries, in the terms the registry uses.
+ *
+ * A template says a port is a `FLOW` going `OUT`, which is true of an eau
+ * froide, an eau usée and a circuit de chauffage alike — so nothing could tell
+ * whether a run between two of them made sense. Naming the kind is what lets
+ * the same rule that governs the catalogue govern what is drawn.
+ *
+ * A system this does not name is left alone rather than given a kind that
+ * happens to look plausible: an unnamed port is a port nothing claims to
+ * understand, which is honest, and a wrong one is not.
+ */
+const SYSTEM_PORT_TYPES: Readonly<
+  Record<string, { readonly out: string; readonly in: string }>
+> = {
+  POTABLE_COLD: { out: 'WATER_COLD', in: 'WATER_COLD' },
+  POTABLE_HOT: { out: 'WATER_HOT', in: 'WATER_HOT' },
+  HOT_WATER_LOOP: { out: 'WATER_HOT', in: 'WATER_RECIRCULATION' },
+  NON_POTABLE: { out: 'WATER_NON_POTABLE', in: 'WATER_NON_POTABLE' },
+  RADIATOR_LOOP: { out: 'HEATING_FLOW', in: 'HEATING_RETURN' },
+  UNDERFLOOR_LOOP: { out: 'HEATING_FLOW', in: 'HEATING_RETURN' },
+  PRIMARY_LOOP: { out: 'PRIMARY_FLOW', in: 'PRIMARY_RETURN' },
+  COMBINED_WASTEWATER: { out: 'WASTEWATER', in: 'WASTEWATER_INLET' },
+  GREY_WATER: { out: 'WASTEWATER', in: 'WASTEWATER_INLET' },
+  BLACK_WATER: { out: 'SOILWATER', in: 'SOILWATER_INLET' },
+  ROOF_DRAINAGE: { out: 'RAINWATER_OUT', in: 'RAINWATER_IN' },
+  HARVESTING: { out: 'RAINWATER_OUT', in: 'RAINWATER_IN' },
+  EXTRACT: { out: 'AIR_EXHAUST', in: 'AIR_EXTRACT' },
+  SUPPLY: { out: 'AIR_SUPPLY', in: 'AIR_SUPPLY_INLET' },
+  BALANCED: { out: 'AIR_SUPPLY', in: 'AIR_EXTRACT' },
+  BALANCED_HEAT_RECOVERY: { out: 'AIR_SUPPLY', in: 'AIR_EXTRACT' },
+  ELECTRICAL: { out: 'ELECTRICAL_AC', in: 'ELECTRICAL_AC' },
+  LIGHTING: { out: 'ELECTRICAL_AC', in: 'ELECTRICAL_AC' },
+  POWER: { out: 'ELECTRICAL_AC', in: 'ELECTRICAL_AC' },
+  PV: { out: 'PV_DC', in: 'PV_DC_INPUT' },
+};
+
+/** The kind of port a system of this type carries, facing that way. */
+export function systemPortType(
+  systemType: string,
+  direction: PortDirection,
+): string | undefined {
+  const pair = SYSTEM_PORT_TYPES[systemType];
+  if (pair === undefined) return undefined;
+  return direction === 'IN' ? pair.in : pair.out;
+}
+
 /** Ports the node template creates, named after the node. */
 export function templatePorts(
   nodeId: string,
   template: NetworkNodeTemplate,
+  systemType?: string,
 ): readonly NetworkPort[] {
-  return template.ports.map((port) => ({
-    id: `${nodeId}-${port.suffix}`,
-    nodeId,
-    role: port.role,
-    direction: port.direction,
-  }));
+  return template.ports.map((port) => {
+    const portTypeId =
+      systemType === undefined
+        ? undefined
+        : systemPortType(systemType, port.direction);
+    return {
+      id: `${nodeId}-${port.suffix}`,
+      nodeId,
+      role: port.role,
+      direction: port.direction,
+      ...(portTypeId === undefined ? {} : { portTypeId }),
+    };
+  });
 }
 
 /**
@@ -262,7 +317,7 @@ export function draftNetwork(
       discipline,
       systemType,
       nodes: [source],
-      ports: [...templatePorts(source.id, template)],
+      ports: [...templatePorts(source.id, template, systemType)],
       edges: [],
     },
     source,

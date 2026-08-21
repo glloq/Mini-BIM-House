@@ -3,9 +3,11 @@ import type {
   ProjectFile,
 } from '@house-technical-designer/core-domain';
 import {
+  connectionRefusalBetween,
   entityCollisions,
   hostAccepts,
   isTextNote,
+  portDisagreements,
   levelHosts,
   localCollisions,
   projectEntities,
@@ -655,20 +657,38 @@ export function validateProjectReferences(
           });
       }
     });
+    const portsById = new Map(network.ports.map((port) => [port.id, port]));
     network.ports.forEach((port, portIndex) => {
+      const at = `/project/systems/${networkIndex}/ports/${portIndex}`;
       if (!nodeIds.has(port.nodeId))
         issues.push({
-          path: `/project/systems/${networkIndex}/ports/${portIndex}/nodeId`,
+          path: `${at}/nodeId`,
           message: `references unknown network node ${port.nodeId}`,
         });
+      // A port that names a kind and then contradicts it is a port whose
+      // meaning depends on which field the reader happens to trust.
+      for (const message of portDisagreements(port))
+        issues.push({ path: `${at}/portTypeId`, message });
     });
     network.edges.forEach((edge, edgeIndex) => {
+      const at = `/project/systems/${networkIndex}/edges/${edgeIndex}`;
       for (const key of ['fromPortId', 'toPortId'] as const)
         if (!portIds.has(edge[key]))
           issues.push({
-            path: `/project/systems/${networkIndex}/edges/${edgeIndex}/${key}`,
+            path: `${at}/${key}`,
             message: `references unknown network port ${edge[key]}`,
           });
+      // The same rule the catalogue applies, from the same registry: a run
+      // between two ports that cannot be joined is a run nobody can build, and
+      // an import that accepts it hands the calculations a fiction.
+      const from = portsById.get(edge.fromPortId);
+      const to = portsById.get(edge.toPortId);
+      const refusal =
+        from === undefined || to === undefined
+          ? undefined
+          : connectionRefusalBetween(from, to);
+      if (refusal !== undefined)
+        issues.push({ path: `${at}/toPortId`, message: refusal });
     });
   });
   return issues;

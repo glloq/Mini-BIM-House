@@ -10,4 +10,5 @@
  */
 export * from './clearances.js';
 export * from './registries.js';
+export * from './port-requirements.js';
 export * from './port-types.js';

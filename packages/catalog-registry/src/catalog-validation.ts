@@ -2,7 +2,8 @@ import {
   CLEARANCE_LABELS,
   isClearanceZone,
   isPortType,
-  portType,
+  portRequirement,
+  unmetRequirements,
   type ClearanceZoneDefinition,
 } from '@house-technical-designer/technical-types';
 import type { FamilyDefinition } from './families.js';
@@ -155,7 +156,7 @@ export function validateCatalogEntry(
   // The ports: each one a kind the registry knows, and between them at least
   // what the family says such a thing is connected by. A heat pump missing its
   // return is a heat pump nothing can route.
-  const declared = new Set<string>();
+  const declared: string[] = [];
   for (const [index, port] of (entry.ports ?? []).entries()) {
     if (port.portTypeId === undefined) {
       at(`ports/${index}`, `${port.id} does not say what kind of port it is`);
@@ -165,14 +166,17 @@ export function validateCatalogEntry(
       at(`ports/${index}`, `unknown port type ${port.portTypeId}`);
       continue;
     }
-    declared.add(port.portTypeId);
+    declared.push(port.portTypeId);
   }
-  for (const required of family.ports ?? [])
-    if (!declared.has(required) && !servedBy(declared, required))
-      at(
-        'ports',
-        `${family.id} is connected by ${required}, which this entry does not declare`,
-      );
+  // Each declared port answers for one requirement and no more. Matching by
+  // service let `HEATING_RETURN` satisfy a family asking for both a flow and a
+  // return, since the two carry the same water — so a heat pump with one water
+  // connection passed for one with two.
+  for (const issue of unmetRequirements(
+    (family.ports ?? []).map(portRequirement),
+    declared,
+  ))
+    at('ports', `${family.id} ${issue.message}`);
 
   // The room around it: the family says which zones such a thing has, the
   // entry says how far each one reaches. An entry claiming a zone its family
@@ -215,21 +219,4 @@ export function validateCatalogEntry(
   for (const issue of validateProvenance(entry.provenance))
     at(issue.path, issue.message);
   return issues;
-}
-
-/**
- * Whether a port the family asks for is served by one the entry declares.
- *
- * A family says a heat pump is connected by `HEATING_FLOW`; an entry may
- * declare the facing `HEATING_RETURN` for the same circuit. What matters is
- * that the service is there, not that the two strings match.
- */
-function servedBy(declared: ReadonlySet<string>, required: string): boolean {
-  const wanted = portType(required);
-  if (wanted === undefined) return false;
-  for (const id of declared) {
-    const found = portType(id);
-    if (found?.service === wanted.service) return true;
-  }
-  return false;
 }

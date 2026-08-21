@@ -1,5 +1,6 @@
 import {
-  isPortType,
+  portRequirement,
+  unknownPortKinds,
   type DataDomain,
   type DataRegistry,
 } from '@house-technical-designer/technical-types';
@@ -277,8 +278,10 @@ export function measuredStatus(
     owner.propertySchema === undefined
       ? undefined
       : SCHEMA_BY_FAMILY.get(owner.propertySchema);
-  const declaredPorts = owner.ports ?? [];
-  const knownPorts = declaredPorts.every((port) => isPortType(port));
+  const declaredPorts = (owner.ports ?? []).map(portRequirement);
+  const knownPorts = declaredPorts.every(
+    (requirement) => unknownPortKinds(requirement).length === 0,
+  );
   const plan = owner.graphics?.planSymbol;
 
   // Declaring something is not knowing it: eight families declared ports made
