@@ -1,0 +1,81 @@
+{
+  "format": "house-technical-designer-project",
+  "schemaVersion": "1.0.0",
+  "project": {
+    "id": "legacy-typed",
+    "metadata": {
+      "name": "Migration fixture",
+      "createdAt": "2026-01-01T00:00:00Z",
+      "updatedAt": "2026-01-01T00:00:00Z"
+    },
+    "site": {
+      "northAngleDeg": 0
+    },
+    "building": {
+      "levels": [
+        {
+          "id": "ground",
+          "name": "Rez-de-chaussée",
+          "elevationMm": 0,
+          "defaultStoreyHeightMm": 2500,
+          "walls": [],
+          "slabs": [],
+          "roofs": [],
+          "openings": [],
+          "stairs": [
+            {
+              "id": "stair-main",
+              "type": "STAIR",
+              "levelId": "ground",
+              "topLevelId": "upper",
+              "stairType": "STRAIGHT",
+              "widthMm": 900,
+              "riserCount": 16,
+              "treadDepthMm": 270,
+              "path": {
+                "points": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 4050,
+                    "y": 0
+                  }
+                ]
+              }
+            }
+          ],
+          "spaces": [],
+          "annotations": []
+        },
+        {
+          "id": "upper",
+          "name": "Étage",
+          "elevationMm": 2700,
+          "defaultStoreyHeightMm": 2500,
+          "walls": [],
+          "slabs": [],
+          "roofs": [],
+          "openings": [],
+          "stairs": [],
+          "spaces": [],
+          "annotations": []
+        }
+      ],
+      "zones": []
+    },
+    "drawingViews": [
+      {
+        "id": "view-ground",
+        "type": "PLAN",
+        "name": "Plan du rez-de-chaussée",
+        "scaleDenominator": 50,
+        "layers": {
+          "architecture.walls": true
+        },
+        "graphicProfileId": "generic"
+      }
+    ]
+  }
+}

@@ -7,7 +7,7 @@ import {
   type ProjectMigration,
 } from './migrations.js';
 
-export const CURRENT_PROJECT_SCHEMA_VERSION = '1.0.0';
+export const CURRENT_PROJECT_SCHEMA_VERSION = '1.1.0';
 
 /**
  * Bounds an imported file has to respect.

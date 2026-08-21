@@ -1,5 +1,6 @@
 import type { ProjectFile } from '@house-technical-designer/core-domain';
 import { APPLICATION_VERSION } from './version.js';
+import { CURRENT_PROJECT_SCHEMA_VERSION } from '@house-technical-designer/project-io';
 import { entityId, type Wall } from '@house-technical-designer/core-domain';
 import {
   AddWallCommand,
@@ -271,7 +272,7 @@ export function starterAssemblies() {
 export function createBlankProject(now: string): ProjectFile {
   return {
     format: 'house-technical-designer-project',
-    schemaVersion: '1.0.0',
+    schemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
     applicationVersion: APPLICATION_VERSION,
     project: {
       id: 'untitled-project' as ProjectFile['project']['id'],

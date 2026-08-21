@@ -1256,6 +1256,82 @@ aucune famille structurelle dans le niveau.
   reste. Un matériau que le projet ne contient plus est refusé à l'écriture et
   relevé à la lecture du fichier.
 
+## Trois défauts d'intégrité — lot A du dixième audit
+
+Un audit du `main` après la PR #21 a relevé trois défauts capables de produire
+un résultat faux sans que rien ne le signale. Ce sont les seuls de cette nature,
+et ils passent avant toute nouvelle fonctionnalité.
+
+### Toiture quatre pans : des mètres carrés comptés deux fois
+
+Les pans étaient déduits rive par rive : chaque rive inclinée produisait un
+quadrilatère occupant toute sa longueur jusqu'à la rencontre avec la rive
+opposée. Sur un deux-pans, c'est exact. Sur une croupe, les quatre pans se
+recouvraient au milieu : une maison de 10 × 8 m produisait 160 m² de projection
+pour 80 m² d'emprise. Et comme `allRoofPlanes()` alimente les métrés,
+l'enveloppe thermique et les apports solaires, ces mètres carrés en trop
+sortaient du dessin pour entrer dans les calculs. Le pire est que l'outil crée
+toutes les rives en pente par défaut : le cas faux était le cas ordinaire.
+
+La déduction repose maintenant sur ce qu'est une toiture : la plus basse des
+surfaces qui montent depuis ses rives. En tout point sous le toit, le pan qui
+couvre est celui qui atteint ce point le plus bas, et la face d'un pan est
+exactement l'endroit où il est ce plus bas. Construits ainsi, les pans sont une
+partition — ils couvrent le toit une fois et une seule — au lieu de
+quadrilatères indépendants. La construction est exacte pour **tout contour
+convexe**, quel que soit le mélange de pans et de pignons et quelles que soient
+les pentes ; un pignon ne fait monter aucune surface, donc les rives en pente se
+partagent tout le toit. Un contour non convexe demande un squelette droit, que
+cette version ne calcule pas.
+
+Ce qu'elle ne sait pas partitionner ne compte plus dans aucune surface du
+projet : ni métrés, ni thermique, ni solaire. Ce silence est le comportement
+sûr, mais c'est un silence — l'utilisateur a dessiné une toiture et les
+quantités n'en parlent pas. L'espace Vérifications le dit donc à voix haute, et
+« Voir sur le plan » mène à la toiture concernée.
+
+Les tests qui manquaient sont ceux d'invariants : compter les pans ne dit rien
+de leur recouvrement. Six configurations — deux pans, deux pans dissymétriques,
+monopente, quatre pans, quatre pentes différentes, trois pans et un pignon —
+vérifient désormais que la somme des projections vaut l'emprise sous égouts et
+qu'aucun pan n'en recouvre un autre.
+
+### Le contrat de fichier `1.0.0` resserré sans version
+
+Sous `1.0.0`, le schéma acceptait `stairs` et `drawingViews` comme des tableaux
+de n'importe quoi : le fichier les transportait et rien ne les lisait. La PR #21
+leur a donné un contrat — sans changer de version. Un fichier accepté hier
+pouvait donc être refusé aujourd'hui, ce qu'une version de schéma existe
+précisément pour empêcher.
+
+Le schéma courant passe à `1.1.0`, avec une migration `1.0.0 → 1.1.0`. Ce qui
+correspond au nouveau contrat est conservé et devient lisible ; ce qui n'y
+correspond pas est rangé sous une extension `legacy.1-0-0`, nommée et
+retrouvable. Le jeter en silence perdrait des données que personne n'a accepté
+de perdre ; refuser le fichier enfermerait l'utilisateur dehors de son propre
+projet. Deux jeux d'essai `1.0.0` — l'un déjà conforme, l'autre opaque — sont
+conservés et vérifiés à chaque exécution.
+
+### L'échelle des feuilles n'en était pas une
+
+Une vue était rendue avec le cadrage automatique de son contenu, puis imbriquée
+dans le rectangle papier avec `preserveAspectRatio="xMidYMid meet"`. Autrement
+dit : le dessin s'adaptait au cadre. Le dénominateur d'échelle ne servait qu'au
+texte du cartouche, si bien qu'une feuille pouvait annoncer 1:50 et imprimer au
+1:30.
+
+La fenêtre modèle est maintenant calculée depuis le cadre et l'échelle : un
+cadre de 300 mm au 1:50 montre exactement 15 000 mm de bâtiment, centrés là où
+la vue le dit. Le cadre ne décide plus rien — un cadre deux fois plus étroit
+montre deux fois moins de bâtiment, il ne dézoome pas. L'échelle employée est
+celle du viewport et non celle de la vue, puisqu'une même vue peut figurer sur
+deux feuilles à deux échelles.
+
+Le test physique demandé existe : dix mètres de mur mesurent 200 mm au 1:50,
+100 mm au 1:100 et 50 mm au 1:200, mesurés sur le SVG de feuille réellement
+produit — et la feuille se déclare en millimètres avec un `viewBox` un pour un,
+ce qui est ce qui porte l'échelle jusque dans le PDF.
+
 ## Ce qui reste ouvert après les lots A à H
 
 Les huit lots du neuvième audit sont traités. Ce qui n'a pas été fait, et

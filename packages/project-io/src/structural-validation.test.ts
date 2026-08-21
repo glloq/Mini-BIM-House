@@ -57,7 +57,7 @@ function space(id: string, levelId: string): Record<string, unknown> {
 function file(levels: readonly unknown[], extra: object = {}) {
   return {
     format: 'house-technical-designer-project' as const,
-    schemaVersion: '1.0.0',
+    schemaVersion: '1.1.0',
     project: {
       id: 'project',
       metadata: {

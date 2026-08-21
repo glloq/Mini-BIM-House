@@ -805,7 +805,24 @@ export function roofStructureSubject(
                 : undefined,
               topology.status === 'DERIVED'
                 ? 'Les pans sont déduits et jamais enregistrés.'
-                : topology.reason,
+                : `${topology.reason} Cette toiture ne compte donc dans aucune surface du projet.`,
+            ),
+            field(
+              'Surface des pans',
+              topology.status === 'DERIVED'
+                ? `${(
+                    topology.planes.reduce(
+                      (total, plane) =>
+                        total +
+                        Math.abs(polygonArea(plane.footprint)) /
+                          Math.cos((plane.slopeDeg * Math.PI) / 180),
+                      0,
+                    ) / 1_000_000
+                  ).toFixed(2)} m²`
+                : undefined,
+              topology.status === 'DERIVED'
+                ? 'Somme des pans, mesurée dans leur plan.'
+                : undefined,
             ),
           ],
         },

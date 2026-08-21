@@ -7,7 +7,7 @@ import {
 
 const fixture = {
   format: 'house-technical-designer-project' as const,
-  schemaVersion: '1.0.0',
+  schemaVersion: '1.1.0',
   project: {
     id: 'project',
     metadata: {

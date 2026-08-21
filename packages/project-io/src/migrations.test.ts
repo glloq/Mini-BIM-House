@@ -16,6 +16,13 @@ const expected = JSON.parse(
     'utf8',
   ),
 ) as unknown;
+/** What loading an old file now produces: the whole chain, not one step. */
+const current = JSON.parse(
+  readFileSync(
+    new URL('../test/fixtures/v1.1.0/project.json', import.meta.url),
+    'utf8',
+  ),
+) as unknown;
 
 describe('project migrations', () => {
   it('migrates the old fixture to the exact current snapshot', () => {
@@ -38,8 +45,11 @@ describe('project migrations', () => {
   it('automatically migrates during load and reports its journal', () => {
     expect(loadProjectJson(oldSource)).toMatchObject({
       status: 'OK',
-      file: expected,
-      migrationJournal: [{ from: '0.9.0', to: '1.0.0' }],
+      file: current,
+      migrationJournal: [
+        { from: '0.9.0', to: '1.0.0' },
+        { from: '1.0.0', to: '1.1.0' },
+      ],
     });
   });
   it('is deterministic across repeated runs', () => {

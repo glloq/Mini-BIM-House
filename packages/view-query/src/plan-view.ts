@@ -32,7 +32,11 @@ import {
   drawingViewId,
   graphicProfileId,
 } from '@house-technical-designer/drawing-engine';
-import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
+import type {
+  BoundingBox2D,
+  Point2D,
+  Polygon2D,
+} from '@house-technical-designer/geometry';
 import {
   offsetPolyline,
   polygonArea,
@@ -69,6 +73,15 @@ export interface PlanViewOptions {
   readonly extraPrimitives?: readonly ScenePrimitive[];
   /** Model-space padding around the drawn content, in millimetres. */
   readonly paddingMm?: number;
+  /**
+   * The model window the view shows, when the caller states one.
+   *
+   * Without it the view frames whatever it drew, which is what a screen wants
+   * and what a printed drawing must not do: a sheet says 1:50 and 1:50 is a
+   * fixed number of model millimetres per paper millimetre, not whatever makes
+   * the content fit.
+   */
+  readonly viewport?: BoundingBox2D;
 }
 
 export interface PlanViewResult {
@@ -1159,7 +1172,9 @@ export function buildPlanView(
     type: 'PLAN',
     ...(level === undefined ? {} : { levelId: level.id }),
     scale: options.scale ?? DEFAULT_SCALE,
-    viewport: boundsOf(drafts, options.paddingMm ?? DEFAULT_PADDING_MM),
+    viewport:
+      options.viewport ??
+      boundsOf(drafts, options.paddingMm ?? DEFAULT_PADDING_MM),
     visibleDisciplines: visibleDisciplines(layers),
     graphicProfileId: graphicProfileId(
       options.graphicProfileId ?? 'generic-technical-screen',

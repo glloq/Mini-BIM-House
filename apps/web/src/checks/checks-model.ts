@@ -1,5 +1,8 @@
 import type { Project } from '@house-technical-designer/core-domain';
-import { validateTechnicalNetwork } from '@house-technical-designer/core-domain';
+import {
+  unresolvedRoofs,
+  validateTechnicalNetwork,
+} from '@house-technical-designer/core-domain';
 import {
   buildPlanView,
   defaultVisibility,
@@ -148,6 +151,23 @@ export function projectChecks(
           ...(issue.objectId === undefined
             ? {}
             : { objectIds: [issue.objectId] }),
+        },
+      });
+    // A roof whose planes cannot be worked out counts in no area of the
+    // project. That is the safe behaviour, and it is also a silent one: the
+    // user has drawn a roof and the quantities do not mention it. Saying so
+    // here is what keeps the silence honest.
+    for (const { roof, reason } of unresolvedRoofs(level))
+      checks.push({
+        id: `model:${level.id}:roof-unresolved:${roof.id}`,
+        status: 'UNKNOWN',
+        source: 'MODEL',
+        title: `${level.name} — toiture ${roof.id} non résolue`,
+        detail: `${reason} Ses pans ne sont donc comptés ni dans les métrés, ni dans l’enveloppe thermique, ni dans les apports solaires.`,
+        fix: {
+          label: 'Voir sur le plan',
+          tab: 'plan',
+          objectIds: [roof.id],
         },
       });
   }
