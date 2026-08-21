@@ -67,7 +67,14 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 800,
+          "reason": "Ouverture du tampon de visite"
+        }
+      ]
     }
   ]
 }

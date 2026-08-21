@@ -12,6 +12,7 @@ export * from './roof.js';
 export * from './annotation.js';
 export * from './component.js';
 export * from './entity-index.js';
+export * from './host-types.js';
 export * from './stair.js';
 export * from './documents.js';
 export * from './structure.js';

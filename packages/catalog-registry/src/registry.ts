@@ -19,7 +19,12 @@ import type { FamilyDefinition, FamilyIssue } from './families.js';
 import { validateFamily } from './families.js';
 import type { NetworkProduct } from './network-products.js';
 import { invalidBore } from './network-products.js';
-import { validateProperties, type PropertySchema } from './property-schemas.js';
+import {
+  validateProperties,
+  validatePropertySchema,
+  type PropertyIssue,
+  type PropertySchema,
+} from './property-schemas.js';
 import { validateProvenance } from './provenance.js';
 import type { DataDomain, DataRegistry } from './registries.js';
 
@@ -177,6 +182,36 @@ export function validateCatalog(
         symbols,
       }),
     );
+  }
+  return issues;
+}
+
+export interface SchemaIssue extends PropertyIssue {
+  readonly schemaId: string;
+}
+
+/**
+ * Everything wrong with the schemas themselves.
+ *
+ * Everything else in this file is checked *against* a schema, which means a
+ * schema that is wrong is the one thing nothing else can reveal. Two
+ * declarations of one key, an enum accepting anything, a minimum above its
+ * maximum: each of them makes a check pass that should have failed, and
+ * quietly.
+ */
+export function validateSchemas(): readonly SchemaIssue[] {
+  const issues: SchemaIssue[] = [];
+  const seen = new Set<string>();
+  for (const schema of PROPERTY_SCHEMA_REGISTRY) {
+    if (seen.has(schema.family))
+      issues.push({
+        schemaId: schema.family,
+        path: 'family',
+        message: 'is declared more than once',
+      });
+    seen.add(schema.family);
+    for (const issue of validatePropertySchema(schema))
+      issues.push({ schemaId: schema.family, ...issue });
   }
   return issues;
 }

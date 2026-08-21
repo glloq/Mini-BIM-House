@@ -24,6 +24,7 @@ import {
   validateCatalog,
   validateNetworkProducts,
   validateRegistry,
+  validateSchemas,
 } from '@house-technical-designer/catalog-registry';
 
 const symbols = new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions));
@@ -41,6 +42,18 @@ interface Section {
 }
 
 const sections: readonly Section[] = [
+  {
+    // First, because everything else is measured against these: a schema that
+    // is itself wrong makes a check pass that should have failed.
+    title: 'Schémas de propriétés',
+    counted: PROPERTY_SCHEMA_REGISTRY.length,
+    noun: 'schémas',
+    issues: validateSchemas().map(({ schemaId, path, message }) => ({
+      subject: schemaId,
+      path,
+      message,
+    })),
+  },
   {
     title: 'Nomenclature',
     counted: FAMILY_REGISTRY.length,
@@ -80,9 +93,7 @@ for (const { title, counted, noun, issues } of sections) {
   for (const { subject, path, message } of issues)
     console.log(`    ${subject} · ${path} : ${message}`);
 }
-console.log(
-  `  ${PROPERTY_SCHEMA_REGISTRY.length} schémas de propriétés, ${symbols.size} symboles.`,
-);
+console.log(`  ${symbols.size} symboles disponibles.`);
 
 if (failed) {
   console.error(

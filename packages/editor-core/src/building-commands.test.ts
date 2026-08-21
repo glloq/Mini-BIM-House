@@ -9,6 +9,7 @@ import {
 import { ProjectCommandDispatcher } from './project-commands.js';
 import { draftAssembly, draftAssemblyLayer } from './library-commands.js';
 import {
+  AddComponentCommand,
   AddLevelCommand,
   AddRoofCommand,
   AddSlabCommand,
@@ -18,6 +19,7 @@ import {
   RemoveRoofCommand,
   RemoveSlabCommand,
   RemoveSpaceCommand,
+  UpdateComponentCommand,
   UpdateLevelCommand,
   UpdateSpaceCommand,
   detectRooms,
@@ -522,5 +524,143 @@ describe('levels and the annotations they carry', () => {
     expect(measured.first.wallId).toBe('south@copy');
     expect(measured.second.wallId).toBe('south@copy');
     expect(copy.walls.some(({ id }) => id === 'south@copy')).toBe(true);
+  });
+});
+
+describe('placing a thing in the building', () => {
+  function withSupports(): ProjectCommandDispatcher {
+    const base = project();
+    const level = base.building.levels[0]!;
+    return new ProjectCommandDispatcher({
+      ...base,
+      equipment: [
+        {
+          id: 'radiator-model',
+          familyId: 'RADIATOR',
+          kind: 'RADIATOR',
+          catalogKind: 'GENERIC',
+          version: '1.0.0',
+          properties: {},
+        },
+        {
+          id: 'unversioned-model',
+          kind: 'RADIATOR',
+          catalogKind: 'CUSTOM',
+          properties: {},
+        },
+      ],
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            slabs: [
+              {
+                id: entityId<'Slab'>('slab-ground'),
+                type: 'SLAB',
+                levelId: ground,
+                polygon: square(5000),
+                assemblyId: 'floor-assembly' as never,
+                role: 'FLOOR',
+                elevationOffsetMm: 0,
+              },
+            ],
+            roofStructures: [
+              {
+                id: entityId<'Roof'>('roof-whole'),
+                type: 'ROOF',
+                levelId: ground,
+                footprint: square(5000),
+                edges: Array.from({ length: 4 }, () => ({
+                  kind: 'SLOPED' as const,
+                  slopeDeg: 35,
+                  overhangMm: 400,
+                })),
+                assemblyId: 'roof-assembly' as never,
+                baseElevationMm: 2500,
+              },
+            ],
+          },
+        ],
+      },
+    });
+  }
+
+  const draft = {
+    id: 'radiator-1',
+    category: 'HEATING' as const,
+    position: { x: 1000, y: 1000 },
+    elevationMm: 300,
+    rotationDeg: 0,
+  };
+
+  it('records which version of the model was placed', () => {
+    // The user chooses a model; the application writes down which version of
+    // it they chose. Without that, correcting a catalogue entry would change
+    // every house already designed with it and nothing would say so.
+    const commands = withSupports();
+    expect(
+      commands.dispatch(
+        new AddComponentCommand('ground', {
+          ...draft,
+          definitionId: 'radiator-model',
+        }),
+      ).status,
+    ).toBe('APPLIED');
+    const placed = commands.project.building.levels[0]!.components![0]!;
+    expect(placed.definitionVersion).toBe('1.0.0');
+  });
+
+  it('pins nothing when the entry states no version', () => {
+    const commands = withSupports();
+    commands.dispatch(
+      new AddComponentCommand('ground', {
+        ...draft,
+        definitionId: 'unversioned-model',
+      }),
+    );
+    const placed = commands.project.building.levels[0]!.components![0]!;
+    expect(placed.definitionVersion).toBeUndefined();
+  });
+
+  it('re-pins when the model itself changes', () => {
+    const commands = withSupports();
+    commands.dispatch(
+      new AddComponentCommand('ground', {
+        ...draft,
+        definitionId: 'radiator-model',
+      }),
+    );
+    commands.dispatch(
+      new UpdateComponentCommand('ground', 'radiator-1', {
+        definitionId: 'unversioned-model',
+      }),
+    );
+    const placed = commands.project.building.levels[0]!.components![0]!;
+    expect(placed.definitionId).toBe('unversioned-model');
+    expect(placed.definitionVersion).toBeUndefined();
+  });
+
+  it('accepts a whole roof as a support, not only a roof plane', () => {
+    const commands = withSupports();
+    expect(
+      commands.dispatch(
+        new AddComponentCommand('ground', {
+          ...draft,
+          hostObjectId: 'roof-whole',
+        }),
+      ).status,
+    ).toBe('APPLIED');
+  });
+
+  it('refuses a room, which is a volume rather than a support', () => {
+    const commands = withSupports();
+    const result = commands.dispatch(
+      new AddComponentCommand('ground', {
+        ...draft,
+        hostObjectId: 'radiator-model',
+      }),
+    );
+    expect(result.status).toBe('REJECTED');
   });
 });

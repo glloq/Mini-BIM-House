@@ -45,7 +45,14 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "belowMm": 300,
+          "reason": "Dépose du luminaire depuis le dessous"
+        }
+      ]
     }
   ]
 }

@@ -105,7 +105,32 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 1000,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Accès à la façade technique et aux raccordements"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 1000,
+          "aboveMm": 500,
+          "reason": "Dépose du capot et de l’échangeur"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "backMm": 300,
+          "reason": "Reprise d’air sur l’évaporateur"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "frontMm": 2000,
+          "reason": "Soufflage du ventilateur, sans obstacle ni recyclage"
+        }
+      ]
     },
     {
       "id": "generic-circulator-pump",
@@ -211,7 +236,14 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Accès à la boîte à bornes et au purgeur"
+        }
+      ]
     },
     {
       "id": "generic-radiator",
@@ -271,7 +303,21 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "leftMm": 100,
+          "rightMm": 100,
+          "belowMm": 100,
+          "reason": "Accès aux robinets et au té de réglage"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 150,
+          "reason": "Circulation de l’air devant l’émetteur"
+        }
+      ]
     }
   ]
 }

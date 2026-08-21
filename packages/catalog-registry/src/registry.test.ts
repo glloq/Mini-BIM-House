@@ -33,7 +33,14 @@ import {
   schemaOfFamily,
   validateProperties,
   validateProvenance,
+  validatePropertySchema,
   validateRegistry,
+  validateSchemas,
+  CLEARANCE_ZONES,
+  clearanceConflicts,
+  clearanceRefusal,
+  clearanceZones,
+  clearancesShare,
 } from './index.js';
 
 const KNOWN = {
@@ -406,5 +413,177 @@ describe('the generic catalogue, checked against its own families', () => {
         .map(({ message }) => message)
         .join(' '),
     ).toContain('which this entry does not declare');
+  });
+});
+
+describe('the schemas everything else is measured against', () => {
+  it('agrees with itself', () => {
+    // A schema that is wrong is the one thing no entry can reveal, because the
+    // entries are checked by it.
+    expect(validateSchemas()).toEqual([]);
+  });
+
+  it('refuses a key declared twice, which would silently keep the second', () => {
+    expect(
+      validatePropertySchema({
+        family: 'X',
+        properties: [
+          {
+            key: 'a',
+            label: 'A',
+            type: 'number',
+            unit: 'W',
+            source: 'DEFINITION',
+          },
+          {
+            key: 'a',
+            label: 'A bis',
+            type: 'number',
+            unit: 'W',
+            source: 'DEFINITION',
+          },
+        ],
+      }).map(({ message }) => message),
+    ).toContain('is declared more than once');
+  });
+
+  it('refuses an enum that accepts anything and a range nothing satisfies', () => {
+    const issues = validatePropertySchema({
+      family: 'X',
+      properties: [
+        { key: 'a', label: 'A', type: 'enum', source: 'DEFINITION' },
+        {
+          key: 'b',
+          label: 'B',
+          type: 'number',
+          unit: 'W',
+          source: 'DEFINITION',
+          minimum: 10,
+          maximum: 1,
+        },
+        { key: 'c', label: 'C', type: 'number', source: 'DEFINITION' },
+        { key: '', label: '', type: 'nope', source: 'nowhere' },
+      ],
+    }).map(({ message }) => message);
+    expect(issues).toContain('is an enum and names no value it accepts');
+    expect(issues).toContain(
+      'has a minimum above its maximum, which nothing can satisfy',
+    );
+    expect(issues).toContain('is a number and states no unit');
+    expect(issues).toContain('unknown type nope');
+    expect(issues).toContain('unknown source nowhere');
+    expect(issues).toContain('must have a key');
+  });
+});
+
+describe('the room a thing needs around it', () => {
+  const placement = {
+    objectId: 'pump',
+    position: { x: 0, y: 0 },
+    elevationMm: 0,
+    rotationDeg: 0,
+    widthMm: 1000,
+    depthMm: 400,
+    heightMm: 800,
+  };
+
+  it('puts each zone on the side the entry asks for, turned with the object', () => {
+    const [zone] = clearanceZones(placement, [
+      { zone: 'AIR_EXHAUST', frontMm: 2000 },
+    ]);
+    // Front is the object's own forward direction: at rest it points east, so
+    // the exhaust reaches 2.2 m along x and nothing behind.
+    expect(Math.max(...zone!.footprint.map(({ x }) => x))).toBeCloseTo(2200);
+    expect(Math.min(...zone!.footprint.map(({ x }) => x))).toBeCloseTo(-200);
+    const [turned] = clearanceZones({ ...placement, rotationDeg: 90 }, [
+      { zone: 'AIR_EXHAUST', frontMm: 2000 },
+    ]);
+    expect(Math.max(...turned!.footprint.map(({ y }) => y))).toBeCloseTo(2200);
+  });
+
+  it('measures height from the underside of the thing', () => {
+    const [zone] = clearanceZones(placement, [
+      { zone: 'SERVICE', aboveMm: 500, belowMm: 100 },
+    ]);
+    expect(zone!.baseMm).toBe(-100);
+    expect(zone!.topMm).toBe(1300);
+  });
+
+  it('lets two people share the space in front of two appliances', () => {
+    // One person stands there, and never in both at once.
+    expect(clearancesShare('MAINTENANCE', 'USAGE')).toBe(true);
+    expect(clearancesShare('SERVICE', 'ACCESSIBILITY')).toBe(true);
+  });
+
+  it('refuses an intake and an exhaust in the same volume', () => {
+    expect(clearanceRefusal('AIR_INTAKE', 'AIR_EXHAUST')).toContain(
+      'respirerait',
+    );
+    expect(clearanceRefusal('AIR_EXHAUST', 'AIR_INTAKE')).toBeDefined();
+  });
+
+  it('refuses anything at all inside another object’s own volume', () => {
+    for (const zone of CLEARANCE_ZONES)
+      expect(clearancesShare('PHYSICAL', zone), zone).toBe(false);
+  });
+
+  it('says the same thing whichever way round the pair is asked', () => {
+    for (const first of CLEARANCE_ZONES)
+      for (const second of CLEARANCE_ZONES)
+        expect(clearancesShare(first, second), `${first} / ${second}`).toBe(
+          clearancesShare(second, first),
+        );
+  });
+
+  it('finds two machines breathing each other’s air, and not a machine’s own zones', () => {
+    const first = clearanceZones(placement, [
+      { zone: 'AIR_EXHAUST', frontMm: 2000 },
+      { zone: 'PHYSICAL' },
+    ]);
+    const second = clearanceZones(
+      {
+        ...placement,
+        objectId: 'other',
+        position: { x: 2000, y: 0 },
+        rotationDeg: 180,
+      },
+      [{ zone: 'AIR_INTAKE', frontMm: 2000 }, { zone: 'PHYSICAL' }],
+    );
+    const conflicts = clearanceConflicts([...first, ...second]);
+    expect(conflicts.map(({ message }) => message).join(' ')).toContain(
+      'respirerait',
+    );
+    // Its own volume sits inside its own zones by construction; reporting that
+    // would bury the case that matters.
+    expect(clearanceConflicts(first)).toEqual([]);
+  });
+
+  it('leaves two machines far enough apart alone', () => {
+    const first = clearanceZones(placement, [
+      { zone: 'AIR_EXHAUST', frontMm: 500 },
+    ]);
+    const second = clearanceZones(
+      { ...placement, objectId: 'other', position: { x: 9000, y: 0 } },
+      [{ zone: 'AIR_INTAKE', frontMm: 500 }],
+    );
+    expect(clearanceConflicts([...first, ...second])).toEqual([]);
+  });
+
+  it('leaves two machines on different storeys alone', () => {
+    const first = clearanceZones(placement, [
+      { zone: 'AIR_EXHAUST', frontMm: 2000 },
+    ]);
+    const second = clearanceZones(
+      { ...placement, objectId: 'other', elevationMm: 3000 },
+      [{ zone: 'AIR_INTAKE', frontMm: 2000 }],
+    );
+    expect(clearanceConflicts([...first, ...second])).toEqual([]);
+  });
+
+  it('gives the golden entries real distances rather than a list of names', () => {
+    const pump = genericEquipment('generic-air-water-heat-pump')!;
+    const exhaust = pump.clearances?.find(({ zone }) => zone === 'AIR_EXHAUST');
+    expect(exhaust?.frontMm).toBeGreaterThan(0);
+    expect(exhaust?.reason).toBeDefined();
   });
 });

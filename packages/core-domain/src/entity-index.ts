@@ -1,4 +1,4 @@
-import type { Project } from './types.js';
+import type { Level, Project } from './types.js';
 
 /**
  * Every family of object the project gives an identifier to.
@@ -77,64 +77,82 @@ interface EntityExtra {
  * list or address — which is why a test walks the whole project looking for
  * anything carrying an identifier and refuses to let one go unclaimed.
  */
-export function projectEntities(project: Project): readonly ProjectEntity[] {
-  const entities: ProjectEntity[] = [];
-  const add = (
+function collect(): {
+  readonly entities: ProjectEntity[];
+  readonly add: (
     id: string,
     family: EntityFamily,
     path: string,
-    extra: EntityExtra = {},
-  ): void => {
-    entities.push({
-      id,
-      family,
-      scope: extra.scope ?? 'GLOBAL',
-      path,
-      ...(extra.levelId === undefined ? {} : { levelId: extra.levelId }),
-      ...(extra.label === undefined ? {} : { label: extra.label }),
-    });
+    extra?: EntityExtra,
+  ) => void;
+} {
+  const entities: ProjectEntity[] = [];
+  return {
+    entities,
+    add: (id, family, path, extra = {}) => {
+      entities.push({
+        id,
+        family,
+        scope: extra.scope ?? 'GLOBAL',
+        path,
+        ...(extra.levelId === undefined ? {} : { levelId: extra.levelId }),
+        ...(extra.label === undefined ? {} : { label: extra.label }),
+      });
+    },
   };
+}
+
+/**
+ * Every identified object of one storey.
+ *
+ * Asked on its own by everything that reasons about a single storey — what may
+ * host a component, what a plan shows — so that such a question is answered by
+ * the same walk as « what does this project hold », and not by a second list
+ * that agrees with it until someone adds a family.
+ */
+export function levelEntities(level: Level): readonly ProjectEntity[] {
+  const { entities, add } = collect();
+  const at = `building/levels/${level.id}`;
+  add(level.id, 'LEVEL', at, { label: level.name });
+  const on = { levelId: level.id };
+  for (const wall of level.walls)
+    add(wall.id, 'WALL', `${at}/walls/${wall.id}`, on);
+  for (const opening of level.openings)
+    add(opening.id, 'OPENING', `${at}/openings/${opening.id}`, on);
+  for (const space of level.spaces)
+    add(space.id, 'SPACE', `${at}/spaces/${space.id}`, {
+      ...on,
+      label: space.name,
+    });
+  for (const slab of level.slabs)
+    add(slab.id, 'SLAB', `${at}/slabs/${slab.id}`, on);
+  for (const roof of level.roofs)
+    add(roof.id, 'ROOF_PLANE', `${at}/roofs/${roof.id}`, on);
+  for (const roof of level.roofStructures ?? [])
+    add(roof.id, 'ROOF_STRUCTURE', `${at}/roofStructures/${roof.id}`, on);
+  for (const stair of level.stairs)
+    add(stair.id, 'STAIR', `${at}/stairs/${stair.id}`, on);
+  for (const member of level.structure ?? [])
+    add(member.id, 'STRUCTURAL_MEMBER', `${at}/structure/${member.id}`, on);
+  for (const component of level.components ?? [])
+    add(component.id, 'COMPONENT', `${at}/components/${component.id}`, {
+      ...on,
+      ...(component.name === undefined ? {} : { label: component.name }),
+    });
+  for (const annotation of level.annotations)
+    add(annotation.id, 'ANNOTATION', `${at}/annotations/${annotation.id}`, on);
+  return entities;
+}
+
+export function projectEntities(project: Project): readonly ProjectEntity[] {
+  const { entities, add } = collect();
 
   // The project itself carries an identifier, and a wall called `project`
   // would collide with it exactly as two walls would.
   add(project.id, 'PROJECT', 'id', { label: project.metadata.name });
 
-  for (const level of project.building.levels) {
-    const at = `building/levels/${level.id}`;
-    add(level.id, 'LEVEL', at, { label: level.name });
-    const on = { levelId: level.id };
-    for (const wall of level.walls)
-      add(wall.id, 'WALL', `${at}/walls/${wall.id}`, on);
-    for (const opening of level.openings)
-      add(opening.id, 'OPENING', `${at}/openings/${opening.id}`, on);
-    for (const space of level.spaces)
-      add(space.id, 'SPACE', `${at}/spaces/${space.id}`, {
-        ...on,
-        label: space.name,
-      });
-    for (const slab of level.slabs)
-      add(slab.id, 'SLAB', `${at}/slabs/${slab.id}`, on);
-    for (const roof of level.roofs)
-      add(roof.id, 'ROOF_PLANE', `${at}/roofs/${roof.id}`, on);
-    for (const roof of level.roofStructures ?? [])
-      add(roof.id, 'ROOF_STRUCTURE', `${at}/roofStructures/${roof.id}`, on);
-    for (const stair of level.stairs)
-      add(stair.id, 'STAIR', `${at}/stairs/${stair.id}`, on);
-    for (const member of level.structure ?? [])
-      add(member.id, 'STRUCTURAL_MEMBER', `${at}/structure/${member.id}`, on);
-    for (const component of level.components ?? [])
-      add(component.id, 'COMPONENT', `${at}/components/${component.id}`, {
-        ...on,
-        ...(component.name === undefined ? {} : { label: component.name }),
-      });
-    for (const annotation of level.annotations)
-      add(
-        annotation.id,
-        'ANNOTATION',
-        `${at}/annotations/${annotation.id}`,
-        on,
-      );
-  }
+  for (const level of project.building.levels)
+    entities.push(...levelEntities(level));
   for (const zone of project.building.zones ?? [])
     add(zone.id, 'ZONE', `building/zones/${zone.id}`, { label: zone.name });
   for (const obstacle of project.site.obstacles ?? [])

@@ -44,7 +44,19 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 200,
+          "reason": "Dépose et nettoyage de la bouche"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "frontMm": 300,
+          "reason": "Veine d’aspiration, sans meuble devant"
+        }
+      ]
     },
     {
       "id": "generic-balanced-ventilation-unit",
@@ -140,7 +152,25 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "belowMm": 400,
+          "reason": "Changement des filtres et de l’échangeur"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "frontMm": 300,
+          "reason": "Prise d’air neuf"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "aboveMm": 500,
+          "reason": "Rejet d’air vicié, à distance de la prise d’air neuf"
+        }
+      ]
     },
     {
       "id": "generic-extract-ventilation-unit",
@@ -242,7 +272,25 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "belowMm": 400,
+          "reason": "Dépose du caisson et changement du moteur"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "frontMm": 200,
+          "reason": "Reprise sur le réseau d’extraction"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "aboveMm": 500,
+          "reason": "Rejet en toiture, à distance de toute prise d’air"
+        }
+      ]
     }
   ]
 }

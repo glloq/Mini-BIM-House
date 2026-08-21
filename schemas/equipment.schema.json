@@ -13,6 +13,9 @@
     "id": {
       "type": "string"
     },
+    "familyId": {
+      "type": "string"
+    },
     "kind": {
       "type": "string"
     },
@@ -64,6 +67,9 @@
           "id": {
             "type": "string"
           },
+          "portTypeId": {
+            "type": "string"
+          },
           "discipline": {
             "type": "string"
           },
@@ -99,6 +105,48 @@
       "type": "array",
       "items": {
         "type": "object"
+      }
+    },
+    "clearances": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "zone"
+        ],
+        "properties": {
+          "zone": {
+            "type": "string"
+          },
+          "frontMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "backMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "leftMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "rightMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "aboveMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "belowMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
       }
     }
   },

@@ -146,6 +146,28 @@ export interface EquipmentRendering {
 
 export type EquipmentPropertyValue = string | number | boolean;
 
+/**
+ * The room one entry needs around it, and on which side.
+ *
+ * Which zones a thing has is a property of the family — every air-source heat
+ * pump has an intake and an exhaust. How far they reach is a property of the
+ * entry, because it is the machine that says two metres in front of its fan
+ * and a hundred millimetres behind it. The zone is named as a string here and
+ * checked against the registry's closed list at the gate, exactly as the
+ * family and the port kinds are.
+ */
+export interface EquipmentClearance {
+  readonly zone: string;
+  readonly frontMm?: number;
+  readonly backMm?: number;
+  readonly leftMm?: number;
+  readonly rightMm?: number;
+  readonly aboveMm?: number;
+  readonly belowMm?: number;
+  /** Why this room is needed: a rule, a manual, a trade practice. */
+  readonly reason?: string;
+}
+
 /** A catalogue entry: everything shared by all instances of an equipment. */
 export interface EquipmentDefinition {
   readonly id: string;
@@ -172,25 +194,36 @@ export interface EquipmentDefinition {
   readonly costEntryId?: string;
   readonly environmentalDeclarationId?: string;
   readonly rendering?: EquipmentRendering;
+  readonly clearances?: readonly EquipmentClearance[];
   readonly provenance: EquipmentProvenance;
   readonly sources: readonly EquipmentPropertySource[];
 }
 
 /**
- * A placed equipment. It references a definition rather than copying it, and
- * records which catalogue version was used so a catalogue update never changes
- * an existing project silently.
+ * A thing placed in the building, seen from the catalogue.
+ *
+ * There used to be two of these: `ComponentInstance` in the model, which is
+ * what a project actually stores, and an `EquipmentInstance` here that nothing
+ * placed. Two types for one idea drift until the day one of them gains a field
+ * the other needs — so what is left is the part the catalogue has to know
+ * about, which the placed component satisfies as it stands.
+ *
+ * It names the entry rather than copying it, and records which version was
+ * placed, so that a catalogue correction is reported instead of silently
+ * changing a house nobody touched.
  */
-export interface EquipmentInstance {
+export interface PlacedEquipment {
   readonly id: string;
-  readonly definitionId: string;
-  readonly definitionVersion: string;
-  readonly position: Point3D;
-  readonly rotationDeg: number;
-  readonly levelId?: string;
-  readonly spaceId?: string;
-  /** Instance-specific values that win over the definition's properties. */
-  readonly overrides?: Readonly<Record<string, EquipmentPropertyValue>>;
+  readonly definitionId?: string;
+  readonly definitionVersion?: string;
+  /**
+   * What this one carries beyond its model.
+   *
+   * A measured value or a setting of this instance. The model stores anything
+   * a file can hold here, so what is not a scalar is not an equipment value
+   * and is reported rather than used.
+   */
+  readonly properties?: Readonly<Record<string, unknown>>;
 }
 
 export type EquipmentIssueCode =
@@ -205,10 +238,12 @@ export type EquipmentIssueCode =
   | 'EQUIPMENT_UNKNOWN_FAMILY'
   | 'EQUIPMENT_UNKNOWN_PORT_TYPE'
   | 'EQUIPMENT_MISSING_FAMILY_PORT'
+  | 'EQUIPMENT_UNKNOWN_CLEARANCE'
   | 'EQUIPMENT_SCHEMA_MISMATCH'
   | 'EQUIPMENT_PRODUCT_WITHOUT_MANUFACTURER'
   | 'EQUIPMENT_INVALID_CURVE'
   | 'EQUIPMENT_UNKNOWN_DEFINITION'
+  | 'EQUIPMENT_UNPINNED_DEFINITION'
   | 'EQUIPMENT_DEFINITION_VERSION_MISMATCH'
   | 'EQUIPMENT_PERFORMANCE_OUT_OF_RANGE';
 

@@ -65,7 +65,21 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "ELECTRICAL_WORKING",
+          "frontMm": 700,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Zone de travail devant un tableau sous tension"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Ouverture de la porte et repérage des circuits"
+        }
+      ]
     },
     {
       "id": "generic-miniature-circuit-breaker",
@@ -177,7 +191,19 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 100,
+          "reason": "Débattement de la fiche"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la prise"
+        }
+      ]
     }
   ]
 }

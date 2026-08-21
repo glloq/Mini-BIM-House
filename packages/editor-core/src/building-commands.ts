@@ -23,6 +23,7 @@ import {
   detectSpaceBoundaries,
   entityId,
   isComponentCategory,
+  levelHosts,
   isDimension,
   isDimensionType,
   isTextNote,
@@ -682,11 +683,25 @@ export class RemoveRoofCommand extends BuildingCommand {
  * « fixed to » the model of a radiator.
  */
 function supportsOf(level: Level): ReadonlySet<string> {
-  return new Set<string>([
-    ...level.walls.map(({ id }) => id as string),
-    ...level.slabs.map(({ id }) => id as string),
-    ...level.roofs.map(({ id }) => id as string),
-  ]);
+  return new Set(levelHosts(level).keys());
+}
+
+/**
+ * The catalogue version a placement records, when the entry states one.
+ *
+ * The user never types this: they choose a model, and the application writes
+ * down which version of it they chose. Without it, correcting a catalogue
+ * entry would change every house already designed with it, and nothing would
+ * say so.
+ */
+function pinnedVersion(
+  project: Project,
+  definitionId: string,
+): { readonly definitionVersion?: string } {
+  const version = (project.equipment ?? []).find(
+    ({ id }) => id === definitionId,
+  )?.version;
+  return version === undefined ? {} : { definitionVersion: version };
 }
 
 /** What placing a component asks for. */
@@ -744,14 +759,14 @@ export class AddComponentCommand extends BuildingCommand {
       !supportsOf(level).has(this.draft.hostObjectId)
     )
       return rejected(
-        `${this.draft.hostObjectId} n'est pas un support de ce niveau : un composant se fixe à un mur, une dalle ou une toiture.`,
+        `${this.draft.hostObjectId} n'est pas un support de ce niveau : un composant se fixe à un mur, une dalle, une toiture, une baie ou un autre appareil, jamais à une pièce ni à une fiche catalogue.`,
       );
-    const issues = validateComponentInstance(this.instance());
+    const issues = validateComponentInstance(this.instance(project));
     return issues.length > 0
       ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
       : ok();
   }
-  private instance(): ComponentInstance {
+  private instance(project: Project): ComponentInstance {
     return {
       id: entityId<'ComponentInstance'>(this.draft.id),
       type: 'COMPONENT_INSTANCE',
@@ -759,7 +774,10 @@ export class AddComponentCommand extends BuildingCommand {
       category: this.draft.category,
       ...(this.draft.definitionId === undefined
         ? {}
-        : { definitionId: this.draft.definitionId }),
+        : {
+            definitionId: this.draft.definitionId,
+            ...pinnedVersion(project, this.draft.definitionId),
+          }),
       ...(this.draft.name === undefined ? {} : { name: this.draft.name }),
       position: this.draft.position,
       elevationMm: this.draft.elevationMm,
@@ -773,7 +791,7 @@ export class AddComponentCommand extends BuildingCommand {
     };
   }
   protected apply(project: Project): Project {
-    const component = this.instance();
+    const component = this.instance(project);
     return mapLevel(project, this.levelId, (level) => ({
       ...level,
       components: [...(level.components ?? []), component],
@@ -833,16 +851,20 @@ export class UpdateComponentCommand extends BuildingCommand {
       !supportsOf(level).has(this.patch.hostObjectId)
     )
       return rejected(
-        `${this.patch.hostObjectId} n'est pas un support de ce niveau : un composant se fixe à un mur, une dalle ou une toiture.`,
+        `${this.patch.hostObjectId} n'est pas un support de ce niveau : un composant se fixe à un mur, une dalle, une toiture, une baie ou un autre appareil, jamais à une pièce ni à une fiche catalogue.`,
       );
-    const issues = validateComponentInstance(this.patched(component));
+    const issues = validateComponentInstance(this.patched(project, component));
     return issues.length > 0
       ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
       : ok();
   }
-  private patched(component: ComponentInstance): ComponentInstance {
+  private patched(
+    project: Project,
+    component: ComponentInstance,
+  ): ComponentInstance {
     const {
       definitionId: _definition,
+      definitionVersion: _version,
       name: _name,
       spaceId: _space,
       hostObjectId: _host,
@@ -880,7 +902,19 @@ export class UpdateComponentCommand extends BuildingCommand {
       ...(this.patch.rotationDeg === undefined
         ? {}
         : { rotationDeg: this.patch.rotationDeg }),
-      ...(definitionId === undefined ? {} : { definitionId }),
+      ...(definitionId === undefined
+        ? {}
+        : {
+            definitionId,
+            // Changing the model changes which version was chosen; keeping the
+            // old pin would say the house was designed with figures it never
+            // saw.
+            ...(definitionId === component.definitionId
+              ? component.definitionVersion === undefined
+                ? {}
+                : { definitionVersion: component.definitionVersion }
+              : pinnedVersion(project, definitionId)),
+          }),
       ...(name === undefined || name.trim() === '' ? {} : { name }),
       ...(spaceId === undefined ? {} : { spaceId }),
       ...(hostObjectId === undefined ? {} : { hostObjectId }),
@@ -890,7 +924,9 @@ export class UpdateComponentCommand extends BuildingCommand {
     return mapLevel(project, this.levelId, (level) => ({
       ...level,
       components: (level.components ?? []).map((component) =>
-        component.id === this.componentId ? this.patched(component) : component,
+        component.id === this.componentId
+          ? this.patched(project, component)
+          : component,
       ),
     }));
   }

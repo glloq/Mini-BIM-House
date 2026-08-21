@@ -210,6 +210,49 @@ se partage pas avec un rejet ; une distance aux matériaux combustibles est une
 règle de sécurité et non un confort. Une seule liste de « dégagement en
 millimètres » ne peut rien dire de tout cela.
 
+La famille dit **quelles** zones une chose possède — toute PAC air/eau a une
+prise d'air et un rejet. La fiche dit **jusqu'où** chacune porte, parce que
+c'est la machine qui demande deux mètres devant son ventilateur et cent
+millimètres derrière :
+
+```json
+"clearances": [
+  { "zone": "AIR_EXHAUST", "frontMm": 2000, "reason": "Soufflage du ventilateur" },
+  { "zone": "SERVICE", "frontMm": 1000, "aboveMm": 500, "reason": "Dépose du capot" }
+]
+```
+
+Les côtés sont locaux à l'objet : une rotation les emporte avec lui.
+`clearanceZones()` en déduit les volumes réels d'un objet posé — jamais
+enregistrés, puisqu'ils sont la fiche et la pose vues ensemble — et
+`clearanceConflicts()` dit lesquels se disputent le même volume, avec la
+raison. Le mètre carré devant une chaudière et celui devant un lave-linge
+peuvent être le même : une personne s'y tient, jamais dans les deux à la fois.
+Le volume où une machine prend son air et celui où une autre rejette le sien ne
+le peuvent pas, quelle que soit la distance entre les deux.
+
+## Les supports
+
+`allowedHosts` était une chaîne libre : `WALL`, `Wall` et `MUR` pouvaient tous
+être écrits, et aucun ne correspondait à quoi que ce soit que l'éditeur sache
+proposer. La liste est fermée — `WALL`, `SLAB`, `CEILING`, `ROOF`, `SITE`,
+`OPENING`, `DISTRIBUTION_BOARD` — et l'éditeur en déduit les supports d'un
+niveau plutôt que d'en tenir une seconde liste. Une dalle répond pour deux :
+elle est un plancher vue de dessus et un plafond vue de dessous. Un plafond
+n'est pas un objet, le terrain non plus — ce qui se pose dessus n'a pas d'hôte.
+
+C'est ce qui a fait réapparaître les toitures complètes : elles étaient
+absentes de la liste tenue à la main, si bien qu'une fenêtre de toit pouvait
+être dessinée sur une toiture que l'éditeur refusait ensuite de reconnaître.
+
+## La version posée
+
+Une fiche corrigée ne doit pas changer une maison que personne n'a touchée. Un
+composant posé enregistre donc `definitionId` **et** `definitionVersion` : ce
+n'est pas l'utilisateur qui les saisit, c'est l'application qui note quelle
+version il a choisie. `resolvePlacedEquipment()` compare les deux et signale
+l'écart au lieu de l'absorber.
+
 ## Les catalogues
 
 Le catalogue générique n'est plus une liste TypeScript. Il vit dans

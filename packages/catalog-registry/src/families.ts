@@ -1,3 +1,4 @@
+import { isHostType, HOST_TYPES } from '@house-technical-designer/core-domain';
 import type { ClearanceZone } from './clearances.js';
 import type { DataDomain, DataRegistry } from './registries.js';
 import { isClearanceZone } from './clearances.js';
@@ -155,5 +156,17 @@ export function validateFamily(
     family.registry === 'EQUIPMENT' || family.registry === 'OPENING';
   if (placeable && family.placement === undefined)
     at('placement', 'a placed family must say what it may be fixed to');
+  // « Fixed to a wall » only means something if the application knows what a
+  // wall is. A free string here would let `WALL`, `Wall` and `MUR` all be
+  // written, none of them matching anything the editor can offer.
+  const hosts = family.placement?.allowedHosts ?? [];
+  if (family.placement !== undefined && hosts.length === 0)
+    at('placement/allowedHosts', 'must name at least one support');
+  for (const [index, host] of hosts.entries())
+    if (!isHostType(host))
+      at(
+        `placement/allowedHosts/${index}`,
+        `unknown support ${host}; the supports are ${HOST_TYPES.join(', ')}`,
+      );
   return issues;
 }

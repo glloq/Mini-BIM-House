@@ -69,7 +69,29 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès aux bornes et au système de gestion"
+        },
+        {
+          "zone": "THERMAL",
+          "leftMm": 200,
+          "rightMm": 200,
+          "aboveMm": 200,
+          "reason": "Dissipation des cellules"
+        },
+        {
+          "zone": "FIRE",
+          "frontMm": 1000,
+          "leftMm": 1000,
+          "rightMm": 1000,
+          "aboveMm": 1000,
+          "reason": "Distance aux matériaux combustibles"
+        }
+      ]
     }
   ]
 }

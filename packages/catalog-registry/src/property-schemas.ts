@@ -159,3 +159,71 @@ function outOfRange(
     ];
   return [];
 }
+
+/**
+ * A schema as a data file states it, before anything has been checked.
+ *
+ * The strict type says `type: PropertyType` and `source: PropertySource`; a
+ * JSON file says `string`, and the difference between the two is exactly what
+ * validation earns.
+ */
+export interface PropertySchemaCandidate {
+  readonly family: string;
+  readonly properties: readonly (Omit<PropertyDescriptor, 'type' | 'source'> & {
+    readonly type: string;
+    readonly source: string;
+  })[];
+}
+
+/**
+ * Everything wrong with one schema, before anything is measured against it.
+ *
+ * A schema is what tells a catalogue entry it is wrong; a schema that is
+ * itself wrong tells it nothing, and does it quietly. An enum with no options
+ * accepts every string, a minimum above its maximum accepts no number at all,
+ * and a key declared twice means the second declaration silently wins — none
+ * of which any entry can reveal, because the entries are checked *by* this.
+ */
+export function validatePropertySchema(
+  schema: PropertySchemaCandidate,
+): readonly PropertyIssue[] {
+  const issues: PropertyIssue[] = [];
+  const at = (path: string, message: string) => issues.push({ path, message });
+  if (schema.family.trim() === '') at('family', 'must not be empty');
+  const seen = new Set<string>();
+  for (const [index, property] of schema.properties.entries()) {
+    const where =
+      property.key.trim() === '' ? `properties/${index}` : property.key;
+    if (property.key.trim() === '') at(where, 'must have a key');
+    else if (seen.has(property.key)) at(where, 'is declared more than once');
+    seen.add(property.key);
+    if (property.label.trim() === '') at(where, 'must have a label');
+    if (!(PROPERTY_TYPES as readonly string[]).includes(property.type))
+      at(where, `unknown type ${property.type}`);
+    if (!(PROPERTY_SOURCES as readonly string[]).includes(property.source))
+      at(where, `unknown source ${property.source}`);
+    if (property.type === 'enum' && (property.options ?? []).length === 0)
+      at(where, 'is an enum and names no value it accepts');
+    if (property.type !== 'enum' && property.options !== undefined)
+      at(where, 'names accepted values but is not an enum');
+    for (const [bound, value] of [
+      ['minimum', property.minimum],
+      ['maximum', property.maximum],
+    ] as const)
+      if (value !== undefined && !Number.isFinite(value))
+        at(`${where}/${bound}`, 'must be a finite number');
+    if (
+      property.minimum !== undefined &&
+      property.maximum !== undefined &&
+      property.minimum > property.maximum
+    )
+      at(where, 'has a minimum above its maximum, which nothing can satisfy');
+    // A number without a unit is a number nobody can read back: 3 what?
+    if (
+      (property.type === 'number' || property.type === 'integer') &&
+      (property.unit ?? '').trim() === ''
+    )
+      at(where, 'is a number and states no unit');
+  }
+  return issues;
+}

@@ -1,3 +1,5 @@
+import { isClearanceZone, CLEARANCE_LABELS } from './clearances.js';
+import type { ClearanceZoneDefinition } from './clearances.js';
 import type { FamilyDefinition } from './families.js';
 import { isPortType, portType } from './port-types.js';
 import {
@@ -25,6 +27,9 @@ export interface CatalogEntryCandidate {
     readonly portTypeId?: string;
   }[];
   readonly provenance?: ProvenanceCandidate;
+  readonly clearances?: readonly (Omit<ClearanceZoneDefinition, 'zone'> & {
+    readonly zone: string;
+  })[];
   readonly rendering?: {
     readonly symbols?: readonly { readonly symbolId: string }[];
   };
@@ -112,6 +117,40 @@ export function validateCatalogEntry(
         'ports',
         `${family.id} is connected by ${required}, which this entry does not declare`,
       );
+
+  // The room around it: the family says which zones such a thing has, the
+  // entry says how far each one reaches. An entry claiming a zone its family
+  // does not have is either the wrong family or a zone nobody will draw.
+  const zones = new Set(family.clearances ?? []);
+  const sides = [
+    'frontMm',
+    'backMm',
+    'leftMm',
+    'rightMm',
+    'aboveMm',
+    'belowMm',
+  ] as const;
+  for (const [index, clearance] of (entry.clearances ?? []).entries()) {
+    if (!isClearanceZone(clearance.zone)) {
+      at(`clearances/${index}`, `unknown clearance zone ${clearance.zone}`);
+      continue;
+    }
+    if (!zones.has(clearance.zone))
+      at(
+        `clearances/${index}`,
+        `${family.id} declares no ${CLEARANCE_LABELS[clearance.zone]} zone`,
+      );
+    for (const side of sides) {
+      const value = clearance[side];
+      if (value !== undefined && (!Number.isFinite(value) || value < 0))
+        at(
+          `clearances/${index}/${side}`,
+          'must be a distance in millimetres, at least zero',
+        );
+    }
+    if (sides.every((side) => clearance[side] === undefined))
+      at(`clearances/${index}`, 'says no distance in any direction');
+  }
 
   for (const [index, symbol] of (entry.rendering?.symbols ?? []).entries())
     if (!known.symbols.has(symbol.symbolId))

@@ -68,7 +68,20 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès au groupe de sécurité et à la résistance"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 600,
+          "aboveMm": 300,
+          "reason": "Dépose de la résistance et de l’anode"
+        }
+      ]
     },
     {
       "id": "generic-kitchen-sink",
@@ -139,7 +152,19 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Place de la personne devant l’évier"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 1100,
+          "reason": "Approche d’un fauteuil roulant"
+        }
+      ]
     },
     {
       "id": "generic-shower",
@@ -210,7 +235,19 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 600,
+          "reason": "Sortie de douche"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 1100,
+          "reason": "Transfert depuis un fauteuil roulant"
+        }
+      ]
     },
     {
       "id": "generic-washbasin",
@@ -281,7 +318,19 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 550,
+          "reason": "Place de la personne devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 1100,
+          "reason": "Approche d’un fauteuil roulant"
+        }
+      ]
     },
     {
       "id": "generic-wc",
@@ -340,7 +389,21 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 600,
+          "leftMm": 200,
+          "rightMm": 200,
+          "reason": "Place de la personne assise"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "leftMm": 800,
+          "reason": "Transfert latéral depuis un fauteuil roulant"
+        }
+      ]
     }
   ]
 }
