@@ -14,6 +14,7 @@ import {
   AddOpeningCommand,
   AddRoofCommand,
   AddSlabCommand,
+  AddSpaceCommand,
   AddWallCommand,
   MoveWallCommand,
   MoveWallPointCommand,
@@ -26,6 +27,7 @@ import {
   UpdateRoofCommand,
   UpdateSlabCommand,
   createOpeningInsertionCommand,
+  detectRooms,
   withInsertedVertex,
   withMovedVertex,
   withoutVertex,
@@ -103,6 +105,355 @@ export function addWallCommand(
       'Ajouter un mur',
       level.id,
       new AddWallCommand(`add-wall:${wall.id}`, wall),
+    ),
+  };
+}
+
+/**
+ * Builds the walls a run of points describes.
+ *
+ * A house is drawn as a run — corner, corner, corner — and not as a series of
+ * unrelated pairs of clicks. Two readings of the same run are both legitimate
+ * and neither is guessable: a wall per side, which can then take its own
+ * assembly and its own openings; or one polyline wall, which stays one thing
+ * when it is moved. The user says which.
+ */
+export function addWallRunCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: WallToolDraft,
+  options: {
+    readonly asOneWall: boolean;
+    readonly closed: boolean;
+    readonly newId: (prefix: string) => string;
+  },
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const assembly = (file.project.assemblies ?? []).find(
+    ({ id }) => id === draft.assemblyId,
+  );
+  if (assembly === undefined)
+    return {
+      status: 'ERROR',
+      message: `Assemblage inconnu : ${draft.assemblyId || 'aucun'}.`,
+    };
+  // Two clicks at the same place are one point, not a wall of no length; the
+  // run keeps what the user actually described.
+  const corners: Point2D[] = [];
+  for (const point of points) {
+    const last = corners[corners.length - 1];
+    if (last === undefined || last.x !== point.x || last.y !== point.y)
+      corners.push(point);
+  }
+  const path =
+    options.closed && corners.length > 2 ? [...corners, corners[0]!] : corners;
+  if (path.length < 2)
+    return {
+      status: 'ERROR',
+      message: 'Un mur demande deux points distincts.',
+    };
+
+  const wallAt = (walls: readonly Point2D[], id: string): Wall => ({
+    id: entityId<'Wall'>(id),
+    type: 'WALL',
+    levelId: level.id,
+    path: { points: walls },
+    referenceSide: 'CENTER',
+    assemblyId: assembly.id,
+    baseOffsetMm: 0,
+    heightMode: 'EXPLICIT',
+    heightMm: level.defaultStoreyHeightMm,
+    role: draft.role,
+  });
+
+  if (options.asOneWall) {
+    const wall = wallAt(path, options.newId('wall'));
+    return {
+      status: 'OK',
+      command: new ProjectEditorCommand(
+        `add-wall:${wall.id}`,
+        'Ajouter un mur polyligne',
+        level.id,
+        new AddWallCommand(`add-wall:${wall.id}`, wall),
+      ),
+    };
+  }
+
+  const commands: ProjectCommand[] = [];
+  for (let index = 1; index < path.length; index += 1) {
+    const wall = wallAt(
+      [path[index - 1]!, path[index]!],
+      options.newId('wall'),
+    );
+    commands.push(
+      new ProjectEditorCommand(
+        `add-wall:${wall.id}`,
+        'Ajouter un mur',
+        level.id,
+        new AddWallCommand(`add-wall:${wall.id}`, wall),
+      ),
+    );
+  }
+  return {
+    status: 'OK',
+    command: new ProjectTransactionCommand(
+      `wall-run:${commands.length}:${options.newId('')}`,
+      commands.length === 1
+        ? 'Ajouter un mur'
+        : `Ajouter ${commands.length} murs`,
+      commands,
+    ),
+  };
+}
+
+/**
+ * Builds the four walls of a rectangle drawn by its opposite corners.
+ *
+ * Drawing a house begins by enclosing it, and enclosing it by four clicks that
+ * must land on right angles is four chances to miss one.
+ */
+export function addWallRectangleCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: WallToolDraft,
+  newId: (prefix: string) => string,
+): EditingCommandResult {
+  const [from, to] = points;
+  if (from === undefined || to === undefined)
+    return { status: 'ERROR', message: 'Deux coins opposés sont attendus.' };
+  if (from.x === to.x || from.y === to.y)
+    return {
+      status: 'ERROR',
+      message: 'Les deux coins doivent délimiter une surface.',
+    };
+  return addWallRunCommand(
+    file,
+    levelId,
+    [from, { x: to.x, y: from.y }, to, { x: from.x, y: to.y }],
+    draft,
+    { asOneWall: false, closed: true, newId },
+  );
+}
+
+/** Whether a point falls inside a contour, by the crossing-number rule. */
+export function pointInPolygon(
+  point: Point2D,
+  outline: readonly Point2D[],
+): boolean {
+  let inside = false;
+  for (
+    let index = 0, previous = outline.length - 1;
+    index < outline.length;
+    previous = index, index += 1
+  ) {
+    const current = outline[index]!;
+    const last = outline[previous]!;
+    if (current.y > point.y === last.y > point.y) continue;
+    const crossingX =
+      ((last.x - current.x) * (point.y - current.y)) / (last.y - current.y) +
+      current.x;
+    if (point.x < crossingX) inside = !inside;
+  }
+  return inside;
+}
+
+/**
+ * Turns the contour the walls enclose around a point into a room.
+ *
+ * A room is described by walls that already exist, and redrawing its outline
+ * by hand is redrawing what the model can already derive — with the near
+ * certainty of a corner a few millimetres off, which then reads as a gap.
+ */
+export function addSpaceAtPointCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  point: Point2D,
+  draft: { readonly name: string; readonly category: string },
+  spaceId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const rooms = detectRooms(file.project, level.id);
+  if (rooms.length === 0)
+    return {
+      status: 'ERROR',
+      message: 'Les murs de ce niveau n’enferment aucun contour.',
+    };
+  const found = rooms.find((room) => pointInPolygon(point, room.polygon.outer));
+  if (found === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Ce point n’est dans aucun contour fermé par les murs.',
+    };
+  if (found.existingSpaceId !== undefined)
+    return {
+      status: 'ERROR',
+      message: `Ce contour porte déjà la pièce ${found.existingSpaceId}.`,
+    };
+  return {
+    status: 'OK',
+    command: new AddSpaceCommand(level.id, {
+      id: spaceId,
+      name: draft.name,
+      category: draft.category,
+      polygon: found.polygon,
+    }),
+  };
+}
+
+/**
+ * Turns every contour the walls enclose into a room, in one action.
+ *
+ * A house has as many rooms as it has enclosed contours, and naming them one
+ * by one through a panel is the navigation this replaces. Contours already
+ * covered are left alone rather than duplicated.
+ */
+export function addEveryDetectedRoomCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  draft: { readonly category: string },
+  newId: (prefix: string) => string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const rooms = detectRooms(file.project, level.id).filter(
+    (room) => room.existingSpaceId === undefined,
+  );
+  if (rooms.length === 0)
+    return {
+      status: 'ERROR',
+      message: 'Aucun contour fermé n’est encore sans pièce.',
+    };
+  const commands = rooms.map((room, index) => {
+    const id = newId('space');
+    return new AddSpaceCommand(level.id, {
+      id,
+      name: `Pièce ${level.spaces.length + index + 1}`,
+      category: draft.category,
+      polygon: room.polygon,
+    });
+  });
+  return {
+    status: 'OK',
+    command: new ProjectTransactionCommand(
+      `spaces:detected:${newId('')}`,
+      `Ajouter ${commands.length} pièce(s) détectée(s)`,
+      commands,
+    ),
+  };
+}
+
+/**
+ * Builds a slab, either from the points clicked or from the contour aimed at.
+ *
+ * A floor almost always covers a room that already exists; asking the user to
+ * click its corners again is asking for the same shape a second time, and the
+ * second one is never quite the first.
+ */
+export function addSlabFromPointsCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: {
+    readonly assemblyId: string;
+    readonly role: Slab['role'];
+    readonly fromRoom: boolean;
+  },
+  slabId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  let polygon: Polygon2D;
+  if (draft.fromRoom) {
+    const point = points[0];
+    if (point === undefined)
+      return { status: 'ERROR', message: 'Un point est attendu.' };
+    const room = detectRooms(file.project, level.id).find((candidate) =>
+      pointInPolygon(point, candidate.polygon.outer),
+    );
+    if (room === undefined)
+      return {
+        status: 'ERROR',
+        message: 'Ce point n’est dans aucun contour fermé par les murs.',
+      };
+    polygon = room.polygon;
+  } else {
+    if (points.length < 3)
+      return { status: 'ERROR', message: 'Une dalle demande trois points.' };
+    polygon = { outer: points.map((point) => ({ ...point })) };
+  }
+  return {
+    status: 'OK',
+    command: new AddSlabCommand(level.id, {
+      id: slabId,
+      polygon,
+      assemblyId: draft.assemblyId,
+      role: draft.role,
+      elevationOffsetMm: 0,
+    }),
+  };
+}
+
+/**
+ * Cuts an opening through the slab a contour falls in.
+ *
+ * A stairwell is a hole in the floor above it, and the floor is one object
+ * with a hole rather than four slabs around a gap: a hole moves with its slab
+ * and cannot be left behind.
+ */
+export function punchSlabHoleCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  if (points.length < 3)
+    return { status: 'ERROR', message: 'Une trémie demande trois points.' };
+  const centre = {
+    x: points.reduce((total, { x }) => total + x, 0) / points.length,
+    y: points.reduce((total, { y }) => total + y, 0) / points.length,
+  };
+  const host = level.slabs.find((slab) =>
+    pointInPolygon(centre, slab.polygon.outer),
+  );
+  if (host === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Aucune dalle ne passe sous ce contour : rien à percer.',
+    };
+  // Every corner has to be over the slab: a hole crossing an edge would be a
+  // shape the slab does not enclose, and the drawing would show a slab that
+  // is not the one the model holds.
+  if (!points.every((point) => pointInPolygon(point, host.polygon.outer)))
+    return {
+      status: 'ERROR',
+      message: `La trémie sort de la dalle ${host.id}.`,
+    };
+  return {
+    status: 'OK',
+    command: new ProjectTransactionCommand(
+      `slab:hole:${host.id}`,
+      'Percer une trémie',
+      [
+        new UpdateSlabCommand(level.id, host.id, {
+          polygon: {
+            outer: host.polygon.outer,
+            holes: [
+              ...(host.polygon.holes ?? []),
+              points.map((point) => ({ ...point })),
+            ],
+          },
+        }),
+      ],
     ),
   };
 }

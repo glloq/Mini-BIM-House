@@ -18,6 +18,7 @@ import {
 
 import {
   constrainsDrafting,
+  isOpenEnded,
   requiredPoints,
   type EditorTool,
 } from './tool-registry.js';
@@ -27,6 +28,7 @@ import {
 export type { EditorTool };
 export {
   constrainsDrafting,
+  isOpenEnded,
   requiredPoints,
   toolDefinition,
 } from './tool-registry.js';
@@ -183,6 +185,7 @@ export type EditorAction =
       readonly point: Point2D;
       readonly objectId?: string;
     }
+  | { readonly type: 'FINISH_RUN' }
   | { readonly type: 'CANCEL' }
   | { readonly type: 'SET_SNAP'; readonly snap: Partial<SnapSettings> }
   | { readonly type: 'SET_DIRECT_INPUT'; readonly input: DirectInputPatch }
@@ -375,10 +378,19 @@ export function editorReducer(
     case 'COMMIT_POINT': {
       const points = [...state.pendingPoints, action.point];
       const picks = [...state.pendingPicks, action.objectId];
-      return points.length >= requiredPoints(state.activeTool)
+      // A tool that draws until the user says stop never reaches a count: it
+      // keeps its points until Entrée ends the run.
+      const done =
+        !isOpenEnded(state.activeTool) &&
+        points.length >= requiredPoints(state.activeTool);
+      return done
         ? { ...state, pendingPoints: [], pendingPicks: [], directInput: {} }
         : { ...state, pendingPoints: points, pendingPicks: picks };
     }
+    case 'FINISH_RUN':
+      // What the run produced is the application's business; the state only
+      // forgets the points, exactly as a finished count would have.
+      return { ...state, pendingPoints: [], pendingPicks: [], directInput: {} };
     case 'CANCEL': {
       // One step at a time, and the most recent first. Abandoning a wall being
       // drawn used to clear the selection as well, so a mis-started line cost

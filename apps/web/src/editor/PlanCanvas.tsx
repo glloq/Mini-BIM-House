@@ -33,7 +33,7 @@ import {
   pointerModelPoint,
   requiredPoints,
 } from './editor-state.js';
-import { dynamicInputOf } from './tool-registry.js';
+import { drawsWalls, dynamicInputOf, isOpenEnded } from './tool-registry.js';
 
 /** What a handle does, said out loud for anyone not looking at the screen. */
 function gripLabel(grip: Grip): string {
@@ -236,17 +236,36 @@ export function PlanCanvas({
       snap: editor.snap,
       directInput: editor.directInput,
     });
-    const footprint =
-      editor.activeTool === 'WALL'
-        ? previewWallFaces([origin, target], wallThicknessMm)
-        : undefined;
+    const footprint = drawsWalls(editor.activeTool)
+      ? previewWallFaces([origin, target], wallThicknessMm)
+      : undefined;
     const lengthMm = Math.round(
       Math.hypot(target.x - origin.x, target.y - origin.y),
     );
     const angleDeg =
       (Math.atan2(target.y - origin.y, target.x - origin.x) * 180) / Math.PI;
+    // What the run has already taken, so a wall drawn corner by corner is a
+    // shape being closed rather than a rubber band and a memory.
+    const laid: readonly ScenePrimitive[] =
+      editor.pendingPoints.length < 2
+        ? []
+        : [
+            {
+              id: 'preview:run',
+              semanticRole: 'ANNOTATION',
+              geometry: {
+                kind: 'POLYLINE',
+                polyline: { points: editor.pendingPoints, closed: false },
+              },
+              layer: 'annotation.dimensions',
+              zIndex: 89,
+              discipline: 'ARCHITECTURE',
+              state: 'GHOST',
+            },
+          ];
     return [
       ...band,
+      ...laid,
       ...(footprint === undefined
         ? []
         : [
@@ -599,7 +618,10 @@ export function PlanCanvas({
         ...(picked === undefined ? {} : { objectId: picked.objectId }),
       });
       // Each tool declares how many points it needs; the canvas does not keep
-      // its own list of which ones are single-click.
+      // its own list of which ones are single-click. A tool that draws until
+      // the user says stop has no count to reach: it is the run being ended
+      // that commits it, never a click.
+      if (isOpenEnded(editor.activeTool)) return;
       if (points.length < requiredPoints(editor.activeTool)) return;
       onCommitPoints(points, picks);
     },
@@ -1080,6 +1102,11 @@ export function PlanCanvas({
             .mode === 'WINDOW'
             ? ' · fenêtre : objets entièrement compris'
             : ' · capture : objets touchés')}
+        {/* A run has no number of points known in advance, so the way out of
+            it has to be written somewhere the user is already looking. */}
+        {isOpenEnded(editor.activeTool) &&
+          editor.pendingPoints.length > 0 &&
+          ` · ${editor.pendingPoints.length} point(s) · Entrée termine, Échap annule`}
       </p>
     </div>
   );

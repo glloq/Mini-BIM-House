@@ -1916,3 +1916,61 @@ test('restricts what a click may take to one family', async ({ page }) => {
   await expect(title).toContainText('wall-south');
   expect(errors).toEqual([]);
 });
+
+test('draws a run of walls corner by corner and encloses by two corners', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  await expect(walls).toHaveCount(6);
+
+  await page.getByRole('button', { name: 'Mur continu', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  await canvas.click({ position: { x: 60, y: 60 } });
+  await canvas.click({ position: { x: 200, y: 60 } });
+  await canvas.click({ position: { x: 200, y: 160 } });
+  // A run has no number of corners known in advance: the user says when it
+  // ends, and the plan says so while it lasts.
+  await expect(page.locator('.canvas-status')).toContainText('Entrée termine');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('status')).toContainText('2 murs');
+  await expect(walls).toHaveCount(8);
+
+  // One run, one undo.
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(walls).toHaveCount(6);
+
+  await page
+    .getByRole('button', { name: 'Murs rectangle', exact: true })
+    .click();
+  const box = (await canvas.boundingBox())!;
+  await canvas.click({ position: { x: 60, y: box.height - 140 } });
+  await canvas.click({ position: { x: 220, y: box.height - 40 } });
+  await expect(walls).toHaveCount(10);
+  expect(errors).toEqual([]);
+});
+
+test('makes a room out of the contour the walls already enclose', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Pièce', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+
+  // Every contour of the reference house already carries a room, and creating
+  // a second one over the first would leave two nothing distinguishes.
+  await canvas.click({
+    position: { x: box.width * 0.3, y: box.height * 0.35 },
+  });
+  await expect(page.getByRole('status')).toContainText('porte déjà');
+
+  // Outside every contour, the tool says what is missing rather than nothing.
+  await canvas.click({ position: { x: 4, y: 4 } });
+  await expect(page.getByRole('status')).toContainText('contour');
+  expect(errors).toEqual([]);
+});

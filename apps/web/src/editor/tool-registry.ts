@@ -1,13 +1,20 @@
 import type {
   DimensionType,
   ProjectFile,
+  SlabRole,
   WallRole,
 } from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
 import {
   addDimensionCommand,
+  addEveryDetectedRoomCommand,
   addOpeningCommand,
+  addSlabFromPointsCommand,
+  addSpaceAtPointCommand,
   addWallCommand,
+  addWallRectangleCommand,
+  addWallRunCommand,
+  punchSlabHoleCommand,
   joinWallsCommand,
   offsetWallCommand,
   splitWallCommand,
@@ -20,6 +27,8 @@ import { OBJECT_FAMILIES } from './object-editors.js';
 import {
   DIMENSION_TYPE_OPTIONS,
   OPENING_TYPE_OPTIONS,
+  SLAB_ROLE_OPTIONS,
+  SPACE_CATEGORY_OPTIONS,
   WALL_ROLE_OPTIONS,
 } from './domain-options.js';
 import {
@@ -95,6 +104,25 @@ export interface EditorToolDefinition {
   /** Clicks the tool collects before it produces a command. */
   readonly requiredPoints: number;
   /**
+   * Whether what is being drafted is a wall.
+   *
+   * The preview shows the thickness of what will be built rather than a line:
+   * a wall drawn to the edge of a room does not stop where its axis does. The
+   * tool says so; the canvas used to name the wall tool itself, and a second
+   * wall tool would have drawn nothing.
+   */
+  readonly drawsWalls?: true;
+  /**
+   * Whether the tool keeps taking points until the user says it is finished.
+   *
+   * A wall between two points is two clicks and everyone knows when it ends. A
+   * run of walls around a house, the outline of a room, the path of a duct
+   * have no number of points known in advance; asking for one would be asking
+   * the user to count corners before drawing them. Such a tool collects until
+   * Entrée, and `requiredPoints` then states the fewest it can accept.
+   */
+  readonly openEnded?: true;
+  /**
    * Whether the point being drafted follows the angle and length constraints.
    *
    * A wall is drawn along the building axes. A dimension is not drawn at all:
@@ -165,6 +193,7 @@ export const EDITOR_TOOLS = [
     hint: 'Dessiner un mur entre deux points',
     shortcutId: 'tool.wall',
     requiredPoints: 2,
+    drawsWalls: true,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
     options: [
@@ -210,6 +239,138 @@ export const EDITOR_TOOLS = [
           role: context.option('role') as WallRole,
         },
         context.newId('wall'),
+      ),
+  },
+  {
+    id: 'WALL_RUN',
+    group: 'ARCHITECTURE',
+    label: 'Mur continu',
+    hint: 'Enchaîner les murs de coin en coin · Entrée termine, Échap annule',
+    shortcutId: 'tool.wallRun',
+    // Two points is the fewest a run can describe; there is no most.
+    requiredPoints: 2,
+    openEnded: true,
+    drawsWalls: true,
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'assemblyId',
+        kind: 'SELECT',
+        label: 'Assemblage',
+        choices: ({ project }) =>
+          (project.assemblies ?? [])
+            .filter(
+              ({ category }) => category === 'WALL' || category === 'PARTITION',
+            )
+            .map(({ id, name }) => ({ value: id, label: name })),
+        fallback: ({ project }) =>
+          (project.assemblies ?? []).find(
+            ({ category }) => category === 'WALL' || category === 'PARTITION',
+          )?.id ??
+          project.assemblies?.[0]?.id ??
+          '',
+      },
+      {
+        key: 'role',
+        kind: 'SELECT',
+        label: 'Rôle',
+        choices: () => WALL_ROLE_OPTIONS,
+        fallback: ({ project, value }) =>
+          (project.assemblies ?? []).find(
+            ({ id }) => id === value('assemblyId'),
+          )?.category === 'PARTITION'
+            ? 'PARTITION'
+            : 'EXTERIOR',
+      },
+      {
+        key: 'shape',
+        kind: 'SELECT',
+        label: 'Créer',
+        hint: 'Un mur par côté peut porter son propre assemblage et ses ouvertures.',
+        choices: () => [
+          { value: 'SEGMENTS', label: 'Un mur par côté' },
+          { value: 'POLYLINE', label: 'Un seul mur polyligne' },
+        ],
+        fallback: () => 'SEGMENTS',
+      },
+      {
+        key: 'closed',
+        kind: 'SELECT',
+        label: 'Fermer',
+        hint: 'Revient au premier point pour clore le contour.',
+        choices: () => [
+          { value: 'NO', label: 'Non' },
+          { value: 'YES', label: 'Oui' },
+        ],
+        fallback: () => 'NO',
+      },
+    ],
+    createCommand: (context) =>
+      addWallRunCommand(
+        context.file,
+        context.levelId,
+        context.points,
+        {
+          assemblyId: context.option('assemblyId'),
+          role: context.option('role') as WallRole,
+        },
+        {
+          asOneWall: context.option('shape') === 'POLYLINE',
+          closed: context.option('closed') === 'YES',
+          newId: context.newId,
+        },
+      ),
+  },
+  {
+    id: 'WALL_RECTANGLE',
+    group: 'ARCHITECTURE',
+    label: 'Murs rectangle',
+    hint: 'Enclore par deux coins opposés : quatre murs d’équerre',
+    shortcutId: 'tool.wallRectangle',
+    requiredPoints: 2,
+    drawsWalls: true,
+    options: [
+      {
+        key: 'assemblyId',
+        kind: 'SELECT',
+        label: 'Assemblage',
+        choices: ({ project }) =>
+          (project.assemblies ?? [])
+            .filter(
+              ({ category }) => category === 'WALL' || category === 'PARTITION',
+            )
+            .map(({ id, name }) => ({ value: id, label: name })),
+        fallback: ({ project }) =>
+          (project.assemblies ?? []).find(
+            ({ category }) => category === 'WALL' || category === 'PARTITION',
+          )?.id ??
+          project.assemblies?.[0]?.id ??
+          '',
+      },
+      {
+        key: 'role',
+        kind: 'SELECT',
+        label: 'Rôle',
+        choices: () => WALL_ROLE_OPTIONS,
+        fallback: ({ project, value }) =>
+          (project.assemblies ?? []).find(
+            ({ id }) => id === value('assemblyId'),
+          )?.category === 'PARTITION'
+            ? 'PARTITION'
+            : 'EXTERIOR',
+      },
+    ],
+    createCommand: (context) =>
+      addWallRectangleCommand(
+        context.file,
+        context.levelId,
+        context.points,
+        {
+          assemblyId: context.option('assemblyId'),
+          role: context.option('role') as WallRole,
+        },
+        context.newId,
       ),
   },
   {
@@ -273,6 +434,136 @@ export const EDITOR_TOOLS = [
         },
         context.newId('opening'),
       ),
+  },
+  {
+    id: 'SPACE',
+    group: 'ARCHITECTURE',
+    label: 'Pièce',
+    hint: 'Cliquer dans un contour fermé par les murs pour en faire une pièce',
+    shortcutId: 'tool.space',
+    requiredPoints: 1,
+    options: [
+      {
+        key: 'name',
+        kind: 'TEXT',
+        label: 'Nom',
+        // A room with no name is a room nothing can name in a schedule; the
+        // fallback is a placeholder the user is expected to replace, not a
+        // value the application pretends to know.
+        fallback: () => 'Nouvelle pièce',
+      },
+      {
+        key: 'category',
+        kind: 'SELECT',
+        label: 'Usage',
+        choices: () => SPACE_CATEGORY_OPTIONS,
+        fallback: () => 'OTHER',
+      },
+      {
+        key: 'scope',
+        kind: 'SELECT',
+        label: 'Créer',
+        choices: () => [
+          { value: 'ONE', label: 'Le contour visé' },
+          { value: 'ALL', label: 'Tous les contours libres' },
+        ],
+        fallback: () => 'ONE',
+      },
+    ],
+    createCommand: (context) => {
+      if (context.option('scope') === 'ALL')
+        return addEveryDetectedRoomCommand(
+          context.file,
+          context.levelId,
+          { category: context.option('category') },
+          context.newId,
+        );
+      const point = context.points[0];
+      if (point === undefined)
+        return { status: 'ERROR', message: 'Un point est attendu.' };
+      return addSpaceAtPointCommand(
+        context.file,
+        context.levelId,
+        point,
+        {
+          name: context.option('name'),
+          category: context.option('category'),
+        },
+        context.newId('space'),
+      );
+    },
+  },
+  {
+    id: 'SLAB',
+    group: 'ARCHITECTURE',
+    label: 'Dalle',
+    hint: 'Poser une dalle : contour cliqué, ou contour de la pièce visée',
+    shortcutId: 'tool.slab',
+    // Three corners is the fewest a floor can have; there is no most.
+    requiredPoints: 3,
+    openEnded: true,
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'assemblyId',
+        kind: 'SELECT',
+        label: 'Assemblage',
+        choices: ({ project }) =>
+          (project.assemblies ?? [])
+            .filter(
+              ({ category }) => category === 'FLOOR' || category === 'CEILING',
+            )
+            .map(({ id, name }) => ({ value: id, label: name })),
+        fallback: ({ project }) =>
+          (project.assemblies ?? []).find(
+            ({ category }) => category === 'FLOOR' || category === 'CEILING',
+          )?.id ?? '',
+      },
+      {
+        key: 'role',
+        kind: 'SELECT',
+        label: 'Rôle',
+        choices: () => SLAB_ROLE_OPTIONS,
+        fallback: () => 'FLOOR',
+      },
+      {
+        key: 'outline',
+        kind: 'SELECT',
+        label: 'Contour',
+        hint: 'Le contour d’une pièce est celui que les murs enferment déjà.',
+        choices: () => [
+          { value: 'POINTS', label: 'Les points cliqués' },
+          { value: 'ROOM', label: 'Le contour visé' },
+        ],
+        fallback: () => 'POINTS',
+      },
+    ],
+    createCommand: (context) =>
+      addSlabFromPointsCommand(
+        context.file,
+        context.levelId,
+        context.points,
+        {
+          assemblyId: context.option('assemblyId'),
+          role: context.option('role') as SlabRole,
+          fromRoom: context.option('outline') === 'ROOM',
+        },
+        context.newId('slab'),
+      ),
+  },
+  {
+    id: 'SLAB_HOLE',
+    group: 'ARCHITECTURE',
+    label: 'Trémie',
+    hint: 'Percer un contour dans la dalle qui passe dessous',
+    shortcutId: 'tool.slabHole',
+    requiredPoints: 3,
+    openEnded: true,
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    createCommand: (context) =>
+      punchSlabHoleCommand(context.file, context.levelId, context.points),
   },
   {
     id: 'SPLIT',
@@ -579,6 +870,16 @@ export function dynamicInputOf(
 /** Number of points a tool needs before it can produce a command. */
 export function requiredPoints(tool: EditorTool): number {
   return toolDefinition(tool).requiredPoints;
+}
+
+/** Whether the tool draws until the user says it is finished. */
+export function isOpenEnded(tool: EditorTool): boolean {
+  return toolDefinition(tool).openEnded === true;
+}
+
+/** Whether what this tool drafts is a wall, thickness and all. */
+export function drawsWalls(tool: EditorTool): boolean {
+  return toolDefinition(tool).drawsWalls === true;
 }
 
 /** Whether a tool drafts along constrained angles and lengths. */

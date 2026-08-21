@@ -14,6 +14,7 @@ import {
   UpdateRoofCommand,
   UpdateSlabCommand,
   UpdateSpaceCommand,
+  SetWallHeightCommand,
   UpdateWallCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
@@ -23,6 +24,7 @@ import {
   REFERENCE_SIDE_OPTIONS,
   SLAB_ROLE_OPTIONS,
   WALL_ROLE_OPTIONS,
+  SPACE_CATEGORY_OPTIONS as SPACE_CATEGORIES,
 } from './domain-options.js';
 
 /** A control the inspector offers for one editable property. */
@@ -82,23 +84,6 @@ export interface InspectorEdit {
  * application's proposal rather than a closed set: a project may carry a
  * category this menu does not offer, and it is shown as it is.
  */
-const SPACE_CATEGORIES: readonly {
-  readonly value: string;
-  readonly label: string;
-}[] = [
-  { value: 'LIVING', label: 'Séjour' },
-  { value: 'KITCHEN', label: 'Cuisine' },
-  { value: 'BEDROOM', label: 'Chambre' },
-  { value: 'BATHROOM', label: 'Salle de bains' },
-  { value: 'WC', label: 'WC' },
-  { value: 'HALL', label: 'Entrée' },
-  { value: 'CORRIDOR', label: 'Dégagement' },
-  { value: 'GARAGE', label: 'Garage' },
-  { value: 'STORAGE', label: 'Cellier' },
-  { value: 'TECHNICAL', label: 'Local technique' },
-  { value: 'OTHER', label: 'Autre' },
-];
-
 function assemblyOptions(project: Project, categories: readonly string[]) {
   return (project.assemblies ?? [])
     .filter(({ category }) => categories.includes(category))
@@ -245,6 +230,44 @@ function wallEdits(
       },
     },
   ];
+  // Reaching a storey above and standing a stated height are two shapes of the
+  // same wall, not two fields that may both be set. The domain has accepted
+  // TO_LEVEL from the beginning and no screen could produce one.
+  const upper = project.building.levels.filter(
+    ({ elevationMm }) => elevationMm > level.elevationMm,
+  );
+  edits.push({
+    id: 'heightMode',
+    semanticId: 'wall.heightMode',
+    label: 'Hauteur définie par',
+    control: {
+      kind: 'SELECT',
+      value: wall.heightMode,
+      options: [
+        { value: 'EXPLICIT', label: 'Une hauteur saisie' },
+        { value: 'TO_LEVEL', label: 'Le niveau supérieur' },
+      ],
+    },
+    hint:
+      upper.length === 0
+        ? 'Aucun niveau au-dessus de celui-ci.'
+        : 'Un mur monté jusqu’à un niveau suit ce niveau quand il se déplace.',
+    apply: (value) => {
+      if (value === wall.heightMode) return undefined;
+      if (value === 'EXPLICIT')
+        return new SetWallHeightCommand(level.id, wall.id, {
+          mode: 'EXPLICIT',
+          heightMm: level.defaultStoreyHeightMm,
+        });
+      const top = upper[0];
+      return top === undefined
+        ? undefined
+        : new SetWallHeightCommand(level.id, wall.id, {
+            mode: 'TO_LEVEL',
+            topLevelId: top.id,
+          });
+    },
+  });
   if (wall.heightMode === 'EXPLICIT')
     edits.push({
       id: 'heightMm',
@@ -264,6 +287,52 @@ function wallEdits(
           : new UpdateWallCommand(level.id, wall.id, { heightMm });
       },
     });
+  else
+    edits.push(
+      {
+        id: 'topLevelId',
+        semanticId: 'wall.topLevelId',
+        label: 'Niveau supérieur',
+        control: {
+          kind: 'SELECT',
+          value: wall.topLevelId,
+          options: upper.map((candidate) => ({
+            value: candidate.id,
+            label: candidate.name,
+          })),
+        },
+        apply: (value) =>
+          new SetWallHeightCommand(level.id, wall.id, {
+            mode: 'TO_LEVEL',
+            topLevelId: value,
+            ...(wall.topOffsetMm === undefined
+              ? {}
+              : { topOffsetMm: wall.topOffsetMm }),
+          }),
+      },
+      {
+        id: 'topOffsetMm',
+        semanticId: 'wall.topOffsetMm',
+        label: 'Décalage en tête',
+        control: {
+          kind: 'NUMBER',
+          value: wall.topOffsetMm ?? 0,
+          unit: 'mm',
+          step: 10,
+        },
+        hint: 'Négatif pour s’arrêter sous le niveau, positif pour le dépasser.',
+        apply: (value) => {
+          const topOffsetMm = parsed(value);
+          return topOffsetMm === undefined
+            ? undefined
+            : new SetWallHeightCommand(level.id, wall.id, {
+                mode: 'TO_LEVEL',
+                topLevelId: wall.topLevelId,
+                topOffsetMm,
+              });
+        },
+      },
+    );
   return edits;
 }
 

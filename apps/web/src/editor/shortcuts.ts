@@ -7,7 +7,12 @@
 export type ShortcutCommandId =
   | 'tool.select'
   | 'tool.wall'
+  | 'tool.wallRun'
+  | 'tool.wallRectangle'
   | 'tool.opening'
+  | 'tool.space'
+  | 'tool.slab'
+  | 'tool.slabHole'
   | 'tool.dimension'
   | 'tool.network'
   | 'tool.split'
@@ -20,6 +25,7 @@ export type ShortcutCommandId =
   | 'edit.redo'
   | 'edit.delete'
   | 'edit.cancel'
+  | 'edit.finish'
   | 'edit.duplicate'
   | 'edit.copy'
   | 'edit.paste'
@@ -44,7 +50,24 @@ export interface ShortcutBinding {
 export const SHORTCUTS: readonly ShortcutBinding[] = [
   { id: 'tool.select', label: 'Sélection', key: 'Escape', group: 'Outils' },
   { id: 'tool.wall', label: 'Mur', key: 'w', group: 'Outils' },
+  { id: 'tool.wallRun', label: 'Mur continu', key: 'c', group: 'Outils' },
+  {
+    id: 'tool.wallRectangle',
+    label: 'Murs rectangle',
+    key: 'w',
+    shift: true,
+    group: 'Outils',
+  },
   { id: 'tool.opening', label: 'Ouverture', key: 'o', group: 'Outils' },
+  { id: 'tool.space', label: 'Pièce', key: 'i', group: 'Outils' },
+  { id: 'tool.slab', label: 'Dalle', key: 'l', group: 'Outils' },
+  {
+    id: 'tool.slabHole',
+    label: 'Trémie',
+    key: 'l',
+    shift: true,
+    group: 'Outils',
+  },
   { id: 'tool.dimension', label: 'Cotation', key: 'd', group: 'Outils' },
   { id: 'tool.network', label: 'Réseau', key: 'r', group: 'Outils' },
   { id: 'tool.split', label: 'Scinder un mur', key: 'x', group: 'Outils' },
@@ -69,6 +92,12 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
     group: 'Édition',
   },
   { id: 'edit.delete', label: 'Supprimer', key: 'Delete', group: 'Édition' },
+  {
+    id: 'edit.finish',
+    label: 'Terminer le tracé',
+    key: 'Enter',
+    group: 'Édition',
+  },
   {
     id: 'edit.duplicate',
     label: 'Dupliquer la sélection',

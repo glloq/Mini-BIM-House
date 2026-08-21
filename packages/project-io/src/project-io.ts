@@ -317,6 +317,17 @@ export function validateProjectReferences(
             message: `references unknown assembly ${element.assemblyId}`,
           });
       });
+    // A wall built to a storey above holds that storey's identifier and no
+    // height of its own: naming a level the project does not hold leaves a
+    // wall whose height nothing can answer.
+    level.walls.forEach((wall, index) => {
+      if (wall.heightMode !== 'TO_LEVEL') return;
+      if (!levels.has(wall.topLevelId))
+        issues.push({
+          path: `${base}/walls/${index}/topLevelId`,
+          message: `references unknown level ${wall.topLevelId}`,
+        });
+    });
     level.openings.forEach((opening, index) => {
       if (!walls.has(opening.hostElementId))
         issues.push({

@@ -81,3 +81,24 @@ export const DIMENSION_TYPE_OPTIONS = optionsFrom<DimensionType>(
     VERTICAL: 'Verticale',
   },
 );
+
+/**
+ * What a room is for, as the interface offers it.
+ *
+ * The domain takes a free string here — a category it does not enumerate — so
+ * this list is what the application proposes and not what the model allows: a
+ * project holding a category absent from this list stays valid and keeps it.
+ */
+export const SPACE_CATEGORY_OPTIONS: readonly DomainOption[] = [
+  { value: 'LIVING', label: 'Séjour' },
+  { value: 'KITCHEN', label: 'Cuisine' },
+  { value: 'BEDROOM', label: 'Chambre' },
+  { value: 'BATHROOM', label: 'Salle de bains' },
+  { value: 'WC', label: 'WC' },
+  { value: 'HALL', label: 'Entrée' },
+  { value: 'CORRIDOR', label: 'Dégagement' },
+  { value: 'GARAGE', label: 'Garage' },
+  { value: 'STORAGE', label: 'Cellier' },
+  { value: 'TECHNICAL', label: 'Local technique' },
+  { value: 'OTHER', label: 'Autre' },
+];

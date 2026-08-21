@@ -50,7 +50,12 @@ import { ToolBar } from './editor/ToolBar.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
 import type { CheckFix } from './checks/checks-model.js';
-import { optionsOf, toolDefinition } from './editor/tool-registry.js';
+import {
+  isOpenEnded,
+  optionsOf,
+  requiredPoints,
+  toolDefinition,
+} from './editor/tool-registry.js';
 import { ObjectMenu, type ObjectMenuEntry } from './editor/ObjectMenu.js';
 import {
   boundsOf,
@@ -1158,8 +1163,42 @@ function App() {
    * The keyboard is one way of asking; the palette is another, and neither
    * should hold its own copy of what a command does.
    */
+  /**
+   * Ends a run of points and lets the tool make what it can of them.
+   *
+   * A run of walls has no number of corners known in advance; the user says
+   * when it is finished, and a run too short for the tool says so rather than
+   * disappearing without a word.
+   */
+  const finishRun = useCallback(() => {
+    if (editor.pendingPoints.length === 0) return;
+    if (!isOpenEnded(editor.activeTool)) return;
+    if (editor.pendingPoints.length < requiredPoints(editor.activeTool)) {
+      setMessage(
+        `${toolDefinition(editor.activeTool).label} : ${requiredPoints(editor.activeTool)} points au minimum.`,
+      );
+      return;
+    }
+    commitPoints(editor.pendingPoints, editor.pendingPicks);
+    dispatchEditor({ type: 'FINISH_RUN' });
+  }, [
+    commitPoints,
+    editor.activeTool,
+    editor.pendingPicks,
+    editor.pendingPoints,
+  ]);
+
   const runShortcut = useCallback(
     (command: ShortcutCommandId): void => {
+      // A tool is chosen by the registry rather than by a branch per tool: a
+      // new tool declares the shortcut it answers to and is reachable at once.
+      const chosen = EDITOR_TOOLS.find(
+        ({ shortcutId }) => shortcutId === command,
+      );
+      if (chosen !== undefined && command !== 'tool.select') {
+        dispatchEditor({ type: 'SET_TOOL', tool: chosen.id });
+        return;
+      }
       switch (command) {
         case 'tool.select':
           // Échap défait une chose à la fois, la plus récente d'abord :
@@ -1170,35 +1209,8 @@ function App() {
         case 'edit.cancel':
           dispatchEditor({ type: 'CANCEL' });
           return;
-        case 'tool.wall':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'WALL' });
-          return;
-        case 'tool.opening':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'OPENING' });
-          return;
-        case 'tool.dimension':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'DIMENSION' });
-          return;
-        case 'tool.network':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'NETWORK' });
-          return;
-        case 'tool.split':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'SPLIT' });
-          return;
-        case 'tool.rotate':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'ROTATE' });
-          return;
-        case 'tool.mirror':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'MIRROR' });
-          return;
-        case 'tool.offset':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'OFFSET' });
-          return;
-        case 'tool.join':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'JOIN' });
-          return;
-        case 'tool.trim':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'TRIM' });
+        case 'edit.finish':
+          finishRun();
           return;
         case 'edit.undo':
           undo();
@@ -1245,6 +1257,7 @@ function App() {
       deleteSelection,
       dispatchEditor,
       duplicateSelection,
+      finishRun,
       pasteClipboard,
       redo,
       transformSelection,

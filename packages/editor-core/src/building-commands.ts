@@ -739,6 +739,98 @@ function assemblyExists(project: Project, assemblyId: string | undefined) {
   );
 }
 
+/**
+ * How high a wall stands, as one decision rather than three fields.
+ *
+ * A wall either has a height of its own or reaches a storey above. Those are
+ * two shapes of the same wall and not two fields that may both be set: a patch
+ * that could leave a height behind on a wall reaching a level would persist a
+ * number nobody reads and that nothing keeps true.
+ */
+export type WallHeight =
+  | { readonly mode: 'EXPLICIT'; readonly heightMm: number }
+  | {
+      readonly mode: 'TO_LEVEL';
+      readonly topLevelId: string;
+      readonly topOffsetMm?: number;
+    };
+
+/**
+ * Sets how high a wall stands, dropping whatever the other shape carried.
+ *
+ * The domain has accepted `TO_LEVEL` walls since the beginning and no screen
+ * could produce one: a storey height changed under a wall built to it, and the
+ * wall stayed where it was.
+ */
+export class SetWallHeightCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly wallId: string,
+    readonly height: WallHeight,
+  ) {
+    super(`wall:height:${wallId}`, 'Modifier la hauteur d’un mur');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    const wall = level?.walls.find(({ id }) => id === this.wallId);
+    if (wall === undefined)
+      return rejected(`Le mur ${this.wallId} est introuvable.`);
+    if (this.height.mode === 'EXPLICIT') {
+      const errors = finitePositive(this.height.heightMm, 'La hauteur du mur');
+      return errors.length > 0 ? rejected(...errors) : ok();
+    }
+    const height = this.height;
+    const top = project.building.levels.find(
+      ({ id }) => id === height.topLevelId,
+    );
+    if (top === undefined)
+      return rejected(
+        `Le niveau supérieur ${height.topLevelId} est introuvable.`,
+      );
+    if (level !== undefined && top.elevationMm <= level.elevationMm)
+      return rejected(
+        `Le niveau ${top.name} n'est pas au-dessus de ${level.name} : un mur ne peut pas y monter.`,
+      );
+    if (
+      height.topOffsetMm !== undefined &&
+      !Number.isFinite(height.topOffsetMm)
+    )
+      return rejected('Le décalage en tête doit être un nombre fini.');
+    return ok();
+  }
+  protected apply(project: Project): Project {
+    const height = this.height;
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      walls: level.walls.map((wall) => {
+        if (wall.id !== this.wallId) return wall;
+        const {
+          heightMm: _height,
+          topLevelId: _top,
+          topOffsetMm: _offset,
+          ...rest
+        } = wall as Wall & {
+          heightMm?: number;
+          topLevelId?: string;
+          topOffsetMm?: number;
+        };
+        return (
+          height.mode === 'EXPLICIT'
+            ? { ...rest, heightMode: 'EXPLICIT', heightMm: height.heightMm }
+            : {
+                ...rest,
+                heightMode: 'TO_LEVEL',
+                topLevelId: height.topLevelId,
+                ...(height.topOffsetMm === undefined
+                  ? {}
+                  : { topOffsetMm: height.topOffsetMm }),
+              }
+        ) as Wall;
+      }),
+    }));
+  }
+}
+
 export class UpdateWallCommand extends BuildingCommand {
   constructor(
     readonly levelId: string,
