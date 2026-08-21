@@ -14,6 +14,7 @@
       "ports": [
         {
           "id": "incoming",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "INCOMING",
           "position": {
@@ -24,12 +25,24 @@
         },
         {
           "id": "outgoing",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "OUTGOING",
           "position": {
             "x": 0,
             "y": 0,
             "z": -225
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "discipline": "ELECTRICAL",
+          "role": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 225
           }
         }
       ],
@@ -52,7 +65,21 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "ELECTRICAL_WORKING",
+          "frontMm": 700,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Zone de travail devant un tableau sous tension"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Ouverture de la porte et repérage des circuits"
+        }
+      ]
     },
     {
       "id": "generic-miniature-circuit-breaker",
@@ -68,6 +95,7 @@
       "ports": [
         {
           "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "INCOMING",
           "position": {
@@ -78,6 +106,7 @@
         },
         {
           "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "OUTGOING",
           "position": {
@@ -122,8 +151,20 @@
       "ports": [
         {
           "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "SUPPLY",
+          "position": {
+            "x": 0,
+            "y": -20,
+            "z": 0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "discipline": "ELECTRICAL",
+          "role": "EARTH",
           "position": {
             "x": 0,
             "y": -20,
@@ -150,7 +191,19 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 100,
+          "reason": "Débattement de la fiche"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la prise"
+        }
+      ]
     }
   ]
 }

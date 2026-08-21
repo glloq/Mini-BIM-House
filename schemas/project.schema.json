@@ -392,6 +392,10 @@
           "type": "string",
           "minLength": 1
         },
+        "definitionVersion": {
+          "type": "string",
+          "minLength": 1
+        },
         "name": {
           "type": "string"
         },

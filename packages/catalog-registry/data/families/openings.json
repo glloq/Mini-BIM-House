@@ -23,11 +23,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -54,11 +51,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -85,11 +79,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -116,11 +107,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -147,11 +135,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -178,11 +163,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -209,11 +191,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -240,11 +219,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -271,11 +247,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -302,11 +275,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -333,11 +303,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -364,11 +331,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -395,11 +359,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -426,11 +387,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -457,11 +415,8 @@
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
     },
@@ -481,11 +436,8 @@
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       }
     },
     {
@@ -504,11 +456,8 @@
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       }
     },
     {
@@ -527,11 +476,8 @@
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       }
     },
     {
@@ -550,11 +496,8 @@
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       }
     },
     {
@@ -573,11 +516,8 @@
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       }
     },
     {
@@ -596,11 +536,8 @@
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       }
     },
     {
@@ -619,11 +556,8 @@
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       }
     },
     {
@@ -642,11 +576,8 @@
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       }
     },
     {
@@ -665,11 +596,8 @@
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       }
     },
     {
@@ -688,11 +616,8 @@
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLACEMENT": "READY",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       }
     },
     {
@@ -711,8 +636,7 @@
       "clearances": ["PHYSICAL", "OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
-        "MODEL": "NONE",
-        "PROPERTIES": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
     },
@@ -731,8 +655,7 @@
       "clearances": ["PHYSICAL", "OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
-        "MODEL": "NONE",
-        "PROPERTIES": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
     },
@@ -752,8 +675,7 @@
       "clearances": ["PHYSICAL", "OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
-        "MODEL": "NONE",
-        "PROPERTIES": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
     },
@@ -773,8 +695,7 @@
       "clearances": ["PHYSICAL", "OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
-        "MODEL": "NONE",
-        "PROPERTIES": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
     },
@@ -793,8 +714,7 @@
       "clearances": ["PHYSICAL", "OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
-        "MODEL": "NONE",
-        "PROPERTIES": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
     },
@@ -814,8 +734,7 @@
       "clearances": ["PHYSICAL", "OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
-        "MODEL": "NONE",
-        "PROPERTIES": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
     },
@@ -834,8 +753,7 @@
       "clearances": ["PHYSICAL", "OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
-        "MODEL": "NONE",
-        "PROPERTIES": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
     },
@@ -854,8 +772,7 @@
       "clearances": ["PHYSICAL", "OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
-        "MODEL": "NONE",
-        "PROPERTIES": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
     },
@@ -874,8 +791,7 @@
       "clearances": ["PHYSICAL", "OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
-        "MODEL": "NONE",
-        "PROPERTIES": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
     }

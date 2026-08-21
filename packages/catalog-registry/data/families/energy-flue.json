@@ -6,7 +6,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": ["PV_DC", "EARTH"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -23,9 +23,10 @@
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
+      },
+      "graphics": {
+        "planSymbol": "symbol-pv-module"
       }
     },
     {
@@ -50,9 +51,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -78,9 +77,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -106,9 +103,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -134,9 +129,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -162,9 +155,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -190,9 +181,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -218,9 +207,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -247,9 +234,10 @@
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
+      },
+      "graphics": {
+        "planSymbol": "symbol-inverter"
       }
     },
     {
@@ -274,9 +262,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -302,9 +288,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -330,9 +314,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -358,9 +340,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -386,9 +366,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -414,9 +392,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -442,9 +418,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -470,9 +444,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -498,9 +470,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -526,9 +496,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -554,9 +522,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -582,9 +548,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -594,7 +558,7 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "ports": ["BATTERY_DC", "CONTROL", "EARTH"],
       "calculators": [
         "battery",
         "electrical",
@@ -611,9 +575,11 @@
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
+      },
+      "optionalPorts": ["ELECTRICAL_AC"],
+      "graphics": {
+        "planSymbol": "symbol-battery"
       }
     },
     {
@@ -638,9 +604,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -666,9 +630,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -694,9 +656,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -722,9 +682,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -750,9 +708,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -778,9 +734,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -806,9 +760,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -834,9 +786,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -862,9 +812,7 @@
       ],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
     },
@@ -890,9 +838,7 @@
       ],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
     },
@@ -918,9 +864,7 @@
       ],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
     },
@@ -946,9 +890,7 @@
       ],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
     },
@@ -974,9 +916,7 @@
       ],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
     },
@@ -1002,9 +942,7 @@
       ],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
     },
@@ -1024,9 +962,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1045,9 +981,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1066,9 +1000,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1087,9 +1019,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1108,9 +1038,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1129,9 +1057,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1150,9 +1076,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1171,9 +1095,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1192,9 +1114,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1213,9 +1133,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1234,9 +1152,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1255,9 +1171,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1276,9 +1190,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1297,9 +1209,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1318,9 +1228,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     },
     {
@@ -1339,9 +1247,7 @@
       "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
-        "MODEL": "NONE",
-        "PORTS": "NONE",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "NONE"
       }
     }
   ]

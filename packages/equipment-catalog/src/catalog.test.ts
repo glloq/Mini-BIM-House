@@ -3,7 +3,7 @@ import {
   equipmentProperty,
   interpolatePerformance,
   queryEquipment,
-  resolveEquipmentInstance,
+  resolvePlacedEquipment,
   validateEquipmentCatalog,
   validateEquipmentDefinition,
 } from './catalog.js';
@@ -12,7 +12,7 @@ import {
   genericEquipment,
   genericEquipmentCatalog,
 } from './generic-catalog.js';
-import type { EquipmentDefinition, EquipmentInstance } from './types.js';
+import type { EquipmentDefinition, PlacedEquipment } from './types.js';
 
 const pump = () => genericEquipment('generic-circulator-pump')!;
 
@@ -146,32 +146,42 @@ describe('catalogue queries and instances', () => {
     ).toEqual(['generic-kitchen-sink']);
   });
 
-  it('resolves an instance and lets it override a definition property', () => {
+  it('resolves a placement and lets it override a definition property', () => {
     const definition = pump();
-    const instance: EquipmentInstance = {
+    const placed: PlacedEquipment = {
       id: 'pump-1',
       definitionId: definition.id,
       definitionVersion: definition.version,
-      position: { x: 0, y: 0, z: 0 },
-      rotationDeg: 0,
-      overrides: { nominalPowerW: 60 },
+      properties: { nominalPowerW: 60 },
     };
-    const resolved = resolveEquipmentInstance(instance, [definition]);
+    const resolved = resolvePlacedEquipment(placed, [definition]);
     expect(resolved.status).toBe('OK');
     expect(resolved.issues).toEqual([]);
-    expect(equipmentProperty(definition, instance, 'nominalPowerW')).toBe(60);
+    expect(equipmentProperty(definition, placed, 'nominalPowerW')).toBe(60);
     expect(equipmentProperty(definition, undefined, 'nominalPowerW')).toBe(45);
+  });
+
+  it('leaves the definition alone when the placement holds no scalar', () => {
+    // The model stores anything a file can hold on an instance; a list where a
+    // power is expected is not a power, and reading it would put something no
+    // calculation can use where it expects a number.
+    const definition = pump();
+    expect(
+      equipmentProperty(
+        definition,
+        { id: 'pump-1', properties: { nominalPowerW: [60] } },
+        'nominalPowerW',
+      ),
+    ).toBe(45);
   });
 
   it('warns when the catalogue has moved past the pinned version', () => {
     const definition = pump();
-    const resolved = resolveEquipmentInstance(
+    const resolved = resolvePlacedEquipment(
       {
         id: 'pump-1',
         definitionId: definition.id,
         definitionVersion: '0.9.0',
-        position: { x: 0, y: 0, z: 0 },
-        rotationDeg: 0,
       },
       [definition],
     );
@@ -180,15 +190,21 @@ describe('catalogue queries and instances', () => {
     ]);
   });
 
+  it('warns when a placement pins nothing at all', () => {
+    const definition = pump();
+    const resolved = resolvePlacedEquipment(
+      { id: 'pump-1', definitionId: definition.id },
+      [definition],
+    );
+    expect(resolved.status).toBe('OK');
+    expect(resolved.issues.map(({ code }) => code)).toEqual([
+      'EQUIPMENT_UNPINNED_DEFINITION',
+    ]);
+  });
+
   it('reports an unknown definition instead of falling back', () => {
-    const resolved = resolveEquipmentInstance(
-      {
-        id: 'pump-1',
-        definitionId: 'nope',
-        definitionVersion: '1.0.0',
-        position: { x: 0, y: 0, z: 0 },
-        rotationDeg: 0,
-      },
+    const resolved = resolvePlacedEquipment(
+      { id: 'pump-1', definitionId: 'nope', definitionVersion: '1.0.0' },
       genericEquipmentCatalog(),
     );
     expect(resolved.status).toBe('UNKNOWN');

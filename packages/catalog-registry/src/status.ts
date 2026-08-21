@@ -40,6 +40,33 @@ export type StatusValue = (typeof STATUS_VALUES)[number];
 
 export type FamilyStatus = Partial<Readonly<Record<StatusAxis, StatusValue>>>;
 
+/**
+ * The axes nobody may write down, because they are measured.
+ *
+ * Seventy-one families claimed `PLAN_SYMBOL: READY` and not one of them named
+ * a symbol; two hundred and eighty-three claimed `PORTS: READY` and eight of
+ * them were connected by things the object does not have. A status typed by
+ * hand is an intention, and an intention that has been green for months is
+ * worse than no status at all — it is the reason nobody looks.
+ *
+ * These five are derived from what the registries actually hold, every time
+ * they are asked. The rest — is it modelled, is it costed, does a rule read
+ * it — are judgements nothing can measure yet, and stay declared.
+ */
+export const MEASURED_AXES = [
+  'PROPERTIES',
+  'PORTS',
+  'PLACEMENT',
+  'PLAN_SYMBOL',
+  'GENERIC_DATA',
+  'TESTS',
+] as const satisfies readonly StatusAxis[];
+export type MeasuredAxis = (typeof MEASURED_AXES)[number];
+
+export function isMeasuredAxis(value: string): value is MeasuredAxis {
+  return (MEASURED_AXES as readonly string[]).includes(value);
+}
+
 export function isStatusAxis(value: string): value is StatusAxis {
   return (STATUS_AXES as readonly string[]).includes(value);
 }

@@ -16,10 +16,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -39,10 +37,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -62,10 +58,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -85,10 +79,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -108,10 +100,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -131,10 +121,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -154,10 +142,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -177,10 +163,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -200,10 +184,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -223,10 +205,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -246,10 +226,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -269,10 +247,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -292,10 +268,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -315,10 +289,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -338,10 +310,8 @@
       "propertySchema": "MATERIAL_INSULATION",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -361,10 +331,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -384,10 +352,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -407,10 +373,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -430,10 +394,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -453,10 +415,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -476,10 +436,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -499,10 +457,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -522,10 +478,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -545,10 +499,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -568,10 +520,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -591,10 +541,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -614,10 +562,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -637,10 +583,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -660,10 +604,8 @@
       "propertySchema": "MATERIAL_STRUCTURE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -683,10 +625,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -706,10 +646,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -729,10 +667,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -752,10 +688,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -775,10 +709,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -798,10 +730,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -821,10 +751,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -844,10 +772,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -867,10 +793,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -890,10 +814,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -913,10 +835,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -936,10 +856,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -959,10 +877,8 @@
       "propertySchema": "MATERIAL_FINISH",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -982,10 +898,8 @@
       "propertySchema": "MATERIAL_MEMBRANE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -1005,10 +919,8 @@
       "propertySchema": "MATERIAL_MEMBRANE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -1028,10 +940,8 @@
       "propertySchema": "MATERIAL_MEMBRANE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -1051,10 +961,8 @@
       "propertySchema": "MATERIAL_MEMBRANE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -1074,10 +982,8 @@
       "propertySchema": "MATERIAL_MEMBRANE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -1097,10 +1003,8 @@
       "propertySchema": "MATERIAL_MEMBRANE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -1120,10 +1024,8 @@
       "propertySchema": "MATERIAL_MEMBRANE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     },
@@ -1143,10 +1045,8 @@
       "propertySchema": "MATERIAL_MEMBRANE",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "GENERIC_DATA": "NONE",
         "CALCULATION": "PARTIAL",
-        "QUANTITIES": "READY"
+        "QUANTITIES": "PARTIAL"
       },
       "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     }

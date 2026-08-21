@@ -1,7 +1,7 @@
 # État de préparation à la bêta
 
 Ce fichier ne raconte pas l'histoire du projet : il dit où en est la version
-`0.2.0-beta.2` aujourd'hui. L'historique des passes d'audit et de leurs
+`0.3.0-beta.1` aujourd'hui. L'historique des passes d'audit et de leurs
 correctifs reste dans `IMPLEMENTATION_STATUS.md`, et ce qui a changé d'une
 version à l'autre dans `../CHANGELOG.md`.
 
@@ -18,6 +18,14 @@ lorsqu'il n'en transportait aucun, et les références d'un nœud de réseau
 étaient vérifiées une à une sans l'être ensemble. Les quatre sont corrigées et
 chacune a son test de non-régression ; c'est ce qui sépare la `beta.1` de la
 `beta.2`.
+
+Quatre passes d'audit ont suivi. Les trois premières ont porté sur ce que
+l'utilisateur fait — un poste de travail, les primitives de CAO, la maison
+plutôt que ses segments, les réseaux, les surcouches, le dossier de plans, les
+variantes, le terrain — et la quatrième sur la couche de données qui va
+remplir tout cela : sept registres, 518 familles, les catalogues, et surtout
+les contrôles qui empêchent de la remplir de travers. C'est ce qui sépare la
+`0.2.0-beta.2` de la `0.3.0-beta.1`.
 
 ## Les portes de la bêta
 

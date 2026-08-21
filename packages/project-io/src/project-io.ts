@@ -1,6 +1,8 @@
 import type { ProjectFile } from '@house-technical-designer/core-domain';
 import {
+  entityCollisions,
   isTextNote,
+  localCollisions,
   validateTextNote,
 } from '@house-technical-designer/core-domain';
 import validateProjectSchema from './generated-project-validator.js';
@@ -298,18 +300,21 @@ export function validateProjectReferences(
   // own list. Selection, overlays, dimensions and scenario paths all address
   // objects by identifier alone; two objects sharing one would make a click
   // ambiguous and a scenario point at either of them.
-  for (const [what, ids] of identifiedObjects(file))
-    for (const duplicate of repeated(ids))
-      issues.push({
-        path: `/project/${what}`,
-        message: `declares the identifier ${duplicate} more than once`,
-      });
-  for (const duplicate of repeated(
-    identifiedObjects(file).flatMap(([, ids]) => ids),
-  ))
+  // One index of every identified object, for every part of the application
+  // that addresses one. The list used to be written here, and it had fallen
+  // seven families behind the model: a stair and a saved view could share an
+  // identifier and nothing said so.
+  for (const { id, entities } of entityCollisions(file.project))
     issues.push({
-      path: '/project',
-      message: `uses the identifier ${duplicate} for more than one object`,
+      path: `/project/${entities[0]!.path}`,
+      message: `uses the identifier ${id} for more than one object: ${entities
+        .map(({ family }) => family)
+        .join(', ')}`,
+    });
+  for (const { id, entities } of localCollisions(file.project))
+    issues.push({
+      path: `/project/${entities[0]!.path}`,
+      message: `declares the identifier ${id} more than once inside the same parent`,
     });
   const materials = new Set(
     file.project.materialLibrary?.materials.map(({ id }) => id) ?? [],
@@ -646,72 +651,6 @@ export function validateProjectReferences(
     });
   });
   return issues;
-}
-
-/**
- * Every object the project identifies, by family.
- *
- * What is listed here is what the rest of the application can select, dimension
- * or address from a scenario — which is exactly the set that has to be free of
- * collisions.
- */
-function identifiedObjects(
-  file: ProjectFile,
-): readonly (readonly [string, readonly string[]])[] {
-  const levels = file.project.building.levels;
-  const perLevel = (
-    pick: (
-      level: (typeof levels)[number],
-    ) => readonly { readonly id: string }[],
-  ): readonly string[] =>
-    levels.flatMap((level) => pick(level).map(({ id }) => id));
-  return [
-    ['levels', levels.map(({ id }) => id)],
-    ['walls', perLevel(({ walls }) => walls)],
-    ['openings', perLevel(({ openings }) => openings)],
-    ['slabs', perLevel(({ slabs }) => slabs)],
-    ['roofs', perLevel(({ roofs }) => roofs)],
-    ['spaces', perLevel(({ spaces }) => spaces)],
-    ['annotations', perLevel(({ annotations }) => annotations)],
-    ['zones', file.project.building.zones?.map(({ id }) => id) ?? []],
-    ['assemblies', file.project.assemblies?.map(({ id }) => id) ?? []],
-    [
-      'materials',
-      file.project.materialLibrary?.materials.map(({ id }) => id) ?? [],
-    ],
-    ['equipment', file.project.equipment?.map(({ id }) => id) ?? []],
-    ['systems', file.project.systems?.map(({ id }) => id) ?? []],
-    [
-      'systems/nodes',
-      (file.project.systems ?? []).flatMap(({ nodes }) =>
-        nodes.map(({ id }) => id),
-      ),
-    ],
-    [
-      'systems/ports',
-      (file.project.systems ?? []).flatMap(({ ports }) =>
-        ports.map(({ id }) => id),
-      ),
-    ],
-    [
-      'systems/edges',
-      (file.project.systems ?? []).flatMap(({ edges }) =>
-        edges.map(({ id }) => id),
-      ),
-    ],
-    ['scenarios', file.project.scenarios?.map(({ id }) => id) ?? []],
-  ];
-}
-
-/** Identifiers a list declares more than once. */
-function repeated(ids: readonly string[]): readonly string[] {
-  const seen = new Set<string>();
-  const twice = new Set<string>();
-  for (const id of ids) {
-    if (seen.has(id)) twice.add(id);
-    seen.add(id);
-  }
-  return [...twice];
 }
 
 export function serializeProjectFile(file: unknown, indentation = 2): string {

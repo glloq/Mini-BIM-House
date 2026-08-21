@@ -181,10 +181,23 @@ export interface RegulatoryContext {
   readonly enabledRulePacks: readonly JsonValue[];
 }
 
+/**
+ * A catalogue entry as this project holds it.
+ *
+ * The project keeps its own copy rather than pointing at a catalogue that can
+ * move underneath it: a file has to open the same way in two years. What it
+ * records of the entry it came from — the family it belongs to and the version
+ * it was copied at — is what lets the application say « the catalogue has moved
+ * on since » instead of quietly designing with different figures.
+ */
 export interface EquipmentDefinition {
   readonly id: string;
+  /** The family of the master nomenclature, when the entry came from one. */
+  readonly familyId?: string;
   readonly kind: string;
   readonly catalogKind: 'GENERIC' | 'PRODUCT' | 'CUSTOM';
+  /** The version of the catalogue entry this copy was taken from. */
+  readonly version?: string;
   readonly properties: Readonly<Record<string, JsonValue>>;
 }
 export interface ScenarioOverride {

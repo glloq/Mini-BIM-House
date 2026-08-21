@@ -10,9 +10,7 @@
       "propertySchema": "PIPE_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -26,9 +24,7 @@
       "propertySchema": "PIPE_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -42,9 +38,7 @@
       "propertySchema": "PIPE_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -58,9 +52,7 @@
       "propertySchema": "PIPE_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -74,9 +66,7 @@
       "propertySchema": "PIPE_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -90,9 +80,7 @@
       "propertySchema": "DUCT_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -106,9 +94,7 @@
       "propertySchema": "DUCT_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -122,9 +108,7 @@
       "propertySchema": "DUCT_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -138,9 +122,7 @@
       "propertySchema": "CABLE_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -154,9 +136,7 @@
       "propertySchema": "CABLE_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -170,9 +150,7 @@
       "propertySchema": "CABLE_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -186,9 +164,7 @@
       "propertySchema": "CABLE_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -202,9 +178,7 @@
       "propertySchema": "CONDUIT_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -218,9 +192,7 @@
       "propertySchema": "CONDUIT_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -234,9 +206,7 @@
       "propertySchema": "CABLE_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     },
@@ -250,9 +220,7 @@
       "propertySchema": "FLUE_PRODUCT",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "READY",
-        "NETWORK": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "NETWORK": "PARTIAL"
       },
       "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
     }

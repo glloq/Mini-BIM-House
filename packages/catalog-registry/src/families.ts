@@ -1,9 +1,15 @@
+import { isHostType, HOST_TYPES } from '@house-technical-designer/core-domain';
 import type { ClearanceZone } from './clearances.js';
 import type { DataDomain, DataRegistry } from './registries.js';
 import { isClearanceZone } from './clearances.js';
 import { isDataDomain, isDataRegistry } from './registries.js';
 import { isPortType } from './port-types.js';
-import { isStatusAxis, isStatusValue, type FamilyStatus } from './status.js';
+import {
+  isMeasuredAxis,
+  isStatusAxis,
+  isStatusValue,
+  type FamilyStatus,
+} from './status.js';
 
 /** Where an object of this family may be put. */
 export interface FamilyPlacement {
@@ -47,7 +53,18 @@ export interface FamilyDefinition {
    * priority is an order of work, not an importance: nothing here is optional.
    */
   readonly priority: number;
+  /**
+   * What an object of this family is always connected by.
+   *
+   * A radiator without its flow and its return is not a radiator that has
+   * been simplified, it is one that cannot be routed. What is genuinely
+   * conditional — the dimming line of a luminaire, the condensate drain of a
+   * heat pump — belongs in `optionalPorts`, so that requiring the rest stays
+   * meaningful.
+   */
   readonly ports?: readonly string[];
+  /** What such an object may also be connected by, without having to be. */
+  readonly optionalPorts?: readonly string[];
   /** The calculation modules that read an object of this family. */
   readonly calculators?: readonly string[];
   readonly placement?: FamilyPlacement;
@@ -69,11 +86,12 @@ export interface FamilyDefinition {
  */
 export interface FamilyCandidate extends Omit<
   FamilyDefinition,
-  'domain' | 'registry' | 'ports' | 'clearances' | 'status'
+  'domain' | 'registry' | 'ports' | 'optionalPorts' | 'clearances' | 'status'
 > {
   readonly domain: string;
   readonly registry: string;
   readonly ports?: readonly string[];
+  readonly optionalPorts?: readonly string[];
   readonly clearances?: readonly string[];
   readonly status?: Readonly<Record<string, string>>;
 }
@@ -112,6 +130,12 @@ export function validateFamily(
     at('priority', 'must be a wave number of at least one');
   for (const [index, port] of (family.ports ?? []).entries())
     if (!isPortType(port)) at(`ports/${index}`, `unknown port type ${port}`);
+  for (const [index, port] of (family.optionalPorts ?? []).entries()) {
+    if (!isPortType(port))
+      at(`optionalPorts/${index}`, `unknown port type ${port}`);
+    else if ((family.ports ?? []).includes(port))
+      at(`optionalPorts/${index}`, `${port} is already required`);
+  }
   for (const [index, zone] of (family.clearances ?? []).entries())
     if (!isClearanceZone(zone))
       at(`clearances/${index}`, `unknown clearance zone ${zone}`);
@@ -122,6 +146,13 @@ export function validateFamily(
     if (!isStatusAxis(axis)) at(`status/${axis}`, `unknown status axis`);
     else if (!isStatusValue(value))
       at(`status/${axis}`, `unknown status value ${value}`);
+    // Seventy-one families declared a plan symbol was ready and not one of
+    // them named a symbol. An axis that can be measured is measured.
+    else if (isMeasuredAxis(axis))
+      at(
+        `status/${axis}`,
+        'is measured from the registries and must not be written down',
+      );
   }
   for (const [key, symbolId] of Object.entries(family.graphics ?? {}))
     if (typeof symbolId === 'string' && !known.symbols.has(symbolId))
@@ -137,5 +168,17 @@ export function validateFamily(
     family.registry === 'EQUIPMENT' || family.registry === 'OPENING';
   if (placeable && family.placement === undefined)
     at('placement', 'a placed family must say what it may be fixed to');
+  // « Fixed to a wall » only means something if the application knows what a
+  // wall is. A free string here would let `WALL`, `Wall` and `MUR` all be
+  // written, none of them matching anything the editor can offer.
+  const hosts = family.placement?.allowedHosts ?? [];
+  if (family.placement !== undefined && hosts.length === 0)
+    at('placement/allowedHosts', 'must name at least one support');
+  for (const [index, host] of hosts.entries())
+    if (!isHostType(host))
+      at(
+        `placement/allowedHosts/${index}`,
+        `unknown support ${host}; the supports are ${HOST_TYPES.join(', ')}`,
+      );
   return issues;
 }

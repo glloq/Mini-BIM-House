@@ -1,6 +1,6 @@
 import type {
   EquipmentDefinition,
-  EquipmentInstance,
+  PlacedEquipment,
   EquipmentIssue,
   EquipmentPropertyValue,
   PerformanceCurve,
@@ -245,24 +245,40 @@ export function queryEquipment(
     );
 }
 
-/** Reads an instance property, letting an instance override the definition. */
+/**
+ * Reads a property of a placed thing, letting it override its model.
+ *
+ * Only a scalar overrides: a list or an object where a value is expected is
+ * not a value of this equipment, and taking it would put something a
+ * calculation cannot read where it expects a number.
+ */
 export function equipmentProperty(
   definition: EquipmentDefinition,
-  instance: EquipmentInstance | undefined,
+  placed: PlacedEquipment | undefined,
   property: string,
 ): EquipmentPropertyValue | undefined {
-  return instance?.overrides?.[property] ?? definition.properties[property];
+  const override = placed?.properties?.[property];
+  if (
+    typeof override === 'string' ||
+    typeof override === 'number' ||
+    typeof override === 'boolean'
+  )
+    return override;
+  return definition.properties[property];
 }
 
 /**
- * Resolves an instance against a catalogue.
+ * Resolves a placed thing against a catalogue.
  *
  * A version mismatch is reported rather than silently accepted: the project
- * recorded which definition version it was designed with, and the interface must
- * be able to tell the user that the catalogue moved on.
+ * recorded which definition version it was designed with, and the interface
+ * must be able to tell the user that the catalogue moved on. A placement that
+ * pinned nothing is reported too — not as an error, since older files have
+ * none, but so that « designed with which figures? » has an answer other than
+ * « whichever ones are loaded today ».
  */
-export function resolveEquipmentInstance(
-  instance: EquipmentInstance,
+export function resolvePlacedEquipment(
+  placed: PlacedEquipment,
   definitions: readonly EquipmentDefinition[],
 ):
   | {
@@ -271,28 +287,43 @@ export function resolveEquipmentInstance(
       readonly issues: readonly EquipmentIssue[];
     }
   | { readonly status: 'UNKNOWN'; readonly issues: readonly EquipmentIssue[] } {
-  const definition = definitions.find(({ id }) => id === instance.definitionId);
+  const definition = definitions.find(({ id }) => id === placed.definitionId);
   if (definition === undefined)
     return {
       status: 'UNKNOWN',
       issues: [
         issue(
           'EQUIPMENT_UNKNOWN_DEFINITION',
-          `/${instance.id}/definitionId`,
+          `/${placed.id}/definitionId`,
           'ERROR',
-          `No catalogue entry ${instance.definitionId}.`,
+          placed.definitionId === undefined
+            ? 'Placement names no catalogue entry.'
+            : `No catalogue entry ${placed.definitionId}.`,
+        ),
+      ],
+    };
+  if (placed.definitionVersion === undefined)
+    return {
+      status: 'OK',
+      definition,
+      issues: [
+        issue(
+          'EQUIPMENT_UNPINNED_DEFINITION',
+          `/${placed.id}/definitionVersion`,
+          'WARNING',
+          `Placement of ${definition.id} records no catalogue version; it will follow the catalogue wherever it goes.`,
         ),
       ],
     };
   const issues =
-    definition.version === instance.definitionVersion
+    definition.version === placed.definitionVersion
       ? []
       : [
           issue(
             'EQUIPMENT_DEFINITION_VERSION_MISMATCH',
-            `/${instance.id}/definitionVersion`,
+            `/${placed.id}/definitionVersion`,
             'WARNING',
-            `Instance pins ${instance.definitionId}@${instance.definitionVersion} while the catalogue offers ${definition.version}.`,
+            `Placement pins ${placed.definitionId}@${placed.definitionVersion} while the catalogue offers ${definition.version}.`,
           ),
         ];
   return { status: 'OK', definition, issues };

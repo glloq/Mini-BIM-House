@@ -14,6 +14,7 @@
       "ports": [
         {
           "id": "cold",
+          "portTypeId": "WATER_COLD",
           "discipline": "WATER",
           "role": "COLD_INLET",
           "position": {
@@ -25,6 +26,7 @@
         },
         {
           "id": "hot",
+          "portTypeId": "WATER_HOT",
           "discipline": "WATER",
           "role": "HOT_OUTLET",
           "position": {
@@ -36,6 +38,7 @@
         },
         {
           "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "SUPPLY",
           "position": {
@@ -65,7 +68,20 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès au groupe de sécurité et à la résistance"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 600,
+          "aboveMm": 300,
+          "reason": "Dépose de la résistance et de l’anode"
+        }
+      ]
     },
     {
       "id": "generic-kitchen-sink",
@@ -81,6 +97,7 @@
       "ports": [
         {
           "id": "cold",
+          "portTypeId": "WATER_COLD",
           "discipline": "WATER",
           "role": "COLD",
           "position": {
@@ -92,6 +109,7 @@
         },
         {
           "id": "hot",
+          "portTypeId": "WATER_HOT",
           "discipline": "WATER",
           "role": "HOT",
           "position": {
@@ -103,6 +121,7 @@
         },
         {
           "id": "drain",
+          "portTypeId": "WASTEWATER",
           "discipline": "WASTEWATER",
           "role": "DRAIN",
           "position": {
@@ -133,7 +152,19 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Place de la personne devant l’évier"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 1100,
+          "reason": "Approche d’un fauteuil roulant"
+        }
+      ]
     },
     {
       "id": "generic-shower",
@@ -149,6 +180,7 @@
       "ports": [
         {
           "id": "cold",
+          "portTypeId": "WATER_COLD",
           "discipline": "WATER",
           "role": "COLD",
           "position": {
@@ -160,6 +192,7 @@
         },
         {
           "id": "hot",
+          "portTypeId": "WATER_HOT",
           "discipline": "WATER",
           "role": "HOT",
           "position": {
@@ -171,6 +204,7 @@
         },
         {
           "id": "drain",
+          "portTypeId": "WASTEWATER",
           "discipline": "WASTEWATER",
           "role": "DRAIN",
           "position": {
@@ -201,7 +235,19 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 600,
+          "reason": "Sortie de douche"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 1100,
+          "reason": "Transfert depuis un fauteuil roulant"
+        }
+      ]
     },
     {
       "id": "generic-washbasin",
@@ -217,6 +263,7 @@
       "ports": [
         {
           "id": "cold",
+          "portTypeId": "WATER_COLD",
           "discipline": "WATER",
           "role": "COLD",
           "position": {
@@ -228,6 +275,7 @@
         },
         {
           "id": "hot",
+          "portTypeId": "WATER_HOT",
           "discipline": "WATER",
           "role": "HOT",
           "position": {
@@ -239,6 +287,7 @@
         },
         {
           "id": "drain",
+          "portTypeId": "WASTEWATER",
           "discipline": "WASTEWATER",
           "role": "DRAIN",
           "position": {
@@ -269,7 +318,19 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 550,
+          "reason": "Place de la personne devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 1100,
+          "reason": "Approche d’un fauteuil roulant"
+        }
+      ]
     },
     {
       "id": "generic-wc",
@@ -285,6 +346,7 @@
       "ports": [
         {
           "id": "cold",
+          "portTypeId": "WATER_COLD",
           "discipline": "WATER",
           "role": "COLD",
           "position": {
@@ -296,6 +358,7 @@
         },
         {
           "id": "drain",
+          "portTypeId": "SOILWATER",
           "discipline": "WASTEWATER",
           "role": "DRAIN",
           "position": {
@@ -326,7 +389,21 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 600,
+          "leftMm": 200,
+          "rightMm": 200,
+          "reason": "Place de la personne assise"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "leftMm": 800,
+          "reason": "Transfert latéral depuis un fauteuil roulant"
+        }
+      ]
     }
   ]
 }

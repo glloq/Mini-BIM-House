@@ -47,6 +47,15 @@ export interface ComponentInstance {
   readonly category: ComponentCategory;
   /** The catalogue entry this instance stands for, when it stands for one. */
   readonly definitionId?: string;
+  /**
+   * The version of that entry the project was designed with.
+   *
+   * A catalogue is corrected, and a correction that reached an existing
+   * project without saying so would change a house nobody touched. Recording
+   * which version was placed is what lets the application report the
+   * difference rather than absorb it.
+   */
+  readonly definitionVersion?: string;
   /** What the user calls this one, when the definition's name is not enough. */
   readonly name?: string;
   readonly position: Point2D;
@@ -79,7 +88,8 @@ export type ComponentIssueCode =
   | 'INVALID_POSITION'
   | 'INVALID_ELEVATION'
   | 'INVALID_ROTATION'
-  | 'INVALID_CATEGORY';
+  | 'INVALID_CATEGORY'
+  | 'INVALID_DEFINITION_PIN';
 
 export interface ComponentIssue {
   readonly code: ComponentIssueCode;
@@ -117,6 +127,17 @@ export function validateComponentInstance(
       code: 'INVALID_CATEGORY',
       path: 'category',
       message: `must be one of ${COMPONENT_CATEGORIES.join(', ')}`,
+    });
+  // A version without an entry pins nothing: it is a claim about a catalogue
+  // this instance never named.
+  if (
+    component.definitionVersion !== undefined &&
+    component.definitionId === undefined
+  )
+    issues.push({
+      code: 'INVALID_DEFINITION_PIN',
+      path: 'definitionVersion',
+      message: 'names a version without naming a catalogue entry',
     });
   return issues;
 }

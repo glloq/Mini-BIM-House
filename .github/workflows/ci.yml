@@ -25,6 +25,10 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run validate:schemas
+      # The data has its own gate: a family naming a port nobody defined, or a
+      # catalogue entry whose properties are not the ones its schema declares,
+      # is wrong in a way no type-check and no unit test of the engine sees.
+      - run: npm run validate:catalog
       - run: npm run audit:licenses
       - run: npm test
       - run: npm run build

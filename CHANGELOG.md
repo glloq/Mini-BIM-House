@@ -5,6 +5,70 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.1 — non publiée
+
+Quatre passes d'audit depuis la `0.2.0-beta.2`. L'application est passée d'une
+page qui dessine des murs à un poste de travail : on y trouve un objet, on lit
+ce que son métier en dit, on le fait varier, on l'imprime. Et la couche de
+données qui va la remplir est en place — avec les contrôles qui empêchent de
+la remplir de travers.
+
+### Ajouté
+
+- un poste de travail plutôt qu'une page : palette de commandes, arbre du
+  projet, sélection par bande, modification de plusieurs objets à la fois,
+  saisie au curseur, cotes posées sur le dessin ;
+- les primitives de CAO qu'un dessinateur attend : pivoter, retourner, copier,
+  décaler, joindre, ajuster, aligner, scinder où l'on désigne ;
+- la maison plutôt que ses segments : escaliers, toitures décrites par ce qui
+  les enferme, éléments de structure, terrain et obstacles de parcelle, et ce
+  qui est **posé** dans la maison et non seulement catalogué ;
+- les réseaux dessinés là où ils passent, et les résultats des moteurs
+  projetés sur le plan en surcouches ;
+- un dossier de plans reproductible : vues enregistrées, feuilles, cartouches ;
+- une variante construite en pointant le plan ;
+- sept registres de données et une nomenclature de **518 familles**, en
+  données et non en TypeScript, avec les catalogues qui vont avec : 19 fiches
+  génériques et 66 produits de réseau ;
+- les dégagements réels — la famille dit quelles zones une chose possède, la
+  fiche dit jusqu'où chacune porte — et les conflits de volume entre deux
+  machines ;
+- `npm run validate:catalog`, qui vérifie toute la couche de données en une
+  seconde et qui est une étape de l'intégration continue.
+
+### Modifié
+
+- un composant posé enregistre `definitionId` **et** `definitionVersion` :
+  corriger une fiche ne change plus une maison que personne n'a touchée ;
+- les ports disent leur fluide, leur service, leur sens et leur mode de
+  raccordement ; ce qui ne peut pas exister est refusé en disant pourquoi ;
+- les supports sont une liste fermée dont l'éditeur dérive ses réponses, ce qui
+  a fait réapparaître les toitures complètes ;
+- six axes de statut ne se déclarent plus : ils se mesurent sur les registres.
+  Mille cent une déclarations écrites à la main ont été retirées.
+
+### Corrigé
+
+- un identifiant ne peut plus désigner deux objets de familles différentes :
+  l'index des entités du projet est unique et un test parcourt le fichier
+  entier pour prouver qu'aucune famille ne lui échappe ;
+- huit familles étaient raccordées par des choses que l'objet n'a pas — une VMC
+  simple flux n'a pas de côté soufflage, un module photovoltaïque ne produit
+  pas d'alternatif — et huit fiches taisaient des raccordements réels ;
+- une fiche déclarait le schéma `BATTERY_DEVICE` et portait un nom de
+  propriété que ce schéma ne connaît pas ; les deux fichiers étaient valides
+  séparément et rien ne les comparait ;
+- l'état de charge d'une batterie et le remplissage d'une cuve ont quitté le
+  catalogue : ce n'est pas ce qu'un produit est, c'est où il en est ;
+- le chargeur du catalogue réécrivait `STANDARD` par-dessus toute provenance,
+  ce qui transformait une valeur générique en chiffre normatif.
+
+### Documentation
+
+- `docs/DATA_REGISTRIES.md` décrit les registres, les ports, les dégagements,
+  les supports, la version posée et les axes mesurés ;
+- le `README` ne promet plus une publication qui n'a pas lieu.
+
 ## 0.2.0-beta.2 — non publiée
 
 Quatre cas d'intégrité relevés par un septième audit, chacun accompagné de son

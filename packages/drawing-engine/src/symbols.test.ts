@@ -23,9 +23,16 @@ describe('symbol library v1', () => {
       ),
     );
     expect(SYMBOL_LIBRARY_V1.version).toBe('1.0.0');
-    expect(disciplines).toEqual(
-      new Set(['ARCHITECTURE', 'WATER', 'VENTILATION', 'ELECTRICAL']),
-    );
+    // Coverage, not an inventory: the library gains a discipline whenever the
+    // catalogue gains a trade, and a test that pinned the exact set would fail
+    // on that rather than on anything being wrong.
+    for (const discipline of [
+      'ARCHITECTURE',
+      'WATER',
+      'VENTILATION',
+      'ELECTRICAL',
+    ])
+      expect(disciplines, discipline).toContain(discipline);
   });
 
   it('uses drawing scale for paper-space symbols and preserves semantics', () => {

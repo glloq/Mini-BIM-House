@@ -67,6 +67,28 @@ cents familles y restera longtemps, et un plan qui prétend le contraire est un
 plan auquel personne ne peut se fier. `VALIDATED` veut dire qu'un test le
 prouve, ce qui est la seule différence entre « écrit » et « qui marche ».
 
+**Six axes ne se déclarent pas.** `PROPERTIES`, `PORTS`, `PLACEMENT`,
+`PLAN_SYMBOL`, `GENERIC_DATA` et `TESTS` sont mesurés sur les registres à
+chaque question, et les écrire à la main est refusé par la validation. La
+raison est chiffrée : soixante-et-onze familles annonçaient
+`PLAN_SYMBOL: READY` sans qu'une seule nomme un symbole, et deux cent
+quatre-vingt-trois annonçaient `PORTS: READY` — dont huit étaient raccordées
+par des choses que l'objet n'a pas. Un statut tapé à la main est une
+intention, et une intention verte depuis des mois est pire que pas de statut
+du tout : c'est la raison pour laquelle plus personne ne regarde.
+
+Déclarer ne vaut pas connaître : une famille qui annonce des ports d'un type
+connu monte à `PARTIAL`, et il faut une fiche catalogue — quelqu'un qui a
+réellement modélisé une de ces choses — pour aller plus loin. `VALIDATED`
+veut dire qu'une fiche de cette famille passe le contrôle, donc que la suite
+de tests l'exécute.
+
+Les dix autres axes — est-ce modélisé, chiffré, porté par une règle — sont des
+jugements que rien ne sait encore mesurer, et restent déclarés. La repasse des
+518 familles les a remis à leur place : trois cent dix-sept familles
+d'équipement annonçaient `MODEL: READY` alors que le modèle contient un
+composant posé, ce qui est vrai de toutes et ne dit rien d'aucune.
+
 Tous les axes pèsent le même poids, délibérément : une famille qui a un symbole
 et pas de modèle n'est pas plus avancée qu'une famille qui a un modèle et pas
 de symbole, et pondérer reviendrait à décider à la place de celui qui fait le
@@ -104,13 +126,8 @@ Les vagues sont un ordre de travail, pas une importance :
   "domain": "HEATING",
   "registry": "EQUIPMENT",
   "priority": 4,
-  "ports": [
-    "HEATING_FLOW",
-    "HEATING_RETURN",
-    "ELECTRICAL_AC",
-    "CONDENSATE",
-    "CONTROL"
-  ],
+  "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC"],
+  "optionalPorts": ["CONDENSATE", "CONTROL"],
   "calculators": [
     "heating",
     "electrical",
@@ -155,6 +172,33 @@ La liste est fermée. Une chaîne libre voudrait dire que `HEATING_FLOW`,
 `heating-flow` et `FLOW_HEATING` existent tous les trois et qu'aucun ne se
 raccorde aux autres.
 
+Une famille sépare ce par quoi une chose est **toujours** raccordée
+(`ports`) de ce par quoi elle **peut** l'être (`optionalPorts`). La
+distinction n'est pas cosmétique : c'est elle qui permet d'exiger les
+premiers. Un radiateur sans départ ni retour n'est pas un radiateur simplifié,
+c'est un radiateur qu'aucun réseau ne peut atteindre ; la ligne de commande
+d'un luminaire, elle, existe ou non selon l'installation. Tant que les deux
+étaient dans la même liste, aucune des deux ne pouvait être vérifiée.
+
+## Le contrôle des données
+
+```
+npm run validate:catalog
+```
+
+Un seul passage sur toute la couche de données : chaque famille contre les
+registres qu'elle nomme, chaque fiche du catalogue contre sa famille et son
+schéma, chaque produit réseau contre le sien. Il s'exécute en une seconde et
+il est une étape de l'intégration continue.
+
+C'est le contrôle qui manquait, et l'audit a dit précisément pourquoi il
+comptait : la batterie déclarait le schéma `BATTERY_DEVICE` et portait
+`maxChargePowerKW` là où le schéma dit `maximumChargePowerW`. Les deux
+fichiers étaient valides séparément, la famille annonçait
+`GENERIC_DATA: READY`, et l'intégration était verte — parce que rien ne
+comparait les deux. Six cents fiches ajoutées par-dessus auraient été six
+cents fiches que personne n'avait comparées à quoi que ce soit.
+
 ## Les propriétés : d'où vient la valeur
 
 Chaque propriété déclare sa source :
@@ -187,6 +231,49 @@ d'entretien se partage avec un couloir et pas avec un mur ; une prise d'air ne
 se partage pas avec un rejet ; une distance aux matériaux combustibles est une
 règle de sécurité et non un confort. Une seule liste de « dégagement en
 millimètres » ne peut rien dire de tout cela.
+
+La famille dit **quelles** zones une chose possède — toute PAC air/eau a une
+prise d'air et un rejet. La fiche dit **jusqu'où** chacune porte, parce que
+c'est la machine qui demande deux mètres devant son ventilateur et cent
+millimètres derrière :
+
+```json
+"clearances": [
+  { "zone": "AIR_EXHAUST", "frontMm": 2000, "reason": "Soufflage du ventilateur" },
+  { "zone": "SERVICE", "frontMm": 1000, "aboveMm": 500, "reason": "Dépose du capot" }
+]
+```
+
+Les côtés sont locaux à l'objet : une rotation les emporte avec lui.
+`clearanceZones()` en déduit les volumes réels d'un objet posé — jamais
+enregistrés, puisqu'ils sont la fiche et la pose vues ensemble — et
+`clearanceConflicts()` dit lesquels se disputent le même volume, avec la
+raison. Le mètre carré devant une chaudière et celui devant un lave-linge
+peuvent être le même : une personne s'y tient, jamais dans les deux à la fois.
+Le volume où une machine prend son air et celui où une autre rejette le sien ne
+le peuvent pas, quelle que soit la distance entre les deux.
+
+## Les supports
+
+`allowedHosts` était une chaîne libre : `WALL`, `Wall` et `MUR` pouvaient tous
+être écrits, et aucun ne correspondait à quoi que ce soit que l'éditeur sache
+proposer. La liste est fermée — `WALL`, `SLAB`, `CEILING`, `ROOF`, `SITE`,
+`OPENING`, `DISTRIBUTION_BOARD` — et l'éditeur en déduit les supports d'un
+niveau plutôt que d'en tenir une seconde liste. Une dalle répond pour deux :
+elle est un plancher vue de dessus et un plafond vue de dessous. Un plafond
+n'est pas un objet, le terrain non plus — ce qui se pose dessus n'a pas d'hôte.
+
+C'est ce qui a fait réapparaître les toitures complètes : elles étaient
+absentes de la liste tenue à la main, si bien qu'une fenêtre de toit pouvait
+être dessinée sur une toiture que l'éditeur refusait ensuite de reconnaître.
+
+## La version posée
+
+Une fiche corrigée ne doit pas changer une maison que personne n'a touchée. Un
+composant posé enregistre donc `definitionId` **et** `definitionVersion` : ce
+n'est pas l'utilisateur qui les saisit, c'est l'application qui note quelle
+version il a choisie. `resolvePlacedEquipment()` compare les deux et signale
+l'écart au lieu de l'absorber.
 
 ## Les catalogues
 

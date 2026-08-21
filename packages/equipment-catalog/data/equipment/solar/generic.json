@@ -14,6 +14,7 @@
       "ports": [
         {
           "id": "dc",
+          "portTypeId": "PV_DC_INPUT",
           "discipline": "ELECTRICAL",
           "role": "DC",
           "position": {
@@ -24,8 +25,20 @@
         },
         {
           "id": "ac",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 275
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "discipline": "ELECTRICAL",
+          "role": "EARTH",
           "position": {
             "x": 0,
             "y": 0,
@@ -53,7 +66,16 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "aboveMm": 300,
+          "belowMm": 300,
+          "reason": "Accès aux bornes et ventilation du dissipateur"
+        }
+      ]
     },
     {
       "id": "generic-pv-module",
@@ -69,8 +91,20 @@
       "ports": [
         {
           "id": "dc",
+          "portTypeId": "PV_DC",
           "discipline": "ELECTRICAL",
           "role": "DC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -861
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "discipline": "ELECTRICAL",
+          "role": "EARTH",
           "position": {
             "x": 0,
             "y": 0,
@@ -99,7 +133,14 @@
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-      }
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Nettoyage et dépose du module"
+        }
+      ]
     }
   ]
 }
