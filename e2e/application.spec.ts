@@ -1035,6 +1035,61 @@ test('draws a wall of a typed length, at the cursor', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('chains a run of walls entirely from the typed fields', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  await expect(walls).toHaveCount(6);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+
+  await page.getByRole('button', { name: 'Mur continu', exact: true }).click();
+  await canvas.click({ position: { x: 80, y: 320 } });
+  const dynamic = page.locator('.dynamic-input');
+  await expect(dynamic).toBeVisible();
+
+  // Enter placed the point and, on the second one, also ended the run: a chain
+  // drawn from the fields could never have three corners. Placing a point and
+  // finishing a run are two decisions, so they are two gestures.
+  for (const [lengthMm, angleDeg] of [
+    ['3000', '0'],
+    ['2000', '90'],
+    ['3000', '180'],
+  ] as const) {
+    await page.getByLabel('Longueur du tracé').fill(lengthMm);
+    await page.getByLabel('Angle du tracé').fill(angleDeg);
+    await page.keyboard.press('Enter');
+  }
+  await expect(dynamic).toBeVisible();
+  await expect(page.locator('.canvas-status')).toContainText('4 point(s)');
+
+  await dynamic.getByRole('button', { name: /Terminer/ }).click();
+  await expect(page.getByRole('status')).toContainText('Ajouter 3 murs');
+  await expect(walls).toHaveCount(9);
+  expect(errors).toEqual([]);
+});
+
+test('offers only the field the tool actually takes', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+
+  // An axis of symmetry has a direction that matters and a length that does
+  // not; the tool has always said so, and both fields were shown all the same.
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await canvas.click({ position: { x: 200, y: 300 } });
+  await page.getByRole('button', { name: 'Miroir', exact: true }).click();
+  await canvas.click({ position: { x: 120, y: 200 } });
+  const dynamic = page.locator('.dynamic-input');
+  await expect(dynamic).toBeVisible();
+  await expect(page.getByLabel('Angle du tracé')).toBeVisible();
+  await expect(page.getByLabel('Longueur du tracé')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
 test('edits a measurement written on the drawing itself', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);

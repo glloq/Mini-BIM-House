@@ -96,6 +96,29 @@ export function isCurrentRun(
 }
 
 /**
+ * Whether the results have to be computed again.
+ *
+ * Seventeen modules run on every change of the project, and they used to run
+ * again on every change of anything: opening the calculations tab with an
+ * overlay already showing, switching to the checks and back, renaming a saved
+ * view. None of that changes a number, and all of it paid for the whole set.
+ *
+ * A run already made for this project, this revision and this climate is the
+ * answer; asking again would produce the same one. What forces a fresh run is
+ * the user asking for one, which is what the generation counts.
+ */
+export function needsRecalculation(
+  run: CalculationRun | undefined,
+  project: Project,
+  climate: readonly ClimateDataset[],
+  generation: number,
+  lastGeneration: number,
+): boolean {
+  if (generation !== lastGeneration) return true;
+  return !isCurrentRun(run, project, climate);
+}
+
+/**
  * Runs every project-driven module against the current project.
  *
  * A module whose inputs the project cannot supply is reported as missing input

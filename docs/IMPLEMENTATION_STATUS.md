@@ -1574,6 +1574,55 @@ stocke pas est refusée comme avant : la longueur et l'angle d'un mur se lisent
 sur ses deux points, et un scénario écrivant `walls/x/lengthMm` remplirait un
 champ que rien ne lit.
 
+### Saisie dynamique : placer un point n'est pas terminer un tracé
+
+Deux défauts d'un même champ. Le premier : un outil déclare ce qu'il accepte —
+l'outil Miroir prend un angle et pas de longueur, parce qu'un axe a une
+direction et pas de bout — et les deux champs étaient affichés quand même.
+Taper une longueur dans un outil qui l'ignore, c'est regarder une valeur ne rien
+faire. Le champ suit maintenant la déclaration.
+
+Le second : Entrée plaçait le point et, dès qu'il y en avait assez pour l'outil,
+terminait aussi le tracé. Sur un mur continu — dont personne ne connaît le
+nombre de coins à l'avance — une chaîne saisie au clavier ne pouvait donc jamais
+avoir trois angles. Entrée place un point, Ctrl+Entrée ou le bouton « Terminer »
+achève le tracé : ce sont deux décisions, ce sont deux gestes.
+
+Au passage, les champs ne traversent plus le plan : cliquer dans la case
+Longueur posait aussi un point sur le dessin, parce que la surface de dessin
+reçoit tout ce qu'on presse au-dessus d'elle.
+
+### Dix analyses qui colorent vraiment quelque chose
+
+Une analyse nomme les objets par identifiant, le plan les nomme par identifiant,
+et rien ne force les deux chaînes à être la même. Quand elles diffèrent,
+l'analyse s'exécute, la légende s'affiche, et pas une ligne du dessin ne change
+de couleur — ce qui se lit exactement comme « rien à signaler ».
+
+Les dix analyses sont donc désormais exécutées pour de bon sur la maison de
+référence, et chacune doit nommer des objets que le plan dessine et en colorer
+au moins un. Une analyse que la maison de référence ne peut pas produire est
+listée explicitement, pour qu'une disparition silencieuse se voie.
+
+### Les calculs ne se refont plus pour rien
+
+Les dix-sept modules se relançaient à chaque changement du projet — et à chaque
+changement de quoi que ce soit : ouvrir l'onglet Calculs avec une analyse déjà
+affichée, passer aux Vérifications et revenir, renommer une vue enregistrée.
+Rien de tout cela ne change un nombre, et tout cela payait la série complète.
+Un résultat déjà obtenu pour ce projet, cette révision et ce climat est la
+réponse ; seule une demande explicite de recalcul force une nouvelle série.
+
+### Une maison qu'on ne peut plus appeler petite
+
+La maison de référence a six murs et trois pièces, et ce que coûte la vue en
+plan sur six murs ne dit rien de ce qu'elle coûte sur six cents — or elle est
+reconstruite à chaque mouvement du curseur. Une grande maison dérivée — trois
+niveaux, quarante pièces, 240 murs — sert maintenant de charge de mesure et de
+test : un niveau se redessine en 2,1 ms, les vérifications des trois niveaux en
+7,6 ms, et chaque mur comme chaque pièce atteint bien le dessin. Les chiffres
+sont consignés dans `PERFORMANCE_BASELINE.md`.
+
 ## Ce qui reste ouvert après les lots A à H
 
 Les huit lots du neuvième audit sont traités. Ce qui n'a pas été fait, et

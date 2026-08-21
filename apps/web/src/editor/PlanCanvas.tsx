@@ -65,6 +65,14 @@ export interface PlanCanvasProps {
     /** What each click landed on, for a tool that acts on objects. */
     picks: readonly (string | undefined)[],
   ) => void;
+  /**
+   * Ends a run of points, which is not the same as placing one.
+   *
+   * A tool whose number of points nobody knows in advance is finished by the
+   * user saying so; the fields on the drawing need the same way out as the
+   * canvas has.
+   */
+  readonly onFinishRun?: () => void;
   /** Carries the whole selection, once a drag on it has been released. */
   readonly onMoveSelection?: (delta: { x: number; y: number }) => void;
   /** Applies an edit typed on the drawing itself. */
@@ -129,6 +137,7 @@ export function PlanCanvas({
   editor,
   dispatch,
   onCommitPoints,
+  onFinishRun,
   wallThicknessMm,
   onEditGeometry,
   onMoveSelection,
@@ -1023,29 +1032,37 @@ export function PlanCanvas({
         />
       )}
 
-      {draftMeasures !== undefined && draftAtPx !== undefined && (
-        <DynamicInput
-          atPx={draftAtPx}
-          lengthMm={draftMeasures.lengthMm}
-          angleDeg={draftMeasures.angleDeg}
-          {...(editor.directInput.lengthMm === undefined
-            ? {}
-            : { lockedLengthMm: editor.directInput.lengthMm })}
-          {...(editor.directInput.angleDeg === undefined
-            ? {}
-            : { lockedAngleDeg: editor.directInput.angleDeg })}
-          onChange={(input) => dispatch({ type: 'SET_DIRECT_INPUT', input })}
-          onCommit={() => {
-            // Enter places the point the fields describe, exactly as clicking
-            // there would.
-            const points = [...editor.pendingPoints, draftTarget!];
-            dispatch({ type: 'COMMIT_POINT', point: draftTarget! });
-            if (points.length >= requiredPoints(editor.activeTool))
-              onCommitPoints(points, [...editor.pendingPicks, undefined]);
-          }}
-          onCancel={() => dispatch({ type: 'CANCEL' })}
-        />
-      )}
+      {draftMeasures !== undefined &&
+        draftAtPx !== undefined &&
+        accepts !== undefined && (
+          <DynamicInput
+            atPx={draftAtPx}
+            lengthMm={draftMeasures.lengthMm}
+            angleDeg={draftMeasures.angleDeg}
+            {...(editor.directInput.lengthMm === undefined
+              ? {}
+              : { lockedLengthMm: editor.directInput.lengthMm })}
+            {...(editor.directInput.angleDeg === undefined
+              ? {}
+              : { lockedAngleDeg: editor.directInput.angleDeg })}
+            accepts={accepts}
+            onChange={(input) => dispatch({ type: 'SET_DIRECT_INPUT', input })}
+            onCommit={() => {
+              // Enter places the point the fields describe, exactly as clicking
+              // there would — and, exactly as clicking there would, it does not
+              // end a run whose number of corners nobody has decided yet.
+              const points = [...editor.pendingPoints, draftTarget!];
+              dispatch({ type: 'COMMIT_POINT', point: draftTarget! });
+              if (isOpenEnded(editor.activeTool)) return;
+              if (points.length >= requiredPoints(editor.activeTool))
+                onCommitPoints(points, [...editor.pendingPicks, undefined]);
+            }}
+            {...(isOpenEnded(editor.activeTool) && onFinishRun !== undefined
+              ? { onFinish: onFinishRun }
+              : {})}
+            onCancel={() => dispatch({ type: 'CANCEL' })}
+          />
+        )}
 
       {rendered.status === 'EMPTY' && (
         <div className="empty-state">

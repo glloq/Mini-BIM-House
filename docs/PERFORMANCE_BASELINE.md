@@ -68,3 +68,35 @@ lignes, mesurés sur des milliers d'échantillons, sont nettement plus stables.
 Aucun seuil n'est appliqué en intégration continue : ces valeurs sont un point de
 comparaison, et un seuil calibré sur cette machine produirait des échecs
 instables ailleurs.
+
+## La maison qu'on ne peut plus appeler petite
+
+La baseline ci-dessus mesure des charges synthétiques : cent chemins, mille
+primitives, cinq cents segments. Ce qu'elle ne mesurait pas, c'est un bâtiment.
+La maison de référence a six murs et trois pièces, et ce que coûte la vue en
+plan sur six murs ne dit rien de ce qu'elle coûte sur six cents — or la vue en
+plan est reconstruite à chaque mouvement du curseur.
+
+`largeHouse(3, 40)` produit trois niveaux de quarante pièces, soit 240 murs et
+120 pièces : la taille d'un grand logement ou d'un petit collectif. Elle est
+dérivée et non stockée, donc elle ne peut pas dériver du domaine qu'elle est
+censée éprouver, et un test vérifie qu'elle reste un projet que le lecteur
+accepte.
+
+| Benchmark                                   | Latence moyenne |      Débit | Dispersion (rme) | Échantillons |
+| ------------------------------------------- | --------------: | ---------: | ---------------: | -----------: |
+| Vue en plan d'un niveau de la grande maison |        2,114 ms |   473 op/s |          ±3,27 % |          237 |
+| Vue en plan de la maison de référence       |        0,204 ms | 4 906 op/s |          ±3,49 % |        2 453 |
+| Vérifications sur toute la grande maison    |        7,649 ms |   131 op/s |          ±5,34 % |           66 |
+
+### Lecture
+
+Un niveau de quarante pièces se redessine en 2,1 ms : dix fois la maison de
+référence pour quarante fois les objets, ce qui veut dire que le coût suit le
+nombre d'objets et non pire. Le budget d'une image à 60 Hz est de 16,7 ms, donc
+le plan se reconstruit entre deux images avec de la marge, sans travail
+d'arrière-plan et sans cache.
+
+Les vérifications sur les trois niveaux tiennent en 7,6 ms. Elles ne sont pas
+sur le chemin du dessin — elles s'exécutent quand on ouvre l'onglet — mais elles
+reconstruisent une vue en plan par niveau, ce qui est ce qu'elles coûtent.
