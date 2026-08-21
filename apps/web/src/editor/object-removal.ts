@@ -6,7 +6,9 @@ import {
   DeleteWallCommand,
   ProjectEditorCommand,
   RemoveComponentCommand,
+  RemoveSiteObstacleCommand,
   RemoveStairCommand,
+  RemoveStructuralMemberCommand,
   RemoveNetworkNodeCommand,
   RemoveRoofCommand,
   RemoveRoofStructureCommand,
@@ -146,4 +148,18 @@ export const roofStructureRemoval: RemovalProvider = (
     ({ id }) => id === objectId,
   )
     ? new RemoveRoofStructureCommand(levelId, objectId)
+    : undefined;
+
+export const structureRemoval: RemovalProvider = (
+  project,
+  levelId,
+  objectId,
+) =>
+  (levelOf(project, levelId)?.structure ?? []).some(({ id }) => id === objectId)
+    ? new RemoveStructuralMemberCommand(levelId, objectId)
+    : undefined;
+
+export const siteRemoval: RemovalProvider = (project, _levelId, objectId) =>
+  (project.site.obstacles ?? []).some(({ id }) => id === objectId)
+    ? new RemoveSiteObstacleCommand(objectId)
     : undefined;

@@ -2173,3 +2173,52 @@ test('builds a variant by pointing at the plan', async ({ page }) => {
   await expect(page.getByRole('status')).toContainText('ne peut pas encore');
   expect(errors).toEqual([]);
 });
+
+test('draws the ground the house sits on and its structure', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+
+  // The site has held a parcel since the beginning and no screen could draw
+  // one.
+  await page.getByRole('button', { name: 'Terrain', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  await canvas.click({ position: { x: 20, y: 20 } });
+  await canvas.click({ position: { x: box.width - 20, y: 20 } });
+  await canvas.click({
+    position: { x: box.width - 20, y: box.height - 20 },
+  });
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[id="site:parcel"]')).toHaveCount(1);
+
+  // A column stands where it was put, and the plan shows its section.
+  await page.getByRole('button', { name: 'Poteau', exact: true }).click();
+  await page.getByLabel('Élément').selectOption('COLUMN');
+  const after = (await canvas.boundingBox())!;
+  await canvas.click({
+    position: { x: after.width * 0.4, y: after.height * 0.4 },
+  });
+  await expect(page.locator('[id^="structure:member-"]')).toHaveCount(1);
+
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  const selecting = (await canvas.boundingBox())!;
+  const column = (await page
+    .locator('[id^="structure:member-"]')
+    .first()
+    .boundingBox())!;
+  await canvas.click({
+    position: {
+      x: column.x - selecting.x + column.width / 2,
+      y: column.y - selecting.y + column.height / 2,
+    },
+  });
+  await expect(page.locator('.inspector-subject h3')).toContainText('Poteau');
+  // Nothing can be checked without a material, and the inspector says which.
+  await expect(page.locator('.inspector-subject')).toContainText(
+    'Aucun matériau',
+  );
+  expect(errors).toEqual([]);
+});

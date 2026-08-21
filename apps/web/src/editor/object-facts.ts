@@ -4,7 +4,10 @@ import {
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import type { Point2D } from '@house-technical-designer/geometry';
-import { roofEaveOutline } from '@house-technical-designer/core-domain';
+import {
+  roofEaveOutline,
+  structuralFootprint,
+} from '@house-technical-designer/core-domain';
 import { openingAnchor } from './grips.js';
 import type {
   ObjectBounds,
@@ -168,6 +171,51 @@ export function roofStructureBounds(
   );
   // The eaves, not the outline: what a roof covers is what reaches furthest.
   return roof === undefined ? undefined : extentOf(roofEaveOutline(roof).outer);
+}
+
+export function structureBounds(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): ObjectBounds | undefined {
+  const member = (levelOf(project, levelId)?.structure ?? []).find(
+    ({ id }) => id === objectId,
+  );
+  return member === undefined
+    ? undefined
+    : extentOf(structuralFootprint(member));
+}
+
+export function siteBounds(
+  project: Project,
+  _levelId: string,
+  objectId: string,
+): ObjectBounds | undefined {
+  if (objectId === 'site:parcel' && project.site.parcelBoundary !== undefined)
+    return extentOf(project.site.parcelBoundary.outer);
+  const obstacle = (project.site.obstacles ?? []).find(
+    ({ id }) => id === objectId,
+  );
+  return obstacle === undefined ? undefined : extentOf(obstacle.boundary.outer);
+}
+
+/** Structural members of the same kind and the same section. */
+export function similarStructure(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): readonly string[] {
+  const level = levelOf(project, levelId);
+  const member = (level?.structure ?? []).find(({ id }) => id === objectId);
+  if (level === undefined || member === undefined) return [];
+  return (level.structure ?? [])
+    .filter(
+      (candidate) =>
+        candidate.kind === member.kind &&
+        candidate.widthMm === member.widthMm &&
+        candidate.depthMm === member.depthMm,
+    )
+    .map(({ id }) => id as string);
 }
 
 export function stairBounds(

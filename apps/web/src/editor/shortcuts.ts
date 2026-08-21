@@ -16,6 +16,9 @@ export type ShortcutCommandId =
   | 'tool.component'
   | 'tool.stair'
   | 'tool.roof'
+  | 'tool.column'
+  | 'tool.beam'
+  | 'tool.site'
   | 'tool.dimension'
   | 'tool.network'
   | 'tool.networkRoute'
@@ -75,6 +78,15 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
   },
   { id: 'tool.stair', label: 'Escalier', key: 'a', group: 'Outils' },
   { id: 'tool.roof', label: 'Toiture', key: 'y', group: 'Outils' },
+  { id: 'tool.column', label: 'Poteau', key: 'u', group: 'Outils' },
+  {
+    id: 'tool.beam',
+    label: 'Poutre',
+    key: 'u',
+    shift: true,
+    group: 'Outils',
+  },
+  { id: 'tool.site', label: 'Terrain', key: 'g', group: 'Outils' },
   { id: 'tool.component', label: 'Composant', key: 'k', group: 'Outils' },
   { id: 'tool.dimension', label: 'Cotation', key: 'd', group: 'Outils' },
   { id: 'tool.network', label: 'Réseau', key: 'r', group: 'Outils' },

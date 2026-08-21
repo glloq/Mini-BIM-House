@@ -13,5 +13,6 @@ export * from './annotation.js';
 export * from './component.js';
 export * from './stair.js';
 export * from './documents.js';
+export * from './structure.js';
 export * from './revision.js';
 export * from './project-path.js';

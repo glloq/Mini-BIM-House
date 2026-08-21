@@ -14,6 +14,8 @@ import type {
   Stair,
   StairLanding,
   StairType,
+  StructuralMember,
+  StructuralMemberKind,
   Wall,
 } from '@house-technical-designer/core-domain';
 import {
@@ -24,11 +26,13 @@ import {
   isOpeningType,
   isSlabRole,
   isStairType,
+  isStructuralMemberKind,
   isWallReferenceSide,
   isWallRole,
   validateComponentInstance,
   validateRoof,
   validateStair,
+  validateStructuralMember,
 } from '@house-technical-designer/core-domain';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import {
@@ -1175,6 +1179,169 @@ export class RemoveRoofStructureCommand extends BuildingCommand {
       ...level,
       roofStructures: (level.roofStructures ?? []).filter(
         ({ id }) => id !== this.roofId,
+      ),
+    }));
+  }
+}
+
+/** What placing a structural member asks for. */
+export interface StructuralMemberDraft {
+  readonly id: string;
+  readonly kind: StructuralMemberKind;
+  readonly path: readonly Point2D[];
+  readonly widthMm: number;
+  readonly depthMm: number;
+  readonly elevationMm?: number;
+  readonly heightMm?: number;
+  readonly materialId?: string;
+}
+
+function memberOf(
+  levelId: string,
+  draft: StructuralMemberDraft,
+): StructuralMember {
+  return {
+    id: entityId<'StructuralMember'>(draft.id),
+    type: 'STRUCTURAL_MEMBER',
+    levelId: entityId<'Level'>(levelId),
+    kind: draft.kind,
+    path: draft.path.map((point) => ({ ...point })),
+    widthMm: draft.widthMm,
+    depthMm: draft.depthMm,
+    ...(draft.elevationMm === undefined
+      ? {}
+      : { elevationMm: draft.elevationMm }),
+    ...(draft.heightMm === undefined ? {} : { heightMm: draft.heightMm }),
+    ...(draft.materialId === undefined ? {} : { materialId: draft.materialId }),
+  };
+}
+
+export class AddStructuralMemberCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly draft: StructuralMemberDraft,
+  ) {
+    super(`structure:add:${draft.id}`, 'Ajouter un élément de structure');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level === undefined)
+      return rejected(`Le niveau ${this.levelId} est introuvable.`);
+    if ((level.structure ?? []).some(({ id }) => id === this.draft.id))
+      return rejected(`L'élément ${this.draft.id} existe déjà.`);
+    if (
+      this.draft.materialId !== undefined &&
+      !(project.materialLibrary?.materials ?? []).some(
+        ({ id }) => id === this.draft.materialId,
+      )
+    )
+      return rejected(`Le matériau ${this.draft.materialId} est introuvable.`);
+    const issues = validateStructuralMember(memberOf(this.levelId, this.draft));
+    return issues.length > 0 ? rejected(...issues) : ok();
+  }
+  protected apply(project: Project): Project {
+    const member = memberOf(this.levelId, this.draft);
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      structure: [...(level.structure ?? []), member],
+    }));
+  }
+}
+
+/** What a structural member edit may change. */
+export interface StructuralMemberPatch {
+  readonly kind?: StructuralMemberKind;
+  readonly path?: readonly Point2D[];
+  readonly widthMm?: number;
+  readonly depthMm?: number;
+  readonly elevationMm?: number;
+  readonly heightMm?: number;
+  readonly materialId?: string | null;
+}
+
+export class UpdateStructuralMemberCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly memberId: string,
+    readonly patch: StructuralMemberPatch,
+  ) {
+    super(`structure:update:${memberId}`, 'Modifier un élément de structure');
+  }
+  private patched(member: StructuralMember): StructuralMember {
+    const { materialId: _material, ...rest } = member;
+    const materialId =
+      this.patch.materialId === undefined
+        ? member.materialId
+        : (this.patch.materialId ?? undefined);
+    return {
+      ...rest,
+      ...(this.patch.kind === undefined ? {} : { kind: this.patch.kind }),
+      ...(this.patch.path === undefined
+        ? {}
+        : { path: this.patch.path.map((point) => ({ ...point })) }),
+      ...(this.patch.widthMm === undefined
+        ? {}
+        : { widthMm: this.patch.widthMm }),
+      ...(this.patch.depthMm === undefined
+        ? {}
+        : { depthMm: this.patch.depthMm }),
+      ...(this.patch.elevationMm === undefined
+        ? {}
+        : { elevationMm: this.patch.elevationMm }),
+      ...(this.patch.heightMm === undefined
+        ? {}
+        : { heightMm: this.patch.heightMm }),
+      ...(materialId === undefined ? {} : { materialId }),
+    };
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    const member = (level?.structure ?? []).find(
+      ({ id }) => id === this.memberId,
+    );
+    if (member === undefined)
+      return rejected(`L'élément ${this.memberId} est introuvable.`);
+    const kind = rejectedEnumValue(this.patch.kind, isStructuralMemberKind);
+    if (kind !== undefined)
+      return rejected(`Type d'élément de structure inconnu : ${kind}.`);
+    if (
+      typeof this.patch.materialId === 'string' &&
+      !(project.materialLibrary?.materials ?? []).some(
+        ({ id }) => id === this.patch.materialId,
+      )
+    )
+      return rejected(`Le matériau ${this.patch.materialId} est introuvable.`);
+    const issues = validateStructuralMember(this.patched(member));
+    return issues.length > 0 ? rejected(...issues) : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      structure: (level.structure ?? []).map((member) =>
+        member.id === this.memberId ? this.patched(member) : member,
+      ),
+    }));
+  }
+}
+
+export class RemoveStructuralMemberCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly memberId: string,
+  ) {
+    super(`structure:remove:${memberId}`, 'Supprimer un élément de structure');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    return (level?.structure ?? []).some(({ id }) => id === this.memberId)
+      ? ok()
+      : rejected(`L'élément ${this.memberId} est introuvable.`);
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      structure: (level.structure ?? []).filter(
+        ({ id }) => id !== this.memberId,
       ),
     }));
   }

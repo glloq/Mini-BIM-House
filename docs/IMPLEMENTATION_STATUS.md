@@ -1237,6 +1237,29 @@ mur → changer l'assemblage → override créé automatiquement ».
   modifie tous les murs qui en sont faits, et une liste de chemins montrerait un
   changement là où le dessin en montre douze.
 
+## Terrain et structure — lot H du neuvième audit
+
+L'audit relevait deux absences : un site « quasi absent » côté dessin, et
+aucune famille structurelle dans le niveau.
+
+- **Le terrain se dessine.** Le site portait une parcelle et une liste
+  d'obstacles depuis le début, et rien ne les dessinait : les distances aux
+  limites et l'ombre d'un voisin étaient des faits que personne ne pouvait
+  voir. Un outil trace la parcelle ou ce qui l'entoure.
+- **Ce qui entoure la maison a une nature.** Un bâtiment voisin, un arbre et
+  une zone à laisser libre ne portent pas la même ombre et ne se traitent pas de
+  la même façon ; la nature appartient à l'obstacle. Sans hauteur, l'ombre reste
+  incalculable, et l'inspecteur le dit plutôt que le modèle n'invente un nombre.
+- **Poteaux, poutres, fondations.** Ce sont des objets du bâtiment et rien ne
+  les calcule encore. Attendre le moteur de structure avant d'autoriser les
+  objets aurait été attendre de pouvoir vérifier une maison avant de pouvoir la
+  décrire. Un poteau se tient en un point, une poutre court entre deux : la
+  différence est ce que l'élément est, et c'est ce que les deux outils disent.
+- **Aucun matériau supposé.** Un élément dont le matériau n'est pas désigné le
+  reste, et l'inspecteur dit que rien ne pourra être vérifié tant qu'il le
+  reste. Un matériau que le projet ne contient plus est refusé à l'écriture et
+  relevé à la lecture du fichier.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans

@@ -13,6 +13,7 @@ import type { ComponentInstance } from './component.js';
 import type { Stair } from './stair.js';
 import type { Roof } from './roof.js';
 import type { ProjectSheet, SavedDrawingView } from './documents.js';
+import type { StructuralMember } from './structure.js';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
@@ -52,9 +53,30 @@ export interface GeoLocation {
   readonly longitudeDeg: number;
 }
 
+/**
+ * What stands on the site around the house.
+ *
+ * A neighbouring building, a tree and a zone that must stay clear all cast
+ * shade, take room and change where things can go — and none of them behaves
+ * like the others when the sun is computed. The kind belongs to the obstacle.
+ */
+export const SITE_OBSTACLE_KINDS = [
+  'BUILDING',
+  'TREE',
+  'EXCLUSION',
+  'OTHER',
+] as const;
+export type SiteObstacleKind = (typeof SITE_OBSTACLE_KINDS)[number];
+
+export function isSiteObstacleKind(value: string): value is SiteObstacleKind {
+  return (SITE_OBSTACLE_KINDS as readonly string[]).includes(value);
+}
+
 export interface SiteObstacle extends BaseEntity {
   readonly boundary: Polygon2D;
   readonly heightMm?: number;
+  readonly kind?: SiteObstacleKind;
+  readonly name?: string;
 }
 
 export interface Site extends CommonMetadata {
@@ -101,6 +123,14 @@ export interface Level extends BaseEntity<LevelId> {
    * until now contains.
    */
   readonly roofStructures?: readonly Roof[];
+  /**
+   * The structure of this storey: columns, beams, footings.
+   *
+   * They are objects of the building and nothing computes them yet. Waiting
+   * for a structural engine before allowing them would be waiting to describe
+   * a house before being able to check it.
+   */
+  readonly structure?: readonly StructuralMember[];
 }
 
 export type ZoneType =

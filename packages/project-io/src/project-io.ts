@@ -397,6 +397,24 @@ export function validateProjectReferences(
           message: `references unknown object ${component.hostObjectId}`,
         });
     });
+    // A structural member made of a material the project no longer holds is a
+    // member nothing can ever check.
+    (level.structure ?? []).forEach((member, index) => {
+      const path = `${base}/structure/${index}`;
+      if (member.levelId !== level.id)
+        issues.push({
+          path: `${path}/levelId`,
+          message: `is stored on level ${level.id} but declares level ${member.levelId}`,
+        });
+      if (
+        member.materialId !== undefined &&
+        !(materials as ReadonlySet<string>).has(member.materialId)
+      )
+        issues.push({
+          path: `${path}/materialId`,
+          message: `references unknown material ${member.materialId}`,
+        });
+    });
     // A roof described by its outline stands on this storey and is built of
     // something: a build-up the project no longer holds leaves a roof whose
     // thermal behaviour nothing can answer.

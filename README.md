@@ -663,8 +663,10 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   second moteur de dessin. Le tirage est à l'échelle ; le texte n'y est ni
   sélectionnable ni recherchable.
 - **Exports DXF et IFC** : hors périmètre de la bêta.
-- **Simulation thermique dynamique, confort d'été avancé, structure,
-  géotechnique, éclairage naturel** : hors périmètre de la bêta.
+- **Calcul de structure, géotechnique, simulation thermique dynamique, confort
+  d'été avancé, éclairage naturel** : hors périmètre de la bêta. Les poteaux,
+  poutres et fondations se décrivent et se dessinent ; rien ne les vérifie
+  encore.
 - **Modes QUICK / DESIGN / EXPERT** : non implémentés ; l'interface a une
   seule densité.
 - **Analyses projetées sur le plan** : dix analyses sont branchées —

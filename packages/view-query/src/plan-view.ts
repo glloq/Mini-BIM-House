@@ -15,6 +15,7 @@ import {
   portAnchors,
   resolveStraightWallJoin,
   roofEaveOutline,
+  structuralFootprint,
   validateWall,
 } from '@house-technical-designer/core-domain';
 import type { Assembly } from '@house-technical-designer/assemblies';
@@ -951,6 +952,64 @@ function roofStructurePrimitives(level: Level): readonly PrimitiveDraft[] {
   return drafts;
 }
 
+function structurePrimitives(level: Level): readonly PrimitiveDraft[] {
+  return (level.structure ?? []).flatMap((member) => {
+    const outline = structuralFootprint(member);
+    if (outline.length < 3) return [];
+    return [
+      {
+        id: `structure:${member.id}`,
+        sourceObjectId: member.id,
+        semanticRole: 'WALL_CUT' as const,
+        geometry: { kind: 'POLYGON' as const, polygon: { outer: outline } },
+        layer: 'structure.members',
+        zIndex: 20,
+        discipline: 'ARCHITECTURE' as const,
+        metadata: { kind: member.kind },
+      },
+    ];
+  });
+}
+
+/**
+ * The ground the house sits on: its parcel and what stands around it.
+ *
+ * The site has held a boundary and a list of obstacles since the beginning and
+ * nothing drew them, so the distances to the limits and the shade of a
+ * neighbour were facts nobody could see.
+ */
+function sitePrimitives(project: Project): readonly PrimitiveDraft[] {
+  const drafts: PrimitiveDraft[] = [];
+  const parcel = project.site.parcelBoundary;
+  if (parcel !== undefined)
+    drafts.push({
+      id: 'site:parcel',
+      sourceObjectId: 'site:parcel',
+      semanticRole: 'SITE',
+      geometry: { kind: 'POLYGON', polygon: parcel },
+      layer: 'site.parcel',
+      zIndex: 1,
+      discipline: 'OTHER',
+    });
+  for (const obstacle of project.site.obstacles ?? [])
+    drafts.push({
+      id: `site-obstacle:${obstacle.id}`,
+      sourceObjectId: obstacle.id,
+      semanticRole: 'SITE',
+      geometry: { kind: 'POLYGON', polygon: obstacle.boundary },
+      layer: 'site.parcel',
+      zIndex: 2,
+      discipline: 'OTHER',
+      metadata: {
+        ...(obstacle.kind === undefined ? {} : { kind: obstacle.kind }),
+        ...(obstacle.heightMm === undefined
+          ? {}
+          : { heightMm: obstacle.heightMm }),
+      },
+    });
+  return drafts;
+}
+
 function slabAndRoofPrimitives(level: Level): readonly PrimitiveDraft[] {
   return [
     ...level.slabs.map((slab) => ({
@@ -1067,7 +1126,9 @@ export function buildPlanView(
     drafts.push(...componentPrimitives(level));
     drafts.push(...stairPrimitives(level));
     drafts.push(...roofStructurePrimitives(level));
+    drafts.push(...structurePrimitives(level));
   }
+  drafts.push(...sitePrimitives(project));
   for (const network of project.systems ?? [])
     drafts.push(...networkPrimitives(network));
 

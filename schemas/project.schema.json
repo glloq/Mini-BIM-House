@@ -90,6 +90,44 @@
             },
             "climateProfileId": {
               "type": "string"
+            },
+            "parcelBoundary": {
+              "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Polygon2D"
+            },
+            "obstacles": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "boundary"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boundary": {
+                    "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Polygon2D"
+                  },
+                  "heightMm": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "kind": {
+                    "enum": [
+                      "BUILDING",
+                      "TREE",
+                      "EXCLUSION",
+                      "OTHER"
+                    ]
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              }
             }
           },
           "additionalProperties": true
@@ -261,6 +299,12 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/RoofStructure"
+          }
+        },
+        "structure": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StructuralMember"
           }
         }
       },
@@ -678,6 +722,65 @@
             },
             "additionalProperties": true
           }
+        }
+      },
+      "additionalProperties": true
+    },
+    "StructuralMember": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "levelId",
+        "kind",
+        "path",
+        "widthMm",
+        "depthMm"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "const": "STRUCTURAL_MEMBER"
+        },
+        "levelId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "COLUMN",
+            "BEAM",
+            "FOOTING"
+          ]
+        },
+        "path": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point2D"
+          }
+        },
+        "widthMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "depthMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "elevationMm": {
+          "type": "number"
+        },
+        "heightMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "materialId": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "additionalProperties": true

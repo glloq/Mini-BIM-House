@@ -2,7 +2,9 @@ import type {
   ComponentCategory,
   Dimension,
   DimensionType,
+  SiteObstacleKind,
   StairType,
+  StructuralMemberKind,
   Opening,
   Project,
   ProjectFile,
@@ -18,14 +20,17 @@ import {
   AddRoofCommand,
   AddRoofStructureCommand,
   AddSlabCommand,
+  AddSiteObstacleCommand,
   AddSpaceCommand,
   AddStairCommand,
+  AddStructuralMemberCommand,
   AddWallCommand,
   MoveNetworkEdgeVertexCommand,
   MoveWallCommand,
   MoveWallPointCommand,
   ProjectEditorCommand,
   ProjectTransactionCommand,
+  SetParcelBoundaryCommand,
   SetWallPathCommand,
   SplitWallCommand,
   UpdateComponentCommand,
@@ -397,6 +402,75 @@ export function addRoofStructureCommand(
       assemblyId: draft.assemblyId,
       baseElevationMm: level.elevationMm + level.defaultStoreyHeightMm,
     }),
+  };
+}
+
+/** Builds a column, a beam or a footing from the points that were clicked. */
+export function addStructuralMemberCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: {
+    readonly kind: StructuralMemberKind;
+    readonly widthMm: number;
+    readonly depthMm: number;
+    readonly heightMm?: number;
+  },
+  memberId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const wanted = draft.kind === 'BEAM' ? 2 : 1;
+  if (points.length < wanted)
+    return {
+      status: 'ERROR',
+      message:
+        wanted === 1
+          ? 'Un point est attendu.'
+          : 'Une poutre demande deux points.',
+    };
+  return {
+    status: 'OK',
+    command: new AddStructuralMemberCommand(level.id, {
+      id: memberId,
+      kind: draft.kind,
+      path: points.slice(0, wanted).map((point) => ({ ...point })),
+      widthMm: draft.widthMm,
+      depthMm: draft.depthMm,
+      ...(draft.heightMm === undefined ? {} : { heightMm: draft.heightMm }),
+    }),
+  };
+}
+
+/** Draws the parcel, or something standing on the site around the house. */
+export function addSiteOutlineCommand(
+  points: readonly Point2D[],
+  draft: {
+    readonly target: 'PARCEL' | 'OBSTACLE';
+    readonly kind: SiteObstacleKind;
+    readonly heightMm?: number;
+    readonly name?: string;
+  },
+  obstacleId: string,
+): EditingCommandResult {
+  if (points.length < 3)
+    return { status: 'ERROR', message: 'Un contour demande trois points.' };
+  const outline = points.map((point) => ({ ...point }));
+  return {
+    status: 'OK',
+    command:
+      draft.target === 'PARCEL'
+        ? new SetParcelBoundaryCommand(outline)
+        : new AddSiteObstacleCommand({
+            id: obstacleId,
+            outline,
+            kind: draft.kind,
+            ...(draft.heightMm === undefined
+              ? {}
+              : { heightMm: draft.heightMm }),
+            ...(draft.name === undefined ? {} : { name: draft.name }),
+          }),
   };
 }
 

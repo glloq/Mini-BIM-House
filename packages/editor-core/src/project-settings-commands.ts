@@ -5,7 +5,14 @@ import type {
   ProjectMetadata,
   RegulatoryContext,
   Site,
+  SiteObstacle,
+  SiteObstacleKind,
 } from '@house-technical-designer/core-domain';
+import {
+  entityId,
+  isSiteObstacleKind,
+} from '@house-technical-designer/core-domain';
+import type { Point2D } from '@house-technical-designer/geometry';
 import type { ChangeSet, CommandValidation } from './commands.js';
 import type {
   ProjectCommand,
@@ -369,6 +376,128 @@ export class UpdateModuleSettingsCommand extends SettingsCommand {
       calculationSettings: {
         ...project.calculationSettings,
         [this.moduleId]: entry,
+      },
+    };
+  }
+}
+
+/**
+ * Draws the parcel the house sits on.
+ *
+ * The site already held a boundary and no screen could produce one: the
+ * distances to the limits, the shading of a neighbour and where a building may
+ * stand all rest on it, and all of them stopped there.
+ */
+export class SetParcelBoundaryCommand extends SettingsCommand {
+  constructor(readonly outline: readonly Point2D[] | undefined) {
+    super('project:site:parcel', 'Tracer la parcelle');
+  }
+  validate(): CommandValidation {
+    if (this.outline === undefined) return ok();
+    if (this.outline.length < 3)
+      return rejected('Une parcelle demande au moins trois sommets.');
+    return this.outline.every(
+      ({ x, y }) => Number.isFinite(x) && Number.isFinite(y),
+    )
+      ? ok()
+      : rejected('Les sommets de la parcelle doivent être mesurables.');
+  }
+  protected apply(project: Project): Project {
+    const { parcelBoundary: _previous, ...site } = project.site;
+    return {
+      ...project,
+      site:
+        this.outline === undefined
+          ? site
+          : {
+              ...site,
+              parcelBoundary: {
+                outer: this.outline.map((point) => ({ ...point })),
+              },
+            },
+    };
+  }
+}
+
+/** What placing something on the site asks for. */
+export interface SiteObstacleDraft {
+  readonly id: string;
+  readonly outline: readonly Point2D[];
+  readonly kind: SiteObstacleKind;
+  readonly heightMm?: number;
+  readonly name?: string;
+}
+
+export class AddSiteObstacleCommand extends SettingsCommand {
+  constructor(readonly draft: SiteObstacleDraft) {
+    super(`project:site:obstacle:${draft.id}`, 'Ajouter un obstacle de site');
+  }
+  validate(project: Project): CommandValidation {
+    if ((project.site.obstacles ?? []).some(({ id }) => id === this.draft.id))
+      return rejected(`L'obstacle ${this.draft.id} existe déjà.`);
+    if (this.draft.outline.length < 3)
+      return rejected('Un obstacle demande au moins trois sommets.');
+    // The type says this cannot happen; the value may have been cast on its
+    // way out of an interface, and a command must never write what the
+    // persisted contract forbids.
+    const kind: string = this.draft.kind;
+    if (!isSiteObstacleKind(kind))
+      return rejected(`Type d'obstacle inconnu : ${kind}.`);
+    if (
+      this.draft.heightMm !== undefined &&
+      (!Number.isFinite(this.draft.heightMm) || this.draft.heightMm <= 0)
+    )
+      return rejected('La hauteur d’un obstacle doit être positive.');
+    return this.draft.outline.every(
+      ({ x, y }) => Number.isFinite(x) && Number.isFinite(y),
+    )
+      ? ok()
+      : rejected('Les sommets d’un obstacle doivent être mesurables.');
+  }
+  protected apply(project: Project): Project {
+    const obstacle: SiteObstacle = {
+      id: entityId(this.draft.id),
+      boundary: { outer: this.draft.outline.map((point) => ({ ...point })) },
+      kind: this.draft.kind,
+      ...(this.draft.heightMm === undefined
+        ? {}
+        : { heightMm: this.draft.heightMm }),
+      ...(this.draft.name === undefined || this.draft.name.trim() === ''
+        ? {}
+        : { name: this.draft.name }),
+    };
+    return {
+      ...project,
+      site: {
+        ...project.site,
+        obstacles: [...(project.site.obstacles ?? []), obstacle],
+      },
+    };
+  }
+}
+
+export class RemoveSiteObstacleCommand extends SettingsCommand {
+  constructor(readonly obstacleId: string) {
+    super(
+      `project:site:obstacle:remove:${obstacleId}`,
+      'Supprimer un obstacle de site',
+    );
+  }
+  validate(project: Project): CommandValidation {
+    return (project.site.obstacles ?? []).some(
+      ({ id }) => id === this.obstacleId,
+    )
+      ? ok()
+      : rejected(`L'obstacle ${this.obstacleId} est introuvable.`);
+  }
+  protected apply(project: Project): Project {
+    return {
+      ...project,
+      site: {
+        ...project.site,
+        obstacles: (project.site.obstacles ?? []).filter(
+          ({ id }) => id !== this.obstacleId,
+        ),
       },
     };
   }

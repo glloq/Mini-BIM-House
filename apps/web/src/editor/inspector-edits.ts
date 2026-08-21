@@ -3,6 +3,7 @@ import type {
   Level,
   RoofEdge,
   StairType,
+  StructuralMemberKind,
   Opening,
   Project,
   Wall,
@@ -21,6 +22,7 @@ import {
   UpdateComponentCommand,
   UpdateRoofStructureCommand,
   UpdateStairCommand,
+  UpdateStructuralMemberCommand,
   UpdateWallCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
@@ -33,6 +35,7 @@ import {
   COMPONENT_CATEGORY_OPTIONS,
   ROOF_EDGE_KIND_OPTIONS,
   STAIR_TYPE_OPTIONS,
+  STRUCTURAL_MEMBER_OPTIONS,
   SPACE_CATEGORY_OPTIONS as SPACE_CATEGORIES,
 } from './domain-options.js';
 
@@ -1006,6 +1009,81 @@ export function roofStructureEditsFor(
           },
         },
       ]),
+    ];
+  }
+  return undefined;
+}
+
+/** What a structural member lets the user change. */
+export function structureEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
+    const member = (level.structure ?? []).find(({ id }) => id === objectId);
+    if (member === undefined) continue;
+    return [
+      {
+        id: 'kind',
+        semanticId: 'structure.kind',
+        label: 'Élément',
+        control: {
+          kind: 'SELECT',
+          value: member.kind,
+          options: STRUCTURAL_MEMBER_OPTIONS,
+        },
+        hint: 'Une poutre court entre deux points ; un poteau se tient en un.',
+        apply: (value) =>
+          new UpdateStructuralMemberCommand(level.id, member.id, {
+            kind: value as StructuralMemberKind,
+          }),
+      },
+      ...(
+        [
+          ['widthMm', 'Largeur'],
+          ['depthMm', 'Profondeur'],
+          ['heightMm', 'Hauteur'],
+        ] as const
+      ).map(([key, label]) => ({
+        id: key,
+        semanticId: `structure.${key}`,
+        label,
+        control: {
+          kind: 'NUMBER' as const,
+          value: member[key] ?? 0,
+          unit: 'mm',
+          step: 10,
+          min: 1,
+        },
+        apply: (next: string) => {
+          const parsedValue = parsed(next);
+          return parsedValue === undefined
+            ? undefined
+            : new UpdateStructuralMemberCommand(level.id, member.id, {
+                [key]: parsedValue,
+              });
+        },
+      })),
+      {
+        id: 'materialId',
+        semanticId: 'structure.materialId',
+        label: 'Matériau',
+        control: {
+          kind: 'SELECT',
+          value: member.materialId ?? '',
+          options: [
+            { value: '', label: 'Aucun matériau désigné' },
+            ...(project.materialLibrary?.materials ?? []).map((material) => ({
+              value: material.id,
+              label: material.name,
+            })),
+          ],
+        },
+        apply: (value) =>
+          new UpdateStructuralMemberCommand(level.id, member.id, {
+            materialId: value === '' ? null : value,
+          }),
+      },
     ];
   }
   return undefined;

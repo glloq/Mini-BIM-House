@@ -1,6 +1,8 @@
 import type {
   ComponentCategory,
   RoofEdgeKind,
+  SiteObstacleKind,
+  StructuralMemberKind,
   StairType,
   Opening,
   Slab,
@@ -9,6 +11,8 @@ import type {
 import {
   COMPONENT_CATEGORIES,
   ROOF_EDGE_KINDS,
+  SITE_OBSTACLE_KINDS,
+  STRUCTURAL_MEMBER_KINDS,
   STAIR_TYPES,
   DIMENSION_TYPES,
   OPENING_TYPES,
@@ -138,4 +142,21 @@ export const STAIR_TYPE_OPTIONS = optionsFrom<StairType>(STAIR_TYPES, {
 export const ROOF_EDGE_KIND_OPTIONS = optionsFrom<RoofEdgeKind>(
   ROOF_EDGE_KINDS,
   { SLOPED: 'Pan', GABLE: 'Pignon' },
+);
+
+/** The structural members the domain accepts. */
+export const STRUCTURAL_MEMBER_OPTIONS = optionsFrom<StructuralMemberKind>(
+  STRUCTURAL_MEMBER_KINDS,
+  { COLUMN: 'Poteau', BEAM: 'Poutre', FOOTING: 'Fondation' },
+);
+
+/** What can stand on the site around the house. */
+export const SITE_OBSTACLE_OPTIONS = optionsFrom<SiteObstacleKind>(
+  SITE_OBSTACLE_KINDS,
+  {
+    BUILDING: 'Bâtiment voisin',
+    TREE: 'Arbre',
+    EXCLUSION: 'Zone exclue',
+    OTHER: 'Autre',
+  },
 );

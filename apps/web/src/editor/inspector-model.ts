@@ -51,6 +51,8 @@ export interface InspectorSubject {
     | 'COMPONENT'
     | 'STAIR'
     | 'ROOF_STRUCTURE'
+    | 'STRUCTURE'
+    | 'SITE'
     | 'UNKNOWN';
   readonly title: string;
   readonly sections: readonly InspectorSection[];
@@ -818,4 +820,134 @@ export function roofStructureSubject(
     };
   }
   return undefined;
+}
+
+const STRUCTURE_LABELS: Readonly<Record<string, string>> = {
+  COLUMN: 'Poteau',
+  BEAM: 'Poutre',
+  FOOTING: 'Fondation',
+};
+
+/** What a structural member shows: what it is, where, and how big. */
+export function structureSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  for (const level of project.building.levels) {
+    const member = (level.structure ?? []).find(({ id }) => id === objectId);
+    if (member === undefined) continue;
+    const [from, to] = member.path;
+    const lengthMm =
+      from === undefined || to === undefined
+        ? undefined
+        : Math.hypot(to.x - from.x, to.y - from.y);
+    const material = (project.materialLibrary?.materials ?? []).find(
+      ({ id }) => id === member.materialId,
+    );
+    return {
+      objectId,
+      kind: 'STRUCTURE',
+      title: `${STRUCTURE_LABELS[member.kind] ?? member.kind} ${member.id}`,
+      sections: [
+        {
+          title: 'Implantation',
+          fields: [
+            field('Niveau', level.name),
+            field(
+              'Position',
+              from === undefined
+                ? undefined
+                : `${Math.round(from.x)} ; ${Math.round(from.y)} mm`,
+            ),
+            field(
+              'Portée',
+              lengthMm === undefined ? undefined : metres(lengthMm),
+              lengthMm === undefined
+                ? 'Un poteau et une fondation n’ont pas de portée.'
+                : undefined,
+            ),
+          ],
+        },
+        {
+          title: 'Section',
+          fields: [
+            field('Largeur', `${member.widthMm} mm`),
+            field('Profondeur', `${member.depthMm} mm`),
+            field(
+              'Hauteur',
+              member.heightMm === undefined
+                ? undefined
+                : `${member.heightMm} mm`,
+            ),
+            field(
+              'Matériau',
+              material?.name,
+              material === undefined
+                ? 'Aucun matériau n’est désigné : rien ne peut encore être vérifié.'
+                : undefined,
+            ),
+          ],
+        },
+        {
+          title: 'Références',
+          fields: [field('Identifiant', member.id)],
+        },
+      ],
+    };
+  }
+  return undefined;
+}
+
+/** What the parcel and what stands on it show. */
+export function siteSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  if (objectId === 'site:parcel' && project.site.parcelBoundary !== undefined) {
+    const areaMm2 = Math.abs(polygonArea(project.site.parcelBoundary));
+    return {
+      objectId,
+      kind: 'SITE',
+      title: 'Parcelle',
+      sections: [
+        {
+          title: 'Terrain',
+          fields: [
+            field('Surface', `${(areaMm2 / 1_000_000).toFixed(2)} m²`),
+            field('Sommets', project.site.parcelBoundary.outer.length),
+            field('Nord', `${project.site.northAngleDeg}°`),
+          ],
+        },
+      ],
+    };
+  }
+  const obstacle = (project.site.obstacles ?? []).find(
+    ({ id }) => id === objectId,
+  );
+  if (obstacle === undefined) return undefined;
+  const areaMm2 = Math.abs(polygonArea(obstacle.boundary));
+  return {
+    objectId,
+    kind: 'SITE',
+    title: obstacle.name ?? `Obstacle ${obstacle.id}`,
+    sections: [
+      {
+        title: 'Sur le terrain',
+        fields: [
+          field('Nature', obstacle.kind),
+          field('Emprise', `${(areaMm2 / 1_000_000).toFixed(2)} m²`),
+          field(
+            'Hauteur',
+            obstacle.heightMm === undefined
+              ? undefined
+              : `${obstacle.heightMm} mm`,
+            obstacle.heightMm === undefined
+              ? 'Sans hauteur, l’ombre portée ne peut pas être calculée.'
+              : undefined,
+          ),
+        ],
+      },
+      { title: 'Références', fields: [field('Identifiant', obstacle.id)] },
+    ],
+  };
 }

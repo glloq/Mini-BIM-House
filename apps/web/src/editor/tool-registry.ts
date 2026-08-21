@@ -2,8 +2,10 @@ import type {
   ComponentCategory,
   DimensionType,
   ProjectFile,
+  SiteObstacleKind,
   SlabRole,
   StairType,
+  StructuralMemberKind,
   WallRole,
 } from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
@@ -12,9 +14,11 @@ import {
   addEveryDetectedRoomCommand,
   addOpeningCommand,
   addRoofStructureCommand,
+  addSiteOutlineCommand,
   addSlabFromPointsCommand,
   addSpaceAtPointCommand,
   addStairCommand,
+  addStructuralMemberCommand,
   addWallCommand,
   addWallRectangleCommand,
   addWallRunCommand,
@@ -38,8 +42,10 @@ import {
   DIMENSION_TYPE_OPTIONS,
   OPENING_TYPE_OPTIONS,
   SLAB_ROLE_OPTIONS,
+  SITE_OBSTACLE_OPTIONS,
   SPACE_CATEGORY_OPTIONS,
   STAIR_TYPE_OPTIONS,
+  STRUCTURAL_MEMBER_OPTIONS,
   WALL_ROLE_OPTIONS,
 } from './domain-options.js';
 import {
@@ -59,6 +65,8 @@ import {
 export type ToolGroup =
   | 'SELECTION'
   | 'ARCHITECTURE'
+  | 'STRUCTURE'
+  | 'SITE'
   | 'COMPONENTS'
   | 'MODIFICATION'
   | 'NETWORKS'
@@ -67,6 +75,8 @@ export type ToolGroup =
 export const TOOL_GROUP_LABELS: Readonly<Record<ToolGroup, string>> = {
   SELECTION: 'Sélection',
   ARCHITECTURE: 'Architecture',
+  STRUCTURE: 'Structure',
+  SITE: 'Terrain',
   COMPONENTS: 'Composants',
   MODIFICATION: 'Modification',
   NETWORKS: 'Réseaux',
@@ -712,6 +722,172 @@ export const EDITOR_TOOLS = [
           treadDepthMm: context.optionNumber('treadDepthMm') ?? 270,
         },
         context.newId('stair'),
+      ),
+  },
+  {
+    id: 'COLUMN',
+    group: 'STRUCTURE',
+    label: 'Poteau',
+    hint: 'Poser un poteau ou une fondation en un point',
+    shortcutId: 'tool.column',
+    // A column stands at a point; a beam runs between two. The difference is
+    // what the member is, and it is what the two tools are for.
+    requiredPoints: 1,
+    options: [
+      {
+        key: 'kind',
+        kind: 'SELECT',
+        label: 'Élément',
+        choices: () =>
+          STRUCTURAL_MEMBER_OPTIONS.filter(({ value }) => value !== 'BEAM'),
+        fallback: () => 'COLUMN',
+      },
+      {
+        key: 'widthMm',
+        kind: 'NUMBER',
+        label: 'Largeur',
+        unit: 'mm',
+        step: 10,
+        min: 1,
+        fallback: () => '200',
+      },
+      {
+        key: 'depthMm',
+        kind: 'NUMBER',
+        label: 'Profondeur',
+        unit: 'mm',
+        step: 10,
+        min: 1,
+        fallback: () => '200',
+      },
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        step: 50,
+        hint: 'Hauteur d’un poteau, profondeur d’une fondation.',
+        fallback: ({ project }) =>
+          String(project.building.levels[0]?.defaultStoreyHeightMm ?? 2500),
+      },
+    ],
+    createCommand: (context) =>
+      addStructuralMemberCommand(
+        context.file,
+        context.levelId,
+        context.points,
+        {
+          kind: context.option('kind') as StructuralMemberKind,
+          widthMm: context.optionNumber('widthMm') ?? 200,
+          depthMm: context.optionNumber('depthMm') ?? 200,
+          ...(context.optionNumber('heightMm') === undefined
+            ? {}
+            : { heightMm: context.optionNumber('heightMm')! }),
+        },
+        context.newId('member'),
+      ),
+  },
+  {
+    id: 'BEAM',
+    group: 'STRUCTURE',
+    label: 'Poutre',
+    hint: 'Faire courir une poutre entre deux points',
+    shortcutId: 'tool.beam',
+    requiredPoints: 2,
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'widthMm',
+        kind: 'NUMBER',
+        label: 'Largeur',
+        unit: 'mm',
+        step: 10,
+        min: 1,
+        fallback: () => '200',
+      },
+      {
+        key: 'depthMm',
+        kind: 'NUMBER',
+        label: 'Profondeur',
+        unit: 'mm',
+        step: 10,
+        min: 1,
+        fallback: () => '200',
+      },
+    ],
+    createCommand: (context) =>
+      addStructuralMemberCommand(
+        context.file,
+        context.levelId,
+        context.points,
+        {
+          kind: 'BEAM',
+          widthMm: context.optionNumber('widthMm') ?? 200,
+          depthMm: context.optionNumber('depthMm') ?? 200,
+        },
+        context.newId('member'),
+      ),
+  },
+  {
+    id: 'SITE',
+    group: 'SITE',
+    label: 'Terrain',
+    hint: 'Tracer la parcelle ou ce qui l’entoure · Entrée termine',
+    shortcutId: 'tool.site',
+    requiredPoints: 3,
+    openEnded: true,
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'target',
+        kind: 'SELECT',
+        label: 'Tracer',
+        choices: () => [
+          { value: 'PARCEL', label: 'La parcelle' },
+          { value: 'OBSTACLE', label: 'Un obstacle' },
+        ],
+        fallback: () => 'PARCEL',
+      },
+      {
+        key: 'kind',
+        kind: 'SELECT',
+        label: 'Nature',
+        hint: 'Un voisin, un arbre et une zone à laisser libre ne portent pas la même ombre.',
+        choices: () => SITE_OBSTACLE_OPTIONS,
+        fallback: () => 'BUILDING',
+      },
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        step: 500,
+        hint: 'Vide, la hauteur reste inconnue et l’ombre n’est pas calculée.',
+        fallback: () => '',
+      },
+      {
+        key: 'name',
+        kind: 'TEXT',
+        label: 'Nom',
+        fallback: () => '',
+      },
+    ],
+    createCommand: (context) =>
+      addSiteOutlineCommand(
+        context.points,
+        {
+          target: context.option('target') === 'PARCEL' ? 'PARCEL' : 'OBSTACLE',
+          kind: context.option('kind') as SiteObstacleKind,
+          ...(context.optionNumber('heightMm') === undefined
+            ? {}
+            : { heightMm: context.optionNumber('heightMm')! }),
+          ...(context.option('name') === ''
+            ? {}
+            : { name: context.option('name') }),
+        },
+        context.newId('obstacle'),
       ),
   },
   {
