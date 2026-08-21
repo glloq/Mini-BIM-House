@@ -8,10 +8,12 @@ import type {
   Wall,
 } from '@house-technical-designer/core-domain';
 import {
+  deriveRoofPlanes,
   deriveWallFaces,
   isDimension,
   resolveDimension,
   resolveStraightWallJoin,
+  roofEaveOutline,
   validateWall,
 } from '@house-technical-designer/core-domain';
 import type { Assembly } from '@house-technical-designer/assemblies';
@@ -885,6 +887,46 @@ function directionAlong(
   return undefined;
 }
 
+/**
+ * Draws a roof as a roof plan reads it: the eaves, then the lines where the
+ * planes meet.
+ *
+ * A ridge this version cannot solve is simply absent — the eaves are still
+ * exact, and a line drawn where no plane meets would be worse than no line.
+ */
+function roofStructurePrimitives(level: Level): readonly PrimitiveDraft[] {
+  const drafts: PrimitiveDraft[] = [];
+  for (const roof of level.roofStructures ?? []) {
+    drafts.push({
+      id: `roof-structure:${roof.id}`,
+      sourceObjectId: roof.id,
+      semanticRole: 'WALL_BELOW',
+      geometry: { kind: 'POLYGON', polygon: roofEaveOutline(roof) },
+      layer: 'architecture.roofs',
+      zIndex: 6,
+      discipline: 'ARCHITECTURE',
+      metadata: { sides: roof.edges.length },
+    });
+    const topology = deriveRoofPlanes(roof);
+    for (const plane of topology.planes)
+      drafts.push({
+        id: `roof-structure-plane:${plane.id}`,
+        sourceObjectId: roof.id,
+        semanticRole: 'ANNOTATION',
+        geometry: { kind: 'POLYGON', polygon: plane.footprint },
+        layer: 'architecture.roofs',
+        zIndex: 7,
+        discipline: 'ARCHITECTURE',
+        metadata: {
+          slopeDeg: plane.slopeDeg,
+          azimuthDeg: plane.azimuthDeg,
+          derived: topology.status === 'DERIVED',
+        },
+      });
+  }
+  return drafts;
+}
+
 function slabAndRoofPrimitives(level: Level): readonly PrimitiveDraft[] {
   return [
     ...level.slabs.map((slab) => ({
@@ -897,6 +939,9 @@ function slabAndRoofPrimitives(level: Level): readonly PrimitiveDraft[] {
       discipline: 'ARCHITECTURE' as const,
       metadata: { assemblyId: slab.assemblyId, role: slab.role },
     })),
+    // Only the planes drawn one at a time: a roof described by its outline
+    // draws its own, so that clicking one selects the roof and not a plane
+    // nobody made.
     ...level.roofs.map((roof) => ({
       id: `roof:${roof.id}`,
       sourceObjectId: roof.id,
@@ -997,6 +1042,7 @@ export function buildPlanView(
     drafts.push(...slabAndRoofPrimitives(level));
     drafts.push(...componentPrimitives(level));
     drafts.push(...stairPrimitives(level));
+    drafts.push(...roofStructurePrimitives(level));
   }
   for (const network of project.systems ?? [])
     drafts.push(...networkPrimitives(network));

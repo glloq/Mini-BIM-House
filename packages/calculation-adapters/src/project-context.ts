@@ -7,6 +7,7 @@ import type {
   TechnicalNetwork,
   Zone,
 } from '@house-technical-designer/core-domain';
+import { allRoofPlanes } from '@house-technical-designer/core-domain';
 import type {
   Assembly,
   AssemblyLayer,
@@ -321,7 +322,7 @@ export function createProjectCalculationContext(
         layers: materialLayers(assembly, materialById),
       });
     }
-    for (const roof of level.roofs) {
+    for (const roof of allRoofPlanes(level)) {
       const projectedAreaM2 = squareMetres(
         polygonAreaMm2(roof.footprint.outer),
       );

@@ -9,6 +9,7 @@ import {
   RemoveStairCommand,
   RemoveNetworkNodeCommand,
   RemoveRoofCommand,
+  RemoveRoofStructureCommand,
   RemoveSlabCommand,
   RemoveSpaceCommand,
   type ProjectCommand,
@@ -134,4 +135,15 @@ export const componentRemoval: RemovalProvider = (
 export const stairRemoval: RemovalProvider = (project, levelId, objectId) =>
   levelOf(project, levelId)?.stairs.some(({ id }) => id === objectId) === true
     ? new RemoveStairCommand(levelId, objectId)
+    : undefined;
+
+export const roofStructureRemoval: RemovalProvider = (
+  project,
+  levelId,
+  objectId,
+) =>
+  (levelOf(project, levelId)?.roofStructures ?? []).some(
+    ({ id }) => id === objectId,
+  )
+    ? new RemoveRoofStructureCommand(levelId, objectId)
     : undefined;

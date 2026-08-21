@@ -122,10 +122,11 @@ La porte se ferme le jour où un déploiement de `main` passe,
 ## Ce que la bêta ne fait pas
 
 Les limites connues sont tenues à un seul endroit, la section « Ce que
-l'application ne fait pas » du [`README`](../README.md) : escaliers, feuilles
-et PDF, DXF et IFC, simulation dynamique, productivité CAO, dossier de plans
-typé, conformité réglementaire, données fabricant, collaboration. Cette liste
-décrit la version publiée et rien d'autre.
+l'application ne fait pas » du [`README`](../README.md) : toitures sur contour
+quelconque, murs courbes, feuilles et PDF, DXF et IFC, simulation dynamique,
+productivité CAO, dossier de plans typé, conformité réglementaire, données
+fabricant, collaboration. Cette liste décrit la version publiée et rien
+d'autre.
 
 ## Fait depuis le sixième audit
 
@@ -143,7 +144,7 @@ navigation regroupée en cinq familles ; assistant de création de projet.
 ## Reporté, assumé hors bêta
 
 Nouveau moteur thermique, simulation dynamique, confort d'été avancé, calcul de
-structure, géotechnique, IFC, DXF, escalier complet, réglementation française
+structure, géotechnique, IFC, DXF, réglementation française
 complète, congés et chanfreins, contraintes paramétriques avancées,
 collaboration en ligne, édition tactile complète sur téléphone. Les Web Workers
 ne seront ajoutés que si les mesures de performance l'exigent.

@@ -1,5 +1,6 @@
 import type {
   ComponentCategory,
+  RoofEdgeKind,
   StairType,
   Opening,
   Slab,
@@ -7,6 +8,7 @@ import type {
 } from '@house-technical-designer/core-domain';
 import {
   COMPONENT_CATEGORIES,
+  ROOF_EDGE_KINDS,
   STAIR_TYPES,
   DIMENSION_TYPES,
   OPENING_TYPES,
@@ -131,3 +133,9 @@ export const STAIR_TYPE_OPTIONS = optionsFrom<StairType>(STAIR_TYPES, {
   U_SHAPED: 'Deux quarts tournants',
   SPIRAL: 'Hélicoïdal',
 });
+
+/** What one side of a roof does, keyed by the domain's own list. */
+export const ROOF_EDGE_KIND_OPTIONS = optionsFrom<RoofEdgeKind>(
+  ROOF_EDGE_KINDS,
+  { SLOPED: 'Pan', GABLE: 'Pignon' },
+);

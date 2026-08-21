@@ -1,6 +1,7 @@
 import type {
   ComponentCategory,
   Level,
+  RoofEdge,
   StairType,
   Opening,
   Project,
@@ -18,6 +19,7 @@ import {
   UpdateSpaceCommand,
   SetWallHeightCommand,
   UpdateComponentCommand,
+  UpdateRoofStructureCommand,
   UpdateStairCommand,
   UpdateWallCommand,
   type ProjectCommand,
@@ -29,6 +31,7 @@ import {
   SLAB_ROLE_OPTIONS,
   WALL_ROLE_OPTIONS,
   COMPONENT_CATEGORY_OPTIONS,
+  ROOF_EDGE_KIND_OPTIONS,
   STAIR_TYPE_OPTIONS,
   SPACE_CATEGORY_OPTIONS as SPACE_CATEGORIES,
 } from './domain-options.js';
@@ -895,6 +898,114 @@ export function stairEditsFor(
             : new UpdateStairCommand(level.id, stair.id, { widthMm });
         },
       },
+    ];
+  }
+  return undefined;
+}
+
+/**
+ * What a roof described by its outline lets the user change.
+ *
+ * Every side is offered on its own: which is a slope and which is a gable is
+ * the decision that turns one outline into a hipped roof, a two-sided roof or
+ * a single pitch, and it belongs to the side.
+ */
+export function roofStructureEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
+    const roof = (level.roofStructures ?? []).find(({ id }) => id === objectId);
+    if (roof === undefined) continue;
+    const withEdge = (index: number, next: RoofEdge) =>
+      new UpdateRoofStructureCommand(level.id, roof.id, {
+        edges: roof.edges.map((edge, position) =>
+          position === index ? next : edge,
+        ),
+      });
+    return [
+      {
+        id: 'assemblyId',
+        semanticId: 'roofStructure.assemblyId',
+        label: 'Assemblage',
+        control: {
+          kind: 'SELECT',
+          value: roof.assemblyId,
+          options: assemblyOptions(project, ['ROOF', 'FLOOR']),
+        },
+        apply: (value) =>
+          new UpdateRoofStructureCommand(level.id, roof.id, {
+            assemblyId: value,
+          }),
+      },
+      {
+        id: 'baseElevationMm',
+        semanticId: 'roofStructure.baseElevationMm',
+        label: 'Altitude d’égout',
+        control: {
+          kind: 'NUMBER',
+          value: roof.baseElevationMm,
+          unit: 'mm',
+          step: 50,
+        },
+        apply: (value) => {
+          const baseElevationMm = parsed(value);
+          return baseElevationMm === undefined
+            ? undefined
+            : new UpdateRoofStructureCommand(level.id, roof.id, {
+                baseElevationMm,
+              });
+        },
+      },
+      ...roof.edges.flatMap((edge, index) => [
+        {
+          id: `edge${index}Kind`,
+          semanticId: `roofStructure.edge.kind`,
+          label: `Côté ${index + 1}`,
+          control: {
+            kind: 'SELECT' as const,
+            value: edge.kind,
+            options: ROOF_EDGE_KIND_OPTIONS,
+          },
+          apply: (value: string) =>
+            withEdge(index, { ...edge, kind: value as RoofEdge['kind'] }),
+        },
+        {
+          id: `edge${index}Slope`,
+          semanticId: `roofStructure.edge.slopeDeg`,
+          label: `Côté ${index + 1} · pente`,
+          control: {
+            kind: 'NUMBER' as const,
+            value: edge.slopeDeg,
+            unit: '°',
+            step: 1,
+          },
+          apply: (value: string) => {
+            const slopeDeg = parsed(value);
+            return slopeDeg === undefined
+              ? undefined
+              : withEdge(index, { ...edge, slopeDeg });
+          },
+        },
+        {
+          id: `edge${index}Overhang`,
+          semanticId: `roofStructure.edge.overhangMm`,
+          label: `Côté ${index + 1} · débord`,
+          control: {
+            kind: 'NUMBER' as const,
+            value: edge.overhangMm,
+            unit: 'mm',
+            step: 50,
+            min: 0,
+          },
+          apply: (value: string) => {
+            const overhangMm = parsed(value);
+            return overhangMm === undefined
+              ? undefined
+              : withEdge(index, { ...edge, overhangMm });
+          },
+        },
+      ]),
     ];
   }
   return undefined;

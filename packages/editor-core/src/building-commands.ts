@@ -6,6 +6,8 @@ import type {
   NetworkNode,
   Opening,
   Project,
+  Roof,
+  RoofEdge,
   RoofPlane,
   Slab,
   Space,
@@ -25,6 +27,7 @@ import {
   isWallReferenceSide,
   isWallRole,
   validateComponentInstance,
+  validateRoof,
   validateStair,
 } from '@house-technical-designer/core-domain';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
@@ -1039,6 +1042,140 @@ export class RemoveStairCommand extends BuildingCommand {
     return mapLevel(project, this.levelId, (level) => ({
       ...level,
       stairs: level.stairs.filter(({ id }) => id !== this.stairId),
+    }));
+  }
+}
+
+/** What describing a roof by its outline asks for. */
+export interface RoofStructureDraft {
+  readonly id: string;
+  readonly footprint: Polygon2D;
+  readonly edges: readonly RoofEdge[];
+  readonly assemblyId: string;
+  readonly baseElevationMm: number;
+}
+
+function roofStructureOf(levelId: string, draft: RoofStructureDraft): Roof {
+  return {
+    id: entityId<'Roof'>(draft.id),
+    type: 'ROOF',
+    levelId: entityId<'Level'>(levelId),
+    footprint: draft.footprint,
+    edges: draft.edges,
+    assemblyId: draft.assemblyId as Roof['assemblyId'],
+    baseElevationMm: draft.baseElevationMm,
+  };
+}
+
+export class AddRoofStructureCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly draft: RoofStructureDraft,
+  ) {
+    super(`roof-structure:add:${draft.id}`, 'Ajouter une toiture');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level === undefined)
+      return rejected(`Le niveau ${this.levelId} est introuvable.`);
+    if ((level.roofStructures ?? []).some(({ id }) => id === this.draft.id))
+      return rejected(`La toiture ${this.draft.id} existe déjà.`);
+    const assembly = (project.assemblies ?? []).find(
+      ({ id }) => id === this.draft.assemblyId,
+    );
+    if (assembly === undefined)
+      return rejected(`Assemblage inconnu : ${this.draft.assemblyId}.`);
+    // The same categories a plane drawn by hand accepts: a warm flat roof is
+    // built like a floor, and refusing that here would refuse what the older
+    // tool already allows.
+    if (assembly.category !== 'ROOF' && assembly.category !== 'FLOOR')
+      return rejected(
+        `Un assemblage de catégorie ${assembly.category} ne peut pas porter une toiture.`,
+      );
+    const issues = validateRoof(roofStructureOf(this.levelId, this.draft));
+    return issues.length > 0 ? rejected(...issues) : ok();
+  }
+  protected apply(project: Project): Project {
+    const roof = roofStructureOf(this.levelId, this.draft);
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      roofStructures: [...(level.roofStructures ?? []), roof],
+    }));
+  }
+}
+
+/** What a roof edit may change. */
+export interface RoofStructurePatch {
+  readonly footprint?: Polygon2D;
+  readonly edges?: readonly RoofEdge[];
+  readonly assemblyId?: string;
+  readonly baseElevationMm?: number;
+}
+
+export class UpdateRoofStructureCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly roofId: string,
+    readonly patch: RoofStructurePatch,
+  ) {
+    super(`roof-structure:update:${roofId}`, 'Modifier une toiture');
+  }
+  private patched(roof: Roof): Roof {
+    return {
+      ...roof,
+      ...(this.patch.footprint === undefined
+        ? {}
+        : { footprint: this.patch.footprint }),
+      ...(this.patch.edges === undefined ? {} : { edges: this.patch.edges }),
+      ...(this.patch.assemblyId === undefined
+        ? {}
+        : { assemblyId: this.patch.assemblyId as Roof['assemblyId'] }),
+      ...(this.patch.baseElevationMm === undefined
+        ? {}
+        : { baseElevationMm: this.patch.baseElevationMm }),
+    };
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    const roof = (level?.roofStructures ?? []).find(
+      ({ id }) => id === this.roofId,
+    );
+    if (roof === undefined)
+      return rejected(`La toiture ${this.roofId} est introuvable.`);
+    if (!assemblyExists(project, this.patch.assemblyId))
+      return rejected(`L'assemblage ${this.patch.assemblyId} est introuvable.`);
+    const issues = validateRoof(this.patched(roof));
+    return issues.length > 0 ? rejected(...issues) : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      roofStructures: (level.roofStructures ?? []).map((roof) =>
+        roof.id === this.roofId ? this.patched(roof) : roof,
+      ),
+    }));
+  }
+}
+
+export class RemoveRoofStructureCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly roofId: string,
+  ) {
+    super(`roof-structure:remove:${roofId}`, 'Supprimer une toiture');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    return (level?.roofStructures ?? []).some(({ id }) => id === this.roofId)
+      ? ok()
+      : rejected(`La toiture ${this.roofId} est introuvable.`);
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      roofStructures: (level.roofStructures ?? []).filter(
+        ({ id }) => id !== this.roofId,
+      ),
     }));
   }
 }

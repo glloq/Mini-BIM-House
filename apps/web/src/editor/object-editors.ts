@@ -4,6 +4,7 @@ import {
   buildingElementSubject,
   componentSubject,
   dimensionSubject,
+  roofStructureSubject,
   stairSubject,
   field,
   networkSubject,
@@ -16,6 +17,7 @@ import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import {
   componentEditsFor,
   dimensionEditsFor,
+  roofStructureEditsFor,
   stairEditsFor,
   networkNodeEditsFor,
   openingEditsFor,
@@ -29,6 +31,7 @@ import { openingGrips, polygonGrips, wallGrips, type Grip } from './grips.js';
 import {
   componentBounds,
   componentRelationships,
+  roofStructureBounds,
   stairBounds,
   stairRelationships,
   networkNodeBounds,
@@ -49,6 +52,7 @@ import {
 import {
   componentRemoval,
   dimensionRemoval,
+  roofStructureRemoval,
   stairRemoval,
   networkNodeRemoval,
   openingRemoval,
@@ -257,6 +261,14 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     inspect: dimensionSubject,
     edits: dimensionEditsFor,
     remove: dimensionRemoval,
+  },
+  {
+    label: 'Toiture complète',
+    kinds: ['ROOF_STRUCTURE'],
+    inspect: roofStructureSubject,
+    edits: roofStructureEditsFor,
+    remove: roofStructureRemoval,
+    bounds: roofStructureBounds,
   },
   {
     label: 'Escalier',

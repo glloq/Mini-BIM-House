@@ -11,6 +11,7 @@ import type { TechnicalNetwork } from './network.js';
 import type { Annotation } from './annotation.js';
 import type { ComponentInstance } from './component.js';
 import type { Stair } from './stair.js';
+import type { Roof } from './roof.js';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
@@ -91,6 +92,14 @@ export interface Level extends BaseEntity<LevelId> {
    * every project written until now.
    */
   readonly components?: readonly ComponentInstance[];
+  /**
+   * The roofs described by what encloses them rather than plane by plane.
+   *
+   * The planes they are made of are derived and never stored, so `roofs` holds
+   * only planes drawn one at a time — which is what every project written
+   * until now contains.
+   */
+  readonly roofStructures?: readonly Roof[];
 }
 
 export type ZoneType =

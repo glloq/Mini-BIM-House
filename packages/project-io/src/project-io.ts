@@ -397,6 +397,22 @@ export function validateProjectReferences(
           message: `references unknown object ${component.hostObjectId}`,
         });
     });
+    // A roof described by its outline stands on this storey and is built of
+    // something: a build-up the project no longer holds leaves a roof whose
+    // thermal behaviour nothing can answer.
+    (level.roofStructures ?? []).forEach((roof, index) => {
+      const path = `${base}/roofStructures/${index}`;
+      if (roof.levelId !== level.id)
+        issues.push({
+          path: `${path}/levelId`,
+          message: `is stored on level ${level.id} but declares level ${roof.levelId}`,
+        });
+      if (!assemblies.has(roof.assemblyId))
+        issues.push({
+          path: `${path}/assemblyId`,
+          message: `references unknown assembly ${roof.assemblyId}`,
+        });
+    });
     // A stair joins two storeys; one that names a storey the project does not
     // hold is a stair whose rise nothing can answer.
     level.stairs.forEach((stair, index) => {

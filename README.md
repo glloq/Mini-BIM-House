@@ -651,8 +651,12 @@ fichier de projet promet d'une version à l'autre est écrit dans
 Cette liste décrit la `0.2.0-beta.2` telle qu'elle est aujourd'hui, et rien
 d'autre : ce qui y figure n'existe pas encore dans l'application.
 
-- **Escaliers** : délibérément reportés. Le modèle les transporte sans les
-  typer, l'éditeur ne les dessine pas.
+- **Toitures sur contour quelconque** : une toiture est décrite par son
+  contour et par ce que fait chacun de ses côtés, et ses pans en sont déduits.
+  Un contour rectangulaire est résolu exactement ; tout autre contour demande
+  un squelette droit que cette version ne calcule pas. Elle le dit et ne rend
+  que les pans dont elle est sûre.
+- **Murs courbes et raccords visuels L/T/X** : hors périmètre de la bêta.
 - **Feuilles et export PDF** : le moteur de mise en page existe dans
   `drawing-engine`, mais aucun format de feuille ni aucun backend PDF n'est
   raccordé à l'interface ; l'export technique se fait en SVG.
@@ -667,11 +671,15 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   les tableaux, pas encore sur le dessin.
 - **Productivité CAO** : congés, chanfreins, réseaux de contraintes
   paramétriques et transformations multiples restent hors périmètre. Ce qui
-  existe : extrémité de mur déplacée, mur scindé là où on le désigne, ouverture
-  redimensionnée, contour de dalle repris sommet par sommet, sélection déplacée
-  en la faisant glisser, dupliquée, copiée et collée d'un niveau à l'autre,
-  pivotée d'un quart de tour ou d'un angle tracé, retournée autour d'un axe
-  tracé, décalée parallèlement, jointe, ajustée et alignée.
+  existe : chaîne de murs continue, murs en rectangle, mur polyligne, extrémité
+  de mur déplacée, mur scindé là où on le désigne, ouverture redimensionnée,
+  contour de dalle repris sommet par sommet, pièce et dalle créées depuis le
+  plan, trémie percée dans la dalle qui passe dessous, escalier tracé à la
+  ligne de foulée, toiture décrite par son contour, composant posé où on le
+  désigne, sélection déplacée en la faisant glisser, dupliquée, copiée et
+  collée d'un niveau à l'autre, pivotée d'un quart de tour ou d'un angle tracé,
+  retournée autour d'un axe tracé, décalée parallèlement, jointe, ajustée et
+  alignée.
 - **Dossier de plans** : `drawingViews` n'est pas encore un contrat typé, si
   bien qu'un projet exporte l'état courant plutôt qu'un jeu de feuilles
   reproductible.

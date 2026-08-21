@@ -4,6 +4,7 @@ import {
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import type { Point2D } from '@house-technical-designer/geometry';
+import { roofEaveOutline } from '@house-technical-designer/core-domain';
 import { openingAnchor } from './grips.js';
 import type {
   ObjectBounds,
@@ -155,6 +156,18 @@ export function componentRelationships(
   if (component.hostObjectId !== undefined)
     ties.push({ role: 'Support', objectIds: [component.hostObjectId] });
   return ties;
+}
+
+export function roofStructureBounds(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): ObjectBounds | undefined {
+  const roof = (levelOf(project, levelId)?.roofStructures ?? []).find(
+    ({ id }) => id === objectId,
+  );
+  // The eaves, not the outline: what a roof covers is what reaches furthest.
+  return roof === undefined ? undefined : extentOf(roofEaveOutline(roof).outer);
 }
 
 export function stairBounds(

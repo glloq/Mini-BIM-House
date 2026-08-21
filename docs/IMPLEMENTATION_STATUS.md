@@ -1048,6 +1048,62 @@ l'édition graphique des réseaux, les superpositions techniques, les vues et
 feuilles typées avec export PDF, les scénarios visuels, le terrain et la
 structure.
 
+## Architecture de la maison — lot C du neuvième audit
+
+L'audit relevait que « le domaine permet encore plus que l'interface » et que
+plusieurs familles d'objets n'existaient pas du tout.
+
+- **Tracés sans compte de clics.** Une chaîne de murs, un contour de dalle, une
+  trémie, une ligne de foulée, une toiture n'ont pas de nombre de sommets connu
+  d'avance. Un outil peut désormais prendre des points jusqu'à ce que
+  l'utilisateur dise que c'est fini : Entrée termine, Échap annule, et la barre
+  d'état dit lequel des deux est attendu.
+- **Mur continu, mur polyligne, murs rectangle.** Deux lectures du même tracé
+  sont légitimes — un mur par côté, ou un seul mur polyligne — et aucune n'est
+  devinable ; l'utilisateur choisit. Le rectangle ferme le contour d'équerre en
+  deux clics.
+- **Hauteur de mur « jusqu'au niveau ».** Le domaine l'acceptait depuis le
+  début et aucun écran ne pouvait en produire. Hauteur saisie et niveau
+  supérieur sont deux formes du même mur, écrites par une commande dédiée qui
+  efface ce que l'autre portait.
+- **Pièce et dalle depuis le plan.** Un contour fermé par les murs est un
+  contour que le modèle sait déjà décrire ; le redessiner à la main revient à
+  le redessiner à quelques millimètres près. Un clic suffit, ou un seul geste
+  pour tous les contours encore libres. La trémie perce la dalle qui passe
+  dessous et refuse d'en sortir.
+- **`ComponentInstance`.** Le catalogue décrivait un modèle de pompe à chaleur
+  et rien ne pouvait décrire la pompe à chaleur posée à cet endroit, sur cet
+  étage, dans cette pièce. Le composant posé porte où il est et ce qu'il
+  représente, jamais ce que son modèle dit déjà. La pièce où il se trouve est
+  lue sur le plan.
+- **`Stair` typé.** Le niveau portait `stairs: readonly JsonValue[]` : un
+  escalier était une forme de JSON que l'application transportait sans savoir
+  la lire. Il dit maintenant ce qu'il joint et comment. La hauteur de marche ne
+  s'y trouve pas : elle est la montée divisée par le nombre de contremarches,
+  et l'écrire serait une seconde réponse à une question que les niveaux
+  répondent déjà. L'inspecteur rapporte la formule de Blondel sans corriger
+  l'escalier.
+- **Plafond.** Aucun type nouveau : un faux plafond est un élément horizontal
+  avec son propre complexe, et les assemblages portaient déjà une catégorie
+  PLAFOND. C'est un rôle de dalle qui manquait.
+- **Toiture v2.** Le contrat précédent l'annonçait lui-même : « MVP planar roof
+  contract. Connected roof topology is deliberately deferred. » Chaque pan
+  était dessiné à la main et rien ne les reliait : deux pans pouvaient ne se
+  rencontrer nulle part et le modèle n'avait pas d'avis. Une toiture tient
+  désormais le contour qu'elle couvre et ce que fait chacun de ses côtés — pan
+  ou pignon, pente, débord. Les pans en découlent, déduits et jamais
+  enregistrés, si bien qu'un contour qui bouge les déplace et qu'un côté devenu
+  pignon en retire un. Un contour rectangulaire est résolu exactement, quel que
+  soit le mélange de pans et de pignons et quelles que soient les pentes : deux
+  côtés opposés se rencontrent là où leurs deux montées atteignent la même
+  hauteur, ce qui est une division et non une estimation. Tout autre contour
+  demande un squelette droit, que cette version ne calcule pas : elle le dit et
+  ne rend que les pans dont elle est sûre, plutôt que d'inventer un faîtage que
+  personne n'a dessiné.
+
+Restent ouverts pour cette famille : le mur courbe, le raccord visuel L/T/X, et
+la résolution des toitures sur contour quelconque.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans

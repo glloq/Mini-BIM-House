@@ -16,6 +16,7 @@ import {
   AddDimensionCommand,
   AddOpeningCommand,
   AddRoofCommand,
+  AddRoofStructureCommand,
   AddSlabCommand,
   AddSpaceCommand,
   AddStairCommand,
@@ -336,6 +337,64 @@ export function addStairCommand(
       riserCount: draft.riserCount,
       treadDepthMm: draft.treadDepthMm,
       path: points.map((point) => ({ ...point })),
+    }),
+  };
+}
+
+/**
+ * Builds a roof from the outline that was drawn, or from the walls below it.
+ *
+ * Every side starts as a slope of the same pitch, which is a hipped roof; the
+ * inspector turns the sides that should be gables into gables. Nothing about
+ * the shape is guessed at creation, because the two-sided roof and the hipped
+ * roof have the same outline and only the user knows which was meant.
+ */
+export function addRoofStructureCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: {
+    readonly assemblyId: string;
+    readonly slopeDeg: number;
+    readonly overhangMm: number;
+    readonly fromWalls: boolean;
+  },
+  roofId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  let outline: readonly Point2D[];
+  if (draft.fromWalls) {
+    const point = points[0];
+    if (point === undefined)
+      return { status: 'ERROR', message: 'Un point est attendu.' };
+    const room = detectRooms(file.project, level.id).find((candidate) =>
+      pointInPolygon(point, candidate.polygon.outer),
+    );
+    if (room === undefined)
+      return {
+        status: 'ERROR',
+        message: 'Ce point n’est dans aucun contour fermé par les murs.',
+      };
+    outline = room.polygon.outer;
+  } else {
+    if (points.length < 3)
+      return { status: 'ERROR', message: 'Une toiture demande trois points.' };
+    outline = points;
+  }
+  return {
+    status: 'OK',
+    command: new AddRoofStructureCommand(level.id, {
+      id: roofId,
+      footprint: { outer: outline.map((point) => ({ ...point })) },
+      edges: outline.map(() => ({
+        kind: 'SLOPED' as const,
+        slopeDeg: draft.slopeDeg,
+        overhangMm: draft.overhangMm,
+      })),
+      assemblyId: draft.assemblyId,
+      baseElevationMm: level.elevationMm + level.defaultStoreyHeightMm,
     }),
   };
 }

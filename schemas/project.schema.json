@@ -247,6 +247,12 @@
           "items": {
             "$ref": "#/$defs/ComponentInstance"
           }
+        },
+        "roofStructures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RoofStructure"
+          }
         }
       },
       "additionalProperties": true
@@ -444,6 +450,70 @@
             },
             "additionalProperties": true
           }
+        }
+      },
+      "additionalProperties": true
+    },
+    "RoofStructure": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "levelId",
+        "footprint",
+        "edges",
+        "assemblyId",
+        "baseElevationMm"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "const": "ROOF"
+        },
+        "levelId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "footprint": {
+          "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Polygon2D"
+        },
+        "edges": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "slopeDeg",
+              "overhangMm"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "SLOPED",
+                  "GABLE"
+                ]
+              },
+              "slopeDeg": {
+                "type": "number"
+              },
+              "overhangMm": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "assemblyId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "baseElevationMm": {
+          "type": "number"
         }
       },
       "additionalProperties": true

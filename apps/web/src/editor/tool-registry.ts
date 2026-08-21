@@ -11,6 +11,7 @@ import {
   addDimensionCommand,
   addEveryDetectedRoomCommand,
   addOpeningCommand,
+  addRoofStructureCommand,
   addSlabFromPointsCommand,
   addSpaceAtPointCommand,
   addStairCommand,
@@ -576,6 +577,75 @@ export const EDITOR_TOOLS = [
     dynamicInput: { length: true, angle: true },
     createCommand: (context) =>
       punchSlabHoleCommand(context.file, context.levelId, context.points),
+  },
+  {
+    id: 'ROOF',
+    group: 'ARCHITECTURE',
+    label: 'Toiture',
+    hint: 'Décrire une toiture par son contour · Entrée termine, Échap annule',
+    shortcutId: 'tool.roof',
+    requiredPoints: 3,
+    openEnded: true,
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'assemblyId',
+        kind: 'SELECT',
+        label: 'Assemblage',
+        choices: ({ project }) =>
+          (project.assemblies ?? [])
+            .filter(
+              ({ category }) => category === 'ROOF' || category === 'FLOOR',
+            )
+            .map(({ id, name }) => ({ value: id, label: name })),
+        fallback: ({ project }) =>
+          (project.assemblies ?? []).find(
+            ({ category }) => category === 'ROOF' || category === 'FLOOR',
+          )?.id ?? '',
+      },
+      {
+        key: 'slopeDeg',
+        kind: 'NUMBER',
+        label: 'Pente des pans',
+        unit: '°',
+        step: 1,
+        hint: 'Chaque côté part en pan ; l’inspecteur en fait des pignons.',
+        fallback: () => '35',
+      },
+      {
+        key: 'overhangMm',
+        kind: 'NUMBER',
+        label: 'Débord',
+        unit: 'mm',
+        step: 50,
+        min: 0,
+        fallback: () => '400',
+      },
+      {
+        key: 'outline',
+        kind: 'SELECT',
+        label: 'Contour',
+        choices: () => [
+          { value: 'POINTS', label: 'Les points cliqués' },
+          { value: 'WALLS', label: 'Le contour visé' },
+        ],
+        fallback: () => 'POINTS',
+      },
+    ],
+    createCommand: (context) =>
+      addRoofStructureCommand(
+        context.file,
+        context.levelId,
+        context.points,
+        {
+          assemblyId: context.option('assemblyId'),
+          slopeDeg: context.optionNumber('slopeDeg') ?? 35,
+          overhangMm: context.optionNumber('overhangMm') ?? 400,
+          fromWalls: context.option('outline') === 'WALLS',
+        },
+        context.newId('roof'),
+      ),
   },
   {
     id: 'STAIR',

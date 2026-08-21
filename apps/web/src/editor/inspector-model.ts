@@ -1,6 +1,9 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import {
   calculateWallNetArea,
+  deriveRoofPlanes,
+  roofEaveOutline,
+  roofRidgeElevationMm,
   resolveDimension,
   stairDimensions,
 } from '@house-technical-designer/core-domain';
@@ -46,6 +49,7 @@ export interface InspectorSubject {
     | 'DIMENSION'
     | 'COMPONENT'
     | 'STAIR'
+    | 'ROOF_STRUCTURE'
     | 'UNKNOWN';
   readonly title: string;
   readonly sections: readonly InspectorSection[];
@@ -712,6 +716,83 @@ export function stairSubject(
             field('Identifiant', stair.id),
             field('Type', stair.stairType),
             field('Paliers', (stair.landings ?? []).length),
+          ],
+        },
+      ],
+    };
+  }
+  return undefined;
+}
+
+/** What a roof described by its outline shows: what follows from that outline. */
+export function roofStructureSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  for (const level of project.building.levels) {
+    const roof = (level.roofStructures ?? []).find(({ id }) => id === objectId);
+    if (roof === undefined) continue;
+    const topology = deriveRoofPlanes(roof);
+    const ridge = roofRidgeElevationMm(roof);
+    const sloped = roof.edges.filter(({ kind }) => kind === 'SLOPED');
+    const projectedMm2 = Math.abs(polygonArea(roofEaveOutline(roof)));
+    return {
+      objectId,
+      kind: 'ROOF_STRUCTURE',
+      title: `Toiture ${roof.id}`,
+      sections: [
+        {
+          title: 'Forme',
+          fields: [
+            field('Côtés', roof.edges.length),
+            field('Pans', sloped.length),
+            field('Pignons', roof.edges.length - sloped.length),
+            field(
+              'Pentes',
+              sloped.length === 0
+                ? undefined
+                : [...new Set(sloped.map(({ slopeDeg }) => slopeDeg))]
+                    .map((slope) => `${slope}°`)
+                    .join(' · '),
+            ),
+          ],
+        },
+        {
+          title: 'Altitudes',
+          fields: [
+            field('Égout', `${roof.baseElevationMm} mm`),
+            field(
+              'Faîtage',
+              ridge === undefined ? undefined : `${Math.round(ridge)} mm`,
+              ridge === undefined
+                ? 'Le faîtage se déduit du contour, que cette version ne sait pas résoudre ici.'
+                : 'Déduit du contour et des pentes.',
+            ),
+          ],
+        },
+        {
+          title: 'Surfaces',
+          fields: [
+            field(
+              'Emprise sous égouts',
+              `${(projectedMm2 / 1_000_000).toFixed(2)} m²`,
+            ),
+            field(
+              'Pans déduits',
+              topology.status === 'DERIVED'
+                ? topology.planes.length
+                : undefined,
+              topology.status === 'DERIVED'
+                ? 'Les pans sont déduits et jamais enregistrés.'
+                : topology.reason,
+            ),
+          ],
+        },
+        {
+          title: 'Références',
+          fields: [
+            field('Identifiant', roof.id),
+            field('Assemblage', roof.assemblyId),
           ],
         },
       ],
