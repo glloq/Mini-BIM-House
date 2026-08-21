@@ -50,6 +50,17 @@ export function networkProductsOfFamily(
 }
 
 /**
+ * Enough of a product to say what a run is made of.
+ *
+ * The project's own copy and the catalogue's entry are the same thing from
+ * here: a set of properties under an identifier.
+ */
+export interface NetworkProductLike {
+  readonly id: string;
+  readonly properties: Readonly<Record<string, unknown>>;
+}
+
+/**
  * What a run made of this product is, in the units the calculations read.
  *
  * The catalogue speaks the trade's units — a bore in millimetres, a roughness
@@ -63,7 +74,7 @@ export function networkProductsOfFamily(
  * which is true, rather than sizing it on a number nobody supplied.
  */
 export function productPhysicalProperties(
-  product: NetworkProduct,
+  product: NetworkProductLike,
 ): Readonly<Record<string, ProductPropertyValue>> {
   const number = (key: string): number | undefined => {
     const value = product.properties[key];
@@ -98,13 +109,21 @@ export function productPhysicalProperties(
  * A segment's own properties are what this run measures or overrides — a
  * slope, a length, a bore somebody has good reason to state — and they win.
  * What they no longer have to repeat is the product itself.
+ *
+ * The product is looked for among the ones the project holds before the ones
+ * the catalogue ships. A file has to open the same way in two years: reading
+ * the installed catalogue would resize every network already drawn, the day
+ * somebody corrects a tube.
  */
 export function resolvedSegmentProperties(
   productId: string | undefined,
   own: Readonly<Record<string, unknown>> | undefined,
+  held: readonly NetworkProductLike[] = [],
 ): Readonly<Record<string, unknown>> {
   const product =
-    productId === undefined ? undefined : networkProduct(productId);
+    productId === undefined
+      ? undefined
+      : (held.find(({ id }) => id === productId) ?? networkProduct(productId));
   return {
     ...(product === undefined ? {} : productPhysicalProperties(product)),
     ...own,

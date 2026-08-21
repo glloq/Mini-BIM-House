@@ -2,6 +2,7 @@ import type {
   EquipmentDefinition,
   JsonValue,
   Level,
+  NetworkProductSnapshot,
   Project,
   ResolvedPlacedEquipment,
   Space,
@@ -131,6 +132,13 @@ export interface ProjectCalculationContext {
    * every calculation was concerned, and moving something changed nothing.
    * Whatever depends on how many there are, or on where they are, reads these.
    */
+  /**
+   * The products this project holds, which is what its runs are made of.
+   *
+   * Read before the catalogue installed today: correcting a tube must not
+   * resize a network somebody drew six months ago.
+   */
+  readonly networkProducts: readonly NetworkProductSnapshot[];
   readonly placedEquipment: readonly ResolvedPlacedEquipment[];
   readonly placedEquipmentByFamily: Readonly<
     Record<string, readonly ResolvedPlacedEquipment[]>
@@ -413,6 +421,7 @@ export function createProjectCalculationContext(
     networksByDiscipline: groupBy(systems, ({ discipline }) => discipline),
     equipment,
     equipmentByKind: groupBy(equipment, ({ kind }) => kind),
+    networkProducts: project.networkProducts ?? [],
     placedEquipment: placed,
     placedEquipmentByFamily: placedEquipmentByFamily(placed),
     placedEquipmentByKind: placedEquipmentByKind(placed),
