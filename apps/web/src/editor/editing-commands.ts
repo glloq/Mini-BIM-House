@@ -299,11 +299,50 @@ export function placeComponentCommand(
 }
 
 /**
+ * Cuts or extends a walking line so that it is exactly `lengthMm` long.
+ *
+ * The line keeps its start and every turn it takes; only its end moves, along
+ * the direction of its last stretch. A shorter line loses the stretches past
+ * the mark, a longer one grows out of its last one.
+ */
+function fittedToLength(
+  points: readonly Point2D[],
+  lengthMm: number,
+): readonly Point2D[] {
+  const kept: Point2D[] = [{ ...points[0]! }];
+  let travelled = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const from = points[index - 1]!;
+    const to = points[index]!;
+    const segment = Math.hypot(to.x - from.x, to.y - from.y);
+    if (segment === 0) continue;
+    const last = index === points.length - 1;
+    if (travelled + segment >= lengthMm || last) {
+      const ratio = (lengthMm - travelled) / segment;
+      kept.push({
+        x: from.x + (to.x - from.x) * ratio,
+        y: from.y + (to.y - from.y) * ratio,
+      });
+      return kept;
+    }
+    kept.push({ ...to });
+    travelled += segment;
+  }
+  return kept;
+}
+
+/**
  * Builds a stair along the line the user walked with the pointer.
  *
  * The storey it arrives at is the one just above, because that is what a stair
  * between two floors does; the inspector lets it be sent elsewhere. Its riser
  * height is never asked for: the storeys already answer it.
+ *
+ * The line is then fitted to the flight it has to carry: so many risers of so
+ * deep a tread need a known length of floor, and a line drawn shorter or
+ * longer than that would be a stair whose plan and whose dimensions describe
+ * two different objects. The user says where the stair goes and which way it
+ * turns; how far it reaches follows from its steps.
  */
 export function addStairCommand(
   file: ProjectFile,
@@ -342,7 +381,10 @@ export function addStairCommand(
       widthMm: draft.widthMm,
       riserCount: draft.riserCount,
       treadDepthMm: draft.treadDepthMm,
-      path: points.map((point) => ({ ...point })),
+      path: fittedToLength(
+        points,
+        Math.max(0, draft.riserCount - 1) * draft.treadDepthMm,
+      ),
     }),
   };
 }

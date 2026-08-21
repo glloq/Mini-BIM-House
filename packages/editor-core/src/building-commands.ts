@@ -658,6 +658,22 @@ export class RemoveRoofCommand extends BuildingCommand {
   }
 }
 
+/**
+ * What a placed component may be physically fixed to, on one storey.
+ *
+ * A surface a thing can be hung on. A room is a volume and is named by
+ * `spaceId`; a catalogue entry is a description and is named by
+ * `definitionId`. Keeping the three apart is what stops a radiator from being
+ * « fixed to » the model of a radiator.
+ */
+function supportsOf(level: Level): ReadonlySet<string> {
+  return new Set<string>([
+    ...level.walls.map(({ id }) => id as string),
+    ...level.slabs.map(({ id }) => id as string),
+    ...level.roofs.map(({ id }) => id as string),
+  ]);
+}
+
 /** What placing a component asks for. */
 export interface ComponentDraft {
   readonly id: string;
@@ -705,7 +721,16 @@ export class AddComponentCommand extends BuildingCommand {
       this.draft.spaceId !== undefined &&
       !level.spaces.some(({ id }) => id === this.draft.spaceId)
     )
-      return rejected(`La pièce ${this.draft.spaceId} est introuvable.`);
+      return rejected(
+        `La pièce ${this.draft.spaceId} n'est pas sur ce niveau.`,
+      );
+    if (
+      this.draft.hostObjectId !== undefined &&
+      !supportsOf(level).has(this.draft.hostObjectId)
+    )
+      return rejected(
+        `${this.draft.hostObjectId} n'est pas un support de ce niveau : un composant se fixe à un mur, une dalle ou une toiture.`,
+      );
     const issues = validateComponentInstance(this.instance());
     return issues.length > 0
       ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
@@ -750,6 +775,7 @@ export interface ComponentPatch {
   readonly elevationMm?: number;
   readonly rotationDeg?: number;
   readonly spaceId?: string | null;
+  readonly hostObjectId?: string | null;
 }
 
 export class UpdateComponentCommand extends BuildingCommand {
@@ -784,7 +810,16 @@ export class UpdateComponentCommand extends BuildingCommand {
       typeof this.patch.spaceId === 'string' &&
       !level.spaces.some(({ id }) => id === this.patch.spaceId)
     )
-      return rejected(`La pièce ${this.patch.spaceId} est introuvable.`);
+      return rejected(
+        `La pièce ${this.patch.spaceId} n'est pas sur ce niveau.`,
+      );
+    if (
+      typeof this.patch.hostObjectId === 'string' &&
+      !supportsOf(level).has(this.patch.hostObjectId)
+    )
+      return rejected(
+        `${this.patch.hostObjectId} n'est pas un support de ce niveau : un composant se fixe à un mur, une dalle ou une toiture.`,
+      );
     const issues = validateComponentInstance(this.patched(component));
     return issues.length > 0
       ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
@@ -795,8 +830,13 @@ export class UpdateComponentCommand extends BuildingCommand {
       definitionId: _definition,
       name: _name,
       spaceId: _space,
+      hostObjectId: _host,
       ...rest
     } = component;
+    const hostObjectId =
+      this.patch.hostObjectId === undefined
+        ? component.hostObjectId
+        : (this.patch.hostObjectId ?? undefined);
     const definitionId =
       this.patch.definitionId === undefined
         ? component.definitionId
@@ -828,6 +868,7 @@ export class UpdateComponentCommand extends BuildingCommand {
       ...(definitionId === undefined ? {} : { definitionId }),
       ...(name === undefined || name.trim() === '' ? {} : { name }),
       ...(spaceId === undefined ? {} : { spaceId }),
+      ...(hostObjectId === undefined ? {} : { hostObjectId }),
     };
   }
   protected apply(project: Project): Project {

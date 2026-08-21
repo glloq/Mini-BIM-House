@@ -146,6 +146,41 @@ export interface StairDimensions {
    * decision for the person drawing the house.
    */
   readonly blondelMm: number;
+  /** The walking line as it is drawn, from the first point to the last. */
+  readonly pathLengthMm: number;
+  /**
+   * How much longer the drawn line is than the flight it carries.
+   *
+   * Negative when the line is too short — the flight then needs more floor
+   * than the plan gives it. The two lengths are two answers to the same
+   * question, and nothing in the model forces them to agree: the run follows
+   * from the riser count, the tread depth and the landings, while the line is
+   * drawn by hand. Reporting the gap is the only way the drawing and the
+   * numbers stop disagreeing in silence.
+   */
+  readonly pathDifferenceMm: number;
+  /** Whether the two agree to within {@link STAIR_PATH_TOLERANCE_MM}. */
+  readonly pathMatchesRun: boolean;
+}
+
+/**
+ * How far the drawn walking line may sit from the flight it carries.
+ *
+ * A centimetre: below that the difference is drawing precision, above it the
+ * plan and the dimensions describe two different stairs.
+ */
+export const STAIR_PATH_TOLERANCE_MM = 10;
+
+/** The length of the walking line, in the order its points are written. */
+export function stairPathLengthMm(stair: Stair): number {
+  const points = stair.path.points;
+  let total = 0;
+  for (let index = 1; index < points.length; index += 1)
+    total += Math.hypot(
+      points[index]!.x - points[index - 1]!.x,
+      points[index]!.y - points[index - 1]!.y,
+    );
+  return total;
 }
 
 export function stairDimensions(stair: Stair, riseMm: number): StairDimensions {
@@ -154,12 +189,19 @@ export function stairDimensions(stair: Stair, riseMm: number): StairDimensions {
     (total, landing) => total + landing.depthMm,
     0,
   );
+  // One fewer tread than risers: the last riser arrives on the storey above,
+  // which is not a tread of the stair.
+  const runMm =
+    Math.max(0, stair.riserCount - 1) * stair.treadDepthMm + landings;
+  const pathLengthMm = stairPathLengthMm(stair);
+  const pathDifferenceMm = pathLengthMm - runMm;
   return {
     riseMm,
     riserHeightMm,
-    // One fewer tread than risers: the last riser arrives on the storey above,
-    // which is not a tread of the stair.
-    runMm: Math.max(0, stair.riserCount - 1) * stair.treadDepthMm + landings,
+    runMm,
     blondelMm: 2 * riserHeightMm + stair.treadDepthMm,
+    pathLengthMm,
+    pathDifferenceMm,
+    pathMatchesRun: Math.abs(pathDifferenceMm) <= STAIR_PATH_TOLERANCE_MM,
   };
 }

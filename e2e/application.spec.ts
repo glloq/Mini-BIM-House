@@ -1095,6 +1095,46 @@ test('reaches an object through the project tree', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('reaches a column and a component through the project tree', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+
+  // A column, then a radiator: the two families whose tree lines used to send
+  // « member-1 Poteau member-1 » where an identifier was expected, so that
+  // clicking them selected nothing at all.
+  await page.getByRole('button', { name: 'Poteau', exact: true }).click();
+  await page.getByLabel('Élément').selectOption('COLUMN');
+  await canvas.click({ position: { x: box.width * 0.4, y: box.height * 0.4 } });
+  await expect(page.locator('[id^="structure:member-"]')).toHaveCount(1);
+
+  await page.getByRole('button', { name: 'Composant', exact: true }).click();
+  await page.getByLabel('Catégorie').selectOption('HEATING');
+  await page.getByLabel('Nom').fill('Radiateur séjour');
+  await canvas.click({
+    position: { x: box.width * 0.3, y: box.height * 0.35 },
+  });
+  await expect(page.getByRole('status')).toContainText('composant');
+
+  const tree = page.getByRole('navigation', {
+    name: 'Arborescence du projet',
+  });
+  await tree.getByText(/^Structure/).click();
+  await tree.getByRole('button', { name: /^Poteau / }).click();
+  await expect(page.locator('.inspector-subject h3')).toContainText('Poteau');
+
+  await tree.getByText(/^Composants/).click();
+  await tree.getByRole('button', { name: 'Radiateur séjour' }).click();
+  await expect(page.locator('.inspector-subject h3')).toContainText(
+    'Radiateur séjour',
+  );
+  expect(errors).toEqual([]);
+});
+
 test('chooses which contour a slab is built from', async ({ page }) => {
   await loadDemo(page);
   await page.getByRole('button', { name: 'Niveaux et pièces' }).click();

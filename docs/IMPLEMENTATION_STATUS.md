@@ -1332,6 +1332,85 @@ Le test physique demandé existe : dix mètres de mur mesurent 200 mm au 1:50,
 produit — et la feuille se déclare en millimètres avec un `viewBox` un pour un,
 ce qui est ce qui porte l'échelle jusque dans le PDF.
 
+## Cohérence des objets récents — lot B du dixième audit
+
+Les familles ajoutées par les lots C à H sont arrivées avec des incohérences
+qui n'étaient visibles qu'en s'en servant. Elles ne rendaient rien faux dans
+les calculs ; elles rendaient l'application impossible à utiliser sur les
+objets concernés, ce qui revient au même pour la personne qui dessine.
+
+### L'arborescence renvoyait un libellé là où un identifiant était attendu
+
+Chaque famille de l'arbre produisait une chaîne unique où l'identifiant et le
+nom voyageaient collés, à charge pour l'affichage de les séparer. Les pièces
+utilisaient un `\0` comme séparateur ; la structure et les composants avaient
+utilisé une espace. Un clic sur « Poteau member-1 » ou sur « Radiateur séjour »
+envoyait donc `member-1 Poteau` — libellé compris — là où l'application
+attendait `member-1`, et ne sélectionnait rien. Deux familles sur neuf, et
+précisément les deux dernières ajoutées.
+
+Le format n'a pas été corrigé, il a été supprimé : une entrée de l'arbre est
+maintenant `{ objectId, label }`, deux champs qu'aucune famille ne peut coller
+l'un à l'autre. Un test navigateur fait le trajet complet pour les deux
+familles fautives — arbre → Structure → clic sur le poteau → inspecteur du
+poteau, arbre → Composants → clic sur le radiateur → inspecteur du radiateur.
+
+### Un tronçon de réseau ne pouvait ni être modifié ni être supprimé
+
+Le tronçon était sélectionnable, mesurable, encadrable et déplaçable, mais
+`edits` et `remove` de sa famille ne connaissaient que les nœuds. Ce qu'un tuyau
+est fait de ne pouvait donc se dire que dans l'espace de travail des réseaux,
+et la touche Suppr ne faisait rien sur lui.
+
+L'édition vient maintenant du schéma de la discipline — `edgePropertySchema`,
+le même que celui du panneau réseaux — de sorte qu'une discipline nouvelle
+apporte ses champs sans que l'inspecteur ait à les connaître. Un champ vidé
+efface la propriété au lieu d'y écrire zéro, et le pas des flèches suit l'unité
+du champ : un diamètre en mètres ne se règle pas par pas de un.
+
+### Les réseaux se dessinaient en entier sur tous les niveaux
+
+Un nœud déclare le niveau où il se trouve ; le plan les dessinait tous, quel
+que soit l'étage affiché. La vue filtre désormais nœuds, ports et tronçons par
+le niveau demandé — un tronçon appartient aux niveaux de ses deux extrémités —
+et un objet qui ne déclare aucun niveau reste visible partout, parce qu'il n'y
+a rien à filtrer dessus. Un tronçon qui relie deux étages est marqué comme
+colonne montante plutôt que masqué.
+
+### Un composant pouvait être fixé à autre chose qu'une surface
+
+`hostObjectId` était vérifié contre la liste des cibles d'un nœud de réseau,
+qui contient les pièces et les équipements du catalogue. Un radiateur pouvait
+donc être « fixé » au modèle de radiateur qui le décrit. Un composant se fixe à
+un mur, une dalle ou une toiture ; le support et la pièce doivent de plus se
+trouver sur le niveau du composant, faute de quoi le dessin le pose à un étage
+et son support à un autre. La lecture de fichier et les commandes le refusent
+toutes les deux.
+
+### Un escalier décrivait deux escaliers différents
+
+La ligne de foulée était tracée à la main et les marches choisies dans les
+options de l'outil : rien ne forçait la longueur tracée à correspondre au
+nombre de marches et au giron. Le plan répartissait les marches uniformément
+sur la ligne, si bien que seize contremarches de 27 cm tenaient visuellement
+sur trois mètres comme sur cinq. Le dessin et les métrés décrivaient deux
+objets.
+
+Trois changements. Les marches sont maintenant posées au giron déclaré, en
+partant du bas et en s'arrêtant au bout de la ligne : une volée qui ne tient
+pas dans la place qu'on lui a donnée se voit. La création ajuste la ligne
+tracée à la longueur que la volée demande, en gardant le départ et chaque
+angle : l'utilisateur dit où l'escalier va et comment il tourne, sa longueur
+suit de ses marches. Enfin `stairDimensions` rend la longueur tracée, la
+longueur demandée et leur écart, et les Vérifications signalent tout écart de
+plus d'un centimètre en nommant les deux longueurs — ce qui reste possible
+après une modification du nombre de marches depuis l'inspecteur.
+
+Un escalier qui arrive à un niveau non supérieur au sien est refusé à la
+lecture du fichier, et plus seulement par les commandes : sa montée serait
+nulle ou négative, donc sa hauteur de marche, son Blondel et sa place dans les
+métrés seraient des réponses à une question qui n'en a pas.
+
 ## Ce qui reste ouvert après les lots A à H
 
 Les huit lots du neuvième audit sont traités. Ce qui n'a pas été fait, et

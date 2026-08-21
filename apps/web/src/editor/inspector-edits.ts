@@ -9,10 +9,13 @@ import type {
   Wall,
 } from '@house-technical-designer/core-domain';
 import { isDimension } from '@house-technical-designer/core-domain';
+import type { JsonValue } from '@house-technical-designer/core-domain';
+import { edgePropertySchema } from '@house-technical-designer/editor-core';
 import {
   MoveWallPointCommand,
   ProjectEditorCommand,
   UpdateDimensionCommand,
+  UpdateNetworkEdgeCommand,
   UpdateNetworkNodeCommand,
   UpdateOpeningCommand,
   UpdateRoofCommand,
@@ -1085,6 +1088,75 @@ export function structureEditsFor(
           }),
       },
     ];
+  }
+  return undefined;
+}
+
+/**
+ * What a routed segment lets the user change, from the plan.
+ *
+ * A segment was described but never edited here: its physical properties
+ * belonged to the networks workspace, so what a pipe is made of could only be
+ * said somewhere other than where the pipe is. What it may carry is the
+ * discipline's own schema, so a new discipline brings its own fields.
+ */
+export function networkEdgeEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const network of project.systems ?? []) {
+    const edge = network.edges.find(({ id }) => id === objectId);
+    if (edge === undefined) continue;
+    const held = edge.properties ?? {};
+    return edgePropertySchema(network.discipline).map((descriptor) => {
+      const value = held[descriptor.key];
+      const write = (next: JsonValue | undefined) => {
+        const { [descriptor.key]: _replaced, ...rest } = held;
+        return new UpdateNetworkEdgeCommand(
+          network.id,
+          edge.id,
+          next === undefined ? rest : { ...rest, [descriptor.key]: next },
+        );
+      };
+      if (descriptor.kind === 'CHOICE')
+        return {
+          id: descriptor.key,
+          semanticId: `networkEdge.${descriptor.key}`,
+          label: descriptor.label,
+          control: {
+            kind: 'SELECT' as const,
+            value: typeof value === 'string' ? value : '',
+            options: [
+              { value: '', label: 'Non renseigné' },
+              ...(descriptor.options ?? []),
+            ],
+          },
+          ...(descriptor.hint === undefined ? {} : { hint: descriptor.hint }),
+          apply: (next: string) => write(next === '' ? undefined : next),
+        };
+      return {
+        id: descriptor.key,
+        semanticId: `networkEdge.${descriptor.key}`,
+        label: descriptor.label,
+        control: {
+          kind: 'NUMBER' as const,
+          value: typeof value === 'number' ? value : 0,
+          ...(descriptor.unit === undefined ? {} : { unit: descriptor.unit }),
+          ...(descriptor.min === undefined ? {} : { min: descriptor.min }),
+          // A diameter is held in metres and a section in square millimetres;
+          // one step of the arrows has to mean something in both, so it is the
+          // unit that decides it and not a number chosen once for all fields.
+          step: descriptor.unit === 'm' ? 0.001 : 1,
+        },
+        ...(descriptor.hint === undefined ? {} : { hint: descriptor.hint }),
+        apply: (next: string) => {
+          // An emptied field is a value nobody stated any more, not a zero.
+          if (next.trim() === '') return write(undefined);
+          const parsedValue = parsed(next);
+          return parsedValue === undefined ? undefined : write(parsedValue);
+        },
+      };
+    });
   }
   return undefined;
 }

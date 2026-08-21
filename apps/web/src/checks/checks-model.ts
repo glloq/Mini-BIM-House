@@ -1,5 +1,6 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import {
+  stairDimensions,
   unresolvedRoofs,
   validateTechnicalNetwork,
 } from '@house-technical-designer/core-domain';
@@ -170,6 +171,35 @@ export function projectChecks(
           objectIds: [roof.id],
         },
       });
+    // A stair is described twice: by the line it is drawn along, and by the
+    // marches it is made of. Nothing forces the two to agree, and when they
+    // do not, the plan shows one stair and the dimensions state another.
+    for (const stair of level.stairs) {
+      const top = project.building.levels.find(
+        ({ id }) => id === stair.topLevelId,
+      );
+      if (top === undefined) continue;
+      const measured = stairDimensions(
+        stair,
+        top.elevationMm - level.elevationMm,
+      );
+      if (measured.pathMatchesRun) continue;
+      const short = measured.pathDifferenceMm < 0;
+      checks.push({
+        id: `model:${level.id}:stair-path:${stair.id}`,
+        status: 'FAIL',
+        source: 'MODEL',
+        title: `${level.name} — escalier ${stair.id} : la ligne tracée ne porte pas ses marches`,
+        detail: short
+          ? `Les ${stair.riserCount - 1} marches de ${stair.treadDepthMm} mm demandent ${measured.runMm.toFixed(0)} mm au sol, alors que la ligne de foulée n’en mesure que ${measured.pathLengthMm.toFixed(0)} mm : ${Math.abs(measured.pathDifferenceMm).toFixed(0)} mm de trop. Le plan ne dessine donc pas toutes les marches.`
+          : `La ligne de foulée mesure ${measured.pathLengthMm.toFixed(0)} mm alors que les marches n’en occupent que ${measured.runMm.toFixed(0)} mm : ${measured.pathDifferenceMm.toFixed(0)} mm du haut de la volée restent sans marche.`,
+        fix: {
+          label: 'Voir sur le plan',
+          tab: 'plan',
+          objectIds: [stair.id],
+        },
+      });
+    }
   }
 
   for (const network of project.systems ?? [])

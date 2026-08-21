@@ -717,6 +717,28 @@ export function stairSubject(
             field(
               'Longueur au sol',
               measured === undefined ? undefined : metres(measured.runMm),
+              'Déduite du nombre de marches, du giron et des paliers.',
+            ),
+            field(
+              'Ligne de foulée tracée',
+              measured === undefined
+                ? undefined
+                : metres(measured.pathLengthMm),
+            ),
+            field(
+              'Écart tracé / marches',
+              measured === undefined
+                ? undefined
+                : `${measured.pathDifferenceMm >= 0 ? '+' : '−'}${Math.abs(
+                    measured.pathDifferenceMm,
+                  ).toFixed(0)} mm`,
+              measured === undefined
+                ? undefined
+                : measured.pathMatchesRun
+                  ? 'La ligne tracée porte exactement les marches décrites.'
+                  : measured.pathDifferenceMm < 0
+                    ? 'Les marches décrites ne tiennent pas sur la ligne tracée : le plan montre moins de marches qu’il n’en faut.'
+                    : 'La ligne tracée est plus longue que les marches décrites : le haut de la volée reste sans marche.',
             ),
             field(
               'Formule de Blondel',

@@ -22,6 +22,7 @@ import {
   roofStructureEditsFor,
   stairEditsFor,
   structureEditsFor,
+  networkEdgeEditsFor,
   networkNodeEditsFor,
   openingEditsFor,
   roofEditsFor,
@@ -46,13 +47,14 @@ import {
   stairBounds,
   structureBounds,
   stairRelationships,
-  networkNodeBounds,
+  networkBounds,
   networkNodeRelationships,
   networkRelationships,
   openingBounds,
   openingRelationships,
   roofBounds,
   similarComponents,
+  similarNetworkObjects,
   similarOpenings,
   similarSlabs,
   similarWalls,
@@ -69,7 +71,7 @@ import {
   siteRemoval,
   stairRemoval,
   structureRemoval,
-  networkNodeRemoval,
+  networkRemoval,
   openingRemoval,
   roofRemoval,
   slabRemoval,
@@ -265,10 +267,15 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     label: 'Réseau',
     kinds: ['NETWORK_NODE', 'NETWORK_EDGE'],
     inspect: networkSubject,
-    edits: networkNodeEditsFor,
+    // A node and a segment are both of this family and are not edited alike:
+    // a node stands somewhere, a segment is made of something.
+    edits: (project, objectId) =>
+      networkNodeEditsFor(project, objectId) ??
+      networkEdgeEditsFor(project, objectId),
     grips: routeGrips,
-    remove: networkNodeRemoval,
-    bounds: networkNodeBounds,
+    remove: networkRemoval,
+    bounds: networkBounds,
+    similar: similarNetworkObjects,
     relationships: (project, levelId, objectId) => {
       const node = networkNodeRelationships(project, levelId, objectId);
       return node.length > 0
