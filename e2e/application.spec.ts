@@ -429,6 +429,9 @@ test('reshapes a wall after drawing it, instead of redrawing it', async ({
   await loadDemo(page);
   const canvas = page.locator('.plan-canvas');
   const canvasBox = (await canvas.boundingBox())!;
+  // Scinder, décaler, joindre et ajuster sont des outils de productivité CAO :
+  // ils apparaissent au niveau Expert de l'interface.
+  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
   // The east wall carries no opening and no partition crosses it.
   const east = (await page.locator('[id="wall:wall-east"]').boundingBox())!;
   await canvas.click({
@@ -954,6 +957,7 @@ test('turns and reflects a selection about its own centre', async ({
 test('offsets, joins and aligns walls from the plan', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
@@ -1074,6 +1078,7 @@ test('chains a run of walls entirely from the typed fields', async ({
 test('offers only the field the tool actually takes', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
 
@@ -1087,6 +1092,67 @@ test('offers only the field the tool actually takes', async ({ page }) => {
   await expect(dynamic).toBeVisible();
   await expect(page.getByLabel('Angle du tracé')).toBeVisible();
   await expect(page.getByLabel('Longueur du tracé')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test('shows as much of the editor as the user asks for', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+
+  // Forty buttons are a wall for someone drawing their first plan and a
+  // necessary set for someone building a set of documents. Nothing is
+  // disabled: what changes is what is on screen.
+  const wall = page.getByRole('button', { name: 'Mur', exact: true });
+  const mirror = page.getByRole('button', { name: 'Miroir', exact: true });
+  await expect(wall).toBeVisible();
+  await expect(mirror).toBeHidden();
+
+  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
+  await expect(mirror).toBeVisible();
+  await mirror.click();
+
+  // A tool the narrower level does not offer cannot stay active with no button
+  // to say so.
+  await page.getByLabel('Niveau d’interface').selectOption('QUICK');
+  await expect(mirror).toBeHidden();
+  await expect(wall).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Sélection', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  expect(errors).toEqual([]);
+});
+
+test('writes on the plan what the model does not say', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+
+  // A drawing carries what the building is and what the person drawing it
+  // wants read; only the first had anywhere to live.
+  const options = page.getByRole('group', { name: 'Options de l’outil' });
+  await page.getByRole('button', { name: 'Annotation', exact: true }).click();
+  await options.getByLabel('Texte').fill('Existant à démolir');
+  await canvas.click({ position: { x: 200, y: 260 } });
+  await expect(page.getByRole('status')).toContainText(
+    'Ajouter une annotation',
+  );
+  await expect(page.locator('[id^="note:"]')).toHaveCount(1);
+
+  // It is an object of the editor like any other: selected, described, edited.
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await canvas.click({ position: { x: 200, y: 260 } });
+  await expect(page.locator('.inspector-subject h3')).toContainText(
+    'Existant à démolir',
+  );
+  await expect(page.locator('.inspector-subject')).toContainText('personne');
+
+  // An annotation with nothing written on it is an invisible object.
+  await page.getByRole('button', { name: 'Annotation', exact: true }).click();
+  await options.getByLabel('Texte').fill('');
+  await canvas.click({ position: { x: 240, y: 300 } });
+  await expect(page.getByRole('status')).toContainText('texte');
+  await expect(page.locator('[id^="note:"]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
 

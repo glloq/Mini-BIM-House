@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { isDimension } from '@house-technical-designer/core-domain';
 import type { Project } from '@house-technical-designer/core-domain';
 import { entityId } from '@house-technical-designer/core-domain';
 import {
@@ -516,8 +517,10 @@ describe('levels and the annotations they carry', () => {
     )!;
     expect(copy.annotations).toHaveLength(1);
     // The copy measures its own walls, not the ones it was copied from.
-    expect(copy.annotations[0]!.first.wallId).toBe('south@copy');
-    expect(copy.annotations[0]!.second.wallId).toBe('south@copy');
+    const measured = copy.annotations[0]!;
+    if (!isDimension(measured)) throw new Error('a dimension was duplicated');
+    expect(measured.first.wallId).toBe('south@copy');
+    expect(measured.second.wallId).toBe('south@copy');
     expect(copy.walls.some(({ id }) => id === 'south@copy')).toBe(true);
   });
 });

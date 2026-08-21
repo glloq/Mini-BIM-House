@@ -1,5 +1,10 @@
 import type { Project } from '@house-technical-designer/core-domain';
-import { dimensionId, entityId } from '@house-technical-designer/core-domain';
+import {
+  dimensionId,
+  entityId,
+  isDimension,
+  isTextNote,
+} from '@house-technical-designer/core-domain';
 import {
   DeleteDimensionCommand,
   DeleteOpeningCommand,
@@ -8,6 +13,7 @@ import {
   RemoveComponentCommand,
   RemoveSiteObstacleCommand,
   RemoveStairCommand,
+  RemoveTextNoteCommand,
   RemoveStructuralMemberCommand,
   RemoveNetworkEdgeCommand,
   RemoveNetworkNodeCommand,
@@ -72,13 +78,11 @@ export const openingRemoval: RemovalProvider = (project, levelId, objectId) =>
       )
     : undefined;
 
-export const dimensionRemoval: RemovalProvider = (
-  project,
-  levelId,
-  objectId,
-) =>
-  levelOf(project, levelId)?.annotations.some(({ id }) => id === objectId) ===
-  true
+export const dimensionRemoval: RemovalProvider = (project, levelId, objectId) =>
+  // A level carries dimensions and notes; only a dimension is deleted here.
+  levelOf(project, levelId)?.annotations.some(
+    (annotation) => annotation.id === objectId && isDimension(annotation),
+  ) === true
     ? onLevel(
         levelId,
         `delete-dimension:${objectId}`,
@@ -103,6 +107,13 @@ export const slabRemoval: RemovalProvider = (project, levelId, objectId) =>
 export const roofRemoval: RemovalProvider = (project, levelId, objectId) =>
   levelOf(project, levelId)?.roofs.some(({ id }) => id === objectId) === true
     ? new RemoveRoofCommand(levelId, objectId)
+    : undefined;
+
+export const noteRemoval: RemovalProvider = (project, levelId, objectId) =>
+  levelOf(project, levelId)?.annotations.some(
+    (annotation) => annotation.id === objectId && isTextNote(annotation),
+  ) === true
+    ? new RemoveTextNoteCommand(levelId, objectId)
     : undefined;
 
 /**

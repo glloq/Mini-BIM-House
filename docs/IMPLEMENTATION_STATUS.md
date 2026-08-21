@@ -1623,6 +1623,41 @@ test : un niveau se redessine en 2,1 ms, les vérifications des trois niveaux en
 7,6 ms, et chaque mur comme chaque pièce atteint bien le dessin. Les chiffres
 sont consignés dans `PERFORMANCE_BASELINE.md`.
 
+### Écrire sur le plan ce que le modèle ne dit pas
+
+« Reprise en sous-œuvre », « cote à vérifier sur site », « existant à démolir » :
+un dessin porte ce qu'est le bâtiment et ce que la personne qui le dessine veut
+faire lire, et seul le premier avait où vivre. Un niveau portait des annotations
+et l'union n'avait qu'un membre, la cotation.
+
+Une note est maintenant un objet de l'éditeur comme un autre — sélectionnée,
+décrite, modifiée, déplacée, dupliquée, supprimée, trouvée par son texte dans
+la palette, écrite dans le fichier et relue —, elle a son calque, et
+l'inspecteur dit explicitement qu'aucun calcul ne la lit : c'est du texte libre
+qui s'adresse à un lecteur, et il le reste. Une note sans texte est refusée par
+l'outil comme par le lecteur : ce serait un objet invisible que personne ne
+retrouverait.
+
+Le compilateur a nommé chaque endroit qui supposait qu'une annotation était
+forcément une cote — commandes, inspecteur, suppression, duplication de niveau,
+lecture de fichier. C'est ce que vaut une union discriminée.
+
+### Trois densités d'interface, un seul produit
+
+Une quarantaine de boutons sont un mur pour qui dessine son premier plan et un
+jeu nécessaire pour qui monte un dossier. La réponse n'est pas de retirer des
+outils : c'est de dire lesquels suffisent à dessiner une maison — sélection,
+murs, ouvertures, pièces — et de laisser venir les autres quand on les demande.
+
+Un outil déclare le niveau à partir duquel il est offert ; ce qu'il ne déclare
+pas est offert à partir de « Conception », qui est là où se situe un projet
+ordinaire. Rien n'est désactivé et rien ne se comporte autrement : un projet
+dessiné en « Essentiel » est le même fichier qu'un projet dessiné en « Expert ».
+Le niveau appartient à l'éditeur et non au projet — le nombre d'outils que
+quelqu'un veut devant lui ne dit rien du bâtiment — et quitter un niveau qui
+n'offre plus l'outil actif rend la main à la sélection, faute de quoi l'outil
+resterait actif sans bouton pour le dire.
+
 ## Ce qui reste ouvert après les lots A à H
 
 Les huit lots du neuvième audit sont traités. Ce qui n'a pas été fait, et
@@ -1636,15 +1671,18 @@ pourquoi :
 - **PDF vectoriel.** Les pages exportées sont des images de chaque feuille : le
   format PDF ne connaît pas le SVG, et le convertir en tracés reviendrait à
   écrire un second moteur de dessin.
-- **Annotations typées** — notes de texte, étiquettes associatives, repères,
-  trames, repères de coupe. La cotation existe ; le reste attend.
-- **Modes QUICK / DESIGN / EXPERT.** L'interface a toujours une seule densité.
+- **Annotations typées** — étiquettes associatives, repères de coupe, trames,
+  hachures paramétrées. La cotation et les notes de texte existent ; le reste
+  attend.
 - **Calcul de structure et géotechnique.** Les poteaux, poutres et fondations
   se décrivent et se dessinent ; rien ne les vérifie encore, et le calcul, quand
   il viendra, lira ce modèle plutôt que d'en demander un autre.
-- **Performance sur très grand projet.** `runProjectCalculations()` recrée
-  toujours l'orchestrateur à chaque exécution, et le banc d'essai reste celui
-  d'une maison de référence plutôt que d'une maison de mille murs.
+- **Cache de calcul par changement.** Un résultat déjà obtenu pour ce projet,
+  cette révision et ce climat est réutilisé, ce qui supprime les recalculs
+  gratuits ; ce qui manque est l'invalidation sélective — modifier un mur
+  relance les dix-sept modules, alors que le `ChangeSet` de la commande dit
+  exactement ce qui a bougé. `runProjectCalculations()` recrée par ailleurs
+  l'orchestrateur à chaque exécution.
 - **Exports DXF et IFC, collaboration en ligne.** Hors périmètre.
 
 ## Budget de chargement

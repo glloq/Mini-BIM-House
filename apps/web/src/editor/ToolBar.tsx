@@ -6,10 +6,14 @@ import type { ToolDrafts } from './tool-options.js';
 import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
 import { selectionCapabilities } from './object-editors.js';
 import {
+  EDITOR_LEVELS,
+  EDITOR_LEVEL_HINTS,
+  EDITOR_LEVEL_LABELS,
   TOOL_GROUP_LABELS,
-  populatedToolGroups,
-  toolsInGroup,
+  populatedToolGroupsAtLevel,
+  toolsInGroupAtLevel,
 } from './tool-registry.js';
+import type { EditorLevel } from './tool-registry.js';
 
 export interface ToolBarProps {
   readonly project: Project;
@@ -51,14 +55,39 @@ export function ToolBar({
       {/* One group per family: the toolbar asks the registry what exists
           rather than holding its own list, so a new tool appears beside the
           ones it belongs with instead of at the end of a growing row. */}
-      {populatedToolGroups().map((group) => (
+      {/* Quarante boutons sont un mur pour qui dessine son premier plan et un
+          jeu nécessaire pour qui monte un dossier. Rien n'est désactivé : ce
+          qui change est ce qui est à l'écran, et le fichier est le même. */}
+      <div className="tool-group" role="group" aria-label="Interface">
+        <label>
+          Interface
+          <select
+            aria-label="Niveau d’interface"
+            value={editor.editorLevel}
+            onChange={(event) =>
+              dispatch({
+                type: 'SET_EDITOR_LEVEL',
+                level: event.target.value as EditorLevel,
+              })
+            }
+          >
+            {EDITOR_LEVELS.map((level) => (
+              <option key={level} value={level}>
+                {EDITOR_LEVEL_LABELS[level]}
+              </option>
+            ))}
+          </select>
+        </label>
+        <small className="hint">{EDITOR_LEVEL_HINTS[editor.editorLevel]}</small>
+      </div>
+      {populatedToolGroupsAtLevel(editor.editorLevel).map((group) => (
         <div
           className="tool-group"
           role="group"
           aria-label={`Outils · ${TOOL_GROUP_LABELS[group]}`}
           key={group}
         >
-          {toolsInGroup(group).map((tool) => (
+          {toolsInGroupAtLevel(group, editor.editorLevel).map((tool) => (
             <button
               key={tool.id}
               type="button"

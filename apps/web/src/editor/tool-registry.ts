@@ -11,6 +11,7 @@ import type {
 import type { Point2D } from '@house-technical-designer/geometry';
 import {
   addDimensionCommand,
+  addTextNoteCommand,
   addEveryDetectedRoomCommand,
   addOpeningCommand,
   addRoofStructureCommand,
@@ -83,6 +84,43 @@ export const TOOL_GROUP_LABELS: Readonly<Record<ToolGroup, string>> = {
   ANNOTATION: 'Annotation',
 };
 
+/**
+ * How much of the editor is shown.
+ *
+ * Not three products: one product with three amounts of it visible. Nothing is
+ * disabled and nothing behaves differently — a project drawn in QUICK is the
+ * same file as a project drawn in EXPERT, and switching levels changes what is
+ * on screen and nothing else.
+ */
+export const EDITOR_LEVELS = ['QUICK', 'DESIGN', 'EXPERT'] as const;
+export type EditorLevel = (typeof EDITOR_LEVELS)[number];
+
+export const EDITOR_LEVEL_LABELS: Readonly<Record<EditorLevel, string>> = {
+  QUICK: 'Essentiel',
+  DESIGN: 'Conception',
+  EXPERT: 'Expert',
+};
+
+export const EDITOR_LEVEL_HINTS: Readonly<Record<EditorLevel, string>> = {
+  QUICK: 'De quoi dessiner une maison : sélection, murs, ouvertures, pièces.',
+  DESIGN: 'Tout ce qu’un projet ordinaire demande, annotations comprises.',
+  EXPERT: 'Tous les outils, réseaux et transformations compris.',
+};
+
+const LEVEL_ORDER: Readonly<Record<EditorLevel, number>> = {
+  QUICK: 0,
+  DESIGN: 1,
+  EXPERT: 2,
+};
+
+/** Whether a tool is offered at this level of the interface. */
+export function toolAtLevel(
+  tool: EditorToolDefinition,
+  level: EditorLevel,
+): boolean {
+  return LEVEL_ORDER[tool.level ?? 'DESIGN'] <= LEVEL_ORDER[level];
+}
+
 /** Everything a tool needs to turn clicks into a command. */
 export interface ToolCommandContext {
   readonly file: ProjectFile;
@@ -130,6 +168,17 @@ export interface EditorToolDefinition {
   readonly shortcutId: string;
   /** Clicks the tool collects before it produces a command. */
   readonly requiredPoints: number;
+  /**
+   * The least experienced level of the interface that offers this tool.
+   *
+   * Forty-odd tools in one bar is a wall of buttons for someone drawing their
+   * first plan, and a necessary set for someone drawing a set of documents.
+   * The answer is not to remove tools, it is to say which ones are needed to
+   * draw a house at all — walls, openings, rooms, selection — and to let the
+   * rest appear when they are asked for. A tool that says nothing is available
+   * from DESIGN onwards, which is where an ordinary project sits.
+   */
+  readonly level?: EditorLevel;
   /**
    * Whether what is being drafted is a wall.
    *
@@ -197,6 +246,7 @@ export const EDITOR_TOOLS = [
     hint: 'Sélectionner et modifier un objet',
     shortcutId: 'tool.select',
     requiredPoints: 0,
+    level: 'QUICK',
     options: [
       {
         key: 'family',
@@ -220,6 +270,7 @@ export const EDITOR_TOOLS = [
     hint: 'Dessiner un mur entre deux points',
     shortcutId: 'tool.wall',
     requiredPoints: 2,
+    level: 'QUICK',
     drawsWalls: true,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
@@ -276,6 +327,7 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.wallRun',
     // Two points is the fewest a run can describe; there is no most.
     requiredPoints: 2,
+    level: 'QUICK',
     openEnded: true,
     drawsWalls: true,
     constrainsDrafting: true,
@@ -407,6 +459,7 @@ export const EDITOR_TOOLS = [
     hint: 'Percer une porte ou une fenêtre dans un mur',
     shortcutId: 'tool.opening',
     requiredPoints: 1,
+    level: 'QUICK',
     options: [
       {
         key: 'openingType',
@@ -469,6 +522,7 @@ export const EDITOR_TOOLS = [
     hint: 'Cliquer dans un contour fermé par les murs pour en faire une pièce',
     shortcutId: 'tool.space',
     requiredPoints: 1,
+    level: 'QUICK',
     options: [
       {
         key: 'name',
@@ -586,6 +640,7 @@ export const EDITOR_TOOLS = [
     hint: 'Percer un contour dans la dalle qui passe dessous',
     shortcutId: 'tool.slabHole',
     requiredPoints: 3,
+    level: 'EXPERT',
     openEnded: true,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
@@ -962,6 +1017,7 @@ export const EDITOR_TOOLS = [
     hint: 'Couper un mur à l’endroit désigné',
     shortcutId: 'tool.split',
     requiredPoints: 1,
+    level: 'EXPERT',
     createCommand: (context) => {
       const point = context.points[context.points.length - 1]!;
       const level = levelOf(context);
@@ -994,6 +1050,7 @@ export const EDITOR_TOOLS = [
     hint: 'Tracer un mur parallèle : le mur, puis le côté et la distance',
     shortcutId: 'tool.offset',
     requiredPoints: 2,
+    level: 'EXPERT',
     createCommand: (context) => {
       const wallId = context.picks[0];
       const towards = context.points[1];
@@ -1018,6 +1075,7 @@ export const EDITOR_TOOLS = [
     hint: 'Amener deux murs à leur intersection',
     shortcutId: 'tool.join',
     requiredPoints: 2,
+    level: 'EXPERT',
     createCommand: (context) => {
       const [firstId, secondId] = context.picks;
       const [firstAt, secondAt] = context.points;
@@ -1044,6 +1102,7 @@ export const EDITOR_TOOLS = [
     hint: 'Allonger ou raccourcir un mur jusqu’à un autre',
     shortcutId: 'tool.trim',
     requiredPoints: 2,
+    level: 'EXPERT',
     createCommand: (context) => {
       const [firstId, secondId] = context.picks;
       const [firstAt, secondAt] = context.points;
@@ -1077,6 +1136,7 @@ export const EDITOR_TOOLS = [
     // Centre, then the direction things point at now, then where that direction
     // should end up. Three clicks and no number to type.
     requiredPoints: 3,
+    level: 'EXPERT',
     createCommand: (context) => {
       const [centre, from, to] = context.points;
       if (centre === undefined || from === undefined || to === undefined)
@@ -1099,6 +1159,7 @@ export const EDITOR_TOOLS = [
     hint: 'Retourner la sélection de part et d’autre d’un axe tracé',
     shortcutId: 'tool.mirror',
     requiredPoints: 2,
+    level: 'EXPERT',
     constrainsDrafting: true,
     // The axis has a direction that matters and a length that does not.
     dynamicInput: { length: false, angle: true },
@@ -1247,6 +1308,45 @@ export const EDITOR_TOOLS = [
       ),
   },
   {
+    id: 'NOTE',
+    group: 'ANNOTATION',
+    label: 'Annotation',
+    hint: 'Écrire sur le plan ce que le modèle ne dit pas',
+    shortcutId: 'tool.note',
+    // One point for the text; a second, optional, for what it points at.
+    requiredPoints: 1,
+    options: [
+      {
+        key: 'text',
+        kind: 'TEXT',
+        label: 'Texte',
+        hint: 'Ce qui sera écrit sur le plan, tel quel.',
+        fallback: () => '',
+      },
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        step: 0.5,
+        min: 0.5,
+        hint: 'Hauteur des lettres sur le papier, à l’échelle de la feuille.',
+        fallback: () => '2.5',
+      },
+    ],
+    createCommand: (context) =>
+      addTextNoteCommand(
+        context.file,
+        context.levelId,
+        context.points,
+        {
+          text: context.option('text'),
+          heightMm: context.optionNumber('heightMm') ?? 2.5,
+        },
+        context.newId('note'),
+      ),
+  },
+  {
     id: 'NETWORK',
     group: 'NETWORKS',
     label: 'Réseau',
@@ -1330,6 +1430,23 @@ export function toolDefinition(tool: EditorTool): EditorToolDefinition {
 }
 
 /** The tools of one family, in the order they were registered. */
+/** The tools of one group that this level of the interface offers. */
+export function toolsInGroupAtLevel(
+  group: ToolGroup,
+  level: EditorLevel,
+): readonly EditorToolDefinition[] {
+  return toolsInGroup(group).filter((tool) => toolAtLevel(tool, level));
+}
+
+/** The groups that hold at least one tool at this level. */
+export function populatedToolGroupsAtLevel(
+  level: EditorLevel,
+): readonly ToolGroup[] {
+  return (Object.keys(TOOL_GROUP_LABELS) as readonly ToolGroup[]).filter(
+    (group) => toolsInGroupAtLevel(group, level).length > 0,
+  );
+}
+
 export function toolsInGroup(
   group: ToolGroup,
 ): readonly EditorToolDefinition[] {

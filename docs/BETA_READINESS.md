@@ -97,19 +97,32 @@ La porte se ferme le jour où un déploiement de `main` passe,
 
 ## Attendu dans la bêta, hors portes
 
-- feuilles et export PDF, dont le moteur existe déjà dans `drawing-engine` ;
-- projection sur le plan des résultats des réseaux, de la ventilation et de
-  l'électricité : les moteurs les calculent, seules les trois analyses
-  thermiques sont branchées sur le dessin.
+Les deux points qui figuraient ici sont faits.
+
+- Feuilles et export PDF : une feuille porte plusieurs vues, chacune à son
+  échelle, avec format, orientation et indice ; les pages sont tramées une par
+  une sous un budget de mémoire, et la densité obtenue est annoncée avant
+  l'export.
+- Projection sur le plan des résultats des réseaux, de la ventilation et de
+  l'électricité : les dix analyses sont branchées sur le dessin, et un test
+  vérifie pour chacune qu'elle nomme des objets que le plan dessine et qu'elle
+  en colore au moins un — une analyse dont les identifiants ne correspondent à
+  rien se lit exactement comme « rien à signaler ».
 
 ## Recommandé
 
-- orchestrateur de calcul persistant et cache réutilisé entre exécutions ;
-- invalidation sélective fondée sur les `ChangeSet` des commandes ;
+- invalidation sélective fondée sur les `ChangeSet` des commandes : un résultat
+  déjà obtenu pour ce projet, cette révision et ce climat est désormais
+  réutilisé, mais modifier un mur relance les dix-sept modules alors que le
+  `ChangeSet` dit ce qui a bougé ;
+- orchestrateur de calcul persistant, plutôt que recréé à chaque exécution ;
 - régression visuelle pixel par pixel sur les trois moteurs ;
-- benchmark d'un projet réaliste de plusieurs centaines de murs ;
 - réglages encore invisibles alors que les moteurs les lisent
   (`heatRecoveryEfficiency`, températures extérieures de repli).
+
+Le banc d'essai d'un projet réaliste est fait : `largeHouse(3, 40)` — trois
+niveaux, quarante pièces, 240 murs — sert de charge de mesure et de test, et
+les chiffres sont consignés dans [`PERFORMANCE_BASELINE.md`](./PERFORMANCE_BASELINE.md).
 
 ## Avant d'annoncer la bêta publiquement
 
@@ -123,10 +136,10 @@ La porte se ferme le jour où un déploiement de `main` passe,
 
 Les limites connues sont tenues à un seul endroit, la section « Ce que
 l'application ne fait pas » du [`README`](../README.md) : toitures sur contour
-quelconque, murs courbes, feuilles et PDF, DXF et IFC, simulation dynamique,
-productivité CAO, dossier de plans typé, conformité réglementaire, données
-fabricant, collaboration. Cette liste décrit la version publiée et rien
-d'autre.
+quelconque, murs courbes, PDF vectoriel, DXF et IFC, simulation dynamique,
+productivité CAO, annotations typées au-delà des cotes et des notes,
+conformité réglementaire, données fabricant, collaboration. Cette liste décrit
+la version publiée et rien d'autre.
 
 ## Fait depuis le sixième audit
 

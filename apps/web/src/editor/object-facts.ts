@@ -1,10 +1,15 @@
-import type { Level, Project } from '@house-technical-designer/core-domain';
+import type {
+  Level,
+  Project,
+  TextNote,
+} from '@house-technical-designer/core-domain';
 import {
   UpdateWallCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import type { Point2D } from '@house-technical-designer/geometry';
 import {
+  isTextNote,
   roofEaveOutline,
   structuralFootprint,
 } from '@house-technical-designer/core-domain';
@@ -241,6 +246,22 @@ export function stairRelationships(
   return stair === undefined
     ? []
     : [{ role: 'Niveau d’arrivée', objectIds: [stair.topLevelId] }];
+}
+
+/** A note is a point on the plan, and the point it may lead to. */
+export function noteBounds(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): ObjectBounds | undefined {
+  const note = (levelOf(project, levelId)?.annotations ?? []).find(
+    (annotation): annotation is TextNote =>
+      annotation.id === objectId && isTextNote(annotation),
+  );
+  if (note === undefined) return undefined;
+  return extentOf(
+    note.leaderTo === undefined ? [note.at] : [note.at, note.leaderTo],
+  );
 }
 
 export function networkBounds(

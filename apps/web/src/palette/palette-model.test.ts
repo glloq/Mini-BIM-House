@@ -148,6 +148,7 @@ describe('the families the tree and the palette both read', () => {
       'Toitures',
       'Réseaux',
       'Cotes',
+      'Annotations',
       'Toitures complètes',
       'Escaliers',
       'Structure',

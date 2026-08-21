@@ -62,6 +62,9 @@ export const componentPath: PathProvider = (project, objectId) =>
 export const dimensionPath: PathProvider = (project, objectId) =>
   inLevels(project, objectId, (level) => level.annotations, 'annotations');
 
+export const notePath: PathProvider = (project, objectId) =>
+  inLevels(project, objectId, (level) => level.annotations, 'annotations');
+
 export const networkPath: PathProvider = (project, objectId) => {
   for (const network of project.systems ?? []) {
     if (network.nodes.some(({ id }) => id === objectId))

@@ -1,4 +1,8 @@
 import type { ProjectFile } from '@house-technical-designer/core-domain';
+import {
+  isTextNote,
+  validateTextNote,
+} from '@house-technical-designer/core-domain';
 import validateProjectSchema from './generated-project-validator.js';
 import {
   DEFAULT_PROJECT_MIGRATIONS,
@@ -362,6 +366,16 @@ export function validateProjectReferences(
         });
     });
     level.annotations.forEach((annotation, index) => {
+      // A note says something to a human being; nothing in the model has to
+      // agree with it, and it is refused only for being empty or unplaceable.
+      if (isTextNote(annotation)) {
+        for (const issue of validateTextNote(annotation))
+          issues.push({
+            path: `${base}/annotations/${index}/${issue.path}`,
+            message: issue.message,
+          });
+        return;
+      }
       // A dimension measures two wall endpoints; a dimension whose wall is
       // gone measures nothing, and the drawing would show a length nobody can
       // trace back to the model.

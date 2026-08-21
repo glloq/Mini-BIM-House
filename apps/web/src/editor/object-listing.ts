@@ -1,4 +1,5 @@
 import type { Project } from '@house-technical-designer/core-domain';
+import { isDimension, isTextNote } from '@house-technical-designer/core-domain';
 
 /**
  * One object a family holds, named as the user would name it.
@@ -62,7 +63,17 @@ export const stairListing: ListingProvider = (project, levelId) =>
   byId(levelOf(project, levelId)?.stairs);
 
 export const dimensionListing: ListingProvider = (project, levelId) =>
-  byId(levelOf(project, levelId)?.annotations);
+  byId(
+    (levelOf(project, levelId)?.annotations ?? []).filter((annotation) =>
+      isDimension(annotation),
+    ),
+  );
+
+/** A note is named by what it says, which is the only name it has. */
+export const noteListing: ListingProvider = (project, levelId) =>
+  (levelOf(project, levelId)?.annotations ?? [])
+    .filter((annotation) => isTextNote(annotation))
+    .map((note) => ({ objectId: note.id, label: note.text }));
 
 const STRUCTURE_LABELS: Readonly<Record<string, string>> = {
   COLUMN: 'Poteau',

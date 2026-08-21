@@ -16,13 +16,18 @@ import type {
   StairType,
   StructuralMember,
   StructuralMemberKind,
+  TextNote,
   Wall,
 } from '@house-technical-designer/core-domain';
 import {
   detectSpaceBoundaries,
   entityId,
   isComponentCategory,
+  isDimension,
   isDimensionType,
+  isTextNote,
+  textNoteId,
+  validateTextNote,
   isOpeningType,
   isSlabRole,
   isStairType,
@@ -256,20 +261,30 @@ export class DuplicateLevelCommand extends BuildingCommand {
         levelId,
         topLevelId: this.storeyAbove(project)!.id,
       })),
-      // Dimensions come along, re-pointed at the duplicated walls: a copy that
-      // silently dropped them would look like a faithful copy and not be one.
-      annotations: source.annotations.map((annotation) => ({
-        ...annotation,
-        id: `${annotation.id}${suffix}` as typeof annotation.id,
-        first: {
-          ...annotation.first,
-          wallId: entityId<'Wall'>(`${annotation.first.wallId}${suffix}`),
-        },
-        second: {
-          ...annotation.second,
-          wallId: entityId<'Wall'>(`${annotation.second.wallId}${suffix}`),
-        },
-      })),
+      // Annotations come along: a dimension re-pointed at the duplicated walls,
+      // a note carried as it is. A copy that silently dropped them would look
+      // like a faithful copy and not be one.
+      annotations: source.annotations.map((annotation) =>
+        isDimension(annotation)
+          ? {
+              ...annotation,
+              id: `${annotation.id}${suffix}` as typeof annotation.id,
+              first: {
+                ...annotation.first,
+                wallId: entityId<'Wall'>(`${annotation.first.wallId}${suffix}`),
+              },
+              second: {
+                ...annotation.second,
+                wallId: entityId<'Wall'>(
+                  `${annotation.second.wallId}${suffix}`,
+                ),
+              },
+            }
+          : {
+              ...annotation,
+              id: `${annotation.id}${suffix}` as typeof annotation.id,
+            },
+      ),
     };
     return withLevels(
       project,
@@ -1851,6 +1866,150 @@ export interface DimensionPatch {
   readonly overrideText?: string | null;
 }
 
+/** What placing a note on a storey asks for. */
+export interface TextNoteDraft {
+  readonly id: string;
+  readonly at: Point2D;
+  readonly text: string;
+  readonly heightMm?: number;
+  readonly rotationDeg?: number;
+  readonly leaderTo?: Point2D;
+}
+
+function noteOf(draft: TextNoteDraft): TextNote {
+  return {
+    id: textNoteId(draft.id),
+    kind: 'TEXT',
+    at: { ...draft.at },
+    text: draft.text,
+    ...(draft.heightMm === undefined ? {} : { heightMm: draft.heightMm }),
+    ...(draft.rotationDeg === undefined
+      ? {}
+      : { rotationDeg: draft.rotationDeg }),
+    ...(draft.leaderTo === undefined
+      ? {}
+      : { leaderTo: { ...draft.leaderTo } }),
+  };
+}
+
+/**
+ * Writes something on the drawing that the model does not say.
+ *
+ * « Reprise en sous-œuvre », « existant à démolir » : a drawing carries what
+ * the building is and what the person drawing it wants read, and only the
+ * first had anywhere to live. A note is never read by a calculation, which is
+ * why nothing here tries to make sense of what it says.
+ */
+export class AddTextNoteCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly draft: TextNoteDraft,
+  ) {
+    super(`note:add:${draft.id}`, 'Ajouter une annotation');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level === undefined)
+      return rejected(`Le niveau ${this.levelId} est introuvable.`);
+    if (level.annotations.some(({ id }) => id === this.draft.id))
+      return rejected(`L'annotation ${this.draft.id} existe déjà.`);
+    const issues = validateTextNote(noteOf(this.draft));
+    return issues.length > 0
+      ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
+      : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      annotations: [...level.annotations, noteOf(this.draft)],
+    }));
+  }
+}
+
+/** What a note may have changed. */
+export interface TextNotePatch {
+  readonly text?: string;
+  readonly at?: Point2D;
+  readonly heightMm?: number;
+  readonly rotationDeg?: number;
+  readonly leaderTo?: Point2D | null;
+}
+
+export class UpdateTextNoteCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly noteId: string,
+    readonly patch: TextNotePatch,
+  ) {
+    super(`note:update:${noteId}`, 'Modifier une annotation');
+  }
+  private patched(note: TextNote): TextNote {
+    const { leaderTo: _previous, ...rest } = note;
+    const leaderTo =
+      this.patch.leaderTo === undefined
+        ? note.leaderTo
+        : (this.patch.leaderTo ?? undefined);
+    return {
+      ...rest,
+      ...(this.patch.text === undefined ? {} : { text: this.patch.text }),
+      ...(this.patch.at === undefined ? {} : { at: { ...this.patch.at } }),
+      ...(this.patch.heightMm === undefined
+        ? {}
+        : { heightMm: this.patch.heightMm }),
+      ...(this.patch.rotationDeg === undefined
+        ? {}
+        : { rotationDeg: this.patch.rotationDeg }),
+      ...(leaderTo === undefined ? {} : { leaderTo: { ...leaderTo } }),
+    };
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    const note = (level?.annotations ?? []).find(
+      (annotation): annotation is TextNote =>
+        annotation.id === this.noteId && isTextNote(annotation),
+    );
+    if (note === undefined)
+      return rejected(`L'annotation ${this.noteId} est introuvable.`);
+    const issues = validateTextNote(this.patched(note));
+    return issues.length > 0
+      ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
+      : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      annotations: level.annotations.map((annotation) =>
+        annotation.id === this.noteId && isTextNote(annotation)
+          ? this.patched(annotation)
+          : annotation,
+      ),
+    }));
+  }
+}
+
+export class RemoveTextNoteCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly noteId: string,
+  ) {
+    super(`note:remove:${noteId}`, 'Supprimer une annotation');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    return (level?.annotations ?? []).some(
+      (annotation) => annotation.id === this.noteId && isTextNote(annotation),
+    )
+      ? ok()
+      : rejected(`L'annotation ${this.noteId} est introuvable.`);
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      annotations: level.annotations.filter(({ id }) => id !== this.noteId),
+    }));
+  }
+}
+
 export class UpdateDimensionCommand extends BuildingCommand {
   constructor(
     readonly levelId: string,
@@ -1861,7 +2020,14 @@ export class UpdateDimensionCommand extends BuildingCommand {
   }
   validate(project: Project): CommandValidation {
     const level = project.building.levels.find(({ id }) => id === this.levelId);
-    if (level?.annotations.some(({ id }) => id === this.dimensionId) !== true)
+    // A level carries dimensions and notes; the identifier has to name a
+    // dimension, not merely an annotation.
+    if (
+      !(level?.annotations ?? []).some(
+        (annotation) =>
+          annotation.id === this.dimensionId && isDimension(annotation),
+      )
+    )
       return rejected(`La cote ${this.dimensionId} est introuvable.`);
     const dimensionType = rejectedEnumValue(this.patch.type, isDimensionType);
     if (dimensionType !== undefined)
@@ -1875,7 +2041,8 @@ export class UpdateDimensionCommand extends BuildingCommand {
     return mapLevel(project, this.levelId, (level) => ({
       ...level,
       annotations: level.annotations.map((annotation) => {
-        if (annotation.id !== this.dimensionId) return annotation;
+        if (annotation.id !== this.dimensionId || !isDimension(annotation))
+          return annotation;
         const { overrideText: _dropped, ...rest } = annotation;
         const text =
           this.patch.overrideText === undefined

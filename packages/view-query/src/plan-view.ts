@@ -5,12 +5,15 @@ import type {
   Project,
   Space,
   TechnicalNetwork,
+  TextNote,
   Wall,
 } from '@house-technical-designer/core-domain';
 import {
   deriveRoofPlanes,
   deriveWallFaces,
+  DEFAULT_NOTE_HEIGHT_MM,
   isDimension,
+  isTextNote,
   resolveDimension,
   portAnchors,
   resolveStraightWallJoin,
@@ -1060,6 +1063,53 @@ function roofStructurePrimitives(level: Level): readonly PrimitiveDraft[] {
   return drafts;
 }
 
+/**
+ * A note written on the drawing, and the line to what it points at.
+ *
+ * Nothing here derives anything: the text is what someone wrote, and the plan
+ * shows it where they put it. A note that points at something is drawn with a
+ * leader, because a note beside a wall and a note about that wall are two
+ * different statements.
+ */
+function textNotePrimitives(note: TextNote): readonly PrimitiveDraft[] {
+  const shared = {
+    sourceObjectId: note.id,
+    layer: 'annotation.notes',
+    discipline: 'ARCHITECTURE' as const,
+  };
+  const drafts: PrimitiveDraft[] = [
+    {
+      ...shared,
+      id: `note:${note.id}`,
+      semanticRole: 'ANNOTATION',
+      geometry: {
+        kind: 'TEXT',
+        anchor: note.at,
+        text: note.text,
+        ...(note.rotationDeg === undefined
+          ? {}
+          : { rotationDeg: note.rotationDeg }),
+      },
+      zIndex: 72,
+      metadata: {
+        heightMm: note.heightMm ?? DEFAULT_NOTE_HEIGHT_MM,
+      },
+    },
+  ];
+  if (note.leaderTo !== undefined)
+    drafts.push({
+      ...shared,
+      id: `note-leader:${note.id}`,
+      semanticRole: 'ANNOTATION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: { points: [note.at, note.leaderTo], closed: false },
+      },
+      zIndex: 71,
+    });
+  return drafts;
+}
+
 function structurePrimitives(level: Level): readonly PrimitiveDraft[] {
   return (level.structure ?? []).flatMap((member) => {
     const outline = structuralFootprint(member);
@@ -1230,6 +1280,8 @@ export function buildPlanView(
     for (const annotation of level.annotations)
       if (isDimension(annotation))
         drafts.push(...dimensionPrimitives(annotation, level, issues));
+      else if (isTextNote(annotation))
+        drafts.push(...textNotePrimitives(annotation));
     drafts.push(...slabAndRoofPrimitives(level));
     drafts.push(...componentPrimitives(level));
     drafts.push(...stairPrimitives(level));

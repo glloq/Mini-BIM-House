@@ -108,6 +108,12 @@ export const PLAN_LAYERS = [
     defaultVisible: true,
   },
   {
+    id: 'annotation.notes',
+    label: 'Annotations',
+    disciplines: ['ARCHITECTURE'],
+    defaultVisible: true,
+  },
+  {
     id: 'water.pipes',
     label: 'Eau',
     disciplines: ['WATER'],
@@ -163,6 +169,7 @@ const ARCHITECTURE_BASE: readonly PlanLayerId[] = [
   'site.parcel',
   'components.placed',
   'annotation.dimensions',
+  'annotation.notes',
 ];
 
 /** Discipline views the user can switch between without a second model. */
