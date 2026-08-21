@@ -22,8 +22,17 @@ export interface NetworkNode {
   readonly position: Point3D;
   readonly hostObjectId?: string;
   readonly spaceId?: string;
-  /** The equipment this node stands for, when it stands for one. */
+  /** The catalogue entry this node stands for, when it stands for one. */
   readonly equipmentId?: string;
+  /**
+   * The thing placed in the building this node stands for.
+   *
+   * Two radiators of the same model share a definition and are two different
+   * objects, connected at two different places. A node naming only the model
+   * cannot say which of them it feeds, so a network could not tell one from
+   * the other and the count was lost.
+   */
+  readonly componentId?: string;
   /**
    * The level the node belongs to.
    *

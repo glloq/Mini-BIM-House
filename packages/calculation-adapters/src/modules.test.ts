@@ -189,6 +189,76 @@ describe('real calculation orchestration adapters', () => {
     );
   });
 
+  it('counts a luminaire drawn on the plan, not only one wired to a circuit', () => {
+    // The lighting calculation read the electrical network alone, so a
+    // luminaire placed on the plan lit nothing: the building had to be drawn
+    // twice for it to count.
+    const before = projectInputs().inputs.lighting as {
+      placements: readonly unknown[];
+    };
+    const after = projectInputs((project) => {
+      const level = project.building.levels[0]!;
+      const luminaire = (project.equipment ?? []).find(
+        ({ kind }) => kind === 'LUMINAIRE',
+      )!;
+      (level as unknown as { components?: unknown[] }).components = [
+        ...(level.components ?? []),
+        {
+          id: 'lamp-on-the-plan',
+          type: 'COMPONENT_INSTANCE',
+          levelId: level.id,
+          category: 'LIGHTING',
+          definitionId: luminaire.id,
+          position: { x: 1000, y: 1000 },
+          elevationMm: 2400,
+          rotationDeg: 0,
+          spaceId: level.spaces[0]!.id,
+        },
+      ];
+    }).inputs.lighting as {
+      placements: readonly { readonly id: string }[];
+    };
+    expect(after.placements.length).toBe(before.placements.length + 1);
+    expect(after.placements.some(({ id }) => id === 'lamp-on-the-plan')).toBe(
+      true,
+    );
+  });
+
+  it('counts a luminaire once when a node already stands for it', () => {
+    // A node that names the placed object it feeds is the same luminaire, not
+    // a second one.
+    const doubled = projectInputs((project) => {
+      const level = project.building.levels[0]!;
+      const luminaire = (project.equipment ?? []).find(
+        ({ kind }) => kind === 'LUMINAIRE',
+      )!;
+      (level as unknown as { components?: unknown[] }).components = [
+        ...(level.components ?? []),
+        {
+          id: 'lamp-wired',
+          type: 'COMPONENT_INSTANCE',
+          levelId: level.id,
+          category: 'LIGHTING',
+          definitionId: luminaire.id,
+          position: { x: 1000, y: 1000 },
+          elevationMm: 2400,
+          rotationDeg: 0,
+        },
+      ];
+      for (const network of project.systems ?? [])
+        if (network.discipline === 'ELECTRICAL')
+          (network as unknown as { nodes: unknown[] }).nodes =
+            network.nodes.map((node) =>
+              node.kind === 'LUMINAIRE'
+                ? { ...node, componentId: 'lamp-wired' }
+                : node,
+            );
+    }).inputs.lighting as { placements: readonly { readonly id: string }[] };
+    expect(
+      doubled.placements.filter(({ id }) => id === 'lamp-wired'),
+    ).toHaveLength(0);
+  });
+
   it('runs lighting and PV → battery → energy with unique uses and conservation', async () => {
     const result = await run('energy-balance');
     expect(Object.keys(result.outputs.totalByUsageWh as object).sort()).toEqual(

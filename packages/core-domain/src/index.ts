@@ -13,6 +13,7 @@ export * from './annotation.js';
 export * from './component.js';
 export * from './entity-index.js';
 export * from './host-types.js';
+export * from './placed-equipment.js';
 export * from './stair.js';
 export * from './documents.js';
 export * from './structure.js';

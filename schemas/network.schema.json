@@ -57,6 +57,9 @@
           "equipmentId": {
             "type": "string"
           },
+          "componentId": {
+            "type": "string"
+          },
           "properties": {
             "type": "object",
             "description": "Physical properties the node states about itself. Numbers must be finite; the application never writes a value nobody entered.",

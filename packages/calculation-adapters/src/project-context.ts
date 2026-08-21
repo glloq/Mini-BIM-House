@@ -3,11 +3,18 @@ import type {
   JsonValue,
   Level,
   Project,
+  ResolvedPlacedEquipment,
   Space,
   TechnicalNetwork,
   Zone,
 } from '@house-technical-designer/core-domain';
-import { allRoofPlanes } from '@house-technical-designer/core-domain';
+import {
+  allRoofPlanes,
+  placedEquipment,
+  placedEquipmentByFamily,
+  placedEquipmentByKind,
+  placedEquipmentBySpace,
+} from '@house-technical-designer/core-domain';
 import type {
   Assembly,
   AssemblyLayer,
@@ -114,6 +121,25 @@ export interface ProjectCalculationContext {
   readonly equipment: readonly EquipmentDefinition[];
   readonly equipmentByKind: Readonly<
     Record<string, readonly EquipmentDefinition[]>
+  >;
+  /**
+   * The things actually standing in the building, model and placement
+   * together.
+   *
+   * The context used to offer the catalogue entries alone, so a project with
+   * three radiators and a project with one were the same project as far as
+   * every calculation was concerned, and moving something changed nothing.
+   * Whatever depends on how many there are, or on where they are, reads these.
+   */
+  readonly placedEquipment: readonly ResolvedPlacedEquipment[];
+  readonly placedEquipmentByFamily: Readonly<
+    Record<string, readonly ResolvedPlacedEquipment[]>
+  >;
+  readonly placedEquipmentByKind: Readonly<
+    Record<string, readonly ResolvedPlacedEquipment[]>
+  >;
+  readonly placedEquipmentBySpace: Readonly<
+    Record<string, readonly ResolvedPlacedEquipment[]>
   >;
   readonly quantities: readonly ProjectQuantityLine[];
   readonly photovoltaic?: EquipmentDefinition;
@@ -340,6 +366,7 @@ export function createProjectCalculationContext(
   }
 
   const equipment = project.equipment ?? [];
+  const placed = placedEquipment(project);
   const systems = project.systems ?? [];
   const quantityResult = calculateWallQuantities(
     project.building.levels.flatMap((level) => [...level.walls]),
@@ -386,6 +413,10 @@ export function createProjectCalculationContext(
     networksByDiscipline: groupBy(systems, ({ discipline }) => discipline),
     equipment,
     equipmentByKind: groupBy(equipment, ({ kind }) => kind),
+    placedEquipment: placed,
+    placedEquipmentByFamily: placedEquipmentByFamily(placed),
+    placedEquipmentByKind: placedEquipmentByKind(placed),
+    placedEquipmentBySpace: placedEquipmentBySpace(placed),
     quantities: quantityResult.items.map((item) => ({
       itemId: item.id,
       sourceEntityId: item.sourceEntityId,

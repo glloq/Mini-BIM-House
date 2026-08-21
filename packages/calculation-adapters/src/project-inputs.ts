@@ -382,7 +382,7 @@ function lightingInput(context: ProjectCalculationContext): CalculationJson {
         'EQUIPMENT',
         `Luminaire ${luminaire.id} declares no luminous flux or electrical power.`,
       );
-  const placements = electrical
+  const nodePlacements = electrical
     .flatMap((network) => network.nodes)
     .filter((node) => node.kind === 'LUMINAIRE')
     .map((node) => ({
@@ -392,7 +392,34 @@ function lightingInput(context: ProjectCalculationContext): CalculationJson {
       luminaireId: node.equipmentId ?? nodeString(node, 'catalogItemId'),
       roomId: node.spaceId,
       position: { x: node.position.x, y: node.position.y },
+      componentId: node.componentId,
     }));
+  // A luminaire drawn on the plan lights the room whether or not anybody has
+  // routed a circuit to it. The lighting calculation used to see the network
+  // alone, so the building had to be drawn twice for it to count.
+  const claimed = new Set(
+    nodePlacements.flatMap(({ componentId }) =>
+      componentId === undefined ? [] : [componentId],
+    ),
+  );
+  const componentPlacements = context.placedEquipment
+    .filter(
+      (placed) =>
+        placed.category === 'LIGHTING' &&
+        // A model that is known has to be a luminaire; one that is not stays a
+        // placement without a model, which the module reports rather than
+        // guesses at.
+        (placed.kind === undefined || placed.kind === 'LUMINAIRE') &&
+        !claimed.has(placed.instanceId),
+    )
+    .map((placed) => ({
+      id: placed.instanceId,
+      luminaireId: placed.definitionId,
+      roomId: placed.spaceId,
+      position: { x: placed.position.x, y: placed.position.y },
+      componentId: placed.instanceId,
+    }));
+  const placements = [...nodePlacements, ...componentPlacements];
   if (placements.length === 0)
     settings.reportMissing(
       'lighting',
@@ -432,7 +459,7 @@ function lightingInput(context: ProjectCalculationContext): CalculationJson {
       luminousFluxLm: luminaire.luminousFluxLm ?? null,
       electricalPowerW: luminaire.electricalPowerW ?? null,
     })),
-    placements: placements.map((placement) => ({
+    placements: placements.map(({ componentId: _placed, ...placement }) => ({
       ...placement,
       luminaireId: placement.luminaireId ?? null,
       roomId: placement.roomId ?? null,
