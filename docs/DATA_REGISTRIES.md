@@ -212,6 +212,34 @@ Une propriété dérivée trouvée parmi les valeurs enregistrées est une erreu
 non un avertissement : c'est une deuxième réponse à une question à laquelle le
 modèle répond déjà, et les deux se contrediront au premier changement.
 
+## Une propriété, une définition
+
+`cost` voulait dire quatre choses — un coût, un coût au mètre carré, un coût
+au mètre, un coût au mètre cube — et `pressureDrop` était une valeur
+enregistrée dans un schéma et une valeur dérivée dans un autre, ce qui est
+exactement la façon dont une valeur dérivée finit écrite dans un fichier et se
+contredit elle-même. Deux cent quarante-six clés réparties sur quarante-quatre
+schémas avaient déjà divergé onze fois ; à cinq cents familles ce serait
+irrattrapable.
+
+Une clé est donc définie **une fois**, dans
+`data/property-schemas/properties.json` : ce qu'elle veut dire, son type, son
+unité, ce que cette unité mesure, et les orthographes plus anciennes sous
+lesquelles un fichier a pu l'écrire. Une famille dit ensuite **quelles** clés
+elle emploie et ce qu'elle en accepte — une plage, une liste — et ne répète
+rien du reste :
+
+```json
+{ "key": "maxChargePowerKW", "source": "DEFINITION", "minimum": 0 }
+```
+
+Les unités forment elles aussi une liste fermée, avec la grandeur que chacune
+mesure. `KW`, `kw` et `kW` sont trois orthographes d'une seule unité et une
+seule est le symbole ; à cinq cents familles, une unité tapée à la main est une
+unité tapée de trois façons, et une valeur lue dans la mauvaise est fausse d'un
+facteur mille. Une propriété dont l'unité et la grandeur se contredisent est
+refusée.
+
 ## La provenance
 
 Chaque entrée dit d'où viennent ses valeurs, sans exception : `GENERIC`,

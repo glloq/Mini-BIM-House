@@ -38,6 +38,9 @@ import {
   familyStatus,
   MEASURED_AXES,
   validateProvenance,
+  PROPERTY_DEFINITION_REGISTRY,
+  propertyDefinition,
+  validatePropertyDefinitions,
   validatePropertySchema,
   validateRegistry,
   validateSchemas,
@@ -466,55 +469,135 @@ describe('the schemas everything else is measured against', () => {
   });
 
   it('refuses a key declared twice, which would silently keep the second', () => {
+    const defined = () => ({
+      id: 'a',
+      label: 'A',
+      type: 'number' as const,
+      unit: 'W',
+    });
     expect(
-      validatePropertySchema({
-        family: 'X',
-        properties: [
-          {
-            key: 'a',
-            label: 'A',
-            type: 'number',
-            unit: 'W',
-            source: 'DEFINITION',
-          },
-          {
-            key: 'a',
-            label: 'A bis',
-            type: 'number',
-            unit: 'W',
-            source: 'DEFINITION',
-          },
-        ],
-      }).map(({ message }) => message),
+      validatePropertySchema(
+        {
+          family: 'X',
+          properties: [
+            { key: 'a', source: 'DEFINITION' },
+            { key: 'a', source: 'DEFINITION' },
+          ],
+        },
+        defined,
+      ).map(({ message }) => message),
     ).toContain('is declared more than once');
   });
 
-  it('refuses an enum that accepts anything and a range nothing satisfies', () => {
-    const issues = validatePropertySchema({
-      family: 'X',
-      properties: [
-        { key: 'a', label: 'A', type: 'enum', source: 'DEFINITION' },
+  it('refuses a family naming a property nothing defines', () => {
+    // Two hundred and forty-six keys over forty-four schemas had drifted
+    // eleven times; a key now means one thing, and a family says which keys it
+    // uses rather than inventing one.
+    expect(
+      validatePropertySchema(
         {
-          key: 'b',
-          label: 'B',
-          type: 'number',
-          unit: 'W',
-          source: 'DEFINITION',
-          minimum: 10,
-          maximum: 1,
+          family: 'X',
+          properties: [{ key: 'invented', source: 'DEFINITION' }],
         },
-        { key: 'c', label: 'C', type: 'number', source: 'DEFINITION' },
-        { key: '', label: '', type: 'nope', source: 'nowhere' },
-      ],
-    }).map(({ message }) => message);
-    expect(issues).toContain('is an enum and names no value it accepts');
+        () => undefined,
+      ).map(({ message }) => message),
+    ).toContain('names no property this application defines');
+  });
+
+  it('refuses a range nothing satisfies and a list of the wrong kind', () => {
+    const issues = validatePropertySchema(
+      {
+        family: 'X',
+        properties: [
+          { key: 'b', source: 'DEFINITION', minimum: 10, maximum: 1 },
+          { key: 'b', source: 'DEFINITION', options: ['x'] },
+        ],
+      },
+      () => ({ id: 'b', label: 'B', type: 'number' as const, unit: 'W' }),
+    ).map(({ message }) => message);
     expect(issues).toContain(
       'has a minimum above its maximum, which nothing can satisfy',
     );
+    expect(issues).toContain('number values cannot be listed');
+  });
+
+  it('refuses a definition whose unit and quantity disagree', () => {
+    // A power measured in millimetres is a property nobody can convert and
+    // nobody can check.
+    expect(
+      validatePropertyDefinitions([
+        { id: 'a', label: 'A', type: 'number', unit: 'mm', quantity: 'POWER' },
+      ]).map(({ message }) => message),
+    ).toContain(
+      'says it measures POWER and is written in mm, which measures LENGTH',
+    );
+  });
+
+  it('refuses a unit this application does not write', () => {
+    // `KW`, `kw` and `kW` are three spellings of one unit and only one of them
+    // is the symbol.
+    expect(
+      validatePropertyDefinitions([
+        { id: 'a', label: 'A', type: 'number', unit: 'KW' },
+      ]).map(({ message }) => message),
+    ).toContain('KW is not one of the units this application writes');
+  });
+
+  it('lets a file written with an older spelling still open', () => {
+    // Cleaning up a key is otherwise a choice between breaking every file that
+    // used it and never cleaning it up.
+    const schema = {
+      family: 'X',
+      properties: [
+        {
+          key: 'maxChargePowerKw',
+          label: 'Puissance de charge',
+          type: 'number' as const,
+          unit: 'kW',
+          source: 'DEFINITION' as const,
+          aliases: ['maxChargePowerKW'],
+        },
+      ],
+    };
+    expect(
+      validateProperties(schema, { maxChargePowerKW: 2.5 }, 'DEFINITION').map(
+        ({ message }) => message,
+      ),
+    ).toEqual(['maxChargePowerKW is an older spelling of maxChargePowerKw']);
+    expect(
+      validateProperties(schema, { maxChargePowerKw: 2.5 }, 'DEFINITION'),
+    ).toEqual([]);
+  });
+
+  it('carries the unit and what it measures down to the form that shows it', () => {
+    const schema = propertySchema('BATTERY_DEVICE')!;
+    const power = schema.properties.find(
+      ({ key }) => key === 'maxChargePowerKW',
+    );
+    expect(power?.unit).toBe('kW');
+    expect(power?.quantity).toBe('POWER');
+    expect(power?.label).toBe('Puissance de charge maximale');
+  });
+
+  it('defines every key exactly once, for the whole application', () => {
+    // `cost` meant a cost, a cost per square metre, a cost per metre and a
+    // cost per cubic metre; `pressureDrop` was stored in one schema and
+    // derived in another, which is how a derived figure ends up in a file.
+    const keys = PROPERTY_DEFINITION_REGISTRY.map(({ id }) => id);
+    expect(new Set(keys).size).toBe(keys.length);
+    for (const schema of PROPERTY_SCHEMA_REGISTRY)
+      for (const property of schema.properties)
+        expect(propertyDefinition(property.key), property.key).toBeDefined();
+  });
+
+  it('refuses a key defined twice and a number with no unit', () => {
+    const issues = validatePropertyDefinitions([
+      { id: 'a', label: 'A', type: 'number', unit: 'W' },
+      { id: 'a', label: 'A bis', type: 'number', unit: 'W' },
+      { id: 'b', label: 'B', type: 'number' },
+    ]).map(({ message }) => message);
+    expect(issues).toContain('is defined more than once');
     expect(issues).toContain('is a number and states no unit');
-    expect(issues).toContain('unknown type nope');
-    expect(issues).toContain('unknown source nowhere');
-    expect(issues).toContain('must have a key');
   });
 });
 

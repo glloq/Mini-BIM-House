@@ -1,3 +1,7 @@
+import {
+  isWrittenUnit,
+  quantityOf,
+} from '@house-technical-designer/technical-types';
 /**
  * Where the value of one property comes from.
  *
@@ -21,31 +25,117 @@ export const PROPERTY_TYPES = [
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 
 /**
- * What one property of one family is.
+ * One property, defined once for the whole application.
  *
- * One description, from which the validation, the inspector, the catalogue
- * forms, the units, the import and the export are all produced. Four places
- * describing the same field is four places to forget one of them.
+ * `cost` meant four different things — a cost, a cost per square metre, a cost
+ * per metre and a cost per cubic metre — and `pressureDrop` was a stored value
+ * in one schema and a derived one in another, which is how a derived figure
+ * ends up written into a file and disagreeing with itself. Two hundred and
+ * forty-six keys spread over forty-four schemas had drifted eleven times
+ * already; at five hundred families it would not be recoverable.
+ *
+ * So a key is defined here and nowhere else: what it means, what type it is,
+ * what it is measured in. A family then says which of them it uses and what it
+ * accepts — a range, a list — and repeats none of the rest.
+ */
+export interface PropertyDefinition {
+  readonly id: string;
+  readonly label: string;
+  readonly type: PropertyType;
+  /** SI or the unit the trade actually writes; `-` for a ratio. */
+  readonly unit?: string;
+  /** What the unit measures, which is what makes a conversion possible. */
+  readonly quantity?: string;
+  /** What the trade reads, when that is not what is stored. */
+  readonly displayUnit?: string;
+  /** Older spellings of this key, so a file written with one still opens. */
+  readonly aliases?: readonly string[];
+  readonly hint?: string;
+}
+
+/**
+ * What one family says about a property it uses.
+ *
+ * The key, where the value comes from, and what this family accepts. The
+ * meaning, the type and the unit are the property's, not the family's.
+ */
+export interface PropertyConstraint {
+  readonly key: string;
+  readonly source: PropertySource;
+  readonly required?: boolean;
+  /** The values this family accepts, when it accepts fewer than the type. */
+  readonly options?: readonly string[];
+  readonly minimum?: number;
+  readonly maximum?: number;
+}
+
+/**
+ * A property as everything downstream reads it: the definition and the
+ * family's constraint seen together.
  */
 export interface PropertyDescriptor {
   readonly key: string;
   readonly label: string;
   readonly type: PropertyType;
-  /** SI or the unit the trade actually writes; `-` for a ratio. */
   readonly unit?: string;
+  readonly quantity?: string;
+  readonly displayUnit?: string;
   readonly required?: boolean;
   readonly source: PropertySource;
-  /** Values the property accepts, when it is an enum. */
   readonly options?: readonly string[];
   readonly minimum?: number;
   readonly maximum?: number;
+  /** Older spellings of this key, so a file written with one still opens. */
+  readonly aliases?: readonly string[];
   readonly hint?: string;
+}
+
+/** The definition and the constraint, seen together. */
+export function describedProperty(
+  definition: PropertyDefinition,
+  constraint: PropertyConstraint,
+): PropertyDescriptor {
+  return {
+    key: constraint.key,
+    label: definition.label,
+    type: definition.type,
+    ...(definition.unit === undefined ? {} : { unit: definition.unit }),
+    ...(definition.quantity === undefined
+      ? {}
+      : { quantity: definition.quantity }),
+    ...(definition.displayUnit === undefined
+      ? {}
+      : { displayUnit: definition.displayUnit }),
+    ...(constraint.required === undefined
+      ? {}
+      : { required: constraint.required }),
+    source: constraint.source,
+    ...(constraint.options === undefined
+      ? {}
+      : { options: constraint.options }),
+    ...(constraint.minimum === undefined
+      ? {}
+      : { minimum: constraint.minimum }),
+    ...(constraint.maximum === undefined
+      ? {}
+      : { maximum: constraint.maximum }),
+    ...(definition.aliases === undefined
+      ? {}
+      : { aliases: definition.aliases }),
+    ...(definition.hint === undefined ? {} : { hint: definition.hint }),
+  };
 }
 
 /** Everything one family declares about its own properties. */
 export interface PropertySchema {
   readonly family: string;
   readonly properties: readonly PropertyDescriptor[];
+}
+
+/** A schema as its file states it: keys and constraints, nothing repeated. */
+export interface PropertySchemaFile {
+  readonly family: string;
+  readonly properties: readonly PropertyConstraint[];
 }
 
 export type PropertyValue = string | number | boolean;
@@ -84,8 +174,14 @@ export function validateProperties(
     }
     issues.push(...invalid(property, value));
   }
+  // A key this application used to spell differently still opens the files
+  // that used it, and says so rather than being quietly accepted for ever.
+  const older = new Map<string, PropertyDescriptor>();
+  for (const property of schema.properties)
+    for (const alias of property.aliases ?? []) older.set(alias, property);
+
   for (const key of Object.keys(values)) {
-    const property = declared.get(key);
+    const property = declared.get(key) ?? older.get(key);
     if (property === undefined) {
       issues.push({
         path: key,
@@ -93,6 +189,11 @@ export function validateProperties(
       });
       continue;
     }
+    if (!declared.has(key))
+      issues.push({
+        path: key,
+        message: `${key} is an older spelling of ${property.key}`,
+      });
     if (property.source === 'DERIVED')
       issues.push({
         path: key,
@@ -133,9 +234,13 @@ function invalid(
             `${property.key} must be one of ${(property.options ?? []).join(', ')}`,
           );
     case 'string':
-      return typeof value === 'string' && value.trim() !== ''
+      if (typeof value !== 'string' || value.trim() === '')
+        return at(`${property.key} must be a non-empty string`);
+      // A family may accept fewer values than the type allows without the
+      // property itself becoming an enumeration everywhere else.
+      return property.options === undefined || property.options.includes(value)
         ? []
-        : at(`${property.key} must be a non-empty string`);
+        : at(`${property.key} must be one of ${property.options.join(', ')}`);
   }
 }
 
@@ -161,69 +266,131 @@ function outOfRange(
 }
 
 /**
- * A schema as a data file states it, before anything has been checked.
+ * A property definition as a data file states it, before anything is checked.
  *
- * The strict type says `type: PropertyType` and `source: PropertySource`; a
- * JSON file says `string`, and the difference between the two is exactly what
- * validation earns.
+ * The strict type says `PropertyType`; a JSON file says `string`, and the
+ * difference between the two is what validation earns.
  */
-export interface PropertySchemaCandidate {
-  readonly family: string;
-  readonly properties: readonly (Omit<PropertyDescriptor, 'type' | 'source'> & {
-    readonly type: string;
-    readonly source: string;
-  })[];
+export interface PropertyDefinitionCandidate extends Omit<
+  PropertyDefinition,
+  'type'
+> {
+  readonly type: string;
 }
 
 /**
- * Everything wrong with one schema, before anything is measured against it.
+ * Everything wrong with the definitions themselves.
  *
- * A schema is what tells a catalogue entry it is wrong; a schema that is
- * itself wrong tells it nothing, and does it quietly. An enum with no options
- * accepts every string, a minimum above its maximum accepts no number at all,
- * and a key declared twice means the second declaration silently wins — none
- * of which any entry can reveal, because the entries are checked *by* this.
+ * These are what every schema, every catalogue entry and every form is
+ * measured against, which makes them the one thing nothing else can reveal. A
+ * key defined twice means the second definition silently wins; a number with
+ * no unit is a number nobody can read back — three what?
+ */
+export function validatePropertyDefinitions(
+  definitions: readonly PropertyDefinitionCandidate[],
+): readonly PropertyIssue[] {
+  const issues: PropertyIssue[] = [];
+  const at = (path: string, message: string) => issues.push({ path, message });
+  const seen = new Set<string>();
+  for (const [index, definition] of definitions.entries()) {
+    const where = definition.id.trim() === '' ? `${index}` : definition.id;
+    if (definition.id.trim() === '') at(where, 'must have an identifier');
+    else if (seen.has(definition.id)) at(where, 'is defined more than once');
+    seen.add(definition.id);
+    for (const alias of definition.aliases ?? []) {
+      if (seen.has(alias)) at(where, `the older spelling ${alias} is taken`);
+      seen.add(alias);
+    }
+    if (definition.label.trim() === '') at(where, 'must have a label');
+    if (!(PROPERTY_TYPES as readonly string[]).includes(definition.type))
+      at(where, `unknown type ${definition.type}`);
+    const numeric =
+      definition.type === 'number' || definition.type === 'integer';
+    if (numeric && (definition.unit ?? '').trim() === '')
+      at(where, 'is a number and states no unit');
+    if (definition.unit !== undefined && !isWrittenUnit(definition.unit))
+      at(
+        where,
+        `${definition.unit} is not one of the units this application writes`,
+      );
+    // The quantity and the unit have to agree: a power measured in millimetres
+    // is a property nobody can convert and nobody can check.
+    const measured =
+      definition.unit === undefined ? undefined : quantityOf(definition.unit);
+    if (
+      measured !== undefined &&
+      definition.quantity !== undefined &&
+      definition.quantity !== measured
+    )
+      at(
+        where,
+        `says it measures ${definition.quantity} and is written in ${definition.unit}, which measures ${measured}`,
+      );
+    if (definition.displayUnit !== undefined) {
+      if (!isWrittenUnit(definition.displayUnit))
+        at(
+          where,
+          `${definition.displayUnit} is not a unit this application writes`,
+        );
+      else if (measured !== quantityOf(definition.displayUnit))
+        at(where, 'is read in a unit that measures something else');
+    }
+    if (!numeric && definition.unit !== undefined)
+      at(where, 'states a unit and is not a number');
+  }
+  return issues;
+}
+
+/**
+ * Everything wrong with one family's constraints.
+ *
+ * A schema no longer says what a property *is* — that is the definition's job
+ * — so what is left to check is that it names properties that exist and asks
+ * of them things they can satisfy.
  */
 export function validatePropertySchema(
-  schema: PropertySchemaCandidate,
+  schema: PropertySchemaFile,
+  defined: (key: string) => PropertyDefinition | undefined,
 ): readonly PropertyIssue[] {
   const issues: PropertyIssue[] = [];
   const at = (path: string, message: string) => issues.push({ path, message });
   if (schema.family.trim() === '') at('family', 'must not be empty');
   const seen = new Set<string>();
-  for (const [index, property] of schema.properties.entries()) {
+  for (const [index, constraint] of schema.properties.entries()) {
     const where =
-      property.key.trim() === '' ? `properties/${index}` : property.key;
-    if (property.key.trim() === '') at(where, 'must have a key');
-    else if (seen.has(property.key)) at(where, 'is declared more than once');
-    seen.add(property.key);
-    if (property.label.trim() === '') at(where, 'must have a label');
-    if (!(PROPERTY_TYPES as readonly string[]).includes(property.type))
-      at(where, `unknown type ${property.type}`);
-    if (!(PROPERTY_SOURCES as readonly string[]).includes(property.source))
-      at(where, `unknown source ${property.source}`);
-    if (property.type === 'enum' && (property.options ?? []).length === 0)
-      at(where, 'is an enum and names no value it accepts');
-    if (property.type !== 'enum' && property.options !== undefined)
-      at(where, 'names accepted values but is not an enum');
+      constraint.key.trim() === '' ? `properties/${index}` : constraint.key;
+    if (constraint.key.trim() === '') at(where, 'must have a key');
+    else if (seen.has(constraint.key)) at(where, 'is declared more than once');
+    seen.add(constraint.key);
+    const definition = defined(constraint.key);
+    if (definition === undefined) {
+      at(where, 'names no property this application defines');
+      continue;
+    }
+    if (!(PROPERTY_SOURCES as readonly string[]).includes(constraint.source))
+      at(where, `unknown source ${constraint.source}`);
+    if (constraint.options !== undefined) {
+      if (constraint.options.length === 0)
+        at(where, 'accepts a list of values and the list is empty');
+      // A family may accept fewer values than the type allows; it may not
+      // pretend a number is a list.
+      if (definition.type !== 'enum' && definition.type !== 'string')
+        at(where, `${definition.type} values cannot be listed`);
+    }
+    if (definition.type === 'enum' && (constraint.options ?? []).length === 0)
+      at(where, 'is a list of values and names none');
     for (const [bound, value] of [
-      ['minimum', property.minimum],
-      ['maximum', property.maximum],
+      ['minimum', constraint.minimum],
+      ['maximum', constraint.maximum],
     ] as const)
       if (value !== undefined && !Number.isFinite(value))
         at(`${where}/${bound}`, 'must be a finite number');
     if (
-      property.minimum !== undefined &&
-      property.maximum !== undefined &&
-      property.minimum > property.maximum
+      constraint.minimum !== undefined &&
+      constraint.maximum !== undefined &&
+      constraint.minimum > constraint.maximum
     )
       at(where, 'has a minimum above its maximum, which nothing can satisfy');
-    // A number without a unit is a number nobody can read back: 3 what?
-    if (
-      (property.type === 'number' || property.type === 'integer') &&
-      (property.unit ?? '').trim() === ''
-    )
-      at(where, 'is a number and states no unit');
   }
   return issues;
 }

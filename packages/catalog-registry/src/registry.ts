@@ -14,6 +14,7 @@ import networkProducts from '../data/families/network-products.json' with { type
 import openings from '../data/families/openings.json' with { type: 'json' };
 import plumbing from '../data/families/plumbing.json' with { type: 'json' };
 import wastewaterRainwater from '../data/families/wastewater-rainwater.json' with { type: 'json' };
+import propertyDefinitions from '../data/property-schemas/properties.json' with { type: 'json' };
 import propertySchemas from '../data/property-schemas/schemas.json' with { type: 'json' };
 import type {
   CatalogEntryCandidate,
@@ -32,10 +33,14 @@ import {
   networkProductsOfFamily,
 } from '@house-technical-designer/network-products';
 import {
+  describedProperty,
   validateProperties,
+  validatePropertyDefinitions,
   validatePropertySchema,
+  type PropertyDefinition,
   type PropertyIssue,
   type PropertySchema,
+  type PropertySchemaFile,
 } from './property-schemas.js';
 import { validateProvenance } from './provenance.js';
 import type { FamilyReview } from './report.js';
@@ -82,9 +87,59 @@ export const FAMILY_REGISTRY: readonly FamilyDefinition[] = SOURCES.flatMap(
  * edges.
  */
 
-export const PROPERTY_SCHEMA_REGISTRY: readonly PropertySchema[] = (
-  propertySchemas as { readonly schemas: readonly PropertySchema[] }
+/**
+ * Every property this application knows, defined once.
+ *
+ * Two hundred and forty-six keys were spread over forty-four schemas, and
+ * eleven of them had already drifted: `cost` meant four different quantities
+ * and `pressureDrop` was stored in one schema and derived in another. A key
+ * now means one thing, and a family says which keys it uses.
+ */
+export const PROPERTY_DEFINITION_REGISTRY: readonly PropertyDefinition[] = (
+  propertyDefinitions as { readonly properties: readonly PropertyDefinition[] }
+).properties;
+
+const DEFINITION_BY_ID = new Map<string, PropertyDefinition>();
+for (const definition of PROPERTY_DEFINITION_REGISTRY) {
+  DEFINITION_BY_ID.set(definition.id, definition);
+  // An older spelling still opens the files that used it.
+  for (const alias of definition.aliases ?? [])
+    DEFINITION_BY_ID.set(alias, definition);
+}
+
+/** What a key means, whichever spelling of it a file uses. */
+export function propertyDefinition(
+  key: string,
+): PropertyDefinition | undefined {
+  return DEFINITION_BY_ID.get(key);
+}
+
+const SCHEMA_FILES = (
+  propertySchemas as { readonly schemas: readonly PropertySchemaFile[] }
 ).schemas;
+
+/**
+ * The schemas as everything downstream reads them.
+ *
+ * Each family's constraints resolved against the property definitions. A key
+ * nothing defines is left described by itself rather than dropped: the gate
+ * reports it, and dropping it would hide the very thing that is wrong.
+ */
+export const PROPERTY_SCHEMA_REGISTRY: readonly PropertySchema[] =
+  SCHEMA_FILES.map((schema) => ({
+    family: schema.family,
+    properties: schema.properties.map((constraint) => {
+      const definition = propertyDefinition(constraint.key);
+      return definition === undefined
+        ? {
+            key: constraint.key,
+            label: constraint.key,
+            type: 'string' as const,
+            source: constraint.source,
+          }
+        : describedProperty(definition, constraint);
+    }),
+  }));
 
 /**
  * What each catalogue entry said when its version was fixed.
@@ -374,8 +429,12 @@ export interface SchemaIssue extends PropertyIssue {
  */
 export function validateSchemas(): readonly SchemaIssue[] {
   const issues: SchemaIssue[] = [];
+  // The definitions first: they are what the schemas are measured against, so
+  // a definition that is wrong makes a check pass that should have failed.
+  for (const issue of validatePropertyDefinitions(PROPERTY_DEFINITION_REGISTRY))
+    issues.push({ schemaId: 'propriétés', ...issue });
   const seen = new Set<string>();
-  for (const schema of PROPERTY_SCHEMA_REGISTRY) {
+  for (const schema of SCHEMA_FILES) {
     if (seen.has(schema.family))
       issues.push({
         schemaId: schema.family,
@@ -383,9 +442,21 @@ export function validateSchemas(): readonly SchemaIssue[] {
         message: 'is declared more than once',
       });
     seen.add(schema.family);
-    for (const issue of validatePropertySchema(schema))
+    for (const issue of validatePropertySchema(schema, propertyDefinition))
       issues.push({ schemaId: schema.family, ...issue });
   }
+  // A property nobody uses is a property nobody maintains, and it will be
+  // wrong by the time a family finally names it.
+  const used = new Set(
+    SCHEMA_FILES.flatMap(({ properties }) => properties.map(({ key }) => key)),
+  );
+  for (const definition of PROPERTY_DEFINITION_REGISTRY)
+    if (!used.has(definition.id))
+      issues.push({
+        schemaId: 'propriétés',
+        path: definition.id,
+        message: 'is defined and no family uses it',
+      });
   return issues;
 }
 
