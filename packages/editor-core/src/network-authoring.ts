@@ -7,7 +7,11 @@ import type {
   PortDirection,
   TechnicalNetwork,
 } from '@house-technical-designer/core-domain';
-import { validateTechnicalNetwork } from '@house-technical-designer/core-domain';
+import {
+  portsConnectable,
+  validateTechnicalNetwork,
+} from '@house-technical-designer/core-domain';
+import { portType } from '@house-technical-designer/technical-types';
 import type { Point2D, Point3D } from '@house-technical-designer/geometry';
 
 /** One port a node template creates, named after the node it belongs to. */
@@ -189,6 +193,42 @@ export function systemPortType(
   return direction === 'IN' ? pair.in : pair.out;
 }
 
+/**
+ * The ports a node inherits from the thing it stands for.
+ *
+ * A template says a system and a direction, which is enough for a run of cold
+ * water and not for a heat pump: flow, return, power, control and a condensate
+ * drain are five different things, and no pair of « system + IN/OUT » will ever
+ * produce them. When the node names a placed object, its definition already
+ * states them — so they are taken rather than guessed.
+ */
+export function portsOfPlacedEquipment(
+  nodeId: string,
+  placed: {
+    readonly ports: readonly {
+      readonly id: string;
+      readonly portTypeId?: string;
+    }[];
+  },
+): readonly NetworkPort[] {
+  return placed.ports.flatMap((port) => {
+    if (port.portTypeId === undefined) return [];
+    const kind = portType(port.portTypeId);
+    if (kind === undefined) return [];
+    return [
+      {
+        id: `${nodeId}-${port.id}`,
+        nodeId,
+        portTypeId: port.portTypeId,
+        role: kind.service,
+        // A kind that settles the facing settles it; one that does not leaves
+        // the port bidirectional, which is what it is.
+        direction: kind.direction,
+      },
+    ];
+  });
+}
+
 /** Ports the node template creates, named after the node. */
 export function templatePorts(
   nodeId: string,
@@ -247,17 +287,11 @@ export function connectablePorts(
 ): readonly NetworkPort[] {
   const from = network.ports.find(({ id }) => id === fromPortId);
   if (from === undefined) return [];
+  // The same rule the model applies and the importer applies. Three copies of
+  // one question is two of them wrong, and the disagreement showed as an
+  // editor offering runs the file would then refuse.
   return openPorts(network).filter(
-    (port) =>
-      port.id !== from.id &&
-      port.nodeId !== from.nodeId &&
-      (port.direction === 'IN' || port.direction === 'BIDIRECTIONAL') &&
-      (from.connectionType === undefined ||
-        port.connectionType === undefined ||
-        from.connectionType === port.connectionType) &&
-      (from.nominalSize === undefined ||
-        port.nominalSize === undefined ||
-        from.nominalSize === port.nominalSize),
+    (port) => port.id !== from.id && portsConnectable(from, port),
   );
 }
 

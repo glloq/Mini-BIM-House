@@ -7,7 +7,11 @@ import {
   materialId,
 } from '@house-technical-designer/materials';
 import { ProjectCommandDispatcher } from './project-commands.js';
-import { draftAssembly, draftAssemblyLayer } from './library-commands.js';
+import {
+  RemoveEquipmentCommand,
+  draftAssembly,
+  draftAssemblyLayer,
+} from './library-commands.js';
 import {
   AddComponentCommand,
   AddLevelCommand,
@@ -524,6 +528,139 @@ describe('levels and the annotations they carry', () => {
     expect(measured.first.wallId).toBe('south@copy');
     expect(measured.second.wallId).toBe('south@copy');
     expect(copy.walls.some(({ id }) => id === 'south@copy')).toBe(true);
+  });
+});
+
+describe('what deleting an object would break', () => {
+  function twoStoreys(): ProjectCommandDispatcher {
+    const base = project();
+    return new ProjectCommandDispatcher({
+      ...base,
+      building: {
+        ...base.building,
+        levels: [
+          base.building.levels[0]!,
+          {
+            id: entityId<'Level'>('upper'),
+            name: 'Étage',
+            elevationMm: 2700,
+            defaultStoreyHeightMm: 2500,
+            walls: [],
+            openings: [],
+            slabs: [],
+            roofs: [],
+            spaces: [],
+            stairs: [],
+            annotations: [],
+          },
+        ],
+      },
+    });
+  }
+
+  it('refuses an empty storey a wall still climbs to', () => {
+    // Empty is not unreferenced. Deleting it left the wall naming a storey
+    // that was gone, and the importer would then refuse the file — which is a
+    // project the application writes and cannot read back.
+    const commands = twoStoreys();
+    const base = commands.project;
+    const climbing = new ProjectCommandDispatcher({
+      ...base,
+      building: {
+        ...base.building,
+        levels: base.building.levels.map((level) =>
+          level.id === 'ground'
+            ? {
+                ...level,
+                walls: level.walls.map((wall, index) =>
+                  index === 0
+                    ? {
+                        ...wall,
+                        heightMode: 'TO_LEVEL' as const,
+                        topLevelId: entityId<'Level'>('upper'),
+                      }
+                    : wall,
+                ),
+              }
+            : level,
+        ),
+      },
+    });
+    const result = climbing.dispatch(new RemoveLevelCommand('upper'));
+    expect(result.status).toBe('REJECTED');
+    expect(
+      result.status === 'REJECTED' ? result.errors.join(' ') : '',
+    ).toContain('le niveau jusqu’auquel il monte');
+  });
+
+  it('refuses an empty storey a saved view still draws', () => {
+    const commands = twoStoreys();
+    const base = commands.project;
+    const viewed = new ProjectCommandDispatcher({
+      ...base,
+      drawingViews: [
+        {
+          id: 'view-upper',
+          type: 'PLAN',
+          name: 'Étage',
+          levelId: entityId<'Level'>('upper'),
+          scaleDenominator: 50,
+          layers: {},
+          graphicProfileId: 'generic-technical-screen',
+        },
+      ],
+    });
+    expect(viewed.dispatch(new RemoveLevelCommand('upper')).status).toBe(
+      'REJECTED',
+    );
+  });
+
+  it('deletes an empty storey nothing names', () => {
+    expect(twoStoreys().dispatch(new RemoveLevelCommand('upper')).status).toBe(
+      'APPLIED',
+    );
+  });
+
+  it('refuses a model a placed component still stands for', () => {
+    // The check looked at the network nodes and not at the placed things, so
+    // deleting a model left every one of them naming something gone.
+    const base = project();
+    const commands = new ProjectCommandDispatcher({
+      ...base,
+      equipment: [
+        {
+          id: 'radiator-model',
+          kind: 'RADIATOR',
+          catalogKind: 'GENERIC',
+          properties: {},
+        },
+      ],
+      building: {
+        ...base.building,
+        levels: base.building.levels.map((level) => ({
+          ...level,
+          components: [
+            {
+              id: entityId<'ComponentInstance'>('rad-1'),
+              type: 'COMPONENT_INSTANCE' as const,
+              levelId: level.id,
+              category: 'HEATING' as const,
+              definitionId: 'radiator-model',
+              position: { x: 1000, y: 1000 },
+              elevationMm: 300,
+              rotationDeg: 0,
+            },
+          ],
+        })),
+      },
+    });
+    const result = commands.dispatch(
+      new RemoveEquipmentCommand('radiator-model'),
+    );
+    expect(result.status).toBe('REJECTED');
+    expect(
+      result.status === 'REJECTED' ? result.errors.join(' ') : '',
+    ).toContain('son modèle');
   });
 });
 

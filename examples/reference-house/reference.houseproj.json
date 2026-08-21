@@ -1,6 +1,6 @@
 {
   "format": "house-technical-designer-project",
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "applicationVersion": "0.1.0",
   "project": {
     "id": "reference-house",
@@ -632,7 +632,8 @@
             "sourceType": "STANDARD",
             "reference": "Generic LED ceiling luminaire, demonstration value"
           }
-        ]
+        ],
+        "name": "Plafonnier LED générique"
       }
     ],
     "systems": [
@@ -728,61 +729,71 @@
             "id": "water:source-out",
             "nodeId": "water:source",
             "role": "FLOW",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "WATER_COLD"
           },
           {
             "id": "water:manifold-in",
             "nodeId": "water:manifold",
             "role": "FLOW",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "WATER_COLD"
           },
           {
             "id": "water:manifold-out-sink",
             "nodeId": "water:manifold",
             "role": "FLOW",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "WATER_COLD"
           },
           {
             "id": "water:sink-in",
             "nodeId": "water:sink",
             "role": "FLOW",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "WATER_COLD"
           },
           {
             "id": "water:manifold-out-basin",
             "nodeId": "water:manifold",
             "role": "FLOW",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "WATER_COLD"
           },
           {
             "id": "water:basin-in",
             "nodeId": "water:basin",
             "role": "FLOW",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "WATER_COLD"
           },
           {
             "id": "water:manifold-out-shower",
             "nodeId": "water:manifold",
             "role": "FLOW",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "WATER_COLD"
           },
           {
             "id": "water:shower-in",
             "nodeId": "water:shower",
             "role": "FLOW",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "WATER_COLD"
           },
           {
             "id": "water:manifold-out-wc",
             "nodeId": "water:manifold",
             "role": "FLOW",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "WATER_COLD"
           },
           {
             "id": "water:wc-in",
             "nodeId": "water:wc",
             "role": "FLOW",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "WATER_COLD"
           }
         ],
         "edges": [
@@ -1457,61 +1468,71 @@
             "id": "electrical:board-out",
             "nodeId": "electrical:board",
             "role": "POWER",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "ELECTRICAL_AC"
           },
           {
             "id": "electrical:circuit-in",
             "nodeId": "electrical:lighting-circuit",
             "role": "POWER",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "ELECTRICAL_AC"
           },
           {
             "id": "electrical:circuit-out-living",
             "nodeId": "electrical:lighting-circuit",
             "role": "POWER",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "ELECTRICAL_AC"
           },
           {
             "id": "electrical:luminaire-living-in",
             "nodeId": "electrical:luminaire-living",
             "role": "POWER",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "ELECTRICAL_AC"
           },
           {
             "id": "electrical:circuit-out-kitchen",
             "nodeId": "electrical:lighting-circuit",
             "role": "POWER",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "ELECTRICAL_AC"
           },
           {
             "id": "electrical:luminaire-kitchen-in",
             "nodeId": "electrical:luminaire-kitchen",
             "role": "POWER",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "ELECTRICAL_AC"
           },
           {
             "id": "electrical:circuit-out-bedroom",
             "nodeId": "electrical:lighting-circuit",
             "role": "POWER",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "ELECTRICAL_AC"
           },
           {
             "id": "electrical:luminaire-bedroom-in",
             "nodeId": "electrical:luminaire-bedroom",
             "role": "POWER",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "ELECTRICAL_AC"
           },
           {
             "id": "electrical:circuit-out-bathroom",
             "nodeId": "electrical:lighting-circuit",
             "role": "POWER",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "ELECTRICAL_AC"
           },
           {
             "id": "electrical:luminaire-bathroom-in",
             "nodeId": "electrical:luminaire-bathroom",
             "role": "POWER",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "ELECTRICAL_AC"
           }
         ],
         "edges": [
@@ -1723,7 +1744,7 @@
         "methodId": "co2-mass-balance-v1",
         "precisionTarget": "ENGINEERING",
         "settings": {
-          "co2GenerationM3sPerOccupant": 4.7e-06,
+          "co2GenerationM3sPerOccupant": 0.0000047,
           "initialConcentrationPpm": 500,
           "durationHours": 8,
           "occupantsByCategory": {

@@ -223,9 +223,114 @@ export const migration100To110: ProjectMigration = {
   },
 };
 
+/**
+ * What an older file called a port, and what it certainly meant.
+ *
+ * A port used to say a free `role` and a direction; the model now names the
+ * kind, from which the fluid, the service and the way it is joined are read.
+ *
+ * The pair does not determine the kind in general, and the reference house
+ * proved it on the first run: in an extract system a terminal sends extract
+ * air *out* into the duct while the fan sends exhaust air *out* to the sky,
+ * and the same is true of a heating flow arriving *in* at an emitter. Only the
+ * systems whose two ends carry the same kind can be migrated with certainty —
+ * the cold water leaving a manifold is the cold water arriving at a tap.
+ *
+ * The rest keep saying what they said. An inference nobody can check is worse
+ * than an old field somebody can still read, and a network claiming a fluid
+ * nobody chose is worse than both.
+ */
+const LEGACY_PORT_KINDS: Readonly<Record<string, string>> = {
+  POTABLE_COLD: 'WATER_COLD',
+  POTABLE_HOT: 'WATER_HOT',
+  NON_POTABLE: 'WATER_NON_POTABLE',
+  ELECTRICAL: 'ELECTRICAL_AC',
+  LIGHTING: 'ELECTRICAL_AC',
+  POWER: 'ELECTRICAL_AC',
+};
+
+/** The kind a legacy port certainly was, when it certainly was one. */
+function legacyPortKind(systemType: unknown): string | undefined {
+  return typeof systemType === 'string'
+    ? LEGACY_PORT_KINDS[systemType]
+    : undefined;
+}
+
+/**
+ * Where a 1.1.0 file hid what the catalogue entry was.
+ *
+ * The interface used to copy a catalogue entry into the project by writing its
+ * identifier and version *inside* `properties`, under names nothing read.
+ * Moving them to the fields that mean them is the whole of what this
+ * migration invents, and it invents nothing: the values were already in the
+ * file, under a different roof.
+ */
+function liftedEquipment(entry: unknown): unknown {
+  if (!isRecord(entry)) return entry;
+  const properties = isRecord(entry.properties) ? entry.properties : {};
+  const version = properties.catalogDefinitionVersion;
+  const name = properties.name;
+  const {
+    catalogDefinitionId: _id,
+    catalogDefinitionVersion: _version,
+    ...rest
+  } = properties;
+  return {
+    ...entry,
+    ...(entry.version === undefined && typeof version === 'string'
+      ? { version }
+      : {}),
+    ...(entry.name === undefined && typeof name === 'string' ? { name } : {}),
+    properties: rest,
+  };
+}
+
+export const migration110To120: ProjectMigration = {
+  id: 'project-1.1.0-to-1.2.0',
+  from: '1.1.0',
+  to: '1.2.0',
+  migrate(input: unknown): unknown {
+    if (!isRecord(input) || !isRecord(input.project))
+      throw new TypeError('A 1.1.0 file must contain a project.');
+    const project = input.project;
+    const building = isRecord(project.building) ? project.building : undefined;
+    const equipment = Array.isArray(project.equipment)
+      ? (project.equipment as readonly unknown[]).map(liftedEquipment)
+      : undefined;
+    const systems = Array.isArray(project.systems)
+      ? (project.systems as readonly unknown[]).map((network) => {
+          if (!isRecord(network) || !Array.isArray(network.ports))
+            return network;
+          return {
+            ...network,
+            ports: (network.ports as readonly unknown[]).map((port) => {
+              if (!isRecord(port) || port.portTypeId !== undefined) return port;
+              const kind = legacyPortKind(network.systemType);
+              // A port whose kind cannot be told from what the file says keeps
+              // saying what it said. Guessing would make the network claim a
+              // fluid nobody chose.
+              return kind === undefined ? port : { ...port, portTypeId: kind };
+            }),
+          };
+        })
+      : undefined;
+    return {
+      ...input,
+      schemaVersion: '1.2.0',
+      project: {
+        ...project,
+        ...(building === undefined ? {} : { building }),
+        ...(equipment === undefined ? {} : { equipment }),
+        ...(systems === undefined ? {} : { systems }),
+      },
+    };
+  },
+};
+
 export const DEFAULT_PROJECT_MIGRATIONS: readonly ProjectMigration[] = [
   migration090To100,
   migration100To110,
+  migration110To120,
 ];
 
 function isRecord(value: unknown): value is Record<string, unknown> {

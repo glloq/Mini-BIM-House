@@ -267,6 +267,28 @@ export interface EquipmentDefinition {
   readonly allowedHosts?: readonly HostType[];
   readonly properties: Readonly<Record<string, JsonValue>>;
 }
+/**
+ * A network product as this project holds it.
+ *
+ * A copy of what the catalogue said the day the run was drawn, version
+ * included, so that the run keeps meaning what it meant.
+ */
+export interface NetworkProductSnapshot {
+  readonly id: string;
+  /** PIPE, CABLE, DUCT, CONDUIT, FLUE — the family it is an entry of. */
+  readonly family: string;
+  readonly domain: string;
+  readonly label: string;
+  readonly version?: string;
+  readonly properties: Readonly<Record<string, JsonValue>>;
+  readonly provenance?: {
+    readonly type: string;
+    readonly reference: string;
+    readonly url?: string;
+    readonly validAt?: string;
+  };
+}
+
 export interface ScenarioOverride {
   readonly path: string;
   readonly operation: 'SET' | 'ADD' | 'REMOVE' | 'REPLACE_REFERENCE';
@@ -296,6 +318,16 @@ export interface Project extends BaseEntity<ProjectId> {
   readonly materialLibrary?: { readonly materials: readonly Material[] };
   readonly assemblies?: readonly Assembly[];
   readonly equipment?: readonly EquipmentDefinition[];
+  /**
+   * The products this project's runs are made of, as this project holds them.
+   *
+   * A tube's bore and roughness were resolved from the catalogue installed
+   * today. Correcting a product six months from now would therefore resize
+   * every network already drawn with it, silently — the exact defect that made
+   * an equipment definition travel with the project rather than be pointed at.
+   * A file has to open the same way in two years.
+   */
+  readonly networkProducts?: readonly NetworkProductSnapshot[];
   readonly systems?: readonly TechnicalNetwork[];
   readonly scenarios?: readonly Scenario[];
   /**

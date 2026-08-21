@@ -212,7 +212,7 @@ describe('taking an object back off the plan', () => {
     const refused = dispatcher.dispatch(room);
     expect(refused.status).toBe('REJECTED');
     if (refused.status !== 'REJECTED') return;
-    expect(refused.errors.join(' ')).toContain('zone');
+    expect(refused.errors.join(' ')).toContain('une pièce qu’elle rassemble');
   });
 
   it('lets the domain refuse a wall something still hangs on', () => {

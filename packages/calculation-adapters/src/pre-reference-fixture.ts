@@ -298,7 +298,7 @@ export function createPreReferenceProject(): ProjectFile {
   };
   return {
     format: 'house-technical-designer-project',
-    schemaVersion: '1.1.0',
+    schemaVersion: '1.2.0',
     project: {
       id: entityId<'Project'>('pre-reference'),
       metadata: {

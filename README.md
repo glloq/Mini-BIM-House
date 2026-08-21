@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml/badge.svg)](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml)
 [![Licence AGPL-3.0-only](https://img.shields.io/badge/licence-AGPL--3.0--only-blue)](LICENSE)
-![Version 0.3.0-beta.2](https://img.shields.io/badge/version-0.3.0--beta.2-yellow)
+![Version 0.3.0-beta.3](https://img.shields.io/badge/version-0.3.0--beta.3-yellow)
 ![Statut bêta](https://img.shields.io/badge/statut-b%C3%AAta-yellow)
 
-> **Version 0.3.0-beta.2 — bêta.** L'application couvre le parcours complet et
+> **Version 0.3.0-beta.3 — bêta.** L'application couvre le parcours complet et
 > ses formats sont stabilisés ; l'interface peut encore bouger et plusieurs
 > sujets restent hors périmètre. Voir
 > [Ce que l'application ne fait pas](#ce-que-lapplication-ne-fait-pas), le
@@ -562,7 +562,7 @@ Chaque fichier est versionné :
 
 ```json
 {
-  "schemaVersion": "1.1.0"
+  "schemaVersion": "1.2.0"
 }
 ```
 
@@ -572,6 +572,18 @@ elles ne font que resserrer un contrat : `1.1.0` donne une forme à `stairs` et
 fichier `1.0.0` s'ouvre donc toujours ; ce qui correspond à la nouvelle forme
 devient lisible, et ce qui n'y correspond pas est conservé sous l'extension
 `legacy.1-0-0` plutôt que jeté.
+
+`1.2.0` remet à leur place les valeurs qu'une version antérieure de l'interface
+rangeait ailleurs : l'identifiant et la version de la fiche catalogue étaient
+écrits **dans** `properties`, sous des noms que rien ne lisait, si bien que
+l'épinglage cherchait `version` en tête de fiche et ne trouvait rien. Elle
+nomme aussi le genre des ports de réseau **là où l'ancien fichier le
+déterminait** : l'eau froide qui sort d'une nourrice est l'eau froide qui
+arrive à un robinet, donc ce cas est certain ; dans une extraction, une bouche
+envoie de l'air extrait _vers_ la gaine pendant que le caisson envoie de l'air
+rejeté _vers_ l'extérieur, donc le sens ne tranche rien et le port garde ce
+qu'il disait. Une déduction que personne ne peut vérifier est pire qu'un
+ancien champ que quelqu'un peut encore lire.
 
 ---
 
@@ -616,7 +628,7 @@ sans casser le noyau.
 
 # État du projet
 
-**Version 0.3.0-beta.2, bêta.** L'application couvre le parcours complet :
+**Version 0.3.0-beta.3, bêta.** L'application couvre le parcours complet :
 dessiner, composer, calculer, superposer, métrer, comparer, exporter. Ce qu'un
 fichier de projet promet d'une version à l'autre est écrit dans
 [`CHANGELOG.md`](CHANGELOG.md).
@@ -671,7 +683,7 @@ fichier de projet promet d'une version à l'autre est écrit dans
 
 ## Ce que l'application ne fait pas
 
-Cette liste décrit la `0.3.0-beta.2` telle qu'elle est aujourd'hui, et rien
+Cette liste décrit la `0.3.0-beta.3` telle qu'elle est aujourd'hui, et rien
 d'autre : ce qui y figure n'existe pas encore dans l'application.
 
 - **Toitures sur contour quelconque** : une toiture est décrite par son

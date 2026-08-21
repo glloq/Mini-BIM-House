@@ -14,10 +14,19 @@ import {
   squareMillimetresToSquareMetres,
 } from '@house-technical-designer/units';
 
-export type QuantityType = 'LENGTH' | 'AREA' | 'VOLUME' | 'MASS';
+/**
+ * What a quantity measures.
+ *
+ * `COUNT` is not a measurement of the building but of what is in it: three
+ * radiators are three radiators whatever their volume, and a bill of materials
+ * that only knew how much concrete a house holds could say nothing about the
+ * things standing in it.
+ */
+export type QuantityType = 'LENGTH' | 'AREA' | 'VOLUME' | 'MASS' | 'COUNT';
 export type QuantityLevel = 'GEOMETRIC' | 'NET';
 export interface QuantityTrace {
-  readonly methodId: 'wall-quantities-v1';
+  readonly methodId:
+    'wall-quantities-v1' | 'placed-equipment-v1' | 'network-run-v1';
   readonly sourceEntityIds: readonly string[];
   readonly formula: string;
 }
@@ -29,7 +38,7 @@ export interface QuantityItem {
   readonly quantityType: QuantityType;
   readonly level: QuantityLevel;
   readonly value: number;
-  readonly unit: 'm' | 'm2' | 'm3' | 'kg';
+  readonly unit: 'm' | 'm2' | 'm3' | 'kg' | 'u';
   readonly trace: QuantityTrace;
 }
 export interface QuantityWarning {

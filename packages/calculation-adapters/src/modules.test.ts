@@ -189,6 +189,80 @@ describe('real calculation orchestration adapters', () => {
     );
   });
 
+  /** The reference house with N copies of one model actually placed. */
+  function withPlaced(kind: string, count: number) {
+    return (project: Project) => {
+      const level = project.building.levels[0]!;
+      const model = (project.equipment ?? []).find(
+        (entry) => entry.kind === kind,
+      );
+      if (model === undefined) throw new Error(`no ${kind} in the fixture`);
+      (level as unknown as { components?: unknown[] }).components = [
+        ...(level.components ?? []),
+        ...Array.from({ length: count }, (_unused, index) => ({
+          id: `placed-${kind}-${index}`,
+          type: 'COMPONENT_INSTANCE',
+          levelId: level.id,
+          category: 'OTHER',
+          definitionId: model.id,
+          position: { x: 1000 + index * 100, y: 1000 },
+          elevationMm: 0,
+          rotationDeg: 0,
+        })),
+      ];
+    };
+  }
+
+  it('reads the photovoltaic power of what is on the roof, not of the library', () => {
+    // Two modules of the same model produce twice as much as one; reading the
+    // catalogue alone made the two projects identical.
+    const none = projectInputs().inputs.photovoltaic as {
+      installedPowerWp?: number;
+    };
+    const one = projectInputs(withPlaced('PHOTOVOLTAIC', 1)).inputs
+      .photovoltaic as { installedPowerWp?: number };
+    const three = projectInputs(withPlaced('PHOTOVOLTAIC', 3)).inputs
+      .photovoltaic as { installedPowerWp?: number };
+    expect(one.installedPowerWp).toBe(none.installedPowerWp);
+    expect(three.installedPowerWp).toBeCloseTo(
+      (one.installedPowerWp ?? 0) * 3,
+      6,
+    );
+  });
+
+  it('asks which tank when two are standing, and not when two are catalogued', () => {
+    // A library holding two models and a house holding one is not an
+    // ambiguous house.
+    const one = projectInputs(withPlaced('DHW_TANK', 1)).inputs.dhw as {
+      tankVolumeL?: number | null;
+    };
+    expect(one.tankVolumeL).toBeDefined();
+    const two = projectInputs(withPlaced('DHW_TANK', 2));
+    expect(
+      two.missing.some(
+        ({ moduleId, key }) => moduleId === 'dhw' && key === 'tank',
+      ),
+    ).toBe(true);
+  });
+
+  it('counts what the house holds and how much tube it runs', () => {
+    // A bill of materials that knew only how much concrete a house contains
+    // could say nothing about the things standing in it.
+    const built = projectInputs(withPlaced('LUMINAIRE', 4));
+    const cost = built.inputs.cost as {
+      quantities: readonly { readonly itemId: string }[];
+    };
+    expect(cost.quantities.length).toBeGreaterThan(0);
+    // Counted, and said to be unpriced rather than quietly left out of a total
+    // that would then look complete.
+    expect(
+      built.missing.filter(
+        ({ moduleId, key }) =>
+          moduleId === 'cost' && key.startsWith('unpriced/'),
+      ).length,
+    ).toBeGreaterThan(0);
+  });
+
   it('sizes a run from the product it names, not from figures retyped on it', () => {
     // A bore and a roughness belong to a tube, not to a run of it; they were
     // copied onto every segment by hand from a datasheet.

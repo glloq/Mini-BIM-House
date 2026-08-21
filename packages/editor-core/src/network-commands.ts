@@ -597,7 +597,7 @@ export class SetNetworkEdgeProductCommand extends NetworkCommand {
   protected apply(project: Project): Project {
     const network = requireNetwork(project, this.networkId);
     const product = this.product();
-    return replaceNetwork(project, {
+    const withProduct = replaceNetwork(project, {
       ...network,
       edges: network.edges.map((edge) => {
         if (edge.id !== this.edgeId) return edge;
@@ -613,6 +613,31 @@ export class SetNetworkEdgeProductCommand extends NetworkCommand {
             };
       }),
     });
+    if (product === undefined) return withProduct;
+    // The project keeps its own copy of what its runs are made of. Reading the
+    // installed catalogue instead would resize every network already drawn,
+    // the day somebody corrects a tube — and a file has to open the same way in
+    // two years.
+    const held = withProduct.networkProducts ?? [];
+    return held.some(({ id }) => id === product.id)
+      ? withProduct
+      : {
+          ...withProduct,
+          networkProducts: [
+            ...held,
+            {
+              id: product.id,
+              family: product.family,
+              domain: product.domain,
+              label: product.label,
+              ...(product.version === undefined
+                ? {}
+                : { version: product.version }),
+              properties: { ...product.properties },
+              provenance: { ...product.provenance },
+            },
+          ],
+        };
   }
 }
 

@@ -13,6 +13,7 @@ import {
   scenarioDiffOverlay,
   targetForEdit,
 } from './scenario-view.js';
+import { populatedProject } from '../test-support/populated-project.js';
 
 function project() {
   const result = loadDemoProject();
@@ -278,5 +279,67 @@ describe('seeing what a variant changes', () => {
     expect(scenarioDiff(base, variant)).toEqual([
       { objectId: 'wall-south', kind: 'REMOVED' },
     ]);
+  });
+});
+
+describe('what a variant is compared on', () => {
+  it('sees a post moved, a tree planted and a note added', () => {
+    // The diff enumerated nine families by hand; a variant touching any of
+    // these three showed nothing at all.
+    const base = populatedProject();
+    const variant: Project = {
+      ...base,
+      site: { ...base.site, obstacles: [] },
+      building: {
+        ...base.building,
+        levels: base.building.levels.map((level, index) =>
+          index === 0
+            ? {
+                ...level,
+                structure: (level.structure ?? []).map((member) => ({
+                  ...member,
+                  path: [{ x: 9000, y: 9000 }],
+                })),
+                annotations: [],
+              }
+            : level,
+        ),
+      },
+    };
+    const changed = scenarioDiff(base, variant);
+    expect(
+      changed.find(({ objectId }) => objectId === 'member-column')?.kind,
+    ).toBe('CHANGED');
+    expect(
+      changed.find(({ objectId }) => objectId === 'obstacle-tree')?.kind,
+    ).toBe('REMOVED');
+    expect(
+      changed.find(({ objectId }) => objectId === 'note-demolition')?.kind,
+    ).toBe('REMOVED');
+  });
+
+  it('does not report a storey as changed because a wall of it moved', () => {
+    // One change shown twice, the second pointing at a thing nobody touched.
+    const base = populatedProject();
+    const variant: Project = {
+      ...base,
+      building: {
+        ...base.building,
+        levels: base.building.levels.map((level, index) =>
+          index === 0
+            ? {
+                ...level,
+                walls: level.walls.map((wall) => ({
+                  ...wall,
+                  heightMm: 3000,
+                })),
+              }
+            : level,
+        ),
+      },
+    };
+    const changed = scenarioDiff(base, variant);
+    expect(changed.some(({ objectId }) => objectId === 'ground')).toBe(false);
+    expect(changed.length).toBeGreaterThan(0);
   });
 });

@@ -80,7 +80,7 @@ function stair(
 function file(levels: readonly unknown[], extra: object = {}) {
   return {
     format: 'house-technical-designer-project' as const,
-    schemaVersion: '1.1.0',
+    schemaVersion: '1.2.0',
     project: {
       id: 'project',
       metadata: {

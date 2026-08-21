@@ -24,7 +24,7 @@ import {
   type ProjectMigration,
 } from './migrations.js';
 
-export const CURRENT_PROJECT_SCHEMA_VERSION = '1.1.0';
+export const CURRENT_PROJECT_SCHEMA_VERSION = '1.2.0';
 
 /**
  * Bounds an imported file has to respect.
@@ -367,6 +367,12 @@ export function validateProjectReferences(
    * component the node's list is how a radiator ends up « fixed to » the model
    * of a radiator.
    */
+  const heldProducts = new Map(
+    (file.project.networkProducts ?? []).map((product) => [
+      product.id,
+      product,
+    ]),
+  );
   const supports = new Map<string, ReadonlySet<HostType>>();
   for (const level of file.project.building.levels)
     for (const [id, hosts] of levelHosts(level)) supports.set(id, hosts);
@@ -775,24 +781,30 @@ export function validateProjectReferences(
       if (refusal !== undefined)
         issues.push({ path: `${at}/toPortId`, message: refusal });
       // A run made of a product nobody has is a run whose bore, roughness and
-      // material are all unknown while the file claims to state them.
+      // material are all unknown while the file claims to state them. The
+      // project's own copy answers first: a file that carries what it is made
+      // of opens the same way wherever the catalogue has got to.
+      const held = heldProducts.get(edge.productId ?? '');
       const product =
-        edge.productId === undefined
+        held ??
+        (edge.productId === undefined
           ? undefined
-          : networkProduct(edge.productId);
+          : networkProduct(edge.productId));
       if (edge.productId !== undefined && product === undefined)
         issues.push({
           path: `${at}/productId`,
           message: `references unknown network product ${edge.productId}`,
         });
+      // Only what the project holds settles the version. A catalogue that has
+      // moved on is news, not an error, and it is the library that says so.
       if (
-        product?.version !== undefined &&
+        held?.version !== undefined &&
         edge.productVersion !== undefined &&
-        product.version !== edge.productVersion
+        held.version !== edge.productVersion
       )
         issues.push({
           path: `${at}/productVersion`,
-          message: `was drawn with ${edge.productId}@${edge.productVersion}, and the catalogue offers ${product.version}`,
+          message: `was drawn with ${edge.productId}@${edge.productVersion}, and the project holds ${held.version}`,
         });
     });
   });

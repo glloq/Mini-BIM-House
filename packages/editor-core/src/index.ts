@@ -2,6 +2,8 @@ export * from './camera.js';
 export * from './snap.js';
 export * from './commands.js';
 export * from './level-entities.js';
+export * from './removal.js';
+export * from './product-updates.js';
 export * from './wall-commands.js';
 export * from './wall-drawing-tool.js';
 export * from './opening-tool.js';

@@ -3,6 +3,7 @@ import type { Project } from './types.js';
 import { entityId } from './ids.js';
 import {
   ENTITY_FAMILIES,
+  SCENARIO_DIFFABLE,
   entityCollisions,
   entityIndex,
   localCollisions,
@@ -15,7 +16,7 @@ import {
  * The fixture is the point of this suite: it is what a crawler walks to prove
  * that nothing carrying an identifier escapes the index.
  */
-function populated(): Project {
+export function populated(): Project {
   const levelId = entityId<'Level'>('ground');
   const upperId = entityId<'Level'>('upper');
   const assemblyId = 'assembly-wall' as never;
@@ -450,5 +451,41 @@ describe('the one index of what a project holds', () => {
     expect(localCollisions(doubled).map(({ id }) => id)).toEqual([
       'layer-masonry',
     ]);
+  });
+});
+
+describe('which families a variant is compared on', () => {
+  it('has decided for every family the model knows', () => {
+    // The scenario diff used to enumerate nine families by hand and had
+    // already fallen behind: a variant moving a post, planting a tree or
+    // adding a note showed nothing at all. Adding a family now fails here
+    // until somebody has said which side it falls on.
+    for (const family of ENTITY_FAMILIES)
+      expect(SCENARIO_DIFFABLE[family], family).toBeTypeOf('boolean');
+  });
+
+  it('compares what somebody can see change on the plan', () => {
+    for (const family of [
+      'WALL',
+      'OPENING',
+      'SPACE',
+      'STRUCTURAL_MEMBER',
+      'SITE_OBSTACLE',
+      'ANNOTATION',
+      'COMPONENT',
+      'NETWORK_EDGE',
+    ] as const)
+      expect(SCENARIO_DIFFABLE[family], family).toBe(true);
+  });
+
+  it('leaves alone the drawing of the change, and the variants themselves', () => {
+    for (const family of [
+      'DRAWING_VIEW',
+      'SHEET',
+      'SHEET_VIEWPORT',
+      'SCENARIO',
+      'PROJECT',
+    ] as const)
+      expect(SCENARIO_DIFFABLE[family], family).toBe(false);
   });
 });

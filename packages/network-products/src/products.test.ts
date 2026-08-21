@@ -36,16 +36,9 @@ describe('what a run is made of', () => {
     // A product with no bore yields no diameter: the calculation then says the
     // run is not sized, which is true, rather than sizing it on a number
     // nobody supplied.
-    expect(
-      productPhysicalProperties({
-        id: 'bare',
-        family: 'WATER_PIPE',
-        domain: 'PLUMBING',
-        label: 'Sans cote',
-        properties: {},
-        provenance: { type: 'GENERIC', reference: 'aucune' },
-      }),
-    ).toEqual({});
+    expect(productPhysicalProperties({ id: 'bare', properties: {} })).toEqual(
+      {},
+    );
   });
 
   it('lets the run have the last word over its product', () => {
@@ -57,6 +50,16 @@ describe('what a run is made of', () => {
     expect(resolved.internalDiameterM).toBe(0.02);
     expect(resolved.roughnessM).toBeCloseTo(0.000_007, 9);
     expect(resolved.slopePercent).toBe(2);
+  });
+
+  it('prefers the copy the project holds to the catalogue installed today', () => {
+    // A file has to open the same way in two years. Reading the installed
+    // catalogue would resize every network already drawn, the day somebody
+    // corrects a tube.
+    const resolved = resolvedSegmentProperties('pipe-pex-16x1.5', undefined, [
+      { id: 'pipe-pex-16x1.5', properties: { innerDiameterMm: 11 } },
+    ]);
+    expect(resolved.internalDiameterM).toBeCloseTo(0.011, 6);
   });
 
   it('leaves a run naming no product exactly as it is', () => {

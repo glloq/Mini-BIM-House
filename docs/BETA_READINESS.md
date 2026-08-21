@@ -1,7 +1,7 @@
 # État de préparation à la bêta
 
 Ce fichier ne raconte pas l'histoire du projet : il dit où en est la version
-`0.3.0-beta.2` aujourd'hui. L'historique des passes d'audit et de leurs
+`0.3.0-beta.3` aujourd'hui. L'historique des passes d'audit et de leurs
 correctifs reste dans `IMPLEMENTATION_STATUS.md`, et ce qui a changé d'une
 version à l'autre dans `../CHANGELOG.md`.
 
@@ -34,6 +34,13 @@ machines demandent autour d'elles. Elle a fermé un défaut capable de faire
 perdre du travail sans un mot — un niveau contenant une toiture, des poteaux
 et une PAC comptait pour vide — et branché la chaîne
 catalogue → objet posé → réseau → calcul → vérifications.
+
+Une sixième passe a fermé les quatre verrous qu'un audit jugeait bloquants
+avant tout remplissage massif : l'index de ce qui désigne quoi, le format
+`1.2.0` et sa migration, la copie des produits réseau dans le projet, et le
+passage de tous les calculs sur les objets réellement posés. Elle a aussi
+supprimé la dernière liste de familles écrite à la main, dans la comparaison de
+variantes, et ramené à une seule les trois règles de compatibilité de ports.
 
 ## Les portes de la bêta
 
