@@ -10,8 +10,11 @@ import {
   SaveSheetCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
+import { paperSizeFor } from '@house-technical-designer/drawing-engine';
+import { announcedDotsPerInch } from './raster-plan.js';
 import {
   defaultViewportFrame,
+  relaidSheet,
   renderSheet,
   renderViewToSvg,
 } from './documents-model.js';
@@ -29,6 +32,12 @@ export interface DocumentsPanelProps {
 
 const FORMATS = ['A4', 'A3', 'A2', 'A1', 'A0'] as const;
 
+const ORIENTATIONS = [
+  ['LANDSCAPE', 'Paysage'],
+  ['PORTRAIT', 'Portrait'],
+] as const;
+
+/** The scales a drawing set is normally read at. */
 /**
  * The drawing set: the views the project keeps, and the sheets they sit on.
  *
@@ -46,11 +55,34 @@ export function DocumentsPanel({
   newId,
 }: DocumentsPanelProps) {
   const views = project.drawingViews ?? [];
-  const sheets = project.sheets ?? [];
+  const sheets = useMemo(() => project.sheets ?? [], [project.sheets]);
   const [viewName, setViewName] = useState('Plan du niveau');
   const [sheetTitle, setSheetTitle] = useState('Plan');
   const [format, setFormat] = useState<ProjectSheet['format']>('A3');
+  const [orientation, setOrientation] =
+    useState<ProjectSheet['orientation']>('LANDSCAPE');
   const [preview, setPreview] = useState<string>();
+
+  /**
+   * Saves a sheet after laying its viewports out again.
+   *
+   * Every frame follows from the paper, its orientation and how many views
+   * there are; none of it is a decision to preserve. Saving without relaying
+   * is how a sheet turned to portrait keeps frames that hang off the paper and
+   * stops being drawable.
+   */
+  const saveSheet = (sheet: ProjectSheet): void => {
+    onCommand(new SaveSheetCommand(relaidSheet(sheet)));
+  };
+
+  /** What the export will announce, said before the button is pressed. */
+  const resolution = useMemo(
+    () =>
+      announcedDotsPerInch(
+        sheets.map((sheet) => paperSizeFor(sheet.format, sheet.orientation)),
+      ),
+    [sheets],
+  );
 
   const previewFor = useMemo(
     () => (sheet: ProjectSheet) => {
@@ -169,7 +201,11 @@ export function DocumentsPanel({
           </label>
           <label>
             Format
+            {/* Nommé explicitement : le libellé enveloppe le menu, donc le nom
+                accessible emporterait la valeur choisie avec lui, et « Format »
+                se confondrait avec le format de chaque feuille du tableau. */}
             <select
+              aria-label="Format de la nouvelle feuille"
               value={format}
               onChange={(event) =>
                 setFormat(event.target.value as ProjectSheet['format'])
@@ -178,6 +214,24 @@ export function DocumentsPanel({
               {FORMATS.map((entry) => (
                 <option key={entry} value={entry}>
                   {entry}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Orientation
+            <select
+              aria-label="Orientation de la nouvelle feuille"
+              value={orientation}
+              onChange={(event) =>
+                setOrientation(
+                  event.target.value as ProjectSheet['orientation'],
+                )
+              }
+            >
+              {ORIENTATIONS.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
                 </option>
               ))}
             </select>
@@ -193,20 +247,17 @@ export function DocumentsPanel({
                 number: `A-${(sheets.length + 1).toString().padStart(3, '0')}`,
                 title: sheetTitle,
                 format,
-                orientation: 'LANDSCAPE',
+                orientation,
                 viewports: [
                   {
                     id: newId('viewport'),
                     viewId: first.id,
                     scaleDenominator: first.scaleDenominator,
-                    ...defaultViewportFrame({
-                      format,
-                      orientation: 'LANDSCAPE',
-                    }),
+                    ...defaultViewportFrame({ format, orientation }),
                   },
                 ],
               };
-              onCommand(new SaveSheetCommand(sheet));
+              saveSheet(sheet);
             }}
           >
             Ajouter une feuille
@@ -226,7 +277,8 @@ export function DocumentsPanel({
                 <th scope="col">N°</th>
                 <th scope="col">Titre</th>
                 <th scope="col">Format</th>
-                <th scope="col">Vue</th>
+                <th scope="col">Indice</th>
+                <th scope="col">Vues</th>
                 <th scope="col">Actions</th>
               </tr>
             </thead>
@@ -236,32 +288,155 @@ export function DocumentsPanel({
                   <td>{sheet.number}</td>
                   <td>{sheet.title}</td>
                   <td>
-                    {sheet.format}{' '}
-                    {sheet.orientation === 'PORTRAIT' ? '↕' : '↔'}
-                  </td>
-                  <td>
                     <select
-                      aria-label={`Vue de la feuille ${sheet.number}`}
-                      value={sheet.viewports[0]?.viewId ?? ''}
-                      onChange={(event) => {
-                        const viewport = sheet.viewports[0];
-                        if (viewport === undefined) return;
-                        onCommand(
-                          new SaveSheetCommand({
-                            ...sheet,
-                            viewports: [
-                              { ...viewport, viewId: event.target.value },
-                            ],
-                          }),
-                        );
-                      }}
+                      aria-label={`Format de la feuille ${sheet.number}`}
+                      value={sheet.format}
+                      onChange={(event) =>
+                        saveSheet({
+                          ...sheet,
+                          format: event.target.value as ProjectSheet['format'],
+                        })
+                      }
                     >
-                      {views.map((view) => (
-                        <option key={view.id} value={view.id}>
-                          {view.name}
+                      {FORMATS.map((entry) => (
+                        <option key={entry} value={entry}>
+                          {entry}
                         </option>
                       ))}
                     </select>
+                    <select
+                      aria-label={`Orientation de la feuille ${sheet.number}`}
+                      value={sheet.orientation}
+                      onChange={(event) =>
+                        saveSheet({
+                          ...sheet,
+                          orientation: event.target
+                            .value as ProjectSheet['orientation'],
+                        })
+                      }
+                    >
+                      {ORIENTATIONS.map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    {/* L'indice va au cartouche. Vide, la case est dessinée
+                        comme inconnue plutôt que remplie d'un « A » que
+                        personne n'a décidé. */}
+                    <input
+                      aria-label={`Indice de la feuille ${sheet.number}`}
+                      value={sheet.revision ?? ''}
+                      size={4}
+                      onChange={(event) => {
+                        const { revision: _previous, ...rest } = sheet;
+                        const revision = event.target.value.trim();
+                        saveSheet(
+                          revision === '' ? rest : { ...rest, revision },
+                        );
+                      }}
+                    />
+                  </td>
+                  <td>
+                    <ul className="viewport-list">
+                      {sheet.viewports.map((viewport, index) => (
+                        <li key={viewport.id}>
+                          <select
+                            aria-label={`Vue ${index + 1} de la feuille ${sheet.number}`}
+                            value={viewport.viewId}
+                            onChange={(event) =>
+                              saveSheet({
+                                ...sheet,
+                                viewports: sheet.viewports.map((entry) =>
+                                  entry.id === viewport.id
+                                    ? { ...entry, viewId: event.target.value }
+                                    : entry,
+                                ),
+                              })
+                            }
+                          >
+                            {views.map((view) => (
+                              <option key={view.id} value={view.id}>
+                                {view.name}
+                              </option>
+                            ))}
+                          </select>
+                          <label>
+                            1:
+                            <input
+                              type="number"
+                              min={1}
+                              step={10}
+                              size={5}
+                              aria-label={`Échelle de la vue ${index + 1} de la feuille ${sheet.number}`}
+                              value={viewport.scaleDenominator}
+                              onChange={(event) => {
+                                const scaleDenominator = Number(
+                                  event.target.value,
+                                );
+                                // Une échelle nulle n'est pas une échelle :
+                                // le champ vidé ne change rien plutôt que de
+                                // faire tenir le bâtiment sur un point.
+                                if (
+                                  !Number.isFinite(scaleDenominator) ||
+                                  scaleDenominator <= 0
+                                )
+                                  return;
+                                saveSheet({
+                                  ...sheet,
+                                  viewports: sheet.viewports.map((entry) =>
+                                    entry.id === viewport.id
+                                      ? { ...entry, scaleDenominator }
+                                      : entry,
+                                  ),
+                                });
+                              }}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            className="secondary danger"
+                            disabled={sheet.viewports.length < 2}
+                            aria-label={`Retirer la vue ${index + 1} de la feuille ${sheet.number}`}
+                            onClick={() =>
+                              saveSheet({
+                                ...sheet,
+                                viewports: sheet.viewports.filter(
+                                  ({ id }) => id !== viewport.id,
+                                ),
+                              })
+                            }
+                          >
+                            Retirer
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      type="button"
+                      className="secondary"
+                      disabled={views.length === 0}
+                      onClick={() => {
+                        const view = views[0];
+                        if (view === undefined) return;
+                        saveSheet({
+                          ...sheet,
+                          viewports: [
+                            ...sheet.viewports,
+                            {
+                              id: newId('viewport'),
+                              viewId: view.id,
+                              scaleDenominator: view.scaleDenominator,
+                              ...defaultViewportFrame(sheet),
+                            },
+                          ],
+                        });
+                      }}
+                    >
+                      Ajouter une vue
+                    </button>
                   </td>
                   <td className="row-actions">
                     <button
@@ -304,6 +479,16 @@ export function DocumentsPanel({
           chose. Le tirage est à l’échelle ; le texte n’y est ni sélectionnable
           ni recherchable.
         </p>
+        {resolution !== undefined && (
+          <p className="hint">
+            {/* Ce que la trame vaut vraiment, dit avant l'export. Un grand
+                format ne tient pas à la même densité qu'un A4 : la mémoire
+                d'un onglet est ce qui décide, et c'est une décision, donc elle
+                se dit. */}
+            Ce dossier sera tramé à {resolution} ppp — la densité de la plus
+            grande feuille, qui est celle qui borne la netteté de l’ensemble.
+          </p>
+        )}
       </section>
 
       {preview !== undefined && (

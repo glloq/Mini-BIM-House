@@ -1467,6 +1467,65 @@ escalier qui descend.
 Un `UpdateSiteObstacleCommand` est apparu au passage : un arbre pouvait être
 planté et arraché, et rien entre les deux.
 
+## Vues et documents — lot D du dixième audit
+
+### Une vue rouverte n'était pas la vue enregistrée
+
+`applySavedView` rétablissait le niveau, puis appelait `SHOW_LAYERS` avec les
+calques allumés. Or `SHOW_LAYERS` n'éteint jamais — c'est le bon comportement
+quand on révèle une discipline, et le mauvais quand on rétablit une vue. Une
+vue enregistrée réseaux masqués revenait réseaux visibles, au zoom où
+l'utilisateur se trouvait, avec l'analyse qui était affichée. C'était un autre
+dessin portant le même nom.
+
+Une vue rétablit maintenant tout ce qu'elle décrit : le niveau, chaque calque
+tel qu'il était — masqués compris —, le centre, l'échelle et l'analyse. Et ce
+qu'elle ne peut pas rétablir, elle le nomme : un niveau supprimé depuis, une
+analyse que cette version n'affiche plus, une charte graphique inconnue, un type
+de vue que le plan ne dessine pas encore. Une vue qui revient fausse en silence
+est pire qu'une vue qui dit ce qu'elle a perdu.
+
+Deux actions de l'éditeur sont apparues pour cela : `SET_LAYERS`, qui pose la
+visibilité exacte au lieu de ne faire qu'allumer, et `SET_CAMERA`, qui pose un
+centre et un zoom au lieu de cadrer ce qui se trouve dessiné. Le pont entre une
+échelle et un zoom est une fonction unique, vérifiée dans les deux sens.
+
+### Une feuille ne portait qu'une vue, en paysage
+
+Un plan et sa coupe sur la même feuille est le cas ordinaire d'un dossier, et il
+ne pouvait pas s'exprimer : le panneau créait une feuille paysage avec un seul
+cadre, et la seule chose modifiable ensuite était quelle vue s'y trouvait.
+
+Une feuille porte maintenant autant de vues qu'on lui en ajoute, chacune avec sa
+propre échelle ; le format, l'orientation et l'indice se changent après coup.
+Les cadres ne sont pas placés à la main : ils sont déduits du papier, de son
+orientation et du nombre de vues, en une grille aussi carrée que le compte le
+permet, la bande du cartouche laissée libre sur toute la largeur. C'est ce qui
+garantit qu'aucun cadre ne sort de la zone imprimable ni ne passe sous le
+cartouche — le moteur de dessin refuse les deux — et c'est pourquoi tourner le
+papier redéduit les cadres au lieu de les laisser pendre hors de la feuille.
+
+### Un A0 faisait tomber l'onglet
+
+Les pages étaient tramées **toutes en même temps** — `Promise.all` sur les
+feuilles — à huit pixels par millimètre quel que soit le format. Un A0 fait
+alors 6 728 × 9 512 pixels, soit soixante-quatre mégapixels et un quart de
+gigaoctet de canevas pour une page. Un dossier de dix A0 demandait deux
+gigaoctets et demi à l'onglet et recevait un plantage : pas de fichier, pas
+d'erreur, pas d'explication.
+
+Les pages sont maintenant tramées **une par une**, et le canevas de chacune est
+rendu avant de demander la suivante : la mémoire nécessaire à un dossier est
+celle de sa plus grande feuille, pas celle de toutes ensemble. La densité vient
+d'un budget de vingt-cinq mégapixels par page plutôt que d'une constante : les
+petits formats gardent leurs 203 ppp, un A1 descend à 180, un A0 à 127.
+
+Et cette densité est **annoncée**. L'interface affichait « pages tramées à
+200 ppp », ce qui était faux dès qu'un grand format entrait dans le dossier. Le
+panneau annonce désormais, avant l'export, la densité de la feuille la plus
+réduite — celle qui borne la netteté de l'ensemble — et le message de fin dit la
+même chose.
+
 ## Ce qui reste ouvert après les lots A à H
 
 Les huit lots du neuvième audit sont traités. Ce qui n'a pas été fait, et

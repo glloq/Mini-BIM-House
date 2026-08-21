@@ -71,7 +71,7 @@ export function renderSheetToSvg(
           viewport.frame.y + 6
         }" font-size="3" fill="#8b9a92">Vue non rendue</text>${label}`;
       const { viewBox, body } = inner(view.svg);
-      return `<svg x="${viewport.frame.x}" y="${viewport.frame.y}" width="${viewport.frame.width}" height="${viewport.frame.height}" viewBox="${escaped(viewBox)}" preserveAspectRatio="xMidYMid meet" data-view-id="${escaped(viewport.drawingViewId)}">${body}</svg>${border}${label}`;
+      return `<svg x="${viewport.frame.x}" y="${viewport.frame.y}" width="${viewport.frame.width}" height="${viewport.frame.height}" viewBox="${escaped(viewBox)}" preserveAspectRatio="xMidYMid meet" data-view-id="${escaped(viewport.drawingViewId)}" data-viewport-id="${escaped(viewport.id)}">${body}</svg>${border}${label}`;
     })
     .join('');
   const origin = sheet.titleBlock.position;

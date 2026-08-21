@@ -74,6 +74,10 @@ import {
 } from './editor/tool-registry.js';
 import { ObjectMenu, type ObjectMenuEntry } from './editor/ObjectMenu.js';
 import {
+  restoredView,
+  scaleDenominatorForZoom,
+} from './documents/saved-view.js';
+import {
   boundsOf,
   capabilitiesOf,
   contextActionsFor,
@@ -284,9 +288,6 @@ function downloadBlob(blob: Blob, fileName: string): void {
  * say that a project is described, then drawn, then furnished from libraries,
  * then serviced, and only then calculated.
  */
-/** CSS pixels in one millimetre of paper: 96 dots per inch, by definition. */
-const CSS_PIXELS_PER_MM = 96 / 25.4;
-
 /** The smallest window framing one object leaves around it. */
 const FRAMING_MINIMUM_MM = 1000;
 
@@ -1269,10 +1270,7 @@ function App() {
         // A drawing at 1:1 puts one model millimetre on one paper
         // millimetre, and a CSS pixel is 1/96 inch: the denominator is how
         // many model millimetres one paper millimetre carries at this zoom.
-        scaleDenominator: Math.max(
-          1,
-          Math.round(CSS_PIXELS_PER_MM / editor.camera.pixelsPerMm) || 50,
-        ),
+        scaleDenominator: scaleDenominatorForZoom(editor.camera.pixelsPerMm),
         layers: editor.layers,
         graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
         centreMm: editor.camera.centerModelMm,
@@ -1291,17 +1289,32 @@ function App() {
     ],
   );
 
-  /** Puts the plan back the way a saved view describes it. */
+  /**
+   * Puts the plan back the way a saved view describes it.
+   *
+   * All of it: the storey, every layer as it was — hidden ones included — the
+   * centre, the scale and the analysis that was showing. It used to restore
+   * the storey and turn on the layers that were on, which left a view saved
+   * without the networks reappearing with them, at whatever zoom the user
+   * happened to be at. That was a different drawing wearing the same name.
+   */
   const applyView = useCallback((view: SavedDrawingView) => {
-    if (view.levelId !== undefined)
-      dispatchEditor({ type: 'SET_LEVEL', levelId: view.levelId });
+    const restored = restoredView(session.current.file.project, view);
+    if (restored.levelId !== undefined)
+      dispatchEditor({ type: 'SET_LEVEL', levelId: restored.levelId });
+    dispatchEditor({ type: 'SET_LAYERS', layers: restored.layers });
     dispatchEditor({
-      type: 'SHOW_LAYERS',
-      layerIds: Object.entries(view.layers)
-        .filter(([, visible]) => visible)
-        .map(([layerId]) => layerId),
+      type: 'SET_CAMERA',
+      centreModelMm: restored.centreMm,
+      pixelsPerMm: restored.pixelsPerMm,
     });
+    setOverlayId(restored.overlayId);
     setTab('plan');
+    setMessage(
+      restored.unresolved.length === 0
+        ? `Vue « ${view.name} » rétablie : niveau, calques, cadrage et analyse.`
+        : `Vue « ${view.name} » rétablie, sauf ${restored.unresolved.join(' ; ')}.`,
+    );
   }, []);
 
   /**
@@ -1318,12 +1331,17 @@ function App() {
         // The PDF chain — the print job, the sheet renderer and the browser
         // backend — is only ever used from this button. Loading it with the
         // application would put a printer in the way of drawing a wall.
-        const [{ createPdfPrintPage, generatePdfArtifact }, documents, pdf] =
-          await Promise.all([
-            import('@house-technical-designer/drawing-engine'),
-            import('./documents/documents-model.js'),
-            import('./documents/browser-pdf-backend.js'),
-          ]);
+        const [
+          { createPdfPrintPage, generatePdfArtifact },
+          documents,
+          pdf,
+          { announcedDotsPerInch },
+        ] = await Promise.all([
+          import('@house-technical-designer/drawing-engine'),
+          import('./documents/documents-model.js'),
+          import('./documents/browser-pdf-backend.js'),
+          import('./documents/raster-plan.js'),
+        ]);
         const project = session.current.file.project;
         const pages = sheets.map((sheet) =>
           createPdfPrintPage(
@@ -1348,8 +1366,17 @@ function App() {
           new pdf.BrowserPdfBackend(),
         );
         downloadBytes(artifact.bytes, artifact.fileName, artifact.mediaType);
+        // The resolution is the one the largest sheet could be given, not a
+        // number written once: a set holding an A0 is not tramé at 200 ppp,
+        // and saying it was would be saying something false about the file
+        // the user is about to send to a printer.
+        const dpi = announcedDotsPerInch(
+          pages.map(({ paperSizeMm }) => paperSizeMm),
+        );
         setMessage(
-          `${pages.length} feuille(s) exportée(s) — pages tramées à 200 ppp.`,
+          `${pages.length} feuille(s) exportée(s)${
+            dpi === undefined ? '' : ` — pages tramées à ${dpi} ppp`
+          }.`,
         );
       } catch (error: unknown) {
         setMessage(

@@ -14,11 +14,9 @@ import {
   type SheetDefinition,
   type SheetLayout,
 } from '@house-technical-designer/drawing-engine';
-import {
-  buildPlanView,
-  defaultVisibility,
-} from '@house-technical-designer/view-query';
-import type { BoundingBox2D } from '@house-technical-designer/geometry';
+import { modelWindowOf, planOf, type PaperFrameMm } from './model-window.js';
+
+export { modelWindowOf, type PaperFrameMm };
 
 /** Where the title block sits on a sheet: bottom right, inside the margins. */
 const MARGINS_MM = { top: 10, right: 10, bottom: 10, left: 10 };
@@ -90,64 +88,6 @@ export function sheetLayoutOf(
   return createSheetLayout(sheetDefinitionOf(project, sheet));
 }
 
-/** A rectangle of paper, in millimetres. */
-export interface PaperFrameMm {
-  readonly width: number;
-  readonly height: number;
-}
-
-/**
- * The model window a frame of paper shows at a stated scale.
- *
- * This is what makes a scale a scale: 1:50 in a 300 mm frame is exactly
- * 15 000 mm of building, never “whatever makes the drawing fit”. Fitting the
- * content to the frame produces a drawing that looks right and measures wrong,
- * and a plan that measures wrong is worse than no plan.
- *
- * Where the window sits comes from the view when the view says; otherwise from
- * the middle of what there is to draw, which is a framing decision and not a
- * measurement.
- */
-export function modelWindowOf(
-  project: Project,
-  view: SavedDrawingView,
-  frameMm: PaperFrameMm,
-  scaleDenominator = view.scaleDenominator,
-): BoundingBox2D {
-  const width = frameMm.width * scaleDenominator;
-  const height = frameMm.height * scaleDenominator;
-  const centre = view.centreMm ?? contentCentreOf(project, view);
-  return {
-    min: { x: centre.x - width / 2, y: centre.y - height / 2 },
-    max: { x: centre.x + width / 2, y: centre.y + height / 2 },
-  };
-}
-
-function contentCentreOf(
-  project: Project,
-  view: SavedDrawingView,
-): { readonly x: number; readonly y: number } {
-  const { viewport } = planOf(project, view).view;
-  return {
-    x: (viewport.min.x + viewport.max.x) / 2,
-    y: (viewport.min.y + viewport.max.y) / 2,
-  };
-}
-
-function planOf(
-  project: Project,
-  view: SavedDrawingView,
-  viewport?: BoundingBox2D,
-) {
-  return buildPlanView(project, {
-    ...(view.levelId === undefined ? {} : { levelId: view.levelId }),
-    layers: { ...defaultVisibility(), ...view.layers },
-    graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
-    scale: view.scaleDenominator,
-    ...(viewport === undefined ? {} : { viewport }),
-  });
-}
-
 /**
  * Renders one saved view, exactly as the plan renders it.
  *
@@ -206,12 +146,35 @@ export function renderSheet(project: Project, sheet: ProjectSheet): string {
   return renderSheetToSvg(sheetLayoutOf(project, sheet), rendered);
 }
 
-/** A frame filling the printable area, less the title block's own row. */
-export function defaultViewportFrame(
+/** What separates two viewports, and them from the title block, in mm. */
+const GUTTER_MM = 4;
+
+export interface ViewportFrameMm {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+/**
+ * Where several views sit on one sheet.
+ *
+ * A sheet carried exactly one view, because that is what the panel could
+ * produce — a plan and its section on the same sheet is the ordinary case of a
+ * drawing set, and it could not be expressed. The frames are laid out rather
+ * than placed by hand: the drawing engine refuses a viewport that leaves the
+ * printable area or sits under the title block, and a grid computed from the
+ * paper cannot do either.
+ *
+ * The band the title block occupies is left free across the whole width. Half
+ * a sheet of margin is cheaper than a plan printed over its own cartouche.
+ */
+export function viewportFramesFor(
   sheet: Pick<ProjectSheet, 'format' | 'orientation'>,
-): { x: number; y: number; width: number; height: number } {
+  count: number,
+): readonly ViewportFrameMm[] {
   const paper = paperSizeFor(sheet.format, sheet.orientation);
-  return {
+  const area = {
     x: MARGINS_MM.left,
     y: MARGINS_MM.top,
     width: paper.width - MARGINS_MM.left - MARGINS_MM.right,
@@ -220,6 +183,46 @@ export function defaultViewportFrame(
       MARGINS_MM.top -
       MARGINS_MM.bottom -
       GENERIC_TITLE_BLOCK_V1.size.height -
-      4,
+      GUTTER_MM,
+  };
+  const wanted = Math.max(1, Math.floor(count));
+  // As square a grid as the count allows: two views side by side, four in a
+  // square, six in three columns of two.
+  const columns = Math.ceil(Math.sqrt(wanted));
+  const rows = Math.ceil(wanted / columns);
+  const width = (area.width - (columns - 1) * GUTTER_MM) / columns;
+  const height = (area.height - (rows - 1) * GUTTER_MM) / rows;
+  return Array.from({ length: wanted }, (_unused, index) => ({
+    x: area.x + (index % columns) * (width + GUTTER_MM),
+    y: area.y + Math.floor(index / columns) * (height + GUTTER_MM),
+    width,
+    height,
+  }));
+}
+
+/** A frame filling the printable area, less the title block's own row. */
+export function defaultViewportFrame(
+  sheet: Pick<ProjectSheet, 'format' | 'orientation'>,
+): ViewportFrameMm {
+  return viewportFramesFor(sheet, 1)[0]!;
+}
+
+/**
+ * The sheet with its viewports laid out again for the paper it is now on.
+ *
+ * Turning an A3 from landscape to portrait moves every frame: the ones that
+ * were inside the old paper hang off the new one, and the sheet stops being
+ * drawable. Nothing about a viewport's frame is a decision the user made — it
+ * is derived from the format, the orientation and how many views there are —
+ * so it is derived again whenever one of the three changes.
+ */
+export function relaidSheet(sheet: ProjectSheet): ProjectSheet {
+  const frames = viewportFramesFor(sheet, sheet.viewports.length);
+  return {
+    ...sheet,
+    viewports: sheet.viewports.map((viewport, index) => ({
+      ...viewport,
+      ...frames[index]!,
+    })),
   };
 }

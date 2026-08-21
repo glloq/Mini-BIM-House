@@ -2185,9 +2185,11 @@ test('keeps a view, lays it on a sheet and draws the sheet', async ({
   await expect(page.getByRole('status')).toContainText('enregistrée');
 
   await page.getByLabel('Titre de la feuille').fill('Plan du rez-de-chaussée');
-  await page.getByLabel('Format').selectOption('A3');
+  await page.getByLabel('Format de la nouvelle feuille').selectOption('A3');
   await page.getByRole('button', { name: 'Ajouter une feuille' }).click();
-  await expect(page.getByRole('cell', { name: 'A-001' })).toBeVisible();
+  await expect(
+    page.getByRole('cell', { name: 'A-001', exact: true }),
+  ).toBeVisible();
 
   // The sheet is drawn from the model, not from a picture kept aside.
   await page
@@ -2210,6 +2212,101 @@ test('keeps a view, lays it on a sheet and draws the sheet', async ({
     .getByRole('button', { name: 'Supprimer' })
     .click();
   await expect(page.getByRole('status')).toContainText('A-001');
+  expect(errors).toEqual([]);
+});
+
+test('lays two views at two scales on one sheet', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page
+    .getByRole('button', { name: 'Vues et feuilles', exact: true })
+    .click();
+
+  // Two views to lay out: a sheet carrying a plan and its neighbour is the
+  // ordinary case of a drawing set, and it could not be expressed at all.
+  for (const name of ['Plan RDC', 'Plan masse']) {
+    await page.getByLabel('Nom de la vue').fill(name);
+    await page
+      .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
+      .click();
+    await expect(page.getByRole('status')).toContainText('enregistrée');
+  }
+
+  await page.getByLabel('Titre de la feuille').fill('Dossier');
+  await page.getByLabel('Format de la nouvelle feuille').selectOption('A3');
+  await page
+    .getByLabel('Orientation de la nouvelle feuille')
+    .selectOption('PORTRAIT');
+  await page.getByRole('button', { name: 'Ajouter une feuille' }).click();
+
+  const row = page.getByRole('row').filter({ hasText: 'A-001' });
+  await row.getByRole('button', { name: 'Ajouter une vue' }).click();
+  await row
+    .getByRole('combobox', { name: 'Vue 2 de la feuille A-001' })
+    .selectOption({ label: 'Plan masse' });
+  await row
+    .getByRole('spinbutton', {
+      name: 'Échelle de la vue 2 de la feuille A-001',
+    })
+    .fill('200');
+  await row
+    .getByRole('textbox', { name: 'Indice de la feuille A-001' })
+    .fill('B');
+
+  // Two frames on the paper, and the title block carries the revision.
+  await row.getByRole('button', { name: 'Aperçu' }).click();
+  const preview = page.locator('.sheet-preview');
+  await expect(preview.locator('svg').first()).toBeVisible();
+  await expect(preview.locator('[data-viewport-id]')).toHaveCount(2);
+  await expect(preview).toContainText('B');
+
+  // Turning the paper relays the frames rather than leaving them off it.
+  await row
+    .getByRole('combobox', { name: 'Orientation de la feuille A-001' })
+    .selectOption('LANDSCAPE');
+  await row.getByRole('button', { name: 'Aperçu' }).click();
+  await expect(preview.locator('[data-viewport-id]')).toHaveCount(2);
+
+  // What the export will really be worth, said before it is asked for.
+  await expect(page.getByText(/tramé à \d+ ppp/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('reopens a saved view exactly as it was saved', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+
+  // A view saved with a family of objects hidden.
+  const stairs = page.getByRole('checkbox', { name: 'Escaliers' });
+  await expect(stairs).toBeChecked();
+  await stairs.uncheck();
+  await page
+    .getByRole('button', { name: 'Vues et feuilles', exact: true })
+    .click();
+  await page.getByLabel('Nom de la vue').fill('Sans les escaliers');
+  await page
+    .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
+    .click();
+  await expect(page.getByRole('status')).toContainText('enregistrée');
+
+  // The layer turned back on, and the view reopened. Restoring used to turn
+  // layers on and never off, so the view came back showing what it had been
+  // saved without.
+  await page
+    .getByRole('button', { name: 'Plan architectural', exact: true })
+    .click();
+  await stairs.check();
+  await expect(stairs).toBeChecked();
+  await page
+    .getByRole('button', { name: 'Vues et feuilles', exact: true })
+    .click();
+  await page
+    .getByRole('row')
+    .filter({ hasText: 'Sans les escaliers' })
+    .getByRole('button', { name: 'Ouvrir' })
+    .click();
+  await expect(page.getByRole('status')).toContainText('rétablie');
+  await expect(stairs).not.toBeChecked();
   expect(errors).toEqual([]);
 });
 
