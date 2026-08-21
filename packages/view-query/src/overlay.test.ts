@@ -58,8 +58,14 @@ describe('analysis overlay projection', () => {
     expect(unknown?.metadata?.value).toBeNull();
   });
 
-  it('ignores objects the overlay does not cover and non-polygon geometry', () => {
+  it('ignores an object the overlay says nothing about', () => {
     expect(overlayPrimitives([wall('zzz')], overlay)).toEqual([]);
+  });
+
+  it('colours a line and a point, not only a shape', () => {
+    // A wall is a filled shape and a pipe is a line: an overlay that only knew
+    // how to colour shapes could report on the envelope and never on the
+    // networks.
     const line: ScenePrimitive = {
       ...wall('a'),
       geometry: {
@@ -73,7 +79,20 @@ describe('analysis overlay projection', () => {
         },
       },
     };
-    expect(overlayPrimitives([line], overlay)).toEqual([]);
+    expect(overlayPrimitives([line], overlay)).toHaveLength(1);
+    const point: ScenePrimitive = {
+      ...wall('a'),
+      geometry: { kind: 'POINT', point: { x: 0, y: 0 } },
+    };
+    expect(overlayPrimitives([point], overlay)).toHaveLength(1);
+  });
+
+  it('still ignores a geometry it cannot colour', () => {
+    const text: ScenePrimitive = {
+      ...wall('a'),
+      geometry: { kind: 'TEXT', anchor: { x: 0, y: 0 }, text: 'a' },
+    };
+    expect(overlayPrimitives([text], overlay)).toEqual([]);
   });
 
   it('draws one overlay shape per object even when several primitives share it', () => {

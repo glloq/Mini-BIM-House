@@ -1082,6 +1082,36 @@ button.icon {
   margin: 0;
   font-size: 0.74rem;
 }
+/*
+ * What the module could not do, beside the colours it produced.
+ *
+ * A colour says where a value is high; it cannot say that a value is missing
+ * because a pipe has no bore. The remark names the objects, and pointing at
+ * them is what turns it into a correction.
+ */
+.overlay-warnings {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.74rem;
+}
+.overlay-warnings li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: baseline;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #e6dcc4;
+  border-radius: 0.5rem;
+  background: #fdfaf2;
+}
+.overlay-warnings button {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.72rem;
+}
+
 .overlay-metric {
   margin: 0;
   font-weight: 700;

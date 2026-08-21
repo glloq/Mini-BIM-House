@@ -1148,6 +1148,35 @@ d'arrivée dans deux menus.
   nœuds, et les ports qu'aucun tronçon n'atteint — ce à quoi ressemble un
   réseau inachevé.
 
+## Superpositions techniques — lot E du neuvième audit
+
+L'audit décrivait ce lot comme « à rendement extrêmement élevé » : les moteurs
+existaient déjà, l'interface ne projetait que trois chiffres thermiques sur le
+dessin et le reste se lisait dans des tableaux.
+
+- **Une analyse dit où sont ses chiffres.** Une superposition nomme le module
+  qu'elle lit, la sortie d'où viennent ses lignes et la colonne qu'elle
+  colore ; en ajouter une revient à décrire où les nombres se trouvent déjà,
+  plutôt qu'à écrire une quatrième façon de les extraire. Sept analyses
+  s'ajoutent ainsi aux trois existantes : vitesse et pertes de charge de l'eau
+  et des gaines, pente des collecteurs, chute de tension et puissance foisonnée
+  par circuit.
+- **Une ligne se colore comme une surface.** Un mur est une forme pleine, un
+  tuyau est une ligne : une superposition qui ne savait colorer que des formes
+  pouvait rendre compte de l'enveloppe et jamais des réseaux. C'est exactement
+  là qu'elle s'arrêtait.
+- **Une ligne sans valeur reste inconnue.** Elle n'est pas comptée pour zéro,
+  elle ne tire pas l'échelle vers le bas, et la légende la compte comme
+  inconnue.
+- **Le calque suit l'analyse.** Colorer un objet que personne ne dessine ne
+  colore rien : choisir une analyse des canalisations révèle le calque des
+  canalisations, comme le fait déjà un outil de réseau.
+- **Les avertissements deviennent des corrections.** Une couleur dit où une
+  valeur est élevée ; elle ne peut pas dire qu'une valeur manque parce qu'un
+  tuyau n'a pas de diamètre. Ce que le module n'a pas pu faire est affiché sous
+  la légende, avec les objets qu'il nomme, et « Corriger » les sélectionne et
+  les cadre sur le plan.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans

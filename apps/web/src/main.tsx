@@ -87,6 +87,7 @@ import {
 } from './autosave.js';
 import {
   buildOverlay,
+  overlayOption,
   designTemperatureDifferenceK,
   type OverlayId,
 } from './calculations/overlay-source.js';
@@ -1074,6 +1075,17 @@ function App() {
 
   // Drawing on a hidden layer would place a node the user cannot see, so the
   // discipline of the active network is revealed while its tool is in use.
+  // Colouring an object nobody is drawing colours nothing: an analysis of the
+  // pipes reveals the layer the pipes are on, exactly as a network tool does.
+  useEffect(() => {
+    const discipline = overlayOption(overlayId)?.discipline;
+    if (discipline === undefined) return;
+    dispatchEditor({
+      type: 'SHOW_LAYERS',
+      layerIds: [networkLayerId(discipline)],
+    });
+  }, [overlayId]);
+
   useEffect(() => {
     if (activeNetwork === undefined) return;
     // Any tool that asks which network it works on draws on that discipline's
@@ -1472,6 +1484,16 @@ function App() {
     [currentRun, overlayId],
   );
 
+  /** What the module behind the chosen analysis could not do. */
+  const overlayWarnings = useMemo(() => {
+    const moduleId = overlayOption(overlayId)?.moduleId;
+    if (moduleId === undefined || currentRun === undefined) return [];
+    return (
+      currentRun.runs.find((run) => run.moduleId === moduleId)?.result
+        ?.warnings ?? []
+    );
+  }, [currentRun, overlayId]);
+
   const wallThicknessMm = useMemo(() => {
     // The preview is drawn with the thickness of the assembly the tool is set
     // to, which is one of its own options.
@@ -1848,6 +1870,14 @@ function App() {
                 overlayId={overlayId}
                 onChange={setOverlayId}
                 {...(overlay === undefined ? {} : { overlay })}
+                warnings={overlayWarnings}
+                onSelectObjects={(objectIds) => {
+                  // A remark becomes a correction the moment the plan shows
+                  // which objects it is about.
+                  dispatchEditor({ type: 'SELECT_MANY', objectIds });
+                  setTab('plan');
+                  zoomSelection();
+                }}
                 {...(climate.length === 0
                   ? {
                       unavailableReason:

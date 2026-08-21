@@ -2059,3 +2059,27 @@ test('shows a network as a system browser in the project tree', async ({
   await expect(page.locator('.inspector-subject')).toContainText('horizontal');
   expect(errors).toEqual([]);
 });
+
+test('colours the networks with what their own engines computed', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const overlay = page.getByLabel('Superposition');
+  // The engines have been in the repository for a long time; until now only
+  // the thermal figures reached the drawing.
+  await expect(
+    overlay.locator('option', { hasText: 'Eau · vitesse' }),
+  ).toHaveCount(1);
+  await overlay.selectOption('wastewater-slope');
+
+  const legend = page.locator('.overlay-legend');
+  await expect(legend).toBeVisible({ timeout: 15_000 });
+  await expect(legend).toContainText('Pente des collecteurs');
+
+  // A pipe is a line, and a line is coloured like a wall is.
+  await expect(
+    page.locator('[id^="overlay:wastewater-slope:"]'),
+  ).not.toHaveCount(0);
+  expect(errors).toEqual([]);
+});

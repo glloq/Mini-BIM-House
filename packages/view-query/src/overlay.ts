@@ -60,7 +60,15 @@ export function overlayPrimitives(
     const objectId = primitive.sourceObjectId;
     if (objectId === undefined || drawn.has(objectId)) continue;
     if (!(objectId in overlay.values)) continue;
-    if (primitive.geometry.kind !== 'POLYGON') continue;
+    // A wall is a filled shape and a pipe is a line: an overlay that only knew
+    // how to colour shapes could report on the envelope and never on the
+    // networks, which is exactly where it stopped.
+    if (
+      primitive.geometry.kind !== 'POLYGON' &&
+      primitive.geometry.kind !== 'POLYLINE' &&
+      primitive.geometry.kind !== 'POINT'
+    )
+      continue;
     drawn.add(objectId);
     const value = overlay.values[objectId];
     const semanticRole: SemanticRole =

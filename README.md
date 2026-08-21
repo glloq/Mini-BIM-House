@@ -665,10 +665,11 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   géotechnique, éclairage naturel** : hors périmètre de la bêta.
 - **Modes QUICK / DESIGN / EXPERT** : non implémentés ; l'interface a une
   seule densité.
-- **Analyses projetées sur le plan** : seules les trois analyses thermiques
-  (transmission, déperditions, données manquantes) sont branchées ; les
-  résultats des réseaux, de la ventilation et de l'électricité se lisent dans
-  les tableaux, pas encore sur le dessin.
+- **Analyses projetées sur le plan** : dix analyses sont branchées —
+  transmission, déperditions et données manquantes pour le thermique ; vitesse
+  et pertes de charge pour l'eau et pour les gaines ; pente des collecteurs ;
+  chute de tension et puissance foisonnée par circuit. Les autres résultats se
+  lisent dans les tableaux.
 - **Productivité CAO** : congés, chanfreins, réseaux de contraintes
   paramétriques et transformations multiples restent hors périmètre. Ce qui
   existe : chaîne de murs continue, murs en rectangle, mur polyligne, extrémité
