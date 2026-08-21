@@ -26,9 +26,16 @@ export const BUDGETS = {
    * of it is the editor, which is what the first visit loads; the workspaces
    * behind it stay on demand, and the PDF chain was moved there.
    *
+   * Raised again from 240 kio for the integrity work of the eleventh audit:
+   * the index of what points at what, which every deletion asks before it
+   * removes anything, and the clearance volumes the plan draws. Both are the
+   * editor answering questions about the project on screen, so both are loaded
+   * with it; what could wait — the nomenclature of five hundred families, the
+   * catalogue browser, the checks — is still on demand.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 240 * 1024,
+  initialGzipBytes: 248 * 1024,
   /** Everything the build produces, gzipped. */
   totalGzipBytes: 360 * 1024,
 };

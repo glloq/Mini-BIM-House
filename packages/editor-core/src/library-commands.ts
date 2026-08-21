@@ -15,6 +15,7 @@ import {
 } from '@house-technical-designer/assemblies';
 import type { Material, MaterialId } from '@house-technical-designer/materials';
 import { validateMaterial } from '@house-technical-designer/materials';
+import { removalRefusal } from './removal.js';
 import type { ChangeSet, CommandValidation } from './commands.js';
 import type {
   ProjectCommand,
@@ -135,13 +136,6 @@ export function nodesUsingEquipment(
   );
 }
 
-function describe(references: readonly LibraryReference[]): string {
-  return references
-    .slice(0, 5)
-    .map(({ name }) => name)
-    .join(', ');
-}
-
 abstract class LibraryCommand implements ProjectCommand {
   constructor(
     readonly id: string,
@@ -244,12 +238,8 @@ export class RemoveMaterialCommand extends LibraryCommand {
   validate(project: Project): CommandValidation {
     if (!materials(project).some(({ id }) => id === this.materialId))
       return rejected(`Le matériau ${this.materialId} est introuvable.`);
-    const used = assembliesUsingMaterial(project, this.materialId);
-    return used.length === 0
-      ? ok()
-      : rejected(
-          `Le matériau est utilisé par ${used.length} assemblage(s) : ${describe(used)}.`,
-        );
+    const referenced = removalRefusal(project, this.materialId, 'Ce matériau');
+    return referenced === undefined ? ok() : rejected(referenced);
   }
   protected apply(project: Project): Project {
     return withMaterials(
@@ -318,12 +308,12 @@ export class RemoveAssemblyCommand extends LibraryCommand {
   validate(project: Project): CommandValidation {
     if (!assemblies(project).some(({ id }) => id === this.assemblyId))
       return rejected(`L'assemblage ${this.assemblyId} est introuvable.`);
-    const used = elementsUsingAssembly(project, this.assemblyId);
-    return used.length === 0
-      ? ok()
-      : rejected(
-          `L'assemblage est utilisé par ${used.length} élément(s) : ${describe(used)}.`,
-        );
+    const referenced = removalRefusal(
+      project,
+      this.assemblyId,
+      'Cet assemblage',
+    );
+    return referenced === undefined ? ok() : rejected(referenced);
   }
   protected apply(project: Project): Project {
     return {
@@ -538,12 +528,8 @@ export class RemoveEquipmentCommand extends LibraryCommand {
   validate(project: Project): CommandValidation {
     if (!equipment(project).some(({ id }) => id === this.equipmentId))
       return rejected(`L'équipement ${this.equipmentId} est introuvable.`);
-    const used = nodesUsingEquipment(project, this.equipmentId);
-    return used.length === 0
-      ? ok()
-      : rejected(
-          `L'équipement est posé sur ${used.length} nœud(s) de réseau : ${describe(used)}.`,
-        );
+    const referenced = removalRefusal(project, this.equipmentId, 'Ce modèle');
+    return referenced === undefined ? ok() : rejected(referenced);
   }
   protected apply(project: Project): Project {
     return {

@@ -52,6 +52,7 @@ import {
   levelContents,
   raisedContents,
 } from './level-entities.js';
+import { levelRemovalRefusal, removalRefusal } from './removal.js';
 import type { CommandValidation } from './commands.js';
 import type {
   ProjectCommand,
@@ -340,11 +341,17 @@ export class RemoveLevelCommand extends BuildingCommand {
     // a storey holding a whole roof, three posts and a heat pump counted as
     // empty and deleting it took all of them without a word.
     const contents = levelContents(level);
-    return contents.length === 0
-      ? ok()
-      : rejected(
-          `Le niveau ${level.name} contient encore ${contents.length} objet(s). Videz-le avant de le supprimer.`,
-        );
+    if (contents.length > 0)
+      return rejected(
+        `Le niveau ${level.name} contient encore ${contents.length} objet(s). Videz-le avant de le supprimer.`,
+      );
+    // Empty is not the same as unreferenced. A storey holding nothing can
+    // still be the storey a wall climbs to, the storey a stair arrives at, the
+    // storey a node declares and the storey a saved view draws — and removing
+    // it left four dangling references the importer would then refuse, which
+    // is a file the application writes and cannot read back.
+    const referenced = levelRemovalRefusal(project, this.levelId);
+    return referenced === undefined ? ok() : rejected(referenced);
   }
   protected apply(project: Project): Project {
     return withLevels(
@@ -434,14 +441,8 @@ export class RemoveSpaceCommand extends BuildingCommand {
     const level = project.building.levels.find(({ id }) => id === this.levelId);
     if (level?.spaces.some(({ id }) => id === this.spaceId) !== true)
       return rejected(`La pièce ${this.spaceId} est introuvable.`);
-    const zones = project.building.zones.filter(({ spaceIds }) =>
-      spaceIds.includes(this.spaceId as never),
-    );
-    return zones.length === 0
-      ? ok()
-      : rejected(
-          `La pièce appartient encore à ${zones.length} zone(s) : ${zones.map(({ name }) => name).join(', ')}.`,
-        );
+    const referenced = removalRefusal(project, this.spaceId, 'Cette pièce');
+    return referenced === undefined ? ok() : rejected(referenced);
   }
   protected apply(project: Project): Project {
     return mapLevel(project, this.levelId, (level) => ({
@@ -511,9 +512,10 @@ export class RemoveSlabCommand extends BuildingCommand {
   }
   validate(project: Project): CommandValidation {
     const level = project.building.levels.find(({ id }) => id === this.levelId);
-    return level?.slabs.some(({ id }) => id === this.slabId) === true
-      ? ok()
-      : rejected(`La dalle ${this.slabId} est introuvable.`);
+    if (level?.slabs.some(({ id }) => id === this.slabId) !== true)
+      return rejected(`La dalle ${this.slabId} est introuvable.`);
+    const referenced = removalRefusal(project, this.slabId, 'Cette dalle');
+    return referenced === undefined ? ok() : rejected(referenced);
   }
   protected apply(project: Project): Project {
     return mapLevel(project, this.levelId, (level) => ({
@@ -589,9 +591,10 @@ export class RemoveRoofCommand extends BuildingCommand {
   }
   validate(project: Project): CommandValidation {
     const level = project.building.levels.find(({ id }) => id === this.levelId);
-    return level?.roofs.some(({ id }) => id === this.roofId) === true
-      ? ok()
-      : rejected(`Le pan ${this.roofId} est introuvable.`);
+    if (level?.roofs.some(({ id }) => id === this.roofId) !== true)
+      return rejected(`Le pan ${this.roofId} est introuvable.`);
+    const referenced = removalRefusal(project, this.roofId, 'Ce pan');
+    return referenced === undefined ? ok() : rejected(referenced);
   }
   protected apply(project: Project): Project {
     return mapLevel(project, this.levelId, (level) => ({
@@ -902,18 +905,12 @@ export class RemoveComponentCommand extends BuildingCommand {
       true
     )
       return rejected(`Le composant ${this.componentId} est introuvable.`);
-    // A network node standing for this component would name something the
-    // project no longer holds.
-    const held = (project.systems ?? []).flatMap((network) =>
-      network.nodes.filter(
-        ({ hostObjectId }) => hostObjectId === this.componentId,
-      ),
+    const referenced = removalRefusal(
+      project,
+      this.componentId,
+      'Ce composant',
     );
-    return held.length === 0
-      ? ok()
-      : rejected(
-          `Le composant ${this.componentId} porte ${held.length} nœud(s) de réseau.`,
-        );
+    return referenced === undefined ? ok() : rejected(referenced);
   }
   protected apply(project: Project): Project {
     return mapLevel(project, this.levelId, (level) => ({
@@ -1086,9 +1083,10 @@ export class RemoveStairCommand extends BuildingCommand {
   }
   validate(project: Project): CommandValidation {
     const level = project.building.levels.find(({ id }) => id === this.levelId);
-    return level?.stairs.some(({ id }) => id === this.stairId) === true
-      ? ok()
-      : rejected(`L'escalier ${this.stairId} est introuvable.`);
+    if (level?.stairs.some(({ id }) => id === this.stairId) !== true)
+      return rejected(`L'escalier ${this.stairId} est introuvable.`);
+    const referenced = removalRefusal(project, this.stairId, 'Cet escalier');
+    return referenced === undefined ? ok() : rejected(referenced);
   }
   protected apply(project: Project): Project {
     return mapLevel(project, this.levelId, (level) => ({
@@ -1218,9 +1216,10 @@ export class RemoveRoofStructureCommand extends BuildingCommand {
   }
   validate(project: Project): CommandValidation {
     const level = project.building.levels.find(({ id }) => id === this.levelId);
-    return (level?.roofStructures ?? []).some(({ id }) => id === this.roofId)
-      ? ok()
-      : rejected(`La toiture ${this.roofId} est introuvable.`);
+    if (!(level?.roofStructures ?? []).some(({ id }) => id === this.roofId))
+      return rejected(`La toiture ${this.roofId} est introuvable.`);
+    const referenced = removalRefusal(project, this.roofId, 'Cette toiture');
+    return referenced === undefined ? ok() : rejected(referenced);
   }
   protected apply(project: Project): Project {
     return mapLevel(project, this.levelId, (level) => ({
@@ -1381,9 +1380,10 @@ export class RemoveStructuralMemberCommand extends BuildingCommand {
   }
   validate(project: Project): CommandValidation {
     const level = project.building.levels.find(({ id }) => id === this.levelId);
-    return (level?.structure ?? []).some(({ id }) => id === this.memberId)
-      ? ok()
-      : rejected(`L'élément ${this.memberId} est introuvable.`);
+    if (!(level?.structure ?? []).some(({ id }) => id === this.memberId))
+      return rejected(`L'élément ${this.memberId} est introuvable.`);
+    const referenced = removalRefusal(project, this.memberId, 'Cet élément');
+    return referenced === undefined ? ok() : rejected(referenced);
   }
   protected apply(project: Project): Project {
     return mapLevel(project, this.levelId, (level) => ({

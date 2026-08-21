@@ -115,6 +115,25 @@ export function populatedProject(): Project {
             },
           ],
         },
+        // The storey the stair arrives at. Without it the fixture named a
+        // level that did not exist — which the importer refuses, and which is
+        // exactly what a fixture claiming to be a whole project must not do.
+        {
+          id: entityId('upper'),
+          name: 'Étage',
+          elevationMm: 2700,
+          defaultStoreyHeightMm: 2500,
+          walls: [],
+          openings: [],
+          slabs: [],
+          roofs: [],
+          roofStructures: [],
+          spaces: [],
+          stairs: [],
+          structure: [],
+          components: [],
+          annotations: [],
+        },
       ],
     },
     drawingViews: [

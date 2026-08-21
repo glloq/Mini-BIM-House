@@ -15,7 +15,7 @@ import {
  * The fixture is the point of this suite: it is what a crawler walks to prove
  * that nothing carrying an identifier escapes the index.
  */
-function populated(): Project {
+export function populated(): Project {
   const levelId = entityId<'Level'>('ground');
   const upperId = entityId<'Level'>('upper');
   const assemblyId = 'assembly-wall' as never;
