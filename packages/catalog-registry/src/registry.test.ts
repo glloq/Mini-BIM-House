@@ -4,6 +4,7 @@ import { PROJECT_CALCULATION_MODULE_IDS } from '@house-technical-designer/calcul
 import {
   genericEquipment,
   genericEquipmentCatalog,
+  rawGenericEquipmentEntries,
 } from '@house-technical-designer/equipment-catalog';
 import {
   DATA_REGISTRIES,
@@ -372,7 +373,7 @@ describe('the generic catalogue, checked against its own families', () => {
     // where the schema says `maximumChargePowerW`. Both files were valid on
     // their own, the family said GENERIC_DATA: READY, and the integration was
     // green — because nothing compared the two.
-    expect(validateCatalog(genericEquipmentCatalog(), symbols)).toEqual([]);
+    expect(validateCatalog(rawGenericEquipmentEntries(), symbols)).toEqual([]);
   });
 
   it('ties every entry to a family of the nomenclature', () => {

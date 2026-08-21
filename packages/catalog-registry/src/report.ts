@@ -7,7 +7,10 @@ import {
   type StatusAxis,
   type StatusValue,
 } from './status.js';
-import { DATA_DOMAINS, type DataDomain } from './registries.js';
+import {
+  DATA_DOMAINS,
+  type DataDomain,
+} from '@house-technical-designer/technical-types';
 
 /**
  * One family together with where it has actually got to.

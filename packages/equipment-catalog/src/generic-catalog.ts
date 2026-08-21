@@ -33,18 +33,30 @@ export const GENERIC_EQUIPMENT_REFERENCE =
  * What stays in TypeScript is the shape an entry must have.
  */
 interface CatalogFile {
-  readonly definitions: readonly (Omit<
-    EquipmentDefinition,
-    'catalogKind' | 'version' | 'sources'
-  > & {
-    readonly provenance: {
-      readonly type: string;
-      readonly reference: string;
-      readonly url?: string;
-      readonly validAt?: string;
-    };
-  })[];
+  readonly definitions: readonly RawCatalogEntry[];
 }
+
+/**
+ * One entry exactly as its file states it, before anything has been checked.
+ *
+ * The types say `PropertySourceType`; a JSON file says `string`, and the
+ * difference between the two is what validation earns. The loader used to
+ * close that gap on its own — a provenance of `GENRIC` became `OTHER` on the
+ * way in — so a typo was repaired into a valid value before any gate could see
+ * it. The gate now reads this, and the normalised object is what comes out the
+ * other side.
+ */
+export type RawCatalogEntry = Omit<
+  EquipmentDefinition,
+  'catalogKind' | 'sources' | 'provenance'
+> & {
+  readonly provenance: {
+    readonly type: string;
+    readonly reference: string;
+    readonly url?: string;
+    readonly validAt?: string;
+  };
+};
 
 const FILES = [
   heating,
@@ -96,20 +108,32 @@ function sources(
   }));
 }
 
+/**
+ * Every entry as the files state it, unchecked and unrepaired.
+ *
+ * What the gate reads. Anything that normalises before validating is a gate
+ * that inspects its own repairs.
+ */
+export function rawGenericEquipmentEntries(): readonly RawCatalogEntry[] {
+  return FILES.flatMap(({ definitions }) => definitions);
+}
+
 /** Builds the generic equipment catalogue shipped with the application. */
 export function genericEquipmentCatalog(): readonly EquipmentDefinition[] {
-  return FILES.flatMap(({ definitions }) =>
-    definitions.map(({ provenance, ...entry }) => ({
-      ...entry,
-      catalogKind: 'GENERIC' as const,
-      version: '1.0.0',
-      provenance: {
-        ...provenance,
-        type: sourceTypeOf(provenance.type),
-      },
-      sources: sources(entry.properties, provenance),
-    })),
-  );
+  return rawGenericEquipmentEntries().map(({ provenance, ...entry }) => ({
+    ...entry,
+    catalogKind: 'GENERIC' as const,
+    // The version is the file's, never the loader's. Written here as `1.0.0`
+    // for every entry, a fiche corrected to 1.1.0 in its own JSON would have
+    // gone on announcing 1.0.0 at runtime — and every project pinning it would
+    // have pinned a version that no longer meant anything.
+    version: entry.version,
+    provenance: {
+      ...provenance,
+      type: sourceTypeOf(provenance.type),
+    },
+    sources: sources(entry.properties, provenance),
+  }));
 }
 
 /** Looks a generic definition up by identifier. */

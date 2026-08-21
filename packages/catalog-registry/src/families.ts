@@ -1,9 +1,13 @@
+import {
+  isClearanceZone,
+  isDataDomain,
+  isDataRegistry,
+  isPortType,
+  type ClearanceZone,
+  type DataDomain,
+  type DataRegistry,
+} from '@house-technical-designer/technical-types';
 import { isHostType, HOST_TYPES } from '@house-technical-designer/core-domain';
-import type { ClearanceZone } from './clearances.js';
-import type { DataDomain, DataRegistry } from './registries.js';
-import { isClearanceZone } from './clearances.js';
-import { isDataDomain, isDataRegistry } from './registries.js';
-import { isPortType } from './port-types.js';
 import {
   isMeasuredAxis,
   isStatusAxis,

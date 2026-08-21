@@ -28,7 +28,8 @@
     "test:e2e:install": "playwright install --with-deps chromium firefox webkit",
     "test:e2e:chromium": "playwright test --project=chromium --project=mobile",
     "audit:licenses": "node scripts/audit-licenses.mjs",
-    "catalog:status": "vite-node scripts/catalog-status.ts"
+    "catalog:status": "vite-node scripts/catalog-status.ts",
+    "catalog:fingerprints": "vite-node scripts/catalog-fingerprints.ts"
   },
   "engines": {
     "node": ">=22.0.0"

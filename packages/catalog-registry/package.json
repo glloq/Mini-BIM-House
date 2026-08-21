@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@house-technical-designer/technical-types": "0.1.0",
     "@house-technical-designer/core-domain": "0.1.0",
     "@house-technical-designer/geometry": "0.1.0",
     "@house-technical-designer/drawing-engine": "0.1.0",

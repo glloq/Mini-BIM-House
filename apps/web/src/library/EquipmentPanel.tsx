@@ -11,6 +11,9 @@ import {
   nodesUsingEquipment,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
+import { family } from '@house-technical-designer/catalog-registry';
+import type { HostType } from '@house-technical-designer/core-domain';
+import { isHostType } from '@house-technical-designer/core-domain';
 import { projectEquipmentFromCatalog } from './library-model.js';
 import { DraftField } from '../DraftField.js';
 import {
@@ -49,6 +52,20 @@ export interface EquipmentPanelProps {
   readonly selectedId?: string;
   readonly onSelect: (equipmentId: string | undefined) => void;
   readonly onMessage: (message: string) => void;
+}
+
+/**
+ * What the nomenclature says a thing of this family may be fixed to.
+ *
+ * Copied into the project with the entry rather than looked up later: the
+ * editor, the importer and the checks all have to answer alike, and they can
+ * only do that from something the file itself carries.
+ */
+function allowedHostsOfFamily(
+  familyId: string,
+): readonly HostType[] | undefined {
+  const hosts = family(familyId)?.placement?.allowedHosts;
+  return hosts === undefined ? undefined : hosts.filter(isHostType);
 }
 
 export function EquipmentPanel({
@@ -109,6 +126,7 @@ export function EquipmentPanel({
                     const added = projectEquipmentFromCatalog(
                       definition,
                       takenIds,
+                      allowedHostsOfFamily(definition.familyId),
                     );
                     onCommand(new AddEquipmentCommand(added));
                     onSelect(added.id);
@@ -179,14 +197,9 @@ export function EquipmentPanel({
               <h4>{selected.id}</h4>
               <p className="hint">
                 Type {selected.kind} ·{' '}
-                {typeof selected.properties.catalogDefinitionId === 'string'
-                  ? `catalogue ${selected.properties.catalogDefinitionId}@${
-                      typeof selected.properties.catalogDefinitionVersion ===
-                      'string'
-                        ? selected.properties.catalogDefinitionVersion
-                        : 'version inconnue'
-                    }`
-                  : 'saisie manuelle'}
+                {selected.version === undefined
+                  ? 'saisie manuelle'
+                  : `catalogue ${selected.familyId ?? selected.kind}@${selected.version}`}
               </p>
               {describeProperties(
                 Object.fromEntries(

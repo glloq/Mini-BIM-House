@@ -1,7 +1,11 @@
-import { isClearanceZone, CLEARANCE_LABELS } from './clearances.js';
-import type { ClearanceZoneDefinition } from './clearances.js';
+import {
+  CLEARANCE_LABELS,
+  isClearanceZone,
+  isPortType,
+  portType,
+  type ClearanceZoneDefinition,
+} from '@house-technical-designer/technical-types';
 import type { FamilyDefinition } from './families.js';
-import { isPortType, portType } from './port-types.js';
 import {
   validateProperties,
   type PropertySchema,
@@ -33,6 +37,54 @@ export interface CatalogEntryCandidate {
   readonly rendering?: {
     readonly symbols?: readonly { readonly symbolId: string }[];
   };
+}
+
+/**
+ * A version, as versions are compared.
+ *
+ * Free text would let `1.0`, `v1.0.0` and `1.0.0-final` all name the same
+ * entry and none of them sort against the others; a project pinning one could
+ * never be told whether the catalogue had moved forward or back.
+ */
+const SEMVER =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/u;
+
+/**
+ * What this entry says, reduced to one string.
+ *
+ * A version is a promise: `generic-battery@1.0.0` must mean the same figures
+ * today as it did when a project pinned it. Nothing enforced that promise, so
+ * a fiche could be corrected in place and every project holding the old pin
+ * would silently be designing with the new numbers while claiming the old
+ * ones. Comparing this against what was recorded is how the promise is kept.
+ *
+ * Order does not matter and formatting does not either: what is compared is
+ * the content, sorted, not the file.
+ */
+export function catalogFingerprint(entry: CatalogEntryCandidate): string {
+  const canonical = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(canonical);
+    if (value !== null && typeof value === 'object')
+      return Object.fromEntries(
+        Object.entries(value as Record<string, unknown>)
+          .filter(([, held]) => held !== undefined)
+          .sort(([first], [second]) => first.localeCompare(second))
+          .map(([key, held]) => [key, canonical(held)]),
+      );
+    return value;
+  };
+  const { id: _id, version: _version, ...rest } = entry;
+  const text = JSON.stringify(canonical(rest));
+  // A short, stable digest: the point is to notice a change, not to resist an
+  // attacker, and a hash nobody can read is a hash nobody checks.
+  let low = 0x811c9dc5;
+  let high = 0x01000193;
+  for (let index = 0; index < text.length; index += 1) {
+    low = Math.imul(low ^ text.charCodeAt(index), 0x01000193) >>> 0;
+    high =
+      Math.imul(high + text.charCodeAt(index) * (index + 1), 0x85ebca6b) >>> 0;
+  }
+  return `${low.toString(16).padStart(8, '0')}${high.toString(16).padStart(8, '0')}`;
 }
 
 export interface CatalogIssue {
@@ -68,8 +120,12 @@ export function validateCatalogEntry(
     issues.push({ entryId: entry.id, path, message });
   };
   if (entry.id.trim() === '') at('id', 'must not be empty');
-  if (entry.version !== undefined && entry.version.trim() === '')
-    at('version', 'must not be empty');
+  // Every entry states its version, and states it the way versions are
+  // compared. Without one, a project can pin nothing and a correction reaches
+  // every house already designed with the entry.
+  if (entry.version === undefined) at('version', 'must state a version');
+  else if (!SEMVER.test(entry.version))
+    at('version', `${entry.version} is not a version of the form 1.0.0`);
 
   const family = known.family(entry.familyId);
   if (family === undefined) {

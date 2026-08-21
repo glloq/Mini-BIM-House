@@ -1,4 +1,4 @@
-import type { DataDomain } from './registries.js';
+import type { DataDomain } from '@house-technical-designer/technical-types';
 import type { PropertyValue } from './property-schemas.js';
 import type { ProvenanceRecord } from './provenance.js';
 

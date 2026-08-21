@@ -15,6 +15,7 @@ import type { Roof } from './roof.js';
 import type { ProjectSheet, SavedDrawingView } from './documents.js';
 import type { StructuralMember } from './structure.js';
 import type { HostType } from './host-types.js';
+import type { ClearanceZone } from '@house-technical-designer/technical-types';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
@@ -190,6 +191,12 @@ export interface RegulatoryContext {
  * records of the entry it came from — the family it belongs to and the version
  * it was copied at — is what lets the application say « the catalogue has moved
  * on since » instead of quietly designing with different figures.
+ *
+ * The copy has to be a copy. It used to keep four fields and smuggle the rest
+ * into `properties` as `catalogDefinitionId`, so a project claiming to be
+ * self-contained had lost the ports, the room the thing needs, what it may be
+ * fixed to and where its figures came from — everything, in other words, that
+ * makes it more than a bag of numbers.
  */
 export interface EquipmentDefinition {
   readonly id: string;
@@ -199,6 +206,45 @@ export interface EquipmentDefinition {
   readonly catalogKind: 'GENERIC' | 'PRODUCT' | 'CUSTOM';
   /** The version of the catalogue entry this copy was taken from. */
   readonly version?: string;
+  readonly name?: string;
+  readonly category?: string;
+  readonly manufacturer?: string;
+  readonly model?: string;
+  readonly dimensions?: {
+    readonly widthMm?: number;
+    readonly depthMm?: number;
+    readonly heightMm?: number;
+  };
+  /** What it is connected by, each port naming a kind of the registry. */
+  readonly ports?: readonly {
+    readonly id: string;
+    readonly portTypeId?: string;
+    readonly position?: {
+      readonly x: number;
+      readonly y: number;
+      readonly z: number;
+    };
+  }[];
+  /** The room it needs around it, zone by zone and side by side. */
+  readonly clearances?: readonly {
+    readonly zone: ClearanceZone;
+    readonly frontMm?: number;
+    readonly backMm?: number;
+    readonly leftMm?: number;
+    readonly rightMm?: number;
+    readonly aboveMm?: number;
+    readonly belowMm?: number;
+    readonly reason?: string;
+  }[];
+  /** Where every figure of this copy comes from. */
+  readonly provenance?: {
+    readonly type: string;
+    readonly reference: string;
+    readonly url?: string;
+    readonly validAt?: string;
+  };
+  readonly costEntryId?: string;
+  readonly environmentalDeclarationId?: string;
   /**
    * What a thing of this kind may be fixed to.
    *
