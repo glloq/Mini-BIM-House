@@ -695,7 +695,7 @@ describe('the things placed in the building', () => {
         ]),
       ),
     ).toEqual([
-      '/project/building/levels/0/components/0/hostObjectId references nowhere, which is not a wall, a slab or a roof',
+      '/project/building/levels/0/components/0/hostObjectId references nowhere, which is nothing a component can be fixed to',
     ]);
   });
 
@@ -713,8 +713,95 @@ describe('the things placed in the building', () => {
         ]),
       ),
     ).toEqual([
-      '/project/building/levels/0/components/0/hostObjectId references space-living, which is not a wall, a slab or a roof',
+      '/project/building/levels/0/components/0/hostObjectId references space-living, which is nothing a component can be fixed to',
     ]);
+  });
+
+  it('refuses a component fixed to something its own model does not accept', () => {
+    // The rule travels in the file rather than being looked up in a catalogue:
+    // a house drawn today has to open the same way in two years, when the
+    // catalogue may have tightened a rule the house was legal under.
+    expect(
+      issues(
+        file(
+          [
+            {
+              ...level,
+              walls: [wall('wall-south', 'ground')],
+              roofs: [
+                {
+                  id: 'roof-plane',
+                  type: 'ROOF_PLANE',
+                  levelId: 'ground',
+                  footprint: {
+                    outer: [
+                      { x: 0, y: 0 },
+                      { x: 5000, y: 0 },
+                      { x: 5000, y: 4000 },
+                    ],
+                  },
+                  assemblyId: 'assembly',
+                  slopeDeg: 30,
+                  azimuthDeg: 180,
+                  baseElevationMm: 2500,
+                },
+              ],
+              components: [
+                component('c', {
+                  definitionId: 'radiator-model',
+                  hostObjectId: 'roof-plane',
+                }),
+              ],
+            },
+          ],
+          {
+            equipment: [
+              {
+                id: 'radiator-model',
+                kind: 'RADIATOR',
+                catalogKind: 'GENERIC',
+                allowedHosts: ['WALL'],
+                properties: {},
+              },
+            ],
+          },
+        ),
+      ),
+    ).toEqual([
+      '/project/building/levels/0/components/0/hostObjectId is fixed to roof-plane, which its own model does not accept: it goes on WALL',
+    ]);
+  });
+
+  it('accepts the host that model does accept', () => {
+    expect(
+      issues(
+        file(
+          [
+            {
+              ...level,
+              walls: [wall('wall-south', 'ground')],
+              components: [
+                component('c', {
+                  definitionId: 'radiator-model',
+                  hostObjectId: 'wall-south',
+                }),
+              ],
+            },
+          ],
+          {
+            equipment: [
+              {
+                id: 'radiator-model',
+                kind: 'RADIATOR',
+                catalogKind: 'GENERIC',
+                allowedHosts: ['WALL'],
+                properties: {},
+              },
+            ],
+          },
+        ),
+      ),
+    ).toEqual([]);
   });
 
   it('refuses a component whose room is on another storey', () => {

@@ -14,6 +14,7 @@ import type { Stair } from './stair.js';
 import type { Roof } from './roof.js';
 import type { ProjectSheet, SavedDrawingView } from './documents.js';
 import type { StructuralMember } from './structure.js';
+import type { HostType } from './host-types.js';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
@@ -198,6 +199,17 @@ export interface EquipmentDefinition {
   readonly catalogKind: 'GENERIC' | 'PRODUCT' | 'CUSTOM';
   /** The version of the catalogue entry this copy was taken from. */
   readonly version?: string;
+  /**
+   * What a thing of this kind may be fixed to.
+   *
+   * The rule travels with the copy rather than being looked up in a catalogue.
+   * Two reasons: a project has to open the same way in two years, when the
+   * catalogue may have tightened the rule and would then refuse a house that
+   * was legal when it was drawn; and the editor, the importer and the checks
+   * all have to answer the same way, which they can only do from something the
+   * file itself carries.
+   */
+  readonly allowedHosts?: readonly HostType[];
   readonly properties: Readonly<Record<string, JsonValue>>;
 }
 export interface ScenarioOverride {

@@ -1,8 +1,14 @@
-import type { ProjectFile } from '@house-technical-designer/core-domain';
+import type {
+  HostType,
+  ProjectFile,
+} from '@house-technical-designer/core-domain';
 import {
   entityCollisions,
+  hostAccepts,
   isTextNote,
+  levelHosts,
   localCollisions,
+  projectEntities,
   validateTextNote,
 } from '@house-technical-designer/core-domain';
 import validateProjectSchema from './generated-project-validator.js';
@@ -262,20 +268,21 @@ export function validateProjectReferences(
   /**
    * What a placed component may be physically fixed to.
    *
-   * A surface a thing can be hung on: a wall, a slab, a roof. Not a room,
-   * which is a volume and is named by `spaceId`; not a catalogue entry, which
-   * is a description and is named by `definitionId`. A node may be bound to
-   * far more than that — it stands for what it feeds — and lending a component
-   * the node's list is how a radiator ends up « fixed to » the model of a
-   * radiator.
+   * The same answer the editor gives, from the same registry. It used to be a
+   * list written here — a wall, a slab, a roof plane — while the editor had
+   * come to accept whole roofs, openings and other appliances. A command could
+   * therefore produce a project this importer would refuse, which is a file
+   * the application writes and cannot read back.
+   *
+   * A room is a volume and is named by `spaceId`; a catalogue entry is a
+   * description and is named by `definitionId`. A node may be bound to far
+   * more than any of this — it stands for what it feeds — and lending a
+   * component the node's list is how a radiator ends up « fixed to » the model
+   * of a radiator.
    */
-  const supports = new Set<string>(
-    file.project.building.levels.flatMap(({ walls, slabs, roofs }) => [
-      ...walls.map(({ id }) => id as string),
-      ...slabs.map(({ id }) => id as string),
-      ...roofs.map(({ id }) => id as string),
-    ]),
-  );
+  const supports = new Map<string, ReadonlySet<HostType>>();
+  for (const level of file.project.building.levels)
+    for (const [id, hosts] of levelHosts(level)) supports.set(id, hosts);
   /**
    * The level each object of the building belongs to.
    *
@@ -283,19 +290,12 @@ export function validateProjectReferences(
    * impossible: a node declared on the ground floor, sitting in a room upstairs
    * and fixed to a wall of a third level is three valid identifiers describing
    * a place that does not exist. Knowing where each object lives is what makes
-   * that check possible.
+   * that check possible — for every family the project holds, not for the six
+   * somebody remembered.
    */
   const levelOfObject = new Map<string, string>();
-  for (const level of file.project.building.levels)
-    for (const object of [
-      ...level.walls,
-      ...level.slabs,
-      ...level.roofs,
-      ...level.spaces,
-      ...level.openings,
-      ...(level.components ?? []),
-    ])
-      levelOfObject.set(object.id, level.id);
+  for (const { id, levelId } of projectEntities(file.project))
+    if (levelId !== undefined) levelOfObject.set(id, levelId);
   // Identifiers are unique across the whole project, not merely inside their
   // own list. Selection, overlays, dimensions and scenario paths all address
   // objects by identifier alone; two objects sharing one would make a click
@@ -430,7 +430,28 @@ export function validateProjectReferences(
       )
         issues.push({
           path: `${path}/hostObjectId`,
-          message: `references ${component.hostObjectId}, which is not a wall, a slab or a roof`,
+          message: `references ${component.hostObjectId}, which is nothing a component can be fixed to`,
+        });
+      // What the file itself says this model may be fixed to. Read from the
+      // project's own copy of the catalogue entry rather than from a
+      // catalogue: a house has to open the same way in two years, when the
+      // catalogue may have tightened a rule the house was drawn under.
+      const allowed =
+        component.definitionId === undefined
+          ? undefined
+          : file.project.equipment?.find(
+              ({ id }) => id === component.definitionId,
+            )?.allowedHosts;
+      if (
+        allowed !== undefined &&
+        allowed.length > 0 &&
+        component.hostObjectId !== undefined &&
+        supports.has(component.hostObjectId) &&
+        !hostAccepts(allowed, supports.get(component.hostObjectId))
+      )
+        issues.push({
+          path: `${path}/hostObjectId`,
+          message: `is fixed to ${component.hostObjectId}, which its own model does not accept: it goes on ${allowed.join(', ')}`,
         });
       // Each identifier can be real while the three together describe a place
       // that does not exist: a radiator on the ground floor, in a bedroom
