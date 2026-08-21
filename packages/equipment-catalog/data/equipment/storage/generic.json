@@ -14,8 +14,31 @@
       "ports": [
         {
           "id": "dc",
+          "portTypeId": "BATTERY_DC",
           "discipline": "ELECTRICAL",
           "role": "DC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -450
+          }
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "discipline": "ELECTRICAL",
+          "role": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -450
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "discipline": "ELECTRICAL",
+          "role": "EARTH",
           "position": {
             "x": 0,
             "y": 0,
@@ -27,7 +50,6 @@
         "usableCapacityKWh": 5,
         "minimumSoc": 0.1,
         "maximumSoc": 0.95,
-        "initialSoc": 0.5,
         "maxChargePowerKW": 2.5,
         "maxDischargePowerKW": 2.5,
         "chargeEfficiency": 0.95,

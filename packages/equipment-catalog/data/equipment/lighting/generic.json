@@ -14,6 +14,7 @@
       "ports": [
         {
           "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "SUPPLY",
           "position": {

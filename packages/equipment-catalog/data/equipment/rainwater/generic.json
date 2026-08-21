@@ -14,6 +14,7 @@
       "ports": [
         {
           "id": "inlet",
+          "portTypeId": "RAINWATER_IN",
           "discipline": "RAINWATER",
           "role": "INLET",
           "position": {
@@ -25,6 +26,7 @@
         },
         {
           "id": "overflow",
+          "portTypeId": "RAINWATER_OVERFLOW",
           "discipline": "RAINWATER",
           "role": "OVERFLOW",
           "position": {
@@ -36,6 +38,7 @@
         },
         {
           "id": "outlet",
+          "portTypeId": "RAINWATER_OUT",
           "discipline": "RAINWATER",
           "role": "OUTLET",
           "position": {
@@ -48,7 +51,6 @@
       ],
       "properties": {
         "nominalVolumeL": 5000,
-        "initialVolumeL": 0,
         "buried": true
       },
       "rendering": {

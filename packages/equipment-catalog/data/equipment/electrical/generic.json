@@ -14,6 +14,7 @@
       "ports": [
         {
           "id": "incoming",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "INCOMING",
           "position": {
@@ -24,12 +25,24 @@
         },
         {
           "id": "outgoing",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "OUTGOING",
           "position": {
             "x": 0,
             "y": 0,
             "z": -225
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "discipline": "ELECTRICAL",
+          "role": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 225
           }
         }
       ],
@@ -68,6 +81,7 @@
       "ports": [
         {
           "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "INCOMING",
           "position": {
@@ -78,6 +92,7 @@
         },
         {
           "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "OUTGOING",
           "position": {
@@ -122,8 +137,20 @@
       "ports": [
         {
           "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "SUPPLY",
+          "position": {
+            "x": 0,
+            "y": -20,
+            "z": 0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "discipline": "ELECTRICAL",
+          "role": "EARTH",
           "position": {
             "x": 0,
             "y": -20,

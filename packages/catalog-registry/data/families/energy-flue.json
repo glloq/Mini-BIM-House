@@ -6,7 +6,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": ["PV_DC", "EARTH"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -594,7 +594,7 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "ports": ["BATTERY_DC", "CONTROL", "EARTH"],
       "calculators": [
         "battery",
         "electrical",
@@ -614,7 +614,8 @@
         "PORTS": "READY",
         "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "BATTERY_RACK",

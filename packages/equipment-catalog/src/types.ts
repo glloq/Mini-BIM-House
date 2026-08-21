@@ -38,7 +38,29 @@ export type EquipmentCategory =
   | 'OTHER';
 
 export type PropertySourceType =
-  'STANDARD' | 'MANUFACTURER' | 'DATABASE' | 'USER' | 'CALCULATED' | 'OTHER';
+  | 'GENERIC'
+  | 'STANDARD'
+  | 'MANUFACTURER'
+  | 'DATABASE'
+  | 'USER'
+  | 'CALCULATED'
+  | 'OTHER';
+
+/**
+ * Where the values of a catalogue entry come from, as a whole.
+ *
+ * One statement per entry. `sources` says it property by property, which is
+ * what a manufacturer sheet needs when half its figures are declared and half
+ * are computed; most entries have one answer for all of them, and repeating it
+ * once per field is the same sentence copied twenty times.
+ */
+export interface EquipmentProvenance {
+  readonly type: PropertySourceType;
+  readonly reference: string;
+  readonly url?: string;
+  /** When the value was true, which is not when the file was written. */
+  readonly validAt?: string;
+}
 
 /** Where one declared property value comes from. */
 export interface EquipmentPropertySource {
@@ -67,6 +89,16 @@ export interface EquipmentDimensions {
 
 export interface EquipmentPortDefinition {
   readonly id: string;
+  /**
+   * The kind of connection this is, from the port registry.
+   *
+   * `discipline` and `role` were two free strings, so a heat pump declared
+   * `HEATING` / `FLOW` while its family declared `HEATING_FLOW` and nothing
+   * could tell that these were the same thing — or notice when they stopped
+   * being. The registry decides what may be joined to what; a port that does
+   * not name one of its types is a port nothing can check.
+   */
+  readonly portTypeId: string;
   readonly discipline: string;
   readonly role: string;
   /** Port position relative to the equipment origin, in millimetres. */
@@ -117,6 +149,15 @@ export type EquipmentPropertyValue = string | number | boolean;
 /** A catalogue entry: everything shared by all instances of an equipment. */
 export interface EquipmentDefinition {
   readonly id: string;
+  /**
+   * The family of the master nomenclature this entry is an entry of.
+   *
+   * It used to be dropped by the loader and rebuilt into a separate map, which
+   * works at nineteen entries and stops working the moment a catalogue is
+   * imported: the one thing that says what a definition *is* has to travel
+   * with it.
+   */
+  readonly familyId: string;
   readonly kind: string;
   readonly category: EquipmentCategory;
   readonly name: string;
@@ -131,6 +172,7 @@ export interface EquipmentDefinition {
   readonly costEntryId?: string;
   readonly environmentalDeclarationId?: string;
   readonly rendering?: EquipmentRendering;
+  readonly provenance: EquipmentProvenance;
   readonly sources: readonly EquipmentPropertySource[];
 }
 
@@ -160,6 +202,10 @@ export type EquipmentIssueCode =
   | 'EQUIPMENT_INVALID_DIMENSION'
   | 'EQUIPMENT_INVALID_PROPERTY'
   | 'EQUIPMENT_UNSOURCED_PROPERTY'
+  | 'EQUIPMENT_UNKNOWN_FAMILY'
+  | 'EQUIPMENT_UNKNOWN_PORT_TYPE'
+  | 'EQUIPMENT_MISSING_FAMILY_PORT'
+  | 'EQUIPMENT_SCHEMA_MISMATCH'
   | 'EQUIPMENT_PRODUCT_WITHOUT_MANUFACTURER'
   | 'EQUIPMENT_INVALID_CURVE'
   | 'EQUIPMENT_UNKNOWN_DEFINITION'

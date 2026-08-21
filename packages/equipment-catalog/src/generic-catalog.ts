@@ -10,6 +10,7 @@ import type {
   EquipmentDefinition,
   EquipmentPropertySource,
   EquipmentPropertyValue,
+  PropertySourceType,
 } from './types.js';
 
 /**
@@ -36,9 +37,12 @@ interface CatalogFile {
     EquipmentDefinition,
     'catalogKind' | 'version' | 'sources'
   > & {
-    /** The family of the master nomenclature this entry is an entry of. */
-    readonly familyId: string;
-    readonly provenance: { readonly type: string; readonly reference: string };
+    readonly provenance: {
+      readonly type: string;
+      readonly reference: string;
+      readonly url?: string;
+      readonly validAt?: string;
+    };
   })[];
 }
 
@@ -53,35 +57,58 @@ const FILES = [
   rainwater,
 ] as readonly CatalogFile[];
 
+const SOURCE_TYPES: readonly PropertySourceType[] = [
+  'GENERIC',
+  'STANDARD',
+  'MANUFACTURER',
+  'DATABASE',
+  'USER',
+  'CALCULATED',
+  'OTHER',
+];
+
+/**
+ * What a file says about where its values come from, kept as it says it.
+ *
+ * The loader used to write `STANDARD` over everything, so a value declared
+ * `GENERIC` in the file became a standard figure at runtime — the one thing
+ * the traceability rule exists to prevent. A provenance this list does not
+ * hold becomes `OTHER`, which says « something else » rather than promoting it.
+ */
+function sourceTypeOf(declared: string): PropertySourceType {
+  return SOURCE_TYPES.includes(declared as PropertySourceType)
+    ? (declared as PropertySourceType)
+    : 'OTHER';
+}
+
 function sources(
   properties: Readonly<Record<string, EquipmentPropertyValue>>,
-  reference: string,
+  provenance: CatalogFile['definitions'][number]['provenance'],
 ): readonly EquipmentPropertySource[] {
   return Object.keys(properties).map((property) => ({
     property,
-    sourceType: 'STANDARD' as const,
-    reference,
+    sourceType: sourceTypeOf(provenance.type),
+    reference: provenance.reference,
+    ...(provenance.url === undefined ? {} : { url: provenance.url }),
+    ...(provenance.validAt === undefined
+      ? {}
+      : { validAt: provenance.validAt }),
   }));
 }
 
 /** Builds the generic equipment catalogue shipped with the application. */
 export function genericEquipmentCatalog(): readonly EquipmentDefinition[] {
   return FILES.flatMap(({ definitions }) =>
-    definitions.map(({ provenance, familyId: _family, ...entry }) => ({
+    definitions.map(({ provenance, ...entry }) => ({
       ...entry,
       catalogKind: 'GENERIC' as const,
       version: '1.0.0',
-      sources: sources(entry.properties, provenance.reference),
+      provenance: {
+        ...provenance,
+        type: sourceTypeOf(provenance.type),
+      },
+      sources: sources(entry.properties, provenance),
     })),
-  );
-}
-
-/** Which family of the nomenclature each generic entry belongs to. */
-export function genericEquipmentFamilies(): ReadonlyMap<string, string> {
-  return new Map(
-    FILES.flatMap(({ definitions }) =>
-      definitions.map(({ id, familyId }) => [id, familyId] as const),
-    ),
   );
 }
 

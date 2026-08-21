@@ -1,3 +1,4 @@
+export * from './catalog-validation.js';
 export * from './clearances.js';
 export * from './families.js';
 export * from './network-products.js';

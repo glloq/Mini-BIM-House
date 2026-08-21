@@ -1,0 +1,92 @@
+/**
+ * The data layer of this application, checked in one pass, before anything
+ * ships it.
+ *
+ * The audit that asked for this named what it was for: a battery pack declared
+ * the `BATTERY_DEVICE` schema and carried `maxChargePowerKW` where the schema
+ * says `maximumChargePowerW`. Both files were valid on their own, the family
+ * said `GENERIC_DATA: READY`, and the integration was green — because nothing
+ * compared the two. Six hundred entries added on top of that would have been
+ * six hundred entries nobody had compared to anything.
+ *
+ * It runs the same functions the test suite runs, on the same data, and says
+ * what is wrong in a form somebody adding a family can act on: which file,
+ * which entry, which property. Contributors get it in a second without running
+ * thirteen hundred tests; the integration gets it as a gate.
+ */
+import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
+import { PROJECT_CALCULATION_MODULE_IDS } from '@house-technical-designer/calculation-adapters';
+import { genericEquipmentCatalog } from '@house-technical-designer/equipment-catalog';
+import {
+  FAMILY_REGISTRY,
+  NETWORK_PRODUCT_REGISTRY,
+  PROPERTY_SCHEMA_REGISTRY,
+  validateCatalog,
+  validateNetworkProducts,
+  validateRegistry,
+} from '@house-technical-designer/catalog-registry';
+
+const symbols = new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions));
+const calculators = new Set<string>(PROJECT_CALCULATION_MODULE_IDS);
+
+interface Section {
+  readonly title: string;
+  readonly counted: number;
+  readonly noun: string;
+  readonly issues: readonly {
+    readonly subject: string;
+    readonly path: string;
+    readonly message: string;
+  }[];
+}
+
+const sections: readonly Section[] = [
+  {
+    title: 'Nomenclature',
+    counted: FAMILY_REGISTRY.length,
+    noun: 'familles',
+    issues: validateRegistry({ symbols, calculators }).map(
+      ({ familyId, path, message }) => ({ subject: familyId, path, message }),
+    ),
+  },
+  {
+    title: 'Catalogue générique',
+    counted: genericEquipmentCatalog().length,
+    noun: 'définitions',
+    issues: validateCatalog(genericEquipmentCatalog(), symbols).map(
+      ({ entryId, path, message }) => ({ subject: entryId, path, message }),
+    ),
+  },
+  {
+    title: 'Produits réseau',
+    counted: NETWORK_PRODUCT_REGISTRY.length,
+    noun: 'produits',
+    issues: validateNetworkProducts().map(({ productId, path, message }) => ({
+      subject: productId,
+      path,
+      message,
+    })),
+  },
+];
+
+let failed = false;
+for (const { title, counted, noun, issues } of sections) {
+  if (issues.length === 0) {
+    console.log(`✓ ${title} — ${counted} ${noun}`);
+    continue;
+  }
+  failed = true;
+  console.log(`✗ ${title} — ${issues.length} anomalies sur ${counted} ${noun}`);
+  for (const { subject, path, message } of issues)
+    console.log(`    ${subject} · ${path} : ${message}`);
+}
+console.log(
+  `  ${PROPERTY_SCHEMA_REGISTRY.length} schémas de propriétés, ${symbols.size} symboles.`,
+);
+
+if (failed) {
+  console.error(
+    '\nLes données ne sont pas cohérentes avec leurs propres registres.',
+  );
+  process.exit(1);
+}

@@ -10,6 +10,11 @@ import plumbing from '../data/families/plumbing.json' with { type: 'json' };
 import wastewaterRainwater from '../data/families/wastewater-rainwater.json' with { type: 'json' };
 import networkProductCatalog from '../data/network-products/generic.json' with { type: 'json' };
 import propertySchemas from '../data/property-schemas/schemas.json' with { type: 'json' };
+import type {
+  CatalogEntryCandidate,
+  CatalogIssue,
+} from './catalog-validation.js';
+import { validateCatalogEntry } from './catalog-validation.js';
 import type { FamilyDefinition, FamilyIssue } from './families.js';
 import { validateFamily } from './families.js';
 import type { NetworkProduct } from './network-products.js';
@@ -140,6 +145,38 @@ export function validateNetworkProducts(): readonly ProductIssue[] {
       at(issue.path, issue.message);
     const bore = invalidBore(product.properties);
     if (bore !== undefined) at(`properties/${bore.path}`, bore.message);
+  }
+  return issues;
+}
+
+/**
+ * Every catalogue entry checked against the family it claims to belong to.
+ *
+ * The generic catalogue is the first thing this runs on, and it is the reason
+ * the gate exists: an entry can name a schema and carry different property
+ * names, and both files stay valid on their own.
+ */
+export function validateCatalog(
+  entries: readonly CatalogEntryCandidate[],
+  symbols: ReadonlySet<string>,
+): readonly CatalogIssue[] {
+  const seen = new Set<string>();
+  const issues: CatalogIssue[] = [];
+  for (const entry of entries) {
+    if (seen.has(entry.id))
+      issues.push({
+        entryId: entry.id,
+        path: 'id',
+        message: 'is declared more than once',
+      });
+    seen.add(entry.id);
+    issues.push(
+      ...validateCatalogEntry(entry, {
+        family,
+        schema: propertySchema,
+        symbols,
+      }),
+    );
   }
   return issues;
 }

@@ -6,13 +6,7 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": [
-        "HEATING_FLOW",
-        "HEATING_RETURN",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
-      ],
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC"],
       "calculators": [
         "heating",
         "electrical",
@@ -40,7 +34,8 @@
         "PLACEMENT": "READY",
         "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["CONDENSATE", "CONTROL"]
     },
     {
       "id": "HEAT_PUMP_AIR_WATER_SPLIT",
@@ -1312,14 +1307,7 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": [
-        "AIR_SUPPLY",
-        "AIR_EXTRACT",
-        "AIR_OUTSIDE",
-        "AIR_EXHAUST",
-        "ELECTRICAL_AC",
-        "CONTROL"
-      ],
+      "ports": ["AIR_EXTRACT", "AIR_EXHAUST", "ELECTRICAL_AC"],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
@@ -1333,7 +1321,8 @@
         "PORTS": "READY",
         "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "BALANCED_VENTILATION_UNIT",
@@ -1346,8 +1335,7 @@
         "AIR_EXTRACT",
         "AIR_OUTSIDE",
         "AIR_EXHAUST",
-        "ELECTRICAL_AC",
-        "CONTROL"
+        "ELECTRICAL_AC"
       ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
@@ -1362,7 +1350,8 @@
         "PORTS": "READY",
         "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["CONTROL", "CONDENSATE"]
     },
     {
       "id": "DECENTRALIZED_HRV",
@@ -1443,7 +1432,7 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": ["AIR_EXTRACT"],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],

@@ -324,6 +324,156 @@ const definition = (
   scaleRules: { space: 'PAPER_SPACE', nominalSizeMm: 6 },
 });
 
+const rectangle = (
+  halfWidth: number,
+  halfHeight: number,
+  role: SemanticRole = 'SYMBOL',
+): SymbolPrimitive => ({
+  kind: 'POLYGON',
+  points: [
+    { x: -halfWidth, y: -halfHeight },
+    { x: halfWidth, y: -halfHeight },
+    { x: halfWidth, y: halfHeight },
+    { x: -halfWidth, y: halfHeight },
+  ],
+  role,
+});
+
+const line = (
+  from: Point2D,
+  to: Point2D,
+  role: SemanticRole = 'SYMBOL',
+): SymbolPrimitive => ({ kind: 'LINE', start: from, end: to, role });
+
+/**
+ * The symbols the generic catalogue names.
+ *
+ * Every one of them was named by a definition and none of them existed: a
+ * heat pump asked to be drawn as `symbol-heat-pump` and nothing had ever
+ * checked that such a symbol was in the library. They are plain glyphs — a
+ * plan is read by what a symbol *means*, and meaning it clearly at three
+ * millimetres is worth more than drawing it prettily at thirty.
+ */
+const CATALOGUE_SYMBOLS: readonly SymbolDefinition[] = [
+  definition('symbol-heat-pump', 'Pompe à chaleur', 'HEAT_PUMP', 'HEATING', [
+    rectangle(2.6, 2, 'SYMBOL'),
+    line({ x: -1.4, y: -0.8 }, { x: 1.4, y: -0.8 }),
+    line({ x: -1.4, y: 0.8 }, { x: 1.4, y: 0.8 }),
+    line({ x: -1.4, y: -0.8 }, { x: 1.4, y: 0.8 }),
+  ]),
+  definition('symbol-pump', 'Circulateur', 'PUMP', 'HEATING', [
+    ...circle('SYMBOL'),
+    line({ x: 0, y: -2 }, { x: 0, y: 2 }),
+    line({ x: -2, y: 0 }, { x: 2, y: 0 }),
+  ]),
+  definition('symbol-radiator', 'Radiateur', 'RADIATOR', 'HEATING', [
+    rectangle(2.6, 1.4),
+    line({ x: -1.3, y: -1.4 }, { x: -1.3, y: 1.4 }),
+    line({ x: 0, y: -1.4 }, { x: 0, y: 1.4 }),
+    line({ x: 1.3, y: -1.4 }, { x: 1.3, y: 1.4 }),
+  ]),
+  definition('symbol-dhw-tank', 'Ballon d’eau chaude', 'DHW_TANK', 'WATER', [
+    rectangle(1.6, 2.6),
+    line({ x: -1.6, y: 0.8 }, { x: 1.6, y: 0.8 }),
+    line({ x: -0.8, y: 1.7 }, { x: 0.8, y: 1.7 }),
+  ]),
+  definition(
+    'symbol-ventilation-unit',
+    'Centrale de ventilation',
+    'VENTILATION_UNIT',
+    'VENTILATION',
+    [
+      rectangle(2.6, 2),
+      line({ x: -2.6, y: -0.6 }, { x: 2.6, y: -0.6 }),
+      line({ x: -2.6, y: 0.6 }, { x: 2.6, y: 0.6 }),
+    ],
+  ),
+  definition(
+    'symbol-air-terminal',
+    'Bouche d’aération',
+    'AIR_TERMINAL',
+    'VENTILATION',
+    [
+      ...circle('SYMBOL'),
+      line({ x: -1.4, y: -1.4 }, { x: 1.4, y: 1.4 }),
+      line({ x: -1.4, y: 1.4 }, { x: 1.4, y: -1.4 }),
+    ],
+  ),
+  definition('symbol-washbasin', 'Lavabo', 'SANITARY_FIXTURE', 'WATER', [
+    rectangle(2.2, 1.5),
+    ...circle('SYMBOL'),
+  ]),
+  definition('symbol-shower', 'Douche', 'SANITARY_FIXTURE', 'WATER', [
+    rectangle(2.2, 2.2),
+    line({ x: -2.2, y: -2.2 }, { x: 2.2, y: 2.2 }),
+    line({ x: -2.2, y: 2.2 }, { x: 2.2, y: -2.2 }),
+  ]),
+  definition('symbol-wc', 'WC', 'SANITARY_FIXTURE', 'WATER', [
+    rectangle(1.4, 2.2),
+    ...circle('SYMBOL'),
+  ]),
+  definition('symbol-kitchen-sink', 'Évier', 'SANITARY_FIXTURE', 'WATER', [
+    rectangle(2.6, 1.6),
+    line({ x: 0, y: -1.6 }, { x: 0, y: 1.6 }),
+  ]),
+  definition(
+    'symbol-rainwater-tank',
+    'Cuve de récupération',
+    'RAINWATER_TANK',
+    'OTHER',
+    [rectangle(2.4, 2), line({ x: -2.4, y: 0.4 }, { x: 2.4, y: 0.4 })],
+  ),
+  definition(
+    'symbol-distribution-board',
+    'Tableau électrique',
+    'DISTRIBUTION_BOARD',
+    'ELECTRICAL',
+    [
+      rectangle(2.6, 1.8),
+      line({ x: -1.3, y: -1.8 }, { x: -1.3, y: 1.8 }),
+      line({ x: 0, y: -1.8 }, { x: 0, y: 1.8 }),
+      line({ x: 1.3, y: -1.8 }, { x: 1.3, y: 1.8 }),
+    ],
+  ),
+  definition(
+    'symbol-circuit-breaker',
+    'Disjoncteur',
+    'PROTECTION_DEVICE',
+    'ELECTRICAL',
+    [rectangle(1, 2.4), line({ x: -1, y: -1.2 }, { x: 1, y: 1.2 })],
+  ),
+  definition('symbol-socket', 'Prise de courant', 'SOCKET', 'ELECTRICAL', [
+    {
+      kind: 'ARC',
+      center: { x: 0, y: 0 },
+      radius: 2,
+      startAngleDeg: 0,
+      endAngleDeg: 180,
+      role: 'SYMBOL',
+    },
+    line({ x: -2, y: 0 }, { x: 2, y: 0 }),
+    line({ x: 0, y: 0 }, { x: 0, y: -2 }),
+  ]),
+  definition('symbol-luminaire', 'Luminaire', 'LUMINAIRE', 'ELECTRICAL', [
+    ...crossedCircle('SYMBOL'),
+  ]),
+  definition('symbol-pv-module', 'Module photovoltaïque', 'PV_MODULE', 'PV', [
+    rectangle(2.6, 1.8),
+    line({ x: -0.9, y: -1.8 }, { x: -0.9, y: 1.8 }),
+    line({ x: 0.9, y: -1.8 }, { x: 0.9, y: 1.8 }),
+    line({ x: -2.6, y: 0 }, { x: 2.6, y: 0 }),
+  ]),
+  definition('symbol-inverter', 'Onduleur', 'INVERTER', 'ELECTRICAL', [
+    rectangle(2, 2),
+    line({ x: -2, y: 2 }, { x: 2, y: -2 }),
+  ]),
+  definition('symbol-battery', 'Batterie', 'BATTERY', 'ELECTRICAL', [
+    rectangle(2.4, 1.6),
+    line({ x: -1.2, y: -1.6 }, { x: -1.2, y: 1.6 }),
+    line({ x: 1.2, y: -0.8 }, { x: 1.2, y: 0.8 }),
+  ]),
+];
+
 export const SYMBOL_LIBRARY_V1 = createSymbolLibrary(
   'generic-technical-symbols',
   '1.0.0',
@@ -424,5 +574,6 @@ export const SYMBOL_LIBRARY_V1 = createSymbolLibrary(
         role: 'ELECTRICAL_CONTROL',
       },
     ]),
+    ...CATALOGUE_SYMBOLS,
   ],
 );

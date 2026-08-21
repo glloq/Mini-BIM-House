@@ -14,6 +14,7 @@
       "ports": [
         {
           "id": "duct",
+          "portTypeId": "AIR_EXTRACT",
           "discipline": "VENTILATION",
           "role": "EXTRACT",
           "position": {
@@ -59,6 +60,7 @@
       "ports": [
         {
           "id": "extract",
+          "portTypeId": "AIR_EXTRACT",
           "discipline": "VENTILATION",
           "role": "EXTRACT",
           "position": {
@@ -70,6 +72,7 @@
         },
         {
           "id": "exhaust",
+          "portTypeId": "AIR_EXHAUST",
           "discipline": "VENTILATION",
           "role": "EXHAUST",
           "position": {
@@ -81,6 +84,7 @@
         },
         {
           "id": "intake",
+          "portTypeId": "AIR_OUTSIDE",
           "discipline": "VENTILATION",
           "role": "INTAKE",
           "position": {
@@ -92,6 +96,7 @@
         },
         {
           "id": "supply",
+          "portTypeId": "AIR_SUPPLY",
           "discipline": "VENTILATION",
           "role": "SUPPLY",
           "position": {
@@ -100,6 +105,17 @@
             "z": 0
           },
           "nominalSize": 0.16
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "discipline": "ELECTRICAL",
+          "role": "POWER",
+          "position": {
+            "x": -300,
+            "y": -150,
+            "z": 0
+          }
         }
       ],
       "properties": {
@@ -140,6 +156,7 @@
       "ports": [
         {
           "id": "extract",
+          "portTypeId": "AIR_EXTRACT",
           "discipline": "VENTILATION",
           "role": "EXTRACT",
           "position": {
@@ -151,6 +168,7 @@
         },
         {
           "id": "exhaust",
+          "portTypeId": "AIR_EXHAUST",
           "discipline": "VENTILATION",
           "role": "EXHAUST",
           "position": {
@@ -159,6 +177,17 @@
             "z": 0
           },
           "nominalSize": 0.125
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "discipline": "ELECTRICAL",
+          "role": "POWER",
+          "position": {
+            "x": -240,
+            "y": 0,
+            "z": 0
+          }
         }
       ],
       "properties": {

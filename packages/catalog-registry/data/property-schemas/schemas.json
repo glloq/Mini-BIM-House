@@ -52,7 +52,15 @@
           "minimum": 0
         },
         {
-          "key": "usableCapacityKwh",
+          "key": "cycleLife",
+          "label": "Nombre de cycles",
+          "type": "integer",
+          "source": "DEFINITION",
+          "minimum": 0,
+          "unit": "-"
+        },
+        {
+          "key": "usableCapacityKWh",
           "label": "Capacité utile",
           "type": "number",
           "source": "DEFINITION",
@@ -60,32 +68,7 @@
           "minimum": 0
         },
         {
-          "key": "maximumChargePowerW",
-          "label": "Puissance de charge maximale",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "W",
-          "minimum": 0
-        },
-        {
-          "key": "maximumDischargePowerW",
-          "label": "Puissance de décharge maximale",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "W",
-          "minimum": 0
-        },
-        {
-          "key": "roundTripEfficiency",
-          "label": "Rendement aller-retour",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "-",
-          "minimum": 0,
-          "maximum": 1
-        },
-        {
-          "key": "minimumStateOfCharge",
+          "key": "minimumSoc",
           "label": "État de charge minimal",
           "type": "number",
           "source": "DEFINITION",
@@ -94,12 +77,56 @@
           "maximum": 1
         },
         {
-          "key": "cycleLife",
-          "label": "Nombre de cycles",
-          "type": "integer",
+          "key": "maximumSoc",
+          "label": "État de charge maximal",
+          "type": "number",
           "source": "DEFINITION",
+          "unit": "-",
           "minimum": 0,
-          "unit": "-"
+          "maximum": 1
+        },
+        {
+          "key": "initialSoc",
+          "label": "État de charge initial",
+          "type": "number",
+          "source": "INSTANCE",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "maxChargePowerKW",
+          "label": "Puissance de charge maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kW",
+          "minimum": 0
+        },
+        {
+          "key": "maxDischargePowerKW",
+          "label": "Puissance de décharge maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kW",
+          "minimum": 0
+        },
+        {
+          "key": "chargeEfficiency",
+          "label": "Rendement de charge",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "dischargeEfficiency",
+          "label": "Rendement de décharge",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
         }
       ]
     },
@@ -453,15 +480,6 @@
           "minimum": 0
         },
         {
-          "key": "volumeL",
-          "label": "Volume",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "L",
-          "required": true,
-          "minimum": 0
-        },
-        {
           "key": "standbyLossW",
           "label": "Pertes statiques",
           "type": "number",
@@ -470,27 +488,35 @@
           "minimum": 0
         },
         {
-          "key": "heatingPowerW",
-          "label": "Puissance de chauffe",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "W",
-          "minimum": 0
-        },
-        {
-          "key": "setpointTemperatureC",
-          "label": "Température de consigne",
-          "type": "number",
-          "source": "INSTANCE",
-          "unit": "°C"
-        },
-        {
           "key": "exchangerAreaM2",
           "label": "Surface d’échange",
           "type": "number",
           "source": "DEFINITION",
           "unit": "m²",
           "minimum": 0
+        },
+        {
+          "key": "tankVolumeL",
+          "label": "Volume du ballon",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "L",
+          "minimum": 0
+        },
+        {
+          "key": "usefulHeatingPowerW",
+          "label": "Puissance de chauffe utile",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "storageTemperatureC",
+          "label": "Température de stockage",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
         }
       ]
     },
@@ -828,26 +854,34 @@
           "minimum": 0
         },
         {
-          "key": "moduleCount",
-          "label": "Nombre de modules",
-          "type": "integer",
-          "source": "DEFINITION",
-          "minimum": 0,
-          "unit": "-"
-        },
-        {
-          "key": "ratedCurrentA",
-          "label": "Courant assigné",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "A",
-          "minimum": 0
-        },
-        {
           "key": "ipRating",
           "label": "Indice de protection",
           "type": "string",
           "source": "DEFINITION"
+        },
+        {
+          "key": "nominalVoltageV",
+          "label": "Tension nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "V",
+          "minimum": 0
+        },
+        {
+          "key": "rowCount",
+          "label": "Nombre de rangées",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0
+        },
+        {
+          "key": "moduleCapacity",
+          "label": "Nombre de modules",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0
         }
       ]
     },
@@ -923,6 +957,22 @@
           "source": "INSTANCE",
           "unit": "mm",
           "minimum": 0
+        },
+        {
+          "key": "nominalVoltageV",
+          "label": "Tension nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "V",
+          "minimum": 0
+        },
+        {
+          "key": "poleCount",
+          "label": "Nombre de pôles",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 1
         }
       ]
     },
@@ -1375,6 +1425,14 @@
           "source": "DEFINITION",
           "unit": "m³/h",
           "minimum": 0
+        },
+        {
+          "key": "supplyVoltageV",
+          "label": "Tension d’alimentation",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "V",
+          "minimum": 0
         }
       ]
     },
@@ -1439,14 +1497,6 @@
           "minimum": 0
         },
         {
-          "key": "nominalDeltaTK",
-          "label": "Écart nominal",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "K",
-          "minimum": 0
-        },
-        {
           "key": "exponent",
           "label": "Exposant caractéristique",
           "type": "number",
@@ -1461,6 +1511,27 @@
           "source": "DEFINITION",
           "unit": "L",
           "minimum": 0
+        },
+        {
+          "key": "nominalFlowTemperatureC",
+          "label": "Température de départ nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "nominalReturnTemperatureC",
+          "label": "Température de retour nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "nominalRoomTemperatureC",
+          "label": "Température ambiante nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
         }
       ]
     },
@@ -1559,15 +1630,6 @@
       "family": "HEAT_PUMP",
       "properties": [
         {
-          "key": "ratedHeatingPower",
-          "label": "Puissance calorifique nominale",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "W",
-          "required": true,
-          "minimum": 0
-        },
-        {
           "key": "ratedCoolingPower",
           "label": "Puissance frigorifique nominale",
           "type": "number",
@@ -1589,14 +1651,6 @@
           "type": "number",
           "source": "DEFINITION",
           "unit": "W",
-          "minimum": 0
-        },
-        {
-          "key": "cop",
-          "label": "COP",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "-",
           "minimum": 0
         },
         {
@@ -1622,34 +1676,6 @@
           "source": "DEFINITION",
           "unit": "-",
           "minimum": 0
-        },
-        {
-          "key": "minOutdoorTemperature",
-          "label": "Température extérieure minimale",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "°C"
-        },
-        {
-          "key": "maxOutdoorTemperature",
-          "label": "Température extérieure maximale",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "°C"
-        },
-        {
-          "key": "minSupplyTemperature",
-          "label": "Température de départ minimale",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "°C"
-        },
-        {
-          "key": "maxSupplyTemperature",
-          "label": "Température de départ maximale",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "°C"
         },
         {
           "key": "pressureDrop",
@@ -1754,15 +1780,10 @@
           "label": "Point de fonctionnement",
           "type": "string",
           "source": "DERIVED"
-        }
-      ]
-    },
-    {
-      "family": "LUMINAIRE",
-      "properties": [
+        },
         {
-          "key": "power",
-          "label": "Puissance",
+          "key": "nominalHeatingCapacityW",
+          "label": "Puissance calorifique nominale",
           "type": "number",
           "source": "DEFINITION",
           "unit": "W",
@@ -1770,28 +1791,38 @@
           "minimum": 0
         },
         {
-          "key": "luminousFlux",
-          "label": "Flux lumineux",
+          "key": "nominalCop",
+          "label": "COP nominal",
           "type": "number",
           "source": "DEFINITION",
-          "unit": "lm",
-          "required": true,
+          "unit": "-",
           "minimum": 0
         },
+        {
+          "key": "minimumOutdoorTemperatureC",
+          "label": "Température extérieure minimale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "maximumFlowTemperatureC",
+          "label": "Température de départ maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        }
+      ]
+    },
+    {
+      "family": "LUMINAIRE",
+      "properties": [
         {
           "key": "efficacy",
           "label": "Efficacité lumineuse",
           "type": "number",
           "source": "DERIVED",
           "unit": "lm/W"
-        },
-        {
-          "key": "cct",
-          "label": "Température de couleur",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "K",
-          "minimum": 0
         },
         {
           "key": "cri",
@@ -1871,6 +1902,32 @@
           "type": "integer",
           "source": "DEFINITION",
           "unit": "h",
+          "minimum": 0
+        },
+        {
+          "key": "luminousFluxLm",
+          "label": "Flux lumineux",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "lm",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "electricalPowerW",
+          "label": "Puissance électrique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "colorTemperatureK",
+          "label": "Température de couleur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "K",
           "minimum": 0
         }
       ]
@@ -2670,18 +2727,11 @@
           "minimum": 0
         },
         {
-          "key": "breakingCapacityKa",
-          "label": "Pouvoir de coupure",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "kA",
-          "minimum": 0
-        },
-        {
           "key": "curve",
           "label": "Courbe",
           "type": "enum",
           "source": "DEFINITION",
+          "unit": "-",
           "options": ["B", "C", "D"]
         },
         {
@@ -2690,6 +2740,14 @@
           "type": "number",
           "source": "DEFINITION",
           "unit": "mA",
+          "minimum": 0
+        },
+        {
+          "key": "breakingCapacityKA",
+          "label": "Pouvoir de coupure",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kA",
           "minimum": 0
         }
       ]
@@ -2746,14 +2804,6 @@
           "minimum": 0
         },
         {
-          "key": "peakPowerW",
-          "label": "Puissance crête",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "Wc",
-          "minimum": 0
-        },
-        {
           "key": "moduleEfficiency",
           "label": "Rendement",
           "type": "number",
@@ -2761,21 +2811,6 @@
           "unit": "-",
           "minimum": 0,
           "maximum": 1
-        },
-        {
-          "key": "temperatureCoefficient",
-          "label": "Coefficient de température",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "%/K"
-        },
-        {
-          "key": "nominalPowerW",
-          "label": "Puissance nominale",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "W",
-          "minimum": 0
         },
         {
           "key": "europeanEfficiency",
@@ -2787,11 +2822,58 @@
           "maximum": 1
         },
         {
-          "key": "maximumInputVoltageV",
-          "label": "Tension d’entrée maximale",
+          "key": "peakPowerWp",
+          "label": "Puissance crête",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "Wc",
+          "minimum": 0
+        },
+        {
+          "key": "moduleAreaM2",
+          "label": "Surface du module",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m²",
+          "minimum": 0
+        },
+        {
+          "key": "temperatureCoefficientPerK",
+          "label": "Coefficient de température",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "1/K"
+        },
+        {
+          "key": "nominalVoltageV",
+          "label": "Tension nominale",
           "type": "number",
           "source": "DEFINITION",
           "unit": "V",
+          "minimum": 0
+        },
+        {
+          "key": "nominalAcPowerW",
+          "label": "Puissance alternative nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "maximumDcPowerW",
+          "label": "Puissance continue maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "mpptInputCount",
+          "label": "Nombre d’entrées MPPT",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "-",
           "minimum": 0
         }
       ]
@@ -2848,14 +2930,6 @@
           "minimum": 0
         },
         {
-          "key": "capacityL",
-          "label": "Capacité",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "L",
-          "minimum": 0
-        },
-        {
           "key": "nominalDiameterMm",
           "label": "Diamètre nominal",
           "type": "number",
@@ -2869,6 +2943,29 @@
           "type": "number",
           "source": "DERIVED",
           "unit": "m²"
+        },
+        {
+          "key": "nominalVolumeL",
+          "label": "Volume nominal",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "L",
+          "minimum": 0
+        },
+        {
+          "key": "initialVolumeL",
+          "label": "Volume initial",
+          "type": "number",
+          "source": "INSTANCE",
+          "unit": "L",
+          "minimum": 0
+        },
+        {
+          "key": "buried",
+          "label": "Enterrée",
+          "type": "boolean",
+          "source": "DEFINITION",
+          "unit": "-"
         }
       ]
     },
@@ -3227,14 +3324,6 @@
           "minimum": 0
         },
         {
-          "key": "hotWaterFlowLps",
-          "label": "Débit d’eau chaude",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "L/s",
-          "minimum": 0
-        },
-        {
           "key": "dischargeUnits",
           "label": "Unités de vidange",
           "type": "number",
@@ -3256,6 +3345,23 @@
           "type": "number",
           "source": "DEFINITION",
           "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "hotWaterFraction",
+          "label": "Part d’eau chaude",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "flushVolumeL",
+          "label": "Volume de chasse",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "L",
           "minimum": 0
         }
       ]
@@ -3645,30 +3751,6 @@
           "minimum": 0
         },
         {
-          "key": "nominalFlowM3h",
-          "label": "Débit nominal",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "m³/h",
-          "minimum": 0
-        },
-        {
-          "key": "maximumFlowM3h",
-          "label": "Débit maximal",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "m³/h",
-          "minimum": 0
-        },
-        {
-          "key": "specificFanPowerWM3h",
-          "label": "Puissance spécifique",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "W/(m³/h)",
-          "minimum": 0
-        },
-        {
           "key": "heatRecoveryEfficiency",
           "label": "Rendement d’échange",
           "type": "number",
@@ -3678,20 +3760,65 @@
           "maximum": 1
         },
         {
-          "key": "soundPower",
-          "label": "Puissance acoustique",
-          "type": "number",
-          "source": "DEFINITION",
-          "unit": "dB(A)",
-          "minimum": 0
-        },
-        {
           "key": "pressureDropPa",
           "label": "Perte de charge",
           "type": "number",
           "source": "DEFINITION",
           "unit": "Pa",
           "minimum": 0
+        },
+        {
+          "key": "designFlowM3h",
+          "label": "Débit de conception",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m³/h",
+          "minimum": 0
+        },
+        {
+          "key": "nominalPowerW",
+          "label": "Puissance électrique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "maximumStaticPressurePa",
+          "label": "Pression statique maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "Pa",
+          "minimum": 0
+        },
+        {
+          "key": "systemType",
+          "label": "Type de système",
+          "type": "string",
+          "source": "DEFINITION",
+          "unit": "-"
+        },
+        {
+          "key": "bypassAvailable",
+          "label": "Bipasse",
+          "type": "boolean",
+          "source": "DEFINITION",
+          "unit": "-"
+        },
+        {
+          "key": "targetFlowM3h",
+          "label": "Débit visé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m³/h",
+          "minimum": 0
+        },
+        {
+          "key": "airRole",
+          "label": "Rôle aéraulique",
+          "type": "string",
+          "source": "DEFINITION",
+          "unit": "-"
         }
       ]
     },

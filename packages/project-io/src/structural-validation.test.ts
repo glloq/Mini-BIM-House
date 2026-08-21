@@ -208,7 +208,7 @@ describe('structural validation of a project file', () => {
       { ...level, walls: [wall('wall', 'ground'), wall('wall', 'ground')] },
     ]);
     expect(issues(twice)).toContain(
-      '/project/walls declares the identifier wall more than once',
+      '/project/building/levels/ground/walls/wall uses the identifier wall for more than one object: WALL, WALL',
     );
   });
 
@@ -217,7 +217,34 @@ describe('structural validation of a project file', () => {
     // identifier alone, so a collision would make a click ambiguous.
     const collision = file([{ ...level, walls: [wall('ground', 'ground')] }]);
     expect(issues(collision)).toContain(
-      '/project uses the identifier ground for more than one object',
+      '/project/building/levels/ground uses the identifier ground for more than one object: LEVEL, WALL',
+    );
+  });
+
+  it('refuses a collision between the families added most recently', () => {
+    // The list of identified families was written by hand and had fallen seven
+    // families behind the model: a stair and a saved view could share an
+    // identifier and nothing said so.
+    const clashing = file(
+      [
+        { ...level, stairs: [stair('shared', 'ground', 'first')] },
+        { ...level, id: 'first', name: 'First', elevationMm: 2500 },
+      ],
+      {
+        drawingViews: [
+          {
+            id: 'shared',
+            type: 'PLAN',
+            name: 'Vue',
+            scaleDenominator: 50,
+            layers: {},
+            graphicProfileId: 'generic-technical-screen',
+          },
+        ],
+      },
+    );
+    expect(issues(clashing).join(' ')).toContain(
+      'uses the identifier shared for more than one object: STAIR, DRAWING_VIEW',
     );
   });
 

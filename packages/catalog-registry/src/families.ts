@@ -47,7 +47,18 @@ export interface FamilyDefinition {
    * priority is an order of work, not an importance: nothing here is optional.
    */
   readonly priority: number;
+  /**
+   * What an object of this family is always connected by.
+   *
+   * A radiator without its flow and its return is not a radiator that has
+   * been simplified, it is one that cannot be routed. What is genuinely
+   * conditional — the dimming line of a luminaire, the condensate drain of a
+   * heat pump — belongs in `optionalPorts`, so that requiring the rest stays
+   * meaningful.
+   */
   readonly ports?: readonly string[];
+  /** What such an object may also be connected by, without having to be. */
+  readonly optionalPorts?: readonly string[];
   /** The calculation modules that read an object of this family. */
   readonly calculators?: readonly string[];
   readonly placement?: FamilyPlacement;
@@ -69,11 +80,12 @@ export interface FamilyDefinition {
  */
 export interface FamilyCandidate extends Omit<
   FamilyDefinition,
-  'domain' | 'registry' | 'ports' | 'clearances' | 'status'
+  'domain' | 'registry' | 'ports' | 'optionalPorts' | 'clearances' | 'status'
 > {
   readonly domain: string;
   readonly registry: string;
   readonly ports?: readonly string[];
+  readonly optionalPorts?: readonly string[];
   readonly clearances?: readonly string[];
   readonly status?: Readonly<Record<string, string>>;
 }
@@ -112,6 +124,12 @@ export function validateFamily(
     at('priority', 'must be a wave number of at least one');
   for (const [index, port] of (family.ports ?? []).entries())
     if (!isPortType(port)) at(`ports/${index}`, `unknown port type ${port}`);
+  for (const [index, port] of (family.optionalPorts ?? []).entries()) {
+    if (!isPortType(port))
+      at(`optionalPorts/${index}`, `unknown port type ${port}`);
+    else if ((family.ports ?? []).includes(port))
+      at(`optionalPorts/${index}`, `${port} is already required`);
+  }
   for (const [index, zone] of (family.clearances ?? []).entries())
     if (!isClearanceZone(zone))
       at(`clearances/${index}`, `unknown clearance zone ${zone}`);

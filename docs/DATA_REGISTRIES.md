@@ -104,13 +104,8 @@ Les vagues sont un ordre de travail, pas une importance :
   "domain": "HEATING",
   "registry": "EQUIPMENT",
   "priority": 4,
-  "ports": [
-    "HEATING_FLOW",
-    "HEATING_RETURN",
-    "ELECTRICAL_AC",
-    "CONDENSATE",
-    "CONTROL"
-  ],
+  "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC"],
+  "optionalPorts": ["CONDENSATE", "CONTROL"],
   "calculators": [
     "heating",
     "electrical",
@@ -154,6 +149,33 @@ pas le même fluide. Chaque type de port déclare son fluide et son sens, et
 La liste est fermée. Une chaîne libre voudrait dire que `HEATING_FLOW`,
 `heating-flow` et `FLOW_HEATING` existent tous les trois et qu'aucun ne se
 raccorde aux autres.
+
+Une famille sépare ce par quoi une chose est **toujours** raccordée
+(`ports`) de ce par quoi elle **peut** l'être (`optionalPorts`). La
+distinction n'est pas cosmétique : c'est elle qui permet d'exiger les
+premiers. Un radiateur sans départ ni retour n'est pas un radiateur simplifié,
+c'est un radiateur qu'aucun réseau ne peut atteindre ; la ligne de commande
+d'un luminaire, elle, existe ou non selon l'installation. Tant que les deux
+étaient dans la même liste, aucune des deux ne pouvait être vérifiée.
+
+## Le contrôle des données
+
+```
+npm run validate:catalog
+```
+
+Un seul passage sur toute la couche de données : chaque famille contre les
+registres qu'elle nomme, chaque fiche du catalogue contre sa famille et son
+schéma, chaque produit réseau contre le sien. Il s'exécute en une seconde et
+il est une étape de l'intégration continue.
+
+C'est le contrôle qui manquait, et l'audit a dit précisément pourquoi il
+comptait : la batterie déclarait le schéma `BATTERY_DEVICE` et portait
+`maxChargePowerKW` là où le schéma dit `maximumChargePowerW`. Les deux
+fichiers étaient valides séparément, la famille annonçait
+`GENERIC_DATA: READY`, et l'intégration était verte — parce que rien ne
+comparait les deux. Six cents fiches ajoutées par-dessus auraient été six
+cents fiches que personne n'avait comparées à quoi que ce soit.
 
 ## Les propriétés : d'où vient la valeur
 

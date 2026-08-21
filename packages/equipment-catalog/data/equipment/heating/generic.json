@@ -14,6 +14,7 @@
       "ports": [
         {
           "id": "flow",
+          "portTypeId": "HEATING_FLOW",
           "discipline": "HEATING",
           "role": "FLOW",
           "position": {
@@ -25,6 +26,7 @@
         },
         {
           "id": "return",
+          "portTypeId": "HEATING_RETURN",
           "discipline": "HEATING",
           "role": "RETURN",
           "position": {
@@ -36,6 +38,7 @@
         },
         {
           "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
           "discipline": "ELECTRICAL",
           "role": "SUPPLY",
           "position": {
@@ -118,6 +121,7 @@
       "ports": [
         {
           "id": "in",
+          "portTypeId": "HEATING_RETURN",
           "discipline": "HEATING",
           "role": "RETURN",
           "position": {
@@ -129,6 +133,7 @@
         },
         {
           "id": "out",
+          "portTypeId": "HEATING_FLOW",
           "discipline": "HEATING",
           "role": "FLOW",
           "position": {
@@ -137,6 +142,17 @@
             "z": 0
           },
           "nominalSize": 0.026
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "discipline": "ELECTRICAL",
+          "role": "POWER",
+          "position": {
+            "x": -90,
+            "y": 0,
+            "z": 0
+          }
         }
       ],
       "properties": {
@@ -211,6 +227,7 @@
       "ports": [
         {
           "id": "flow",
+          "portTypeId": "HEATING_FLOW",
           "discipline": "HEATING",
           "role": "FLOW",
           "position": {
@@ -222,6 +239,7 @@
         },
         {
           "id": "return",
+          "portTypeId": "HEATING_RETURN",
           "discipline": "HEATING",
           "role": "RETURN",
           "position": {

@@ -2,13 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
 import { PROJECT_CALCULATION_MODULE_IDS } from '@house-technical-designer/calculation-adapters';
 import {
+  genericEquipment,
   genericEquipmentCatalog,
-  genericEquipmentFamilies,
 } from '@house-technical-designer/equipment-catalog';
 import {
   DATA_REGISTRIES,
   FAMILY_REGISTRY,
+  CONNECTION_CLASSES,
+  PORT_MEDIA,
+  PORT_SERVICES,
   PORT_TYPES,
+  connectionRefusal,
   PROPERTY_SCHEMA_REGISTRY,
   STATUS_AXES,
   axisCounts,
@@ -20,7 +24,9 @@ import {
   invalidBore,
   networkProduct,
   pendingOfWave,
+  portType,
   productsOfFamily,
+  validateCatalog,
   validateNetworkProducts,
   portsConnect,
   propertySchema,
@@ -93,23 +99,72 @@ describe('what a port may be joined to', () => {
     expect(portsConnect('AIR_SUPPLY', 'WASTEWATER')).toBe(false);
   });
 
+  it.each([
+    ['WATER_COLD', 'WATER_HOT'],
+    ['WATER_COLD', 'WATER_NON_POTABLE'],
+    ['WATER_HOT', 'WATER_RECIRCULATION'],
+    ['DRAIN_VENT', 'AIR_SUPPLY'],
+    ['AIR_EXHAUST', 'COMBUSTION_AIR'],
+    ['AIR_SUPPLY', 'AIR_EXTRACT'],
+    ['PV_DC', 'BATTERY_DC'],
+    ['HEATING_FLOW', 'PRIMARY_RETURN'],
+    ['REFRIGERANT_LIQUID', 'REFRIGERANT_GAS'],
+    ['WASTEWATER', 'SOILWATER'],
+    ['RAINWATER_OUT', 'RAINWATER_OVERFLOW_INLET'],
+  ])('refuses %s ↔ %s, which share a medium and nothing else', (from, to) => {
+    // Deciding on the medium alone let cold water reach hot water and a
+    // photovoltaic string reach a battery — connections that cannot exist,
+    // offered by a tool meant to check connections.
+    expect(portsConnect(from, to), `${from} ↔ ${to}`).toBe(false);
+    expect(connectionRefusal(from, to)).toBeDefined();
+  });
+
   it('sends a heating flow to a return and never to another flow', () => {
     expect(portsConnect('HEATING_FLOW', 'HEATING_RETURN')).toBe(true);
     expect(portsConnect('HEATING_FLOW', 'HEATING_FLOW')).toBe(false);
   });
 
-  it('lets a two-way port join anything of its own medium', () => {
+  it('joins what serves the same thing through the same fitting', () => {
     expect(portsConnect('WATER_COLD', 'WATER_COLD')).toBe(true);
+    expect(portsConnect('AIR_SUPPLY', 'AIR_SUPPLY_INLET')).toBe(true);
+    expect(portsConnect('WASTEWATER', 'WASTEWATER_INLET')).toBe(true);
+    expect(portsConnect('FLUE_GAS', 'FLUE_GAS_INLET')).toBe(true);
+  });
+
+  it('says why, in words, rather than only saying no', () => {
+    expect(connectionRefusal('WATER_COLD', 'WATER_HOT')).toContain(
+      'ne sont pas le même service',
+    );
+    expect(connectionRefusal('WATER_COLD', 'ELECTRICAL_AC')).toContain(
+      'ne rejoint pas',
+    );
+    expect(connectionRefusal('WATER_COLD', 'IMAGINARY')).toContain(
+      'n’est pas un type de port connu',
+    );
   });
 
   it('says nothing about a port nobody declared', () => {
     expect(portsConnect('WATER_COLD', 'IMAGINARY')).toBe(false);
   });
 
-  it('gives every port a medium and a direction', () => {
+  it('describes every port fully, so nothing decides by default', () => {
     for (const type of PORT_TYPES) {
-      expect(type.medium.length, type.id).toBeGreaterThan(0);
       expect(type.label.length, type.id).toBeGreaterThan(0);
+      expect(PORT_MEDIA, type.id).toContain(type.medium);
+      expect(PORT_SERVICES, type.id).toContain(type.service);
+      expect(CONNECTION_CLASSES, type.id).toContain(type.connectionClass);
+    }
+  });
+
+  it('gives every service somewhere to go', () => {
+    // A service whose ports can never be joined to anything is a service that
+    // cannot be routed: either a facing port is missing, or the service is.
+    for (const type of PORT_TYPES) {
+      const reachable = PORT_TYPES.some(
+        (other) => other.id !== type.id && portsConnect(type.id, other.id),
+      );
+      const selfJoining = portsConnect(type.id, type.id);
+      expect(reachable || selfJoining, type.id).toBe(true);
     }
   });
 });
@@ -289,25 +344,67 @@ describe('the products a network is made of', () => {
   });
 });
 
-describe('the generic catalogue, now that it is data', () => {
+describe('the generic catalogue, checked against its own families', () => {
+  const symbols = KNOWN.symbols;
+
   it('still holds every definition it held as code', () => {
     expect(genericEquipmentCatalog().length).toBe(19);
   });
 
-  it('ties every entry to a family of the nomenclature', () => {
-    for (const [definitionId, familyId] of genericEquipmentFamilies())
-      expect(family(familyId), definitionId).toBeDefined();
+  it('agrees with the family and the schema each entry names', () => {
+    // The battery pack named `BATTERY_DEVICE` and carried `maxChargePowerKW`
+    // where the schema says `maximumChargePowerW`. Both files were valid on
+    // their own, the family said GENERIC_DATA: READY, and the integration was
+    // green — because nothing compared the two.
+    expect(validateCatalog(genericEquipmentCatalog(), symbols)).toEqual([]);
   });
 
-  it('says of every entry where its values come from', () => {
+  it('ties every entry to a family of the nomenclature', () => {
     for (const definition of genericEquipmentCatalog())
-      expect(definition.sources.length, definition.id).toBe(
-        Object.keys(definition.properties).length,
-      );
+      expect(family(definition.familyId), definition.id).toBeDefined();
+  });
+
+  it('gives every port of every entry a kind the registry knows', () => {
+    for (const definition of genericEquipmentCatalog())
+      for (const port of definition.ports)
+        expect(
+          portType(port.portTypeId),
+          `${definition.id}/${port.id}`,
+        ).toBeDefined();
+  });
+
+  it('keeps the provenance the file states, generic included', () => {
+    // The loader used to write STANDARD over everything, so a value declared
+    // GENERIC became a standard figure at runtime.
+    for (const definition of genericEquipmentCatalog())
+      for (const source of definition.sources)
+        expect(source.sourceType, definition.id).toBe('GENERIC');
   });
 
   it('marks the families it feeds as having generic data', () => {
-    for (const familyId of genericEquipmentFamilies().values())
-      expect(family(familyId)?.status?.GENERIC_DATA, familyId).toBe('READY');
+    for (const definition of genericEquipmentCatalog())
+      expect(
+        family(definition.familyId)?.status?.GENERIC_DATA,
+        definition.familyId,
+      ).toBe('READY');
+  });
+
+  it('refuses an entry whose properties are not its family’s', () => {
+    const [entry] = genericEquipmentCatalog();
+    const wrong = {
+      ...entry!,
+      properties: { ...entry!.properties, inventedField: 1 },
+    };
+    expect(validateCatalog([wrong], symbols).length).toBeGreaterThan(0);
+  });
+
+  it('refuses an entry missing a connection its family declares', () => {
+    const pump = genericEquipment('generic-air-water-heat-pump')!;
+    const crippled = { ...pump, ports: [] };
+    expect(
+      validateCatalog([crippled], symbols)
+        .map(({ message }) => message)
+        .join(' '),
+    ).toContain('which this entry does not declare');
   });
 });

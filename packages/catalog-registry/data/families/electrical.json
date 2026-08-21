@@ -600,7 +600,7 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -1326,7 +1326,7 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
@@ -1340,7 +1340,8 @@
         "PORTS": "READY",
         "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["CONTROL", "EARTH"]
     },
     {
       "id": "DOWNLIGHT",
