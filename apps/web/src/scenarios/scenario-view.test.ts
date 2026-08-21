@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { Project } from '@house-technical-designer/core-domain';
 import {
   ProjectCommandDispatcher,
   SetScenarioOverrideCommand,
@@ -34,27 +35,130 @@ function withScenario() {
   };
 }
 
+/** The reference house with a stair on it, and a storey for it to climb to. */
+function withStair(): Project {
+  const base = project();
+  const ground = base.building.levels[0]!;
+  return {
+    ...base,
+    building: {
+      ...base.building,
+      levels: [
+        {
+          ...ground,
+          stairs: [
+            {
+              id: 'stair-main' as (typeof ground.stairs)[number]['id'],
+              type: 'STAIR',
+              levelId: ground.id,
+              topLevelId: ground.id,
+              stairType: 'STRAIGHT',
+              widthMm: 900,
+              riserCount: 16,
+              treadDepthMm: 270,
+              path: {
+                points: [
+                  { x: 0, y: 0 },
+                  { x: 4050, y: 0 },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    },
+  };
+}
+
+/** The inspector property with this identifier, as the panel would offer it. */
+function editOf(source: Project, objectId: string, editId: string) {
+  const edit = editsFor(source, objectId).find(({ id }) => id === editId);
+  if (edit === undefined) throw new Error(`no edit ${editId}`);
+  return edit;
+}
+
 describe('varying what was pointed at', () => {
   it('finds the path behind a property of a wall', () => {
     // Choosing what to vary used to mean picking a path out of a list of every
     // value in the project.
-    const target = targetForEdit(project(), 'wall-south', 'assemblyId')!;
+    const target = targetForEdit(
+      project(),
+      'wall-south',
+      editOf(project(), 'wall-south', 'assemblyId'),
+    )!;
     expect(target.path).toBe(
       'building/levels/ground/walls/wall-south/assemblyId',
     );
     expect(target.currentValue).toBe('assembly-exterior');
   });
 
-  it('says nothing for a property no scenario path names', () => {
-    // Refused out loud rather than silently written into the building.
+  it('says nothing for a property the file does not store', () => {
+    // The length and the angle of a wall are read off its two points; a
+    // scenario writing `walls/x/lengthMm` would set a field nothing reads.
     expect(
-      targetForEdit(project(), 'wall-south', 'referenceSide'),
+      targetForEdit(
+        project(),
+        'wall-south',
+        editOf(project(), 'wall-south', 'lengthMm'),
+      ),
     ).toBeUndefined();
+  });
+
+  it('reaches every property the inspector offers, not four of them', () => {
+    // Pointing at a stair and changing its going was answered with « ne peut
+    // pas encore varier » : the property was editable, comparable, and simply
+    // not in the hand-written list of variable paths.
+    const source = withStair();
+    for (const [objectId, editId, expected] of [
+      [
+        'stair-main',
+        'riserCount',
+        'building/levels/ground/stairs/stair-main/riserCount',
+      ],
+      [
+        'wall-south',
+        'referenceSide',
+        'building/levels/ground/walls/wall-south/referenceSide',
+      ],
+      [
+        'space-living',
+        'category',
+        'building/levels/ground/spaces/space-living/category',
+      ],
+      [
+        'opening-entry',
+        'widthMm',
+        'building/levels/ground/openings/opening-entry/widthMm',
+      ],
+    ] as const) {
+      const target = targetForEdit(
+        source,
+        objectId,
+        editOf(source, objectId, editId),
+      );
+      expect(target?.path, `${objectId}/${editId}`).toBe(expected);
+    }
+  });
+
+  it('reads a segment’s properties where the file keeps them', () => {
+    const source = project();
+    const target = targetForEdit(
+      source,
+      'water:trunk',
+      editOf(source, 'water:trunk', 'internalDiameterM'),
+    );
+    expect(target?.path).toBe(
+      'systems/water/edges/water:trunk/properties/internalDiameterM',
+    );
   });
 
   it('turns a property of the plan into a change of the variant', () => {
     const source = withScenario();
-    const target = targetForEdit(source, 'wall-south', 'assemblyId')!;
+    const target = targetForEdit(
+      source,
+      'wall-south',
+      editOf(source, 'wall-south', 'assemblyId'),
+    )!;
     const override = scenarioOverride(target, 'assembly-partition')!;
     const dispatcher = new ProjectCommandDispatcher(source);
     expect(
@@ -72,7 +176,7 @@ describe('varying what was pointed at', () => {
     const target = targetForEdit(
       dispatcher.project,
       'wall-south',
-      'assemblyId',
+      editOf(dispatcher.project, 'wall-south', 'assemblyId'),
     )!;
     dispatcher.dispatch(
       new SetScenarioOverrideCommand(
@@ -106,11 +210,15 @@ describe('varying what was pointed at', () => {
   });
 
   it('offers a scenario path for properties the inspector offers', () => {
-    // Not every property can vary yet; the ones that can must be reachable
-    // from the plan, which is the whole point of the mode.
     const ids = editsFor(project(), 'wall-south').map(({ id }) => id);
     expect(ids).toContain('assemblyId');
-    expect(targetForEdit(project(), 'wall-south', 'assemblyId')).toBeDefined();
+    expect(
+      targetForEdit(
+        project(),
+        'wall-south',
+        editOf(project(), 'wall-south', 'assemblyId'),
+      ),
+    ).toBeDefined();
   });
 });
 
@@ -120,7 +228,7 @@ describe('seeing what a variant changes', () => {
     const target = targetForEdit(
       dispatcher.project,
       'wall-south',
-      'assemblyId',
+      editOf(dispatcher.project, 'wall-south', 'assemblyId'),
     )!;
     dispatcher.dispatch(
       new SetScenarioOverrideCommand(

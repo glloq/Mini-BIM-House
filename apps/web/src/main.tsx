@@ -1415,7 +1415,7 @@ function App() {
     (objectId: string, edit: InspectorEdit, value: string): boolean => {
       if (scenarioMode === undefined) return false;
       const project = session.current.file.project;
-      const target = targetForEdit(project, objectId, edit.id);
+      const target = targetForEdit(project, objectId, edit);
       if (target === undefined) {
         setMessage(
           `« ${edit.label} » ne peut pas encore varier dans un scénario.`,

@@ -825,7 +825,7 @@ function componentPrimitives(level: Level): readonly PrimitiveDraft[] {
       },
       layer: 'components.placed',
       zIndex: 45,
-      discipline: 'OTHER' as const,
+      discipline: disciplineOfComponent(component.category),
       metadata: {
         category: component.category,
         ...(component.definitionId === undefined
@@ -837,6 +837,33 @@ function componentPrimitives(level: Level): readonly PrimitiveDraft[] {
       },
     };
   });
+}
+
+/**
+ * What discipline a placed thing belongs to.
+ *
+ * A radiator is heating, a basin is water, a socket is electricity. Drawing
+ * them all as « other » made an exported plan unable to say which trade each
+ * symbol belonged to, which is the first thing a drawing is read for. The
+ * furniture and the appliances stay « other », because they belong to no trade.
+ */
+function disciplineOfComponent(category: string): Discipline {
+  switch (category) {
+    case 'HEATING':
+      return 'HEATING';
+    case 'SANITARY':
+      return 'WATER';
+    case 'VENTILATION':
+      return 'VENTILATION';
+    case 'ELECTRICAL':
+      return 'ELECTRICAL';
+    case 'LIGHTING':
+      return 'LIGHTING';
+    case 'PHOTOVOLTAIC':
+      return 'PV';
+    default:
+      return 'OTHER';
+  }
 }
 
 /**
@@ -1045,7 +1072,7 @@ function structurePrimitives(level: Level): readonly PrimitiveDraft[] {
         geometry: { kind: 'POLYGON' as const, polygon: { outer: outline } },
         layer: 'structure.members',
         zIndex: 20,
-        discipline: 'ARCHITECTURE' as const,
+        discipline: 'STRUCTURE' as const,
         metadata: { kind: member.kind },
       },
     ];
@@ -1070,7 +1097,7 @@ function sitePrimitives(project: Project): readonly PrimitiveDraft[] {
       geometry: { kind: 'POLYGON', polygon: parcel },
       layer: 'site.parcel',
       zIndex: 1,
-      discipline: 'OTHER',
+      discipline: 'SITE',
     });
   for (const obstacle of project.site.obstacles ?? [])
     drafts.push({
@@ -1080,7 +1107,7 @@ function sitePrimitives(project: Project): readonly PrimitiveDraft[] {
       geometry: { kind: 'POLYGON', polygon: obstacle.boundary },
       layer: 'site.parcel',
       zIndex: 2,
-      discipline: 'OTHER',
+      discipline: 'SITE',
       metadata: {
         ...(obstacle.kind === undefined ? {} : { kind: obstacle.kind }),
         ...(obstacle.heightMm === undefined

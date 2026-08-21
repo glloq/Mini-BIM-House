@@ -1,4 +1,7 @@
 import type { Project } from '@house-technical-designer/core-domain';
+import { resolveProjectPath } from '@house-technical-designer/core-domain';
+import type { InspectorEdit } from '../editor/inspector-edits.js';
+import { inspectObject, scenarioPathFor } from '../editor/object-editors.js';
 import type { AnalysisOverlay } from '@house-technical-designer/calculation-core';
 import {
   buildingScenarioTargets,
@@ -11,15 +14,44 @@ import {
  * Choosing what to vary used to mean picking a path out of a list of every
  * value in the project. Pointing at a wall and changing its assembly says the
  * same thing and asks nothing: the path is derived from what was pointed at.
+ *
+ * And it is derived for every property, not for the four that had been written
+ * down. The list of variable paths held walls, assembly layers and equipment,
+ * so pointing at a stair and changing its going was answered with « ne peut pas
+ * encore varier » — the property was editable, comparable and simply not
+ * reachable. A family says where its objects live, a property says what it is
+ * called there, and what a variant may change is what the inspector shows.
+ *
+ * A property whose path addresses nothing is refused: the wall length and the
+ * wall angle are read off the geometry rather than stored, and a scenario
+ * setting `walls/x/lengthMm` would write a field nothing reads.
  */
 export function targetForEdit(
   project: Project,
   objectId: string,
-  editId: string,
+  edit: InspectorEdit,
 ): ScenarioTarget | undefined {
-  return buildingScenarioTargets(project).find(
-    ({ path }) => path.includes(`/${objectId}/`) && path.endsWith(`/${editId}`),
+  const path = scenarioPathFor(project, objectId, edit);
+  if (path === undefined) return undefined;
+  const current = resolveProjectPath(project, path);
+  if (typeof current !== 'number' && typeof current !== 'string')
+    return undefined;
+  const named = buildingScenarioTargets(project).find(
+    (target) => target.path === path,
   );
+  if (named !== undefined) return named;
+  const { control } = edit;
+  return {
+    path,
+    label: `${inspectObject(project, objectId).title} — ${edit.label}`,
+    group: 'Depuis le plan',
+    currentValue: String(current),
+    numeric: control.kind === 'NUMBER',
+    ...(control.kind === 'NUMBER' && control.unit !== undefined
+      ? { unit: control.unit }
+      : {}),
+    ...(control.kind === 'SELECT' ? { options: control.options } : {}),
+  };
 }
 
 /** What a variant does to one object, compared with the project it varies. */

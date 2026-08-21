@@ -1526,6 +1526,54 @@ panneau annonce désormais, avant l'export, la densité de la feuille la plus
 réduite — celle qui borne la netteté de l'ensemble — et le message de fin dit la
 même chose.
 
+## Trouver, lire et faire varier — lot E du dixième audit
+
+### Une seule liste des familles
+
+L'arborescence parcourait neuf familles, la palette Ctrl+K en parcourait cinq,
+et les deux listes étaient écrites à la main. Les escaliers, les toitures
+complètes, les poteaux, les composants posés, les tronçons de réseau et le
+terrain ne figuraient dans aucune des deux : ils se dessinaient, s'inspectaient,
+se déplaçaient — et ne se trouvaient pas. Un objet qu'on ne peut pas chercher par
+son nom n'existe que tant qu'il est à l'écran.
+
+Une famille du registre déclare maintenant comment elle se liste, comment elle
+s'appelle au pluriel, et si elle appartient à un niveau ou au projet. L'arbre
+affiche les familles du niveau, la palette les affiche toutes, et les deux lisent
+la même réponse. La palette dit de surcroît de quelle famille et de quel niveau
+vient chaque ligne ; un réseau traverse les étages, donc il n'en nomme aucun.
+
+### Un dessin qui dit de quel métier il parle
+
+Un poteau, une parcelle et un radiateur étaient « architecture » et « autre » : un
+plan exporté ne pouvait distinguer ni l'ossature de la maçonnerie, ni le terrain
+du mobilier. Les disciplines `STRUCTURE` et `SITE` existent désormais, et un
+objet posé prend la discipline de ce qu'il est — un radiateur est du chauffage,
+un lavabo de l'eau, une prise de l'électricité ; le mobilier et l'électroménager
+restent « autre », parce qu'ils ne relèvent d'aucun métier.
+
+Un calque porte donc plusieurs disciplines lorsque c'est le cas : un seul
+interrupteur montre tous les équipements posés, parce qu'un seul dessin les
+montre tous, et le SVG exporté continue de dire lequel est lequel. Les deux axes
+— ce que l'utilisateur masque, ce que le dessin donne à lire — ne sont pas le
+même axe, et le type le dit maintenant.
+
+### N'importe quelle propriété peut varier
+
+Le mode scénario refusait tout ce qui n'était pas dans une liste de chemins
+écrite à la main : assemblage et hauteur de mur, épaisseur de couche, propriété
+d'équipement. Pointer un escalier et changer son giron répondait « ne peut pas
+encore varier dans un scénario » — la propriété était éditable, comparable, et
+simplement inatteignable.
+
+Une famille dit maintenant où vivent ses objets dans le fichier ; une propriété
+dit comment elle s'y appelle quand ce n'est pas son propre identifiant — les
+propriétés d'un tronçon vivent sous `properties/`. Ce qu'un variant peut changer
+est donc exactement ce que l'inspecteur montre. Une propriété que le fichier ne
+stocke pas est refusée comme avant : la longueur et l'angle d'un mur se lisent
+sur ses deux points, et un scénario écrivant `walls/x/lengthMm` remplirait un
+champ que rien ne lit.
+
 ## Ce qui reste ouvert après les lots A à H
 
 Les huit lots du neuvième audit sont traités. Ce qui n'a pas été fait, et

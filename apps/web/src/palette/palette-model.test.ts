@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { loadDemoProject } from '../demo-project.js';
-import { inspectObject } from '../editor/object-editors.js';
+import { entityId } from '@house-technical-designer/core-domain';
+import type { Project } from '@house-technical-designer/core-domain';
+import { assemblyId } from '@house-technical-designer/assemblies';
+import { inspectObject, listedFamilies } from '../editor/object-editors.js';
 import {
   filterEntries,
   objectEntries,
@@ -87,4 +90,179 @@ describe('the objects the palette can reach', () => {
   it('says nothing about a level the project does not hold', () => {
     expect(objectEntries({ ...source(), levelId: 'nowhere' })).toEqual([]);
   });
+
+  it('reaches every family the project holds, not the five listed here', () => {
+    // Walls, openings, rooms, slabs and roof planes were listed; stairs,
+    // roofs, posts, placed things, pipes and the ground were not. An object
+    // nobody can find by name exists only while it is on the screen.
+    const populated = withEverything();
+    const entries = objectEntries({
+      project: populated,
+      levelId: 'ground',
+      describe: (objectId) => inspectObject(populated, objectId).title,
+      select: vi.fn(),
+    });
+    const found = new Set(entries.map(({ id }) => id));
+    for (const objectId of [
+      'wall-south',
+      'space-living',
+      'stair-main',
+      'roof-whole',
+      'member-column',
+      'component-radiator',
+      'water:trunk',
+      'obstacle-tree',
+    ])
+      expect(found, objectId).toContain(objectId);
+  });
+
+  it('says which family and which storey each object belongs to', () => {
+    const populated = withEverything();
+    const entries = objectEntries({
+      project: populated,
+      levelId: 'ground',
+      describe: (objectId) => inspectObject(populated, objectId).title,
+      select: vi.fn(),
+    });
+    const stair = entries.find(({ id }) => id === 'stair-main');
+    expect(stair?.hint).toContain('Escaliers');
+    expect(stair?.hint).toContain('Rez-de-chaussée');
+    // A network crosses the storeys: naming one of them would be wrong.
+    expect(entries.find(({ id }) => id === 'water:trunk')?.hint).toBe(
+      'Réseaux',
+    );
+  });
 });
+
+describe('the families the tree and the palette both read', () => {
+  it('are the same families, because there is only one list', () => {
+    const populated = withEverything();
+    const labels = listedFamilies(populated, 'ground').map(
+      ({ label }) => label,
+    );
+    expect(labels).toEqual([
+      'Murs',
+      'Ouvertures',
+      'Pièces',
+      'Dalles',
+      'Toitures',
+      'Réseaux',
+      'Cotes',
+      'Toitures complètes',
+      'Escaliers',
+      'Structure',
+      'Terrain',
+      'Composants',
+    ]);
+  });
+
+  it('keeps what belongs to the project apart from what belongs to a floor', () => {
+    const scopes = new Map(
+      listedFamilies(withEverything(), 'ground').map(({ label, scope }) => [
+        label,
+        scope,
+      ]),
+    );
+    expect(scopes.get('Murs')).toBe('LEVEL');
+    expect(scopes.get('Réseaux')).toBe('PROJECT');
+    expect(scopes.get('Terrain')).toBe('PROJECT');
+  });
+});
+
+/** The reference house with one object of every family placed on it. */
+function withEverything(): Project {
+  const result = loadDemoProject();
+  if (result.status !== 'OK') throw new Error(result.message);
+  const base = result.file.project;
+  const ground = base.building.levels[0]!;
+  return {
+    ...base,
+    site: {
+      ...base.site,
+      obstacles: [
+        {
+          id: entityId('obstacle-tree'),
+          boundary: {
+            outer: [
+              { x: 0, y: 0 },
+              { x: 1000, y: 0 },
+              { x: 1000, y: 1000 },
+            ],
+          },
+          kind: 'TREE',
+        },
+      ],
+    },
+    building: {
+      ...base.building,
+      levels: [
+        {
+          ...ground,
+          stairs: [
+            {
+              id: entityId('stair-main'),
+              type: 'STAIR',
+              levelId: ground.id,
+              topLevelId: entityId('upper'),
+              stairType: 'STRAIGHT',
+              widthMm: 900,
+              riserCount: 16,
+              treadDepthMm: 270,
+              path: {
+                points: [
+                  { x: 0, y: 0 },
+                  { x: 4050, y: 0 },
+                ],
+              },
+            },
+          ],
+          roofStructures: [
+            {
+              id: entityId('roof-whole'),
+              type: 'ROOF',
+              levelId: ground.id,
+              footprint: {
+                outer: [
+                  { x: 0, y: 0 },
+                  { x: 10_000, y: 0 },
+                  { x: 10_000, y: 8000 },
+                  { x: 0, y: 8000 },
+                ],
+              },
+              edges: Array.from({ length: 4 }, () => ({
+                kind: 'SLOPED' as const,
+                slopeDeg: 35,
+                overhangMm: 400,
+              })),
+              assemblyId: assemblyId('assembly-horizontal'),
+              baseElevationMm: 2500,
+            },
+          ],
+          structure: [
+            {
+              id: entityId('member-column'),
+              type: 'STRUCTURAL_MEMBER',
+              levelId: ground.id,
+              kind: 'COLUMN',
+              path: [{ x: 2000, y: 2000 }],
+              widthMm: 200,
+              depthMm: 200,
+            },
+          ],
+          components: [
+            {
+              id: entityId('component-radiator'),
+              type: 'COMPONENT_INSTANCE',
+              levelId: ground.id,
+              category: 'HEATING',
+              name: 'Radiateur séjour',
+              position: { x: 3000, y: 1000 },
+              elevationMm: 300,
+              rotationDeg: 0,
+            },
+          ],
+        },
+      ],
+    },
+  };
+}

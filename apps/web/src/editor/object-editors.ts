@@ -65,6 +65,37 @@ import {
   wallRelationships,
 } from './object-facts.js';
 import {
+  componentPath,
+  dimensionPath,
+  networkPath,
+  openingPath,
+  roofPath,
+  roofStructurePath,
+  sitePath,
+  slabPath,
+  spacePath,
+  stairPath,
+  structurePath,
+  wallPath,
+  type PathProvider,
+} from './object-paths.js';
+import {
+  componentListing,
+  dimensionListing,
+  networkListing,
+  openingListing,
+  roofListing,
+  roofStructureListing,
+  siteListing,
+  slabListing,
+  spaceListing,
+  stairListing,
+  structureListing,
+  wallListing,
+  type ListingProvider,
+  type ObjectListing,
+} from './object-listing.js';
+import {
   EVERYTHING_MOVES,
   NOTHING_MOVES,
   componentDuplicate,
@@ -233,6 +264,34 @@ export interface ObjectEditorDefinition {
   readonly transform?: TransformProvider;
   /** How an object of this family is copied a little to the side. */
   readonly duplicate?: DuplicateProvider;
+  /**
+   * What this family is called when several of its objects are listed.
+   *
+   * « Mur » names one, « Murs » names the drawer they are in; the tree and the
+   * palette both need the second and both used to spell it themselves.
+   */
+  readonly listLabel?: string;
+  /**
+   * Whether this family belongs to a storey or to the project.
+   *
+   * A wall is on a floor; a network crosses them and the parcel is under all of
+   * them. The tree puts the first under the storey it is drawing and the second
+   * in sections of its own, and it is the family that says which it is.
+   */
+  readonly scope?: 'LEVEL' | 'PROJECT';
+  /** Every object of this family, so anything can offer them all. */
+  readonly list?: ListingProvider;
+  /**
+   * Where one of its objects lives in the project file.
+   *
+   * A scenario varies a value, and a value is named by a path. Until now the
+   * paths a scenario could take were written out by hand — walls, assembly
+   * layers, equipment — so pointing at a stair and changing its going was
+   * answered with « ne peut pas encore varier ». A family that says where its
+   * objects live makes every property the inspector offers a property a
+   * variant can change.
+   */
+  readonly pathOf?: PathProvider;
 }
 
 /** One tie an object has to others, named as the user would name it. */
@@ -275,6 +334,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     capabilities: EVERYTHING_MOVES,
     transform: wallTransform,
     duplicate: wallDuplicate,
+    listLabel: 'Murs',
+    scope: 'LEVEL',
+    list: wallListing,
+    pathOf: wallPath,
   },
   {
     label: 'Ouverture',
@@ -292,6 +355,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     capabilities: { ...NOTHING_MOVES, duplicable: true },
     transform: openingTransform,
     duplicate: openingDuplicate,
+    listLabel: 'Ouvertures',
+    scope: 'LEVEL',
+    list: openingListing,
+    pathOf: openingPath,
   },
   {
     label: 'Pièce',
@@ -302,6 +369,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     bounds: spaceBounds,
     capabilities: NOTHING_MOVES,
     transform: spaceTransform,
+    listLabel: 'Pièces',
+    scope: 'LEVEL',
+    list: spaceListing,
+    pathOf: spacePath,
   },
   {
     label: 'Dalle',
@@ -315,6 +386,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     capabilities: EVERYTHING_MOVES,
     transform: slabTransform,
     duplicate: slabDuplicate,
+    listLabel: 'Dalles',
+    scope: 'LEVEL',
+    list: slabListing,
+    pathOf: slabPath,
   },
   {
     label: 'Toiture',
@@ -330,6 +405,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     capabilities: EVERYTHING_MOVES,
     transform: roofTransform,
     duplicate: roofDuplicate,
+    listLabel: 'Toitures',
+    scope: 'LEVEL',
+    list: roofListing,
+    pathOf: roofPath,
   },
   {
     label: 'Réseau',
@@ -361,6 +440,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     },
     transform: networkTransform,
     duplicate: networkDuplicate,
+    listLabel: 'Réseaux',
+    scope: 'PROJECT',
+    list: networkListing,
+    pathOf: networkPath,
   },
   {
     label: 'Cote',
@@ -370,6 +453,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     remove: dimensionRemoval,
     capabilities: NOTHING_MOVES,
     transform: dimensionTransform,
+    listLabel: 'Cotes',
+    scope: 'LEVEL',
+    list: dimensionListing,
+    pathOf: dimensionPath,
   },
   {
     label: 'Toiture complète',
@@ -381,6 +468,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     capabilities: EVERYTHING_MOVES,
     transform: roofStructureTransform,
     duplicate: roofStructureDuplicate,
+    listLabel: 'Toitures complètes',
+    scope: 'LEVEL',
+    list: roofStructureListing,
+    pathOf: roofStructurePath,
   },
   {
     label: 'Escalier',
@@ -393,6 +484,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     capabilities: EVERYTHING_MOVES,
     transform: stairTransform,
     duplicate: stairDuplicate,
+    listLabel: 'Escaliers',
+    scope: 'LEVEL',
+    list: stairListing,
+    pathOf: stairPath,
   },
   {
     label: 'Structure',
@@ -405,6 +500,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     capabilities: EVERYTHING_MOVES,
     transform: structureTransform,
     duplicate: structureDuplicate,
+    listLabel: 'Structure',
+    scope: 'LEVEL',
+    list: structureListing,
+    pathOf: structurePath,
   },
   {
     label: 'Terrain',
@@ -418,6 +517,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
       objectId === 'site:parcel' ? NOTHING_MOVES : EVERYTHING_MOVES,
     transform: siteTransform,
     duplicate: siteDuplicate,
+    listLabel: 'Terrain',
+    scope: 'PROJECT',
+    list: siteListing,
+    pathOf: sitePath,
   },
   {
     label: 'Composant',
@@ -431,6 +534,10 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     capabilities: EVERYTHING_MOVES,
     transform: componentTransform,
     duplicate: componentDuplicate,
+    listLabel: 'Composants',
+    scope: 'LEVEL',
+    list: componentListing,
+    pathOf: componentPath,
   },
 ];
 
@@ -693,6 +800,66 @@ export function transformCommandsFor(
     if (outcome !== undefined) return outcome;
   }
   return undefined;
+}
+
+/** One family of objects to be listed, with what it holds. */
+export interface ListedFamily {
+  readonly label: string;
+  readonly scope: 'LEVEL' | 'PROJECT';
+  readonly objects: readonly ObjectListing[];
+}
+
+/**
+ * Every object the project holds, family by family.
+ *
+ * The tree and the palette both asked this question and both answered it
+ * themselves — nine families in one, five in the other — so an object could be
+ * drawn, inspected, moved and impossible to find by name. One answer now, from
+ * the families themselves.
+ */
+export function listedFamilies(
+  project: Project,
+  levelId: string | undefined,
+): readonly ListedFamily[] {
+  // Every family that can list, empty or not: a drawer with nothing in it is
+  // how the tree says that a storey has no stairs, which is worth saying.
+  return OBJECT_EDITORS.filter(
+    (editor): editor is ObjectEditorDefinition & { list: ListingProvider } =>
+      editor.list !== undefined,
+  ).map((editor) => ({
+    label: editor.listLabel ?? editor.label,
+    scope: editor.scope ?? 'LEVEL',
+    objects: editor.list(project, levelId),
+  }));
+}
+
+/** Where one object lives in the project file, whichever family it belongs to. */
+export function pathOfObject(
+  project: Project,
+  objectId: string,
+): string | undefined {
+  for (const editor of OBJECT_EDITORS) {
+    const path = editor.pathOf?.(project, objectId);
+    if (path !== undefined) return path;
+  }
+  return undefined;
+}
+
+/**
+ * The value in the file that one inspector property writes to.
+ *
+ * Usually the object's own path plus the property's name, because the property
+ * is named after the field it edits. A producer that edits something else —
+ * a network segment writes into `properties/…` — says so itself.
+ */
+export function scenarioPathFor(
+  project: Project,
+  objectId: string,
+  edit: InspectorEdit,
+): string | undefined {
+  if (edit.scenarioPath !== undefined) return edit.scenarioPath;
+  const path = pathOfObject(project, objectId);
+  return path === undefined ? undefined : `${path}/${edit.id}`;
 }
 
 /** The extent of one object, whichever family it belongs to. */

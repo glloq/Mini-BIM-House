@@ -2347,8 +2347,15 @@ test('builds a variant by pointing at the plan', async ({ page }) => {
     'Ce que la variante change',
   );
 
-  // A property no scenario path names is refused out loud.
+  // Every property the inspector offers can vary, not the four that used to
+  // be written down: the reference face is one of them.
   await page.getByLabel('Face de référence').selectOption('LEFT');
+  await expect(page.getByRole('status')).toContainText('Face de référence');
+
+  // A property the file does not store cannot: the length of a wall is read
+  // off its two points, and a variant setting it would write nothing.
+  await page.getByRole('spinbutton', { name: 'Longueur' }).fill('7000');
+  await page.getByRole('spinbutton', { name: 'Longueur' }).blur();
   await expect(page.getByRole('status')).toContainText('ne peut pas encore');
   expect(errors).toEqual([]);
 });

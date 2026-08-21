@@ -89,6 +89,14 @@ export interface InspectorEdit {
   readonly label: string;
   readonly control: InspectorControl;
   readonly hint?: string;
+  /**
+   * Where in the file this property lives, when it is not `<object>/<id>`.
+   *
+   * A scenario names what it varies by a path into the project. Nearly every
+   * property here is named after the field it writes, so the path follows from
+   * the object and the identifier; the ones that are not say so.
+   */
+  readonly scenarioPath?: string;
   readonly apply: (value: string) => ProjectCommand | undefined;
 }
 
@@ -675,6 +683,7 @@ export function networkNodeEditsFor(
       ).map(([axis, label]) => ({
         id: `position-${axis}`,
         semanticId: `networkNode.position.${axis}`,
+        scenarioPath: `systems/${network.id}/nodes/${node.id}/position/${axis}`,
         label,
         control: {
           kind: 'NUMBER' as const,
@@ -1118,10 +1127,14 @@ export function networkEdgeEditsFor(
           next === undefined ? rest : { ...rest, [descriptor.key]: next },
         );
       };
+      // A segment keeps what it is made of under `properties`, so the path a
+      // scenario would vary is not the object's path plus the field name.
+      const scenarioPath = `systems/${network.id}/edges/${edge.id}/properties/${descriptor.key}`;
       if (descriptor.kind === 'CHOICE')
         return {
           id: descriptor.key,
           semanticId: `networkEdge.${descriptor.key}`,
+          scenarioPath,
           label: descriptor.label,
           control: {
             kind: 'SELECT' as const,
@@ -1137,6 +1150,7 @@ export function networkEdgeEditsFor(
       return {
         id: descriptor.key,
         semanticId: `networkEdge.${descriptor.key}`,
+        scenarioPath,
         label: descriptor.label,
         control: {
           kind: 'NUMBER' as const,
