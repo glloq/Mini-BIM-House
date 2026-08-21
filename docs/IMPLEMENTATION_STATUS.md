@@ -1041,12 +1041,8 @@ familles sera réellement bon marché ».
   l'utilisateur ne le demande pas — un éditeur qui ignorerait la moitié du plan
   en silence serait un éditeur auquel personne ne pourrait se fier.
 
-Restent ouverts pour l'éditeur, dans l'ordre de l'audit : l'architecture de la
-maison (chaînes de murs, pièces et dalles dessinées directement, trémies,
-ouvertures enrichies, composants placés, plafond, escalier, toiture v2),
-l'édition graphique des réseaux, les superpositions techniques, les vues et
-feuilles typées avec export PDF, les scénarios visuels, le terrain et la
-structure.
+Les lots C à H de cet audit ont été traités depuis ; ce qui reste ouvert est
+récapitulé à la fin de ce document.
 
 ## Architecture de la maison — lot C du neuvième audit
 
@@ -1259,6 +1255,43 @@ aucune famille structurelle dans le niveau.
   reste, et l'inspecteur dit que rien ne pourra être vérifié tant qu'il le
   reste. Un matériau que le projet ne contient plus est refusé à l'écriture et
   relevé à la lecture du fichier.
+
+## Ce qui reste ouvert après les lots A à H
+
+Les huit lots du neuvième audit sont traités. Ce qui n'a pas été fait, et
+pourquoi :
+
+- **Toitures sur contour quelconque.** Un contour rectangulaire est résolu
+  exactement ; les autres demandent un squelette droit. La version le dit et ne
+  rend que les pans dont elle est sûre.
+- **Murs courbes, raccords visuels L/T/X, congés et chanfreins.** Hors
+  périmètre de la bêta.
+- **PDF vectoriel.** Les pages exportées sont des images de chaque feuille : le
+  format PDF ne connaît pas le SVG, et le convertir en tracés reviendrait à
+  écrire un second moteur de dessin.
+- **Annotations typées** — notes de texte, étiquettes associatives, repères,
+  trames, repères de coupe. La cotation existe ; le reste attend.
+- **Modes QUICK / DESIGN / EXPERT.** L'interface a toujours une seule densité.
+- **Calcul de structure et géotechnique.** Les poteaux, poutres et fondations
+  se décrivent et se dessinent ; rien ne les vérifie encore, et le calcul, quand
+  il viendra, lira ce modèle plutôt que d'en demander un autre.
+- **Performance sur très grand projet.** `runProjectCalculations()` recrée
+  toujours l'orchestrateur à chaque exécution, et le banc d'essai reste celui
+  d'une maison de référence plutôt que d'une maison de mille murs.
+- **Exports DXF et IFC, collaboration en ligne.** Hors périmètre.
+
+## Budget de chargement
+
+Le budget du premier chargement passe de 200 à 240 kio compressés. L'éditeur a
+gagné les familles et les outils des lots C à H — murs tracés en chaîne, pièces,
+dalles, trémies, escaliers, toitures décrites par leur contour, composants
+posés, structure, terrain, éditeur graphique des réseaux, mode scénario — et
+tout cela est l'éditeur, c'est-à-dire ce que la première visite charge. Les
+espaces de travail restent chargés à la demande, et la chaîne PDF y a été
+déplacée : elle ne sert qu'au bouton d'export, et la charger avec l'application
+aurait mis une imprimante sur le chemin d'un mur à dessiner.
+
+Un budget est une décision, pas une mesure. Celle-ci a été prise sciemment.
 
 ## Publication
 

@@ -25,11 +25,7 @@ import type {
   ProjectSheet,
   SavedDrawingView,
 } from '@house-technical-designer/core-domain';
-import {
-  GENERIC_TECHNICAL_SCREEN,
-  createPdfPrintPage,
-  generatePdfArtifact,
-} from '@house-technical-designer/drawing-engine';
+import { GENERIC_TECHNICAL_SCREEN } from '@house-technical-designer/drawing-engine';
 import {
   applyProjectScenario,
   DEFAULT_ZIP_LIMITS,
@@ -62,7 +58,6 @@ import { LayersPanel } from './editor/LayersPanel.js';
 import { ToolBar } from './editor/ToolBar.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
-import { BrowserPdfBackend } from './documents/browser-pdf-backend.js';
 import { scenarioOverride } from './scenarios/scenario-changes.js';
 import {
   scenarioDiff,
@@ -70,7 +65,6 @@ import {
   targetForEdit,
 } from './scenarios/scenario-view.js';
 import type { InspectorEdit } from './editor/inspector-edits.js';
-import { renderSheet, sheetLayoutOf } from './documents/documents-model.js';
 import type { CheckFix } from './checks/checks-model.js';
 import {
   isOpenEnded,
@@ -1309,11 +1303,20 @@ function App() {
   const exportSheets = useCallback((sheets: readonly ProjectSheet[]) => {
     void (async () => {
       try {
+        // The PDF chain — the print job, the sheet renderer and the browser
+        // backend — is only ever used from this button. Loading it with the
+        // application would put a printer in the way of drawing a wall.
+        const [{ createPdfPrintPage, generatePdfArtifact }, documents, pdf] =
+          await Promise.all([
+            import('@house-technical-designer/drawing-engine'),
+            import('./documents/documents-model.js'),
+            import('./documents/browser-pdf-backend.js'),
+          ]);
         const project = session.current.file.project;
         const pages = sheets.map((sheet) =>
           createPdfPrintPage(
-            sheetLayoutOf(project, sheet),
-            renderSheet(project, sheet),
+            documents.sheetLayoutOf(project, sheet),
+            documents.renderSheet(project, sheet),
           ),
         );
         const artifact = await generatePdfArtifact(
@@ -1330,7 +1333,7 @@ function App() {
             pages,
           },
           `${project.metadata.name || 'plans'}.pdf`,
-          new BrowserPdfBackend(),
+          new pdf.BrowserPdfBackend(),
         );
         downloadBytes(artifact.bytes, artifact.fileName, artifact.mediaType);
         setMessage(

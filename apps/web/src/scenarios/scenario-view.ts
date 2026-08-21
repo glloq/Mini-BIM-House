@@ -1,6 +1,9 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import type { AnalysisOverlay } from '@house-technical-designer/calculation-core';
-import { scenarioTargets, type ScenarioTarget } from './scenario-changes.js';
+import {
+  buildingScenarioTargets,
+  type ScenarioTarget,
+} from './scenario-paths.js';
 
 /**
  * The property of an object a scenario can vary, found from the plan.
@@ -14,7 +17,7 @@ export function targetForEdit(
   objectId: string,
   editId: string,
 ): ScenarioTarget | undefined {
-  return scenarioTargets(project).find(
+  return buildingScenarioTargets(project).find(
     ({ path }) => path.includes(`/${objectId}/`) && path.endsWith(`/${editId}`),
   );
 }

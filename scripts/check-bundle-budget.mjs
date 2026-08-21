@@ -16,10 +16,21 @@ import process from 'node:process';
  * without noticing is not.
  */
 export const BUDGETS = {
-  /** Page, stylesheet and the modules it references, gzipped. */
-  initialGzipBytes: 200 * 1024,
+  /**
+   * Page, stylesheet and the modules it references, gzipped.
+   *
+   * Raised from 200 kio when the editor gained the families and tools of the
+   * ninth audit's lots C to H: walls drawn as runs, rooms, slabs, openings in
+   * slabs, stairs, roofs described by their outline, placed components,
+   * structure, the site, the graphical network editor and scenario mode. All
+   * of it is the editor, which is what the first visit loads; the workspaces
+   * behind it stay on demand, and the PDF chain was moved there.
+   *
+   * A budget is a decision, not a measurement. This one was taken knowingly.
+   */
+  initialGzipBytes: 240 * 1024,
   /** Everything the build produces, gzipped. */
-  totalGzipBytes: 320 * 1024,
+  totalGzipBytes: 360 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */
