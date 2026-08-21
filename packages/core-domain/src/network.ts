@@ -423,3 +423,43 @@ function issue(
 ): NetworkIssue {
   return { code, path, message };
 }
+
+/**
+ * How far a port sits from the node it belongs to, on the plan.
+ *
+ * A port has no position in the model, and it should not: it is a place on an
+ * appliance, not a place in the house. But a drawing has to put it somewhere
+ * for the user to point at it, so its place is derived from the node's — near
+ * enough to read as belonging to it, far enough to be clicked on its own.
+ */
+export const PORT_ANCHOR_RADIUS_MM = 180;
+
+/**
+ * Where each port of a network falls on the plan, derived and never stored.
+ *
+ * The ports of one node are spread evenly around it, in the order they are
+ * declared, so the same project always draws them the same way.
+ */
+export function portAnchors(
+  network: TechnicalNetwork,
+): ReadonlyMap<string, Point3D> {
+  const byNode = new Map<string, NetworkPort[]>();
+  for (const port of network.ports) {
+    const held = byNode.get(port.nodeId);
+    if (held === undefined) byNode.set(port.nodeId, [port]);
+    else held.push(port);
+  }
+  const anchors = new Map<string, Point3D>();
+  for (const node of network.nodes) {
+    const ports = byNode.get(node.id) ?? [];
+    for (const [index, port] of ports.entries()) {
+      const angle = (2 * Math.PI * index) / Math.max(1, ports.length);
+      anchors.set(port.id, {
+        x: node.position.x + Math.cos(angle) * PORT_ANCHOR_RADIUS_MM,
+        y: node.position.y + Math.sin(angle) * PORT_ANCHOR_RADIUS_MM,
+        z: node.position.z,
+      });
+    }
+  }
+  return anchors;
+}

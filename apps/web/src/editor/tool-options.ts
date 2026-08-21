@@ -33,6 +33,15 @@ export interface ToolOptionContext {
  */
 export interface ToolOptionDefinition {
   readonly key: string;
+  /**
+   * Whether this choice belongs to the tool or to the whole plan.
+   *
+   * The network being worked on is not a property of one tool: placing a node
+   * and routing a run must speak of the same one, and so must the Networks
+   * workspace. An option declared shared is stored under its own name, so
+   * every tool asking for it reads and writes the same value.
+   */
+  readonly scope?: 'SHARED';
   readonly kind: 'SELECT' | 'NUMBER' | 'TEXT';
   readonly label: string;
   readonly unit?: string;
@@ -56,9 +65,26 @@ export interface ToolOptionDefinition {
 /** What the user has typed or chosen, by tool and by option. */
 export type ToolDrafts = Readonly<Record<string, string>>;
 
-/** The key one option is stored under, so two tools never share a value. */
-export function draftKey(toolId: string, optionKey: string): string {
-  return `${toolId}.${optionKey}`;
+/**
+ * The key one option is stored under.
+ *
+ * Prefixed by the tool, so two tools never share a value by accident; bare
+ * when the option is shared on purpose.
+ */
+export function draftKey(
+  toolId: string,
+  optionKey: string,
+  shared = false,
+): string {
+  return shared ? optionKey : `${toolId}.${optionKey}`;
+}
+
+/** The key an option of this tool is stored under, scope included. */
+export function storageKeyOf(
+  toolId: string,
+  option: ToolOptionDefinition,
+): string {
+  return draftKey(toolId, option.key, option.scope === 'SHARED');
 }
 
 /**
@@ -82,10 +108,10 @@ export function optionValue(
     project,
     value: (other) =>
       other === key
-        ? (drafts[draftKey(toolId, other)] ?? '')
+        ? (drafts[storageKeyOf(toolId, definition)] ?? '')
         : optionValue(project, toolId, options, drafts, other),
   };
-  const held = drafts[draftKey(toolId, key)];
+  const held = drafts[storageKeyOf(toolId, definition)];
   if (held === undefined || held === '') return definition.fallback(context);
   if (definition.choices === undefined) return held;
   return definition.choices(context).some(({ value }) => value === held)

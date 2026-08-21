@@ -367,7 +367,7 @@ function App() {
   const selectNetwork = useCallback((networkId: string) => {
     setToolDrafts((current) => ({
       ...current,
-      [draftKey('NETWORK', 'networkId')]: networkId,
+      [draftKey('NETWORK', 'networkId', true)]: networkId,
     }));
   }, []);
 
@@ -1075,7 +1075,12 @@ function App() {
   // Drawing on a hidden layer would place a node the user cannot see, so the
   // discipline of the active network is revealed while its tool is in use.
   useEffect(() => {
-    if (editor.activeTool !== 'NETWORK' || activeNetwork === undefined) return;
+    if (activeNetwork === undefined) return;
+    // Any tool that asks which network it works on draws on that discipline's
+    // layer; naming the tools here would leave the next one drawing in the
+    // dark.
+    if (!optionsOf(editor.activeTool).some(({ key }) => key === 'networkId'))
+      return;
     dispatchEditor({
       type: 'SHOW_LAYERS',
       layerIds: [networkLayerId(activeNetwork.discipline)],
@@ -1883,10 +1888,7 @@ function App() {
               dispatch={dispatchEditor}
               drafts={toolDrafts}
               onDraftChange={(key, value) =>
-                setToolDrafts((current) => ({
-                  ...current,
-                  [draftKey(editor.activeTool, key)]: value,
-                }))
+                setToolDrafts((current) => ({ ...current, [key]: value }))
               }
               onTransform={transformSelection}
               onAlign={alignSelection}

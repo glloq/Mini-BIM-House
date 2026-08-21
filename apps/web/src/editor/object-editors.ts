@@ -27,7 +27,13 @@ import {
   wallEditsFor,
   type InspectorEdit,
 } from './inspector-edits.js';
-import { openingGrips, polygonGrips, wallGrips, type Grip } from './grips.js';
+import {
+  openingGrips,
+  polygonGrips,
+  routeGrips,
+  wallGrips,
+  type Grip,
+} from './grips.js';
 import {
   componentBounds,
   componentRelationships,
@@ -36,6 +42,7 @@ import {
   stairRelationships,
   networkNodeBounds,
   networkNodeRelationships,
+  networkRelationships,
   openingBounds,
   openingRelationships,
   roofBounds,
@@ -251,9 +258,15 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     kinds: ['NETWORK_NODE', 'NETWORK_EDGE'],
     inspect: networkSubject,
     edits: networkNodeEditsFor,
+    grips: routeGrips,
     remove: networkNodeRemoval,
     bounds: networkNodeBounds,
-    relationships: networkNodeRelationships,
+    relationships: (project, levelId, objectId) => {
+      const node = networkNodeRelationships(project, levelId, objectId);
+      return node.length > 0
+        ? node
+        : networkRelationships(project, levelId, objectId);
+    },
   },
   {
     label: 'Cote',

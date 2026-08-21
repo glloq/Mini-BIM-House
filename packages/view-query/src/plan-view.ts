@@ -12,6 +12,7 @@ import {
   deriveWallFaces,
   isDimension,
   resolveDimension,
+  portAnchors,
   resolveStraightWallJoin,
   roofEaveOutline,
   validateWall,
@@ -662,6 +663,29 @@ function networkPrimitives(
         discipline: network.discipline,
         systemType: network.systemType,
         edgeKind: edge.kind,
+      },
+    });
+  }
+  // A port is a place on an appliance, not a place in the house, so the model
+  // gives it none. The drawing has to put it somewhere for the user to point
+  // at it: near its node, and clickable on its own.
+  const anchors = portAnchors(network);
+  for (const port of network.ports) {
+    const at = anchors.get(port.id);
+    if (at === undefined) continue;
+    drafts.push({
+      id: `network-port:${network.id}:${port.id}`,
+      sourceObjectId: port.id,
+      semanticRole: role,
+      geometry: { kind: 'POINT', point: { x: at.x, y: at.y } },
+      layer: mapping.layer,
+      zIndex: 42,
+      discipline: mapping.discipline,
+      metadata: {
+        networkId: network.id,
+        nodeId: port.nodeId,
+        portRole: port.role,
+        direction: port.direction,
       },
     });
   }

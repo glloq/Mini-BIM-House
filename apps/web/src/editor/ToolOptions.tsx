@@ -3,6 +3,7 @@ import type { EditorTool } from './editor-state.js';
 import { optionsOf } from './tool-registry.js';
 import {
   optionValue,
+  storageKeyOf,
   type ToolDrafts,
   type ToolOptionContext,
 } from './tool-options.js';
@@ -11,7 +12,8 @@ export interface ToolOptionsProps {
   readonly project: Project;
   readonly tool: EditorTool;
   readonly drafts: ToolDrafts;
-  readonly onChange: (key: string, value: string) => void;
+  /** Called with the key the value is stored under, scope included. */
+  readonly onChange: (storageKey: string, value: string) => void;
 }
 
 /**
@@ -49,7 +51,9 @@ export function ToolOptions({
               <select
                 id={id}
                 value={value}
-                onChange={(event) => onChange(option.key, event.target.value)}
+                onChange={(event) =>
+                  onChange(storageKeyOf(tool, option), event.target.value)
+                }
               >
                 {(option.choices?.(context) ?? []).map((choice) => (
                   <option key={choice.value} value={choice.value}>
@@ -64,7 +68,9 @@ export function ToolOptions({
                 value={value}
                 {...(option.min === undefined ? {} : { min: option.min })}
                 {...(option.step === undefined ? {} : { step: option.step })}
-                onChange={(event) => onChange(option.key, event.target.value)}
+                onChange={(event) =>
+                  onChange(storageKeyOf(tool, option), event.target.value)
+                }
               />
             )}
             {option.hint !== undefined && (

@@ -1104,6 +1104,50 @@ plusieurs familles d'objets n'existaient pas du tout.
 Restent ouverts pour cette famille : le mur courbe, le raccord visuel L/T/X, et
 la résolution des toitures sur contour quelconque.
 
+## Éditeur MEP graphique — lot D du neuvième audit
+
+L'audit résumait l'écart en une phrase : « les données sont mûres, l'UX reste le
+gros manque ». Un réseau se construisait en posant des nœuds sur le plan, puis
+en changeant d'espace de travail pour choisir un port de départ et un port
+d'arrivée dans deux menus.
+
+- **Ports visibles.** Un port est un endroit sur un appareil et non un endroit
+  dans la maison : le modèle ne lui donne pas de position, et il a raison. Le
+  dessin doit pourtant le poser quelque part pour qu'on puisse le désigner ;
+  sa place est donc déduite de celle de son nœud — assez près pour se lire
+  comme lui appartenant, assez loin pour être cliqué seul — et jamais
+  enregistrée.
+- **Tracé port → port sur le plan.** Chaque coude que l'utilisateur pose est
+  conservé : un éditeur qui re-routerait autour serait un éditeur qui jette ce
+  qu'on vient de dessiner.
+- **Colonnes.** Un tracé dont les deux extrémités ne sont pas à la même hauteur
+  monte à la verticale au dernier coude : une colonne se voit, au lieu d'être
+  une pente cachée dans une diagonale.
+- **Pente d'évacuation.** Une évacuation horizontale est une évacuation qui ne
+  s'écoule pas. La hauteur de chaque coude découle de la distance parcourue et
+  de la pente demandée, si bien que la chute est une conséquence du tracé et
+  non un nombre saisi deux fois. La pente par défaut suit la discipline du
+  réseau choisi juste à côté plutôt qu'une constante écrite dans le code, et
+  l'inspecteur rapporte la pente qu'un tronçon a réellement.
+- **Dérivation.** Un té n'est pas une forme dessinée sur un tuyau : c'est une
+  pièce avec une entrée et deux sorties. Quelle pièce, cela appartient à la
+  discipline — nourrice pour l'eau, regard pour les eaux usées, piquage pour
+  l'air — et les gabarits le disaient déjà. Le tronçon est coupé à cette pièce
+  et refait en deux ; la sortie libre reste ouverte, ce qui est exactement à
+  quoi ressemble une branche inachevée.
+- **Poignées de réseau.** Un tronçon offre une poignée par coude et aucune à ses
+  extrémités : celles-ci appartiennent à leurs ports, et les traîner
+  dessinerait un tuyau qui n'atteint rien.
+- **Réseau actif partagé.** Le réseau sur lequel on travaille n'est pas une
+  propriété d'un outil : poser un nœud, tracer un tronçon et l'espace Réseaux
+  doivent parler du même. Une option peut désormais se déclarer partagée, et
+  tout outil qui la demande lit et écrit la même valeur. Tout outil qui demande
+  un réseau révèle aussi le calque de sa discipline, au lieu que la liste des
+  outils concernés soit écrite à la main.
+- **Navigateur de systèmes.** L'arbre du projet montre les tronçons à côté des
+  nœuds, et les ports qu'aucun tronçon n'atteint — ce à quoi ressemble un
+  réseau inachevé.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans

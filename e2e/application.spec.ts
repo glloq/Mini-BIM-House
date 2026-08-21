@@ -2009,3 +2009,53 @@ test('places a thing in the building, as an object of the editor', async ({
   ).toHaveValue('0');
   expect(errors).toEqual([]);
 });
+
+test('routes a run of pipe from port to port on the plan', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page
+    .getByRole('button', { name: 'Tracer un tronçon', exact: true })
+    .click();
+  // Choosing a network reveals the layer it draws on; drawing on a hidden
+  // layer would place a run the user cannot see.
+  const network = page.getByRole('combobox', { name: 'Réseau', exact: true });
+  await expect(network).toBeVisible();
+  const ports = page.locator('[id^="network-port:water:"]');
+  await expect(ports.first()).toBeVisible();
+
+  // Waste water falls by default and pressurised water does not: the tool
+  // reads the discipline of the network chosen just beside.
+  await expect(page.getByRole('spinbutton', { name: 'Pente (%)' })).toHaveValue(
+    '0',
+  );
+  await network.selectOption({ index: 1 });
+  await expect(page.getByRole('spinbutton', { name: 'Pente (%)' })).toHaveValue(
+    '2',
+  );
+  expect(errors).toEqual([]);
+});
+
+test('shows a network as a system browser in the project tree', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const tree = page.getByRole('navigation', {
+    name: 'Arborescence du projet',
+  });
+  await tree.getByRole('group').filter({ hasText: 'Systèmes' }).click();
+  const water = tree.locator('summary', { hasText: 'water' }).first();
+  await expect(water).toContainText('tronçons');
+  await water.click();
+  // A segment is reachable from the tree, like a wall or a room.
+  await tree
+    .getByRole('button', { name: /water:trunk/ })
+    .first()
+    .click();
+  await expect(page.locator('.inspector-subject h3')).toContainText(
+    'water:trunk',
+  );
+  // The fall a run actually has is read beside its length.
+  await expect(page.locator('.inspector-subject')).toContainText('horizontal');
+  expect(errors).toEqual([]);
+});

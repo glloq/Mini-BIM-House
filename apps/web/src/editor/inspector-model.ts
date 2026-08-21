@@ -7,6 +7,7 @@ import {
   resolveDimension,
   stairDimensions,
 } from '@house-technical-designer/core-domain';
+import { routeFall } from '@house-technical-designer/editor-core';
 import { serializedTotalThicknessM } from '@house-technical-designer/assemblies';
 import { polygonArea } from '@house-technical-designer/geometry';
 import { assemblyView } from '../library/library-model.js';
@@ -342,6 +343,10 @@ export function networkSubject(
           : typeof properties.diameterM === 'number'
             ? properties.diameterM
             : undefined;
+      // Waste water runs by gravity, so the fall a route actually has is worth
+      // reading beside the length: a branch drawn flat is a branch that does
+      // not drain, and nothing else would say so.
+      const fall = routeFall(edge.path);
       return {
         objectId,
         kind: 'NETWORK_EDGE',
@@ -351,6 +356,20 @@ export function networkSubject(
             title: 'Géométrie',
             fields: [
               field('Longueur', metres(lengthMm)),
+              field(
+                'Chute',
+                fall.fallMm === 0 ? undefined : `${Math.round(fall.fallMm)} mm`,
+                fall.fallMm === 0 ? 'Ce tronçon est horizontal.' : undefined,
+              ),
+              field(
+                'Pente',
+                fall.slopePercent === undefined || fall.fallMm === 0
+                  ? undefined
+                  : `${fall.slopePercent.toFixed(2)} %`,
+                fall.slopePercent === undefined
+                  ? 'Un tronçon sans longueur n’a pas de pente.'
+                  : 'Déduite du tracé et des altitudes de ses extrémités.',
+              ),
               field(
                 'Diamètre intérieur',
                 diameter === undefined

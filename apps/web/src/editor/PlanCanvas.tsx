@@ -48,6 +48,8 @@ function gripLabel(grip: Grip): string {
       return `Déplacer le sommet ${grip.vertexIndex + 1} de ${grip.objectId} · alt-clic pour le retirer`;
     case 'POLYGON_EDGE':
       return `Ajouter un sommet sur le côté ${grip.edgeIndex + 1} de ${grip.objectId}`;
+    case 'ROUTE_VERTEX':
+      return `Déplacer le coude ${grip.vertexIndex} du tronçon ${grip.edgeId}`;
   }
 }
 
@@ -838,6 +840,15 @@ export function PlanCanvas({
             objectKind: grip.objectKind,
             edgeIndex: grip.edgeIndex,
             at: to,
+          });
+          return;
+        case 'ROUTE_VERTEX':
+          onEditGeometry({
+            kind: 'ROUTE_VERTEX',
+            networkId: grip.networkId,
+            edgeId: grip.edgeId,
+            vertexIndex: grip.vertexIndex,
+            to,
           });
       }
     },

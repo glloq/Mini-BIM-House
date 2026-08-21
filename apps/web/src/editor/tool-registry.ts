@@ -26,7 +26,11 @@ import {
   transformObjectsCommand,
   type EditingCommandResult,
 } from './editing-commands.js';
-import { placeNodeCommand } from '../networks/network-model.js';
+import {
+  branchCommand,
+  placeNodeCommand,
+  routeCommand,
+} from '../networks/network-model.js';
 import type { ToolOptionDefinition } from './tool-options.js';
 import { OBJECT_FAMILIES } from './object-editors.js';
 import {
@@ -940,6 +944,106 @@ export const EDITOR_TOOLS = [
     },
   },
   {
+    id: 'NETWORK_ROUTE',
+    group: 'NETWORKS',
+    label: 'Tracer un tronçon',
+    hint: 'Cliquer un port, les coudes, puis le port d’arrivée · Entrée termine',
+    shortcutId: 'tool.networkRoute',
+    // A port, a port: the corners in between are as many as the run needs.
+    requiredPoints: 2,
+    openEnded: true,
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'networkId',
+        kind: 'SELECT',
+        // Placing a node, routing a run and the Networks workspace must all
+        // speak of the same network, so the choice belongs to the plan.
+        scope: 'SHARED',
+        label: 'Réseau',
+        choices: ({ project }) =>
+          (project.systems ?? []).map((network) => ({
+            value: network.id,
+            label: `${NETWORK_DISCIPLINE_LABELS[network.discipline]} · ${network.id}`,
+          })),
+        fallback: ({ project }) => project.systems?.[0]?.id ?? '',
+      },
+      {
+        key: 'slopePercent',
+        kind: 'NUMBER',
+        label: 'Pente',
+        unit: '%',
+        step: 0.5,
+        hint: 'Une évacuation horizontale est une évacuation qui ne s’écoule pas.',
+        // Gravity drainage needs a fall and nothing else does; the default
+        // follows the discipline of the network chosen just beside rather
+        // than a number written into the code.
+        fallback: ({ project, value }) => {
+          const network = (project.systems ?? []).find(
+            ({ id }) => id === value('networkId'),
+          );
+          return network?.discipline === 'WASTEWATER' ||
+            network?.discipline === 'RAINWATER'
+            ? '2'
+            : '0';
+        },
+      },
+      {
+        key: 'riseMm',
+        kind: 'NUMBER',
+        label: 'Montée en fin de tracé',
+        unit: 'mm',
+        step: 100,
+        hint: 'Une colonne se voit : le tracé monte à la verticale au dernier coude.',
+        fallback: () => '0',
+      },
+    ],
+    createCommand: (context) => {
+      const networkId = context.option('networkId');
+      if (networkId === '')
+        return {
+          status: 'ERROR',
+          message:
+            'Aucun réseau actif : créez un réseau dans l’onglet Réseaux.',
+        };
+      return routeCommand(
+        context.file.project,
+        networkId,
+        context.picks,
+        context.points,
+        {
+          slopePercent: context.optionNumber('slopePercent') ?? 0,
+          riseMm: context.optionNumber('riseMm') ?? 0,
+        },
+        context.newId('edge'),
+      );
+    },
+  },
+  {
+    id: 'NETWORK_BRANCH',
+    group: 'NETWORKS',
+    label: 'Dériver',
+    hint: 'Poser une pièce de dérivation sur un tronçon existant',
+    shortcutId: 'tool.networkBranch',
+    requiredPoints: 1,
+    createCommand: (context) => {
+      const point = context.points[0];
+      const edgeId = context.picks[0];
+      if (point === undefined)
+        return { status: 'ERROR', message: 'Un point est attendu.' };
+      if (edgeId === undefined)
+        return {
+          status: 'ERROR',
+          message: 'Visez le tronçon à dériver.',
+        };
+      return branchCommand(context.file.project, edgeId, point, {
+        nodeId: context.newId('node'),
+        newId: context.newId,
+      });
+    },
+  },
+  {
     id: 'DIMENSION',
     group: 'ANNOTATION',
     label: 'Cotation',
@@ -977,6 +1081,9 @@ export const EDITOR_TOOLS = [
       {
         key: 'networkId',
         kind: 'SELECT',
+        // Placing a node, routing a run and the Networks workspace must all
+        // speak of the same network, so the choice belongs to the plan.
+        scope: 'SHARED',
         label: 'Réseau',
         choices: ({ project }) =>
           (project.systems ?? []).map((network) => ({

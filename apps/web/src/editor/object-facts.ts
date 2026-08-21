@@ -203,7 +203,34 @@ export function networkNodeBounds(
   const node = (project.systems ?? [])
     .flatMap((network) => network.nodes)
     .find(({ id }) => id === objectId);
-  return node === undefined ? undefined : extentOf([node.position]);
+  if (node !== undefined) return extentOf([node.position]);
+  // A routed segment is an object of the plan like any other: it is framed,
+  // measured and pointed at, and its extent is the run it follows.
+  const edge = (project.systems ?? [])
+    .flatMap((network) => network.edges)
+    .find(({ id }) => id === objectId);
+  return edge === undefined ? undefined : extentOf(edge.path);
+}
+
+/** The two ends of a routed segment, and the run it belongs to. */
+export function networkRelationships(
+  project: Project,
+  _levelId: string,
+  objectId: string,
+): readonly ObjectRelationship[] {
+  for (const network of project.systems ?? []) {
+    const edge = network.edges.find(({ id }) => id === objectId);
+    if (edge === undefined) continue;
+    const nodeOfPort = new Map(
+      network.ports.map((port) => [port.id, port.nodeId] as const),
+    );
+    const ends = [
+      nodeOfPort.get(edge.fromPortId),
+      nodeOfPort.get(edge.toPortId),
+    ].filter((id): id is string => id !== undefined);
+    return ends.length === 0 ? [] : [{ role: 'Nœuds reliés', objectIds: ends }];
+  }
+  return [];
 }
 
 /**

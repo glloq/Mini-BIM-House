@@ -16,18 +16,24 @@ import {
   AddNetworkNodeCommand,
   AddNetworkPortCommand,
   ConnectNetworkPortsCommand,
+  ProjectTransactionCommand,
+  RemoveNetworkEdgeCommand,
   NETWORK_DISCIPLINE_LABELS,
   NETWORK_EDGE_KINDS,
+  branchingTemplate,
   connectablePorts,
   draftNetwork,
+  nearestPointOnRoute,
   findNetwork,
   networkNodeTemplates,
   networkSummary,
   openPorts,
   orthogonalRoute,
+  routeThrough,
+  slopedRoute,
   templatePorts,
 } from '@house-technical-designer/editor-core';
-import type { Point3D } from '@house-technical-designer/geometry';
+import type { Point2D, Point3D } from '@house-technical-designer/geometry';
 
 export const NETWORK_DISCIPLINES: readonly NetworkDiscipline[] = [
   'WATER',
@@ -321,5 +327,147 @@ export function addBranchPortCommand(
       role: outgoing.role,
       direction: 'OUT',
     }),
+  };
+}
+
+/**
+ * Routes a run drawn on the plan, from one port to another.
+ *
+ * The panel could already connect two ports chosen from two menus, and the
+ * route it produced turned once because that is all a menu can say. Drawn on
+ * the plan, every corner the user placed is kept — an editor that re-routed
+ * around them would be an editor that discards what was drawn.
+ */
+export function routeCommand(
+  project: Project,
+  networkId: string,
+  picks: readonly (string | undefined)[],
+  corners: readonly Point2D[],
+  draft: { readonly slopePercent: number; readonly riseMm: number },
+  edgeId: string,
+): NetworkCommandResult {
+  const network = findNetwork(project, networkId);
+  if (network === undefined)
+    return {
+      status: 'ERROR',
+      message: `Le réseau ${networkId} est introuvable.`,
+    };
+  const ends = picks.filter(
+    (pick): pick is string =>
+      pick !== undefined && network.ports.some(({ id }) => id === pick),
+  );
+  const fromPortId = ends[0];
+  const toPortId = ends[ends.length - 1];
+  if (fromPortId === undefined || toPortId === undefined || ends.length < 2)
+    return {
+      status: 'ERROR',
+      message:
+        'Un tracé part d’un port et arrive sur un port : cliquez les deux.',
+    };
+  if (fromPortId === toPortId)
+    return {
+      status: 'ERROR',
+      message: 'Un tronçon relie deux ports différents.',
+    };
+  const from = network.ports.find(({ id }) => id === fromPortId)!;
+  const to = network.ports.find(({ id }) => id === toPortId)!;
+  const fromNode = network.nodes.find(({ id }) => id === from.nodeId);
+  const toNode = network.nodes.find(({ id }) => id === to.nodeId);
+  if (fromNode === undefined || toNode === undefined)
+    return { status: 'ERROR', message: 'Les deux nœuds doivent exister.' };
+  // The corners are the clicks between the two ports; the ends come from the
+  // nodes, whose height is the one the model holds.
+  const between = corners.slice(1, Math.max(1, corners.length - 1));
+  const arrival = {
+    ...toNode.position,
+    z: toNode.position.z + draft.riseMm,
+  };
+  const route = routeThrough(fromNode.position, between, arrival);
+  return {
+    status: 'OK',
+    command: new ConnectNetworkPortsCommand(networkId, {
+      id: edgeId,
+      fromPortId,
+      toPortId,
+      kind: NETWORK_EDGE_KINDS[network.discipline],
+      path:
+        draft.slopePercent === 0
+          ? route
+          : slopedRoute(route, draft.slopePercent),
+    }),
+  };
+}
+
+/**
+ * Splits a run where the user pointed, so a branch can leave from there.
+ *
+ * A tee is not a shape drawn on a pipe: it is a fitting with a way in and two
+ * ways out. The run is cut at that fitting and rebuilt in two, and the spare
+ * outlet is left open — which is exactly what an unfinished branch looks like,
+ * and what the Networks workspace already reports as one.
+ */
+export function branchCommand(
+  project: Project,
+  edgeId: string,
+  at: Point2D,
+  ids: { readonly nodeId: string; readonly newId: (prefix: string) => string },
+): NetworkCommandResult {
+  const network = (project.systems ?? []).find((candidate) =>
+    candidate.edges.some(({ id }) => id === edgeId),
+  );
+  const edge = network?.edges.find(({ id }) => id === edgeId);
+  if (network === undefined || edge === undefined)
+    return {
+      status: 'ERROR',
+      message: `Le tronçon ${edgeId} est introuvable.`,
+    };
+  const template = branchingTemplate(network.discipline);
+  if (template === undefined)
+    return {
+      status: 'ERROR',
+      message: `La discipline ${NETWORK_DISCIPLINE_LABELS[network.discipline]} n’a pas de pièce de dérivation.`,
+    };
+  const position = nearestPointOnRoute(edge.path, at);
+  if (position === undefined)
+    return { status: 'ERROR', message: 'Ce tronçon n’a pas de tracé.' };
+  const node: NetworkNode = {
+    id: ids.nodeId,
+    kind: template.kind,
+    position,
+  };
+  const ports = templatePorts(node.id, template);
+  const inlet = ports.find(({ direction }) => direction === 'IN');
+  const outlet = ports.find(({ direction }) => direction === 'OUT');
+  if (inlet === undefined || outlet === undefined)
+    return {
+      status: 'ERROR',
+      message: 'La pièce de dérivation doit avoir une entrée et une sortie.',
+    };
+  const spare = { ...outlet, id: `${node.id}-out-branch` };
+  const kind = NETWORK_EDGE_KINDS[network.discipline];
+  return {
+    status: 'OK',
+    command: new ProjectTransactionCommand(
+      `network:branch:${edgeId}`,
+      'Dériver un tronçon',
+      [
+        new RemoveNetworkEdgeCommand(network.id, edge.id),
+        new AddNetworkNodeCommand(network.id, node, [...ports, spare]),
+        new ConnectNetworkPortsCommand(network.id, {
+          id: ids.newId('edge'),
+          fromPortId: edge.fromPortId,
+          toPortId: inlet.id,
+          kind,
+          path: [edge.path[0]!, position],
+        }),
+        new ConnectNetworkPortsCommand(network.id, {
+          id: ids.newId('edge'),
+          fromPortId: outlet.id,
+          toPortId: edge.toPortId,
+          kind,
+          path: [position, edge.path[edge.path.length - 1]!],
+        }),
+      ],
+    ),
   };
 }

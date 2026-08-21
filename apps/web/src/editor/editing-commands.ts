@@ -21,6 +21,7 @@ import {
   AddSpaceCommand,
   AddStairCommand,
   AddWallCommand,
+  MoveNetworkEdgeVertexCommand,
   MoveWallCommand,
   MoveWallPointCommand,
   ProjectEditorCommand,
@@ -1926,6 +1927,16 @@ export function geometryEditCommand(
         command: new UpdateOpeningCommand(level.id, edit.openingId, {
           offsetAlongHostMm: edit.offsetMm,
         }),
+      };
+    case 'ROUTE_VERTEX':
+      return {
+        status: 'OK',
+        command: new MoveNetworkEdgeVertexCommand(
+          edit.networkId,
+          edit.edgeId,
+          edit.vertexIndex,
+          edit.to,
+        ),
       };
     case 'POLYGON_VERTEX':
     case 'POLYGON_INSERT':
