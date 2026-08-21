@@ -162,10 +162,19 @@
           }
         },
         "drawingViews": {
-          "type": "array"
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SavedDrawingView"
+          }
         },
         "regulatoryContext": {
           "type": "object"
+        },
+        "sheets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProjectSheet"
+          }
         }
       },
       "additionalProperties": true
@@ -514,6 +523,161 @@
         },
         "baseElevationMm": {
           "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+    "SavedDrawingView": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "name",
+        "scaleDenominator",
+        "layers",
+        "graphicProfileId"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": [
+            "PLAN",
+            "SECTION",
+            "ELEVATION",
+            "ROOF",
+            "SITE"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "levelId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scaleDenominator": {
+          "type": "integer",
+          "exclusiveMinimum": 0
+        },
+        "layers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "graphicProfileId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "centreMm": {
+          "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point2D"
+        },
+        "analysisOverlayId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "ProjectSheet": {
+      "type": "object",
+      "required": [
+        "id",
+        "number",
+        "title",
+        "format",
+        "orientation",
+        "viewports"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "number": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "format": {
+          "enum": [
+            "A4",
+            "A3",
+            "A2",
+            "A1",
+            "A0"
+          ]
+        },
+        "orientation": {
+          "enum": [
+            "PORTRAIT",
+            "LANDSCAPE"
+          ]
+        },
+        "revision": {
+          "type": "string"
+        },
+        "colorMode": {
+          "enum": [
+            "COLOR",
+            "GRAYSCALE"
+          ]
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "viewports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "viewId",
+              "scaleDenominator",
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "viewId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "scaleDenominator": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "width": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "height": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "additionalProperties": true
+          }
         }
       },
       "additionalProperties": true

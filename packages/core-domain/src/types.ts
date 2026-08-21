@@ -12,6 +12,7 @@ import type { Annotation } from './annotation.js';
 import type { ComponentInstance } from './component.js';
 import type { Stair } from './stair.js';
 import type { Roof } from './roof.js';
+import type { ProjectSheet, SavedDrawingView } from './documents.js';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
@@ -187,7 +188,15 @@ export interface Project extends BaseEntity<ProjectId> {
   readonly equipment?: readonly EquipmentDefinition[];
   readonly systems?: readonly TechnicalNetwork[];
   readonly scenarios?: readonly Scenario[];
-  readonly drawingViews?: readonly JsonValue[];
+  /**
+   * The views of the project the user can come back to.
+   *
+   * They were an untyped list, so a project exported whatever the screen
+   * happened to show and a drawing produced twice was two different drawings.
+   */
+  readonly drawingViews?: readonly SavedDrawingView[];
+  /** The sheets those views are laid out on. */
+  readonly sheets?: readonly ProjectSheet[];
   readonly calculationSettings?: Readonly<Record<string, ModuleSettings>>;
   readonly regulatoryContext?: RegulatoryContext;
 }

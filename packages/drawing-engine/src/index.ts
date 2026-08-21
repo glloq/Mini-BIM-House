@@ -3,6 +3,7 @@ export * from './graphic-profiles.js';
 export * from './pdf-print.js';
 export * from './scene.js';
 export * from './sheets.js';
+export * from './sheet-svg.js';
 export * from './symbols.js';
 export * from './svg-renderer.js';
 export * from './svg-export.js';

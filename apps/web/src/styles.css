@@ -573,6 +573,33 @@ button.icon {
   display: flex;
   gap: 0.25rem;
 }
+/*
+ * A sheet drawn to scale, shown at whatever width the panel has.
+ *
+ * The preview is the drawing engine's own output for that sheet: what is
+ * printed is what is shown, rather than a second drawing made for the screen.
+ */
+.sheet-preview {
+  max-width: 100%;
+  margin-top: 0.6rem;
+  padding: 0.5rem;
+  border: 1px solid #d3ddd7;
+  border-radius: 0.6rem;
+  background: #f4f7f5;
+  overflow: auto;
+}
+.sheet-preview svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  background: #fff;
+}
+.documents-panel .tool-group {
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
 .badge {
   display: inline-block;
   border-radius: 999px;

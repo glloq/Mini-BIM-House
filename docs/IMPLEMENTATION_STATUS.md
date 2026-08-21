@@ -1177,6 +1177,40 @@ dessin et le reste se lisait dans des tableaux.
   la légende, avec les objets qu'il nomme, et « Corriger » les sélectionne et
   les cadre sur le plan.
 
+## Dossier de plans — lot F du neuvième audit
+
+Le projet portait `drawingViews?: readonly JsonValue[]` : une liste que le
+fichier transportait et que rien ne savait lire. Un projet exportait donc ce que
+l'écran montrait à cet instant, et un plan produit deux fois était deux plans
+différents.
+
+- **Vue typée.** Une vue retient les décisions qui font un dessin — quel
+  niveau, à quelle échelle, avec quels calques, sous quel profil graphique — et
+  aucune géométrie : le dessin est refait à partir du modèle à chaque fois. Une
+  vue rouverte après qu'un mur a bougé montre le mur où il est.
+- **Feuilles.** Une feuille porte des vues, un numéro, un format et une
+  orientation. Le moteur de dessin construit la mise en page à partir de ces
+  choix et d'un gabarit de cartouche fourni par l'application. Ce que dit le
+  cartouche est déduit du projet — son nom, le numéro de feuille, la révision —
+  et jamais recopié : un projet renommé est un cartouche renommé, et une case
+  que le projet ne peut pas remplir est dessinée « inconnu » plutôt qu'avec une
+  valeur plausible.
+- **La feuille montre ce que le plan montre.** Chaque vue arrive telle que le
+  moteur de dessin l'a produite et est imbriquée dans son cadre. Une feuille qui
+  redessinerait le modèle d'une seconde façon serait un second moteur de dessin,
+  et les deux finiraient par ne plus dire la même chose.
+- **Références vérifiées.** Une vue qui nomme un niveau absent et une feuille
+  qui nomme une vue absente sont relevées à la lecture du fichier ; une vue
+  encore posée sur une feuille ne peut pas être supprimée, et le refus nomme les
+  feuilles concernées.
+- **Export PDF multipage.** Le moteur construisait déjà le travail
+  d'impression, validait les pages et vérifiait les octets rendus ; il manquait
+  de quoi produire ces octets. Un backend navigateur les produit, sans
+  bibliothèque. Ses pages sont des images : le format PDF ne connaît pas le
+  SVG, et le convertir en tracés PDF reviendrait à écrire un second moteur de
+  dessin. Le tirage est à l'échelle ; le texte n'y est ni sélectionnable ni
+  recherchable, et l'interface le dit à côté du bouton.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans

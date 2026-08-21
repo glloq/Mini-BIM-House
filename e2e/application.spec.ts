@@ -2083,3 +2083,50 @@ test('colours the networks with what their own engines computed', async ({
   ).not.toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('keeps a view, lays it on a sheet and draws the sheet', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page
+    .getByRole('button', { name: 'Vues et feuilles', exact: true })
+    .click();
+  await expect(
+    page.getByRole('heading', { name: 'Vues et feuilles' }),
+  ).toBeVisible();
+
+  await page.getByLabel('Nom de la vue').fill('Plan RDC');
+  await page
+    .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
+    .click();
+  await expect(page.getByRole('status')).toContainText('enregistrée');
+
+  await page.getByLabel('Titre de la feuille').fill('Plan du rez-de-chaussée');
+  await page.getByLabel('Format').selectOption('A3');
+  await page.getByRole('button', { name: 'Ajouter une feuille' }).click();
+  await expect(page.getByRole('cell', { name: 'A-001' })).toBeVisible();
+
+  // The sheet is drawn from the model, not from a picture kept aside.
+  await page
+    .getByRole('row')
+    .filter({ hasText: 'A-001' })
+    .getByRole('button', { name: 'Aperçu' })
+    .click();
+  const preview = page.locator('.sheet-preview svg').first();
+  await expect(preview).toBeVisible();
+  await expect(preview).toHaveAttribute('data-sheet-id', /sheet-/);
+  // The title block says what the project says, and marks what it cannot say.
+  await expect(page.locator('.sheet-preview')).toContainText('A-001');
+  await expect(page.locator('.sheet-preview')).toContainText('inconnu');
+
+  // A view a sheet still lays out cannot be taken away.
+  const views = page.getByRole('region', { name: 'Vues enregistrées' });
+  await views
+    .getByRole('row')
+    .filter({ hasText: 'Plan RDC' })
+    .getByRole('button', { name: 'Supprimer' })
+    .click();
+  await expect(page.getByRole('status')).toContainText('A-001');
+  expect(errors).toEqual([]);
+});

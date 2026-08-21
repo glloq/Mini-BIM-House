@@ -657,9 +657,11 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   un squelette droit que cette version ne calcule pas. Elle le dit et ne rend
   que les pans dont elle est sûre.
 - **Murs courbes et raccords visuels L/T/X** : hors périmètre de la bêta.
-- **Feuilles et export PDF** : le moteur de mise en page existe dans
-  `drawing-engine`, mais aucun format de feuille ni aucun backend PDF n'est
-  raccordé à l'interface ; l'export technique se fait en SVG.
+- **Export PDF vectoriel** : les feuilles s'exportent en PDF multipage, mais
+  chaque page est une image de la feuille tramée à 200 ppp. Le format PDF ne
+  connaît pas le SVG, et le convertir en tracés PDF reviendrait à écrire un
+  second moteur de dessin. Le tirage est à l'échelle ; le texte n'y est ni
+  sélectionnable ni recherchable.
 - **Exports DXF et IFC** : hors périmètre de la bêta.
 - **Simulation thermique dynamique, confort d'été avancé, structure,
   géotechnique, éclairage naturel** : hors périmètre de la bêta.
@@ -681,9 +683,9 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   collée d'un niveau à l'autre, pivotée d'un quart de tour ou d'un angle tracé,
   retournée autour d'un axe tracé, décalée parallèlement, jointe, ajustée et
   alignée.
-- **Dossier de plans** : `drawingViews` n'est pas encore un contrat typé, si
-  bien qu'un projet exporte l'état courant plutôt qu'un jeu de feuilles
-  reproductible.
+- **Annotations** : la cotation existe ; les notes de texte, les étiquettes
+  associatives, les repères, les trames et les repères de coupe restent hors
+  périmètre.
 - **Conformité réglementaire** : le moteur de règles et les Rule Packs
   existent ; l'espace Vérifications rassemble les constats du modèle et des
   calculs, mais aucun référentiel réglementaire n'est livré, et rien n'est

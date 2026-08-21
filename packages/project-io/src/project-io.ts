@@ -441,6 +441,27 @@ export function validateProjectReferences(
         });
     });
   });
+  // A view names the storey it draws; a sheet names the views it lays out.
+  // Either naming something absent is a drawing set nothing can print.
+  file.project.drawingViews?.forEach((view, index) => {
+    if (view.levelId !== undefined && !levels.has(view.levelId))
+      issues.push({
+        path: `/project/drawingViews/${index}/levelId`,
+        message: `references unknown level ${view.levelId}`,
+      });
+  });
+  const drawingViews = new Set(
+    file.project.drawingViews?.map(({ id }) => id) ?? [],
+  );
+  file.project.sheets?.forEach((sheet, sheetIndex) =>
+    sheet.viewports.forEach((viewport, index) => {
+      if (!drawingViews.has(viewport.viewId))
+        issues.push({
+          path: `/project/sheets/${sheetIndex}/viewports/${index}/viewId`,
+          message: `references unknown drawing view ${viewport.viewId}`,
+        });
+    }),
+  );
   file.project.building.zones?.forEach((zone, zoneIndex) =>
     zone.spaceIds.forEach((spaceId, index) => {
       // A zone groups rooms; one that names a room the project no longer holds

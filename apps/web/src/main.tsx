@@ -16,7 +16,19 @@ import type { ProjectFile } from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import { validateClimateDataset } from '@house-technical-designer/climate';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
-import { ReplaceProjectCommand } from '@house-technical-designer/editor-core';
+import {
+  ReplaceProjectCommand,
+  SaveDrawingViewCommand,
+} from '@house-technical-designer/editor-core';
+import type {
+  ProjectSheet,
+  SavedDrawingView,
+} from '@house-technical-designer/core-domain';
+import {
+  GENERIC_TECHNICAL_SCREEN,
+  createPdfPrintPage,
+  generatePdfArtifact,
+} from '@house-technical-designer/drawing-engine';
 import {
   applyProjectScenario,
   DEFAULT_ZIP_LIMITS,
@@ -49,6 +61,8 @@ import { LayersPanel } from './editor/LayersPanel.js';
 import { ToolBar } from './editor/ToolBar.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
+import { BrowserPdfBackend } from './documents/browser-pdf-backend.js';
+import { renderSheet, sheetLayoutOf } from './documents/documents-model.js';
 import type { CheckFix } from './checks/checks-model.js';
 import {
   isOpenEnded,
@@ -171,6 +185,9 @@ const NetworksPanel = lazy(async () => ({
 const ProjectPanel = lazy(async () => ({
   default: (await import('./project/ProjectPanel.js')).ProjectPanel,
 }));
+const DocumentsPanel = lazy(async () => ({
+  default: (await import('./documents/DocumentsPanel.js')).DocumentsPanel,
+}));
 const ChecksPanel = lazy(async () => ({
   default: (await import('./checks/ChecksPanel.js')).ChecksPanel,
 }));
@@ -262,6 +279,9 @@ function downloadBlob(blob: Blob, fileName: string): void {
  * say that a project is described, then drawn, then furnished from libraries,
  * then serviced, and only then calculated.
  */
+/** CSS pixels in one millimetre of paper: 96 dots per inch, by definition. */
+const CSS_PIXELS_PER_MM = 96 / 25.4;
+
 /** The smallest window framing one object leaves around it. */
 const FRAMING_MINIMUM_MM = 1000;
 
@@ -296,6 +316,10 @@ const WORKSPACE_GROUPS = [
       { id: 'scenarios', label: 'Scénarios' },
       { id: 'checks', label: 'Vérifications' },
     ],
+  },
+  {
+    label: 'Documents',
+    tabs: [{ id: 'documents', label: 'Vues et feuilles' }],
   },
 ] as const;
 
@@ -1205,6 +1229,107 @@ function App() {
     editor.pendingPoints,
   ]);
 
+  /**
+   * Keeps the plan as it stands as a view one can come back to.
+   *
+   * What is kept are the decisions — storey, scale, layers, profile — and not
+   * a picture: the drawing is made again from the model each time, so a view
+   * reopened after a wall moved shows the wall where it is now.
+   */
+  const captureView = useCallback(
+    (name: string) => {
+      const levelId = activeLevelId as SavedDrawingView['levelId'] | undefined;
+      const view: SavedDrawingView = {
+        id: `view-${crypto.randomUUID()}`,
+        type: 'PLAN',
+        name,
+        ...(levelId === undefined ? {} : { levelId }),
+        // A drawing at 1:1 puts one model millimetre on one paper
+        // millimetre, and a CSS pixel is 1/96 inch: the denominator is how
+        // many model millimetres one paper millimetre carries at this zoom.
+        scaleDenominator: Math.max(
+          1,
+          Math.round(CSS_PIXELS_PER_MM / editor.camera.pixelsPerMm) || 50,
+        ),
+        layers: editor.layers,
+        graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
+        centreMm: editor.camera.centerModelMm,
+        ...(overlayId === 'none' ? {} : { analysisOverlayId: overlayId }),
+      };
+      if (runCommand(new SaveDrawingViewCommand(view)))
+        setMessage(`Vue « ${name} » enregistrée.`);
+    },
+    [
+      activeLevelId,
+      editor.camera.centerModelMm,
+      editor.camera.pixelsPerMm,
+      editor.layers,
+      overlayId,
+      runCommand,
+    ],
+  );
+
+  /** Puts the plan back the way a saved view describes it. */
+  const applyView = useCallback((view: SavedDrawingView) => {
+    if (view.levelId !== undefined)
+      dispatchEditor({ type: 'SET_LEVEL', levelId: view.levelId });
+    dispatchEditor({
+      type: 'SHOW_LAYERS',
+      layerIds: Object.entries(view.layers)
+        .filter(([, visible]) => visible)
+        .map(([layerId]) => layerId),
+    });
+    setTab('plan');
+  }, []);
+
+  /**
+   * Writes the drawing set as one PDF.
+   *
+   * The drawing engine builds and validates the job; the browser backend turns
+   * the sheets into pages. A sheet that cannot be laid out stops the export
+   * and says which one, rather than producing a file missing a page nobody
+   * would notice.
+   */
+  const exportSheets = useCallback((sheets: readonly ProjectSheet[]) => {
+    void (async () => {
+      try {
+        const project = session.current.file.project;
+        const pages = sheets.map((sheet) =>
+          createPdfPrintPage(
+            sheetLayoutOf(project, sheet),
+            renderSheet(project, sheet),
+          ),
+        );
+        const artifact = await generatePdfArtifact(
+          {
+            id: `sheets-${project.id}`,
+            metadata: {
+              title: project.metadata.name,
+              ...(project.metadata.author === undefined
+                ? {}
+                : { author: project.metadata.author }),
+              subject: 'Dossier de plans',
+            },
+            colorMode: 'COLOR',
+            pages,
+          },
+          `${project.metadata.name || 'plans'}.pdf`,
+          new BrowserPdfBackend(),
+        );
+        downloadBytes(artifact.bytes, artifact.fileName, artifact.mediaType);
+        setMessage(
+          `${pages.length} feuille(s) exportée(s) — pages tramées à 200 ppp.`,
+        );
+      } catch (error: unknown) {
+        setMessage(
+          `Export PDF impossible : ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
+      }
+    })();
+  }, []);
+
   const runShortcut = useCallback(
     (command: ShortcutCommandId): void => {
       // A tool is chosen by the registry rather than by a branch per tool: a
@@ -2050,6 +2175,20 @@ function App() {
               onExportCsv={(content, fileName) =>
                 download(content, fileName, 'text/csv;charset=utf-8')
               }
+            />
+          </LazyWorkspace>
+        )}
+
+        {tab === 'documents' && (
+          <LazyWorkspace>
+            <DocumentsPanel
+              project={file.project}
+              onCommand={runCommand}
+              onMessage={setMessage}
+              onCaptureView={captureView}
+              onApplyView={applyView}
+              onExport={exportSheets}
+              newId={(prefix) => `${prefix}-${crypto.randomUUID()}`}
             />
           </LazyWorkspace>
         )}
