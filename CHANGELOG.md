@@ -84,6 +84,19 @@ terminé.
   monde ;
 - un câble du catalogue nomme son conducteur sous `conductor` et le résolveur ne
   lisait que `material` : chaque câble ne disait rien de son cuivre ;
+- **les vérifications comparent ce qu'il faut à ce qui est posé.** La charge de
+  chauffage était calculée, les générateurs étaient comptés, et personne ne
+  mettait les deux nombres côte à côte. Huit rapprochements le font maintenant :
+  générateur contre demande, émetteur contre charge de la pièce, groupe de
+  ventilation contre ses bouches, courant foisonné contre calibre de protection,
+  onduleur contre champ photovoltaïque, batterie sans onduleur, ballon contre
+  stockage calculé, cuve contre besoins en eau de pluie. Chaque constat porte
+  les deux nombres qu'il a comparés — un verdict dont on ne voit pas les chiffres
+  est un verdict qu'on ne peut que croire — et aucun ne dit « conforme » : c'est
+  l'affaire d'un référentiel, qui sait de quel pays et de quelle année ;
+- un champ photovoltaïque posé sur un pan de toiture dit sur lequel ; le module
+  demandait de le redire dans un réglage, et les deux réponses auraient divergé
+  au premier déplacement ;
 - **la maison de démonstration se charge à la demande.** Cent kilooctets de JSON
   derrière un bouton étaient chargés avec l'application : ouvrir son propre
   projet passait par une démonstration. Le chargement initial descend de 245,3 à

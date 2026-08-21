@@ -194,7 +194,9 @@ describe('taking an object back off the plan', () => {
       ['wall-partition-v', 'ground'],
       ['opening-entry', 'ground'],
       ['slab-ground', 'ground'],
-      ['roof-south', 'first'],
+      // The southern pitch carries the photovoltaic array; the northern one
+      // carries nothing.
+      ['roof-north', 'first'],
       ['water:sink', 'ground'],
     ] as const) {
       const project = demo();

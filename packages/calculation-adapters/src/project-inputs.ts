@@ -1350,14 +1350,29 @@ function photovoltaicInput(
         );
     });
   }
-  // A photovoltaic array sits on one plane; with several roofs the project has
-  // not said which, and guessing would fix a slope and an orientation nobody
-  // chose.
+  // A photovoltaic array sits on one plane, and the array placed in the
+  // building says which: it is hung on it. Asking the user to state it a
+  // second time, in a module setting, would be asking a question the plan has
+  // already answered — and the two answers would disagree the first time the
+  // array moved.
+  const hosted = new Set(
+    context.placedEquipment
+      .filter(
+        ({ kind }) => kind === 'PHOTOVOLTAIC_MODULE' || kind === 'PHOTOVOLTAIC',
+      )
+      .flatMap(({ hostObjectId }) =>
+        hostObjectId === undefined ? [] : [hostObjectId],
+      ),
+  );
+  const candidates =
+    hosted.size === 0
+      ? context.roofs
+      : context.roofs.filter(({ roofId }) => hosted.has(roofId));
   const roof =
-    context.roofs.length <= 1
-      ? context.roofs[0]
+    candidates.length <= 1
+      ? candidates[0]
       : theOnly(
-          context.roofs.map((entry) => ({ ...entry, id: entry.roofId })),
+          candidates.map((entry) => ({ ...entry, id: entry.roofId })),
           settings,
           'photovoltaic',
           'roof',

@@ -113,7 +113,10 @@ describe('PR-069 reference house', () => {
     expect(
       context.exteriorWalls.reduce((sum, wall) => sum + wall.netAreaM2, 0),
     ).toBeCloseTo(173.59, 8);
-    expect(context.roofs[0]?.projectedAreaM2).toBe(80);
+    // Two pitches meeting at a ridge, forty square metres each in plan.
+    expect(context.roofs.map(({ projectedAreaM2 }) => projectedAreaM2)).toEqual(
+      [40, 40],
+    );
     expect(context.spaces).toHaveLength(8);
     expect(context.systems).toHaveLength(4);
     expect(context.climateProfileId).toBe('reference-temperate');

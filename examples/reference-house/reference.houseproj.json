@@ -532,6 +532,34 @@
               "elevationMm": 0,
               "rotationDeg": 0,
               "spaceId": "space-bathroom"
+            },
+            {
+              "id": "component-battery",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "ELECTRICAL",
+              "definitionId": "equipment-battery",
+              "name": "Batterie",
+              "position": {
+                "x": 9200,
+                "y": 900
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0
+            },
+            {
+              "id": "component-inverter",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "ELECTRICAL",
+              "definitionId": "equipment-inverter",
+              "name": "Onduleur",
+              "position": {
+                "x": 9200,
+                "y": 1500
+              },
+              "elevationMm": 1200,
+              "rotationDeg": 0
             }
           ]
         },
@@ -746,6 +774,35 @@
                   },
                   {
                     "x": 10000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 0,
+                    "y": 4000
+                  }
+                ]
+              },
+              "assemblyId": "assembly-horizontal",
+              "slopeDeg": 30,
+              "azimuthDeg": 270,
+              "baseElevationMm": 5400
+            },
+            {
+              "id": "roof-north",
+              "type": "ROOF_PLANE",
+              "levelId": "first",
+              "footprint": {
+                "outer": [
+                  {
+                    "x": 0,
+                    "y": 4000
+                  },
+                  {
+                    "x": 10000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 10000,
                     "y": 8000
                   },
                   {
@@ -756,7 +813,7 @@
               },
               "assemblyId": "assembly-horizontal",
               "slopeDeg": 30,
-              "azimuthDeg": 180,
+              "azimuthDeg": 90,
               "baseElevationMm": 5400
             }
           ],
@@ -936,6 +993,21 @@
               "elevationMm": 2400,
               "rotationDeg": 0,
               "spaceId": "space-landing"
+            },
+            {
+              "id": "component-pv-array",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "first",
+              "category": "PHOTOVOLTAIC",
+              "definitionId": "equipment-pv",
+              "name": "Champ photovoltaïque",
+              "position": {
+                "x": 5000,
+                "y": 1000
+              },
+              "elevationMm": 2600,
+              "rotationDeg": 0,
+              "hostObjectId": "roof-south"
             }
           ]
         }
@@ -1196,6 +1268,23 @@
           }
         ],
         "name": "Plafonnier LED générique"
+      },
+      {
+        "id": "equipment-inverter",
+        "kind": "STRING_INVERTER",
+        "catalogKind": "GENERIC",
+        "properties": {
+          "ratedAcPowerW": 3600,
+          "maximumDcPowerW": 5400,
+          "europeanEfficiency": 0.97
+        },
+        "sources": [
+          {
+            "property": "ratedAcPowerW",
+            "sourceType": "USER",
+            "reference": "Reference project design choice"
+          }
+        ]
       }
     ],
     "systems": [
@@ -3165,12 +3254,18 @@
           "unitPriceByEquipment": {
             "equipment-luminaire": 38.0,
             "equipment-vmc": 420.0,
-            "equipment-dhw-tank": 780.0
+            "equipment-dhw-tank": 780.0,
+            "equipment-pv": 3400.0,
+            "equipment-inverter": 1250.0,
+            "equipment-battery": 3600.0
           },
           "labourPriceByEquipment": {
             "equipment-luminaire": 25.0,
             "equipment-vmc": 260.0,
-            "equipment-dhw-tank": 340.0
+            "equipment-dhw-tank": 340.0,
+            "equipment-pv": 900.0,
+            "equipment-inverter": 300.0,
+            "equipment-battery": 400.0
           }
         }
       },

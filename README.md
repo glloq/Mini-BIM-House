@@ -667,8 +667,13 @@ fichier de projet promet d'une version à l'autre est écrit dans
   manquantes.
 - **Analyse** — les résultats se projettent sur le plan en bandes légendées.
 - **Vérifications** — ce que le modèle, les réseaux, les calculs et le métré ne
-  résolvent pas, rassemblé avec le chemin pour le corriger. Aucune conformité
-  réglementaire n'y est constatée.
+  résolvent pas, rassemblé avec le chemin pour le corriger, et ce qu'il faut mis
+  en regard de ce qui est posé : générateur contre demande de chauffage,
+  émetteur contre charge de la pièce, groupe de ventilation contre ses bouches,
+  courant foisonné contre calibre, onduleur contre champ photovoltaïque, ballon
+  contre stockage calculé, cuve contre besoins en eau de pluie. Chaque constat
+  porte les deux nombres qu'il compare. Aucune conformité réglementaire n'y est
+  constatée.
 - **Projet** — assistant de création qui demande ce qu'aucun calcul ne peut
   deviner, puis nom, auteur, site, orientation, localisation, contexte
   réglementaire, zones, jeux climatiques et réglages de calcul des dix-sept

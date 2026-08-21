@@ -1707,6 +1707,33 @@ test('gathers what the project does not resolve and offers to fix it', async ({
   ).toBeVisible();
 });
 
+test('puts what the house needs beside what is standing in it', async ({
+  page,
+}) => {
+  // The heating load and the count of heat generators were both computed and
+  // never compared. What was missing was not a number, it was the sentence.
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await expect(page.locator('.module-header')).toHaveCount(17);
+
+  await page.getByRole('button', { name: 'Vérifications' }).click();
+  const findings = page.locator('.alert-list li');
+  await expect(findings.first()).toBeVisible();
+  // The reference house computes a heating load and holds no generator: not
+  // « non conforme », not silence — « je ne peux pas savoir », with the figure.
+  const heating = findings.filter({ hasText: 'aucun générateur posé' });
+  await expect(heating).toHaveCount(1);
+  await expect(heating).toContainText('kW');
+  // And its ventilation unit is smaller than the sum of its extract terminals.
+  await expect(
+    findings.filter({ hasText: 'ne tient pas les bouches' }),
+  ).toHaveCount(1);
+  // Nothing here claims compliance; that is a rule pack's business.
+  await expect(page.locator('.library-panel')).not.toContainText(
+    'est conforme',
+  );
+});
+
 test('offers only reference sides the model accepts', async ({ page }) => {
   await loadDemo(page);
   const canvas = page.locator('.plan-canvas');
