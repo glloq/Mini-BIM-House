@@ -1974,3 +1974,38 @@ test('makes a room out of the contour the walls already enclose', async ({
   await expect(page.getByRole('status')).toContainText('contour');
   expect(errors).toEqual([]);
 });
+
+test('places a thing in the building, as an object of the editor', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Composant', exact: true }).click();
+  await page.getByLabel('Catégorie').selectOption('HEATING');
+  await page.getByLabel('Nom').fill('Radiateur séjour');
+
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  await canvas.click({
+    position: { x: box.width * 0.3, y: box.height * 0.35 },
+  });
+  await expect(page.getByRole('status')).toContainText('composant');
+
+  // The placed object is an object of the editor like any other: selectable,
+  // described, and tied to the room it stands in.
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await canvas.click({
+    position: { x: box.width * 0.3, y: box.height * 0.35 },
+  });
+  const title = page.locator('.inspector-subject h3');
+  await expect(title).toContainText('Radiateur séjour');
+  // What the catalogue knows stays with the catalogue.
+  await expect(page.locator('.inspector-subject')).toContainText(
+    'ne renvoie à aucun modèle',
+  );
+  await expect(
+    page.getByRole('spinbutton', { name: 'Orientation (°)' }),
+  ).toHaveValue('0');
+  expect(errors).toEqual([]);
+});

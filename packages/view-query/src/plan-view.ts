@@ -685,6 +685,64 @@ function networkPrimitives(
   return drafts;
 }
 
+/**
+ * How wide a placed component is drawn, in millimetres.
+ *
+ * The model does not state a footprint — a catalogue entry describes a model
+ * and not the space it takes on a plan — so the drawing marks where the thing
+ * is, at a size that reads at a house's scale, and claims nothing about how
+ * big it is. A real footprint will come from the definition, not from here.
+ */
+const COMPONENT_MARK_MM = 300;
+
+const COMPONENT_ROLES: Readonly<Record<string, SemanticRole>> = {
+  HEATING: 'ANALYSIS_MEDIUM',
+  SANITARY: 'WATER_COLD',
+  VENTILATION: 'VENT_SUPPLY',
+  ELECTRICAL: 'ELECTRICAL_POWER',
+  LIGHTING: 'ELECTRICAL_LIGHTING',
+  PHOTOVOLTAIC: 'ELECTRICAL_PV',
+};
+
+function componentPrimitives(level: Level): readonly PrimitiveDraft[] {
+  return (level.components ?? []).map((component) => {
+    const half = COMPONENT_MARK_MM / 2;
+    const radians = (component.rotationDeg * Math.PI) / 180;
+    const corner = (dx: number, dy: number) => ({
+      x: component.position.x + dx * Math.cos(radians) - dy * Math.sin(radians),
+      y: component.position.y + dx * Math.sin(radians) + dy * Math.cos(radians),
+    });
+    return {
+      id: `component:${component.id}`,
+      sourceObjectId: component.id,
+      semanticRole: COMPONENT_ROLES[component.category] ?? 'SYMBOL',
+      geometry: {
+        kind: 'POLYGON' as const,
+        polygon: {
+          outer: [
+            corner(-half, -half),
+            corner(half, -half),
+            corner(half, half),
+            corner(-half, half),
+          ],
+        },
+      },
+      layer: 'components.placed',
+      zIndex: 45,
+      discipline: 'OTHER' as const,
+      metadata: {
+        category: component.category,
+        ...(component.definitionId === undefined
+          ? {}
+          : { definitionId: component.definitionId }),
+        ...(component.spaceId === undefined
+          ? {}
+          : { spaceId: component.spaceId }),
+      },
+    };
+  });
+}
+
 function slabAndRoofPrimitives(level: Level): readonly PrimitiveDraft[] {
   return [
     ...level.slabs.map((slab) => ({
@@ -795,6 +853,7 @@ export function buildPlanView(
       if (isDimension(annotation))
         drafts.push(...dimensionPrimitives(annotation, level, issues));
     drafts.push(...slabAndRoofPrimitives(level));
+    drafts.push(...componentPrimitives(level));
   }
   for (const network of project.systems ?? [])
     drafts.push(...networkPrimitives(network));

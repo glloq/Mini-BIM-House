@@ -110,6 +110,53 @@ export function spaceBounds(
     : extentOf(space.manualPolygon.outer);
 }
 
+export function componentBounds(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): ObjectBounds | undefined {
+  const component = (levelOf(project, levelId)?.components ?? []).find(
+    ({ id }) => id === objectId,
+  );
+  return component === undefined ? undefined : extentOf([component.position]);
+}
+
+/** Components of the same category standing for the same catalogue model. */
+export function similarComponents(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): readonly string[] {
+  const level = levelOf(project, levelId);
+  const component = (level?.components ?? []).find(({ id }) => id === objectId);
+  if (level === undefined || component === undefined) return [];
+  return (level.components ?? [])
+    .filter(
+      (candidate) =>
+        candidate.category === component.category &&
+        candidate.definitionId === component.definitionId,
+    )
+    .map(({ id }) => id as string);
+}
+
+/** The room a placed component stands in, and the object it hangs on. */
+export function componentRelationships(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): readonly ObjectRelationship[] {
+  const component = (levelOf(project, levelId)?.components ?? []).find(
+    ({ id }) => id === objectId,
+  );
+  if (component === undefined) return [];
+  const ties: ObjectRelationship[] = [];
+  if (component.spaceId !== undefined)
+    ties.push({ role: 'Pièce', objectIds: [component.spaceId] });
+  if (component.hostObjectId !== undefined)
+    ties.push({ role: 'Support', objectIds: [component.hostObjectId] });
+  return ties;
+}
+
 export function networkNodeBounds(
   project: Project,
   _levelId: string,

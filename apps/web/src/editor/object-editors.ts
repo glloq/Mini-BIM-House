@@ -2,6 +2,7 @@ import type { Project } from '@house-technical-designer/core-domain';
 import { ProjectTransactionCommand } from '@house-technical-designer/editor-core';
 import {
   buildingElementSubject,
+  componentSubject,
   dimensionSubject,
   field,
   networkSubject,
@@ -12,6 +13,7 @@ import {
 } from './inspector-model.js';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import {
+  componentEditsFor,
   dimensionEditsFor,
   networkNodeEditsFor,
   openingEditsFor,
@@ -23,11 +25,14 @@ import {
 } from './inspector-edits.js';
 import { openingGrips, polygonGrips, wallGrips, type Grip } from './grips.js';
 import {
+  componentBounds,
+  componentRelationships,
   networkNodeBounds,
   networkNodeRelationships,
   openingBounds,
   openingRelationships,
   roofBounds,
+  similarComponents,
   similarOpenings,
   similarSlabs,
   similarWalls,
@@ -38,6 +43,7 @@ import {
   wallRelationships,
 } from './object-facts.js';
 import {
+  componentRemoval,
   dimensionRemoval,
   networkNodeRemoval,
   openingRemoval,
@@ -246,6 +252,16 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     inspect: dimensionSubject,
     edits: dimensionEditsFor,
     remove: dimensionRemoval,
+  },
+  {
+    label: 'Composant',
+    kinds: ['COMPONENT'],
+    inspect: componentSubject,
+    edits: componentEditsFor,
+    remove: componentRemoval,
+    bounds: componentBounds,
+    similar: similarComponents,
+    relationships: componentRelationships,
   },
 ];
 

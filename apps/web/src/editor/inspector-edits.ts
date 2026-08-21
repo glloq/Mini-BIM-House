@@ -1,4 +1,5 @@
 import type {
+  ComponentCategory,
   Level,
   Opening,
   Project,
@@ -15,6 +16,7 @@ import {
   UpdateSlabCommand,
   UpdateSpaceCommand,
   SetWallHeightCommand,
+  UpdateComponentCommand,
   UpdateWallCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
@@ -24,6 +26,7 @@ import {
   REFERENCE_SIDE_OPTIONS,
   SLAB_ROLE_OPTIONS,
   WALL_ROLE_OPTIONS,
+  COMPONENT_CATEGORY_OPTIONS,
   SPACE_CATEGORY_OPTIONS as SPACE_CATEGORIES,
 } from './domain-options.js';
 
@@ -676,6 +679,124 @@ export function networkNodeEditsFor(
               });
         },
       })),
+    ];
+  }
+  return undefined;
+}
+
+/** What a thing placed in the building lets the user change. */
+export function componentEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
+    const component = (level.components ?? []).find(
+      ({ id }) => id === objectId,
+    );
+    if (component === undefined) continue;
+    return [
+      {
+        id: 'name',
+        semanticId: 'component.name',
+        label: 'Nom',
+        control: { kind: 'TEXT', value: component.name ?? '' },
+        hint: 'Vide, le composant prend le nom de sa catégorie.',
+        apply: (value) =>
+          new UpdateComponentCommand(level.id, component.id, { name: value }),
+      },
+      {
+        id: 'category',
+        semanticId: 'component.category',
+        label: 'Catégorie',
+        control: {
+          kind: 'SELECT',
+          value: component.category,
+          options: COMPONENT_CATEGORY_OPTIONS,
+        },
+        apply: (value) =>
+          new UpdateComponentCommand(level.id, component.id, {
+            category: value as ComponentCategory,
+          }),
+      },
+      {
+        id: 'definitionId',
+        semanticId: 'component.definitionId',
+        label: 'Modèle catalogue',
+        control: {
+          kind: 'SELECT',
+          value: component.definitionId ?? '',
+          options: [
+            { value: '', label: 'Aucun modèle' },
+            ...(project.equipment ?? []).map((definition) => ({
+              value: definition.id,
+              label: `${definition.kind} · ${definition.id}`,
+            })),
+          ],
+        },
+        hint: 'Les propriétés physiques appartiennent au modèle, pas à l’objet posé.',
+        apply: (value) =>
+          new UpdateComponentCommand(level.id, component.id, {
+            definitionId: value === '' ? null : value,
+          }),
+      },
+      {
+        id: 'spaceId',
+        semanticId: 'component.spaceId',
+        label: 'Pièce',
+        control: {
+          kind: 'SELECT',
+          value: component.spaceId ?? '',
+          options: [
+            { value: '', label: 'Aucune pièce déclarée' },
+            ...level.spaces.map((space) => ({
+              value: space.id,
+              label: space.name,
+            })),
+          ],
+        },
+        apply: (value) =>
+          new UpdateComponentCommand(level.id, component.id, {
+            spaceId: value === '' ? null : value,
+          }),
+      },
+      {
+        id: 'elevationMm',
+        semanticId: 'component.elevationMm',
+        label: 'Altitude sur le niveau',
+        control: {
+          kind: 'NUMBER',
+          value: component.elevationMm,
+          unit: 'mm',
+          step: 10,
+        },
+        apply: (value) => {
+          const elevationMm = parsed(value);
+          return elevationMm === undefined
+            ? undefined
+            : new UpdateComponentCommand(level.id, component.id, {
+                elevationMm,
+              });
+        },
+      },
+      {
+        id: 'rotationDeg',
+        semanticId: 'component.rotationDeg',
+        label: 'Orientation',
+        control: {
+          kind: 'NUMBER',
+          value: component.rotationDeg,
+          unit: '°',
+          step: 5,
+        },
+        apply: (value) => {
+          const rotationDeg = parsed(value);
+          return rotationDeg === undefined
+            ? undefined
+            : new UpdateComponentCommand(level.id, component.id, {
+                rotationDeg,
+              });
+        },
+      },
     ];
   }
   return undefined;

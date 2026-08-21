@@ -5,6 +5,7 @@ import {
   DeleteOpeningCommand,
   DeleteWallCommand,
   ProjectEditorCommand,
+  RemoveComponentCommand,
   RemoveNetworkNodeCommand,
   RemoveRoofCommand,
   RemoveSlabCommand,
@@ -117,3 +118,14 @@ export const networkNodeRemoval: RemovalProvider = (
     ? undefined
     : new RemoveNetworkNodeCommand(network.id, objectId);
 };
+
+export const componentRemoval: RemovalProvider = (
+  project,
+  levelId,
+  objectId,
+) =>
+  (levelOf(project, levelId)?.components ?? []).some(
+    ({ id }) => id === objectId,
+  )
+    ? new RemoveComponentCommand(levelId, objectId)
+    : undefined;

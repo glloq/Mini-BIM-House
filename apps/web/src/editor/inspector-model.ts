@@ -19,6 +19,19 @@ export interface InspectorSection {
   readonly fields: readonly InspectorField[];
 }
 
+/** What each family of placed component is called in the interface. */
+export const COMPONENT_CATEGORY_LABELS: Readonly<Record<string, string>> = {
+  HEATING: 'Chauffage',
+  SANITARY: 'Sanitaire',
+  VENTILATION: 'Ventilation',
+  ELECTRICAL: 'Électricité',
+  LIGHTING: 'Éclairage',
+  PHOTOVOLTAIC: 'Photovoltaïque',
+  APPLIANCE: 'Appareil',
+  FURNITURE: 'Mobilier',
+  OTHER: 'Autre',
+};
+
 export interface InspectorSubject {
   readonly objectId: string;
   readonly kind:
@@ -30,6 +43,7 @@ export interface InspectorSubject {
     | 'NETWORK_EDGE'
     | 'NETWORK_NODE'
     | 'DIMENSION'
+    | 'COMPONENT'
     | 'UNKNOWN';
   readonly title: string;
   readonly sections: readonly InspectorSection[];
@@ -526,6 +540,86 @@ export function dimensionSubject(
               `${dimension.second.wallId} · ${dimension.second.endpoint === 'START' ? 'début' : 'fin'}`,
             ),
             field('Niveau', level.name),
+          ],
+        },
+      ],
+    };
+  }
+  return undefined;
+}
+
+/** What a thing placed in the building shows in the inspector. */
+export function componentSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  for (const level of project.building.levels) {
+    const component = (level.components ?? []).find(
+      ({ id }) => id === objectId,
+    );
+    if (component === undefined) continue;
+    const definition = (project.equipment ?? []).find(
+      ({ id }) => id === component.definitionId,
+    );
+    const room = level.spaces.find(({ id }) => id === component.spaceId);
+    return {
+      objectId,
+      kind: 'COMPONENT',
+      title:
+        component.name ??
+        `${COMPONENT_CATEGORY_LABELS[component.category] ?? component.category} ${component.id}`,
+      sections: [
+        {
+          title: 'Implantation',
+          fields: [
+            field('Niveau', level.name),
+            field(
+              'Position',
+              `${Math.round(component.position.x)} ; ${Math.round(component.position.y)} mm`,
+            ),
+            field('Altitude sur le niveau', `${component.elevationMm} mm`),
+            field('Orientation', `${component.rotationDeg.toFixed(1)}°`),
+            field(
+              'Pièce',
+              room?.name,
+              room === undefined
+                ? 'Ce composant ne déclare aucune pièce.'
+                : undefined,
+            ),
+          ],
+        },
+        {
+          title: 'Modèle',
+          fields: [
+            field(
+              'Catégorie',
+              COMPONENT_CATEGORY_LABELS[component.category] ??
+                component.category,
+            ),
+            // The properties of the model belong to the model: repeating them
+            // here would be a second answer to one question, and the two would
+            // stop agreeing the first time one of them changed.
+            field(
+              'Modèle catalogue',
+              definition === undefined ? undefined : definition.kind,
+              definition === undefined
+                ? 'Ce composant ne renvoie à aucun modèle du catalogue.'
+                : undefined,
+            ),
+            field('Identifiant du modèle', component.definitionId),
+          ],
+        },
+        {
+          title: 'Références',
+          fields: [
+            field('Identifiant', component.id),
+            field(
+              'Support',
+              component.hostObjectId,
+              component.hostObjectId === undefined
+                ? 'Ce composant n’est fixé à rien.'
+                : undefined,
+            ),
           ],
         },
       ],

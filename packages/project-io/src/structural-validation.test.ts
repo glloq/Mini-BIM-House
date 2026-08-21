@@ -547,3 +547,124 @@ describe('references the rest of the project relies on', () => {
     expect(issues(fine)).toEqual([]);
   });
 });
+
+function component(id: string, extra: object = {}): Record<string, unknown> {
+  return {
+    id,
+    type: 'COMPONENT_INSTANCE',
+    levelId: 'ground',
+    category: 'HEATING',
+    position: { x: 1000, y: 1000 },
+    elevationMm: 150,
+    rotationDeg: 0,
+    ...extra,
+  };
+}
+
+describe('the things placed in the building', () => {
+  it('accepts a level that says nothing about components', () => {
+    // Every file written before components existed says nothing about them,
+    // and holds none, which is the truth.
+    expect(issues(file([level]))).toEqual([]);
+  });
+
+  it('accepts a component standing where the project can place it', () => {
+    const fine = file([
+      {
+        ...level,
+        walls: [wall('wall-ground', 'ground')],
+        spaces: [space('space-living', 'ground')],
+        components: [
+          component('component-radiator', {
+            spaceId: 'space-living',
+            hostObjectId: 'wall-ground',
+          }),
+        ],
+      },
+    ]);
+    expect(issues(fine)).toEqual([]);
+    expect(() => serializeProjectFile(fine)).not.toThrow();
+  });
+
+  it('refuses a component naming a catalogue model the project has not', () => {
+    expect(
+      issues(
+        file([
+          {
+            ...level,
+            components: [component('c', { definitionId: 'nowhere' })],
+          },
+        ]),
+      ),
+    ).toEqual([
+      '/project/building/levels/0/components/0/definitionId references unknown equipment nowhere',
+    ]);
+  });
+
+  it('refuses a component naming a room the project has not', () => {
+    expect(
+      issues(
+        file([
+          { ...level, components: [component('c', { spaceId: 'nowhere' })] },
+        ]),
+      ),
+    ).toEqual([
+      '/project/building/levels/0/components/0/spaceId references unknown space nowhere',
+    ]);
+  });
+
+  it('refuses a component hung on nothing', () => {
+    expect(
+      issues(
+        file([
+          {
+            ...level,
+            components: [component('c', { hostObjectId: 'nowhere' })],
+          },
+        ]),
+      ),
+    ).toEqual([
+      '/project/building/levels/0/components/0/hostObjectId references unknown object nowhere',
+    ]);
+  });
+
+  it('refuses a component kept on one level and declaring another', () => {
+    expect(
+      issues(
+        file([
+          { ...level, components: [component('c', { levelId: 'first' })] },
+          { ...level, id: 'first', name: 'First', elevationMm: 2500 },
+        ]),
+      ),
+    ).toEqual([
+      '/project/building/levels/0/components/0/levelId is stored on level ground but declares level first',
+    ]);
+  });
+
+  it('lets a network node stand for a component that is placed', () => {
+    const fine = file(
+      [{ ...level, components: [component('component-boiler')] }],
+      {
+        systems: [
+          {
+            id: 'water',
+            discipline: 'WATER',
+            systemType: 'POTABLE_COLD',
+            nodes: [
+              {
+                id: 'water:source',
+                kind: 'SOURCE',
+                position: { x: 0, y: 0, z: 0 },
+                hostObjectId: 'component-boiler',
+                levelId: 'ground',
+              },
+            ],
+            ports: [],
+            edges: [],
+          },
+        ],
+      },
+    );
+    expect(issues(fine)).toEqual([]);
+  });
+});

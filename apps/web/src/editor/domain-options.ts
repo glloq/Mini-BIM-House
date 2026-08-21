@@ -1,9 +1,11 @@
 import type {
+  ComponentCategory,
   Opening,
   Slab,
   Wall,
 } from '@house-technical-designer/core-domain';
 import {
+  COMPONENT_CATEGORIES,
   DIMENSION_TYPES,
   OPENING_TYPES,
   SLAB_ROLES,
@@ -102,3 +104,19 @@ export const SPACE_CATEGORY_OPTIONS: readonly DomainOption[] = [
   { value: 'TECHNICAL', label: 'Local technique' },
   { value: 'OTHER', label: 'Autre' },
 ];
+
+/** What a placed component is for, keyed by the domain's own list. */
+export const COMPONENT_CATEGORY_OPTIONS = optionsFrom<ComponentCategory>(
+  COMPONENT_CATEGORIES,
+  {
+    HEATING: 'Chauffage',
+    SANITARY: 'Sanitaire',
+    VENTILATION: 'Ventilation',
+    ELECTRICAL: 'Électricité',
+    LIGHTING: 'Éclairage',
+    PHOTOVOLTAIC: 'Photovoltaïque',
+    APPLIANCE: 'Appareil',
+    FURNITURE: 'Mobilier',
+    OTHER: 'Autre',
+  },
+);

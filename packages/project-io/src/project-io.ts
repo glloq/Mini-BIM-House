@@ -240,12 +240,15 @@ export function validateProjectReferences(
   /** What a network node may be fixed to. */
   const hosts = new Set<string>([
     ...file.project.building.levels.flatMap(
-      ({ walls, slabs, roofs, spaces: rooms, openings }) => [
+      ({ walls, slabs, roofs, spaces: rooms, openings, components }) => [
         ...walls.map(({ id }) => id as string),
         ...slabs.map(({ id }) => id as string),
         ...roofs.map(({ id }) => id as string),
         ...rooms.map(({ id }) => id as string),
         ...openings.map(({ id }) => id as string),
+        // A network node may stand for a thing placed in the building: the
+        // radiator this pipe feeds, the luminaire this circuit lights.
+        ...(components ?? []).map(({ id }) => id as string),
       ],
     ),
     ...(file.project.equipment?.map(({ id }) => id) ?? []),
@@ -267,6 +270,7 @@ export function validateProjectReferences(
       ...level.roofs,
       ...level.spaces,
       ...level.openings,
+      ...(level.components ?? []),
     ])
       levelOfObject.set(object.id, level.id);
   // Identifiers are unique across the whole project, not merely inside their
@@ -359,6 +363,39 @@ export function validateProjectReferences(
             message: `is stored on level ${level.id} but measures wall ${reference.wallId} of another level`,
           });
       }
+    });
+    // A thing placed in the building names what it stands for, where it hangs
+    // and which room it is in. Each of those can be absent and the object
+    // still be described; none of them may name something the project does
+    // not hold.
+    (level.components ?? []).forEach((component, index) => {
+      const path = `${base}/components/${index}`;
+      if (component.levelId !== level.id)
+        issues.push({
+          path: `${path}/levelId`,
+          message: `is stored on level ${level.id} but declares level ${component.levelId}`,
+        });
+      if (
+        component.definitionId !== undefined &&
+        !equipment.has(component.definitionId)
+      )
+        issues.push({
+          path: `${path}/definitionId`,
+          message: `references unknown equipment ${component.definitionId}`,
+        });
+      if (component.spaceId !== undefined && !spaces.has(component.spaceId))
+        issues.push({
+          path: `${path}/spaceId`,
+          message: `references unknown space ${component.spaceId}`,
+        });
+      if (
+        component.hostObjectId !== undefined &&
+        !hosts.has(component.hostObjectId)
+      )
+        issues.push({
+          path: `${path}/hostObjectId`,
+          message: `references unknown object ${component.hostObjectId}`,
+        });
     });
     level.spaces.forEach((space, index) => {
       if (!levels.has(space.levelId))

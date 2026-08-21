@@ -3,70 +3,357 @@
   "$id": "https://house-technical-designer.local/schemas/project.schema.json",
   "title": "House Technical Designer Project",
   "type": "object",
-  "required": ["format", "schemaVersion", "project"],
+  "required": [
+    "format",
+    "schemaVersion",
+    "project"
+  ],
   "properties": {
-    "format": { "const": "house-technical-designer-project" },
-    "schemaVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
-    "applicationVersion": { "type": "string" },
-    "project": { "$ref": "#/$defs/Project" },
-    "references": { "type": "object" },
-    "extensions": { "type": "object" }
+    "format": {
+      "const": "house-technical-designer-project"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "applicationVersion": {
+      "type": "string"
+    },
+    "project": {
+      "$ref": "#/$defs/Project"
+    },
+    "references": {
+      "type": "object"
+    },
+    "extensions": {
+      "type": "object"
+    }
   },
   "additionalProperties": true,
   "$defs": {
     "Project": {
       "type": "object",
-      "required": ["id", "metadata", "site", "building"],
+      "required": [
+        "id",
+        "metadata",
+        "site",
+        "building"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
         "metadata": {
           "type": "object",
-          "required": ["name", "createdAt", "updatedAt"],
+          "required": [
+            "name",
+            "createdAt",
+            "updatedAt"
+          ],
           "properties": {
-            "name": { "type": "string" }, "description": { "type": "string" },
-            "author": { "type": "string" }, "createdAt": { "type": "string" },
-            "updatedAt": { "type": "string" }, "projectRevision": { "type": "string" },
-            "notes": { "type": "string" }
-          }, "additionalProperties": false
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "author": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            },
+            "projectRevision": {
+              "type": "string"
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
         },
         "site": {
-          "type": "object", "required": ["northAngleDeg"],
-          "properties": { "northAngleDeg": { "type": "number" }, "altitudeM": { "type": "number" }, "climateProfileId": { "type": "string" } },
+          "type": "object",
+          "required": [
+            "northAngleDeg"
+          ],
+          "properties": {
+            "northAngleDeg": {
+              "type": "number"
+            },
+            "altitudeM": {
+              "type": "number"
+            },
+            "climateProfileId": {
+              "type": "string"
+            }
+          },
           "additionalProperties": true
         },
         "building": {
-          "type": "object", "required": ["levels", "zones"],
+          "type": "object",
+          "required": [
+            "levels",
+            "zones"
+          ],
           "properties": {
-            "levels": { "type": "array", "items": { "$ref": "#/$defs/Level" } },
-            "zones": { "type": "array", "items": { "$ref": "#/$defs/Zone" } }
-          }, "additionalProperties": true
+            "levels": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Level"
+              }
+            },
+            "zones": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Zone"
+              }
+            }
+          },
+          "additionalProperties": true
         },
-        "materialLibrary": { "type": "object", "required": ["materials"], "properties": { "materials": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/material.schema.json" } } }, "additionalProperties": false },
-        "assemblies": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/assembly.schema.json" } },
-        "equipment": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/equipment.schema.json" } },
-        "systems": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/network.schema.json" } },
-        "scenarios": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/scenario.schema.json" } },
-        "calculationSettings": { "type": "object", "additionalProperties": { "$ref": "https://house-technical-designer.local/schemas/module-settings.schema.json" } },
-        "drawingViews": { "type": "array" },
-        "regulatoryContext": { "type": "object" }
-      }, "additionalProperties": true
+        "materialLibrary": {
+          "type": "object",
+          "required": [
+            "materials"
+          ],
+          "properties": {
+            "materials": {
+              "type": "array",
+              "items": {
+                "$ref": "https://house-technical-designer.local/schemas/material.schema.json"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "assemblies": {
+          "type": "array",
+          "items": {
+            "$ref": "https://house-technical-designer.local/schemas/assembly.schema.json"
+          }
+        },
+        "equipment": {
+          "type": "array",
+          "items": {
+            "$ref": "https://house-technical-designer.local/schemas/equipment.schema.json"
+          }
+        },
+        "systems": {
+          "type": "array",
+          "items": {
+            "$ref": "https://house-technical-designer.local/schemas/network.schema.json"
+          }
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "$ref": "https://house-technical-designer.local/schemas/scenario.schema.json"
+          }
+        },
+        "calculationSettings": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "https://house-technical-designer.local/schemas/module-settings.schema.json"
+          }
+        },
+        "drawingViews": {
+          "type": "array"
+        },
+        "regulatoryContext": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
     },
     "Level": {
-      "type": "object", "required": ["id", "name", "elevationMm", "defaultStoreyHeightMm", "walls", "slabs", "roofs", "openings", "stairs", "spaces", "annotations"],
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "elevationMm",
+        "defaultStoreyHeightMm",
+        "walls",
+        "slabs",
+        "roofs",
+        "openings",
+        "stairs",
+        "spaces",
+        "annotations"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 }, "name": { "type": "string" },
-        "elevationMm": { "type": "number" }, "defaultStoreyHeightMm": { "type": "number", "exclusiveMinimum": 0 },
-        "walls": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Wall" } },
-        "slabs": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Slab" } },
-        "roofs": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/RoofPlane" } },
-        "openings": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Opening" } },
-        "spaces": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Space" } },
-        "stairs": { "type": "array" }, "annotations": { "type": "array", "items": { "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Dimension" } }
-      }, "additionalProperties": true
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "elevationMm": {
+          "type": "number"
+        },
+        "defaultStoreyHeightMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "walls": {
+          "type": "array",
+          "items": {
+            "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Wall"
+          }
+        },
+        "slabs": {
+          "type": "array",
+          "items": {
+            "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Slab"
+          }
+        },
+        "roofs": {
+          "type": "array",
+          "items": {
+            "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/RoofPlane"
+          }
+        },
+        "openings": {
+          "type": "array",
+          "items": {
+            "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Opening"
+          }
+        },
+        "spaces": {
+          "type": "array",
+          "items": {
+            "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Space"
+          }
+        },
+        "stairs": {
+          "type": "array"
+        },
+        "annotations": {
+          "type": "array",
+          "items": {
+            "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Dimension"
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ComponentInstance"
+          }
+        }
+      },
+      "additionalProperties": true
     },
     "Zone": {
-      "type": "object", "required": ["id", "type", "name", "spaceIds", "properties"],
-      "properties": { "id": { "type": "string", "minLength": 1 }, "type": { "enum": ["THERMAL", "VENTILATION", "ELECTRICAL", "ACOUSTIC", "LIGHTING", "FIRE", "WATER", "SECURITY", "CUSTOM"] }, "name": { "type": "string" }, "spaceIds": { "type": "array", "items": { "type": "string" } }, "properties": { "type": "object" } },
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "name",
+        "spaceIds",
+        "properties"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": [
+            "THERMAL",
+            "VENTILATION",
+            "ELECTRICAL",
+            "ACOUSTIC",
+            "LIGHTING",
+            "FIRE",
+            "WATER",
+            "SECURITY",
+            "CUSTOM"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "spaceIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "properties": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "ComponentInstance": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "levelId",
+        "category",
+        "position",
+        "elevationMm",
+        "rotationDeg"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "const": "COMPONENT_INSTANCE"
+        },
+        "levelId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "enum": [
+            "HEATING",
+            "SANITARY",
+            "VENTILATION",
+            "ELECTRICAL",
+            "LIGHTING",
+            "PHOTOVOLTAIC",
+            "APPLIANCE",
+            "FURNITURE",
+            "OTHER"
+          ]
+        },
+        "definitionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "position": {
+          "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point2D"
+        },
+        "elevationMm": {
+          "type": "number"
+        },
+        "rotationDeg": {
+          "type": "number"
+        },
+        "hostObjectId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "spaceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "properties": {
+          "type": "object"
+        }
+      },
       "additionalProperties": true
     }
   }

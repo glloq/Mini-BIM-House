@@ -1,4 +1,5 @@
 import type {
+  ComponentCategory,
   Dimension,
   DimensionType,
   Opening,
@@ -10,6 +11,7 @@ import type {
 } from '@house-technical-designer/core-domain';
 import { dimensionId, entityId } from '@house-technical-designer/core-domain';
 import {
+  AddComponentCommand,
   AddDimensionCommand,
   AddOpeningCommand,
   AddRoofCommand,
@@ -22,6 +24,7 @@ import {
   ProjectTransactionCommand,
   SetWallPathCommand,
   SplitWallCommand,
+  UpdateComponentCommand,
   UpdateNetworkNodeCommand,
   UpdateOpeningCommand,
   UpdateRoofCommand,
@@ -237,6 +240,53 @@ export function addWallRectangleCommand(
     draft,
     { asOneWall: false, closed: true, newId },
   );
+}
+
+/**
+ * Places one thing in the building, where the user pointed.
+ *
+ * The room it stands in is read from the plan rather than asked for: the user
+ * has just pointed at a place, and that place is in a room or it is not. What
+ * the model does not know it leaves unsaid — a component outside every room is
+ * a component with no room, not a component in the first one.
+ */
+export function placeComponentCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  point: Point2D,
+  draft: {
+    readonly category: ComponentCategory;
+    readonly definitionId?: string;
+    readonly name?: string;
+    readonly elevationMm: number;
+  },
+  componentId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const room = level.spaces.find(
+    (space) =>
+      space.boundaryMode === 'MANUAL' &&
+      pointInPolygon(point, space.manualPolygon.outer),
+  );
+  return {
+    status: 'OK',
+    command: new AddComponentCommand(level.id, {
+      id: componentId,
+      category: draft.category,
+      ...(draft.definitionId === undefined || draft.definitionId === ''
+        ? {}
+        : { definitionId: draft.definitionId }),
+      ...(draft.name === undefined || draft.name.trim() === ''
+        ? {}
+        : { name: draft.name }),
+      position: { x: point.x, y: point.y },
+      elevationMm: draft.elevationMm,
+      rotationDeg: 0,
+      ...(room === undefined ? {} : { spaceId: room.id }),
+    }),
+  };
 }
 
 /** Whether a point falls inside a contour, by the crossing-number rule. */
@@ -743,6 +793,20 @@ export function moveObjectsCommand(
             x: node.position.x + deltaMm.x,
             y: node.position.y + deltaMm.y,
             z: node.position.z,
+          },
+        }),
+      );
+      continue;
+    }
+    const component = (level.components ?? []).find(
+      ({ id }) => id === objectId,
+    );
+    if (component !== undefined) {
+      commands.push(
+        new UpdateComponentCommand(level.id, component.id, {
+          position: {
+            x: component.position.x + deltaMm.x,
+            y: component.position.y + deltaMm.y,
           },
         }),
       );

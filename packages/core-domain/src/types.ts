@@ -9,6 +9,7 @@ import type { Slab } from './slab.js';
 import type { RoofPlane } from './roof-plane.js';
 import type { TechnicalNetwork } from './network.js';
 import type { Annotation } from './annotation.js';
+import type { ComponentInstance } from './component.js';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
@@ -74,6 +75,14 @@ export interface Level extends BaseEntity<LevelId> {
   readonly stairs: readonly JsonValue[];
   readonly spaces: readonly Space[];
   readonly annotations: readonly Annotation[];
+  /**
+   * The things placed on this storey.
+   *
+   * Optional so a file written before components existed still reads: a level
+   * that says nothing about components holds none, which is the truth about
+   * every project written until now.
+   */
+  readonly components?: readonly ComponentInstance[];
 }
 
 export type ZoneType =

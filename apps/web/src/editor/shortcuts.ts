@@ -13,6 +13,7 @@ export type ShortcutCommandId =
   | 'tool.space'
   | 'tool.slab'
   | 'tool.slabHole'
+  | 'tool.component'
   | 'tool.dimension'
   | 'tool.network'
   | 'tool.split'
@@ -68,6 +69,7 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
     shift: true,
     group: 'Outils',
   },
+  { id: 'tool.component', label: 'Composant', key: 'k', group: 'Outils' },
   { id: 'tool.dimension', label: 'Cotation', key: 'd', group: 'Outils' },
   { id: 'tool.network', label: 'Réseau', key: 'r', group: 'Outils' },
   { id: 'tool.split', label: 'Scinder un mur', key: 'x', group: 'Outils' },

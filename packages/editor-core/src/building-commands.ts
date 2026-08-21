@@ -1,4 +1,6 @@
 import type {
+  ComponentCategory,
+  ComponentInstance,
   Dimension,
   Level,
   NetworkNode,
@@ -12,13 +14,15 @@ import type {
 import {
   detectSpaceBoundaries,
   entityId,
+  isComponentCategory,
   isDimensionType,
   isOpeningType,
   isSlabRole,
   isWallReferenceSide,
   isWallRole,
+  validateComponentInstance,
 } from '@house-technical-designer/core-domain';
-import type { Polygon2D } from '@house-technical-designer/geometry';
+import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import {
   polygonArea,
   validatePolygon,
@@ -626,6 +630,225 @@ export class RemoveRoofCommand extends BuildingCommand {
     return mapLevel(project, this.levelId, (level) => ({
       ...level,
       roofs: level.roofs.filter(({ id }) => id !== this.roofId),
+    }));
+  }
+}
+
+/** What placing a component asks for. */
+export interface ComponentDraft {
+  readonly id: string;
+  readonly category: ComponentCategory;
+  readonly definitionId?: string;
+  readonly name?: string;
+  readonly position: Point2D;
+  readonly elevationMm: number;
+  readonly rotationDeg: number;
+  readonly hostObjectId?: string;
+  readonly spaceId?: string;
+}
+
+/**
+ * Places one thing in the building.
+ *
+ * The catalogue describes a model of heat pump; this is the heat pump standing
+ * at these coordinates on this storey. Nothing that the definition already
+ * says is copied here: two answers to one question is how a project ends up
+ * disagreeing with itself.
+ */
+export class AddComponentCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly draft: ComponentDraft,
+  ) {
+    super(`component:add:${draft.id}`, 'Poser un composant');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level === undefined)
+      return rejected(`Le niveau ${this.levelId} est introuvable.`);
+    if ((level.components ?? []).some(({ id }) => id === this.draft.id))
+      return rejected(`Le composant ${this.draft.id} existe déjà.`);
+    if (
+      this.draft.definitionId !== undefined &&
+      !(project.equipment ?? []).some(
+        ({ id }) => id === this.draft.definitionId,
+      )
+    )
+      return rejected(
+        `Le modèle ${this.draft.definitionId} est introuvable dans la bibliothèque.`,
+      );
+    if (
+      this.draft.spaceId !== undefined &&
+      !level.spaces.some(({ id }) => id === this.draft.spaceId)
+    )
+      return rejected(`La pièce ${this.draft.spaceId} est introuvable.`);
+    const issues = validateComponentInstance(this.instance());
+    return issues.length > 0
+      ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
+      : ok();
+  }
+  private instance(): ComponentInstance {
+    return {
+      id: entityId<'ComponentInstance'>(this.draft.id),
+      type: 'COMPONENT_INSTANCE',
+      levelId: entityId<'Level'>(this.levelId),
+      category: this.draft.category,
+      ...(this.draft.definitionId === undefined
+        ? {}
+        : { definitionId: this.draft.definitionId }),
+      ...(this.draft.name === undefined ? {} : { name: this.draft.name }),
+      position: this.draft.position,
+      elevationMm: this.draft.elevationMm,
+      rotationDeg: this.draft.rotationDeg,
+      ...(this.draft.hostObjectId === undefined
+        ? {}
+        : { hostObjectId: this.draft.hostObjectId }),
+      ...(this.draft.spaceId === undefined
+        ? {}
+        : { spaceId: entityId<'Space'>(this.draft.spaceId) }),
+    };
+  }
+  protected apply(project: Project): Project {
+    const component = this.instance();
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      components: [...(level.components ?? []), component],
+    }));
+  }
+}
+
+/** What a component edit may change. */
+export interface ComponentPatch {
+  readonly category?: ComponentCategory;
+  readonly definitionId?: string | null;
+  readonly name?: string | null;
+  readonly position?: Point2D;
+  readonly elevationMm?: number;
+  readonly rotationDeg?: number;
+  readonly spaceId?: string | null;
+}
+
+export class UpdateComponentCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly componentId: string,
+    readonly patch: ComponentPatch,
+  ) {
+    super(`component:update:${componentId}`, 'Modifier un composant');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    const component = (level?.components ?? []).find(
+      ({ id }) => id === this.componentId,
+    );
+    if (component === undefined || level === undefined)
+      return rejected(`Le composant ${this.componentId} est introuvable.`);
+    const category = rejectedEnumValue(
+      this.patch.category,
+      isComponentCategory,
+    );
+    if (category !== undefined)
+      return rejected(`Catégorie de composant inconnue : ${category}.`);
+    if (
+      typeof this.patch.definitionId === 'string' &&
+      !(project.equipment ?? []).some(
+        ({ id }) => id === this.patch.definitionId,
+      )
+    )
+      return rejected(`Le modèle ${this.patch.definitionId} est introuvable.`);
+    if (
+      typeof this.patch.spaceId === 'string' &&
+      !level.spaces.some(({ id }) => id === this.patch.spaceId)
+    )
+      return rejected(`La pièce ${this.patch.spaceId} est introuvable.`);
+    const issues = validateComponentInstance(this.patched(component));
+    return issues.length > 0
+      ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
+      : ok();
+  }
+  private patched(component: ComponentInstance): ComponentInstance {
+    const {
+      definitionId: _definition,
+      name: _name,
+      spaceId: _space,
+      ...rest
+    } = component;
+    const definitionId =
+      this.patch.definitionId === undefined
+        ? component.definitionId
+        : (this.patch.definitionId ?? undefined);
+    const name =
+      this.patch.name === undefined
+        ? component.name
+        : (this.patch.name ?? undefined);
+    const spaceId =
+      this.patch.spaceId === undefined
+        ? component.spaceId
+        : this.patch.spaceId === null
+          ? undefined
+          : entityId<'Space'>(this.patch.spaceId);
+    return {
+      ...rest,
+      ...(this.patch.category === undefined
+        ? {}
+        : { category: this.patch.category }),
+      ...(this.patch.position === undefined
+        ? {}
+        : { position: this.patch.position }),
+      ...(this.patch.elevationMm === undefined
+        ? {}
+        : { elevationMm: this.patch.elevationMm }),
+      ...(this.patch.rotationDeg === undefined
+        ? {}
+        : { rotationDeg: this.patch.rotationDeg }),
+      ...(definitionId === undefined ? {} : { definitionId }),
+      ...(name === undefined || name.trim() === '' ? {} : { name }),
+      ...(spaceId === undefined ? {} : { spaceId }),
+    };
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      components: (level.components ?? []).map((component) =>
+        component.id === this.componentId ? this.patched(component) : component,
+      ),
+    }));
+  }
+}
+
+export class RemoveComponentCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly componentId: string,
+  ) {
+    super(`component:remove:${componentId}`, 'Supprimer un composant');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (
+      (level?.components ?? []).some(({ id }) => id === this.componentId) !==
+      true
+    )
+      return rejected(`Le composant ${this.componentId} est introuvable.`);
+    // A network node standing for this component would name something the
+    // project no longer holds.
+    const held = (project.systems ?? []).flatMap((network) =>
+      network.nodes.filter(
+        ({ hostObjectId }) => hostObjectId === this.componentId,
+      ),
+    );
+    return held.length === 0
+      ? ok()
+      : rejected(
+          `Le composant ${this.componentId} porte ${held.length} nœud(s) de réseau.`,
+        );
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      components: (level.components ?? []).filter(
+        ({ id }) => id !== this.componentId,
+      ),
     }));
   }
 }

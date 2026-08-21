@@ -58,6 +58,12 @@ export const PLAN_LAYERS = [
     defaultVisible: true,
   },
   {
+    id: 'components.placed',
+    label: 'Équipements posés',
+    discipline: 'OTHER',
+    defaultVisible: true,
+  },
+  {
     id: 'annotation.dimensions',
     label: 'Cotations',
     discipline: 'ARCHITECTURE',
@@ -114,6 +120,7 @@ const ARCHITECTURE_BASE: readonly PlanLayerId[] = [
   'architecture.slabs',
   'architecture.spaces',
   'architecture.space-labels',
+  'components.placed',
   'annotation.dimensions',
 ];
 

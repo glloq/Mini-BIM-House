@@ -1,4 +1,5 @@
 import type {
+  ComponentCategory,
   DimensionType,
   ProjectFile,
   SlabRole,
@@ -14,6 +15,7 @@ import {
   addWallCommand,
   addWallRectangleCommand,
   addWallRunCommand,
+  placeComponentCommand,
   punchSlabHoleCommand,
   joinWallsCommand,
   offsetWallCommand,
@@ -25,6 +27,7 @@ import { placeNodeCommand } from '../networks/network-model.js';
 import type { ToolOptionDefinition } from './tool-options.js';
 import { OBJECT_FAMILIES } from './object-editors.js';
 import {
+  COMPONENT_CATEGORY_OPTIONS,
   DIMENSION_TYPE_OPTIONS,
   OPENING_TYPE_OPTIONS,
   SLAB_ROLE_OPTIONS,
@@ -46,11 +49,17 @@ import {
  * appears where it belongs without the toolbar knowing what it is.
  */
 export type ToolGroup =
-  'SELECTION' | 'ARCHITECTURE' | 'MODIFICATION' | 'NETWORKS' | 'ANNOTATION';
+  | 'SELECTION'
+  | 'ARCHITECTURE'
+  | 'COMPONENTS'
+  | 'MODIFICATION'
+  | 'NETWORKS'
+  | 'ANNOTATION';
 
 export const TOOL_GROUP_LABELS: Readonly<Record<ToolGroup, string>> = {
   SELECTION: 'Sélection',
   ARCHITECTURE: 'Architecture',
+  COMPONENTS: 'Composants',
   MODIFICATION: 'Modification',
   NETWORKS: 'Réseaux',
   ANNOTATION: 'Annotation',
@@ -566,6 +575,71 @@ export const EDITOR_TOOLS = [
       punchSlabHoleCommand(context.file, context.levelId, context.points),
   },
   {
+    id: 'COMPONENT',
+    group: 'COMPONENTS',
+    label: 'Composant',
+    hint: 'Poser un équipement, un appareil ou un meuble à un endroit du plan',
+    shortcutId: 'tool.component',
+    requiredPoints: 1,
+    options: [
+      {
+        key: 'category',
+        kind: 'SELECT',
+        label: 'Catégorie',
+        choices: () => COMPONENT_CATEGORY_OPTIONS,
+        fallback: () => 'OTHER',
+      },
+      {
+        key: 'definitionId',
+        kind: 'SELECT',
+        label: 'Modèle catalogue',
+        hint: 'Les propriétés physiques restent celles du modèle.',
+        choices: ({ project }) => [
+          { value: '', label: 'Aucun modèle' },
+          ...(project.equipment ?? []).map((definition) => ({
+            value: definition.id,
+            label: `${definition.kind} · ${definition.id}`,
+          })),
+        ],
+        // Nothing is chosen for the user: a component standing for a model
+        // nobody picked would be a claim the project cannot support.
+        fallback: () => '',
+      },
+      {
+        key: 'name',
+        kind: 'TEXT',
+        label: 'Nom',
+        hint: 'Vide, le composant prend le nom de sa catégorie.',
+        fallback: () => '',
+      },
+      {
+        key: 'elevationMm',
+        kind: 'NUMBER',
+        label: 'Altitude sur le niveau',
+        unit: 'mm',
+        step: 10,
+        fallback: () => '0',
+      },
+    ],
+    createCommand: (context) => {
+      const point = context.points[0];
+      if (point === undefined)
+        return { status: 'ERROR', message: 'Un point est attendu.' };
+      return placeComponentCommand(
+        context.file,
+        context.levelId,
+        point,
+        {
+          category: context.option('category') as ComponentCategory,
+          definitionId: context.option('definitionId'),
+          name: context.option('name'),
+          elevationMm: context.optionNumber('elevationMm') ?? 0,
+        },
+        context.newId('component'),
+      );
+    },
+  },
+  {
     id: 'SPLIT',
     group: 'ARCHITECTURE',
     label: 'Scinder',
@@ -843,16 +917,16 @@ export function toolsInGroup(
   return EDITOR_TOOLS.filter((tool) => tool.group === group);
 }
 
-/** The families that hold at least one tool, in palette order. */
+/**
+ * The families that hold at least one tool, in palette order.
+ *
+ * The order comes from the labels, which name every family exactly once: a
+ * family added to the type and forgotten here used to hide every tool in it.
+ */
 export function populatedToolGroups(): readonly ToolGroup[] {
-  const order: readonly ToolGroup[] = [
-    'SELECTION',
-    'ARCHITECTURE',
-    'MODIFICATION',
-    'NETWORKS',
-    'ANNOTATION',
-  ];
-  return order.filter((group) => toolsInGroup(group).length > 0);
+  return (Object.keys(TOOL_GROUP_LABELS) as readonly ToolGroup[]).filter(
+    (group) => toolsInGroup(group).length > 0,
+  );
 }
 
 /** What this tool lets the user decide before drawing, if anything. */
