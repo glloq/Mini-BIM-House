@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml/badge.svg)](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml)
 [![Licence AGPL-3.0-only](https://img.shields.io/badge/licence-AGPL--3.0--only-blue)](LICENSE)
-![Version 0.2.0-beta.2](https://img.shields.io/badge/version-0.2.0--beta.2-yellow)
+![Version 0.3.0-beta.1](https://img.shields.io/badge/version-0.3.0--beta.1-yellow)
 ![Statut bêta](https://img.shields.io/badge/statut-b%C3%AAta-yellow)
 
-> **Version 0.2.0-beta.2 — bêta.** L'application couvre le parcours complet et
+> **Version 0.3.0-beta.1 — bêta.** L'application couvre le parcours complet et
 > ses formats sont stabilisés ; l'interface peut encore bouger et plusieurs
 > sujets restent hors périmètre. Voir
 > [Ce que l'application ne fait pas](#ce-que-lapplication-ne-fait-pas), le
@@ -33,9 +33,14 @@ L'objectif est de réunir dans une seule interface :
 
 ## Démarrage rapide
 
-L'application est publiée sur GitHub Pages après chaque CI verte sur `main` :
-<https://glloq.github.io/Mini-BIM-House/>. Tout se passe dans le navigateur ;
-aucun projet n'est envoyé sur un serveur.
+Tout se passe dans le navigateur ; aucun projet n'est envoyé sur un serveur.
+
+L'application se construit en un site statique, et le dépôt porte le workflow
+qui le publie sur GitHub Pages après chaque CI verte sur `main`. Il n'y a pas
+d'adresse à donner ici pour l'instant : le dépôt est privé et Pages n'y est
+pas activé, si bien que le workflow ne publie rien. Il suffit d'ouvrir le
+dépôt et d'activer Pages en « GitHub Actions » pour que la publication ait
+lieu — c'est une décision qui appartient à son propriétaire, pas au code.
 
 En local, avec Node.js 22 ou plus récent :
 
@@ -62,6 +67,17 @@ matériaux et d'assemblages est déjà là, l'outil **Mur** dessine tout de suit
 
 Le parcours complet est décrit dans
 [`docs/USER_GUIDE_MVP.md`](docs/USER_GUIDE_MVP.md).
+
+Pour travailler sur les données plutôt que sur l'application :
+
+```bash
+npm run catalog:status        # où en est chacune des 518 familles
+npm run catalog:status 2      # la vague 2 seulement
+npm run validate:catalog      # toute la couche de données, en une seconde
+```
+
+Ce que ces registres sont et pourquoi ils sont en données est écrit dans
+[`docs/DATA_REGISTRIES.md`](docs/DATA_REGISTRIES.md).
 
 ---
 
@@ -475,7 +491,8 @@ largement dans une image.
 
 L'application fonctionne comme une application web statique et reste compatible
 avec **GitHub Pages** : la construction a été vérifiée servie depuis un
-sous-chemin de projet.
+sous-chemin de projet. Le workflow de publication existe et attend que Pages
+soit activé sur le dépôt.
 
 ---
 
@@ -492,7 +509,8 @@ sous-chemin de projet.
 │   ├── core-domain/             modèle canonique du projet
 │   ├── materials/               catalogue et provenance des matériaux
 │   ├── assemblies/              parois multicouches
-│   ├── equipment-catalog/       définitions et instances d'équipements
+│   ├── equipment-catalog/       fiches d'équipement, en JSON par métier
+│   ├── catalog-registry/        nomenclature, ports, dégagements, schémas
 │   ├── editor-core/             commandes, caméra, accrochage, outils
 │   ├── drawing-engine/          scène sémantique et rendu SVG
 │   ├── view-query/              calques, vues de plan, sélection, analyse
@@ -513,7 +531,7 @@ sous-chemin de projet.
 ├── schemas/                     contrats JSON Schema
 ├── examples/                    fixtures validées, dont la maison de référence
 ├── e2e/                         tests navigateur Playwright
-├── scripts/                     validation des schémas, audit des licences
+├── scripts/                     validation des schémas et des données, licences
 └── docs/                        spécifications, normes, ADR, état, guide
 ```
 
@@ -598,7 +616,7 @@ sans casser le noyau.
 
 # État du projet
 
-**Version 0.2.0-beta.2, bêta.** L'application couvre le parcours complet :
+**Version 0.3.0-beta.1, bêta.** L'application couvre le parcours complet :
 dessiner, composer, calculer, superposer, métrer, comparer, exporter. Ce qu'un
 fichier de projet promet d'une version à l'autre est écrit dans
 [`CHANGELOG.md`](CHANGELOG.md).
@@ -653,7 +671,7 @@ fichier de projet promet d'une version à l'autre est écrit dans
 
 ## Ce que l'application ne fait pas
 
-Cette liste décrit la `0.2.0-beta.2` telle qu'elle est aujourd'hui, et rien
+Cette liste décrit la `0.3.0-beta.1` telle qu'elle est aujourd'hui, et rien
 d'autre : ce qui y figure n'existe pas encore dans l'application.
 
 - **Toitures sur contour quelconque** : une toiture est décrite par son
