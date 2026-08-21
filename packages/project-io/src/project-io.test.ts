@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { ENTITY_FAMILIES } from '@house-technical-designer/core-domain';
 import {
   DEFAULT_PROJECT_IMPORT_LIMITS,
   loadProjectJson,
@@ -332,23 +333,77 @@ describe('import limits', () => {
     };
     const result = loadProjectJson(JSON.stringify(walled), undefined, {
       ...DEFAULT_PROJECT_IMPORT_LIMITS,
-      maximumWalls: 0,
+      maximumByFamily: { WALL: 0 },
     });
     expect(result).toMatchObject({
       status: 'TOO_LARGE',
-      breach: { limit: 'maximumWalls', label: 'murs', actual: 1, maximum: 0 },
+      breach: { limit: 'WALL', label: 'murs', actual: 1, maximum: 0 },
     });
   });
 
   it('reports the first bound exceeded, not a generic refusal', () => {
     const result = loadProjectJson(JSON.stringify(fixture), undefined, {
       ...DEFAULT_PROJECT_IMPORT_LIMITS,
-      maximumLevels: 0,
-      maximumWalls: 0,
+      maximumByFamily: { LEVEL: 0, WALL: 0 },
     });
     expect(result).toMatchObject({
       status: 'TOO_LARGE',
-      breach: { limit: 'maximumLevels' },
+      breach: { limit: 'LEVEL' },
+    });
+  });
+
+  it('bounds every family the model knows, not the seven somebody listed', () => {
+    // Components, whole roofs, stairs, structural members, annotations,
+    // obstacles, ports, scenarios, saved views and sheets were all unbounded:
+    // a file was refused for its walls while a million placed appliances went
+    // through.
+    for (const family of ENTITY_FAMILIES) {
+      if (family === 'PROJECT') continue;
+      expect(
+        DEFAULT_PROJECT_IMPORT_LIMITS.maximumByFamily[family],
+        family,
+      ).toBeGreaterThan(0);
+    }
+  });
+
+  it('refuses a file with more objects than a house has, whatever they are', () => {
+    const result = loadProjectJson(JSON.stringify(fixture), undefined, {
+      ...DEFAULT_PROJECT_IMPORT_LIMITS,
+      maximumByFamily: {},
+      maximumEntities: 0,
+    });
+    expect(result).toMatchObject({
+      status: 'TOO_LARGE',
+      breach: { limit: 'maximumEntities', label: 'objets' },
+    });
+  });
+
+  it('refuses a file whose outlines carry more points than anything can draw', () => {
+    // A hundred objects each carrying a hundred thousand vertices is a small
+    // project by every other count and a file nothing can draw.
+    const outlined = {
+      ...fixture,
+      project: {
+        ...fixture.project,
+        site: {
+          northAngleDeg: 0,
+          parcelBoundary: {
+            outer: Array.from({ length: 6 }, (_unused, index) => ({
+              x: index * 1000,
+              y: 0,
+            })),
+          },
+        },
+      },
+    };
+    const result = loadProjectJson(JSON.stringify(outlined), undefined, {
+      ...DEFAULT_PROJECT_IMPORT_LIMITS,
+      maximumByFamily: {},
+      maximumGeometryPoints: 1,
+    });
+    expect(result).toMatchObject({
+      status: 'TOO_LARGE',
+      breach: { limit: 'maximumGeometryPoints', label: 'points de géométrie' },
     });
   });
 });
