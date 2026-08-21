@@ -10,5 +10,6 @@ export * from './slab.js';
 export * from './roof-plane.js';
 export * from './annotation.js';
 export * from './component.js';
+export * from './stair.js';
 export * from './revision.js';
 export * from './project-path.js';

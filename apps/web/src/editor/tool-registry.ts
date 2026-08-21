@@ -3,6 +3,7 @@ import type {
   DimensionType,
   ProjectFile,
   SlabRole,
+  StairType,
   WallRole,
 } from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
@@ -12,6 +13,7 @@ import {
   addOpeningCommand,
   addSlabFromPointsCommand,
   addSpaceAtPointCommand,
+  addStairCommand,
   addWallCommand,
   addWallRectangleCommand,
   addWallRunCommand,
@@ -32,6 +34,7 @@ import {
   OPENING_TYPE_OPTIONS,
   SLAB_ROLE_OPTIONS,
   SPACE_CATEGORY_OPTIONS,
+  STAIR_TYPE_OPTIONS,
   WALL_ROLE_OPTIONS,
 } from './domain-options.js';
 import {
@@ -573,6 +576,69 @@ export const EDITOR_TOOLS = [
     dynamicInput: { length: true, angle: true },
     createCommand: (context) =>
       punchSlabHoleCommand(context.file, context.levelId, context.points),
+  },
+  {
+    id: 'STAIR',
+    group: 'ARCHITECTURE',
+    label: 'Escalier',
+    hint: 'Tracer la ligne de foulée · Entrée termine, Échap annule',
+    shortcutId: 'tool.stair',
+    requiredPoints: 2,
+    openEnded: true,
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'stairType',
+        kind: 'SELECT',
+        label: 'Type',
+        choices: () => STAIR_TYPE_OPTIONS,
+        fallback: () => 'STRAIGHT',
+      },
+      {
+        key: 'riserCount',
+        kind: 'NUMBER',
+        label: 'Contremarches',
+        step: 1,
+        min: 2,
+        hint: 'La hauteur de marche se déduit de la montée entre les niveaux.',
+        // Sixteen risers for a storey of about 2,70 m gives roughly 17 cm,
+        // which is where a house usually lands; the user changes it freely and
+        // the inspector says whether the result is comfortable.
+        fallback: () => '16',
+      },
+      {
+        key: 'treadDepthMm',
+        kind: 'NUMBER',
+        label: 'Giron',
+        unit: 'mm',
+        step: 10,
+        min: 1,
+        fallback: () => '270',
+      },
+      {
+        key: 'widthMm',
+        kind: 'NUMBER',
+        label: 'Emmarchement',
+        unit: 'mm',
+        step: 50,
+        min: 1,
+        fallback: () => '900',
+      },
+    ],
+    createCommand: (context) =>
+      addStairCommand(
+        context.file,
+        context.levelId,
+        context.points,
+        {
+          stairType: context.option('stairType') as StairType,
+          widthMm: context.optionNumber('widthMm') ?? 900,
+          riserCount: Math.round(context.optionNumber('riserCount') ?? 16),
+          treadDepthMm: context.optionNumber('treadDepthMm') ?? 270,
+        },
+        context.newId('stair'),
+      ),
   },
   {
     id: 'COMPONENT',

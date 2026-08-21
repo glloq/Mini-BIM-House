@@ -231,7 +231,10 @@
           }
         },
         "stairs": {
-          "type": "array"
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Stair"
+          }
         },
         "annotations": {
           "type": "array",
@@ -352,6 +355,95 @@
         },
         "properties": {
           "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "Stair": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "levelId",
+        "topLevelId",
+        "stairType",
+        "widthMm",
+        "riserCount",
+        "treadDepthMm",
+        "path"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "const": "STAIR"
+        },
+        "levelId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "topLevelId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stairType": {
+          "enum": [
+            "STRAIGHT",
+            "L_SHAPED",
+            "U_SHAPED",
+            "SPIRAL"
+          ]
+        },
+        "widthMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "riserCount": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "treadDepthMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "path": {
+          "type": "object",
+          "required": [
+            "points"
+          ],
+          "properties": {
+            "points": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point2D"
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "landings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "afterRiser",
+              "depthMm"
+            ],
+            "properties": {
+              "afterRiser": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "depthMm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "additionalProperties": true
+          }
         }
       },
       "additionalProperties": true

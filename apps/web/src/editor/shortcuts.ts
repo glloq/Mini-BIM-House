@@ -14,6 +14,7 @@ export type ShortcutCommandId =
   | 'tool.slab'
   | 'tool.slabHole'
   | 'tool.component'
+  | 'tool.stair'
   | 'tool.dimension'
   | 'tool.network'
   | 'tool.split'
@@ -69,6 +70,7 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
     shift: true,
     group: 'Outils',
   },
+  { id: 'tool.stair', label: 'Escalier', key: 'a', group: 'Outils' },
   { id: 'tool.component', label: 'Composant', key: 'k', group: 'Outils' },
   { id: 'tool.dimension', label: 'Cotation', key: 'd', group: 'Outils' },
   { id: 'tool.network', label: 'Réseau', key: 'r', group: 'Outils' },

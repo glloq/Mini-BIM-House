@@ -5,7 +5,22 @@ import {
 import type { AssemblyId } from '@house-technical-designer/assemblies';
 import type { LevelId, SlabId } from './ids.js';
 
-export const SLAB_ROLES = ['FLOOR', 'FOUNDATION', 'TERRACE', 'OTHER'] as const;
+/**
+ * What a horizontal element is for.
+ *
+ * A ceiling is one of them: a suspended ceiling is a horizontal element with
+ * its own build-up, sitting at an offset from the storey, and the assemblies
+ * already carry a CEILING category it can be made of. Giving it a family of
+ * its own would have been a second type describing the same geometry, and two
+ * types describing one thing eventually disagree.
+ */
+export const SLAB_ROLES = [
+  'FLOOR',
+  'CEILING',
+  'FOUNDATION',
+  'TERRACE',
+  'OTHER',
+] as const;
 export type SlabRole = (typeof SLAB_ROLES)[number];
 
 export function isSlabRole(value: string): value is SlabRole {

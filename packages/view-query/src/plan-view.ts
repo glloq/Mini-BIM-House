@@ -743,6 +743,148 @@ function componentPrimitives(level: Level): readonly PrimitiveDraft[] {
   });
 }
 
+/**
+ * Draws a stair as a plan reads it: an outline, its treads, and its direction.
+ *
+ * The treads are placed along the walking line at the depth the stair states,
+ * so a flight whose treads do not reach its landing is visibly short rather
+ * than quietly wrong.
+ */
+function stairPrimitives(level: Level): readonly PrimitiveDraft[] {
+  const drafts: PrimitiveDraft[] = [];
+  for (const stair of level.stairs) {
+    const points = stair.path.points;
+    const start = points[0];
+    const end = points[points.length - 1];
+    if (start === undefined || end === undefined || points.length < 2) continue;
+    const half = stair.widthMm / 2;
+    const left: Point2D[] = [];
+    const right: Point2D[] = [];
+    for (const [index, point] of points.entries()) {
+      const previous = points[Math.max(0, index - 1)]!;
+      const next = points[Math.min(points.length - 1, index + 1)]!;
+      const dx = next.x - previous.x;
+      const dy = next.y - previous.y;
+      const length = Math.hypot(dx, dy) || 1;
+      const nx = -dy / length;
+      const ny = dx / length;
+      left.push({ x: point.x + nx * half, y: point.y + ny * half });
+      right.push({ x: point.x - nx * half, y: point.y - ny * half });
+    }
+    drafts.push({
+      id: `stair:${stair.id}`,
+      sourceObjectId: stair.id,
+      semanticRole: 'WALL_BELOW',
+      geometry: {
+        kind: 'POLYGON',
+        polygon: { outer: [...left, ...[...right].reverse()] },
+      },
+      layer: 'architecture.stairs',
+      zIndex: 12,
+      discipline: 'ARCHITECTURE',
+      metadata: { stairType: stair.stairType, topLevelId: stair.topLevelId },
+    });
+    // One fewer tread than risers: the last riser arrives on the storey above.
+    const treads = Math.max(0, stair.riserCount - 1);
+    const totalMm = polylineLengthOf(points);
+    for (let index = 1; index <= treads; index += 1) {
+      const along = (totalMm * index) / (treads + 1);
+      const at = pointAlong(points, along);
+      const direction = directionAlong(points, along);
+      if (at === undefined || direction === undefined) continue;
+      drafts.push({
+        id: `stair-tread:${stair.id}:${index}`,
+        sourceObjectId: stair.id,
+        semanticRole: 'ANNOTATION',
+        geometry: {
+          kind: 'POLYLINE',
+          polyline: {
+            points: [
+              {
+                x: at.x - direction.y * half,
+                y: at.y + direction.x * half,
+              },
+              {
+                x: at.x + direction.y * half,
+                y: at.y - direction.x * half,
+              },
+            ],
+            closed: false,
+          },
+        },
+        layer: 'architecture.stairs',
+        zIndex: 13,
+        discipline: 'ARCHITECTURE',
+      });
+    }
+    drafts.push({
+      id: `stair-walk:${stair.id}`,
+      sourceObjectId: stair.id,
+      semanticRole: 'ANNOTATION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: {
+          points: points.map(({ x, y }) => ({ x, y })),
+          closed: false,
+        },
+      },
+      layer: 'architecture.stairs',
+      zIndex: 14,
+      discipline: 'ARCHITECTURE',
+    });
+  }
+  return drafts;
+}
+
+function polylineLengthOf(points: readonly Point2D[]): number {
+  let total = 0;
+  for (let index = 1; index < points.length; index += 1)
+    total += Math.hypot(
+      points[index]!.x - points[index - 1]!.x,
+      points[index]!.y - points[index - 1]!.y,
+    );
+  return total;
+}
+
+function pointAlong(
+  points: readonly Point2D[],
+  distanceMm: number,
+): Point2D | undefined {
+  let travelled = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const from = points[index - 1]!;
+    const to = points[index]!;
+    const length = Math.hypot(to.x - from.x, to.y - from.y);
+    if (travelled + length >= distanceMm) {
+      const ratio = length === 0 ? 0 : (distanceMm - travelled) / length;
+      return {
+        x: from.x + (to.x - from.x) * ratio,
+        y: from.y + (to.y - from.y) * ratio,
+      };
+    }
+    travelled += length;
+  }
+  return points[points.length - 1];
+}
+
+function directionAlong(
+  points: readonly Point2D[],
+  distanceMm: number,
+): Point2D | undefined {
+  let travelled = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const from = points[index - 1]!;
+    const to = points[index]!;
+    const length = Math.hypot(to.x - from.x, to.y - from.y);
+    if (travelled + length >= distanceMm || index === points.length - 1)
+      return length === 0
+        ? undefined
+        : { x: (to.x - from.x) / length, y: (to.y - from.y) / length };
+    travelled += length;
+  }
+  return undefined;
+}
+
 function slabAndRoofPrimitives(level: Level): readonly PrimitiveDraft[] {
   return [
     ...level.slabs.map((slab) => ({
@@ -854,6 +996,7 @@ export function buildPlanView(
         drafts.push(...dimensionPrimitives(annotation, level, issues));
     drafts.push(...slabAndRoofPrimitives(level));
     drafts.push(...componentPrimitives(level));
+    drafts.push(...stairPrimitives(level));
   }
   for (const network of project.systems ?? [])
     drafts.push(...networkPrimitives(network));

@@ -146,7 +146,7 @@ describe('element enums are checked at the command boundary', () => {
     ).toBe('REJECTED');
     expect(
       dispatcher.dispatch(
-        new UpdateSlabCommand('ground', 'slab', { role: 'CEILING' as never }),
+        new UpdateSlabCommand('ground', 'slab', { role: 'RAMP' as never }),
       ).status,
     ).toBe('REJECTED');
     expect(
@@ -179,7 +179,7 @@ describe('element enums are checked at the command boundary', () => {
       ),
     ).toContain('INVALID_ROLE');
     expect(
-      validateSlab({ ...slab, role: 'CEILING' } as never).join(' '),
+      validateSlab({ ...slab, role: 'RAMP' } as never).join(' '),
     ).toContain('role must be one of');
   });
 });

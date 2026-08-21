@@ -10,6 +10,7 @@ import type { RoofPlane } from './roof-plane.js';
 import type { TechnicalNetwork } from './network.js';
 import type { Annotation } from './annotation.js';
 import type { ComponentInstance } from './component.js';
+import type { Stair } from './stair.js';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
@@ -72,7 +73,14 @@ export interface Level extends BaseEntity<LevelId> {
   readonly slabs: readonly Slab[];
   readonly roofs: readonly RoofPlane[];
   readonly openings: readonly Opening[];
-  readonly stairs: readonly JsonValue[];
+  /**
+   * The stairs starting on this storey.
+   *
+   * They were an untyped list until now, so nothing could be drawn, measured
+   * or checked: an escalier was a shape of JSON the application agreed to
+   * carry and could not read.
+   */
+  readonly stairs: readonly Stair[];
   readonly spaces: readonly Space[];
   readonly annotations: readonly Annotation[];
   /**

@@ -2,6 +2,7 @@ import type { Project } from '@house-technical-designer/core-domain';
 import {
   calculateWallNetArea,
   resolveDimension,
+  stairDimensions,
 } from '@house-technical-designer/core-domain';
 import { serializedTotalThicknessM } from '@house-technical-designer/assemblies';
 import { polygonArea } from '@house-technical-designer/geometry';
@@ -44,6 +45,7 @@ export interface InspectorSubject {
     | 'NETWORK_NODE'
     | 'DIMENSION'
     | 'COMPONENT'
+    | 'STAIR'
     | 'UNKNOWN';
   readonly title: string;
   readonly sections: readonly InspectorSection[];
@@ -620,6 +622,96 @@ export function componentSubject(
                 ? 'Ce composant n’est fixé à rien.'
                 : undefined,
             ),
+          ],
+        },
+      ],
+    };
+  }
+  return undefined;
+}
+
+/** What a stair shows: what it joins, and what that makes it measure. */
+export function stairSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  for (const level of project.building.levels) {
+    const stair = level.stairs.find(({ id }) => id === objectId);
+    if (stair === undefined) continue;
+    const top = project.building.levels.find(
+      ({ id }) => id === stair.topLevelId,
+    );
+    const riseMm =
+      top === undefined ? undefined : top.elevationMm - level.elevationMm;
+    const measured =
+      riseMm === undefined ? undefined : stairDimensions(stair, riseMm);
+    const comfortable =
+      measured === undefined
+        ? undefined
+        : measured.blondelMm >= 590 && measured.blondelMm <= 650;
+    return {
+      objectId,
+      kind: 'STAIR',
+      title: `Escalier ${stair.id}`,
+      sections: [
+        {
+          title: 'Ce qu’il joint',
+          fields: [
+            field('Niveau de départ', level.name),
+            field(
+              'Niveau d’arrivée',
+              top?.name,
+              top === undefined
+                ? 'Ce niveau n’existe pas dans le projet.'
+                : undefined,
+            ),
+            field(
+              'Hauteur à monter',
+              riseMm === undefined ? undefined : metres(riseMm),
+              riseMm === undefined
+                ? 'Sans niveau d’arrivée, la montée est inconnue.'
+                : undefined,
+            ),
+          ],
+        },
+        {
+          title: 'Dimensionnement',
+          fields: [
+            field('Nombre de contremarches', stair.riserCount),
+            field(
+              'Hauteur de marche',
+              measured === undefined
+                ? undefined
+                : `${measured.riserHeightMm.toFixed(1)} mm`,
+              measured === undefined
+                ? 'Elle se déduit de la montée, qui est inconnue.'
+                : 'Déduite de la montée et du nombre de contremarches.',
+            ),
+            field('Giron', `${stair.treadDepthMm} mm`),
+            field('Emmarchement', `${stair.widthMm} mm`),
+            field(
+              'Longueur au sol',
+              measured === undefined ? undefined : metres(measured.runMm),
+            ),
+            field(
+              'Formule de Blondel',
+              measured === undefined
+                ? undefined
+                : `${measured.blondelMm.toFixed(0)} mm`,
+              comfortable === undefined
+                ? undefined
+                : comfortable
+                  ? 'Entre 590 et 650 mm : confortable.'
+                  : 'Hors de 590–650 mm : inconfortable, à vous de décider.',
+            ),
+          ],
+        },
+        {
+          title: 'Références',
+          fields: [
+            field('Identifiant', stair.id),
+            field('Type', stair.stairType),
+            field('Paliers', (stair.landings ?? []).length),
           ],
         },
       ],

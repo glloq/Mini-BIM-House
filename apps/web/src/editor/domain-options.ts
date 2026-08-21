@@ -1,11 +1,13 @@
 import type {
   ComponentCategory,
+  StairType,
   Opening,
   Slab,
   Wall,
 } from '@house-technical-designer/core-domain';
 import {
   COMPONENT_CATEGORIES,
+  STAIR_TYPES,
   DIMENSION_TYPES,
   OPENING_TYPES,
   SLAB_ROLES,
@@ -60,6 +62,7 @@ export const REFERENCE_SIDE_OPTIONS = optionsFrom<Wall['referenceSide']>(
 
 export const SLAB_ROLE_OPTIONS = optionsFrom<Slab['role']>(SLAB_ROLES, {
   FLOOR: 'Plancher',
+  CEILING: 'Plafond',
   FOUNDATION: 'Fondation',
   TERRACE: 'Terrasse',
   OTHER: 'Autre',
@@ -120,3 +123,11 @@ export const COMPONENT_CATEGORY_OPTIONS = optionsFrom<ComponentCategory>(
     OTHER: 'Autre',
   },
 );
+
+/** The shapes of flight the domain accepts. */
+export const STAIR_TYPE_OPTIONS = optionsFrom<StairType>(STAIR_TYPES, {
+  STRAIGHT: 'Droit',
+  L_SHAPED: 'Quart tournant',
+  U_SHAPED: 'Deux quarts tournants',
+  SPIRAL: 'Hélicoïdal',
+});

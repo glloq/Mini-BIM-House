@@ -6,6 +6,7 @@ import {
   DeleteWallCommand,
   ProjectEditorCommand,
   RemoveComponentCommand,
+  RemoveStairCommand,
   RemoveNetworkNodeCommand,
   RemoveRoofCommand,
   RemoveSlabCommand,
@@ -128,4 +129,9 @@ export const componentRemoval: RemovalProvider = (
     ({ id }) => id === objectId,
   )
     ? new RemoveComponentCommand(levelId, objectId)
+    : undefined;
+
+export const stairRemoval: RemovalProvider = (project, levelId, objectId) =>
+  levelOf(project, levelId)?.stairs.some(({ id }) => id === objectId) === true
+    ? new RemoveStairCommand(levelId, objectId)
     : undefined;

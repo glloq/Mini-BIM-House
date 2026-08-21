@@ -157,6 +157,31 @@ export function componentRelationships(
   return ties;
 }
 
+export function stairBounds(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): ObjectBounds | undefined {
+  const stair = levelOf(project, levelId)?.stairs.find(
+    ({ id }) => id === objectId,
+  );
+  return stair === undefined ? undefined : extentOf(stair.path.points);
+}
+
+/** The storeys a stair joins: the one it leaves and the one it reaches. */
+export function stairRelationships(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): readonly ObjectRelationship[] {
+  const stair = levelOf(project, levelId)?.stairs.find(
+    ({ id }) => id === objectId,
+  );
+  return stair === undefined
+    ? []
+    : [{ role: 'Niveau d’arrivée', objectIds: [stair.topLevelId] }];
+}
+
 export function networkNodeBounds(
   project: Project,
   _levelId: string,

@@ -2,6 +2,7 @@ import type {
   ComponentCategory,
   Dimension,
   DimensionType,
+  StairType,
   Opening,
   Project,
   ProjectFile,
@@ -17,6 +18,7 @@ import {
   AddRoofCommand,
   AddSlabCommand,
   AddSpaceCommand,
+  AddStairCommand,
   AddWallCommand,
   MoveWallCommand,
   MoveWallPointCommand,
@@ -285,6 +287,55 @@ export function placeComponentCommand(
       elevationMm: draft.elevationMm,
       rotationDeg: 0,
       ...(room === undefined ? {} : { spaceId: room.id }),
+    }),
+  };
+}
+
+/**
+ * Builds a stair along the line the user walked with the pointer.
+ *
+ * The storey it arrives at is the one just above, because that is what a stair
+ * between two floors does; the inspector lets it be sent elsewhere. Its riser
+ * height is never asked for: the storeys already answer it.
+ */
+export function addStairCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: {
+    readonly stairType: StairType;
+    readonly widthMm: number;
+    readonly riserCount: number;
+    readonly treadDepthMm: number;
+  },
+  stairId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  if (points.length < 2)
+    return {
+      status: 'ERROR',
+      message: 'Une ligne de foulée demande deux points.',
+    };
+  const above = file.project.building.levels
+    .filter(({ elevationMm }) => elevationMm > level.elevationMm)
+    .sort((first, second) => first.elevationMm - second.elevationMm)[0];
+  if (above === undefined)
+    return {
+      status: 'ERROR',
+      message: `Aucun niveau ne se trouve au-dessus de ${level.name} : un escalier n’aurait nulle part où monter.`,
+    };
+  return {
+    status: 'OK',
+    command: new AddStairCommand(level.id, {
+      id: stairId,
+      topLevelId: above.id,
+      stairType: draft.stairType,
+      widthMm: draft.widthMm,
+      riserCount: draft.riserCount,
+      treadDepthMm: draft.treadDepthMm,
+      path: points.map((point) => ({ ...point })),
     }),
   };
 }

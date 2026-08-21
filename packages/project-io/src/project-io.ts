@@ -397,6 +397,21 @@ export function validateProjectReferences(
           message: `references unknown object ${component.hostObjectId}`,
         });
     });
+    // A stair joins two storeys; one that names a storey the project does not
+    // hold is a stair whose rise nothing can answer.
+    level.stairs.forEach((stair, index) => {
+      const path = `${base}/stairs/${index}`;
+      if (stair.levelId !== level.id)
+        issues.push({
+          path: `${path}/levelId`,
+          message: `is stored on level ${level.id} but declares level ${stair.levelId}`,
+        });
+      if (!levels.has(stair.topLevelId))
+        issues.push({
+          path: `${path}/topLevelId`,
+          message: `references unknown level ${stair.topLevelId}`,
+        });
+    });
     level.spaces.forEach((space, index) => {
       if (!levels.has(space.levelId))
         issues.push({

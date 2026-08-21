@@ -1,6 +1,7 @@
 import type {
   ComponentCategory,
   Level,
+  StairType,
   Opening,
   Project,
   Wall,
@@ -17,6 +18,7 @@ import {
   UpdateSpaceCommand,
   SetWallHeightCommand,
   UpdateComponentCommand,
+  UpdateStairCommand,
   UpdateWallCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
@@ -27,6 +29,7 @@ import {
   SLAB_ROLE_OPTIONS,
   WALL_ROLE_OPTIONS,
   COMPONENT_CATEGORY_OPTIONS,
+  STAIR_TYPE_OPTIONS,
   SPACE_CATEGORY_OPTIONS as SPACE_CATEGORIES,
 } from './domain-options.js';
 
@@ -795,6 +798,101 @@ export function componentEditsFor(
             : new UpdateComponentCommand(level.id, component.id, {
                 rotationDeg,
               });
+        },
+      },
+    ];
+  }
+  return undefined;
+}
+
+/** What a stair lets the user change; its riser height follows and is not one. */
+export function stairEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
+    const stair = level.stairs.find(({ id }) => id === objectId);
+    if (stair === undefined) continue;
+    const upper = project.building.levels.filter(
+      ({ elevationMm }) => elevationMm > level.elevationMm,
+    );
+    return [
+      {
+        id: 'topLevelId',
+        semanticId: 'stair.topLevelId',
+        label: 'Niveau d’arrivée',
+        control: {
+          kind: 'SELECT',
+          value: stair.topLevelId,
+          options: upper.map((candidate) => ({
+            value: candidate.id,
+            label: candidate.name,
+          })),
+        },
+        apply: (value) =>
+          new UpdateStairCommand(level.id, stair.id, { topLevelId: value }),
+      },
+      {
+        id: 'stairType',
+        semanticId: 'stair.stairType',
+        label: 'Type',
+        control: {
+          kind: 'SELECT',
+          value: stair.stairType,
+          options: STAIR_TYPE_OPTIONS,
+        },
+        apply: (value) =>
+          new UpdateStairCommand(level.id, stair.id, {
+            stairType: value as StairType,
+          }),
+      },
+      {
+        id: 'riserCount',
+        semanticId: 'stair.riserCount',
+        label: 'Contremarches',
+        control: { kind: 'NUMBER', value: stair.riserCount, step: 1, min: 2 },
+        hint: 'La hauteur de marche s’en déduit avec la montée.',
+        apply: (value) => {
+          const riserCount = parsed(value);
+          return riserCount === undefined
+            ? undefined
+            : new UpdateStairCommand(level.id, stair.id, { riserCount });
+        },
+      },
+      {
+        id: 'treadDepthMm',
+        semanticId: 'stair.treadDepthMm',
+        label: 'Giron',
+        control: {
+          kind: 'NUMBER',
+          value: stair.treadDepthMm,
+          unit: 'mm',
+          step: 10,
+          min: 1,
+        },
+        apply: (value) => {
+          const treadDepthMm = parsed(value);
+          return treadDepthMm === undefined
+            ? undefined
+            : new UpdateStairCommand(level.id, stair.id, { treadDepthMm });
+        },
+      },
+      {
+        id: 'widthMm',
+        semanticId: 'stair.widthMm',
+        label: 'Emmarchement',
+        control: {
+          kind: 'NUMBER',
+          value: stair.widthMm,
+          unit: 'mm',
+          step: 50,
+          min: 1,
+        },
+        apply: (value) => {
+          const widthMm = parsed(value);
+          return widthMm === undefined
+            ? undefined
+            : new UpdateStairCommand(level.id, stair.id, { widthMm });
         },
       },
     ];

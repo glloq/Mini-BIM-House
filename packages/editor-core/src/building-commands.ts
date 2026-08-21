@@ -9,6 +9,9 @@ import type {
   RoofPlane,
   Slab,
   Space,
+  Stair,
+  StairLanding,
+  StairType,
   Wall,
 } from '@house-technical-designer/core-domain';
 import {
@@ -18,9 +21,11 @@ import {
   isDimensionType,
   isOpeningType,
   isSlabRole,
+  isStairType,
   isWallReferenceSide,
   isWallRole,
   validateComponentInstance,
+  validateStair,
 } from '@house-technical-designer/core-domain';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import {
@@ -178,19 +183,26 @@ export class DuplicateLevelCommand extends BuildingCommand {
   private source(project: Project): Level | undefined {
     return project.building.levels.find(({ id }) => id === this.sourceLevelId);
   }
+  /** The storey a stair copied onto the new level would arrive at. */
+  private storeyAbove(project: Project): Level | undefined {
+    return project.building.levels
+      .filter(({ elevationMm }) => elevationMm > this.draft.elevationMm)
+      .sort((first, second) => first.elevationMm - second.elevationMm)[0];
+  }
   validate(project: Project): CommandValidation {
     const source = this.source(project);
     if (source === undefined)
       return rejected(`Le niveau ${this.sourceLevelId} est introuvable.`);
     if (project.building.levels.some(({ id }) => id === this.draft.id))
       return rejected(`Le niveau ${this.draft.id} existe déjà.`);
-    // The editor cannot read a stair, so it cannot copy one faithfully.
-    // Refusing keeps the data; duplicating it blindly would not.
-    return source.stairs.length === 0
-      ? ok()
-      : rejected(
-          `Le niveau ${source.name} contient ${source.stairs.length} escalier(s), que cette version ne sait pas dupliquer. Retirez-les du fichier ou dupliquez le niveau hors de l'application.`,
-        );
+    // A stair climbs to a storey, and the copy has to climb to the storey above
+    // where it lands. Copying it with the original's destination would leave a
+    // stair on the first floor arriving in the ground floor's ceiling.
+    if (source.stairs.length > 0 && this.storeyAbove(project) === undefined)
+      return rejected(
+        `Le niveau ${source.name} contient ${source.stairs.length} escalier(s), et aucun niveau ne se trouve au-dessus de ${this.draft.name} : la copie n'aurait nulle part où monter.`,
+      );
+    return ok();
   }
   protected apply(project: Project): Project {
     const source = this.source(project)!;
@@ -231,7 +243,12 @@ export class DuplicateLevelCommand extends BuildingCommand {
         id: entityId<'Space'>(`${space.id}${suffix}`),
         levelId,
       })),
-      stairs: [],
+      stairs: source.stairs.map((stair) => ({
+        ...stair,
+        id: entityId<'Stair'>(`${stair.id}${suffix}`),
+        levelId,
+        topLevelId: this.storeyAbove(project)!.id,
+      })),
       // Dimensions come along, re-pointed at the duplicated walls: a copy that
       // silently dropped them would look like a faithful copy and not be one.
       annotations: source.annotations.map((annotation) => ({
@@ -849,6 +866,179 @@ export class RemoveComponentCommand extends BuildingCommand {
       components: (level.components ?? []).filter(
         ({ id }) => id !== this.componentId,
       ),
+    }));
+  }
+}
+
+/** What building a stair asks for. */
+export interface StairDraft {
+  readonly id: string;
+  readonly topLevelId: string;
+  readonly stairType: StairType;
+  readonly widthMm: number;
+  readonly riserCount: number;
+  readonly treadDepthMm: number;
+  readonly path: readonly Point2D[];
+  readonly landings?: readonly StairLanding[];
+}
+
+function stairOf(levelId: string, draft: StairDraft): Stair {
+  return {
+    id: entityId<'Stair'>(draft.id),
+    type: 'STAIR',
+    levelId: entityId<'Level'>(levelId),
+    topLevelId: entityId<'Level'>(draft.topLevelId),
+    stairType: draft.stairType,
+    widthMm: draft.widthMm,
+    riserCount: draft.riserCount,
+    treadDepthMm: draft.treadDepthMm,
+    path: { points: draft.path.map((point) => ({ ...point })) },
+    ...(draft.landings === undefined || draft.landings.length === 0
+      ? {}
+      : { landings: draft.landings }),
+  };
+}
+
+/** The storey a stair may arrive at: one that stands above the one it leaves. */
+function reachableStorey(
+  project: Project,
+  levelId: string,
+  topLevelId: string,
+): string | undefined {
+  const level = project.building.levels.find(({ id }) => id === levelId);
+  const top = project.building.levels.find(({ id }) => id === topLevelId);
+  if (top === undefined) return `Le niveau ${topLevelId} est introuvable.`;
+  if (level !== undefined && top.elevationMm <= level.elevationMm)
+    return `Le niveau ${top.name} n'est pas au-dessus de ${level.name} : un escalier n'y monte pas.`;
+  return undefined;
+}
+
+export class AddStairCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly draft: StairDraft,
+  ) {
+    super(`stair:add:${draft.id}`, 'Ajouter un escalier');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level === undefined)
+      return rejected(`Le niveau ${this.levelId} est introuvable.`);
+    if (level.stairs.some(({ id }) => id === this.draft.id))
+      return rejected(`L'escalier ${this.draft.id} existe déjà.`);
+    const unreachable = reachableStorey(
+      project,
+      this.levelId,
+      this.draft.topLevelId,
+    );
+    if (unreachable !== undefined) return rejected(unreachable);
+    const issues = validateStair(stairOf(this.levelId, this.draft));
+    return issues.length > 0
+      ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
+      : ok();
+  }
+  protected apply(project: Project): Project {
+    const stair = stairOf(this.levelId, this.draft);
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      stairs: [...level.stairs, stair],
+    }));
+  }
+}
+
+/** What a stair edit may change. */
+export interface StairPatch {
+  readonly topLevelId?: string;
+  readonly stairType?: StairType;
+  readonly widthMm?: number;
+  readonly riserCount?: number;
+  readonly treadDepthMm?: number;
+  readonly path?: readonly Point2D[];
+  readonly landings?: readonly StairLanding[];
+}
+
+export class UpdateStairCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly stairId: string,
+    readonly patch: StairPatch,
+  ) {
+    super(`stair:update:${stairId}`, 'Modifier un escalier');
+  }
+  private patched(stair: Stair): Stair {
+    return {
+      ...stair,
+      ...(this.patch.topLevelId === undefined
+        ? {}
+        : { topLevelId: entityId<'Level'>(this.patch.topLevelId) }),
+      ...(this.patch.stairType === undefined
+        ? {}
+        : { stairType: this.patch.stairType }),
+      ...(this.patch.widthMm === undefined
+        ? {}
+        : { widthMm: this.patch.widthMm }),
+      ...(this.patch.riserCount === undefined
+        ? {}
+        : { riserCount: this.patch.riserCount }),
+      ...(this.patch.treadDepthMm === undefined
+        ? {}
+        : { treadDepthMm: this.patch.treadDepthMm }),
+      ...(this.patch.path === undefined
+        ? {}
+        : { path: { points: this.patch.path.map((point) => ({ ...point })) } }),
+      ...(this.patch.landings === undefined
+        ? {}
+        : { landings: this.patch.landings }),
+    };
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    const stair = level?.stairs.find(({ id }) => id === this.stairId);
+    if (stair === undefined)
+      return rejected(`L'escalier ${this.stairId} est introuvable.`);
+    if (this.patch.topLevelId !== undefined) {
+      const unreachable = reachableStorey(
+        project,
+        this.levelId,
+        this.patch.topLevelId,
+      );
+      if (unreachable !== undefined) return rejected(unreachable);
+    }
+    const type = rejectedEnumValue(this.patch.stairType, isStairType);
+    if (type !== undefined)
+      return rejected(`Type d'escalier inconnu : ${type}.`);
+    const issues = validateStair(this.patched(stair));
+    return issues.length > 0
+      ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
+      : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      stairs: level.stairs.map((stair) =>
+        stair.id === this.stairId ? this.patched(stair) : stair,
+      ),
+    }));
+  }
+}
+
+export class RemoveStairCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly stairId: string,
+  ) {
+    super(`stair:remove:${stairId}`, 'Supprimer un escalier');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    return level?.stairs.some(({ id }) => id === this.stairId) === true
+      ? ok()
+      : rejected(`L'escalier ${this.stairId} est introuvable.`);
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      stairs: level.stairs.filter(({ id }) => id !== this.stairId),
     }));
   }
 }
