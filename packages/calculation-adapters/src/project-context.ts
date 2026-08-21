@@ -27,7 +27,11 @@ import {
   squareMillimetres,
   squareMillimetresToSquareMetres,
 } from '@house-technical-designer/units';
-import { calculateWallQuantities } from '@house-technical-designer/quantities';
+import {
+  calculateWallQuantities,
+  networkRunQuantities,
+  placedEquipmentQuantities,
+} from '@house-technical-designer/quantities';
 import { ProjectCalculationSettings } from './calculation-settings.js';
 
 export interface ProjectWallCalculationElement {
@@ -95,6 +99,8 @@ export interface ProjectQuantityLine {
   readonly value: number;
   readonly unit: string;
   readonly quantityType: string;
+  /** How the line was arrived at, so a reader can tell a wall from a run. */
+  readonly methodId: string;
 }
 
 /** Canonical, immutable selection of persisted project facts used by calculators. */
@@ -426,13 +432,22 @@ export function createProjectCalculationContext(
     placedEquipmentByFamily: placedEquipmentByFamily(placed),
     placedEquipmentByKind: placedEquipmentByKind(placed),
     placedEquipmentBySpace: placedEquipmentBySpace(placed),
-    quantities: quantityResult.items.map((item) => ({
+    quantities: [
+      ...quantityResult.items,
+      // What the house holds, counted, and how much of each product it runs.
+      // A bill of materials that knew only how much concrete a house contains
+      // could say nothing about the twelve radiators standing in it, nor about
+      // the forty metres of tube feeding them.
+      ...placedEquipmentQuantities(placed),
+      ...networkRunQuantities(systems.flatMap(({ edges }) => edges)),
+    ].map((item) => ({
       itemId: item.id,
       sourceEntityId: item.sourceEntityId,
       ...(item.materialId === undefined ? {} : { materialId: item.materialId }),
       value: item.value,
       unit: item.unit,
       quantityType: item.quantityType,
+      methodId: item.trace.methodId,
     })),
     ...(equipment.find(({ kind }) => kind === 'PHOTOVOLTAIC') === undefined
       ? {}

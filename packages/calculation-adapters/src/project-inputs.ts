@@ -1,11 +1,13 @@
 import type { CalculationJson } from '@house-technical-designer/calculation-core';
 import type {
+  EquipmentDefinition,
   JsonValue,
   NetworkEdge,
   NetworkNode,
   TechnicalNetwork,
 } from '@house-technical-designer/core-domain';
 import { resolvedSegmentProperties } from '@house-technical-designer/network-products';
+import { UNNAMED_RUN } from '@house-technical-designer/quantities';
 import type {
   ProjectCalculationContext,
   ProjectClimateContext,
@@ -783,6 +785,59 @@ function wastewaterInput(context: ProjectCalculationContext): CalculationJson {
  * decided. The ambiguity is reported instead, naming the candidates, so the
  * user picks rather than discovers later which one was used.
  */
+/**
+ * The equipment of one kind a calculation should read.
+ *
+ * What is actually standing in the building answers first. A project holding
+ * three models of tank and having placed one is not an ambiguous project, and
+ * a project having placed three radiators is not the same project as one
+ * having placed a single radiator — which is what reading the catalogue alone
+ * made them.
+ *
+ * A project that has placed nothing falls back to what it declares, because a
+ * file drawn before things could be placed still has to compute; it is said
+ * plainly rather than assumed, so that the two cases can be told apart.
+ */
+function equipmentOfKind(
+  context: ProjectCalculationContext,
+  kind: string,
+): {
+  /** The catalogue entries to read the figures from, one per placed thing. */
+  readonly definitions: readonly EquipmentDefinition[];
+  /** How many are standing in the building; zero when none is placed. */
+  readonly placed: number;
+} {
+  const held = new Map(context.equipment.map((entry) => [entry.id, entry]));
+  const standing = (context.placedEquipmentByKind[kind] ?? []).flatMap(
+    ({ definitionId }) => {
+      const found =
+        definitionId === undefined ? undefined : held.get(definitionId);
+      return found === undefined ? [] : [found];
+    },
+  );
+  return standing.length > 0
+    ? { definitions: standing, placed: standing.length }
+    : { definitions: context.equipmentByKind[kind] ?? [], placed: 0 };
+}
+
+/**
+ * The single equipment of one kind, counting what is placed rather than what
+ * is catalogued.
+ *
+ * Two tanks standing in a house is a question for the user; two tanks in the
+ * library and one on the plan is not.
+ */
+function theOnlyPlaced(
+  context: ProjectCalculationContext,
+  kind: string,
+  moduleId: string,
+  key: string,
+  what: string,
+): EquipmentDefinition | undefined {
+  const { definitions } = equipmentOfKind(context, kind);
+  return theOnly(definitions, context.settings, moduleId, key, what);
+}
+
 function theOnly<T extends { readonly id: string }>(
   items: readonly T[],
   settings: ProjectCalculationContext['settings'],
@@ -947,9 +1002,20 @@ function electricalInput(context: ProjectCalculationContext): CalculationJson {
           `Circuit ${circuitNode.id} reaches no load.`,
         );
       for (const node of loadNodes) {
+        // The thing the node feeds, when it names one: two sockets of the
+        // same model are two loads, and a node naming only the model could
+        // not say which of them it reached.
+        const placed =
+          node.componentId === undefined
+            ? undefined
+            : context.placedEquipment.find(
+                ({ instanceId }) => instanceId === node.componentId,
+              );
         const equipment = context.equipment.find(
           ({ id }) =>
-            id === node.equipmentId || id === nodeString(node, 'catalogItemId'),
+            id === placed?.definitionId ||
+            id === node.equipmentId ||
+            id === nodeString(node, 'catalogItemId'),
         );
         const activePowerW =
           nodeNumber(node, 'activePowerW') ??
@@ -1094,9 +1160,9 @@ function rainwaterInput(context: ProjectCalculationContext): CalculationJson {
       'CLIMATE_DATASET',
       climate.datasetId,
     );
-  const tank = theOnly(
-    context.equipmentByKind.RAINWATER_TANK ?? [],
-    settings,
+  const tank = theOnlyPlaced(
+    context,
+    'RAINWATER_TANK',
     'rainwater',
     'tank',
     'rainwater tanks',
@@ -1220,11 +1286,21 @@ function photovoltaicInput(
   context: ProjectCalculationContext,
 ): CalculationJson {
   const settings = context.settings;
-  const installedPowerWp = equipmentNumber(
-    context,
-    context.photovoltaic,
-    'installedPowerWp',
-    'photovoltaic',
+  // What is on the roof, not what is in the library: two modules of the same
+  // model produce twice as much as one, and reading the catalogue alone made
+  // the two projects identical.
+  const modules = equipmentOfKind(context, 'PHOTOVOLTAIC');
+  const installedPowerWp = modules.definitions.reduce<number | undefined>(
+    (total, definition) => {
+      const own = equipmentNumber(
+        context,
+        definition,
+        'installedPowerWp',
+        'photovoltaic',
+      );
+      return own === undefined ? total : (total ?? 0) + own;
+    },
+    undefined,
   );
   if (installedPowerWp === undefined)
     settings.reportMissing(
@@ -1232,6 +1308,13 @@ function photovoltaicInput(
       'installedPowerWp',
       'EQUIPMENT',
       'No photovoltaic equipment declares an installed peak power.',
+    );
+  else if (modules.placed > 1)
+    settings.note(
+      'photovoltaic',
+      'installedPowerWp',
+      'PROJECT',
+      `${modules.placed} modules posés`,
     );
   const performanceRatio = settings.requiredNumber(
     'photovoltaic',
@@ -1313,7 +1396,11 @@ function photovoltaicInput(
 
 function batteryInput(context: ProjectCalculationContext): CalculationJson {
   const settings = context.settings;
-  const battery = context.battery;
+  // The battery that is actually installed, when one is. A library holding two
+  // models and a house holding one is not an ambiguous house.
+  const battery =
+    theOnlyPlaced(context, 'BATTERY', 'battery', 'battery', 'batteries') ??
+    context.battery;
   const read = (property: string): number | undefined => {
     const value = equipmentNumber(context, battery, property, 'battery');
     if (value === undefined)
@@ -1398,7 +1485,7 @@ function energyBalanceInput(
     'energy-balance',
     'heatingSetpointTemperatureC',
   );
-  const fanPowerW = (context.equipmentByKind.FAN ?? []).reduce<number>(
+  const fanPowerW = equipmentOfKind(context, 'FAN').definitions.reduce<number>(
     (total, equipment) =>
       total +
       (equipmentNumber(context, equipment, 'nominalPowerW', 'energy-balance') ??
@@ -1591,9 +1678,9 @@ function dhwInput(context: ProjectCalculationContext): CalculationJson {
     'annualOperatingDays',
     'Set the number of operating days per year in the DHW module settings.',
   );
-  const tank = theOnly(
-    context.equipmentByKind.DHW_TANK ?? [],
-    settings,
+  const tank = theOnlyPlaced(
+    context,
+    'DHW_TANK',
     'dhw',
     'tank',
     'hot water tanks',
@@ -1660,6 +1747,24 @@ function costInput(context: ProjectCalculationContext): CalculationJson {
         `unitPriceByMaterial/${line.materialId}`,
         'MODULE_SETTINGS',
         `No unit price is declared for material ${line.materialId}.`,
+      );
+  // The things standing in the house and the tube feeding them are counted,
+  // and this module prices materials by the cubic metre. Saying so is what
+  // stops a total from looking complete when it covers the walls alone.
+  for (const line of context.quantities)
+    if (
+      // What somebody chose and this module cannot price. A run nobody has
+      // chosen a tube for is a different complaint, and it belongs to the
+      // network checks rather than to a total.
+      line.sourceEntityId !== UNNAMED_RUN &&
+      (line.methodId === 'placed-equipment-v1' ||
+        line.methodId === 'network-run-v1')
+    )
+      settings.reportMissing(
+        'cost',
+        `unpriced/${line.itemId}`,
+        'MODULE_SETTINGS',
+        `${line.sourceEntityId} is counted (${line.value} ${line.unit}) and this module prices materials by volume; its cost is not in the total.`,
       );
   return {
     currency,
