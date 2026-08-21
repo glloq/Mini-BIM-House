@@ -19,6 +19,7 @@ import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import {
   ReplaceProjectCommand,
   SaveDrawingViewCommand,
+  SetScenarioOverrideCommand,
 } from '@house-technical-designer/editor-core';
 import type {
   ProjectSheet,
@@ -62,6 +63,13 @@ import { ToolBar } from './editor/ToolBar.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
 import { BrowserPdfBackend } from './documents/browser-pdf-backend.js';
+import { scenarioOverride } from './scenarios/scenario-changes.js';
+import {
+  scenarioDiff,
+  scenarioDiffOverlay,
+  targetForEdit,
+} from './scenarios/scenario-view.js';
+import type { InspectorEdit } from './editor/inspector-edits.js';
 import { renderSheet, sheetLayoutOf } from './documents/documents-model.js';
 import type { CheckFix } from './checks/checks-model.js';
 import {
@@ -347,6 +355,14 @@ function App() {
 
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
+  /**
+   * The variant being drawn, when the plan is showing one.
+   *
+   * Scenario mode does not change the project: it changes what the plan shows
+   * and what an edit means. Nothing of the variant is ever written into the
+   * building — a variant is a list of differences, and it stays one.
+   */
+  const [scenarioMode, setScenarioMode] = useState<string>();
   const [saveState, setSaveState] = useState<SaveState>('SAVED');
   /** Whether the workspace navigation is open as a drawer on a narrow screen. */
   const [menuOpen, setMenuOpen] = useState(false);
@@ -1330,6 +1346,59 @@ function App() {
     })();
   }, []);
 
+  /** The project as this variant describes it, when one is being drawn. */
+  const scenarioProject = useMemo(() => {
+    if (scenarioMode === undefined) return undefined;
+    const applied = applyProjectScenario(file.project, scenarioMode);
+    return applied.status === 'OK' ? applied.project : undefined;
+  }, [file.project, scenarioMode]);
+
+  /** What this variant adds, removes and changes, drawn like an analysis. */
+  const scenarioOverlay = useMemo(
+    () =>
+      scenarioProject === undefined
+        ? undefined
+        : scenarioDiffOverlay(scenarioDiff(file.project, scenarioProject)),
+    [file.project, scenarioProject],
+  );
+
+  /**
+   * Applies an edit made while a variant is being drawn.
+   *
+   * Changing a property does not change the project: it states what this
+   * variant does differently. A property no scenario path names is refused out
+   * loud rather than silently written into the building.
+   */
+  const editInScenario = useCallback(
+    (objectId: string, edit: InspectorEdit, value: string): boolean => {
+      if (scenarioMode === undefined) return false;
+      const project = session.current.file.project;
+      const target = targetForEdit(project, objectId, edit.id);
+      if (target === undefined) {
+        setMessage(
+          `« ${edit.label} » ne peut pas encore varier dans un scénario.`,
+        );
+        return false;
+      }
+      const override = scenarioOverride(target, value);
+      if (override === undefined) {
+        setMessage(`${edit.label} : valeur non reconnue.`);
+        return false;
+      }
+      const applied = runCommand(
+        new SetScenarioOverrideCommand(scenarioMode, override),
+      );
+      if (applied)
+        setMessage(
+          `Scénario : ${target.label} passe à ${value}${
+            target.unit === undefined ? '' : ` ${target.unit}`
+          }.`,
+        );
+      return applied;
+    },
+    [runCommand, scenarioMode],
+  );
+
   const runShortcut = useCallback(
     (command: ShortcutCommandId): void => {
       // A tool is chosen by the registry rather than by a branch per tool: a
@@ -1608,6 +1677,15 @@ function App() {
           ),
     [currentRun, overlayId],
   );
+
+  /**
+   * The overlay the plan actually draws.
+   *
+   * While a variant is being drawn, what matters is what it changes; an
+   * analysis of the base project underneath it would be an analysis of
+   * something else.
+   */
+  const drawnOverlay = scenarioOverlay ?? overlay;
 
   /** What the module behind the chosen analysis could not do. */
   const overlayWarnings = useMemo(() => {
@@ -1991,10 +2069,55 @@ function App() {
                 }}
               />
               <LayersPanel editor={editor} dispatch={dispatchEditor} />
+              {(file.project.scenarios ?? []).length > 0 && (
+                <section
+                  className="overlay-control"
+                  aria-labelledby="scenario-mode-heading"
+                >
+                  <h3 id="scenario-mode-heading">Scénario</h3>
+                  <label>
+                    Dessiner la variante
+                    <select
+                      value={scenarioMode ?? ''}
+                      onChange={(event) =>
+                        setScenarioMode(
+                          event.target.value === ''
+                            ? undefined
+                            : event.target.value,
+                        )
+                      }
+                    >
+                      <option value="">Le projet lui-même</option>
+                      {(file.project.scenarios ?? []).map((scenario) => (
+                        <option key={scenario.id} value={scenario.id}>
+                          {scenario.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {scenarioMode !== undefined && (
+                    <p className="hint">
+                      Le plan montre cette variante. Modifier une propriété ne
+                      change pas le projet : cela dit ce que la variante fait
+                      autrement. Les objets ajoutés, retirés et modifiés sont
+                      colorés.
+                    </p>
+                  )}
+                  {scenarioMode !== undefined &&
+                    scenarioProject === undefined && (
+                      <p className="hint">
+                        Cette variante ne s’applique pas au projet tel qu’il est
+                        : ouvrez l’espace Scénarios pour voir pourquoi.
+                      </p>
+                    )}
+                </section>
+              )}
               <OverlayControl
                 overlayId={overlayId}
                 onChange={setOverlayId}
-                {...(overlay === undefined ? {} : { overlay })}
+                {...(drawnOverlay === undefined
+                  ? {}
+                  : { overlay: drawnOverlay })}
                 warnings={overlayWarnings}
                 onSelectObjects={(objectIds) => {
                   // A remark becomes a correction the moment the plan shows
@@ -2049,7 +2172,7 @@ function App() {
               onAlign={alignSelection}
             />
             <PlanCanvas
-              project={file.project}
+              project={scenarioProject ?? file.project}
               editor={{ ...editor, levelId: activeLevelId } as EditorState}
               dispatch={dispatchEditor}
               onCommitPoints={commitPoints}
@@ -2061,7 +2184,7 @@ function App() {
               selectableFamily={selectableFamily}
               onEditGeometry={editGeometry}
               wallThicknessMm={wallThicknessMm}
-              {...(overlay === undefined ? {} : { overlay })}
+              {...(drawnOverlay === undefined ? {} : { overlay: drawnOverlay })}
             />
             <StatusBar
               editor={editor}
@@ -2249,12 +2372,15 @@ function App() {
           <p className="panel-label">Inspecteur</p>
           {tab === 'plan' ? (
             <InspectorPanel
-              project={file.project}
+              project={scenarioProject ?? file.project}
               selection={editor.selection}
               onClear={() => dispatchEditor({ type: 'CLEAR_SELECTION' })}
               onCommand={runCommand}
               onMessage={setMessage}
               onDelete={deleteSelection}
+              {...(scenarioMode === undefined
+                ? {}
+                : { onEdit: editInScenario })}
             />
           ) : (
             <>

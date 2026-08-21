@@ -262,6 +262,63 @@ export class AddScenarioOverrideCommand extends ScenarioCommand {
   }
 }
 
+/**
+ * States what a scenario changes at one path, whether or not it already did.
+ *
+ * Adding refuses a path the scenario already varies, and rightly: two changes
+ * to one value are two answers. But a variant built by pointing at the plan is
+ * built by changing one's mind — a wall given one assembly, then another — and
+ * having to remove the previous change first would be arithmetic the user did
+ * not ask to do.
+ */
+export class SetScenarioOverrideCommand extends ScenarioCommand {
+  constructor(
+    readonly scenarioId: string,
+    readonly override: ScenarioOverride,
+  ) {
+    super(
+      `scenario:override:set:${scenarioId}:${override.path}`,
+      'Changer une valeur du scénario',
+    );
+  }
+  validate(project: Project): CommandValidation {
+    const scenario = projectScenarios(project).find(
+      ({ id }) => id === this.scenarioId,
+    );
+    if (scenario === undefined)
+      return rejected(`Le scénario ${this.scenarioId} est introuvable.`);
+    if (this.override.path.trim() === '')
+      return rejected('Un changement doit nommer ce qu’il modifie.');
+    if (
+      this.override.operation !== 'REMOVE' &&
+      this.override.value === undefined
+    )
+      return rejected('Un changement doit porter une valeur.');
+    return resolve(project, this.override.path) === undefined
+      ? rejected(
+          `Le projet ne déclare rien à « ${this.override.path} » : un scénario ne fait varier que ce qui existe.`,
+        )
+      : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapScenario(project, this.scenarioId, (scenario) => {
+      const held = scenario.overrides.some(
+        ({ path }) => path === this.override.path,
+      );
+      return {
+        ...scenario,
+        overrides: held
+          ? scenario.overrides.map((override) =>
+              override.path === this.override.path
+                ? structuredClone(this.override)
+                : override,
+            )
+          : [...scenario.overrides, structuredClone(this.override)],
+      };
+    });
+  }
+}
+
 export class RemoveScenarioOverrideCommand extends ScenarioCommand {
   constructor(
     readonly scenarioId: string,

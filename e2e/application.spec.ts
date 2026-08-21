@@ -2130,3 +2130,46 @@ test('keeps a view, lays it on a sheet and draws the sheet', async ({
   await expect(page.getByRole('status')).toContainText('A-001');
   expect(errors).toEqual([]);
 });
+
+test('builds a variant by pointing at the plan', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+
+  // A variant to build.
+  await page.getByRole('button', { name: 'Scénarios', exact: true }).click();
+  await page.getByLabel('Nouveau scénario').fill('Isolation renforcée');
+  await page.getByRole('button', { name: 'Créer', exact: true }).click();
+  await page.getByRole('button', { name: 'Plan architectural' }).click();
+
+  const mode = page.getByRole('region', { name: 'Scénario', exact: true });
+  await mode.getByLabel('Dessiner la variante').selectOption({ index: 1 });
+  await expect(mode).toContainText('ne change pas le projet');
+
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  const south = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: south.x - box.x + south.width * 0.25,
+      y: south.y - box.y + south.height / 2,
+    },
+  });
+  await expect(page.locator('.inspector-subject h3')).toContainText(
+    'wall-south',
+  );
+
+  // Changing a property states what the variant does differently.
+  await page.getByLabel('Assemblage').selectOption('assembly-partition');
+  await expect(page.getByRole('status')).toContainText('Scénario');
+
+  // And the drawing says which objects it changed.
+  await expect(page.locator('.overlay-legend')).toContainText(
+    'Ce que la variante change',
+  );
+
+  // A property no scenario path names is refused out loud.
+  await page.getByLabel('Face de référence').selectOption('LEFT');
+  await expect(page.getByRole('status')).toContainText('ne peut pas encore');
+  expect(errors).toEqual([]);
+});

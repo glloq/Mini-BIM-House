@@ -22,6 +22,7 @@ const METRIC_LABELS: Readonly<Record<string, string>> = {
   WASTEWATER_SLOPE: 'Pente des collecteurs',
   VOLTAGE_DROP: 'Chute de tension par circuit',
   DESIGN_POWER: 'Puissance foisonnée par circuit',
+  SCENARIO_DIFF: 'Ce que la variante change',
 };
 
 export interface OverlayControlProps {

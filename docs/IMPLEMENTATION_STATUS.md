@@ -1211,6 +1211,32 @@ différents.
   dessin. Le tirage est à l'échelle ; le texte n'y est ni sélectionnable ni
   recherchable, et l'interface le dit à côté du bouton.
 
+## Scénarios visuels — lot G du neuvième audit
+
+L'audit décrivait le chemin à parcourir en deux blocs : de « scénario →
+sélectionner une clé JSON → saisir une valeur » à « mode scénario → cliquer un
+mur → changer l'assemblage → override créé automatiquement ».
+
+- **Mode scénario.** Le plan dessine la variante plutôt que le projet. Rien de
+  la variante n'est écrit dans le bâtiment : une variante est une liste de
+  différences, et elle le reste.
+- **Modifier, c'est décrire une différence.** L'inspecteur ne sait pas dans
+  quel mode il se trouve ; il demande, et ce qui lui revient décide. En mode
+  scénario, changer une propriété écrit un changement du scénario, et le chemin
+  est déduit de ce qui a été désigné — non plus choisi dans une liste de toutes
+  les valeurs du projet.
+- **Changer d'avis.** Une variante construite en pointant le plan se construit
+  en changeant d'avis ; devoir retirer le changement précédent avant d'en poser
+  un autre aurait été une arithmétique que personne n'a demandée.
+- **Ce que la variante fait est refusé à voix haute.** Une propriété qu'aucun
+  chemin de scénario ne nomme ne peut pas encore varier, et l'application le
+  dit au lieu de l'écrire silencieusement dans le bâtiment.
+- **La différence se voit.** Ajouts, retraits et modifications sont colorés sur
+  le plan par les mêmes bandes que les analyses. La comparaison porte sur les
+  deux projets et non sur la liste des changements : un changement d'assemblage
+  modifie tous les murs qui en sont faits, et une liste de chemins montrerait un
+  changement là où le dessin en montre douze.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans

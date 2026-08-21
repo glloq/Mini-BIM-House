@@ -11,6 +11,18 @@ export interface InspectorPanelProps {
   readonly onCommand: (command: ProjectCommand) => boolean;
   readonly onMessage: (message: string) => void;
   readonly onDelete: () => void;
+  /**
+   * What an edit means while a variant is being built.
+   *
+   * In scenario mode, changing a property does not change the project: it
+   * states what this variant does differently. The panel does not know which
+   * mode it is in — it asks, and what comes back decides.
+   */
+  readonly onEdit?: (
+    objectId: string,
+    edit: InspectorEdit,
+    value: string,
+  ) => boolean;
 }
 
 export function InspectorPanel({
@@ -20,6 +32,7 @@ export function InspectorPanel({
   onCommand,
   onMessage,
   onDelete,
+  onEdit,
 }: InspectorPanelProps) {
   if (selection.length === 0)
     return (
@@ -81,6 +94,10 @@ export function InspectorPanel({
   const edits = editsFor(project, objectId);
 
   function applyEdit(edit: InspectorEdit, value: string): void {
+    if (onEdit !== undefined) {
+      onEdit(objectId, edit, value);
+      return;
+    }
     const command = edit.apply(value);
     if (command === undefined) {
       onMessage(`${edit.label} : valeur non reconnue.`);
