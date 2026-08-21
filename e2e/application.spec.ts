@@ -1135,6 +1135,44 @@ test('reaches a column and a component through the project tree', async ({
   expect(errors).toEqual([]);
 });
 
+test('offers on an object only what its family can do', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+
+  // A room is the space its walls enclose: it neither moves, nor turns, nor
+  // is copied. Offering the three and refusing them afterwards reads as a
+  // defect; greying them out reads as a property of the room, which it is.
+  const living = (await page
+    .locator('[id="space:space-living"]')
+    .boundingBox())!;
+  await canvas.click({
+    button: 'right',
+    position: {
+      x: living.x - box.x + living.width / 2,
+      y: living.y - box.y + living.height / 2,
+    },
+  });
+  const menu = page.getByRole('menu');
+  await expect(menu).toBeVisible();
+  await expect(page.locator('.inspector-subject h3')).toContainText('Séjour');
+  for (const action of ['Dupliquer', 'Pivoter d’un quart de tour', 'Retourner'])
+    await expect(menu.getByRole('menuitem', { name: action })).toBeDisabled();
+  // Framing and deleting are the application's, not the family's, and stay.
+  await expect(
+    menu.getByRole('menuitem', { name: 'Cadrer sur cet objet' }),
+  ).toBeEnabled();
+  await page.keyboard.press('Escape');
+
+  // The quick transformations of the toolbar follow the same declaration.
+  await expect(
+    page.getByRole('button', { name: /^Pivoter 90°/ }),
+  ).toBeDisabled();
+  expect(errors).toEqual([]);
+});
+
 test('chooses which contour a slab is built from', async ({ page }) => {
   await loadDemo(page);
   await page.getByRole('button', { name: 'Niveaux et pièces' }).click();
@@ -1868,6 +1906,10 @@ test('acts on an object from a menu opened where the object is', async ({
   await expect(
     menu.getByRole('menuitem', { name: /Face de référence/ }),
   ).toBeDisabled();
+  // A wall moves, turns, reflects and is copied: its family says so, and the
+  // menu offers exactly what the family says.
+  for (const action of ['Dupliquer', 'Pivoter d’un quart de tour', 'Retourner'])
+    await expect(menu.getByRole('menuitem', { name: action })).toBeEnabled();
 
   // The openings this wall carries: the reason the domain refuses to delete
   // it, named rather than left for the user to find by eye.

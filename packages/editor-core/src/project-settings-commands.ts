@@ -476,6 +476,94 @@ export class AddSiteObstacleCommand extends SettingsCommand {
   }
 }
 
+/** What an obstacle already on the site may have changed. */
+export interface SiteObstaclePatch {
+  readonly outline?: readonly Point2D[];
+  readonly kind?: SiteObstacleKind;
+  readonly heightMm?: number | null;
+  readonly name?: string | null;
+}
+
+/**
+ * Changes an obstacle that already stands on the site.
+ *
+ * A tree could be planted and pulled up, and nothing in between: moving it,
+ * turning it or renaming it meant deleting it and drawing it again, which lost
+ * everything the plan pointed at it with.
+ */
+export class UpdateSiteObstacleCommand extends SettingsCommand {
+  constructor(
+    readonly obstacleId: string,
+    readonly patch: SiteObstaclePatch,
+  ) {
+    super(
+      `project:site:obstacle:update:${obstacleId}`,
+      'Modifier un obstacle de site',
+    );
+  }
+  private patched(obstacle: SiteObstacle): SiteObstacle {
+    const { heightMm: _height, name: _name, ...rest } = obstacle;
+    const heightMm =
+      this.patch.heightMm === undefined
+        ? obstacle.heightMm
+        : (this.patch.heightMm ?? undefined);
+    const name =
+      this.patch.name === undefined
+        ? obstacle.name
+        : (this.patch.name ?? undefined);
+    return {
+      ...rest,
+      ...(this.patch.outline === undefined
+        ? {}
+        : {
+            boundary: {
+              outer: this.patch.outline.map((point) => ({ ...point })),
+            },
+          }),
+      ...(this.patch.kind === undefined ? {} : { kind: this.patch.kind }),
+      ...(heightMm === undefined ? {} : { heightMm }),
+      ...(name === undefined || name.trim() === '' ? {} : { name }),
+    };
+  }
+  validate(project: Project): CommandValidation {
+    const obstacle = (project.site.obstacles ?? []).find(
+      ({ id }) => id === this.obstacleId,
+    );
+    if (obstacle === undefined)
+      return rejected(`L'obstacle ${this.obstacleId} est introuvable.`);
+    if (this.patch.outline !== undefined) {
+      if (this.patch.outline.length < 3)
+        return rejected('Un obstacle demande au moins trois sommets.');
+      if (
+        !this.patch.outline.every(
+          ({ x, y }) => Number.isFinite(x) && Number.isFinite(y),
+        )
+      )
+        return rejected('Les sommets d’un obstacle doivent être mesurables.');
+    }
+    const kind: string | undefined = this.patch.kind;
+    if (kind !== undefined && !isSiteObstacleKind(kind))
+      return rejected(`Type d'obstacle inconnu : ${kind}.`);
+    if (
+      typeof this.patch.heightMm === 'number' &&
+      (!Number.isFinite(this.patch.heightMm) || this.patch.heightMm <= 0)
+    )
+      return rejected('La hauteur d’un obstacle doit être positive.');
+    return ok();
+  }
+  protected apply(project: Project): Project {
+    return {
+      ...project,
+      site: {
+        ...project.site,
+        obstacles: (project.site.obstacles ?? []).map((obstacle) =>
+          obstacle.id === this.obstacleId ? this.patched(obstacle) : obstacle,
+        ),
+      },
+    };
+  }
+}
+
 export class RemoveSiteObstacleCommand extends SettingsCommand {
   constructor(readonly obstacleId: string) {
     super(

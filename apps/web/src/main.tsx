@@ -75,6 +75,7 @@ import {
 import { ObjectMenu, type ObjectMenuEntry } from './editor/ObjectMenu.js';
 import {
   boundsOf,
+  capabilitiesOf,
   contextActionsFor,
   inspectObject,
   relationshipsOf,
@@ -139,6 +140,8 @@ import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import {
   alignObjectsCommand,
+  EMPTY_CLIPBOARD,
+  clipboardCount,
   copyObjects,
   deleteObjectsCommand,
   duplicateObjectsCommand,
@@ -842,12 +845,7 @@ function App() {
    * must not change because the originals were deleted or edited in between,
    * and a copy taken on one storey is meant to be put down on another.
    */
-  const clipboard = useRef<PlanClipboard>({
-    walls: [],
-    openings: [],
-    slabs: [],
-    roofs: [],
-  });
+  const clipboard = useRef<PlanClipboard>(EMPTY_CLIPBOARD);
 
   const copySelection = useCallback(() => {
     const taken = copyObjects(
@@ -856,11 +854,7 @@ function App() {
       editor.selection,
     );
     clipboard.current = taken;
-    const count =
-      taken.walls.length +
-      taken.openings.length +
-      taken.slabs.length +
-      taken.roofs.length;
+    const count = clipboardCount(taken);
     setMessage(
       count === 0
         ? 'Rien de sélectionné ne se copie depuis le plan.'
@@ -923,6 +917,10 @@ function App() {
     (objectId: string): readonly ObjectMenuEntry[] => {
       const project = session.current.file.project;
       const levelId = activeLevelId ?? '';
+      // What the family of this object says it allows. An action that is
+      // offered and then refused reads as a defect; one that is visibly
+      // unavailable reads as a property of the object, which is what it is.
+      const can = capabilitiesOf(project, objectId);
       return [
         {
           id: 'frame',
@@ -938,7 +936,20 @@ function App() {
         {
           id: 'duplicate',
           label: 'Dupliquer',
+          disabled: !can.duplicable,
           run: () => duplicateSelection(),
+        },
+        {
+          id: 'rotate',
+          label: 'Pivoter d’un quart de tour',
+          disabled: !can.rotatable,
+          run: () => transformSelection('ROTATE'),
+        },
+        {
+          id: 'mirror',
+          label: 'Retourner',
+          disabled: !can.mirrorable,
+          run: () => transformSelection('MIRROR'),
         },
         ...relationshipsOf(project, levelId, objectId).map((tie) => ({
           id: `tie:${tie.role}`,
@@ -973,6 +984,7 @@ function App() {
       frameObject,
       runCommand,
       selectSimilar,
+      transformSelection,
     ],
   );
 

@@ -1411,6 +1411,62 @@ lecture du fichier, et plus seulement par les commandes : sa montée serait
 nulle ou négative, donc sa hauteur de marche, son Blondel et sa place dans les
 métrés seraient des réponses à une question qui n'en a pas.
 
+## Déplacer, pivoter, retourner, copier — lot C du dixième audit
+
+Déplacer, transformer et dupliquer étaient trois chaînes de `if` portant chacune
+sur quatre familles, écrites quand il y en avait quatre. Les dix familles
+ajoutées depuis tombaient au bout des trois et recevaient « cet objet ne se
+déplace pas depuis le plan » : vrai du code, faux de l'objet. Un escalier, une
+toiture complète, un poteau, un composant posé, un obstacle de terrain ne
+pouvaient être ni déplacés, ni pivotés, ni retournés, ni dupliqués.
+
+### Ce que fait une famille, elle le déclare
+
+Une famille du registre déclare maintenant ses `capabilities` —
+`movable / rotatable / mirrorable / duplicable` — et fournit deux
+implémentations : comment un de ses objets suit une transformation, et comment
+il se copie de côté. Déplacer, pivoter et retourner sont une seule application
+d'un point vers un point, donc une seule fonction par famille répond aux trois :
+la famille qui suivait la rotation et oubliait le miroir n'existe plus.
+
+Ce qu'une famille ne fait pas, elle le dit aussi, et en français : une ouverture
+appartient à son mur, une pièce est l'espace que ses murs enferment, une cote
+suit les murs qu'elle mesure, une parcelle est la limite du terrain. Le menu
+contextuel et la barre d'outils grisent ce qui n'est pas offert au lieu de le
+proposer puis de le refuser — une action proposée puis refusée se lit comme une
+panne, une action visiblement indisponible se lit comme une propriété de
+l'objet, ce qu'elle est.
+
+Une sélection ne peut que ce que tous ses objets peuvent : une pièce dans la
+sélection et rien ne pivote, parce que faire tourner les murs autour d'elle
+démonterait le dessin.
+
+### Deux cas qui ne sont pas des cas généraux
+
+Un **tronçon de réseau** ne se déplace pas seul : ses extrémités appartiennent à
+leurs ports. Il porte en revanche ses propres coudes quand ses deux nœuds
+voyagent avec lui — sans quoi déplacer une branche entière déformait les
+tronçons au lieu de les déplacer, les extrémités suivant les nœuds et les coudes
+restant sur place. Sélectionné seul, il dit lequel des deux il attend.
+
+Un **objet de réseau ne se duplique pas depuis le plan** : un nœud que rien ne
+rejoint et un tronçon qui ne relie rien sont des fragments. La copie d'un réseau
+appartient à l'espace Réseaux, et le refus le dit.
+
+### Le presse-papiers connaît enfin tout l'étage
+
+Copier un niveau sur celui du dessus est la raison d'être du presse-papiers, et
+il copiait les murs en laissant derrière lui les escaliers, la toiture, les
+poteaux et les radiateurs — sans le dire. Il transporte maintenant les huit
+familles, et ce qui connaît sa propre altitude est relu contre le niveau où il
+atterrit : les rives d'une toiture montent d'un étage, et un escalier collé un
+étage plus haut arrive un étage plus haut. Quand rien ne se trouve au-dessus du
+niveau d'arrivée, le collage est refusé en le disant, plutôt que d'écrire un
+escalier qui descend.
+
+Un `UpdateSiteObstacleCommand` est apparu au passage : un arbre pouvait être
+planté et arraché, et rien entre les deux.
+
 ## Ce qui reste ouvert après les lots A à H
 
 Les huit lots du neuvième audit sont traités. Ce qui n'a pas été fait, et
