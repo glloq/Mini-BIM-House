@@ -26,6 +26,14 @@ import {
   type PropertySchema,
 } from './property-schemas.js';
 import { validateProvenance } from './provenance.js';
+import type { FamilyReview } from './report.js';
+import { isHostType } from '@house-technical-designer/core-domain';
+import { isPortType } from './port-types.js';
+import {
+  type FamilyStatus,
+  type MeasuredAxis,
+  type StatusValue,
+} from './status.js';
 import type { DataDomain, DataRegistry } from './registries.js';
 
 /**
@@ -184,6 +192,132 @@ export function validateCatalog(
     );
   }
   return issues;
+}
+
+/**
+ * The five measured axes of one family, worked out from what is actually there.
+ *
+ * Nothing here reads what the family says about itself. `PORTS: READY` means
+ * the family declares ports and every one of them is a kind the registry
+ * knows; `VALIDATED` means a catalogue entry of that family declares them and
+ * passes the gate. The difference between the two is the difference between
+ * « written » and « proven », and it is the whole reason the axes exist.
+ */
+export function measuredStatus(
+  familyId: string,
+  known: {
+    readonly symbols: ReadonlySet<string>;
+    readonly entries: readonly CatalogEntryCandidate[];
+  },
+): Readonly<Record<MeasuredAxis, StatusValue>> {
+  const owner = BY_ID.get(familyId);
+  if (owner === undefined)
+    return {
+      PROPERTIES: 'NONE',
+      PORTS: 'NONE',
+      PLACEMENT: 'NONE',
+      PLAN_SYMBOL: 'NONE',
+      GENERIC_DATA: 'NONE',
+      TESTS: 'NONE',
+    };
+  const mine = known.entries.filter((entry) => entry.familyId === familyId);
+  const clean = mine.filter(
+    (entry) =>
+      validateCatalogEntry(entry, {
+        family,
+        schema: propertySchema,
+        symbols: known.symbols,
+      }).length === 0,
+  );
+
+  const schema =
+    owner.propertySchema === undefined
+      ? undefined
+      : SCHEMA_BY_FAMILY.get(owner.propertySchema);
+  const declaredPorts = owner.ports ?? [];
+  const knownPorts = declaredPorts.every((port) => isPortType(port));
+  const plan = owner.graphics?.planSymbol;
+
+  // Declaring something is not knowing it: eight families declared ports made
+  // of kinds the registry knows and were connected by things the object does
+  // not have. So a declaration alone reaches `PARTIAL`, and it takes a
+  // catalogue entry — somebody having modelled one of these — to go further.
+  return {
+    PROPERTIES:
+      owner.propertySchema === undefined
+        ? 'NONE'
+        : schema === undefined || mine.length === 0
+          ? 'PARTIAL'
+          : clean.length > 0
+            ? 'VALIDATED'
+            : 'READY',
+    PORTS:
+      declaredPorts.length === 0
+        ? 'NONE'
+        : !knownPorts || mine.length === 0
+          ? 'PARTIAL'
+          : clean.length > 0
+            ? 'VALIDATED'
+            : 'READY',
+    // Where it may go is measurable now that the supports are a closed list:
+    // a family either names supports the editor can offer, or it does not.
+    PLACEMENT:
+      owner.placement === undefined
+        ? 'NONE'
+        : owner.placement.allowedHosts.every((host) => isHostType(host))
+          ? 'READY'
+          : 'PARTIAL',
+    PLAN_SYMBOL:
+      plan === undefined
+        ? 'NONE'
+        : known.symbols.has(plan)
+          ? 'READY'
+          : 'PARTIAL',
+    GENERIC_DATA:
+      mine.length === 0
+        ? 'NONE'
+        : clean.length === mine.length
+          ? 'READY'
+          : 'PARTIAL',
+    // A family with an entry the gate passes is a family the suite exercises;
+    // one nothing has an entry for is one nothing runs against.
+    TESTS: clean.length > 0 ? 'VALIDATED' : 'NONE',
+  };
+}
+
+/**
+ * What a family says about itself, and what can be measured about it.
+ *
+ * The measured axes win, always: the point is that they cannot be typed.
+ */
+export function familyStatus(
+  familyId: string,
+  known: {
+    readonly symbols: ReadonlySet<string>;
+    readonly entries: readonly CatalogEntryCandidate[];
+  },
+): FamilyStatus {
+  return {
+    ...BY_ID.get(familyId)?.status,
+    ...measuredStatus(familyId, known),
+  };
+}
+
+/**
+ * Every family together with where it has actually got to.
+ *
+ * The one way to look at the nomenclature as a whole: five axes measured here
+ * and now, the rest as declared. Anything reporting on the registry starts
+ * from this, so that no report can show only the half somebody typed.
+ */
+export function familyReviews(known: {
+  readonly symbols: ReadonlySet<string>;
+  readonly entries: readonly CatalogEntryCandidate[];
+}): readonly FamilyReview[] {
+  return FAMILY_REGISTRY.map((entry) => ({
+    family: entry,
+    status: familyStatus(entry.id, known),
+  }));
 }
 
 export interface SchemaIssue extends PropertyIssue {

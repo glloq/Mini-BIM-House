@@ -67,6 +67,28 @@ cents familles y restera longtemps, et un plan qui prétend le contraire est un
 plan auquel personne ne peut se fier. `VALIDATED` veut dire qu'un test le
 prouve, ce qui est la seule différence entre « écrit » et « qui marche ».
 
+**Six axes ne se déclarent pas.** `PROPERTIES`, `PORTS`, `PLACEMENT`,
+`PLAN_SYMBOL`, `GENERIC_DATA` et `TESTS` sont mesurés sur les registres à
+chaque question, et les écrire à la main est refusé par la validation. La
+raison est chiffrée : soixante-et-onze familles annonçaient
+`PLAN_SYMBOL: READY` sans qu'une seule nomme un symbole, et deux cent
+quatre-vingt-trois annonçaient `PORTS: READY` — dont huit étaient raccordées
+par des choses que l'objet n'a pas. Un statut tapé à la main est une
+intention, et une intention verte depuis des mois est pire que pas de statut
+du tout : c'est la raison pour laquelle plus personne ne regarde.
+
+Déclarer ne vaut pas connaître : une famille qui annonce des ports d'un type
+connu monte à `PARTIAL`, et il faut une fiche catalogue — quelqu'un qui a
+réellement modélisé une de ces choses — pour aller plus loin. `VALIDATED`
+veut dire qu'une fiche de cette famille passe le contrôle, donc que la suite
+de tests l'exécute.
+
+Les dix autres axes — est-ce modélisé, chiffré, porté par une règle — sont des
+jugements que rien ne sait encore mesurer, et restent déclarés. La repasse des
+518 familles les a remis à leur place : trois cent dix-sept familles
+d'équipement annonçaient `MODEL: READY` alors que le modèle contient un
+composant posé, ce qui est vrai de toutes et ne dit rien d'aucune.
+
 Tous les axes pèsent le même poids, délibérément : une famille qui a un symbole
 et pas de modèle n'est pas plus avancée qu'une famille qui a un modèle et pas
 de symbole, et pondérer reviendrait à décider à la place de celui qui fait le

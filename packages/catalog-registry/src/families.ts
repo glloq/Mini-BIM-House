@@ -4,7 +4,12 @@ import type { DataDomain, DataRegistry } from './registries.js';
 import { isClearanceZone } from './clearances.js';
 import { isDataDomain, isDataRegistry } from './registries.js';
 import { isPortType } from './port-types.js';
-import { isStatusAxis, isStatusValue, type FamilyStatus } from './status.js';
+import {
+  isMeasuredAxis,
+  isStatusAxis,
+  isStatusValue,
+  type FamilyStatus,
+} from './status.js';
 
 /** Where an object of this family may be put. */
 export interface FamilyPlacement {
@@ -141,6 +146,13 @@ export function validateFamily(
     if (!isStatusAxis(axis)) at(`status/${axis}`, `unknown status axis`);
     else if (!isStatusValue(value))
       at(`status/${axis}`, `unknown status value ${value}`);
+    // Seventy-one families declared a plan symbol was ready and not one of
+    // them named a symbol. An axis that can be measured is measured.
+    else if (isMeasuredAxis(axis))
+      at(
+        `status/${axis}`,
+        'is measured from the registries and must not be written down',
+      );
   }
   for (const [key, symbolId] of Object.entries(family.graphics ?? {}))
     if (typeof symbolId === 'string' && !known.symbols.has(symbolId))

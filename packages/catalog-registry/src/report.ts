@@ -3,10 +3,24 @@ import {
   STATUS_AXES,
   completeness,
   statusOf,
+  type FamilyStatus,
   type StatusAxis,
   type StatusValue,
 } from './status.js';
 import { DATA_DOMAINS, type DataDomain } from './registries.js';
+
+/**
+ * One family together with where it has actually got to.
+ *
+ * The status is passed in rather than read off the family, because five of the
+ * sixteen axes are measured from the registries and not written down. A report
+ * built from `family.status` alone would show the half somebody typed and
+ * silently drop the half that is true.
+ */
+export interface FamilyReview {
+  readonly family: FamilyDefinition;
+  readonly status: FamilyStatus;
+}
 
 export interface AxisCount {
   readonly axis: StatusAxis;
@@ -15,7 +29,7 @@ export interface AxisCount {
 
 /** How many families sit at each status, axis by axis. */
 export function axisCounts(
-  families: readonly FamilyDefinition[],
+  reviews: readonly FamilyReview[],
 ): readonly AxisCount[] {
   return STATUS_AXES.map((axis) => {
     const counts: Record<StatusValue, number> = {
@@ -24,8 +38,7 @@ export function axisCounts(
       READY: 0,
       VALIDATED: 0,
     };
-    for (const entry of families)
-      counts[statusOf(entry.status ?? {}, axis)] += 1;
+    for (const review of reviews) counts[statusOf(review.status, axis)] += 1;
     return { axis, counts };
   });
 }
@@ -38,12 +51,12 @@ export interface DomainProgress {
 }
 
 export function domainProgress(
-  families: readonly FamilyDefinition[],
+  reviews: readonly FamilyReview[],
 ): readonly DomainProgress[] {
   return DATA_DOMAINS.map((domain) => {
-    const own = families.filter((entry) => entry.domain === domain);
+    const own = reviews.filter((review) => review.family.domain === domain);
     const total = own.reduce(
-      (sum, entry) => sum + completeness(entry.status ?? {}),
+      (sum, review) => sum + completeness(review.status),
       0,
     );
     return {
@@ -62,15 +75,15 @@ export function domainProgress(
  * and how far it has got.
  */
 export function pendingOfWave(
-  families: readonly FamilyDefinition[],
+  reviews: readonly FamilyReview[],
   priority: number,
-): readonly FamilyDefinition[] {
-  return families
-    .filter((entry) => entry.priority === priority)
-    .filter((entry) => completeness(entry.status ?? {}) < 1)
+): readonly FamilyReview[] {
+  return reviews
+    .filter((review) => review.family.priority === priority)
+    .filter((review) => completeness(review.status) < 1)
     .sort(
       (first, second) =>
-        completeness(first.status ?? {}) - completeness(second.status ?? {}) ||
-        first.id.localeCompare(second.id),
+        completeness(first.status) - completeness(second.status) ||
+        first.family.id.localeCompare(second.family.id),
     );
 }

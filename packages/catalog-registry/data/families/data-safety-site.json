@@ -16,9 +16,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -38,9 +36,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -60,9 +56,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -82,9 +76,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -104,9 +96,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -126,9 +116,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -148,9 +136,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -170,9 +156,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -192,9 +176,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -214,9 +196,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -236,9 +216,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -258,9 +236,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -280,9 +256,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -302,9 +276,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -324,9 +296,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -346,9 +316,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -368,9 +336,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -390,9 +356,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -412,9 +376,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -434,9 +396,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -456,9 +416,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -478,9 +436,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -500,9 +456,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -522,9 +476,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -544,9 +496,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -566,9 +516,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "DATA_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
     },
@@ -588,9 +536,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -610,9 +556,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -632,9 +576,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -654,9 +596,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -676,9 +616,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -698,9 +636,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -720,9 +656,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -742,9 +676,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -764,9 +696,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -786,9 +716,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -808,9 +736,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -830,9 +756,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -852,9 +776,7 @@
       "clearances": ["PHYSICAL", "ACCESSIBILITY"],
       "propertySchema": "SAFETY_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "RULES": "NONE"
       }
     },
@@ -874,10 +796,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -897,10 +816,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -920,10 +836,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -943,10 +856,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -966,10 +876,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -989,10 +896,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1012,10 +916,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1035,10 +936,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1058,10 +956,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1086,10 +981,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1109,10 +1001,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1132,10 +1021,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1155,10 +1041,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1178,10 +1061,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1201,10 +1081,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1224,10 +1101,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1247,10 +1121,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1270,10 +1141,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "SITE_DEVICE",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "PLACEMENT": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
     },
@@ -1287,8 +1155,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1304,8 +1170,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1321,8 +1185,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1338,8 +1200,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1355,8 +1215,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1372,8 +1230,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1389,8 +1245,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1406,8 +1260,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1423,8 +1275,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1440,8 +1290,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1457,8 +1305,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1474,8 +1320,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1491,8 +1335,6 @@
       "propertySchema": "STRUCTURAL_MEMBER",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
@@ -1513,9 +1355,7 @@
       "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
       "propertySchema": "FURNITURE",
       "status": {
-        "MODEL": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
     },
@@ -1534,9 +1374,7 @@
       "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
       "propertySchema": "FURNITURE",
       "status": {
-        "MODEL": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
     },
@@ -1555,9 +1393,7 @@
       "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
       "propertySchema": "FURNITURE",
       "status": {
-        "MODEL": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
     },
@@ -1576,9 +1412,7 @@
       "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
       "propertySchema": "FURNITURE",
       "status": {
-        "MODEL": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
     },
@@ -1597,9 +1431,7 @@
       "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
       "propertySchema": "FURNITURE",
       "status": {
-        "MODEL": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
     },
@@ -1618,9 +1450,7 @@
       "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
       "propertySchema": "FURNITURE",
       "status": {
-        "MODEL": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
     },
@@ -1639,9 +1469,7 @@
       "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
       "propertySchema": "FURNITURE",
       "status": {
-        "MODEL": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
     },
@@ -1660,9 +1488,7 @@
       "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
       "propertySchema": "FURNITURE",
       "status": {
-        "MODEL": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
     },
@@ -1681,9 +1507,7 @@
       "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
       "propertySchema": "FURNITURE",
       "status": {
-        "MODEL": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
     },
@@ -1702,9 +1526,7 @@
       "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
       "propertySchema": "FURNITURE",
       "status": {
-        "MODEL": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
     }

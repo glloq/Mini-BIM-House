@@ -30,12 +30,12 @@
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
       },
-      "optionalPorts": ["CONDENSATE", "CONTROL"]
+      "optionalPorts": ["CONDENSATE", "CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-heat-pump"
+      }
     },
     {
       "id": "HEAT_PUMP_AIR_WATER_SPLIT",
@@ -72,10 +72,7 @@
       ],
       "propertySchema": "HEAT_PUMP",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -114,10 +111,7 @@
       ],
       "propertySchema": "HEAT_PUMP",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -156,10 +150,7 @@
       ],
       "propertySchema": "HEAT_PUMP",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -198,10 +189,7 @@
       ],
       "propertySchema": "HEAT_PUMP",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -240,10 +228,7 @@
       ],
       "propertySchema": "HEAT_PUMP",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -282,10 +267,7 @@
       ],
       "propertySchema": "HEAT_PUMP",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -312,10 +294,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -342,10 +321,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -372,10 +348,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -402,10 +375,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -432,10 +402,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -462,10 +429,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -492,10 +456,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -516,9 +477,10 @@
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
+      },
+      "graphics": {
+        "planSymbol": "symbol-pump"
       }
     },
     {
@@ -537,9 +499,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -559,9 +519,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -581,9 +539,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -603,9 +559,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -625,9 +579,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -647,9 +599,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -669,9 +619,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -691,9 +639,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -713,9 +659,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -735,9 +679,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -757,9 +699,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -779,9 +719,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -801,9 +739,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -823,9 +759,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -846,10 +780,10 @@
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
+      },
+      "graphics": {
+        "planSymbol": "symbol-radiator"
       }
     },
     {
@@ -868,10 +802,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -891,10 +822,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -914,10 +842,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -937,10 +862,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -960,10 +882,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "PLACEMENT": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -983,9 +902,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
     },
@@ -1005,9 +922,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
     },
@@ -1027,9 +942,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
     },
@@ -1049,9 +962,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
     },
@@ -1071,9 +982,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
-        "MODEL": "PARTIAL",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
     },
@@ -1099,9 +1008,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
     },
@@ -1127,9 +1034,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
     },
@@ -1155,9 +1060,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
     },
@@ -1183,9 +1086,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
     },
@@ -1211,9 +1112,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
     },
@@ -1239,9 +1138,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
     },
@@ -1267,9 +1164,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
     },
@@ -1295,9 +1190,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "PARTIAL",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
     },
@@ -1318,11 +1211,12 @@
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
       },
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-ventilation-unit"
+      }
     },
     {
       "id": "BALANCED_VENTILATION_UNIT",
@@ -1347,11 +1241,12 @@
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
       },
-      "optionalPorts": ["CONTROL", "CONDENSATE"]
+      "optionalPorts": ["CONTROL", "CONDENSATE"],
+      "graphics": {
+        "planSymbol": "symbol-ventilation-unit"
+      }
     },
     {
       "id": "DECENTRALIZED_HRV",
@@ -1369,9 +1264,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1398,9 +1291,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1420,9 +1311,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1443,9 +1332,10 @@
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
+      },
+      "graphics": {
+        "planSymbol": "symbol-air-terminal"
       }
     },
     {
@@ -1464,9 +1354,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1486,9 +1374,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1508,9 +1394,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1530,9 +1414,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1552,9 +1434,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1574,9 +1454,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1596,9 +1474,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1618,9 +1494,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1640,9 +1514,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1662,9 +1534,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1684,9 +1554,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1706,9 +1574,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1728,9 +1594,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1750,9 +1614,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1772,9 +1634,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1794,9 +1654,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1816,9 +1674,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -1838,9 +1694,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     }

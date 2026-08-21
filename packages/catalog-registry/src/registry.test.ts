@@ -32,6 +32,10 @@ import {
   propertySchema,
   schemaOfFamily,
   validateProperties,
+  validateFamily,
+  familyReviews,
+  familyStatus,
+  MEASURED_AXES,
   validateProvenance,
   validatePropertySchema,
   validateRegistry,
@@ -270,8 +274,13 @@ describe('where a value comes from', () => {
 });
 
 describe('the state of the work, measured', () => {
+  const reviews = familyReviews({
+    symbols: KNOWN.symbols,
+    entries: genericEquipmentCatalog(),
+  });
+
   it('counts every family on every axis', () => {
-    const counts = axisCounts(FAMILY_REGISTRY);
+    const counts = axisCounts(reviews);
     expect(counts).toHaveLength(STATUS_AXES.length);
     for (const { axis, counts: byValue } of counts) {
       const total = Object.values(byValue).reduce((sum, one) => sum + one, 0);
@@ -280,7 +289,7 @@ describe('the state of the work, measured', () => {
   });
 
   it('says how far each trade has got, and none of it is finished', () => {
-    const progress = domainProgress(FAMILY_REGISTRY);
+    const progress = domainProgress(reviews);
     expect(progress.length).toBeGreaterThan(5);
     for (const { domain, completeness: done } of progress) {
       expect(done, domain).toBeGreaterThanOrEqual(0);
@@ -293,10 +302,10 @@ describe('the state of the work, measured', () => {
   });
 
   it('hands out a queue anybody can pick up', () => {
-    const pending = pendingOfWave(FAMILY_REGISTRY, 1);
+    const pending = pendingOfWave(reviews, 1);
     expect(pending.length).toBeGreaterThan(0);
     // Least advanced first: the queue starts where there is most to do.
-    const scores = pending.map(({ status }) => completeness(status ?? {}));
+    const scores = pending.map(({ status }) => completeness(status));
     expect([...scores].sort((a, b) => a - b)).toEqual(scores);
   });
 
@@ -388,12 +397,44 @@ describe('the generic catalogue, checked against its own families', () => {
         expect(source.sourceType, definition.id).toBe('GENERIC');
   });
 
-  it('marks the families it feeds as having generic data', () => {
-    for (const definition of genericEquipmentCatalog())
-      expect(
-        family(definition.familyId)?.status?.GENERIC_DATA,
-        definition.familyId,
-      ).toBe('READY');
+  it('measures the families it feeds rather than believing them', () => {
+    // Seventy-one families claimed a plan symbol was ready and not one of them
+    // named a symbol. A status that can be measured is measured, and a family
+    // nobody has written an entry for cannot claim otherwise.
+    const known = { symbols, entries: genericEquipmentCatalog() };
+    for (const definition of genericEquipmentCatalog()) {
+      const status = familyStatus(definition.familyId, known);
+      expect(status.GENERIC_DATA, definition.familyId).toBe('READY');
+      expect(status.PORTS, definition.familyId).toBe('VALIDATED');
+      expect(status.TESTS, definition.familyId).toBe('VALIDATED');
+      expect(status.PLAN_SYMBOL, definition.familyId).toBe('READY');
+    }
+    const untouched = familyStatus('FLUE_PIPE', known);
+    expect(untouched.GENERIC_DATA).toBe('NONE');
+    expect(untouched.TESTS).toBe('NONE');
+    expect(untouched.PORTS).not.toBe('VALIDATED');
+  });
+
+  it('refuses a family that writes a measured axis down by hand', () => {
+    const [entry] = FAMILY_REGISTRY;
+    expect(
+      validateFamily(
+        { ...entry!, status: { PORTS: 'READY' } },
+        {
+          symbols: KNOWN.symbols,
+          propertySchemas: new Set(
+            PROPERTY_SCHEMA_REGISTRY.map(({ family: id }) => id),
+          ),
+          calculators: KNOWN.calculators,
+        },
+      ).map(({ message }) => message),
+    ).toContain('is measured from the registries and must not be written down');
+  });
+
+  it('leaves no measured axis declared anywhere in the data', () => {
+    for (const entry of FAMILY_REGISTRY)
+      for (const axis of MEASURED_AXES)
+        expect(entry.status?.[axis], `${entry.id} ${axis}`).toBeUndefined();
   });
 
   it('refuses an entry whose properties are not its family’s', () => {

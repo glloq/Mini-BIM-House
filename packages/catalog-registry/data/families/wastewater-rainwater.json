@@ -16,9 +16,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -37,9 +35,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -58,9 +54,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -79,9 +73,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -100,9 +92,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -121,9 +111,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -142,9 +130,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -163,9 +149,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -184,9 +168,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -205,9 +187,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -226,9 +206,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -247,9 +225,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -268,9 +244,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -289,9 +263,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -310,9 +282,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -331,9 +301,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -352,9 +320,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -373,9 +339,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -394,9 +358,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -415,9 +377,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -436,9 +396,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -457,9 +415,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -478,9 +434,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE"
+        "MODEL": "PARTIAL"
       }
     },
     {
@@ -499,9 +453,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
       "hint": "La surface de collecte, la pente et l’orientation viennent de la toiture ; elles ne se ressaisissent pas."
@@ -522,9 +474,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -544,9 +494,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -566,9 +514,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -588,9 +534,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -610,9 +554,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -632,9 +574,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -654,9 +594,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -676,9 +614,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -698,9 +634,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -721,9 +655,10 @@
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
         "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "READY",
         "CALCULATION": "PARTIAL"
+      },
+      "graphics": {
+        "planSymbol": "symbol-rainwater-tank"
       }
     },
     {
@@ -742,9 +677,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -764,9 +697,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -786,9 +717,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -808,9 +737,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -830,9 +757,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -852,9 +777,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -874,9 +797,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -896,9 +817,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -918,9 +837,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     },
@@ -940,9 +857,7 @@
       "clearances": ["PHYSICAL", "MAINTENANCE"],
       "propertySchema": "RAINWATER_DEVICE",
       "status": {
-        "MODEL": "READY",
-        "PORTS": "READY",
-        "GENERIC_DATA": "NONE",
+        "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       }
     }

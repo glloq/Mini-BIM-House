@@ -16,11 +16,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -39,11 +36,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -62,11 +56,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -85,11 +76,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -108,11 +96,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -131,11 +116,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -154,11 +136,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -177,11 +156,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -200,11 +176,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -223,11 +196,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -246,11 +216,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -269,11 +236,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -292,11 +256,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -315,11 +276,8 @@
       "propertySchema": "WALL_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
-        "CALCULATION": "PARTIAL",
-        "TESTS": "PARTIAL"
+        "QUANTITIES": "PARTIAL",
+        "CALCULATION": "PARTIAL"
       }
     },
     {
@@ -338,9 +296,7 @@
       "propertySchema": "FLOOR_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       }
     },
@@ -360,9 +316,7 @@
       "propertySchema": "FLOOR_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       }
     },
@@ -382,9 +336,7 @@
       "propertySchema": "FLOOR_ASSEMBLY",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
       "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
@@ -405,9 +357,7 @@
       "propertySchema": "FLOOR_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       }
     },
@@ -427,9 +377,7 @@
       "propertySchema": "FLOOR_ASSEMBLY",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
       "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
@@ -450,9 +398,7 @@
       "propertySchema": "FLOOR_ASSEMBLY",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
       "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
@@ -473,9 +419,7 @@
       "propertySchema": "FLOOR_ASSEMBLY",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
       "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
@@ -496,9 +440,7 @@
       "propertySchema": "FLOOR_ASSEMBLY",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
       "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
@@ -519,9 +461,7 @@
       "propertySchema": "FLOOR_ASSEMBLY",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
       "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
@@ -542,9 +482,7 @@
       "propertySchema": "FLOOR_ASSEMBLY",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
       "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
@@ -565,9 +503,7 @@
       "propertySchema": "FLOOR_ASSEMBLY",
       "status": {
         "MODEL": "PARTIAL",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
       "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
@@ -589,9 +525,7 @@
       "propertySchema": "ROOF_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       }
     },
@@ -612,9 +546,7 @@
       "propertySchema": "ROOF_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       }
     },
@@ -635,9 +567,7 @@
       "propertySchema": "ROOF_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       }
     },
@@ -658,9 +588,7 @@
       "propertySchema": "ROOF_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       }
     },
@@ -681,9 +609,7 @@
       "propertySchema": "ROOF_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       }
     },
@@ -704,9 +630,7 @@
       "propertySchema": "ROOF_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       }
     },
@@ -727,9 +651,7 @@
       "propertySchema": "ROOF_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       }
     },
@@ -750,9 +672,7 @@
       "propertySchema": "ROOF_ASSEMBLY",
       "status": {
         "MODEL": "READY",
-        "PROPERTIES": "PARTIAL",
-        "PLAN_SYMBOL": "READY",
-        "QUANTITIES": "READY",
+        "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       }
     },
