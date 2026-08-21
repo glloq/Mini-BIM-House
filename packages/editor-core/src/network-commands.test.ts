@@ -22,6 +22,7 @@ import {
   networkSummary,
   openPorts,
   orthogonalRoute,
+  portsOfPlacedEquipment,
   templatePorts,
 } from './index.js';
 
@@ -499,6 +500,67 @@ describe('what a network may be joined to', () => {
       'SOMETHING_ELSE',
     );
     expect(port?.portTypeId).toBeUndefined();
+  });
+
+  it('takes a heat pump’s ports from its own fiche, not from a template', () => {
+    // Flow, return, power, control and a condensate drain are five different
+    // things, and no pair of « system + IN/OUT » will ever produce them.
+    const ports = portsOfPlacedEquipment('pump-node', {
+      ports: [
+        { id: 'flow', portTypeId: 'HEATING_FLOW' },
+        { id: 'return', portTypeId: 'HEATING_RETURN' },
+        { id: 'power', portTypeId: 'ELECTRICAL_AC' },
+        { id: 'unnamed' },
+      ],
+    });
+    expect(ports.map(({ id }) => id)).toEqual([
+      'pump-node-flow',
+      'pump-node-return',
+      'pump-node-power',
+    ]);
+    expect(ports.map(({ portTypeId }) => portTypeId)).toEqual([
+      'HEATING_FLOW',
+      'HEATING_RETURN',
+      'ELECTRICAL_AC',
+    ]);
+    expect(ports[0]?.direction).toBe('OUT');
+  });
+
+  it('never joins two ports that say nothing about themselves', () => {
+    // An unknown fluid joined to an unknown fluid is a drawing nobody has
+    // checked, and calling it valid is how it stays unchecked.
+    const commands = new ProjectCommandDispatcher(
+      baseProject([
+        {
+          id: 'other',
+          discipline: 'OTHER',
+          systemType: 'OTHER',
+          nodes: [
+            { id: 'a', kind: 'SOURCE', position: { x: 0, y: 0, z: 0 } },
+            { id: 'b', kind: 'TERMINAL', position: { x: 1, y: 0, z: 0 } },
+          ],
+          ports: [
+            { id: 'pa', nodeId: 'a', role: 'FLOW', direction: 'IN' },
+            { id: 'pb', nodeId: 'b', role: 'FLOW', direction: 'IN' },
+          ],
+          edges: [],
+        },
+      ] as unknown as readonly TechnicalNetwork[]),
+    );
+    expect(
+      commands.dispatch(
+        new ConnectNetworkPortsCommand('other', {
+          id: 'other:edge',
+          fromPortId: 'pa',
+          toPortId: 'pb',
+          kind: 'SEGMENT',
+          path: [
+            { x: 0, y: 0, z: 0 },
+            { x: 1000, y: 0, z: 0 },
+          ],
+        }),
+      ).status,
+    ).toBe('REJECTED');
   });
 
   it('refuses to draw a run that could not be built', () => {

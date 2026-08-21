@@ -119,17 +119,57 @@ export function portDisagreements(port: NetworkPort): readonly string[] {
 /**
  * Why two ports may not be joined, when they may not.
  *
- * The same answer the catalogue gives, from the same registry: a network drawn
- * in the building and a catalogue entry have to agree about what can be
- * connected to what, or one of them is drawing something that cannot be built.
+ * The one answer, given once. There were three: the model asked about
+ * direction, connection type and nominal size; the editor asked about
+ * connection type and nominal size; the catalogue asked about the fluid, the
+ * service and the way the two are joined. Three rules for one question is two
+ * of them wrong, and the disagreement showed as an editor that drew runs the
+ * importer refused.
+ *
+ * A port that names its kind is answered by the registry, which knows that an
+ * eau froide is not an évacuation. A port that names none is answered by what
+ * it does say, which is what a file written before the kinds existed carries.
+ * Two ports that name nothing are **not** compatible by default: an unknown
+ * fluid joined to an unknown fluid is a drawing nobody has checked, and
+ * calling it valid is how it stays unchecked.
  */
 export function connectionRefusalBetween(
   first: NetworkPort,
   second: NetworkPort,
 ): string | undefined {
-  if (first.portTypeId === undefined || second.portTypeId === undefined)
-    return undefined;
-  return connectionRefusal(first.portTypeId, second.portTypeId);
+  if (first.nodeId === second.nodeId)
+    return 'Un tronçon relie deux nœuds différents.';
+  // Which way each end faces. A kind settles this when it is definite; the
+  // port says so otherwise.
+  if (portFacing(first) === 'IN' && portFacing(second) === 'IN')
+    return `${first.id} et ${second.id} sont deux arrivées : rien ne part de l’une vers l’autre.`;
+  if (portFacing(first) === 'OUT' && portFacing(second) === 'OUT')
+    return `${first.id} et ${second.id} sont deux départs.`;
+  if (first.portTypeId !== undefined && second.portTypeId !== undefined)
+    return connectionRefusal(first.portTypeId, second.portTypeId);
+  // What the older files say instead of a kind. Same shape, and no more
+  // authority than it ever had.
+  if (
+    first.connectionType !== undefined &&
+    second.connectionType !== undefined &&
+    first.connectionType !== second.connectionType
+  )
+    return `${first.connectionType} et ${second.connectionType} ne se raccordent pas.`;
+  if (
+    first.nominalSize !== undefined &&
+    second.nominalSize !== undefined &&
+    first.nominalSize !== second.nominalSize
+  )
+    return `${first.nominalSize} et ${second.nominalSize} ne sont pas le même calibre.`;
+  return undefined;
+}
+
+/** Whether two ports may be joined, which is the same question said shortly. */
+export function portsConnectable(
+  first: NetworkPort,
+  second: NetworkPort,
+): boolean {
+  return connectionRefusalBetween(first, second) === undefined;
 }
 
 export interface NetworkEdge {
@@ -279,13 +319,10 @@ export function validateTechnicalNetwork(
         ),
       );
     } else {
-      if (from.nodeId === to.nodeId || !portsCompatible(from, to))
+      const refusal = connectionRefusalBetween(from, to);
+      if (refusal !== undefined)
         issues.push(
-          issue(
-            'NETWORK_INCOMPATIBLE_PORTS',
-            `edges[${index}]`,
-            `Ports ${from.id} and ${to.id} are incompatible.`,
-          ),
+          issue('NETWORK_INCOMPATIBLE_PORTS', `edges[${index}]`, refusal),
         );
       const key = [from.id, to.id].sort().join('\u0000');
       if (connections.has(key))
@@ -481,21 +518,6 @@ function nodeAdjacency(network: TechnicalNetwork): Map<string, Set<string>> {
     adjacency.get(to)!.add(from);
   }
   return adjacency;
-}
-
-function portsCompatible(from: NetworkPort, to: NetworkPort): boolean {
-  const direction =
-    (from.direction === 'OUT' || from.direction === 'BIDIRECTIONAL') &&
-    (to.direction === 'IN' || to.direction === 'BIDIRECTIONAL');
-  const connection =
-    from.connectionType === undefined ||
-    to.connectionType === undefined ||
-    from.connectionType === to.connectionType;
-  const size =
-    from.nominalSize === undefined ||
-    to.nominalSize === undefined ||
-    from.nominalSize === to.nominalSize;
-  return direction && connection && size;
 }
 
 function validPath(path: readonly Point3D[]): boolean {

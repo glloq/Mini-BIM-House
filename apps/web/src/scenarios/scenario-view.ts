@@ -1,5 +1,9 @@
 import type { Project } from '@house-technical-designer/core-domain';
-import { resolveProjectPath } from '@house-technical-designer/core-domain';
+import {
+  projectEntities,
+  resolveProjectPath,
+  SCENARIO_DIFFABLE,
+} from '@house-technical-designer/core-domain';
 import type { InspectorEdit } from '../editor/inspector-edits.js';
 import { inspectObject, scenarioPathFor } from '../editor/object-editors.js';
 import type { AnalysisOverlay } from '@house-technical-designer/calculation-core';
@@ -62,34 +66,56 @@ export interface ScenarioObjectDiff {
   readonly kind: ScenarioChangeKind;
 }
 
-/** Everything of a storey a scenario could touch, by identifier. */
+/**
+ * Everything a scenario could touch, by identifier.
+ *
+ * Read from the project's own index rather than from a list written here. The
+ * list written here had already fallen behind: a variant moving a post,
+ * planting a tree or adding a note showed nothing at all, because those three
+ * families were never enumerated. Which families count is a table with a test
+ * behind it, so a family added to the model cannot slip past.
+ */
 function objectsOf(project: Project): ReadonlyMap<string, string> {
+  const entities = projectEntities(project);
+  // What each object is on its own. A storey holds its walls, so comparing a
+  // storey whole would report it as changed every time one of its walls moved
+  // — one change shown twice, and the second one pointing at a thing nobody
+  // touched. What a storey *is* — its name, its height above the ground — is
+  // still compared, because that is the storey and not its contents.
+  const held = new Set(
+    entities
+      .filter(({ scope }) => scope === 'GLOBAL')
+      .map(({ id }) => id as unknown),
+  );
   const signatures = new Map<string, string>();
-  for (const level of project.building.levels) {
-    for (const wall of level.walls)
-      signatures.set(wall.id, JSON.stringify(wall));
-    for (const opening of level.openings)
-      signatures.set(opening.id, JSON.stringify(opening));
-    for (const slab of level.slabs)
-      signatures.set(slab.id, JSON.stringify(slab));
-    for (const roof of level.roofs)
-      signatures.set(roof.id, JSON.stringify(roof));
-    for (const space of level.spaces)
-      signatures.set(space.id, JSON.stringify(space));
-    for (const stair of level.stairs)
-      signatures.set(stair.id, JSON.stringify(stair));
-    for (const component of level.components ?? [])
-      signatures.set(component.id, JSON.stringify(component));
-    for (const roof of level.roofStructures ?? [])
-      signatures.set(roof.id, JSON.stringify(roof));
-  }
-  for (const network of project.systems ?? []) {
-    for (const node of network.nodes)
-      signatures.set(node.id, JSON.stringify(node));
-    for (const edge of network.edges)
-      signatures.set(edge.id, JSON.stringify(edge));
-  }
+  for (const entity of entities)
+    if (SCENARIO_DIFFABLE[entity.family])
+      signatures.set(
+        entity.id,
+        JSON.stringify(withoutChildren(entity.value, held)),
+      );
   return signatures;
+}
+
+/** The value with the objects the index already compares taken out of it. */
+function withoutChildren(value: unknown, held: ReadonlySet<unknown>): unknown {
+  if (Array.isArray(value))
+    return value
+      .filter(
+        (item) =>
+          item === null ||
+          typeof item !== 'object' ||
+          !held.has((item as { readonly id?: unknown }).id),
+      )
+      .map((item) => withoutChildren(item, held));
+  if (value !== null && typeof value === 'object')
+    return Object.fromEntries(
+      Object.entries(value).map(([key, held_]) => [
+        key,
+        withoutChildren(held_, held),
+      ]),
+    );
+  return value;
 }
 
 /**
