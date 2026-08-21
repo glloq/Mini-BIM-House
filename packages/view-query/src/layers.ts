@@ -58,6 +58,30 @@ export const PLAN_LAYERS = [
     defaultVisible: true,
   },
   {
+    id: 'architecture.stairs',
+    label: 'Escaliers',
+    discipline: 'ARCHITECTURE',
+    defaultVisible: true,
+  },
+  {
+    id: 'structure.members',
+    label: 'Structure',
+    discipline: 'ARCHITECTURE',
+    defaultVisible: true,
+  },
+  {
+    id: 'site.parcel',
+    label: 'Terrain',
+    discipline: 'OTHER',
+    defaultVisible: true,
+  },
+  {
+    id: 'components.placed',
+    label: 'Équipements posés',
+    discipline: 'OTHER',
+    defaultVisible: true,
+  },
+  {
     id: 'annotation.dimensions',
     label: 'Cotations',
     discipline: 'ARCHITECTURE',
@@ -114,6 +138,10 @@ const ARCHITECTURE_BASE: readonly PlanLayerId[] = [
   'architecture.slabs',
   'architecture.spaces',
   'architecture.space-labels',
+  'architecture.stairs',
+  'structure.members',
+  'site.parcel',
+  'components.placed',
   'annotation.dimensions',
 ];
 

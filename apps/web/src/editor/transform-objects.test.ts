@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { ProjectCommandDispatcher } from '@house-technical-designer/editor-core';
 import { loadDemoProject } from '../demo-project.js';
-import { transformObjectsCommand, transformPoint } from './editing-commands.js';
+import {
+  transformObjectsCommand,
+  transformPoint,
+  transformedAzimuthDeg,
+} from './editing-commands.js';
 
 function file() {
   const result = loadDemoProject();
@@ -133,5 +137,75 @@ describe('turning and reflecting a selection', () => {
         angleDeg: Number.NaN,
       }).status,
     ).toBe('ERROR');
+  });
+});
+
+describe('where a roof plane faces once the building has turned', () => {
+  const rotate = (angleDeg: number) =>
+    ({ kind: 'ROTATE', centre: { x: 0, y: 0 }, angleDeg }) as const;
+
+  it('carries the bearing through a rotation', () => {
+    expect(transformedAzimuthDeg(rotate(90), 0)).toBeCloseTo(90, 6);
+    expect(transformedAzimuthDeg(rotate(90), 180)).toBeCloseTo(270, 6);
+    expect(transformedAzimuthDeg(rotate(-90), 0)).toBeCloseTo(270, 6);
+    expect(transformedAzimuthDeg(rotate(0), 137)).toBeCloseTo(137, 6);
+    // A full turn is no turn, and the bearing stays inside its own range.
+    expect(transformedAzimuthDeg(rotate(360), 42)).toBeCloseTo(42, 6);
+  });
+
+  it('reflects the bearing across a vertical axis', () => {
+    const vertical = {
+      kind: 'MIRROR',
+      from: { x: 4000, y: 0 },
+      to: { x: 4000, y: 1000 },
+    } as const;
+    // Facing east becomes facing west; facing north stays north.
+    expect(transformedAzimuthDeg(vertical, 0)).toBeCloseTo(180, 6);
+    expect(transformedAzimuthDeg(vertical, 90)).toBeCloseTo(90, 6);
+    expect(transformedAzimuthDeg(vertical, 45)).toBeCloseTo(135, 6);
+  });
+
+  it('reflects the bearing across a horizontal and an arbitrary axis', () => {
+    const horizontal = {
+      kind: 'MIRROR',
+      from: { x: 0, y: 2000 },
+      to: { x: 1000, y: 2000 },
+    } as const;
+    expect(transformedAzimuthDeg(horizontal, 90)).toBeCloseTo(270, 6);
+    expect(transformedAzimuthDeg(horizontal, 0)).toBeCloseTo(0, 6);
+
+    const diagonal = {
+      kind: 'MIRROR',
+      from: { x: 0, y: 0 },
+      to: { x: 1000, y: 1000 },
+    } as const;
+    // Reflecting about the 45° axis swaps the two axes.
+    expect(transformedAzimuthDeg(diagonal, 0)).toBeCloseTo(90, 6);
+    expect(transformedAzimuthDeg(diagonal, 90)).toBeCloseTo(0, 6);
+  });
+
+  it('turns the roof of the project, outline and bearing together', () => {
+    const opened = file();
+    const before = opened.project.building.levels[0]!.roofs[0]!;
+    const result = transformObjectsCommand(opened, 'ground', [before.id], {
+      kind: 'ROTATE',
+      centre: { x: 0, y: 0 },
+      angleDeg: 90,
+    });
+    expect(result.status).toBe('OK');
+    if (result.status !== 'OK') return;
+    const dispatcher = new ProjectCommandDispatcher(opened.project);
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+    const after = dispatcher.project.building.levels[0]!.roofs[0]!;
+    expect(after.azimuthDeg).toBeCloseTo(
+      transformedAzimuthDeg(
+        { kind: 'ROTATE', centre: { x: 0, y: 0 }, angleDeg: 90 },
+        before.azimuthDeg,
+      ),
+      6,
+    );
+    expect(after.azimuthDeg).not.toBe(before.azimuthDeg);
+    // The slope itself is unchanged: turning a roof does not flatten it.
+    expect(after.slopeDeg).toBe(before.slopeDeg);
   });
 });

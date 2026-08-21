@@ -553,6 +553,67 @@ export class UpdateNetworkEdgeCommand extends NetworkCommand {
   }
 }
 
+/**
+ * Moves one corner of a routed segment.
+ *
+ * The two ends are not corners: a segment starts and finishes at a port, and
+ * an end dragged away from its port would draw a pipe reaching nothing. Moving
+ * the appliance is what moves the end.
+ */
+export class MoveNetworkEdgeVertexCommand extends NetworkCommand {
+  constructor(
+    readonly networkId: string,
+    readonly edgeId: string,
+    readonly vertexIndex: number,
+    readonly to: { readonly x: number; readonly y: number },
+  ) {
+    super(
+      `network:edge:vertex:${networkId}:${edgeId}:${vertexIndex}`,
+      'Déplacer un coude du réseau',
+    );
+  }
+  private moved(network: TechnicalNetwork): TechnicalNetwork {
+    return {
+      ...network,
+      edges: network.edges.map((edge) =>
+        edge.id === this.edgeId
+          ? {
+              ...edge,
+              path: edge.path.map((point, index) =>
+                index === this.vertexIndex
+                  ? { x: this.to.x, y: this.to.y, z: point.z }
+                  : point,
+              ),
+            }
+          : edge,
+      ),
+    };
+  }
+  validate(project: Project): CommandValidation {
+    const network = findNetwork(project, this.networkId);
+    if (network === undefined)
+      return rejected(`Le réseau ${this.networkId} est introuvable.`);
+    const edge = network.edges.find(({ id }) => id === this.edgeId);
+    if (edge === undefined)
+      return rejected(`Le tronçon ${this.edgeId} est introuvable.`);
+    if (this.vertexIndex <= 0 || this.vertexIndex >= edge.path.length - 1)
+      return rejected(
+        'Les extrémités d’un tronçon appartiennent à leurs ports : déplacez le nœud.',
+      );
+    if (!Number.isFinite(this.to.x) || !Number.isFinite(this.to.y))
+      return rejected('Un coude se pose à un point mesurable.');
+    return validateEdit(project, this.networkId, (candidate) =>
+      this.moved(candidate),
+    );
+  }
+  protected apply(project: Project): Project {
+    return replaceNetwork(
+      project,
+      this.moved(requireNetwork(project, this.networkId)),
+    );
+  }
+}
+
 export class RemoveNetworkEdgeCommand extends NetworkCommand {
   constructor(
     readonly networkId: string,

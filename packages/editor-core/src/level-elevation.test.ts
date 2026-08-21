@@ -105,7 +105,26 @@ describe('heights that are absolute in the project', () => {
 });
 
 describe('objects this version cannot edit', () => {
-  const withStair = { stairs: [{ id: 'stair-1', kind: 'STRAIGHT' }] };
+  const withStair = {
+    stairs: [
+      {
+        id: entityId<'Stair'>('stair-1'),
+        type: 'STAIR' as const,
+        levelId: entityId<'Level'>('ground'),
+        topLevelId: entityId<'Level'>('first'),
+        stairType: 'STRAIGHT' as const,
+        widthMm: 900,
+        riserCount: 16,
+        treadDepthMm: 270,
+        path: {
+          points: [
+            { x: 0, y: 0 },
+            { x: 4000, y: 0 },
+          ],
+        },
+      },
+    ],
+  };
 
   it('refuses to duplicate a level carrying a stair rather than dropping it', () => {
     const commands = new ProjectCommandDispatcher(project(withStair));

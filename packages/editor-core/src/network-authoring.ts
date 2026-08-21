@@ -8,7 +8,7 @@ import type {
   TechnicalNetwork,
 } from '@house-technical-designer/core-domain';
 import { validateTechnicalNetwork } from '@house-technical-designer/core-domain';
-import type { Point3D } from '@house-technical-designer/geometry';
+import type { Point2D, Point3D } from '@house-technical-designer/geometry';
 
 /** One port a node template creates, named after the node it belongs to. */
 export interface NetworkPortTemplate {
@@ -267,4 +267,136 @@ export function draftNetwork(
     },
     source,
   };
+}
+
+/**
+ * The route a run of clicks describes, with the height it ends at.
+ *
+ * Every corner the user placed is kept: an editor that re-routed around them
+ * would be an editor that discards what was drawn. The first and last points
+ * are the two ports, whose height comes from the nodes they belong to; a run
+ * that changes height climbs at its last corner, so the vertical leg is a
+ * riser one can see rather than a slope hidden in a diagonal.
+ */
+export function routeThrough(
+  from: Point3D,
+  corners: readonly Point2D[],
+  to: Point3D,
+): readonly Point3D[] {
+  const flat: Point3D[] = [
+    from,
+    ...corners.map((corner) => ({ x: corner.x, y: corner.y, z: from.z })),
+  ];
+  if (from.z !== to.z) {
+    const last = flat[flat.length - 1]!;
+    flat.push({ x: last.x, y: last.y, z: to.z });
+  }
+  flat.push(to);
+  return flat.filter(
+    (point, index) => index === 0 || !samePoint(flat[index - 1]!, point),
+  );
+}
+
+/**
+ * The same route, made to fall at a given slope.
+ *
+ * Waste water runs by gravity: a horizontal branch is a branch that does not
+ * drain. The height of each corner follows from the distance walked and the
+ * slope asked for, so the fall is a consequence of the run rather than a
+ * number typed twice.
+ */
+export function slopedRoute(
+  route: readonly Point3D[],
+  slopePercent: number,
+): readonly Point3D[] {
+  const start = route[0];
+  if (start === undefined || slopePercent === 0) return route;
+  let travelled = 0;
+  return route.map((point, index) => {
+    if (index === 0) return point;
+    const previous = route[index - 1]!;
+    travelled += Math.hypot(point.x - previous.x, point.y - previous.y);
+    return { ...point, z: start.z - (travelled * slopePercent) / 100 };
+  });
+}
+
+/**
+ * How far a route falls, and over what length, so a slope can be reported.
+ *
+ * Returned rather than stored: the fall is a fact of the two ends and the
+ * path, and writing it down would be a second answer to the same question.
+ */
+export function routeFall(route: readonly Point3D[]): {
+  readonly runMm: number;
+  readonly fallMm: number;
+  readonly slopePercent: number | undefined;
+} {
+  let runMm = 0;
+  for (let index = 1; index < route.length; index += 1) {
+    const previous = route[index - 1]!;
+    const current = route[index]!;
+    runMm += Math.hypot(current.x - previous.x, current.y - previous.y);
+  }
+  const first = route[0];
+  const last = route[route.length - 1];
+  const fallMm =
+    first === undefined || last === undefined ? 0 : first.z - last.z;
+  return {
+    runMm,
+    fallMm,
+    slopePercent: runMm === 0 ? undefined : (fallMm / runMm) * 100,
+  };
+}
+
+/**
+ * The node template a discipline uses to split a run: the one that both
+ * receives and distributes.
+ *
+ * A tee is not a shape drawn on a pipe; it is a fitting with a way in and two
+ * ways out. Which fitting that is belongs to the discipline — a manifold for
+ * water, a chamber for waste, a plenum for air — and the templates already
+ * say so.
+ */
+export function branchingTemplate(
+  discipline: NetworkDiscipline,
+): NetworkNodeTemplate | undefined {
+  return networkNodeTemplates(discipline).find(
+    (template) =>
+      template.ports.some(({ direction }) => direction === 'IN') &&
+      template.ports.some(({ direction }) => direction === 'OUT'),
+  );
+}
+
+/** The point of a route nearest a place the user pointed at. */
+export function nearestPointOnRoute(
+  route: readonly Point3D[],
+  at: Point2D,
+): Point3D | undefined {
+  let best: { readonly point: Point3D; readonly distance: number } | undefined;
+  for (let index = 1; index < route.length; index += 1) {
+    const from = route[index - 1]!;
+    const to = route[index]!;
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const lengthSquared = dx * dx + dy * dy;
+    const ratio =
+      lengthSquared === 0
+        ? 0
+        : Math.min(
+            1,
+            Math.max(
+              0,
+              ((at.x - from.x) * dx + (at.y - from.y) * dy) / lengthSquared,
+            ),
+          );
+    const point: Point3D = {
+      x: from.x + dx * ratio,
+      y: from.y + dy * ratio,
+      z: from.z + (to.z - from.z) * ratio,
+    };
+    const distance = Math.hypot(point.x - at.x, point.y - at.y);
+    if (best === undefined || distance < best.distance)
+      best = { point, distance };
+  }
+  return best?.point;
 }

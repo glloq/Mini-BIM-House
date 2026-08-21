@@ -8,10 +8,14 @@ import type {
   Wall,
 } from '@house-technical-designer/core-domain';
 import {
+  deriveRoofPlanes,
   deriveWallFaces,
   isDimension,
   resolveDimension,
+  portAnchors,
   resolveStraightWallJoin,
+  roofEaveOutline,
+  structuralFootprint,
   validateWall,
 } from '@house-technical-designer/core-domain';
 import type { Assembly } from '@house-technical-designer/assemblies';
@@ -663,6 +667,29 @@ function networkPrimitives(
       },
     });
   }
+  // A port is a place on an appliance, not a place in the house, so the model
+  // gives it none. The drawing has to put it somewhere for the user to point
+  // at it: near its node, and clickable on its own.
+  const anchors = portAnchors(network);
+  for (const port of network.ports) {
+    const at = anchors.get(port.id);
+    if (at === undefined) continue;
+    drafts.push({
+      id: `network-port:${network.id}:${port.id}`,
+      sourceObjectId: port.id,
+      semanticRole: role,
+      geometry: { kind: 'POINT', point: { x: at.x, y: at.y } },
+      layer: mapping.layer,
+      zIndex: 42,
+      discipline: mapping.discipline,
+      metadata: {
+        networkId: network.id,
+        nodeId: port.nodeId,
+        portRole: port.role,
+        direction: port.direction,
+      },
+    });
+  }
   for (const node of network.nodes) {
     drafts.push({
       id: `network-node:${network.id}:${node.id}`,
@@ -685,6 +712,304 @@ function networkPrimitives(
   return drafts;
 }
 
+/**
+ * How wide a placed component is drawn, in millimetres.
+ *
+ * The model does not state a footprint — a catalogue entry describes a model
+ * and not the space it takes on a plan — so the drawing marks where the thing
+ * is, at a size that reads at a house's scale, and claims nothing about how
+ * big it is. A real footprint will come from the definition, not from here.
+ */
+const COMPONENT_MARK_MM = 300;
+
+const COMPONENT_ROLES: Readonly<Record<string, SemanticRole>> = {
+  HEATING: 'ANALYSIS_MEDIUM',
+  SANITARY: 'WATER_COLD',
+  VENTILATION: 'VENT_SUPPLY',
+  ELECTRICAL: 'ELECTRICAL_POWER',
+  LIGHTING: 'ELECTRICAL_LIGHTING',
+  PHOTOVOLTAIC: 'ELECTRICAL_PV',
+};
+
+function componentPrimitives(level: Level): readonly PrimitiveDraft[] {
+  return (level.components ?? []).map((component) => {
+    const half = COMPONENT_MARK_MM / 2;
+    const radians = (component.rotationDeg * Math.PI) / 180;
+    const corner = (dx: number, dy: number) => ({
+      x: component.position.x + dx * Math.cos(radians) - dy * Math.sin(radians),
+      y: component.position.y + dx * Math.sin(radians) + dy * Math.cos(radians),
+    });
+    return {
+      id: `component:${component.id}`,
+      sourceObjectId: component.id,
+      semanticRole: COMPONENT_ROLES[component.category] ?? 'SYMBOL',
+      geometry: {
+        kind: 'POLYGON' as const,
+        polygon: {
+          outer: [
+            corner(-half, -half),
+            corner(half, -half),
+            corner(half, half),
+            corner(-half, half),
+          ],
+        },
+      },
+      layer: 'components.placed',
+      zIndex: 45,
+      discipline: 'OTHER' as const,
+      metadata: {
+        category: component.category,
+        ...(component.definitionId === undefined
+          ? {}
+          : { definitionId: component.definitionId }),
+        ...(component.spaceId === undefined
+          ? {}
+          : { spaceId: component.spaceId }),
+      },
+    };
+  });
+}
+
+/**
+ * Draws a stair as a plan reads it: an outline, its treads, and its direction.
+ *
+ * The treads are placed along the walking line at the depth the stair states,
+ * so a flight whose treads do not reach its landing is visibly short rather
+ * than quietly wrong.
+ */
+function stairPrimitives(level: Level): readonly PrimitiveDraft[] {
+  const drafts: PrimitiveDraft[] = [];
+  for (const stair of level.stairs) {
+    const points = stair.path.points;
+    const start = points[0];
+    const end = points[points.length - 1];
+    if (start === undefined || end === undefined || points.length < 2) continue;
+    const half = stair.widthMm / 2;
+    const left: Point2D[] = [];
+    const right: Point2D[] = [];
+    for (const [index, point] of points.entries()) {
+      const previous = points[Math.max(0, index - 1)]!;
+      const next = points[Math.min(points.length - 1, index + 1)]!;
+      const dx = next.x - previous.x;
+      const dy = next.y - previous.y;
+      const length = Math.hypot(dx, dy) || 1;
+      const nx = -dy / length;
+      const ny = dx / length;
+      left.push({ x: point.x + nx * half, y: point.y + ny * half });
+      right.push({ x: point.x - nx * half, y: point.y - ny * half });
+    }
+    drafts.push({
+      id: `stair:${stair.id}`,
+      sourceObjectId: stair.id,
+      semanticRole: 'WALL_BELOW',
+      geometry: {
+        kind: 'POLYGON',
+        polygon: { outer: [...left, ...[...right].reverse()] },
+      },
+      layer: 'architecture.stairs',
+      zIndex: 12,
+      discipline: 'ARCHITECTURE',
+      metadata: { stairType: stair.stairType, topLevelId: stair.topLevelId },
+    });
+    // One fewer tread than risers: the last riser arrives on the storey above.
+    const treads = Math.max(0, stair.riserCount - 1);
+    const totalMm = polylineLengthOf(points);
+    for (let index = 1; index <= treads; index += 1) {
+      const along = (totalMm * index) / (treads + 1);
+      const at = pointAlong(points, along);
+      const direction = directionAlong(points, along);
+      if (at === undefined || direction === undefined) continue;
+      drafts.push({
+        id: `stair-tread:${stair.id}:${index}`,
+        sourceObjectId: stair.id,
+        semanticRole: 'ANNOTATION',
+        geometry: {
+          kind: 'POLYLINE',
+          polyline: {
+            points: [
+              {
+                x: at.x - direction.y * half,
+                y: at.y + direction.x * half,
+              },
+              {
+                x: at.x + direction.y * half,
+                y: at.y - direction.x * half,
+              },
+            ],
+            closed: false,
+          },
+        },
+        layer: 'architecture.stairs',
+        zIndex: 13,
+        discipline: 'ARCHITECTURE',
+      });
+    }
+    drafts.push({
+      id: `stair-walk:${stair.id}`,
+      sourceObjectId: stair.id,
+      semanticRole: 'ANNOTATION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: {
+          points: points.map(({ x, y }) => ({ x, y })),
+          closed: false,
+        },
+      },
+      layer: 'architecture.stairs',
+      zIndex: 14,
+      discipline: 'ARCHITECTURE',
+    });
+  }
+  return drafts;
+}
+
+function polylineLengthOf(points: readonly Point2D[]): number {
+  let total = 0;
+  for (let index = 1; index < points.length; index += 1)
+    total += Math.hypot(
+      points[index]!.x - points[index - 1]!.x,
+      points[index]!.y - points[index - 1]!.y,
+    );
+  return total;
+}
+
+function pointAlong(
+  points: readonly Point2D[],
+  distanceMm: number,
+): Point2D | undefined {
+  let travelled = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const from = points[index - 1]!;
+    const to = points[index]!;
+    const length = Math.hypot(to.x - from.x, to.y - from.y);
+    if (travelled + length >= distanceMm) {
+      const ratio = length === 0 ? 0 : (distanceMm - travelled) / length;
+      return {
+        x: from.x + (to.x - from.x) * ratio,
+        y: from.y + (to.y - from.y) * ratio,
+      };
+    }
+    travelled += length;
+  }
+  return points[points.length - 1];
+}
+
+function directionAlong(
+  points: readonly Point2D[],
+  distanceMm: number,
+): Point2D | undefined {
+  let travelled = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const from = points[index - 1]!;
+    const to = points[index]!;
+    const length = Math.hypot(to.x - from.x, to.y - from.y);
+    if (travelled + length >= distanceMm || index === points.length - 1)
+      return length === 0
+        ? undefined
+        : { x: (to.x - from.x) / length, y: (to.y - from.y) / length };
+    travelled += length;
+  }
+  return undefined;
+}
+
+/**
+ * Draws a roof as a roof plan reads it: the eaves, then the lines where the
+ * planes meet.
+ *
+ * A ridge this version cannot solve is simply absent — the eaves are still
+ * exact, and a line drawn where no plane meets would be worse than no line.
+ */
+function roofStructurePrimitives(level: Level): readonly PrimitiveDraft[] {
+  const drafts: PrimitiveDraft[] = [];
+  for (const roof of level.roofStructures ?? []) {
+    drafts.push({
+      id: `roof-structure:${roof.id}`,
+      sourceObjectId: roof.id,
+      semanticRole: 'WALL_BELOW',
+      geometry: { kind: 'POLYGON', polygon: roofEaveOutline(roof) },
+      layer: 'architecture.roofs',
+      zIndex: 6,
+      discipline: 'ARCHITECTURE',
+      metadata: { sides: roof.edges.length },
+    });
+    const topology = deriveRoofPlanes(roof);
+    for (const plane of topology.planes)
+      drafts.push({
+        id: `roof-structure-plane:${plane.id}`,
+        sourceObjectId: roof.id,
+        semanticRole: 'ANNOTATION',
+        geometry: { kind: 'POLYGON', polygon: plane.footprint },
+        layer: 'architecture.roofs',
+        zIndex: 7,
+        discipline: 'ARCHITECTURE',
+        metadata: {
+          slopeDeg: plane.slopeDeg,
+          azimuthDeg: plane.azimuthDeg,
+          derived: topology.status === 'DERIVED',
+        },
+      });
+  }
+  return drafts;
+}
+
+function structurePrimitives(level: Level): readonly PrimitiveDraft[] {
+  return (level.structure ?? []).flatMap((member) => {
+    const outline = structuralFootprint(member);
+    if (outline.length < 3) return [];
+    return [
+      {
+        id: `structure:${member.id}`,
+        sourceObjectId: member.id,
+        semanticRole: 'WALL_CUT' as const,
+        geometry: { kind: 'POLYGON' as const, polygon: { outer: outline } },
+        layer: 'structure.members',
+        zIndex: 20,
+        discipline: 'ARCHITECTURE' as const,
+        metadata: { kind: member.kind },
+      },
+    ];
+  });
+}
+
+/**
+ * The ground the house sits on: its parcel and what stands around it.
+ *
+ * The site has held a boundary and a list of obstacles since the beginning and
+ * nothing drew them, so the distances to the limits and the shade of a
+ * neighbour were facts nobody could see.
+ */
+function sitePrimitives(project: Project): readonly PrimitiveDraft[] {
+  const drafts: PrimitiveDraft[] = [];
+  const parcel = project.site.parcelBoundary;
+  if (parcel !== undefined)
+    drafts.push({
+      id: 'site:parcel',
+      sourceObjectId: 'site:parcel',
+      semanticRole: 'SITE',
+      geometry: { kind: 'POLYGON', polygon: parcel },
+      layer: 'site.parcel',
+      zIndex: 1,
+      discipline: 'OTHER',
+    });
+  for (const obstacle of project.site.obstacles ?? [])
+    drafts.push({
+      id: `site-obstacle:${obstacle.id}`,
+      sourceObjectId: obstacle.id,
+      semanticRole: 'SITE',
+      geometry: { kind: 'POLYGON', polygon: obstacle.boundary },
+      layer: 'site.parcel',
+      zIndex: 2,
+      discipline: 'OTHER',
+      metadata: {
+        ...(obstacle.kind === undefined ? {} : { kind: obstacle.kind }),
+        ...(obstacle.heightMm === undefined
+          ? {}
+          : { heightMm: obstacle.heightMm }),
+      },
+    });
+  return drafts;
+}
+
 function slabAndRoofPrimitives(level: Level): readonly PrimitiveDraft[] {
   return [
     ...level.slabs.map((slab) => ({
@@ -697,6 +1022,9 @@ function slabAndRoofPrimitives(level: Level): readonly PrimitiveDraft[] {
       discipline: 'ARCHITECTURE' as const,
       metadata: { assemblyId: slab.assemblyId, role: slab.role },
     })),
+    // Only the planes drawn one at a time: a roof described by its outline
+    // draws its own, so that clicking one selects the roof and not a plane
+    // nobody made.
     ...level.roofs.map((roof) => ({
       id: `roof:${roof.id}`,
       sourceObjectId: roof.id,
@@ -795,7 +1123,12 @@ export function buildPlanView(
       if (isDimension(annotation))
         drafts.push(...dimensionPrimitives(annotation, level, issues));
     drafts.push(...slabAndRoofPrimitives(level));
+    drafts.push(...componentPrimitives(level));
+    drafts.push(...stairPrimitives(level));
+    drafts.push(...roofStructurePrimitives(level));
+    drafts.push(...structurePrimitives(level));
   }
+  drafts.push(...sitePrimitives(project));
   for (const network of project.systems ?? [])
     drafts.push(...networkPrimitives(network));
 

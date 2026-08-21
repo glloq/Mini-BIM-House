@@ -12,18 +12,20 @@ import {
   type ReactNode,
 } from 'react';
 import { createRoot } from 'react-dom/client';
-import type {
-  DimensionType,
-  ProjectFile,
-  WallRole,
-} from '@house-technical-designer/core-domain';
+import type { ProjectFile } from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import { validateClimateDataset } from '@house-technical-designer/climate';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import {
-  networkNodeTemplates,
   ReplaceProjectCommand,
+  SaveDrawingViewCommand,
+  SetScenarioOverrideCommand,
 } from '@house-technical-designer/editor-core';
+import type {
+  ProjectSheet,
+  SavedDrawingView,
+} from '@house-technical-designer/core-domain';
+import { GENERIC_TECHNICAL_SCREEN } from '@house-technical-designer/drawing-engine';
 import {
   applyProjectScenario,
   DEFAULT_ZIP_LIMITS,
@@ -53,11 +55,39 @@ import { demoClimateDatasets, loadDemoProject } from './demo-project.js';
 import { PlanCanvas } from './editor/PlanCanvas.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { LayersPanel } from './editor/LayersPanel.js';
-import { ToolBar, type OpeningDraft } from './editor/ToolBar.js';
+import { ToolBar } from './editor/ToolBar.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
+import { scenarioOverride } from './scenarios/scenario-changes.js';
+import {
+  scenarioDiff,
+  scenarioDiffOverlay,
+  targetForEdit,
+} from './scenarios/scenario-view.js';
+import type { InspectorEdit } from './editor/inspector-edits.js';
 import type { CheckFix } from './checks/checks-model.js';
-import { toolDefinition } from './editor/tool-registry.js';
+import {
+  isOpenEnded,
+  optionsOf,
+  requiredPoints,
+  toolDefinition,
+} from './editor/tool-registry.js';
+import { ObjectMenu, type ObjectMenuEntry } from './editor/ObjectMenu.js';
+import {
+  boundsOf,
+  contextActionsFor,
+  inspectObject,
+  relationshipsOf,
+  similarTo,
+} from './editor/object-editors.js';
+import type { Project } from '@house-technical-designer/core-domain';
+import type { EditorTool } from './editor/editor-state.js';
+import {
+  draftKey,
+  optionNumber as readOptionNumber,
+  optionValue as readOptionValue,
+  type ToolDrafts,
+} from './editor/tool-options.js';
 import { nextLibraryId } from './library/library-model.js';
 import { ErrorBoundary } from './ErrorBoundary.js';
 import {
@@ -73,6 +103,7 @@ import {
 } from './autosave.js';
 import {
   buildOverlay,
+  overlayOption,
   designTemperatureDifferenceK,
   type OverlayId,
 } from './calculations/overlay-source.js';
@@ -105,7 +136,6 @@ import {
   type WorkspaceLayout,
 } from './shell/workspace-layout.js';
 import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
-import { inspectObject } from './editor/object-editors.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import {
   alignObjectsCommand,
@@ -156,6 +186,9 @@ const NetworksPanel = lazy(async () => ({
 }));
 const ProjectPanel = lazy(async () => ({
   default: (await import('./project/ProjectPanel.js')).ProjectPanel,
+}));
+const DocumentsPanel = lazy(async () => ({
+  default: (await import('./documents/DocumentsPanel.js')).DocumentsPanel,
 }));
 const ChecksPanel = lazy(async () => ({
   default: (await import('./checks/ChecksPanel.js')).ChecksPanel,
@@ -248,6 +281,12 @@ function downloadBlob(blob: Blob, fileName: string): void {
  * say that a project is described, then drawn, then furnished from libraries,
  * then serviced, and only then calculated.
  */
+/** CSS pixels in one millimetre of paper: 96 dots per inch, by definition. */
+const CSS_PIXELS_PER_MM = 96 / 25.4;
+
+/** The smallest window framing one object leaves around it. */
+const FRAMING_MINIMUM_MM = 1000;
+
 const WORKSPACE_GROUPS = [
   { label: 'Projet', tabs: [{ id: 'project', label: 'Projet' }] },
   {
@@ -280,16 +319,13 @@ const WORKSPACE_GROUPS = [
       { id: 'checks', label: 'Vérifications' },
     ],
   },
+  {
+    label: 'Documents',
+    tabs: [{ id: 'documents', label: 'Vues et feuilles' }],
+  },
 ] as const;
 
 type WorkspaceTab = (typeof WORKSPACE_GROUPS)[number]['tabs'][number]['id'];
-
-const DEFAULT_OPENING: OpeningDraft = {
-  openingType: 'WINDOW',
-  widthMm: 1200,
-  heightMm: 1200,
-  sillHeightMm: 900,
-};
 
 function App() {
   const [file, setFile] = useState<ProjectFile>(() =>
@@ -300,17 +336,27 @@ function App() {
   const [selectedMaterialId, setSelectedMaterialId] = useState<string>();
   const [selectedAssemblyId, setSelectedAssemblyId] = useState<string>();
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>();
-  const [selectedNetworkId, setSelectedNetworkId] = useState<string>();
-  const [nodeKind, setNodeKind] = useState('');
+  /**
+   * What the user chose in the options of each tool.
+   *
+   * One record rather than one state per tool: a new tool declares its options
+   * in the registry and needs nothing here.
+   */
+  const [toolDrafts, setToolDrafts] = useState<ToolDrafts>({});
   /** A network object another screen asked to open the properties of. */
   const [inspectNetworkObjectId, setInspectNetworkObjectId] =
     useState<string>();
-  const [openingDraft, setOpeningDraft] =
-    useState<OpeningDraft>(DEFAULT_OPENING);
-  const [dimensionType, setDimensionType] = useState<DimensionType>('ALIGNED');
-  const [wallRole, setWallRole] = useState<WallRole>('EXTERIOR');
+
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
+  /**
+   * The variant being drawn, when the plan is showing one.
+   *
+   * Scenario mode does not change the project: it changes what the plan shows
+   * and what an edit means. Nothing of the variant is ever written into the
+   * building — a variant is a list of differences, and it stays one.
+   */
+  const [scenarioMode, setScenarioMode] = useState<string>();
   const [saveState, setSaveState] = useState<SaveState>('SAVED');
   /** Whether the workspace navigation is open as a drawer on a narrow screen. */
   const [menuOpen, setMenuOpen] = useState(false);
@@ -332,9 +378,7 @@ function App() {
   const [calculationBusy, setCalculationBusy] = useState(false);
   /** Bumped by an explicit recompute; the effect above watches it. */
   const [calculationGeneration, setCalculationGeneration] = useState(0);
-  const [wallAssemblyId, setWallAssemblyId] = useState(
-    () => file.project.assemblies?.[0]?.id ?? '',
-  );
+
   const importInput = useRef<HTMLInputElement>(null);
   const session = useRef(new ProjectEditingSession(file));
   const [editor, dispatchEditor] = useReducer(
@@ -343,23 +387,56 @@ function App() {
     createEditorState,
   );
 
+  /** Reads one option of a tool, as the toolbar and the tool itself read it. */
+  const toolOption = useCallback(
+    (project: Project, toolId: EditorTool, drafts: ToolDrafts, key: string) =>
+      readOptionValue(project, toolId, optionsOf(toolId), drafts, key),
+    [],
+  );
+  const toolOptionNumber = useCallback(
+    (project: Project, toolId: EditorTool, drafts: ToolDrafts, key: string) =>
+      readOptionNumber(project, toolId, optionsOf(toolId), drafts, key),
+    [],
+  );
+  /** Chooses the network every screen works on. */
+  const selectNetwork = useCallback((networkId: string) => {
+    setToolDrafts((current) => ({
+      ...current,
+      [draftKey('NETWORK', 'networkId', true)]: networkId,
+    }));
+  }, []);
+
   const summary = useMemo(() => summarizeProject(file), [file]);
   const levels = file.project.building.levels;
   const activeLevelId = editor.levelId ?? levels[0]?.id;
   const networks = file.project.systems ?? [];
-  const activeNetwork =
-    networks.find(({ id }) => id === selectedNetworkId) ?? networks[0];
-  const activeNetworkId = activeNetwork?.id;
-  // The drafted node kind has to belong to the active network's discipline: a
-  // luminaire is not a node an extract duct can carry.
-  const nodeKinds =
-    activeNetwork === undefined
-      ? []
-      : networkNodeTemplates(activeNetwork.discipline);
-  const activeNodeKind =
-    nodeKinds.find(({ kind }) => kind === nodeKind)?.kind ??
-    nodeKinds[0]?.kind ??
-    '';
+  /**
+   * The network the tools work on.
+   *
+   * It is the option of the network tool rather than a state of its own: the
+   * networks workspace and the plan then always speak of the same one, and a
+   * network deleted elsewhere falls back to what the project still holds.
+   */
+  const activeNetworkId = toolOption(
+    file.project,
+    'NETWORK',
+    toolDrafts,
+    'networkId',
+  );
+  const activeNetwork = networks.find(({ id }) => id === activeNetworkId);
+  /**
+   * The family a click or a band is allowed to take.
+   *
+   * It is an option of the selection tool rather than a state of its own, for
+   * the same reason as the network: the toolbar renders it because the tool
+   * declares it, and nothing here knows that walls exist.
+   */
+  const selectableFamily = toolOption(
+    file.project,
+    'SELECT',
+    toolDrafts,
+    'family',
+  );
 
   /**
    * A project replacement waiting for the user to say what to do with the work
@@ -388,12 +465,10 @@ function App() {
     ): void => {
       setFile(next);
       session.current = new ProjectEditingSession(next);
-      setWallAssemblyId(next.project.assemblies?.[0]?.id ?? '');
       setSelectedMaterialId(undefined);
       setSelectedAssemblyId(undefined);
       setSelectedEquipmentId(undefined);
-      setSelectedNetworkId(next.project.systems?.[0]?.id);
-      setNodeKind('');
+      setToolDrafts({});
       dispatchEditor({ type: 'CANCEL' });
       const firstLevel = next.project.building.levels[0];
       if (firstLevel !== undefined)
@@ -633,6 +708,71 @@ function App() {
     });
   }, []);
 
+  /** The object whose actions are open, and where the menu sits. */
+  const [objectMenu, setObjectMenu] = useState<
+    | {
+        readonly objectId: string;
+        readonly atPx: { readonly x: number; readonly y: number };
+      }
+    | undefined
+  >(undefined);
+
+  /** Frames one object without building a whole view to measure it. */
+  const frameObject = useCallback(
+    (objectId: string) => {
+      if (activeLevelId === undefined) return;
+      const bounds = boundsOf(
+        session.current.file.project,
+        activeLevelId,
+        objectId,
+      );
+      if (bounds === undefined) {
+        setMessage('Cet objet n’a pas d’étendue mesurable sur le plan.');
+        return;
+      }
+      // A node has a position and no extent; framing it exactly would fill the
+      // window with one millimetre. A metre around it shows where it stands.
+      const half = FRAMING_MINIMUM_MM / 2;
+      const centre = {
+        x: (bounds.min.x + bounds.max.x) / 2,
+        y: (bounds.min.y + bounds.max.y) / 2,
+      };
+      dispatchEditor({
+        type: 'ZOOM_SELECTION',
+        bounds: {
+          min: {
+            x: Math.min(bounds.min.x, centre.x - half),
+            y: Math.min(bounds.min.y, centre.y - half),
+          },
+          max: {
+            x: Math.max(bounds.max.x, centre.x + half),
+            y: Math.max(bounds.max.y, centre.y + half),
+          },
+        },
+      });
+    },
+    [activeLevelId],
+  );
+
+  /** Selects everything of the same family that is built the same way. */
+  const selectSimilar = useCallback(
+    (objectId: string) => {
+      if (activeLevelId === undefined) return;
+      const similar = similarTo(
+        session.current.file.project,
+        activeLevelId,
+        objectId,
+      );
+      if (similar.length === 0) {
+        setMessage('Cette famille ne dit pas ce que « semblable » veut dire.');
+        return;
+      }
+      dispatchEditor({ type: 'SELECT_MANY', objectIds: similar });
+      setMessage(`${similar.length} objet(s) semblable(s) sélectionné(s).`);
+    },
+    [activeLevelId],
+  );
+
   /** Lines the selection up on one edge of its own outline. */
   const alignSelection = useCallback(
     (edge: AlignEdge) => {
@@ -772,6 +912,70 @@ function App() {
     dispatchEditor({ type: 'SELECT_MANY', objectIds: result.createdIds });
   }, [activeLevelId, editor.selection, editor.snap.gridSpacingMm, runCommand]);
 
+  /**
+   * What can be done to one object, from the plan.
+   *
+   * The entries every object shares are the application's; the ones a wall
+   * alone offers come from its own family, so a new family arrives with its
+   * own actions rather than with a new branch here.
+   */
+  const objectMenuEntries = useCallback(
+    (objectId: string): readonly ObjectMenuEntry[] => {
+      const project = session.current.file.project;
+      const levelId = activeLevelId ?? '';
+      return [
+        {
+          id: 'frame',
+          label: 'Cadrer sur cet objet',
+          run: () => frameObject(objectId),
+        },
+        {
+          id: 'similar',
+          label: 'Sélectionner les objets semblables',
+          disabled: similarTo(project, levelId, objectId).length === 0,
+          run: () => selectSimilar(objectId),
+        },
+        {
+          id: 'duplicate',
+          label: 'Dupliquer',
+          run: () => duplicateSelection(),
+        },
+        ...relationshipsOf(project, levelId, objectId).map((tie) => ({
+          id: `tie:${tie.role}`,
+          label: `Sélectionner : ${tie.role.toLowerCase()} (${tie.objectIds.length})`,
+          run: () => {
+            dispatchEditor({ type: 'SELECT_MANY', objectIds: tie.objectIds });
+            setMessage(
+              `${tie.objectIds.length} objet(s) lié(s) sélectionné(s) : ${tie.role.toLowerCase()}.`,
+            );
+          },
+        })),
+        ...contextActionsFor(project, levelId, objectId).map((action) => ({
+          id: action.id,
+          label: action.label,
+          disabled: action.command() === undefined,
+          run: () => {
+            const command = action.command();
+            if (command !== undefined) runCommand(command);
+          },
+        })),
+        {
+          id: 'delete',
+          label: 'Supprimer',
+          run: () => deleteSelection(),
+        },
+      ];
+    },
+    [
+      activeLevelId,
+      deleteSelection,
+      duplicateSelection,
+      frameObject,
+      runCommand,
+      selectSimilar,
+    ],
+  );
+
   /** Carries the whole selection, as one entry in the history. */
   const moveSelection = useCallback(
     (delta: { x: number; y: number }) => {
@@ -805,16 +1009,20 @@ function App() {
         points,
         picks,
         selection: editor.selection,
-        drafts: {
-          wallAssemblyId,
-          wallRole,
-          opening: openingDraft,
-          dimensionType,
-          ...(activeNetworkId === undefined
-            ? {}
-            : { networkId: activeNetworkId }),
-          nodeKind: activeNodeKind,
-        },
+        option: (key) =>
+          toolOption(
+            session.current.file.project,
+            editor.activeTool,
+            toolDrafts,
+            key,
+          ),
+        optionNumber: (key) =>
+          toolOptionNumber(
+            session.current.file.project,
+            editor.activeTool,
+            toolDrafts,
+            key,
+          ),
         newId: (prefix) =>
           prefix === ''
             ? crypto.randomUUID()
@@ -829,15 +1037,12 @@ function App() {
     },
     [
       activeLevelId,
-      activeNetworkId,
-      activeNodeKind,
-      dimensionType,
       editor.activeTool,
       editor.selection,
-      openingDraft,
       runCommand,
-      wallAssemblyId,
-      wallRole,
+      toolDrafts,
+      toolOption,
+      toolOptionNumber,
     ],
   );
 
@@ -904,8 +1109,24 @@ function App() {
 
   // Drawing on a hidden layer would place a node the user cannot see, so the
   // discipline of the active network is revealed while its tool is in use.
+  // Colouring an object nobody is drawing colours nothing: an analysis of the
+  // pipes reveals the layer the pipes are on, exactly as a network tool does.
   useEffect(() => {
-    if (editor.activeTool !== 'NETWORK' || activeNetwork === undefined) return;
+    const discipline = overlayOption(overlayId)?.discipline;
+    if (discipline === undefined) return;
+    dispatchEditor({
+      type: 'SHOW_LAYERS',
+      layerIds: [networkLayerId(discipline)],
+    });
+  }, [overlayId]);
+
+  useEffect(() => {
+    if (activeNetwork === undefined) return;
+    // Any tool that asks which network it works on draws on that discipline's
+    // layer; naming the tools here would leave the next one drawing in the
+    // dark.
+    if (!optionsOf(editor.activeTool).some(({ key }) => key === 'networkId'))
+      return;
     dispatchEditor({
       type: 'SHOW_LAYERS',
       layerIds: [networkLayerId(activeNetwork.discipline)],
@@ -993,8 +1214,205 @@ function App() {
    * The keyboard is one way of asking; the palette is another, and neither
    * should hold its own copy of what a command does.
    */
+  /**
+   * Ends a run of points and lets the tool make what it can of them.
+   *
+   * A run of walls has no number of corners known in advance; the user says
+   * when it is finished, and a run too short for the tool says so rather than
+   * disappearing without a word.
+   */
+  const finishRun = useCallback(() => {
+    if (editor.pendingPoints.length === 0) return;
+    if (!isOpenEnded(editor.activeTool)) return;
+    if (editor.pendingPoints.length < requiredPoints(editor.activeTool)) {
+      setMessage(
+        `${toolDefinition(editor.activeTool).label} : ${requiredPoints(editor.activeTool)} points au minimum.`,
+      );
+      return;
+    }
+    commitPoints(editor.pendingPoints, editor.pendingPicks);
+    dispatchEditor({ type: 'FINISH_RUN' });
+  }, [
+    commitPoints,
+    editor.activeTool,
+    editor.pendingPicks,
+    editor.pendingPoints,
+  ]);
+
+  /**
+   * Keeps the plan as it stands as a view one can come back to.
+   *
+   * What is kept are the decisions — storey, scale, layers, profile — and not
+   * a picture: the drawing is made again from the model each time, so a view
+   * reopened after a wall moved shows the wall where it is now.
+   */
+  const captureView = useCallback(
+    (name: string) => {
+      const levelId = activeLevelId as SavedDrawingView['levelId'] | undefined;
+      const view: SavedDrawingView = {
+        id: `view-${crypto.randomUUID()}`,
+        type: 'PLAN',
+        name,
+        ...(levelId === undefined ? {} : { levelId }),
+        // A drawing at 1:1 puts one model millimetre on one paper
+        // millimetre, and a CSS pixel is 1/96 inch: the denominator is how
+        // many model millimetres one paper millimetre carries at this zoom.
+        scaleDenominator: Math.max(
+          1,
+          Math.round(CSS_PIXELS_PER_MM / editor.camera.pixelsPerMm) || 50,
+        ),
+        layers: editor.layers,
+        graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
+        centreMm: editor.camera.centerModelMm,
+        ...(overlayId === 'none' ? {} : { analysisOverlayId: overlayId }),
+      };
+      if (runCommand(new SaveDrawingViewCommand(view)))
+        setMessage(`Vue « ${name} » enregistrée.`);
+    },
+    [
+      activeLevelId,
+      editor.camera.centerModelMm,
+      editor.camera.pixelsPerMm,
+      editor.layers,
+      overlayId,
+      runCommand,
+    ],
+  );
+
+  /** Puts the plan back the way a saved view describes it. */
+  const applyView = useCallback((view: SavedDrawingView) => {
+    if (view.levelId !== undefined)
+      dispatchEditor({ type: 'SET_LEVEL', levelId: view.levelId });
+    dispatchEditor({
+      type: 'SHOW_LAYERS',
+      layerIds: Object.entries(view.layers)
+        .filter(([, visible]) => visible)
+        .map(([layerId]) => layerId),
+    });
+    setTab('plan');
+  }, []);
+
+  /**
+   * Writes the drawing set as one PDF.
+   *
+   * The drawing engine builds and validates the job; the browser backend turns
+   * the sheets into pages. A sheet that cannot be laid out stops the export
+   * and says which one, rather than producing a file missing a page nobody
+   * would notice.
+   */
+  const exportSheets = useCallback((sheets: readonly ProjectSheet[]) => {
+    void (async () => {
+      try {
+        // The PDF chain — the print job, the sheet renderer and the browser
+        // backend — is only ever used from this button. Loading it with the
+        // application would put a printer in the way of drawing a wall.
+        const [{ createPdfPrintPage, generatePdfArtifact }, documents, pdf] =
+          await Promise.all([
+            import('@house-technical-designer/drawing-engine'),
+            import('./documents/documents-model.js'),
+            import('./documents/browser-pdf-backend.js'),
+          ]);
+        const project = session.current.file.project;
+        const pages = sheets.map((sheet) =>
+          createPdfPrintPage(
+            documents.sheetLayoutOf(project, sheet),
+            documents.renderSheet(project, sheet),
+          ),
+        );
+        const artifact = await generatePdfArtifact(
+          {
+            id: `sheets-${project.id}`,
+            metadata: {
+              title: project.metadata.name,
+              ...(project.metadata.author === undefined
+                ? {}
+                : { author: project.metadata.author }),
+              subject: 'Dossier de plans',
+            },
+            colorMode: 'COLOR',
+            pages,
+          },
+          `${project.metadata.name || 'plans'}.pdf`,
+          new pdf.BrowserPdfBackend(),
+        );
+        downloadBytes(artifact.bytes, artifact.fileName, artifact.mediaType);
+        setMessage(
+          `${pages.length} feuille(s) exportée(s) — pages tramées à 200 ppp.`,
+        );
+      } catch (error: unknown) {
+        setMessage(
+          `Export PDF impossible : ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
+      }
+    })();
+  }, []);
+
+  /** The project as this variant describes it, when one is being drawn. */
+  const scenarioProject = useMemo(() => {
+    if (scenarioMode === undefined) return undefined;
+    const applied = applyProjectScenario(file.project, scenarioMode);
+    return applied.status === 'OK' ? applied.project : undefined;
+  }, [file.project, scenarioMode]);
+
+  /** What this variant adds, removes and changes, drawn like an analysis. */
+  const scenarioOverlay = useMemo(
+    () =>
+      scenarioProject === undefined
+        ? undefined
+        : scenarioDiffOverlay(scenarioDiff(file.project, scenarioProject)),
+    [file.project, scenarioProject],
+  );
+
+  /**
+   * Applies an edit made while a variant is being drawn.
+   *
+   * Changing a property does not change the project: it states what this
+   * variant does differently. A property no scenario path names is refused out
+   * loud rather than silently written into the building.
+   */
+  const editInScenario = useCallback(
+    (objectId: string, edit: InspectorEdit, value: string): boolean => {
+      if (scenarioMode === undefined) return false;
+      const project = session.current.file.project;
+      const target = targetForEdit(project, objectId, edit.id);
+      if (target === undefined) {
+        setMessage(
+          `« ${edit.label} » ne peut pas encore varier dans un scénario.`,
+        );
+        return false;
+      }
+      const override = scenarioOverride(target, value);
+      if (override === undefined) {
+        setMessage(`${edit.label} : valeur non reconnue.`);
+        return false;
+      }
+      const applied = runCommand(
+        new SetScenarioOverrideCommand(scenarioMode, override),
+      );
+      if (applied)
+        setMessage(
+          `Scénario : ${target.label} passe à ${value}${
+            target.unit === undefined ? '' : ` ${target.unit}`
+          }.`,
+        );
+      return applied;
+    },
+    [runCommand, scenarioMode],
+  );
+
   const runShortcut = useCallback(
     (command: ShortcutCommandId): void => {
+      // A tool is chosen by the registry rather than by a branch per tool: a
+      // new tool declares the shortcut it answers to and is reachable at once.
+      const chosen = EDITOR_TOOLS.find(
+        ({ shortcutId }) => shortcutId === command,
+      );
+      if (chosen !== undefined && command !== 'tool.select') {
+        dispatchEditor({ type: 'SET_TOOL', tool: chosen.id });
+        return;
+      }
       switch (command) {
         case 'tool.select':
           // Échap défait une chose à la fois, la plus récente d'abord :
@@ -1005,35 +1423,8 @@ function App() {
         case 'edit.cancel':
           dispatchEditor({ type: 'CANCEL' });
           return;
-        case 'tool.wall':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'WALL' });
-          return;
-        case 'tool.opening':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'OPENING' });
-          return;
-        case 'tool.dimension':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'DIMENSION' });
-          return;
-        case 'tool.network':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'NETWORK' });
-          return;
-        case 'tool.split':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'SPLIT' });
-          return;
-        case 'tool.rotate':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'ROTATE' });
-          return;
-        case 'tool.mirror':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'MIRROR' });
-          return;
-        case 'tool.offset':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'OFFSET' });
-          return;
-        case 'tool.join':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'JOIN' });
-          return;
-        case 'tool.trim':
-          dispatchEditor({ type: 'SET_TOOL', tool: 'TRIM' });
+        case 'edit.finish':
+          finishRun();
           return;
         case 'edit.undo':
           undo();
@@ -1080,6 +1471,7 @@ function App() {
       deleteSelection,
       dispatchEditor,
       duplicateSelection,
+      finishRun,
       pasteClipboard,
       redo,
       transformSelection,
@@ -1255,7 +1647,7 @@ function App() {
               ({ id }) => id === objectId,
             ),
         );
-        if (holder !== undefined) setSelectedNetworkId(holder.id);
+        if (holder !== undefined) selectNetwork(holder.id);
         setInspectNetworkObjectId(objectId);
         setTab('networks');
         return;
@@ -1267,7 +1659,7 @@ function App() {
       }
       setTab(fix.tab);
     },
-    [selectOnPlan],
+    [selectNetwork, selectOnPlan],
   );
 
   // A run computed on an earlier revision — or with another climate file — is
@@ -1289,9 +1681,36 @@ function App() {
     [currentRun, overlayId],
   );
 
+  /**
+   * The overlay the plan actually draws.
+   *
+   * While a variant is being drawn, what matters is what it changes; an
+   * analysis of the base project underneath it would be an analysis of
+   * something else.
+   */
+  const drawnOverlay = scenarioOverlay ?? overlay;
+
+  /** What the module behind the chosen analysis could not do. */
+  const overlayWarnings = useMemo(() => {
+    const moduleId = overlayOption(overlayId)?.moduleId;
+    if (moduleId === undefined || currentRun === undefined) return [];
+    return (
+      currentRun.runs.find((run) => run.moduleId === moduleId)?.result
+        ?.warnings ?? []
+    );
+  }, [currentRun, overlayId]);
+
   const wallThicknessMm = useMemo(() => {
+    // The preview is drawn with the thickness of the assembly the tool is set
+    // to, which is one of its own options.
+    const assemblyId = toolOption(
+      file.project,
+      'WALL',
+      toolDrafts,
+      'assemblyId',
+    );
     const assembly = file.project.assemblies?.find(
-      ({ id }) => id === wallAssemblyId,
+      ({ id }) => id === assemblyId,
     );
     return assembly === undefined
       ? 200
@@ -1299,7 +1718,7 @@ function App() {
           (total, layer) => total + layer.thicknessM * 1000,
           0,
         );
-  }, [file.project.assemblies, wallAssemblyId]);
+  }, [file.project, toolDrafts, toolOption]);
 
   return (
     <main className="workspace">
@@ -1518,6 +1937,15 @@ function App() {
         </Suspense>
       )}
 
+      {objectMenu !== undefined && activeLevelId !== undefined && (
+        <ObjectMenu
+          title={inspectObject(file.project, objectMenu.objectId).title}
+          atPx={objectMenu.atPx}
+          entries={objectMenuEntries(objectMenu.objectId)}
+          onClose={() => setObjectMenu(undefined)}
+        />
+      )}
+
       {paletteOpen && (
         <CommandPalette
           entries={paletteEntries}
@@ -1644,10 +2072,63 @@ function App() {
                 }}
               />
               <LayersPanel editor={editor} dispatch={dispatchEditor} />
+              {(file.project.scenarios ?? []).length > 0 && (
+                <section
+                  className="overlay-control"
+                  aria-labelledby="scenario-mode-heading"
+                >
+                  <h3 id="scenario-mode-heading">Scénario</h3>
+                  <label>
+                    Dessiner la variante
+                    <select
+                      value={scenarioMode ?? ''}
+                      onChange={(event) =>
+                        setScenarioMode(
+                          event.target.value === ''
+                            ? undefined
+                            : event.target.value,
+                        )
+                      }
+                    >
+                      <option value="">Le projet lui-même</option>
+                      {(file.project.scenarios ?? []).map((scenario) => (
+                        <option key={scenario.id} value={scenario.id}>
+                          {scenario.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {scenarioMode !== undefined && (
+                    <p className="hint">
+                      Le plan montre cette variante. Modifier une propriété ne
+                      change pas le projet : cela dit ce que la variante fait
+                      autrement. Les objets ajoutés, retirés et modifiés sont
+                      colorés.
+                    </p>
+                  )}
+                  {scenarioMode !== undefined &&
+                    scenarioProject === undefined && (
+                      <p className="hint">
+                        Cette variante ne s’applique pas au projet tel qu’il est
+                        : ouvrez l’espace Scénarios pour voir pourquoi.
+                      </p>
+                    )}
+                </section>
+              )}
               <OverlayControl
                 overlayId={overlayId}
                 onChange={setOverlayId}
-                {...(overlay === undefined ? {} : { overlay })}
+                {...(drawnOverlay === undefined
+                  ? {}
+                  : { overlay: drawnOverlay })}
+                warnings={overlayWarnings}
+                onSelectObjects={(objectIds) => {
+                  // A remark becomes a correction the moment the plan shows
+                  // which objects it is about.
+                  dispatchEditor({ type: 'SELECT_MANY', objectIds });
+                  setTab('plan');
+                  zoomSelection();
+                }}
                 {...(climate.length === 0
                   ? {
                       unavailableReason:
@@ -1686,41 +2167,27 @@ function App() {
               project={file.project}
               editor={editor}
               dispatch={dispatchEditor}
-              assemblyId={wallAssemblyId}
-              onAssemblyChange={(assemblyId) => {
-                setWallAssemblyId(assemblyId);
-                // Choosing a partition proposes the matching role; the user
-                // stays free to override it, and nothing is inferred silently
-                // at creation time.
-                const category = file.project.assemblies?.find(
-                  ({ id }) => id === assemblyId,
-                )?.category;
-                if (category === 'PARTITION') setWallRole('PARTITION');
-                if (category === 'WALL') setWallRole('EXTERIOR');
-              }}
-              wallRole={wallRole}
-              onWallRoleChange={setWallRole}
-              openingDraft={openingDraft}
-              onOpeningDraftChange={setOpeningDraft}
-              dimensionType={dimensionType}
-              onDimensionTypeChange={setDimensionType}
-              networkId={activeNetworkId ?? ''}
-              onNetworkChange={setSelectedNetworkId}
+              drafts={toolDrafts}
+              onDraftChange={(key, value) =>
+                setToolDrafts((current) => ({ ...current, [key]: value }))
+              }
               onTransform={transformSelection}
               onAlign={alignSelection}
-              nodeKind={activeNodeKind}
-              onNodeKindChange={setNodeKind}
             />
             <PlanCanvas
-              project={file.project}
+              project={scenarioProject ?? file.project}
               editor={{ ...editor, levelId: activeLevelId } as EditorState}
               dispatch={dispatchEditor}
               onCommitPoints={commitPoints}
               onMoveSelection={moveSelection}
               onCommand={runCommand}
+              onObjectMenu={(objectId, atPx) =>
+                setObjectMenu({ objectId, atPx })
+              }
+              selectableFamily={selectableFamily}
               onEditGeometry={editGeometry}
               wallThicknessMm={wallThicknessMm}
-              {...(overlay === undefined ? {} : { overlay })}
+              {...(drawnOverlay === undefined ? {} : { overlay: drawnOverlay })}
             />
             <StatusBar
               editor={editor}
@@ -1790,8 +2257,10 @@ function App() {
             <NetworksPanel
               project={file.project}
               levelId={activeLevelId}
-              selectedNetworkId={activeNetworkId}
-              onSelectNetwork={setSelectedNetworkId}
+              selectedNetworkId={
+                activeNetworkId === '' ? undefined : activeNetworkId
+              }
+              onSelectNetwork={selectNetwork}
               onCommand={runCommand}
               {...(inspectNetworkObjectId === undefined
                 ? {}
@@ -1832,6 +2301,20 @@ function App() {
               onExportCsv={(content, fileName) =>
                 download(content, fileName, 'text/csv;charset=utf-8')
               }
+            />
+          </LazyWorkspace>
+        )}
+
+        {tab === 'documents' && (
+          <LazyWorkspace>
+            <DocumentsPanel
+              project={file.project}
+              onCommand={runCommand}
+              onMessage={setMessage}
+              onCaptureView={captureView}
+              onApplyView={applyView}
+              onExport={exportSheets}
+              newId={(prefix) => `${prefix}-${crypto.randomUUID()}`}
             />
           </LazyWorkspace>
         )}
@@ -1892,12 +2375,15 @@ function App() {
           <p className="panel-label">Inspecteur</p>
           {tab === 'plan' ? (
             <InspectorPanel
-              project={file.project}
+              project={scenarioProject ?? file.project}
               selection={editor.selection}
               onClear={() => dispatchEditor({ type: 'CLEAR_SELECTION' })}
               onCommand={runCommand}
               onMessage={setMessage}
               onDelete={deleteSelection}
+              {...(scenarioMode === undefined
+                ? {}
+                : { onEdit: editInScenario })}
             />
           ) : (
             <>

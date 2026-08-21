@@ -950,6 +950,349 @@ déplacer, copier, pivoter, miroir, décaler, scinder en un point choisi, joindr
 complète, la toiture, l'escalier, les composants placés et l'édition graphique
 des réseaux.
 
+## Stabilisation de l'éditeur — lot A du neuvième audit
+
+Un audit consacré aux nouvelles primitives CAO a relevé neuf défauts nés de la
+passe précédente. Les corriger avant d'ajouter des familles d'objets était sa
+recommandation ; c'est ce lot.
+
+- **Une seule lecture d'un point.** Le clic, l'aperçu et la valeur tapée
+  interprétaient le même geste de trois façons : le clic n'appliquait les
+  contraintes qu'aux outils qui les demandent, l'aperçu les appliquait à tous.
+  Un fantôme qui n'est pas ce qui se pose est un dessin auquel on ne peut pas
+  se fier ; les trois passent désormais par la même fonction.
+- **Saisie dynamique selon le contrat de l'outil.** Un outil déclare s'il lit
+  une longueur et un angle. Pivoter demande trois clics et aucun nombre : lui
+  offrir des champs invitait à taper dans quelque chose que personne ne lit. Un
+  test refuse qu'un outil accepte une valeur qu'il ignorerait ensuite.
+- **Déplacement sans retard d'une image.** Le glissement lisait l'accrochage du
+  rendu précédent et le lâcher relisait l'état ; les deux prennent maintenant
+  l'accroche de l'événement en cours, et le point final est recalculé au
+  relâchement.
+- **Azimut de toiture transformé.** Un pan de toiture ne se contente pas d'une
+  empreinte : il regarde quelque part, et c'est cette direction que lisent les
+  calculs solaires. Faire pivoter le bâtiment sans faire pivoter l'azimut
+  laissait un toit dessiné à l'est et calculé au sud.
+- **Coller garde un sens vertical.** Le presse-papiers retient le niveau
+  d'origine et son altitude ; un pan de toiture collé un étage plus haut monte
+  d'autant, et un mur monté « jusqu'au niveau » vise le niveau qui veut dire la
+  même chose au-dessus de celui où il atterrit — ou reprend une hauteur
+  explicite lorsqu'aucun niveau n'est assez haut, plutôt qu'une référence que
+  personne ne peut résoudre.
+- **Suppression universelle.** Sélectionner, inspecter, modifier et supprimer
+  sont quatre questions sur le même objet ; la quatrième n'était répondue que
+  pour trois familles sur sept. Chaque famille dit maintenant comment elle se
+  supprime, à côté de la façon dont elle se dessine et s'édite — et le domaine
+  reste libre de refuser un mur qui porte encore une ouverture.
+- **Modification multiple sémantique.** Un mur et une dalle ont tous deux un
+  « rôle », et ce n'est pas le même : l'un accepte EXTÉRIEUR, l'autre PLANCHER.
+  Les propriétés se comparent désormais par leur sens et par les choix qu'elles
+  offrent, pas par leur nom ni par le nombre d'options.
+- **Fantôme et résultat indissociables.** Le déplacement d'un contour à trous
+  passe par la fonction même qu'emploie la commande : une trémie oubliée par
+  l'aperçu et emportée par la modification ne peut plus arriver.
+- **npm épinglé en intégration continue.** Le dépôt annonce `npm@11.4.2` ;
+  sans Corepack, le runner employait l'npm qu'il embarque et cette promesse ne
+  voulait rien dire.
+
+Le déploiement Pages du `main` de la PR #20 a de nouveau échoué, et la cause
+est maintenant nommée dans `BETA_READINESS.md` : l'application se construit,
+puis `configure-pages` reçoit « Resource not accessible by integration ». C'est
+un réglage du dépôt, pas un défaut du code.
+
+## Architecture de l'éditeur — lot B du neuvième audit
+
+Le neuvième audit demandait de terminer l'architecture de l'éditeur avant
+d'ajouter des familles d'objets : « à la fin de ce lot, l'ajout de nouvelles
+familles sera réellement bon marché ».
+
+- **Une barre d'outils qui ne connaît plus les murs.** Un outil déclare ce
+  qu'il demande — assemblage et rôle du mur, type et dimensions de l'ouverture,
+  réseau et nœud — et la barre affiche ce qui est déclaré. Une option calcule
+  ses choix et sa valeur par défaut à partir du projet : le premier assemblage
+  de ce projet, le premier réseau qu'il porte, jamais une constante écrite dans
+  le code. Une valeur retenue qui n'existe plus n'est pas employée.
+- **Étendue d'un objet sans construire une vue.** Cadrer un objet, poser un
+  menu à côté de lui et dire ce qu'une bande a pris posent la même question ;
+  la poser au moteur de dessin revenait à construire une vue entière pour
+  mesurer un mur. Chaque famille répond pour elle-même, et une ouverture — qui
+  ne porte qu'une distance le long de son mur — se lit sur le mur qui la porte.
+- **Objets semblables.** Ce que « semblable » veut dire appartient à la
+  famille : deux murs du même assemblage jouant le même rôle, deux ouvertures
+  du même type et de la même taille. Une famille qui ne le dit pas ne répond
+  rien, plutôt que de proposer tout l'étage.
+- **Liens entre objets.** Le domaine refuse déjà de supprimer un mur qui porte
+  encore une ouverture ; le refus nommait une règle, et les ouvertures
+  restaient à chercher à l'œil. Un mur nomme ce qu'il porte, une ouverture son
+  mur hôte, un nœud de réseau ceux auxquels il est raccordé — en suivant les
+  segments et les ports, ce que rien d'autre ne faisait.
+- **Menu contextuel.** Traverser la fenêtre pour supprimer le mur qu'on
+  regarde est un trajet que le dessin n'a pas besoin d'imposer. Les entrées
+  communes à tous les objets viennent de l'application ; celles qu'un mur seul
+  offre — basculer sa face de référence — viennent de sa famille, si bien
+  qu'une famille nouvelle arrive avec ses actions.
+- **Objets superposés.** Une cloison, les deux pièces qu'elle sépare et la
+  dalle sous les trois se rencontrent en un point : quatre objets, un pixel.
+  Cliquer de nouveau au même endroit propose le suivant, puis revient au
+  premier, de sorte que rien sous le curseur ne reste hors d'atteinte.
+- **Filtre de sélection.** Le filtre est une option de l'outil Sélection,
+  construite à partir du registre des familles : une famille ajoutée demain y
+  paraît sans que personne ait à y penser. Rien n'est filtré tant que
+  l'utilisateur ne le demande pas — un éditeur qui ignorerait la moitié du plan
+  en silence serait un éditeur auquel personne ne pourrait se fier.
+
+Les lots C à H de cet audit ont été traités depuis ; ce qui reste ouvert est
+récapitulé à la fin de ce document.
+
+## Architecture de la maison — lot C du neuvième audit
+
+L'audit relevait que « le domaine permet encore plus que l'interface » et que
+plusieurs familles d'objets n'existaient pas du tout.
+
+- **Tracés sans compte de clics.** Une chaîne de murs, un contour de dalle, une
+  trémie, une ligne de foulée, une toiture n'ont pas de nombre de sommets connu
+  d'avance. Un outil peut désormais prendre des points jusqu'à ce que
+  l'utilisateur dise que c'est fini : Entrée termine, Échap annule, et la barre
+  d'état dit lequel des deux est attendu.
+- **Mur continu, mur polyligne, murs rectangle.** Deux lectures du même tracé
+  sont légitimes — un mur par côté, ou un seul mur polyligne — et aucune n'est
+  devinable ; l'utilisateur choisit. Le rectangle ferme le contour d'équerre en
+  deux clics.
+- **Hauteur de mur « jusqu'au niveau ».** Le domaine l'acceptait depuis le
+  début et aucun écran ne pouvait en produire. Hauteur saisie et niveau
+  supérieur sont deux formes du même mur, écrites par une commande dédiée qui
+  efface ce que l'autre portait.
+- **Pièce et dalle depuis le plan.** Un contour fermé par les murs est un
+  contour que le modèle sait déjà décrire ; le redessiner à la main revient à
+  le redessiner à quelques millimètres près. Un clic suffit, ou un seul geste
+  pour tous les contours encore libres. La trémie perce la dalle qui passe
+  dessous et refuse d'en sortir.
+- **`ComponentInstance`.** Le catalogue décrivait un modèle de pompe à chaleur
+  et rien ne pouvait décrire la pompe à chaleur posée à cet endroit, sur cet
+  étage, dans cette pièce. Le composant posé porte où il est et ce qu'il
+  représente, jamais ce que son modèle dit déjà. La pièce où il se trouve est
+  lue sur le plan.
+- **`Stair` typé.** Le niveau portait `stairs: readonly JsonValue[]` : un
+  escalier était une forme de JSON que l'application transportait sans savoir
+  la lire. Il dit maintenant ce qu'il joint et comment. La hauteur de marche ne
+  s'y trouve pas : elle est la montée divisée par le nombre de contremarches,
+  et l'écrire serait une seconde réponse à une question que les niveaux
+  répondent déjà. L'inspecteur rapporte la formule de Blondel sans corriger
+  l'escalier.
+- **Plafond.** Aucun type nouveau : un faux plafond est un élément horizontal
+  avec son propre complexe, et les assemblages portaient déjà une catégorie
+  PLAFOND. C'est un rôle de dalle qui manquait.
+- **Toiture v2.** Le contrat précédent l'annonçait lui-même : « MVP planar roof
+  contract. Connected roof topology is deliberately deferred. » Chaque pan
+  était dessiné à la main et rien ne les reliait : deux pans pouvaient ne se
+  rencontrer nulle part et le modèle n'avait pas d'avis. Une toiture tient
+  désormais le contour qu'elle couvre et ce que fait chacun de ses côtés — pan
+  ou pignon, pente, débord. Les pans en découlent, déduits et jamais
+  enregistrés, si bien qu'un contour qui bouge les déplace et qu'un côté devenu
+  pignon en retire un. Un contour rectangulaire est résolu exactement, quel que
+  soit le mélange de pans et de pignons et quelles que soient les pentes : deux
+  côtés opposés se rencontrent là où leurs deux montées atteignent la même
+  hauteur, ce qui est une division et non une estimation. Tout autre contour
+  demande un squelette droit, que cette version ne calcule pas : elle le dit et
+  ne rend que les pans dont elle est sûre, plutôt que d'inventer un faîtage que
+  personne n'a dessiné.
+
+Restent ouverts pour cette famille : le mur courbe, le raccord visuel L/T/X, et
+la résolution des toitures sur contour quelconque.
+
+## Éditeur MEP graphique — lot D du neuvième audit
+
+L'audit résumait l'écart en une phrase : « les données sont mûres, l'UX reste le
+gros manque ». Un réseau se construisait en posant des nœuds sur le plan, puis
+en changeant d'espace de travail pour choisir un port de départ et un port
+d'arrivée dans deux menus.
+
+- **Ports visibles.** Un port est un endroit sur un appareil et non un endroit
+  dans la maison : le modèle ne lui donne pas de position, et il a raison. Le
+  dessin doit pourtant le poser quelque part pour qu'on puisse le désigner ;
+  sa place est donc déduite de celle de son nœud — assez près pour se lire
+  comme lui appartenant, assez loin pour être cliqué seul — et jamais
+  enregistrée.
+- **Tracé port → port sur le plan.** Chaque coude que l'utilisateur pose est
+  conservé : un éditeur qui re-routerait autour serait un éditeur qui jette ce
+  qu'on vient de dessiner.
+- **Colonnes.** Un tracé dont les deux extrémités ne sont pas à la même hauteur
+  monte à la verticale au dernier coude : une colonne se voit, au lieu d'être
+  une pente cachée dans une diagonale.
+- **Pente d'évacuation.** Une évacuation horizontale est une évacuation qui ne
+  s'écoule pas. La hauteur de chaque coude découle de la distance parcourue et
+  de la pente demandée, si bien que la chute est une conséquence du tracé et
+  non un nombre saisi deux fois. La pente par défaut suit la discipline du
+  réseau choisi juste à côté plutôt qu'une constante écrite dans le code, et
+  l'inspecteur rapporte la pente qu'un tronçon a réellement.
+- **Dérivation.** Un té n'est pas une forme dessinée sur un tuyau : c'est une
+  pièce avec une entrée et deux sorties. Quelle pièce, cela appartient à la
+  discipline — nourrice pour l'eau, regard pour les eaux usées, piquage pour
+  l'air — et les gabarits le disaient déjà. Le tronçon est coupé à cette pièce
+  et refait en deux ; la sortie libre reste ouverte, ce qui est exactement à
+  quoi ressemble une branche inachevée.
+- **Poignées de réseau.** Un tronçon offre une poignée par coude et aucune à ses
+  extrémités : celles-ci appartiennent à leurs ports, et les traîner
+  dessinerait un tuyau qui n'atteint rien.
+- **Réseau actif partagé.** Le réseau sur lequel on travaille n'est pas une
+  propriété d'un outil : poser un nœud, tracer un tronçon et l'espace Réseaux
+  doivent parler du même. Une option peut désormais se déclarer partagée, et
+  tout outil qui la demande lit et écrit la même valeur. Tout outil qui demande
+  un réseau révèle aussi le calque de sa discipline, au lieu que la liste des
+  outils concernés soit écrite à la main.
+- **Navigateur de systèmes.** L'arbre du projet montre les tronçons à côté des
+  nœuds, et les ports qu'aucun tronçon n'atteint — ce à quoi ressemble un
+  réseau inachevé.
+
+## Superpositions techniques — lot E du neuvième audit
+
+L'audit décrivait ce lot comme « à rendement extrêmement élevé » : les moteurs
+existaient déjà, l'interface ne projetait que trois chiffres thermiques sur le
+dessin et le reste se lisait dans des tableaux.
+
+- **Une analyse dit où sont ses chiffres.** Une superposition nomme le module
+  qu'elle lit, la sortie d'où viennent ses lignes et la colonne qu'elle
+  colore ; en ajouter une revient à décrire où les nombres se trouvent déjà,
+  plutôt qu'à écrire une quatrième façon de les extraire. Sept analyses
+  s'ajoutent ainsi aux trois existantes : vitesse et pertes de charge de l'eau
+  et des gaines, pente des collecteurs, chute de tension et puissance foisonnée
+  par circuit.
+- **Une ligne se colore comme une surface.** Un mur est une forme pleine, un
+  tuyau est une ligne : une superposition qui ne savait colorer que des formes
+  pouvait rendre compte de l'enveloppe et jamais des réseaux. C'est exactement
+  là qu'elle s'arrêtait.
+- **Une ligne sans valeur reste inconnue.** Elle n'est pas comptée pour zéro,
+  elle ne tire pas l'échelle vers le bas, et la légende la compte comme
+  inconnue.
+- **Le calque suit l'analyse.** Colorer un objet que personne ne dessine ne
+  colore rien : choisir une analyse des canalisations révèle le calque des
+  canalisations, comme le fait déjà un outil de réseau.
+- **Les avertissements deviennent des corrections.** Une couleur dit où une
+  valeur est élevée ; elle ne peut pas dire qu'une valeur manque parce qu'un
+  tuyau n'a pas de diamètre. Ce que le module n'a pas pu faire est affiché sous
+  la légende, avec les objets qu'il nomme, et « Corriger » les sélectionne et
+  les cadre sur le plan.
+
+## Dossier de plans — lot F du neuvième audit
+
+Le projet portait `drawingViews?: readonly JsonValue[]` : une liste que le
+fichier transportait et que rien ne savait lire. Un projet exportait donc ce que
+l'écran montrait à cet instant, et un plan produit deux fois était deux plans
+différents.
+
+- **Vue typée.** Une vue retient les décisions qui font un dessin — quel
+  niveau, à quelle échelle, avec quels calques, sous quel profil graphique — et
+  aucune géométrie : le dessin est refait à partir du modèle à chaque fois. Une
+  vue rouverte après qu'un mur a bougé montre le mur où il est.
+- **Feuilles.** Une feuille porte des vues, un numéro, un format et une
+  orientation. Le moteur de dessin construit la mise en page à partir de ces
+  choix et d'un gabarit de cartouche fourni par l'application. Ce que dit le
+  cartouche est déduit du projet — son nom, le numéro de feuille, la révision —
+  et jamais recopié : un projet renommé est un cartouche renommé, et une case
+  que le projet ne peut pas remplir est dessinée « inconnu » plutôt qu'avec une
+  valeur plausible.
+- **La feuille montre ce que le plan montre.** Chaque vue arrive telle que le
+  moteur de dessin l'a produite et est imbriquée dans son cadre. Une feuille qui
+  redessinerait le modèle d'une seconde façon serait un second moteur de dessin,
+  et les deux finiraient par ne plus dire la même chose.
+- **Références vérifiées.** Une vue qui nomme un niveau absent et une feuille
+  qui nomme une vue absente sont relevées à la lecture du fichier ; une vue
+  encore posée sur une feuille ne peut pas être supprimée, et le refus nomme les
+  feuilles concernées.
+- **Export PDF multipage.** Le moteur construisait déjà le travail
+  d'impression, validait les pages et vérifiait les octets rendus ; il manquait
+  de quoi produire ces octets. Un backend navigateur les produit, sans
+  bibliothèque. Ses pages sont des images : le format PDF ne connaît pas le
+  SVG, et le convertir en tracés PDF reviendrait à écrire un second moteur de
+  dessin. Le tirage est à l'échelle ; le texte n'y est ni sélectionnable ni
+  recherchable, et l'interface le dit à côté du bouton.
+
+## Scénarios visuels — lot G du neuvième audit
+
+L'audit décrivait le chemin à parcourir en deux blocs : de « scénario →
+sélectionner une clé JSON → saisir une valeur » à « mode scénario → cliquer un
+mur → changer l'assemblage → override créé automatiquement ».
+
+- **Mode scénario.** Le plan dessine la variante plutôt que le projet. Rien de
+  la variante n'est écrit dans le bâtiment : une variante est une liste de
+  différences, et elle le reste.
+- **Modifier, c'est décrire une différence.** L'inspecteur ne sait pas dans
+  quel mode il se trouve ; il demande, et ce qui lui revient décide. En mode
+  scénario, changer une propriété écrit un changement du scénario, et le chemin
+  est déduit de ce qui a été désigné — non plus choisi dans une liste de toutes
+  les valeurs du projet.
+- **Changer d'avis.** Une variante construite en pointant le plan se construit
+  en changeant d'avis ; devoir retirer le changement précédent avant d'en poser
+  un autre aurait été une arithmétique que personne n'a demandée.
+- **Ce que la variante fait est refusé à voix haute.** Une propriété qu'aucun
+  chemin de scénario ne nomme ne peut pas encore varier, et l'application le
+  dit au lieu de l'écrire silencieusement dans le bâtiment.
+- **La différence se voit.** Ajouts, retraits et modifications sont colorés sur
+  le plan par les mêmes bandes que les analyses. La comparaison porte sur les
+  deux projets et non sur la liste des changements : un changement d'assemblage
+  modifie tous les murs qui en sont faits, et une liste de chemins montrerait un
+  changement là où le dessin en montre douze.
+
+## Terrain et structure — lot H du neuvième audit
+
+L'audit relevait deux absences : un site « quasi absent » côté dessin, et
+aucune famille structurelle dans le niveau.
+
+- **Le terrain se dessine.** Le site portait une parcelle et une liste
+  d'obstacles depuis le début, et rien ne les dessinait : les distances aux
+  limites et l'ombre d'un voisin étaient des faits que personne ne pouvait
+  voir. Un outil trace la parcelle ou ce qui l'entoure.
+- **Ce qui entoure la maison a une nature.** Un bâtiment voisin, un arbre et
+  une zone à laisser libre ne portent pas la même ombre et ne se traitent pas de
+  la même façon ; la nature appartient à l'obstacle. Sans hauteur, l'ombre reste
+  incalculable, et l'inspecteur le dit plutôt que le modèle n'invente un nombre.
+- **Poteaux, poutres, fondations.** Ce sont des objets du bâtiment et rien ne
+  les calcule encore. Attendre le moteur de structure avant d'autoriser les
+  objets aurait été attendre de pouvoir vérifier une maison avant de pouvoir la
+  décrire. Un poteau se tient en un point, une poutre court entre deux : la
+  différence est ce que l'élément est, et c'est ce que les deux outils disent.
+- **Aucun matériau supposé.** Un élément dont le matériau n'est pas désigné le
+  reste, et l'inspecteur dit que rien ne pourra être vérifié tant qu'il le
+  reste. Un matériau que le projet ne contient plus est refusé à l'écriture et
+  relevé à la lecture du fichier.
+
+## Ce qui reste ouvert après les lots A à H
+
+Les huit lots du neuvième audit sont traités. Ce qui n'a pas été fait, et
+pourquoi :
+
+- **Toitures sur contour quelconque.** Un contour rectangulaire est résolu
+  exactement ; les autres demandent un squelette droit. La version le dit et ne
+  rend que les pans dont elle est sûre.
+- **Murs courbes, raccords visuels L/T/X, congés et chanfreins.** Hors
+  périmètre de la bêta.
+- **PDF vectoriel.** Les pages exportées sont des images de chaque feuille : le
+  format PDF ne connaît pas le SVG, et le convertir en tracés reviendrait à
+  écrire un second moteur de dessin.
+- **Annotations typées** — notes de texte, étiquettes associatives, repères,
+  trames, repères de coupe. La cotation existe ; le reste attend.
+- **Modes QUICK / DESIGN / EXPERT.** L'interface a toujours une seule densité.
+- **Calcul de structure et géotechnique.** Les poteaux, poutres et fondations
+  se décrivent et se dessinent ; rien ne les vérifie encore, et le calcul, quand
+  il viendra, lira ce modèle plutôt que d'en demander un autre.
+- **Performance sur très grand projet.** `runProjectCalculations()` recrée
+  toujours l'orchestrateur à chaque exécution, et le banc d'essai reste celui
+  d'une maison de référence plutôt que d'une maison de mille murs.
+- **Exports DXF et IFC, collaboration en ligne.** Hors périmètre.
+
+## Budget de chargement
+
+Le budget du premier chargement passe de 200 à 240 kio compressés. L'éditeur a
+gagné les familles et les outils des lots C à H — murs tracés en chaîne, pièces,
+dalles, trémies, escaliers, toitures décrites par leur contour, composants
+posés, structure, terrain, éditeur graphique des réseaux, mode scénario — et
+tout cela est l'éditeur, c'est-à-dire ce que la première visite charge. Les
+espaces de travail restent chargés à la demande, et la chaîne PDF y a été
+déplacée : elle ne sert qu'au bouton d'export, et la charger avec l'application
+aurait mis une imprimante sur le chemin d'un mur à dessiner.
+
+Un budget est une décision, pas une mesure. Celle-ci a été prise sciemment.
+
 ## Publication
 
 - Licence : AGPL-3.0-only, texte complet dans `LICENSE`, déclarée dans

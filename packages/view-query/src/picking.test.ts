@@ -4,6 +4,7 @@ import {
   boundsOfObjects,
   distanceToPrimitive,
   objectsInBox,
+  pickCandidates,
   pickPrimitive,
   selectionBoxOf,
 } from './picking.js';
@@ -155,5 +156,38 @@ describe('what a rubber band catches', () => {
       { x: 6000, y: 3000 },
     );
     expect(objectsInBox([decoration as ScenePrimitive], box, mode)).toEqual([]);
+  });
+});
+
+describe('everything under one point', () => {
+  it('offers what is under the pointer, topmost first', () => {
+    // A label drawn over a wall: picking only the topmost would make the wall
+    // unreachable where the two overlap.
+    const found = pickCandidates([wall, label], { x: 2500, y: 0 }, 60);
+    expect(found.map(({ objectId }) => objectId)).toEqual(['s1', 'w1']);
+  });
+
+  it('names each object once, however many primitives draw it', () => {
+    const outline: ScenePrimitive = {
+      ...wall,
+      id: 'wall-outline:w1',
+      zIndex: 21,
+    };
+    expect(
+      pickCandidates([wall, outline], { x: 2500, y: 0 }, 60).filter(
+        ({ objectId }) => objectId === 'w1',
+      ),
+    ).toHaveLength(1);
+  });
+
+  it('offers nothing where nothing is', () => {
+    expect(pickCandidates([wall], { x: 40_000, y: 0 }, 10)).toEqual([]);
+  });
+
+  it('agrees with the single pick on what comes first', () => {
+    const point = { x: 2500, y: 0 };
+    expect(pickCandidates([wall, label], point, 60)[0]?.objectId).toBe(
+      pickPrimitive([wall, label], point, 60)?.objectId,
+    );
   });
 });

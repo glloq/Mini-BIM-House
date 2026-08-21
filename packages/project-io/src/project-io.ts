@@ -240,12 +240,15 @@ export function validateProjectReferences(
   /** What a network node may be fixed to. */
   const hosts = new Set<string>([
     ...file.project.building.levels.flatMap(
-      ({ walls, slabs, roofs, spaces: rooms, openings }) => [
+      ({ walls, slabs, roofs, spaces: rooms, openings, components }) => [
         ...walls.map(({ id }) => id as string),
         ...slabs.map(({ id }) => id as string),
         ...roofs.map(({ id }) => id as string),
         ...rooms.map(({ id }) => id as string),
         ...openings.map(({ id }) => id as string),
+        // A network node may stand for a thing placed in the building: the
+        // radiator this pipe feeds, the luminaire this circuit lights.
+        ...(components ?? []).map(({ id }) => id as string),
       ],
     ),
     ...(file.project.equipment?.map(({ id }) => id) ?? []),
@@ -267,6 +270,7 @@ export function validateProjectReferences(
       ...level.roofs,
       ...level.spaces,
       ...level.openings,
+      ...(level.components ?? []),
     ])
       levelOfObject.set(object.id, level.id);
   // Identifiers are unique across the whole project, not merely inside their
@@ -317,6 +321,17 @@ export function validateProjectReferences(
             message: `references unknown assembly ${element.assemblyId}`,
           });
       });
+    // A wall built to a storey above holds that storey's identifier and no
+    // height of its own: naming a level the project does not hold leaves a
+    // wall whose height nothing can answer.
+    level.walls.forEach((wall, index) => {
+      if (wall.heightMode !== 'TO_LEVEL') return;
+      if (!levels.has(wall.topLevelId))
+        issues.push({
+          path: `${base}/walls/${index}/topLevelId`,
+          message: `references unknown level ${wall.topLevelId}`,
+        });
+    });
     level.openings.forEach((opening, index) => {
       if (!walls.has(opening.hostElementId))
         issues.push({
@@ -349,6 +364,88 @@ export function validateProjectReferences(
           });
       }
     });
+    // A thing placed in the building names what it stands for, where it hangs
+    // and which room it is in. Each of those can be absent and the object
+    // still be described; none of them may name something the project does
+    // not hold.
+    (level.components ?? []).forEach((component, index) => {
+      const path = `${base}/components/${index}`;
+      if (component.levelId !== level.id)
+        issues.push({
+          path: `${path}/levelId`,
+          message: `is stored on level ${level.id} but declares level ${component.levelId}`,
+        });
+      if (
+        component.definitionId !== undefined &&
+        !equipment.has(component.definitionId)
+      )
+        issues.push({
+          path: `${path}/definitionId`,
+          message: `references unknown equipment ${component.definitionId}`,
+        });
+      if (component.spaceId !== undefined && !spaces.has(component.spaceId))
+        issues.push({
+          path: `${path}/spaceId`,
+          message: `references unknown space ${component.spaceId}`,
+        });
+      if (
+        component.hostObjectId !== undefined &&
+        !hosts.has(component.hostObjectId)
+      )
+        issues.push({
+          path: `${path}/hostObjectId`,
+          message: `references unknown object ${component.hostObjectId}`,
+        });
+    });
+    // A structural member made of a material the project no longer holds is a
+    // member nothing can ever check.
+    (level.structure ?? []).forEach((member, index) => {
+      const path = `${base}/structure/${index}`;
+      if (member.levelId !== level.id)
+        issues.push({
+          path: `${path}/levelId`,
+          message: `is stored on level ${level.id} but declares level ${member.levelId}`,
+        });
+      if (
+        member.materialId !== undefined &&
+        !(materials as ReadonlySet<string>).has(member.materialId)
+      )
+        issues.push({
+          path: `${path}/materialId`,
+          message: `references unknown material ${member.materialId}`,
+        });
+    });
+    // A roof described by its outline stands on this storey and is built of
+    // something: a build-up the project no longer holds leaves a roof whose
+    // thermal behaviour nothing can answer.
+    (level.roofStructures ?? []).forEach((roof, index) => {
+      const path = `${base}/roofStructures/${index}`;
+      if (roof.levelId !== level.id)
+        issues.push({
+          path: `${path}/levelId`,
+          message: `is stored on level ${level.id} but declares level ${roof.levelId}`,
+        });
+      if (!assemblies.has(roof.assemblyId))
+        issues.push({
+          path: `${path}/assemblyId`,
+          message: `references unknown assembly ${roof.assemblyId}`,
+        });
+    });
+    // A stair joins two storeys; one that names a storey the project does not
+    // hold is a stair whose rise nothing can answer.
+    level.stairs.forEach((stair, index) => {
+      const path = `${base}/stairs/${index}`;
+      if (stair.levelId !== level.id)
+        issues.push({
+          path: `${path}/levelId`,
+          message: `is stored on level ${level.id} but declares level ${stair.levelId}`,
+        });
+      if (!levels.has(stair.topLevelId))
+        issues.push({
+          path: `${path}/topLevelId`,
+          message: `references unknown level ${stair.topLevelId}`,
+        });
+    });
     level.spaces.forEach((space, index) => {
       if (!levels.has(space.levelId))
         issues.push({
@@ -362,6 +459,27 @@ export function validateProjectReferences(
         });
     });
   });
+  // A view names the storey it draws; a sheet names the views it lays out.
+  // Either naming something absent is a drawing set nothing can print.
+  file.project.drawingViews?.forEach((view, index) => {
+    if (view.levelId !== undefined && !levels.has(view.levelId))
+      issues.push({
+        path: `/project/drawingViews/${index}/levelId`,
+        message: `references unknown level ${view.levelId}`,
+      });
+  });
+  const drawingViews = new Set(
+    file.project.drawingViews?.map(({ id }) => id) ?? [],
+  );
+  file.project.sheets?.forEach((sheet, sheetIndex) =>
+    sheet.viewports.forEach((viewport, index) => {
+      if (!drawingViews.has(viewport.viewId))
+        issues.push({
+          path: `/project/sheets/${sheetIndex}/viewports/${index}/viewId`,
+          message: `references unknown drawing view ${viewport.viewId}`,
+        });
+    }),
+  );
   file.project.building.zones?.forEach((zone, zoneIndex) =>
     zone.spaceIds.forEach((spaceId, index) => {
       // A zone groups rooms; one that names a room the project no longer holds

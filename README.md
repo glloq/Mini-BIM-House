@@ -651,30 +651,43 @@ fichier de projet promet d'une version à l'autre est écrit dans
 Cette liste décrit la `0.2.0-beta.2` telle qu'elle est aujourd'hui, et rien
 d'autre : ce qui y figure n'existe pas encore dans l'application.
 
-- **Escaliers** : délibérément reportés. Le modèle les transporte sans les
-  typer, l'éditeur ne les dessine pas.
-- **Feuilles et export PDF** : le moteur de mise en page existe dans
-  `drawing-engine`, mais aucun format de feuille ni aucun backend PDF n'est
-  raccordé à l'interface ; l'export technique se fait en SVG.
+- **Toitures sur contour quelconque** : une toiture est décrite par son
+  contour et par ce que fait chacun de ses côtés, et ses pans en sont déduits.
+  Un contour rectangulaire est résolu exactement ; tout autre contour demande
+  un squelette droit que cette version ne calcule pas. Elle le dit et ne rend
+  que les pans dont elle est sûre.
+- **Murs courbes et raccords visuels L/T/X** : hors périmètre de la bêta.
+- **Export PDF vectoriel** : les feuilles s'exportent en PDF multipage, mais
+  chaque page est une image de la feuille tramée à 200 ppp. Le format PDF ne
+  connaît pas le SVG, et le convertir en tracés PDF reviendrait à écrire un
+  second moteur de dessin. Le tirage est à l'échelle ; le texte n'y est ni
+  sélectionnable ni recherchable.
 - **Exports DXF et IFC** : hors périmètre de la bêta.
-- **Simulation thermique dynamique, confort d'été avancé, structure,
-  géotechnique, éclairage naturel** : hors périmètre de la bêta.
+- **Calcul de structure, géotechnique, simulation thermique dynamique, confort
+  d'été avancé, éclairage naturel** : hors périmètre de la bêta. Les poteaux,
+  poutres et fondations se décrivent et se dessinent ; rien ne les vérifie
+  encore.
 - **Modes QUICK / DESIGN / EXPERT** : non implémentés ; l'interface a une
   seule densité.
-- **Analyses projetées sur le plan** : seules les trois analyses thermiques
-  (transmission, déperditions, données manquantes) sont branchées ; les
-  résultats des réseaux, de la ventilation et de l'électricité se lisent dans
-  les tableaux, pas encore sur le dessin.
+- **Analyses projetées sur le plan** : dix analyses sont branchées —
+  transmission, déperditions et données manquantes pour le thermique ; vitesse
+  et pertes de charge pour l'eau et pour les gaines ; pente des collecteurs ;
+  chute de tension et puissance foisonnée par circuit. Les autres résultats se
+  lisent dans les tableaux.
 - **Productivité CAO** : congés, chanfreins, réseaux de contraintes
   paramétriques et transformations multiples restent hors périmètre. Ce qui
-  existe : extrémité de mur déplacée, mur scindé là où on le désigne, ouverture
-  redimensionnée, contour de dalle repris sommet par sommet, sélection déplacée
-  en la faisant glisser, dupliquée, copiée et collée d'un niveau à l'autre,
-  pivotée d'un quart de tour ou d'un angle tracé, retournée autour d'un axe
-  tracé, décalée parallèlement, jointe, ajustée et alignée.
-- **Dossier de plans** : `drawingViews` n'est pas encore un contrat typé, si
-  bien qu'un projet exporte l'état courant plutôt qu'un jeu de feuilles
-  reproductible.
+  existe : chaîne de murs continue, murs en rectangle, mur polyligne, extrémité
+  de mur déplacée, mur scindé là où on le désigne, ouverture redimensionnée,
+  contour de dalle repris sommet par sommet, pièce et dalle créées depuis le
+  plan, trémie percée dans la dalle qui passe dessous, escalier tracé à la
+  ligne de foulée, toiture décrite par son contour, composant posé où on le
+  désigne, sélection déplacée en la faisant glisser, dupliquée, copiée et
+  collée d'un niveau à l'autre, pivotée d'un quart de tour ou d'un angle tracé,
+  retournée autour d'un axe tracé, décalée parallèlement, jointe, ajustée et
+  alignée.
+- **Annotations** : la cotation existe ; les notes de texte, les étiquettes
+  associatives, les repères, les trames et les repères de coupe restent hors
+  périmètre.
 - **Conformité réglementaire** : le moteur de règles et les Rule Packs
   existent ; l'espace Vérifications rassemble les constats du modèle et des
   calculs, mais aucun référentiel réglementaire n'est livré, et rien n'est

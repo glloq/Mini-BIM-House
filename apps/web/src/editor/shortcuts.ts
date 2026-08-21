@@ -7,9 +7,22 @@
 export type ShortcutCommandId =
   | 'tool.select'
   | 'tool.wall'
+  | 'tool.wallRun'
+  | 'tool.wallRectangle'
   | 'tool.opening'
+  | 'tool.space'
+  | 'tool.slab'
+  | 'tool.slabHole'
+  | 'tool.component'
+  | 'tool.stair'
+  | 'tool.roof'
+  | 'tool.column'
+  | 'tool.beam'
+  | 'tool.site'
   | 'tool.dimension'
   | 'tool.network'
+  | 'tool.networkRoute'
+  | 'tool.networkBranch'
   | 'tool.split'
   | 'tool.rotate'
   | 'tool.mirror'
@@ -20,6 +33,7 @@ export type ShortcutCommandId =
   | 'edit.redo'
   | 'edit.delete'
   | 'edit.cancel'
+  | 'edit.finish'
   | 'edit.duplicate'
   | 'edit.copy'
   | 'edit.paste'
@@ -44,9 +58,46 @@ export interface ShortcutBinding {
 export const SHORTCUTS: readonly ShortcutBinding[] = [
   { id: 'tool.select', label: 'Sélection', key: 'Escape', group: 'Outils' },
   { id: 'tool.wall', label: 'Mur', key: 'w', group: 'Outils' },
+  { id: 'tool.wallRun', label: 'Mur continu', key: 'c', group: 'Outils' },
+  {
+    id: 'tool.wallRectangle',
+    label: 'Murs rectangle',
+    key: 'w',
+    shift: true,
+    group: 'Outils',
+  },
   { id: 'tool.opening', label: 'Ouverture', key: 'o', group: 'Outils' },
+  { id: 'tool.space', label: 'Pièce', key: 'i', group: 'Outils' },
+  { id: 'tool.slab', label: 'Dalle', key: 'l', group: 'Outils' },
+  {
+    id: 'tool.slabHole',
+    label: 'Trémie',
+    key: 'l',
+    shift: true,
+    group: 'Outils',
+  },
+  { id: 'tool.stair', label: 'Escalier', key: 'a', group: 'Outils' },
+  { id: 'tool.roof', label: 'Toiture', key: 'y', group: 'Outils' },
+  { id: 'tool.column', label: 'Poteau', key: 'u', group: 'Outils' },
+  {
+    id: 'tool.beam',
+    label: 'Poutre',
+    key: 'u',
+    shift: true,
+    group: 'Outils',
+  },
+  { id: 'tool.site', label: 'Terrain', key: 'g', group: 'Outils' },
+  { id: 'tool.component', label: 'Composant', key: 'k', group: 'Outils' },
   { id: 'tool.dimension', label: 'Cotation', key: 'd', group: 'Outils' },
   { id: 'tool.network', label: 'Réseau', key: 'r', group: 'Outils' },
+  {
+    id: 'tool.networkRoute',
+    label: 'Tracer un tronçon',
+    key: 'r',
+    shift: true,
+    group: 'Outils',
+  },
+  { id: 'tool.networkBranch', label: 'Dériver', key: 'b', group: 'Outils' },
   { id: 'tool.split', label: 'Scinder un mur', key: 'x', group: 'Outils' },
   { id: 'tool.rotate', label: 'Pivoter', key: 'p', group: 'Outils' },
   { id: 'tool.mirror', label: 'Miroir', key: 'm', group: 'Outils' },
@@ -69,6 +120,12 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
     group: 'Édition',
   },
   { id: 'edit.delete', label: 'Supprimer', key: 'Delete', group: 'Édition' },
+  {
+    id: 'edit.finish',
+    label: 'Terminer le tracé',
+    key: 'Enter',
+    group: 'Édition',
+  },
   {
     id: 'edit.duplicate',
     label: 'Dupliquer la sélection',

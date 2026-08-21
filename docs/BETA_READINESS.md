@@ -75,14 +75,25 @@ ne peut plus le faire réapparaître après coup.
 
 **BETA-17** : le déploiement est construit, publié puis vérifié sur l'URL que
 GitHub Pages produit, et le workflow ne publie qu'après une intégration
-continue verte sur `main`. Il reste PARTIEL parce qu'aucun déploiement réel
-n'est encore passé : le dernier, sur le `main` de la `beta.1`, a échoué à
-`configure-pages` avec « Get Pages site failed… Not Found », c'est-à-dire
-GitHub Pages non activé sur le dépôt. Le workflow demande désormais
-l'activation lui-même (`enablement: true`) ; si l'organisation ne l'autorise
-pas, le propriétaire du dépôt doit l'activer dans Réglages → Pages, source
-« GitHub Actions ». La porte se ferme le jour où un déploiement de `main`
-passe, `smoke-deployment` compris.
+continue verte sur `main`. Il reste PARTIEL, et la cause est maintenant
+identifiée précisément.
+
+Le déploiement du `main` de la PR #20 (exécution 13) construit l'application
+sans erreur, puis s'arrête net à `configure-pages` :
+
+```text
+Get Pages site failed.   Not Found
+Create Pages site failed. Resource not accessible by integration
+```
+
+Le jeton de l'action n'a donc pas le droit de créer le site : `enablement: true`
+ne peut rien y faire. Ce n'est pas un défaut du dépôt de code, c'est un réglage
+qui appartient au propriétaire — Réglages → Pages, source « GitHub Actions ».
+Sur un compte gratuit, Pages n'est par ailleurs disponible que pour un dépôt
+public : tant que celui-ci reste privé, la porte ne peut pas se fermer.
+
+La porte se ferme le jour où un déploiement de `main` passe,
+`smoke-deployment` compris. Rien d'autre ne manque côté dépôt.
 
 ## Attendu dans la bêta, hors portes
 
@@ -111,10 +122,11 @@ passe, `smoke-deployment` compris.
 ## Ce que la bêta ne fait pas
 
 Les limites connues sont tenues à un seul endroit, la section « Ce que
-l'application ne fait pas » du [`README`](../README.md) : escaliers, feuilles
-et PDF, DXF et IFC, simulation dynamique, productivité CAO, dossier de plans
-typé, conformité réglementaire, données fabricant, collaboration. Cette liste
-décrit la version publiée et rien d'autre.
+l'application ne fait pas » du [`README`](../README.md) : toitures sur contour
+quelconque, murs courbes, feuilles et PDF, DXF et IFC, simulation dynamique,
+productivité CAO, dossier de plans typé, conformité réglementaire, données
+fabricant, collaboration. Cette liste décrit la version publiée et rien
+d'autre.
 
 ## Fait depuis le sixième audit
 
@@ -132,10 +144,15 @@ navigation regroupée en cinq familles ; assistant de création de projet.
 ## Reporté, assumé hors bêta
 
 Nouveau moteur thermique, simulation dynamique, confort d'été avancé, calcul de
-structure, géotechnique, IFC, DXF, escalier complet, réglementation française
-complète, CAO complète (trim, fillet, chanfrein), contraintes paramétriques
-avancées, collaboration en ligne, édition tactile complète sur téléphone. Les
-Web Workers ne seront ajoutés que si les mesures de performance l'exigent.
+structure, géotechnique, IFC, DXF, réglementation française
+complète, congés et chanfreins, contraintes paramétriques avancées,
+collaboration en ligne, édition tactile complète sur téléphone. Les Web Workers
+ne seront ajoutés que si les mesures de performance l'exigent.
+
+Le remaniement CAO courant, lui, n'est plus reporté : déplacer, dupliquer,
+copier-coller entre niveaux, pivoter, retourner, décaler, joindre, ajuster,
+aligner et scinder à l'endroit désigné existent, avec la saisie de la longueur
+et de l'angle près du curseur et les cotes éditables sur le dessin.
 
 ## Contrat fonctionnel de la bêta
 

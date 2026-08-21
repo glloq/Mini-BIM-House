@@ -9,6 +9,11 @@ import type { Slab } from './slab.js';
 import type { RoofPlane } from './roof-plane.js';
 import type { TechnicalNetwork } from './network.js';
 import type { Annotation } from './annotation.js';
+import type { ComponentInstance } from './component.js';
+import type { Stair } from './stair.js';
+import type { Roof } from './roof.js';
+import type { ProjectSheet, SavedDrawingView } from './documents.js';
+import type { StructuralMember } from './structure.js';
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
@@ -48,9 +53,30 @@ export interface GeoLocation {
   readonly longitudeDeg: number;
 }
 
+/**
+ * What stands on the site around the house.
+ *
+ * A neighbouring building, a tree and a zone that must stay clear all cast
+ * shade, take room and change where things can go — and none of them behaves
+ * like the others when the sun is computed. The kind belongs to the obstacle.
+ */
+export const SITE_OBSTACLE_KINDS = [
+  'BUILDING',
+  'TREE',
+  'EXCLUSION',
+  'OTHER',
+] as const;
+export type SiteObstacleKind = (typeof SITE_OBSTACLE_KINDS)[number];
+
+export function isSiteObstacleKind(value: string): value is SiteObstacleKind {
+  return (SITE_OBSTACLE_KINDS as readonly string[]).includes(value);
+}
+
 export interface SiteObstacle extends BaseEntity {
   readonly boundary: Polygon2D;
   readonly heightMm?: number;
+  readonly kind?: SiteObstacleKind;
+  readonly name?: string;
 }
 
 export interface Site extends CommonMetadata {
@@ -71,9 +97,40 @@ export interface Level extends BaseEntity<LevelId> {
   readonly slabs: readonly Slab[];
   readonly roofs: readonly RoofPlane[];
   readonly openings: readonly Opening[];
-  readonly stairs: readonly JsonValue[];
+  /**
+   * The stairs starting on this storey.
+   *
+   * They were an untyped list until now, so nothing could be drawn, measured
+   * or checked: an escalier was a shape of JSON the application agreed to
+   * carry and could not read.
+   */
+  readonly stairs: readonly Stair[];
   readonly spaces: readonly Space[];
   readonly annotations: readonly Annotation[];
+  /**
+   * The things placed on this storey.
+   *
+   * Optional so a file written before components existed still reads: a level
+   * that says nothing about components holds none, which is the truth about
+   * every project written until now.
+   */
+  readonly components?: readonly ComponentInstance[];
+  /**
+   * The roofs described by what encloses them rather than plane by plane.
+   *
+   * The planes they are made of are derived and never stored, so `roofs` holds
+   * only planes drawn one at a time — which is what every project written
+   * until now contains.
+   */
+  readonly roofStructures?: readonly Roof[];
+  /**
+   * The structure of this storey: columns, beams, footings.
+   *
+   * They are objects of the building and nothing computes them yet. Waiting
+   * for a structural engine before allowing them would be waiting to describe
+   * a house before being able to check it.
+   */
+  readonly structure?: readonly StructuralMember[];
 }
 
 export type ZoneType =
@@ -161,7 +218,15 @@ export interface Project extends BaseEntity<ProjectId> {
   readonly equipment?: readonly EquipmentDefinition[];
   readonly systems?: readonly TechnicalNetwork[];
   readonly scenarios?: readonly Scenario[];
-  readonly drawingViews?: readonly JsonValue[];
+  /**
+   * The views of the project the user can come back to.
+   *
+   * They were an untyped list, so a project exported whatever the screen
+   * happened to show and a drawing produced twice was two different drawings.
+   */
+  readonly drawingViews?: readonly SavedDrawingView[];
+  /** The sheets those views are laid out on. */
+  readonly sheets?: readonly ProjectSheet[];
   readonly calculationSettings?: Readonly<Record<string, ModuleSettings>>;
   readonly regulatoryContext?: RegulatoryContext;
 }

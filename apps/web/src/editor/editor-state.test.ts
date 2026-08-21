@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   constrainPoint,
+  resolveDraftPoint,
   createEditorState,
   DEFAULT_SNAP,
   editorReducer,
@@ -340,5 +341,52 @@ describe('what the constraints do to a drafted point', () => {
   it('leaves the point alone when nothing says how far', () => {
     const origin = { x: 120, y: 340 };
     expect(constrainPoint(origin, origin, DEFAULT_SNAP, {})).toEqual(origin);
+  });
+});
+
+describe('the one reading of a drafted point', () => {
+  it('gives the click, the preview and the typed value the same answer', () => {
+    // Three readings of one gesture used to exist; a ghost that is not what
+    // lands is a drawing nobody can trust.
+    const asked = {
+      tool: 'WALL' as const,
+      pendingPoints: [{ x: 0, y: 0 }],
+      raw: { x: 2990, y: 40 },
+      snap: { ...DEFAULT_SNAP, grid: false, orthogonal: true },
+      directInput: {},
+    };
+    const point = resolveDraftPoint(asked);
+    // Along the axes, as the wall tool asks for.
+    expect(Math.round(point.y)).toBe(0);
+    expect(resolveDraftPoint(asked)).toEqual(point);
+  });
+
+  it('leaves a tool that points at what exists unconstrained', () => {
+    // A dimension is not drawn: constraining the click would pull it off the
+    // corner the user aimed at.
+    const raw = { x: 2990, y: 40 };
+    expect(
+      resolveDraftPoint({
+        tool: 'DIMENSION',
+        pendingPoints: [{ x: 0, y: 0 }],
+        raw,
+        snap: DEFAULT_SNAP,
+        directInput: {},
+      }),
+    ).toEqual(raw);
+  });
+
+  it('prefers what the pointer snapped to', () => {
+    const snapped = { x: 3000, y: 0 };
+    expect(
+      resolveDraftPoint({
+        tool: 'DIMENSION',
+        pendingPoints: [],
+        raw: { x: 2990, y: 40 },
+        snapped,
+        snap: DEFAULT_SNAP,
+        directInput: {},
+      }),
+    ).toEqual(snapped);
   });
 });

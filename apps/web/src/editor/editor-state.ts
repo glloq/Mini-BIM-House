@@ -16,13 +16,19 @@ import {
   presetVisibility,
 } from '@house-technical-designer/view-query';
 
-import { requiredPoints, type EditorTool } from './tool-registry.js';
+import {
+  constrainsDrafting,
+  isOpenEnded,
+  requiredPoints,
+  type EditorTool,
+} from './tool-registry.js';
 
 // The tools themselves are declared in the registry; the state only needs to
 // know which one is active and how many points it is still waiting for.
 export type { EditorTool };
 export {
   constrainsDrafting,
+  isOpenEnded,
   requiredPoints,
   toolDefinition,
 } from './tool-registry.js';
@@ -179,6 +185,7 @@ export type EditorAction =
       readonly point: Point2D;
       readonly objectId?: string;
     }
+  | { readonly type: 'FINISH_RUN' }
   | { readonly type: 'CANCEL' }
   | { readonly type: 'SET_SNAP'; readonly snap: Partial<SnapSettings> }
   | { readonly type: 'SET_DIRECT_INPUT'; readonly input: DirectInputPatch }
@@ -236,6 +243,33 @@ export function constrainPoint(
     x: origin.x + Math.cos(radians) * lengthMm,
     y: origin.y + Math.sin(radians) * lengthMm,
   };
+}
+
+/**
+ * The point a click, a typed length or a preview all mean.
+ *
+ * There used to be three readings of the same gesture: the click applied the
+ * constraints only for the tools that ask for them, the preview applied them to
+ * every tool, and the dynamic input applied them again on its own. A drawing
+ * where the ghost is not what lands is a drawing nobody can trust, so the three
+ * now ask this one question.
+ */
+export function resolveDraftPoint(options: {
+  readonly tool: EditorTool;
+  readonly pendingPoints: readonly Point2D[];
+  /** Where the pointer is, in model millimetres. */
+  readonly raw: Point2D;
+  /** What the pointer snapped to, when it snapped to something. */
+  readonly snapped?: Point2D;
+  readonly snap: SnapSettings;
+  readonly directInput: DirectInput;
+}): Point2D {
+  const base = options.snapped ?? options.raw;
+  const origin = options.pendingPoints[options.pendingPoints.length - 1];
+  // Nothing to constrain against, or a tool that points at what exists rather
+  // than drawing along the building axes.
+  if (origin === undefined || !constrainsDrafting(options.tool)) return base;
+  return constrainPoint(origin, base, options.snap, options.directInput);
 }
 
 export function editorReducer(
@@ -344,10 +378,19 @@ export function editorReducer(
     case 'COMMIT_POINT': {
       const points = [...state.pendingPoints, action.point];
       const picks = [...state.pendingPicks, action.objectId];
-      return points.length >= requiredPoints(state.activeTool)
+      // A tool that draws until the user says stop never reaches a count: it
+      // keeps its points until Entrée ends the run.
+      const done =
+        !isOpenEnded(state.activeTool) &&
+        points.length >= requiredPoints(state.activeTool);
+      return done
         ? { ...state, pendingPoints: [], pendingPicks: [], directInput: {} }
         : { ...state, pendingPoints: points, pendingPicks: picks };
     }
+    case 'FINISH_RUN':
+      // What the run produced is the application's business; the state only
+      // forgets the points, exactly as a finished count would have.
+      return { ...state, pendingPoints: [], pendingPicks: [], directInput: {} };
     case 'CANCEL': {
       // One step at a time, and the most recent first. Abandoning a wall being
       // drawn used to clear the selection as well, so a mis-started line cost

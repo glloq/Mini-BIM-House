@@ -1,6 +1,10 @@
 import type {
+  ComponentCategory,
   Dimension,
   DimensionType,
+  SiteObstacleKind,
+  StairType,
+  StructuralMemberKind,
   Opening,
   Project,
   ProjectFile,
@@ -10,34 +14,40 @@ import type {
 } from '@house-technical-designer/core-domain';
 import { dimensionId, entityId } from '@house-technical-designer/core-domain';
 import {
+  AddComponentCommand,
   AddDimensionCommand,
   AddOpeningCommand,
   AddRoofCommand,
+  AddRoofStructureCommand,
   AddSlabCommand,
+  AddSiteObstacleCommand,
+  AddSpaceCommand,
+  AddStairCommand,
+  AddStructuralMemberCommand,
   AddWallCommand,
-  DeleteDimensionCommand,
-  DeleteOpeningCommand,
-  DeleteWallCommand,
+  MoveNetworkEdgeVertexCommand,
   MoveWallCommand,
   MoveWallPointCommand,
   ProjectEditorCommand,
   ProjectTransactionCommand,
+  SetParcelBoundaryCommand,
   SetWallPathCommand,
   SplitWallCommand,
-  TransactionCommand,
+  UpdateComponentCommand,
   UpdateNetworkNodeCommand,
   UpdateOpeningCommand,
   UpdateRoofCommand,
   UpdateSlabCommand,
   createOpeningInsertionCommand,
+  detectRooms,
   withInsertedVertex,
   withMovedVertex,
   withoutVertex,
-  type EditorCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import type { GeometryEdit } from './grips.js';
+import { removalCommandFor } from './object-editors.js';
 
 /** How far from a wall axis an opening may be dropped, in millimetres. */
 const MAXIMUM_HOST_DISTANCE_MM = 600;
@@ -107,6 +117,578 @@ export function addWallCommand(
       'Ajouter un mur',
       level.id,
       new AddWallCommand(`add-wall:${wall.id}`, wall),
+    ),
+  };
+}
+
+/**
+ * Builds the walls a run of points describes.
+ *
+ * A house is drawn as a run — corner, corner, corner — and not as a series of
+ * unrelated pairs of clicks. Two readings of the same run are both legitimate
+ * and neither is guessable: a wall per side, which can then take its own
+ * assembly and its own openings; or one polyline wall, which stays one thing
+ * when it is moved. The user says which.
+ */
+export function addWallRunCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: WallToolDraft,
+  options: {
+    readonly asOneWall: boolean;
+    readonly closed: boolean;
+    readonly newId: (prefix: string) => string;
+  },
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const assembly = (file.project.assemblies ?? []).find(
+    ({ id }) => id === draft.assemblyId,
+  );
+  if (assembly === undefined)
+    return {
+      status: 'ERROR',
+      message: `Assemblage inconnu : ${draft.assemblyId || 'aucun'}.`,
+    };
+  // Two clicks at the same place are one point, not a wall of no length; the
+  // run keeps what the user actually described.
+  const corners: Point2D[] = [];
+  for (const point of points) {
+    const last = corners[corners.length - 1];
+    if (last === undefined || last.x !== point.x || last.y !== point.y)
+      corners.push(point);
+  }
+  const path =
+    options.closed && corners.length > 2 ? [...corners, corners[0]!] : corners;
+  if (path.length < 2)
+    return {
+      status: 'ERROR',
+      message: 'Un mur demande deux points distincts.',
+    };
+
+  const wallAt = (walls: readonly Point2D[], id: string): Wall => ({
+    id: entityId<'Wall'>(id),
+    type: 'WALL',
+    levelId: level.id,
+    path: { points: walls },
+    referenceSide: 'CENTER',
+    assemblyId: assembly.id,
+    baseOffsetMm: 0,
+    heightMode: 'EXPLICIT',
+    heightMm: level.defaultStoreyHeightMm,
+    role: draft.role,
+  });
+
+  if (options.asOneWall) {
+    const wall = wallAt(path, options.newId('wall'));
+    return {
+      status: 'OK',
+      command: new ProjectEditorCommand(
+        `add-wall:${wall.id}`,
+        'Ajouter un mur polyligne',
+        level.id,
+        new AddWallCommand(`add-wall:${wall.id}`, wall),
+      ),
+    };
+  }
+
+  const commands: ProjectCommand[] = [];
+  for (let index = 1; index < path.length; index += 1) {
+    const wall = wallAt(
+      [path[index - 1]!, path[index]!],
+      options.newId('wall'),
+    );
+    commands.push(
+      new ProjectEditorCommand(
+        `add-wall:${wall.id}`,
+        'Ajouter un mur',
+        level.id,
+        new AddWallCommand(`add-wall:${wall.id}`, wall),
+      ),
+    );
+  }
+  return {
+    status: 'OK',
+    command: new ProjectTransactionCommand(
+      `wall-run:${commands.length}:${options.newId('')}`,
+      commands.length === 1
+        ? 'Ajouter un mur'
+        : `Ajouter ${commands.length} murs`,
+      commands,
+    ),
+  };
+}
+
+/**
+ * Builds the four walls of a rectangle drawn by its opposite corners.
+ *
+ * Drawing a house begins by enclosing it, and enclosing it by four clicks that
+ * must land on right angles is four chances to miss one.
+ */
+export function addWallRectangleCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: WallToolDraft,
+  newId: (prefix: string) => string,
+): EditingCommandResult {
+  const [from, to] = points;
+  if (from === undefined || to === undefined)
+    return { status: 'ERROR', message: 'Deux coins opposés sont attendus.' };
+  if (from.x === to.x || from.y === to.y)
+    return {
+      status: 'ERROR',
+      message: 'Les deux coins doivent délimiter une surface.',
+    };
+  return addWallRunCommand(
+    file,
+    levelId,
+    [from, { x: to.x, y: from.y }, to, { x: from.x, y: to.y }],
+    draft,
+    { asOneWall: false, closed: true, newId },
+  );
+}
+
+/**
+ * Places one thing in the building, where the user pointed.
+ *
+ * The room it stands in is read from the plan rather than asked for: the user
+ * has just pointed at a place, and that place is in a room or it is not. What
+ * the model does not know it leaves unsaid — a component outside every room is
+ * a component with no room, not a component in the first one.
+ */
+export function placeComponentCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  point: Point2D,
+  draft: {
+    readonly category: ComponentCategory;
+    readonly definitionId?: string;
+    readonly name?: string;
+    readonly elevationMm: number;
+  },
+  componentId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const room = level.spaces.find(
+    (space) =>
+      space.boundaryMode === 'MANUAL' &&
+      pointInPolygon(point, space.manualPolygon.outer),
+  );
+  return {
+    status: 'OK',
+    command: new AddComponentCommand(level.id, {
+      id: componentId,
+      category: draft.category,
+      ...(draft.definitionId === undefined || draft.definitionId === ''
+        ? {}
+        : { definitionId: draft.definitionId }),
+      ...(draft.name === undefined || draft.name.trim() === ''
+        ? {}
+        : { name: draft.name }),
+      position: { x: point.x, y: point.y },
+      elevationMm: draft.elevationMm,
+      rotationDeg: 0,
+      ...(room === undefined ? {} : { spaceId: room.id }),
+    }),
+  };
+}
+
+/**
+ * Builds a stair along the line the user walked with the pointer.
+ *
+ * The storey it arrives at is the one just above, because that is what a stair
+ * between two floors does; the inspector lets it be sent elsewhere. Its riser
+ * height is never asked for: the storeys already answer it.
+ */
+export function addStairCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: {
+    readonly stairType: StairType;
+    readonly widthMm: number;
+    readonly riserCount: number;
+    readonly treadDepthMm: number;
+  },
+  stairId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  if (points.length < 2)
+    return {
+      status: 'ERROR',
+      message: 'Une ligne de foulée demande deux points.',
+    };
+  const above = file.project.building.levels
+    .filter(({ elevationMm }) => elevationMm > level.elevationMm)
+    .sort((first, second) => first.elevationMm - second.elevationMm)[0];
+  if (above === undefined)
+    return {
+      status: 'ERROR',
+      message: `Aucun niveau ne se trouve au-dessus de ${level.name} : un escalier n’aurait nulle part où monter.`,
+    };
+  return {
+    status: 'OK',
+    command: new AddStairCommand(level.id, {
+      id: stairId,
+      topLevelId: above.id,
+      stairType: draft.stairType,
+      widthMm: draft.widthMm,
+      riserCount: draft.riserCount,
+      treadDepthMm: draft.treadDepthMm,
+      path: points.map((point) => ({ ...point })),
+    }),
+  };
+}
+
+/**
+ * Builds a roof from the outline that was drawn, or from the walls below it.
+ *
+ * Every side starts as a slope of the same pitch, which is a hipped roof; the
+ * inspector turns the sides that should be gables into gables. Nothing about
+ * the shape is guessed at creation, because the two-sided roof and the hipped
+ * roof have the same outline and only the user knows which was meant.
+ */
+export function addRoofStructureCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: {
+    readonly assemblyId: string;
+    readonly slopeDeg: number;
+    readonly overhangMm: number;
+    readonly fromWalls: boolean;
+  },
+  roofId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  let outline: readonly Point2D[];
+  if (draft.fromWalls) {
+    const point = points[0];
+    if (point === undefined)
+      return { status: 'ERROR', message: 'Un point est attendu.' };
+    const room = detectRooms(file.project, level.id).find((candidate) =>
+      pointInPolygon(point, candidate.polygon.outer),
+    );
+    if (room === undefined)
+      return {
+        status: 'ERROR',
+        message: 'Ce point n’est dans aucun contour fermé par les murs.',
+      };
+    outline = room.polygon.outer;
+  } else {
+    if (points.length < 3)
+      return { status: 'ERROR', message: 'Une toiture demande trois points.' };
+    outline = points;
+  }
+  return {
+    status: 'OK',
+    command: new AddRoofStructureCommand(level.id, {
+      id: roofId,
+      footprint: { outer: outline.map((point) => ({ ...point })) },
+      edges: outline.map(() => ({
+        kind: 'SLOPED' as const,
+        slopeDeg: draft.slopeDeg,
+        overhangMm: draft.overhangMm,
+      })),
+      assemblyId: draft.assemblyId,
+      baseElevationMm: level.elevationMm + level.defaultStoreyHeightMm,
+    }),
+  };
+}
+
+/** Builds a column, a beam or a footing from the points that were clicked. */
+export function addStructuralMemberCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: {
+    readonly kind: StructuralMemberKind;
+    readonly widthMm: number;
+    readonly depthMm: number;
+    readonly heightMm?: number;
+  },
+  memberId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const wanted = draft.kind === 'BEAM' ? 2 : 1;
+  if (points.length < wanted)
+    return {
+      status: 'ERROR',
+      message:
+        wanted === 1
+          ? 'Un point est attendu.'
+          : 'Une poutre demande deux points.',
+    };
+  return {
+    status: 'OK',
+    command: new AddStructuralMemberCommand(level.id, {
+      id: memberId,
+      kind: draft.kind,
+      path: points.slice(0, wanted).map((point) => ({ ...point })),
+      widthMm: draft.widthMm,
+      depthMm: draft.depthMm,
+      ...(draft.heightMm === undefined ? {} : { heightMm: draft.heightMm }),
+    }),
+  };
+}
+
+/** Draws the parcel, or something standing on the site around the house. */
+export function addSiteOutlineCommand(
+  points: readonly Point2D[],
+  draft: {
+    readonly target: 'PARCEL' | 'OBSTACLE';
+    readonly kind: SiteObstacleKind;
+    readonly heightMm?: number;
+    readonly name?: string;
+  },
+  obstacleId: string,
+): EditingCommandResult {
+  if (points.length < 3)
+    return { status: 'ERROR', message: 'Un contour demande trois points.' };
+  const outline = points.map((point) => ({ ...point }));
+  return {
+    status: 'OK',
+    command:
+      draft.target === 'PARCEL'
+        ? new SetParcelBoundaryCommand(outline)
+        : new AddSiteObstacleCommand({
+            id: obstacleId,
+            outline,
+            kind: draft.kind,
+            ...(draft.heightMm === undefined
+              ? {}
+              : { heightMm: draft.heightMm }),
+            ...(draft.name === undefined ? {} : { name: draft.name }),
+          }),
+  };
+}
+
+/** Whether a point falls inside a contour, by the crossing-number rule. */
+export function pointInPolygon(
+  point: Point2D,
+  outline: readonly Point2D[],
+): boolean {
+  let inside = false;
+  for (
+    let index = 0, previous = outline.length - 1;
+    index < outline.length;
+    previous = index, index += 1
+  ) {
+    const current = outline[index]!;
+    const last = outline[previous]!;
+    if (current.y > point.y === last.y > point.y) continue;
+    const crossingX =
+      ((last.x - current.x) * (point.y - current.y)) / (last.y - current.y) +
+      current.x;
+    if (point.x < crossingX) inside = !inside;
+  }
+  return inside;
+}
+
+/**
+ * Turns the contour the walls enclose around a point into a room.
+ *
+ * A room is described by walls that already exist, and redrawing its outline
+ * by hand is redrawing what the model can already derive — with the near
+ * certainty of a corner a few millimetres off, which then reads as a gap.
+ */
+export function addSpaceAtPointCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  point: Point2D,
+  draft: { readonly name: string; readonly category: string },
+  spaceId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const rooms = detectRooms(file.project, level.id);
+  if (rooms.length === 0)
+    return {
+      status: 'ERROR',
+      message: 'Les murs de ce niveau n’enferment aucun contour.',
+    };
+  const found = rooms.find((room) => pointInPolygon(point, room.polygon.outer));
+  if (found === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Ce point n’est dans aucun contour fermé par les murs.',
+    };
+  if (found.existingSpaceId !== undefined)
+    return {
+      status: 'ERROR',
+      message: `Ce contour porte déjà la pièce ${found.existingSpaceId}.`,
+    };
+  return {
+    status: 'OK',
+    command: new AddSpaceCommand(level.id, {
+      id: spaceId,
+      name: draft.name,
+      category: draft.category,
+      polygon: found.polygon,
+    }),
+  };
+}
+
+/**
+ * Turns every contour the walls enclose into a room, in one action.
+ *
+ * A house has as many rooms as it has enclosed contours, and naming them one
+ * by one through a panel is the navigation this replaces. Contours already
+ * covered are left alone rather than duplicated.
+ */
+export function addEveryDetectedRoomCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  draft: { readonly category: string },
+  newId: (prefix: string) => string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const rooms = detectRooms(file.project, level.id).filter(
+    (room) => room.existingSpaceId === undefined,
+  );
+  if (rooms.length === 0)
+    return {
+      status: 'ERROR',
+      message: 'Aucun contour fermé n’est encore sans pièce.',
+    };
+  const commands = rooms.map((room, index) => {
+    const id = newId('space');
+    return new AddSpaceCommand(level.id, {
+      id,
+      name: `Pièce ${level.spaces.length + index + 1}`,
+      category: draft.category,
+      polygon: room.polygon,
+    });
+  });
+  return {
+    status: 'OK',
+    command: new ProjectTransactionCommand(
+      `spaces:detected:${newId('')}`,
+      `Ajouter ${commands.length} pièce(s) détectée(s)`,
+      commands,
+    ),
+  };
+}
+
+/**
+ * Builds a slab, either from the points clicked or from the contour aimed at.
+ *
+ * A floor almost always covers a room that already exists; asking the user to
+ * click its corners again is asking for the same shape a second time, and the
+ * second one is never quite the first.
+ */
+export function addSlabFromPointsCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: {
+    readonly assemblyId: string;
+    readonly role: Slab['role'];
+    readonly fromRoom: boolean;
+  },
+  slabId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  let polygon: Polygon2D;
+  if (draft.fromRoom) {
+    const point = points[0];
+    if (point === undefined)
+      return { status: 'ERROR', message: 'Un point est attendu.' };
+    const room = detectRooms(file.project, level.id).find((candidate) =>
+      pointInPolygon(point, candidate.polygon.outer),
+    );
+    if (room === undefined)
+      return {
+        status: 'ERROR',
+        message: 'Ce point n’est dans aucun contour fermé par les murs.',
+      };
+    polygon = room.polygon;
+  } else {
+    if (points.length < 3)
+      return { status: 'ERROR', message: 'Une dalle demande trois points.' };
+    polygon = { outer: points.map((point) => ({ ...point })) };
+  }
+  return {
+    status: 'OK',
+    command: new AddSlabCommand(level.id, {
+      id: slabId,
+      polygon,
+      assemblyId: draft.assemblyId,
+      role: draft.role,
+      elevationOffsetMm: 0,
+    }),
+  };
+}
+
+/**
+ * Cuts an opening through the slab a contour falls in.
+ *
+ * A stairwell is a hole in the floor above it, and the floor is one object
+ * with a hole rather than four slabs around a gap: a hole moves with its slab
+ * and cannot be left behind.
+ */
+export function punchSlabHoleCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  if (points.length < 3)
+    return { status: 'ERROR', message: 'Une trémie demande trois points.' };
+  const centre = {
+    x: points.reduce((total, { x }) => total + x, 0) / points.length,
+    y: points.reduce((total, { y }) => total + y, 0) / points.length,
+  };
+  const host = level.slabs.find((slab) =>
+    pointInPolygon(centre, slab.polygon.outer),
+  );
+  if (host === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Aucune dalle ne passe sous ce contour : rien à percer.',
+    };
+  // Every corner has to be over the slab: a hole crossing an edge would be a
+  // shape the slab does not enclose, and the drawing would show a slab that
+  // is not the one the model holds.
+  if (!points.every((point) => pointInPolygon(point, host.polygon.outer)))
+    return {
+      status: 'ERROR',
+      message: `La trémie sort de la dalle ${host.id}.`,
+    };
+  return {
+    status: 'OK',
+    command: new ProjectTransactionCommand(
+      `slab:hole:${host.id}`,
+      'Percer une trémie',
+      [
+        new UpdateSlabCommand(level.id, host.id, {
+          polygon: {
+            outer: host.polygon.outer,
+            holes: [
+              ...(host.polygon.holes ?? []),
+              points.map((point) => ({ ...point })),
+            ],
+          },
+        }),
+      ],
     ),
   };
 }
@@ -272,28 +854,6 @@ function signedOffsetMm(
 }
 
 /** The editor command that deletes one object, whatever kind it is. */
-function deleteCommandFor(
-  level: NonNullable<ReturnType<typeof levelOf>>,
-  objectId: string,
-): EditorCommand | undefined {
-  if (level.annotations.some(({ id }) => id === objectId))
-    return new DeleteDimensionCommand(
-      `delete-dimension:${objectId}`,
-      dimensionId(objectId),
-    );
-  if (level.openings.some(({ id }) => id === objectId))
-    return new DeleteOpeningCommand(
-      `delete-opening:${objectId}`,
-      entityId<'Opening'>(objectId),
-    );
-  if (level.walls.some(({ id }) => id === objectId))
-    return new DeleteWallCommand(
-      `delete-wall:${objectId}`,
-      entityId<'Wall'>(objectId),
-    );
-  return undefined;
-}
-
 /**
  * Builds the single command that deletes everything the selection names.
  *
@@ -311,9 +871,11 @@ export function deleteObjectsCommand(
     return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
   if (objectIds.length === 0)
     return { status: 'ERROR', message: 'La sélection est vide.' };
-  const commands: EditorCommand[] = [];
+  const commands: ProjectCommand[] = [];
   for (const objectId of objectIds) {
-    const command = deleteCommandFor(level, objectId);
+    // Each family says how it is deleted, beside where it says how it is drawn
+    // and edited: nothing here knows what a slab or a network node is.
+    const command = removalCommandFor(file.project, level.id, objectId);
     if (command === undefined)
       return {
         status: 'ERROR',
@@ -324,21 +886,22 @@ export function deleteObjectsCommand(
   const id = `delete:${objectIds.join(',')}`;
   return {
     status: 'OK',
-    command: new ProjectEditorCommand(
-      id,
-      objectIds.length === 1
-        ? 'Supprimer un objet'
-        : `Supprimer ${objectIds.length} objets`,
-      level.id,
+    command:
       commands.length === 1
         ? commands[0]!
-        : new TransactionCommand(id, 'Supprimer la sélection', commands),
-    ),
+        : new ProjectTransactionCommand(
+            id,
+            `Supprimer ${objectIds.length} objets`,
+            commands,
+          ),
   };
 }
 
 /** A polygon carried elsewhere, holes included. */
-function translated(polygon: Polygon2D, delta: Point2D): Polygon2D {
+export function translatedPolygon(
+  polygon: Polygon2D,
+  delta: Point2D,
+): Polygon2D {
   const move = (point: Point2D): Point2D => ({
     x: point.x + delta.x,
     y: point.y + delta.y,
@@ -390,7 +953,7 @@ export function moveObjectsCommand(
     if (slab !== undefined) {
       commands.push(
         new UpdateSlabCommand(level.id, slab.id, {
-          polygon: translated(slab.polygon, deltaMm),
+          polygon: translatedPolygon(slab.polygon, deltaMm),
         }),
       );
       continue;
@@ -399,7 +962,7 @@ export function moveObjectsCommand(
     if (roof !== undefined) {
       commands.push(
         new UpdateRoofCommand(level.id, roof.id, {
-          footprint: translated(roof.footprint, deltaMm),
+          footprint: translatedPolygon(roof.footprint, deltaMm),
         }),
       );
       continue;
@@ -415,6 +978,20 @@ export function moveObjectsCommand(
             x: node.position.x + deltaMm.x,
             y: node.position.y + deltaMm.y,
             z: node.position.z,
+          },
+        }),
+      );
+      continue;
+    }
+    const component = (level.components ?? []).find(
+      ({ id }) => id === objectId,
+    );
+    if (component !== undefined) {
+      commands.push(
+        new UpdateComponentCommand(level.id, component.id, {
+          position: {
+            x: component.position.x + deltaMm.x,
+            y: component.position.y + deltaMm.y,
           },
         }),
       );
@@ -505,6 +1082,48 @@ export function transformPoint(
   return { x: 2 * foot.x - point.x, y: 2 * foot.y - point.y };
 }
 
+/**
+ * Where a slope faces once the roof it belongs to has been turned or reflected.
+ *
+ * A roof plane is not only an outline: it points somewhere, and that bearing is
+ * what the sun calculations read. Turning the building without turning the
+ * bearing leaves a roof drawn to the east and calculated to the south, which is
+ * exactly the kind of silent inconsistency this project refuses.
+ *
+ * The bearing is carried as a direction rather than as a number so that a
+ * reflection can be applied to it: reflecting a direction is reflecting the two
+ * points it joins.
+ */
+export function transformedAzimuthDeg(
+  transform: PlanTransform,
+  azimuthDeg: number,
+): number {
+  const radians = (azimuthDeg * Math.PI) / 180;
+  const facing = { x: Math.cos(radians), y: Math.sin(radians) };
+  const origin = { x: 0, y: 0 };
+  const moved =
+    transform.kind === 'ROTATE'
+      ? transformPoint(
+          { kind: 'ROTATE', centre: origin, angleDeg: transform.angleDeg },
+          facing,
+        )
+      : // Only the direction of the axis matters to a direction, not where it
+        // sits: the reflection is taken about a parallel axis through zero.
+        transformPoint(
+          {
+            kind: 'MIRROR',
+            from: origin,
+            to: {
+              x: transform.to.x - transform.from.x,
+              y: transform.to.y - transform.from.y,
+            },
+          },
+          facing,
+        );
+  const turned = (Math.atan2(moved.y, moved.x) * 180) / Math.PI;
+  return ((turned % 360) + 360) % 360;
+}
+
 function transformedPolygon(
   polygon: Polygon2D,
   transform: PlanTransform,
@@ -570,6 +1189,10 @@ export function transformObjectsCommand(
       commands.push(
         new UpdateRoofCommand(level.id, roof.id, {
           footprint: transformedPolygon(roof.footprint, transform),
+          // The plane faces somewhere, and that is what the sun is calculated
+          // against: an outline turned without its bearing would be drawn one
+          // way and computed another.
+          azimuthDeg: transformedAzimuthDeg(transform, roof.azimuthDeg),
         }),
       );
       continue;
@@ -625,6 +1248,16 @@ export interface PlanClipboard {
   readonly openings: readonly Opening[];
   readonly slabs: readonly Slab[];
   readonly roofs: readonly RoofPlane[];
+  /**
+   * The storey the copy was taken from, and how high it sits.
+   *
+   * A copy is not only a shape: a roof plane knows its own altitude and a wall
+   * may be built up to a named storey. Pasted a floor higher, both have to be
+   * read against the storey they land on, or the copy keeps the altitude of the
+   * one it came from — right shape, wrong height, and nothing says so.
+   */
+  readonly sourceLevelId?: string;
+  readonly sourceElevationMm?: number;
 }
 
 /** Whether anything at all was copied. */
@@ -663,6 +1296,41 @@ export function copyObjects(
     ),
     slabs: level.slabs.filter(({ id }) => chosen.has(id as string)),
     roofs: level.roofs.filter(({ id }) => chosen.has(id as string)),
+    sourceLevelId: level.id,
+    sourceElevationMm: level.elevationMm,
+  };
+}
+
+/**
+ * The storey a copied wall should now be built up to.
+ *
+ * A wall built up to the first floor, pasted on the first floor, must be built
+ * up to the second — not back down to where it came from. The storey at the
+ * same distance in the list is the one that means the same thing; when there is
+ * none above, the wall keeps an explicit height rather than pointing at a level
+ * that does not exist.
+ */
+function retargetedHeight(
+  project: Project,
+  wall: Wall,
+  sourceLevelId: string | undefined,
+  targetLevel: { readonly id: string; readonly defaultStoreyHeightMm: number },
+): Wall {
+  if (wall.heightMode !== 'TO_LEVEL') return wall;
+  const levels = project.building.levels;
+  const source = levels.findIndex(({ id }) => id === sourceLevelId);
+  const target = levels.findIndex(({ id }) => id === targetLevel.id);
+  const top = levels.findIndex(({ id }) => id === wall.topLevelId);
+  if (source === -1 || target === -1 || top === -1) return wall;
+  const shifted = levels[top + (target - source)];
+  if (shifted !== undefined) return { ...wall, topLevelId: shifted.id };
+  // Nothing that high in this project: the copy keeps a height it can state
+  // rather than a reference nobody can resolve.
+  const { topLevelId: _top, topOffsetMm: _offset, ...rest } = wall;
+  return {
+    ...rest,
+    heightMode: 'EXPLICIT',
+    heightMm: targetLevel.defaultStoreyHeightMm,
   };
 }
 
@@ -692,6 +1360,13 @@ export function pasteClipboardCommand(
     x: point.x + deltaMm.x,
     y: point.y + deltaMm.y,
   });
+  // How far up the copy is going. Everything a copy knows about its own
+  // altitude is read against the storey it lands on rather than the one it was
+  // taken from.
+  const risenMm =
+    clipboard.sourceElevationMm === undefined
+      ? 0
+      : level.elevationMm - clipboard.sourceElevationMm;
 
   for (const wall of clipboard.walls) {
     const copyId = newId('wall');
@@ -703,7 +1378,12 @@ export function pasteClipboardCommand(
         'Coller un mur',
         level.id,
         new AddWallCommand(`wall:paste:${copyId}`, {
-          ...wall,
+          ...retargetedHeight(
+            file.project,
+            wall,
+            clipboard.sourceLevelId,
+            level,
+          ),
           id: copyId as Wall['id'],
           levelId: level.id,
           path: { points: wall.path.points.map(carried) },
@@ -736,7 +1416,7 @@ export function pasteClipboardCommand(
     commands.push(
       new AddSlabCommand(level.id, {
         id: copyId,
-        polygon: translated(slab.polygon, deltaMm),
+        polygon: translatedPolygon(slab.polygon, deltaMm),
         assemblyId: slab.assemblyId,
         role: slab.role,
         elevationOffsetMm: slab.elevationOffsetMm,
@@ -749,11 +1429,13 @@ export function pasteClipboardCommand(
     commands.push(
       new AddRoofCommand(level.id, {
         id: copyId,
-        footprint: translated(roof.footprint, deltaMm),
+        footprint: translatedPolygon(roof.footprint, deltaMm),
         assemblyId: roof.assemblyId,
         slopeDeg: roof.slopeDeg,
         azimuthDeg: roof.azimuthDeg,
-        baseElevationMm: roof.baseElevationMm,
+        // The plane rises with the storey: pasted one floor up it sits one
+        // floor higher, not at the altitude of the floor it came from.
+        baseElevationMm: roof.baseElevationMm + risenMm,
       }),
     );
   }
@@ -1171,7 +1853,7 @@ export function duplicateObjectsCommand(
       commands.push(
         new AddSlabCommand(level.id, {
           id: copyId,
-          polygon: translated(slab.polygon, deltaMm),
+          polygon: translatedPolygon(slab.polygon, deltaMm),
           assemblyId: slab.assemblyId,
           role: slab.role,
           elevationOffsetMm: slab.elevationOffsetMm,
@@ -1186,7 +1868,7 @@ export function duplicateObjectsCommand(
       commands.push(
         new AddRoofCommand(level.id, {
           id: copyId,
-          footprint: translated(roof.footprint, deltaMm),
+          footprint: translatedPolygon(roof.footprint, deltaMm),
           assemblyId: roof.assemblyId,
           slopeDeg: roof.slopeDeg,
           azimuthDeg: roof.azimuthDeg,
@@ -1319,6 +2001,16 @@ export function geometryEditCommand(
         command: new UpdateOpeningCommand(level.id, edit.openingId, {
           offsetAlongHostMm: edit.offsetMm,
         }),
+      };
+    case 'ROUTE_VERTEX':
+      return {
+        status: 'OK',
+        command: new MoveNetworkEdgeVertexCommand(
+          edit.networkId,
+          edit.edgeId,
+          edit.vertexIndex,
+          edit.to,
+        ),
       };
     case 'POLYGON_VERTEX':
     case 'POLYGON_INSERT':

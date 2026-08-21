@@ -45,6 +45,14 @@ export type Grip =
       readonly objectId: string;
       readonly objectKind: 'SLAB' | 'ROOF';
       readonly edgeIndex: number;
+    }
+  | {
+      readonly kind: 'ROUTE_VERTEX';
+      readonly id: string;
+      readonly at: Point2D;
+      readonly networkId: string;
+      readonly edgeId: string;
+      readonly vertexIndex: number;
     };
 
 /** What dragging or clicking a grip asks the application to do. */
@@ -89,6 +97,13 @@ export type GeometryEdit =
       readonly objectId: string;
       readonly objectKind: 'SLAB' | 'ROOF';
       readonly vertexIndex: number;
+    }
+  | {
+      readonly kind: 'ROUTE_VERTEX';
+      readonly networkId: string;
+      readonly edgeId: string;
+      readonly vertexIndex: number;
+      readonly to: Point2D;
     };
 
 function levelOf(project: Project, levelId: string | undefined) {
@@ -238,4 +253,31 @@ export function polygonGrips(
       edgeIndex,
     })),
   ];
+}
+
+/**
+ * The handles of a routed segment: one per corner it turns.
+ *
+ * The two ends are not among them. A segment starts and finishes at a port,
+ * and dragging an end away from its port would draw a pipe that reaches
+ * nothing — moving the appliance is what moves the end.
+ */
+export function routeGrips(
+  project: Project,
+  _levelId: string | undefined,
+  objectId: string,
+): readonly Grip[] | undefined {
+  for (const network of project.systems ?? []) {
+    const edge = network.edges.find(({ id }) => id === objectId);
+    if (edge === undefined) continue;
+    return edge.path.slice(1, -1).map((point, index) => ({
+      kind: 'ROUTE_VERTEX' as const,
+      id: `grip:route:${edge.id}:${index + 1}`,
+      at: { x: point.x, y: point.y },
+      networkId: network.id,
+      edgeId: edge.id,
+      vertexIndex: index + 1,
+    }));
+  }
+  return undefined;
 }

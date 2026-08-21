@@ -724,6 +724,8 @@ test('changes a property of several objects in one go', async ({ page }) => {
   // One decision, one undo: both walls go back together.
   await canvas.click({ position: await along('wall-partition-v', 0.5, 0.2) });
   await expect(page.getByLabel('Rôle')).toHaveValue('EXTERIOR');
+  // One decision, one undo: clicking a member of the selection beforehand
+  // selects it and writes nothing.
   await page.getByRole('button', { name: 'Annuler', exact: true }).click();
   await expect(page.getByLabel('Rôle')).toHaveValue('INTERIOR');
   expect(errors).toEqual([]);
@@ -1794,5 +1796,429 @@ test('an emptied equipment field is gone after a save and a reload', async ({
     .click();
   await expect(page.getByLabel('Volume de ballon')).toHaveValue('200');
   await expect(page.getByLabel('Pertes à l’arrêt')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('acts on an object from a menu opened where the object is', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  const south = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  const at = {
+    x: south.x - box.x + south.width * 0.25,
+    y: south.y - box.y + south.height / 2,
+  };
+
+  await canvas.click({ button: 'right', position: at });
+  const menu = page.getByRole('menu');
+  await expect(menu).toBeVisible();
+  // The object is selected by the same gesture that opened its menu.
+  await expect(page.locator('.inspector-subject h3')).toContainText(
+    'wall-south',
+  );
+
+  // What every object offers, and what a wall alone offers.
+  await expect(
+    menu.getByRole('menuitem', { name: 'Sélectionner les objets semblables' }),
+  ).toBeEnabled();
+  await expect(
+    menu.getByRole('menuitem', { name: /Face de référence/ }),
+  ).toBeDisabled();
+
+  // The openings this wall carries: the reason the domain refuses to delete
+  // it, named rather than left for the user to find by eye.
+  await menu
+    .getByRole('menuitem', { name: /Sélectionner : ouvertures/ })
+    .click();
+  await expect(menu).toBeHidden();
+  await expect(page.getByRole('status')).toContainText('lié');
+
+  // The walls built the same way and playing the same part: the four of the
+  // shell, and neither partition.
+  await canvas.click({ button: 'right', position: at });
+  await page
+    .getByRole('menuitem', { name: 'Sélectionner les objets semblables' })
+    .click();
+  await expect(page.locator('.selection-list li')).toHaveCount(4);
+
+  // Escape closes the menu without doing anything.
+  await canvas.click({ button: 'right', position: at });
+  await expect(page.getByRole('menu')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('menu')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test('offers the objects stacked under one point, one after the other', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  // A partition, the two rooms it separates and the slab under all of them
+  // meet at this point: four objects and one pixel. A point away from the
+  // middle of the wall, where its own handles would take the click first.
+  const wall = (await page
+    .locator('[id="wall:wall-partition-h"]')
+    .boundingBox())!;
+  const stacked = {
+    x: wall.x - box.x + wall.width * 0.25,
+    y: wall.y - box.y + wall.height / 2,
+  };
+
+  const title = page.locator('.inspector-subject h3');
+  const seen: string[] = [];
+  for (let click = 0; click < 4; click += 1) {
+    await canvas.click({ position: stacked });
+    await expect(title).toBeVisible();
+    seen.push((await title.textContent()) ?? '');
+  }
+  // Each click offers the next one rather than the same one for ever.
+  expect(seen[0]).toContain('wall-partition-h');
+  expect(new Set(seen).size).toBe(4);
+
+  // And round again, so nothing under the pointer is out of reach.
+  await canvas.click({ position: stacked });
+  await expect(title).toHaveText(seen[0] ?? '');
+  expect(errors).toEqual([]);
+});
+
+test('restricts what a click may take to one family', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  const filter = page.getByLabel('Filtrer sur');
+  await expect(filter).toHaveValue('ALL');
+  await filter.selectOption('SPACE');
+
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  const south = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  const onTheWall = {
+    x: south.x - box.x + south.width * 0.25,
+    y: south.y - box.y + south.height / 2,
+  };
+  await canvas.click({ position: onTheWall });
+  // A room lies under that wall; asked for rooms, the click takes the room.
+  const title = page.locator('.inspector-subject h3');
+  await expect(title).toBeVisible();
+  await expect(title).not.toContainText('Mur');
+
+  // Asked for walls, the same point answers with the wall.
+  await filter.selectOption('WALL');
+  await canvas.click({ position: onTheWall });
+  await expect(title).toContainText('wall-south');
+  expect(errors).toEqual([]);
+});
+
+test('draws a run of walls corner by corner and encloses by two corners', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  await expect(walls).toHaveCount(6);
+
+  await page.getByRole('button', { name: 'Mur continu', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  await canvas.click({ position: { x: 60, y: 60 } });
+  await canvas.click({ position: { x: 200, y: 60 } });
+  await canvas.click({ position: { x: 200, y: 160 } });
+  // A run has no number of corners known in advance: the user says when it
+  // ends, and the plan says so while it lasts.
+  await expect(page.locator('.canvas-status')).toContainText('Entrée termine');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('status')).toContainText('2 murs');
+  await expect(walls).toHaveCount(8);
+
+  // One run, one undo.
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(walls).toHaveCount(6);
+
+  await page
+    .getByRole('button', { name: 'Murs rectangle', exact: true })
+    .click();
+  const box = (await canvas.boundingBox())!;
+  await canvas.click({ position: { x: 60, y: box.height - 140 } });
+  await canvas.click({ position: { x: 220, y: box.height - 40 } });
+  await expect(walls).toHaveCount(10);
+  expect(errors).toEqual([]);
+});
+
+test('makes a room out of the contour the walls already enclose', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Pièce', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+
+  // Every contour of the reference house already carries a room, and creating
+  // a second one over the first would leave two nothing distinguishes.
+  await canvas.click({
+    position: { x: box.width * 0.3, y: box.height * 0.35 },
+  });
+  await expect(page.getByRole('status')).toContainText('porte déjà');
+
+  // Outside every contour, the tool says what is missing rather than nothing.
+  await canvas.click({ position: { x: 4, y: 4 } });
+  await expect(page.getByRole('status')).toContainText('contour');
+  expect(errors).toEqual([]);
+});
+
+test('places a thing in the building, as an object of the editor', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Composant', exact: true }).click();
+  await page.getByLabel('Catégorie').selectOption('HEATING');
+  await page.getByLabel('Nom').fill('Radiateur séjour');
+
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  await canvas.click({
+    position: { x: box.width * 0.3, y: box.height * 0.35 },
+  });
+  await expect(page.getByRole('status')).toContainText('composant');
+
+  // The placed object is an object of the editor like any other: selectable,
+  // described, and tied to the room it stands in.
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await canvas.click({
+    position: { x: box.width * 0.3, y: box.height * 0.35 },
+  });
+  const title = page.locator('.inspector-subject h3');
+  await expect(title).toContainText('Radiateur séjour');
+  // What the catalogue knows stays with the catalogue.
+  await expect(page.locator('.inspector-subject')).toContainText(
+    'ne renvoie à aucun modèle',
+  );
+  await expect(
+    page.getByRole('spinbutton', { name: 'Orientation (°)' }),
+  ).toHaveValue('0');
+  expect(errors).toEqual([]);
+});
+
+test('routes a run of pipe from port to port on the plan', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page
+    .getByRole('button', { name: 'Tracer un tronçon', exact: true })
+    .click();
+  // Choosing a network reveals the layer it draws on; drawing on a hidden
+  // layer would place a run the user cannot see.
+  const network = page.getByRole('combobox', { name: 'Réseau', exact: true });
+  await expect(network).toBeVisible();
+  const ports = page.locator('[id^="network-port:water:"]');
+  await expect(ports.first()).toBeVisible();
+
+  // Waste water falls by default and pressurised water does not: the tool
+  // reads the discipline of the network chosen just beside.
+  await expect(page.getByRole('spinbutton', { name: 'Pente (%)' })).toHaveValue(
+    '0',
+  );
+  await network.selectOption({ index: 1 });
+  await expect(page.getByRole('spinbutton', { name: 'Pente (%)' })).toHaveValue(
+    '2',
+  );
+  expect(errors).toEqual([]);
+});
+
+test('shows a network as a system browser in the project tree', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const tree = page.getByRole('navigation', {
+    name: 'Arborescence du projet',
+  });
+  await tree.getByRole('group').filter({ hasText: 'Systèmes' }).click();
+  const water = tree.locator('summary', { hasText: 'water' }).first();
+  await expect(water).toContainText('tronçons');
+  await water.click();
+  // A segment is reachable from the tree, like a wall or a room.
+  await tree
+    .getByRole('button', { name: /water:trunk/ })
+    .first()
+    .click();
+  await expect(page.locator('.inspector-subject h3')).toContainText(
+    'water:trunk',
+  );
+  // The fall a run actually has is read beside its length.
+  await expect(page.locator('.inspector-subject')).toContainText('horizontal');
+  expect(errors).toEqual([]);
+});
+
+test('colours the networks with what their own engines computed', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const overlay = page.getByLabel('Superposition');
+  // The engines have been in the repository for a long time; until now only
+  // the thermal figures reached the drawing.
+  await expect(
+    overlay.locator('option', { hasText: 'Eau · vitesse' }),
+  ).toHaveCount(1);
+  await overlay.selectOption('wastewater-slope');
+
+  const legend = page.locator('.overlay-legend');
+  await expect(legend).toBeVisible({ timeout: 15_000 });
+  await expect(legend).toContainText('Pente des collecteurs');
+
+  // A pipe is a line, and a line is coloured like a wall is.
+  await expect(
+    page.locator('[id^="overlay:wastewater-slope:"]'),
+  ).not.toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('keeps a view, lays it on a sheet and draws the sheet', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page
+    .getByRole('button', { name: 'Vues et feuilles', exact: true })
+    .click();
+  await expect(
+    page.getByRole('heading', { name: 'Vues et feuilles' }),
+  ).toBeVisible();
+
+  await page.getByLabel('Nom de la vue').fill('Plan RDC');
+  await page
+    .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
+    .click();
+  await expect(page.getByRole('status')).toContainText('enregistrée');
+
+  await page.getByLabel('Titre de la feuille').fill('Plan du rez-de-chaussée');
+  await page.getByLabel('Format').selectOption('A3');
+  await page.getByRole('button', { name: 'Ajouter une feuille' }).click();
+  await expect(page.getByRole('cell', { name: 'A-001' })).toBeVisible();
+
+  // The sheet is drawn from the model, not from a picture kept aside.
+  await page
+    .getByRole('row')
+    .filter({ hasText: 'A-001' })
+    .getByRole('button', { name: 'Aperçu' })
+    .click();
+  const preview = page.locator('.sheet-preview svg').first();
+  await expect(preview).toBeVisible();
+  await expect(preview).toHaveAttribute('data-sheet-id', /sheet-/);
+  // The title block says what the project says, and marks what it cannot say.
+  await expect(page.locator('.sheet-preview')).toContainText('A-001');
+  await expect(page.locator('.sheet-preview')).toContainText('inconnu');
+
+  // A view a sheet still lays out cannot be taken away.
+  const views = page.getByRole('region', { name: 'Vues enregistrées' });
+  await views
+    .getByRole('row')
+    .filter({ hasText: 'Plan RDC' })
+    .getByRole('button', { name: 'Supprimer' })
+    .click();
+  await expect(page.getByRole('status')).toContainText('A-001');
+  expect(errors).toEqual([]);
+});
+
+test('builds a variant by pointing at the plan', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+
+  // A variant to build.
+  await page.getByRole('button', { name: 'Scénarios', exact: true }).click();
+  await page.getByLabel('Nouveau scénario').fill('Isolation renforcée');
+  await page.getByRole('button', { name: 'Créer', exact: true }).click();
+  await page.getByRole('button', { name: 'Plan architectural' }).click();
+
+  const mode = page.getByRole('region', { name: 'Scénario', exact: true });
+  await mode.getByLabel('Dessiner la variante').selectOption({ index: 1 });
+  await expect(mode).toContainText('ne change pas le projet');
+
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  const south = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: south.x - box.x + south.width * 0.25,
+      y: south.y - box.y + south.height / 2,
+    },
+  });
+  await expect(page.locator('.inspector-subject h3')).toContainText(
+    'wall-south',
+  );
+
+  // Changing a property states what the variant does differently.
+  await page.getByLabel('Assemblage').selectOption('assembly-partition');
+  await expect(page.getByRole('status')).toContainText('Scénario');
+
+  // And the drawing says which objects it changed.
+  await expect(page.locator('.overlay-legend')).toContainText(
+    'Ce que la variante change',
+  );
+
+  // A property no scenario path names is refused out loud.
+  await page.getByLabel('Face de référence').selectOption('LEFT');
+  await expect(page.getByRole('status')).toContainText('ne peut pas encore');
+  expect(errors).toEqual([]);
+});
+
+test('draws the ground the house sits on and its structure', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+
+  // The site has held a parcel since the beginning and no screen could draw
+  // one.
+  await page.getByRole('button', { name: 'Terrain', exact: true }).click();
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = (await canvas.boundingBox())!;
+  await canvas.click({ position: { x: 20, y: 20 } });
+  await canvas.click({ position: { x: box.width - 20, y: 20 } });
+  await canvas.click({
+    position: { x: box.width - 20, y: box.height - 20 },
+  });
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[id="site:parcel"]')).toHaveCount(1);
+
+  // A column stands where it was put, and the plan shows its section.
+  await page.getByRole('button', { name: 'Poteau', exact: true }).click();
+  await page.getByLabel('Élément').selectOption('COLUMN');
+  const after = (await canvas.boundingBox())!;
+  await canvas.click({
+    position: { x: after.width * 0.4, y: after.height * 0.4 },
+  });
+  await expect(page.locator('[id^="structure:member-"]')).toHaveCount(1);
+
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  const selecting = (await canvas.boundingBox())!;
+  const column = (await page
+    .locator('[id^="structure:member-"]')
+    .first()
+    .boundingBox())!;
+  await canvas.click({
+    position: {
+      x: column.x - selecting.x + column.width / 2,
+      y: column.y - selecting.y + column.height / 2,
+    },
+  });
+  await expect(page.locator('.inspector-subject h3')).toContainText('Poteau');
+  // Nothing can be checked without a material, and the inspector says which.
+  await expect(page.locator('.inspector-subject')).toContainText(
+    'Aucun matériau',
+  );
   expect(errors).toEqual([]);
 });

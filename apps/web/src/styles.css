@@ -573,6 +573,33 @@ button.icon {
   display: flex;
   gap: 0.25rem;
 }
+/*
+ * A sheet drawn to scale, shown at whatever width the panel has.
+ *
+ * The preview is the drawing engine's own output for that sheet: what is
+ * printed is what is shown, rather than a second drawing made for the screen.
+ */
+.sheet-preview {
+  max-width: 100%;
+  margin-top: 0.6rem;
+  padding: 0.5rem;
+  border: 1px solid #d3ddd7;
+  border-radius: 0.6rem;
+  background: #f4f7f5;
+  overflow: auto;
+}
+.sheet-preview svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  background: #fff;
+}
+.documents-panel .tool-group {
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
 .badge {
   display: inline-block;
   border-radius: 999px;
@@ -1082,6 +1109,36 @@ button.icon {
   margin: 0;
   font-size: 0.74rem;
 }
+/*
+ * What the module could not do, beside the colours it produced.
+ *
+ * A colour says where a value is high; it cannot say that a value is missing
+ * because a pipe has no bore. The remark names the objects, and pointing at
+ * them is what turns it into a correction.
+ */
+.overlay-warnings {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.74rem;
+}
+.overlay-warnings li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: baseline;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #e6dcc4;
+  border-radius: 0.5rem;
+  background: #fdfaf2;
+}
+.overlay-warnings button {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.72rem;
+}
+
 .overlay-metric {
   margin: 0;
   font-weight: 700;
@@ -1383,6 +1440,58 @@ button.icon {
 .palette-hint {
   color: #5b6b63;
   font-size: 0.8rem;
+}
+
+/*
+ * What can be done to an object, where the object is.
+ *
+ * Reaching the top of the window to delete the wall being looked at is a
+ * journey the drawing does not need, and a toolbar wide enough to hold every
+ * action of every family is one nobody reads.
+ */
+.object-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+}
+.object-menu {
+  position: absolute;
+  /* Opened near the right or the bottom edge, the menu stays in the window. */
+  left: min(var(--menu-x, 0px), calc(100vw - 16rem));
+  top: min(var(--menu-y, 0px), calc(100vh - 12rem));
+  width: 15rem;
+  padding: 0.35rem;
+  border: 1px solid #d3ddd7;
+  border-radius: 0.7rem;
+  background: #fff;
+  box-shadow: 0 18px 44px rgba(30, 55, 42, 0.25);
+}
+.object-menu-title {
+  margin: 0.2rem 0.5rem 0.35rem;
+  color: #5b6b63;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.object-menu button {
+  display: block;
+  width: 100%;
+  padding: 0.42rem 0.6rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+.object-menu button:hover:not(:disabled),
+.object-menu button:focus-visible {
+  background: #eaf2ed;
+}
+.object-menu button:disabled {
+  color: #98a6a0;
+  cursor: not-allowed;
 }
 
 /*

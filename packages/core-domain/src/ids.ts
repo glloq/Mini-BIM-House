@@ -14,6 +14,10 @@ export type OpeningId = EntityId<'Opening'>;
 export type SpaceId = EntityId<'Space'>;
 export type SlabId = EntityId<'Slab'>;
 export type RoofPlaneId = EntityId<'RoofPlane'>;
+export type ComponentInstanceId = EntityId<'ComponentInstance'>;
+export type StairId = EntityId<'Stair'>;
+export type RoofId = EntityId<'Roof'>;
+export type StructuralMemberId = EntityId<'StructuralMember'>;
 
 export function entityId<Kind extends string = string>(
   value: string,

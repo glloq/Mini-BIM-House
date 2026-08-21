@@ -1,5 +1,9 @@
 import type {
+  ComponentCategory,
   Level,
+  RoofEdge,
+  StairType,
+  StructuralMemberKind,
   Opening,
   Project,
   Wall,
@@ -14,6 +18,11 @@ import {
   UpdateRoofCommand,
   UpdateSlabCommand,
   UpdateSpaceCommand,
+  SetWallHeightCommand,
+  UpdateComponentCommand,
+  UpdateRoofStructureCommand,
+  UpdateStairCommand,
+  UpdateStructuralMemberCommand,
   UpdateWallCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
@@ -23,6 +32,11 @@ import {
   REFERENCE_SIDE_OPTIONS,
   SLAB_ROLE_OPTIONS,
   WALL_ROLE_OPTIONS,
+  COMPONENT_CATEGORY_OPTIONS,
+  ROOF_EDGE_KIND_OPTIONS,
+  STAIR_TYPE_OPTIONS,
+  STRUCTURAL_MEMBER_OPTIONS,
+  SPACE_CATEGORY_OPTIONS as SPACE_CATEGORIES,
 } from './domain-options.js';
 
 /** A control the inspector offers for one editable property. */
@@ -58,6 +72,17 @@ export type InspectorControl =
  */
 export interface InspectorEdit {
   readonly id: string;
+  /**
+   * What this property is, across families.
+   *
+   * A wall and a slab both have a `role`, and they are not the same role: one
+   * takes EXTERIOR or PARTITION, the other FLOOR or TERRACE. Editing several
+   * objects at once compares this rather than the field name, so a selection of
+   * both is never offered a single menu that would write nonsense into one of
+   * them. Two families may share a meaning on purpose — that is what giving
+   * them the same value here says.
+   */
+  readonly semanticId: string;
   readonly label: string;
   readonly control: InspectorControl;
   readonly hint?: string;
@@ -71,23 +96,6 @@ export interface InspectorEdit {
  * application's proposal rather than a closed set: a project may carry a
  * category this menu does not offer, and it is shown as it is.
  */
-const SPACE_CATEGORIES: readonly {
-  readonly value: string;
-  readonly label: string;
-}[] = [
-  { value: 'LIVING', label: 'Séjour' },
-  { value: 'KITCHEN', label: 'Cuisine' },
-  { value: 'BEDROOM', label: 'Chambre' },
-  { value: 'BATHROOM', label: 'Salle de bains' },
-  { value: 'WC', label: 'WC' },
-  { value: 'HALL', label: 'Entrée' },
-  { value: 'CORRIDOR', label: 'Dégagement' },
-  { value: 'GARAGE', label: 'Garage' },
-  { value: 'STORAGE', label: 'Cellier' },
-  { value: 'TECHNICAL', label: 'Local technique' },
-  { value: 'OTHER', label: 'Autre' },
-];
-
 function assemblyOptions(project: Project, categories: readonly string[]) {
   return (project.assemblies ?? [])
     .filter(({ category }) => categories.includes(category))
@@ -132,6 +140,7 @@ function straightWallEdits(level: Level, wall: Wall): readonly InspectorEdit[] {
   return [
     {
       id: 'lengthMm',
+      semanticId: 'wall.lengthMm',
       label: 'Longueur',
       control: {
         kind: 'NUMBER',
@@ -150,6 +159,7 @@ function straightWallEdits(level: Level, wall: Wall): readonly InspectorEdit[] {
     },
     {
       id: 'angleDeg',
+      semanticId: 'wall.angleDeg',
       label: 'Angle',
       control: {
         kind: 'NUMBER',
@@ -175,6 +185,7 @@ function wallEdits(
     ...straightWallEdits(level, wall),
     {
       id: 'assemblyId',
+      semanticId: 'wall.assemblyId',
       label: 'Assemblage',
       control: {
         kind: 'SELECT',
@@ -186,6 +197,7 @@ function wallEdits(
     },
     {
       id: 'role',
+      semanticId: 'wall.role',
       label: 'Rôle',
       control: {
         kind: 'SELECT',
@@ -200,6 +212,7 @@ function wallEdits(
     },
     {
       id: 'referenceSide',
+      semanticId: 'wall.referenceSide',
       label: 'Face de référence',
       control: {
         kind: 'SELECT',
@@ -213,6 +226,7 @@ function wallEdits(
     },
     {
       id: 'baseOffsetMm',
+      semanticId: 'wall.baseOffsetMm',
       label: 'Décalage en pied',
       control: {
         kind: 'NUMBER',
@@ -228,9 +242,48 @@ function wallEdits(
       },
     },
   ];
+  // Reaching a storey above and standing a stated height are two shapes of the
+  // same wall, not two fields that may both be set. The domain has accepted
+  // TO_LEVEL from the beginning and no screen could produce one.
+  const upper = project.building.levels.filter(
+    ({ elevationMm }) => elevationMm > level.elevationMm,
+  );
+  edits.push({
+    id: 'heightMode',
+    semanticId: 'wall.heightMode',
+    label: 'Hauteur définie par',
+    control: {
+      kind: 'SELECT',
+      value: wall.heightMode,
+      options: [
+        { value: 'EXPLICIT', label: 'Une hauteur saisie' },
+        { value: 'TO_LEVEL', label: 'Le niveau supérieur' },
+      ],
+    },
+    hint:
+      upper.length === 0
+        ? 'Aucun niveau au-dessus de celui-ci.'
+        : 'Un mur monté jusqu’à un niveau suit ce niveau quand il se déplace.',
+    apply: (value) => {
+      if (value === wall.heightMode) return undefined;
+      if (value === 'EXPLICIT')
+        return new SetWallHeightCommand(level.id, wall.id, {
+          mode: 'EXPLICIT',
+          heightMm: level.defaultStoreyHeightMm,
+        });
+      const top = upper[0];
+      return top === undefined
+        ? undefined
+        : new SetWallHeightCommand(level.id, wall.id, {
+            mode: 'TO_LEVEL',
+            topLevelId: top.id,
+          });
+    },
+  });
   if (wall.heightMode === 'EXPLICIT')
     edits.push({
       id: 'heightMm',
+      semanticId: 'wall.heightMm',
       label: 'Hauteur',
       control: {
         kind: 'NUMBER',
@@ -246,6 +299,52 @@ function wallEdits(
           : new UpdateWallCommand(level.id, wall.id, { heightMm });
       },
     });
+  else
+    edits.push(
+      {
+        id: 'topLevelId',
+        semanticId: 'wall.topLevelId',
+        label: 'Niveau supérieur',
+        control: {
+          kind: 'SELECT',
+          value: wall.topLevelId,
+          options: upper.map((candidate) => ({
+            value: candidate.id,
+            label: candidate.name,
+          })),
+        },
+        apply: (value) =>
+          new SetWallHeightCommand(level.id, wall.id, {
+            mode: 'TO_LEVEL',
+            topLevelId: value,
+            ...(wall.topOffsetMm === undefined
+              ? {}
+              : { topOffsetMm: wall.topOffsetMm }),
+          }),
+      },
+      {
+        id: 'topOffsetMm',
+        semanticId: 'wall.topOffsetMm',
+        label: 'Décalage en tête',
+        control: {
+          kind: 'NUMBER',
+          value: wall.topOffsetMm ?? 0,
+          unit: 'mm',
+          step: 10,
+        },
+        hint: 'Négatif pour s’arrêter sous le niveau, positif pour le dépasser.',
+        apply: (value) => {
+          const topOffsetMm = parsed(value);
+          return topOffsetMm === undefined
+            ? undefined
+            : new SetWallHeightCommand(level.id, wall.id, {
+                mode: 'TO_LEVEL',
+                topLevelId: wall.topLevelId,
+                topOffsetMm,
+              });
+        },
+      },
+    );
   return edits;
 }
 
@@ -279,6 +378,7 @@ export function openingEditsFor(
       return [
         {
           id: 'openingType',
+          semanticId: 'opening.openingType',
           label: 'Type',
           control: {
             kind: 'SELECT',
@@ -303,6 +403,7 @@ export function openingEditsFor(
           ] as const
         ).map(([field, label, value]) => ({
           id: field,
+          semanticId: `opening.${field}`,
           label,
           control: { kind: 'NUMBER' as const, value, unit: 'mm', step: 10 },
           apply: (next: string) => {
@@ -330,6 +431,7 @@ export function spaceEditsFor(
       return [
         {
           id: 'name',
+          semanticId: 'space.name',
           label: 'Nom',
           control: { kind: 'TEXT', value: space.name },
           apply: (value) =>
@@ -337,6 +439,7 @@ export function spaceEditsFor(
         },
         {
           id: 'category',
+          semanticId: 'space.category',
           label: 'Usage',
           control: {
             kind: 'SELECT',
@@ -362,6 +465,7 @@ export function slabEditsFor(
       return [
         {
           id: 'assemblyId',
+          semanticId: 'slab.assemblyId',
           label: 'Assemblage',
           control: {
             kind: 'SELECT',
@@ -373,6 +477,7 @@ export function slabEditsFor(
         },
         {
           id: 'role',
+          semanticId: 'slab.role',
           label: 'Rôle',
           control: {
             kind: 'SELECT',
@@ -386,6 +491,7 @@ export function slabEditsFor(
         },
         {
           id: 'elevationOffsetMm',
+          semanticId: 'slab.elevationOffsetMm',
           label: 'Décalage',
           control: {
             kind: 'NUMBER',
@@ -418,6 +524,7 @@ export function roofEditsFor(
       return [
         {
           id: 'assemblyId',
+          semanticId: 'roof.assemblyId',
           label: 'Assemblage',
           control: {
             kind: 'SELECT',
@@ -429,6 +536,7 @@ export function roofEditsFor(
         },
         {
           id: 'slopeDeg',
+          semanticId: 'roof.slopeDeg',
           label: 'Pente',
           control: {
             kind: 'NUMBER',
@@ -446,6 +554,7 @@ export function roofEditsFor(
         },
         {
           id: 'azimuthDeg',
+          semanticId: 'roof.azimuthDeg',
           label: 'Azimut',
           control: {
             kind: 'NUMBER',
@@ -477,6 +586,7 @@ export function dimensionEditsFor(
       return [
         {
           id: 'type',
+          semanticId: 'dimension.type',
           label: 'Type',
           control: {
             kind: 'SELECT',
@@ -490,6 +600,7 @@ export function dimensionEditsFor(
         },
         {
           id: 'offsetMm',
+          semanticId: 'dimension.offsetMm',
           label: 'Décalage',
           control: {
             kind: 'NUMBER',
@@ -508,6 +619,7 @@ export function dimensionEditsFor(
         },
         {
           id: 'overrideText',
+          semanticId: 'networkNode.overrideText',
           label: 'Texte imposé',
           control: {
             kind: 'TEXT',
@@ -539,6 +651,7 @@ export function networkNodeEditsFor(
     return [
       {
         id: 'spaceId',
+        semanticId: 'networkNode.spaceId',
         label: 'Pièce desservie',
         control: {
           kind: 'SELECT',
@@ -558,6 +671,7 @@ export function networkNodeEditsFor(
         ] as const
       ).map(([axis, label]) => ({
         id: `position-${axis}`,
+        semanticId: `networkNode.position.${axis}`,
         label,
         control: {
           kind: 'NUMBER' as const,
@@ -574,6 +688,402 @@ export function networkNodeEditsFor(
               });
         },
       })),
+    ];
+  }
+  return undefined;
+}
+
+/** What a thing placed in the building lets the user change. */
+export function componentEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
+    const component = (level.components ?? []).find(
+      ({ id }) => id === objectId,
+    );
+    if (component === undefined) continue;
+    return [
+      {
+        id: 'name',
+        semanticId: 'component.name',
+        label: 'Nom',
+        control: { kind: 'TEXT', value: component.name ?? '' },
+        hint: 'Vide, le composant prend le nom de sa catégorie.',
+        apply: (value) =>
+          new UpdateComponentCommand(level.id, component.id, { name: value }),
+      },
+      {
+        id: 'category',
+        semanticId: 'component.category',
+        label: 'Catégorie',
+        control: {
+          kind: 'SELECT',
+          value: component.category,
+          options: COMPONENT_CATEGORY_OPTIONS,
+        },
+        apply: (value) =>
+          new UpdateComponentCommand(level.id, component.id, {
+            category: value as ComponentCategory,
+          }),
+      },
+      {
+        id: 'definitionId',
+        semanticId: 'component.definitionId',
+        label: 'Modèle catalogue',
+        control: {
+          kind: 'SELECT',
+          value: component.definitionId ?? '',
+          options: [
+            { value: '', label: 'Aucun modèle' },
+            ...(project.equipment ?? []).map((definition) => ({
+              value: definition.id,
+              label: `${definition.kind} · ${definition.id}`,
+            })),
+          ],
+        },
+        hint: 'Les propriétés physiques appartiennent au modèle, pas à l’objet posé.',
+        apply: (value) =>
+          new UpdateComponentCommand(level.id, component.id, {
+            definitionId: value === '' ? null : value,
+          }),
+      },
+      {
+        id: 'spaceId',
+        semanticId: 'component.spaceId',
+        label: 'Pièce',
+        control: {
+          kind: 'SELECT',
+          value: component.spaceId ?? '',
+          options: [
+            { value: '', label: 'Aucune pièce déclarée' },
+            ...level.spaces.map((space) => ({
+              value: space.id,
+              label: space.name,
+            })),
+          ],
+        },
+        apply: (value) =>
+          new UpdateComponentCommand(level.id, component.id, {
+            spaceId: value === '' ? null : value,
+          }),
+      },
+      {
+        id: 'elevationMm',
+        semanticId: 'component.elevationMm',
+        label: 'Altitude sur le niveau',
+        control: {
+          kind: 'NUMBER',
+          value: component.elevationMm,
+          unit: 'mm',
+          step: 10,
+        },
+        apply: (value) => {
+          const elevationMm = parsed(value);
+          return elevationMm === undefined
+            ? undefined
+            : new UpdateComponentCommand(level.id, component.id, {
+                elevationMm,
+              });
+        },
+      },
+      {
+        id: 'rotationDeg',
+        semanticId: 'component.rotationDeg',
+        label: 'Orientation',
+        control: {
+          kind: 'NUMBER',
+          value: component.rotationDeg,
+          unit: '°',
+          step: 5,
+        },
+        apply: (value) => {
+          const rotationDeg = parsed(value);
+          return rotationDeg === undefined
+            ? undefined
+            : new UpdateComponentCommand(level.id, component.id, {
+                rotationDeg,
+              });
+        },
+      },
+    ];
+  }
+  return undefined;
+}
+
+/** What a stair lets the user change; its riser height follows and is not one. */
+export function stairEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
+    const stair = level.stairs.find(({ id }) => id === objectId);
+    if (stair === undefined) continue;
+    const upper = project.building.levels.filter(
+      ({ elevationMm }) => elevationMm > level.elevationMm,
+    );
+    return [
+      {
+        id: 'topLevelId',
+        semanticId: 'stair.topLevelId',
+        label: 'Niveau d’arrivée',
+        control: {
+          kind: 'SELECT',
+          value: stair.topLevelId,
+          options: upper.map((candidate) => ({
+            value: candidate.id,
+            label: candidate.name,
+          })),
+        },
+        apply: (value) =>
+          new UpdateStairCommand(level.id, stair.id, { topLevelId: value }),
+      },
+      {
+        id: 'stairType',
+        semanticId: 'stair.stairType',
+        label: 'Type',
+        control: {
+          kind: 'SELECT',
+          value: stair.stairType,
+          options: STAIR_TYPE_OPTIONS,
+        },
+        apply: (value) =>
+          new UpdateStairCommand(level.id, stair.id, {
+            stairType: value as StairType,
+          }),
+      },
+      {
+        id: 'riserCount',
+        semanticId: 'stair.riserCount',
+        label: 'Contremarches',
+        control: { kind: 'NUMBER', value: stair.riserCount, step: 1, min: 2 },
+        hint: 'La hauteur de marche s’en déduit avec la montée.',
+        apply: (value) => {
+          const riserCount = parsed(value);
+          return riserCount === undefined
+            ? undefined
+            : new UpdateStairCommand(level.id, stair.id, { riserCount });
+        },
+      },
+      {
+        id: 'treadDepthMm',
+        semanticId: 'stair.treadDepthMm',
+        label: 'Giron',
+        control: {
+          kind: 'NUMBER',
+          value: stair.treadDepthMm,
+          unit: 'mm',
+          step: 10,
+          min: 1,
+        },
+        apply: (value) => {
+          const treadDepthMm = parsed(value);
+          return treadDepthMm === undefined
+            ? undefined
+            : new UpdateStairCommand(level.id, stair.id, { treadDepthMm });
+        },
+      },
+      {
+        id: 'widthMm',
+        semanticId: 'stair.widthMm',
+        label: 'Emmarchement',
+        control: {
+          kind: 'NUMBER',
+          value: stair.widthMm,
+          unit: 'mm',
+          step: 50,
+          min: 1,
+        },
+        apply: (value) => {
+          const widthMm = parsed(value);
+          return widthMm === undefined
+            ? undefined
+            : new UpdateStairCommand(level.id, stair.id, { widthMm });
+        },
+      },
+    ];
+  }
+  return undefined;
+}
+
+/**
+ * What a roof described by its outline lets the user change.
+ *
+ * Every side is offered on its own: which is a slope and which is a gable is
+ * the decision that turns one outline into a hipped roof, a two-sided roof or
+ * a single pitch, and it belongs to the side.
+ */
+export function roofStructureEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
+    const roof = (level.roofStructures ?? []).find(({ id }) => id === objectId);
+    if (roof === undefined) continue;
+    const withEdge = (index: number, next: RoofEdge) =>
+      new UpdateRoofStructureCommand(level.id, roof.id, {
+        edges: roof.edges.map((edge, position) =>
+          position === index ? next : edge,
+        ),
+      });
+    return [
+      {
+        id: 'assemblyId',
+        semanticId: 'roofStructure.assemblyId',
+        label: 'Assemblage',
+        control: {
+          kind: 'SELECT',
+          value: roof.assemblyId,
+          options: assemblyOptions(project, ['ROOF', 'FLOOR']),
+        },
+        apply: (value) =>
+          new UpdateRoofStructureCommand(level.id, roof.id, {
+            assemblyId: value,
+          }),
+      },
+      {
+        id: 'baseElevationMm',
+        semanticId: 'roofStructure.baseElevationMm',
+        label: 'Altitude d’égout',
+        control: {
+          kind: 'NUMBER',
+          value: roof.baseElevationMm,
+          unit: 'mm',
+          step: 50,
+        },
+        apply: (value) => {
+          const baseElevationMm = parsed(value);
+          return baseElevationMm === undefined
+            ? undefined
+            : new UpdateRoofStructureCommand(level.id, roof.id, {
+                baseElevationMm,
+              });
+        },
+      },
+      ...roof.edges.flatMap((edge, index) => [
+        {
+          id: `edge${index}Kind`,
+          semanticId: `roofStructure.edge.kind`,
+          label: `Côté ${index + 1}`,
+          control: {
+            kind: 'SELECT' as const,
+            value: edge.kind,
+            options: ROOF_EDGE_KIND_OPTIONS,
+          },
+          apply: (value: string) =>
+            withEdge(index, { ...edge, kind: value as RoofEdge['kind'] }),
+        },
+        {
+          id: `edge${index}Slope`,
+          semanticId: `roofStructure.edge.slopeDeg`,
+          label: `Côté ${index + 1} · pente`,
+          control: {
+            kind: 'NUMBER' as const,
+            value: edge.slopeDeg,
+            unit: '°',
+            step: 1,
+          },
+          apply: (value: string) => {
+            const slopeDeg = parsed(value);
+            return slopeDeg === undefined
+              ? undefined
+              : withEdge(index, { ...edge, slopeDeg });
+          },
+        },
+        {
+          id: `edge${index}Overhang`,
+          semanticId: `roofStructure.edge.overhangMm`,
+          label: `Côté ${index + 1} · débord`,
+          control: {
+            kind: 'NUMBER' as const,
+            value: edge.overhangMm,
+            unit: 'mm',
+            step: 50,
+            min: 0,
+          },
+          apply: (value: string) => {
+            const overhangMm = parsed(value);
+            return overhangMm === undefined
+              ? undefined
+              : withEdge(index, { ...edge, overhangMm });
+          },
+        },
+      ]),
+    ];
+  }
+  return undefined;
+}
+
+/** What a structural member lets the user change. */
+export function structureEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
+    const member = (level.structure ?? []).find(({ id }) => id === objectId);
+    if (member === undefined) continue;
+    return [
+      {
+        id: 'kind',
+        semanticId: 'structure.kind',
+        label: 'Élément',
+        control: {
+          kind: 'SELECT',
+          value: member.kind,
+          options: STRUCTURAL_MEMBER_OPTIONS,
+        },
+        hint: 'Une poutre court entre deux points ; un poteau se tient en un.',
+        apply: (value) =>
+          new UpdateStructuralMemberCommand(level.id, member.id, {
+            kind: value as StructuralMemberKind,
+          }),
+      },
+      ...(
+        [
+          ['widthMm', 'Largeur'],
+          ['depthMm', 'Profondeur'],
+          ['heightMm', 'Hauteur'],
+        ] as const
+      ).map(([key, label]) => ({
+        id: key,
+        semanticId: `structure.${key}`,
+        label,
+        control: {
+          kind: 'NUMBER' as const,
+          value: member[key] ?? 0,
+          unit: 'mm',
+          step: 10,
+          min: 1,
+        },
+        apply: (next: string) => {
+          const parsedValue = parsed(next);
+          return parsedValue === undefined
+            ? undefined
+            : new UpdateStructuralMemberCommand(level.id, member.id, {
+                [key]: parsedValue,
+              });
+        },
+      })),
+      {
+        id: 'materialId',
+        semanticId: 'structure.materialId',
+        label: 'Matériau',
+        control: {
+          kind: 'SELECT',
+          value: member.materialId ?? '',
+          options: [
+            { value: '', label: 'Aucun matériau désigné' },
+            ...(project.materialLibrary?.materials ?? []).map((material) => ({
+              value: material.id,
+              label: material.name,
+            })),
+          ],
+        },
+        apply: (value) =>
+          new UpdateStructuralMemberCommand(level.id, member.id, {
+            materialId: value === '' ? null : value,
+          }),
+      },
     ];
   }
   return undefined;

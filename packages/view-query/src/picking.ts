@@ -127,6 +127,46 @@ export function pickPrimitive(
   return best;
 }
 
+/**
+ * Everything under a point, nearest first.
+ *
+ * A duct crossing a wall inside a room puts three objects under one pixel, and
+ * picking only the topmost makes the other two unreachable: clicking again has
+ * to offer the next one. The order is the one the user sees — what is drawn on
+ * top comes first — so cycling through them is cycling downwards.
+ */
+export function pickCandidates(
+  primitives: readonly ScenePrimitive[],
+  point: Point2D,
+  toleranceMm: number,
+): readonly PickResult[] {
+  const found = new Map<string, PickResult>();
+  for (const primitive of primitives) {
+    if (primitive.sourceObjectId === undefined) continue;
+    const distanceMm = distanceToPrimitive(primitive, point, toleranceMm);
+    if (distanceMm === undefined) continue;
+    const previous = found.get(primitive.sourceObjectId);
+    // One object is drawn by several primitives; it is the object that is
+    // picked, and its nearest primitive that says how near it is.
+    if (
+      previous === undefined ||
+      primitive.zIndex > previous.primitive.zIndex ||
+      (primitive.zIndex === previous.primitive.zIndex &&
+        distanceMm < previous.distanceMm)
+    )
+      found.set(primitive.sourceObjectId, {
+        primitive,
+        objectId: primitive.sourceObjectId,
+        distanceMm,
+      });
+  }
+  return [...found.values()].sort(
+    (first, second) =>
+      second.primitive.zIndex - first.primitive.zIndex ||
+      first.distanceMm - second.distanceMm,
+  );
+}
+
 /** How a rubber band decides what it caught. */
 export type BoxSelectionMode =
   /** Only what lies entirely inside the band, as dragging rightwards means. */

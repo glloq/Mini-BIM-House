@@ -262,3 +262,180 @@ describe('copying to another storey', () => {
     expect(result.message).toContain('copié');
   });
 });
+
+describe('what a copy knows about height once pasted upstairs', () => {
+  const ids = (prefix: string) => `${prefix}-upstairs`;
+
+  /** The demonstration house with a first floor above the ground one. */
+  function twoStoreys() {
+    const opened = file();
+    const ground = opened.project.building.levels[0]!;
+    const first = {
+      ...ground,
+      id: 'first',
+      name: 'Étage',
+      elevationMm: ground.elevationMm + 2800,
+      walls: [],
+      openings: [],
+      spaces: [],
+      slabs: [],
+      roofs: [],
+      annotations: [],
+    };
+    return {
+      ...opened,
+      project: {
+        ...opened.project,
+        building: {
+          ...opened.project.building,
+          levels: [ground, first],
+        },
+      },
+    } as typeof opened;
+  }
+
+  it('raises a roof plane by the height between the two storeys', () => {
+    const opened = twoStoreys();
+    const roof = opened.project.building.levels[0]!.roofs[0]!;
+    const taken = copyObjects(opened, 'ground', [roof.id]);
+    const result = pasteClipboardCommand(
+      opened,
+      'first',
+      taken,
+      { x: 0, y: 0 },
+      ids,
+    );
+    expect(result.status).toBe('OK');
+    if (result.status !== 'OK') return;
+    const dispatcher = new ProjectCommandDispatcher(opened.project);
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+    const pasted = dispatcher.project.building.levels[1]!.roofs[0]!;
+    // Same shape, one storey higher: the altitude of the floor it came from
+    // would have put it back through the ground floor ceiling.
+    expect(pasted.baseElevationMm).toBe(roof.baseElevationMm + 2800);
+  });
+
+  it('keeps the altitude when the copy stays on its own storey', () => {
+    const opened = twoStoreys();
+    const roof = opened.project.building.levels[0]!.roofs[0]!;
+    const taken = copyObjects(opened, 'ground', [roof.id]);
+    const result = pasteClipboardCommand(
+      opened,
+      'ground',
+      taken,
+      { x: 100, y: 100 },
+      ids,
+    );
+    expect(result.status).toBe('OK');
+    if (result.status !== 'OK') return;
+    const dispatcher = new ProjectCommandDispatcher(opened.project);
+    dispatcher.dispatch(result.command);
+    expect(
+      dispatcher.project.building.levels[0]!.roofs.find(
+        ({ id }) => id === 'roof-upstairs',
+      )!.baseElevationMm,
+    ).toBe(roof.baseElevationMm);
+  });
+
+  it('builds a wall up to the storey that means the same thing', () => {
+    const opened = twoStoreys();
+    const ground = opened.project.building.levels[0]!;
+    const withCeiling = {
+      ...opened,
+      project: {
+        ...opened.project,
+        building: {
+          ...opened.project.building,
+          levels: [
+            {
+              ...ground,
+              walls: ground.walls.map((wall) =>
+                wall.id === 'wall-south'
+                  ? {
+                      ...wall,
+                      heightMode: 'TO_LEVEL' as const,
+                      topLevelId: 'first',
+                    }
+                  : wall,
+              ),
+            },
+            opened.project.building.levels[1]!,
+            {
+              ...opened.project.building.levels[1]!,
+              id: 'second',
+              name: 'Combles',
+              elevationMm: 5600,
+            },
+          ],
+        },
+      },
+    } as typeof opened;
+
+    const taken = copyObjects(withCeiling, 'ground', ['wall-south']);
+    const result = pasteClipboardCommand(
+      withCeiling,
+      'first',
+      taken,
+      { x: 0, y: 0 },
+      ids,
+    );
+    expect(result.status).toBe('OK');
+    if (result.status !== 'OK') return;
+    const dispatcher = new ProjectCommandDispatcher(withCeiling.project);
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+    const pasted = dispatcher.project.building.levels[1]!.walls.find(
+      ({ id }) => id === 'wall-upstairs',
+    )!;
+    // Built up to the floor above the one it landed on, not back down to the
+    // floor above the one it came from.
+    expect(pasted.heightMode).toBe('TO_LEVEL');
+    if (pasted.heightMode !== 'TO_LEVEL') return;
+    expect(pasted.topLevelId).toBe('second');
+  });
+
+  it('states a height when there is no storey that high to point at', () => {
+    const opened = twoStoreys();
+    const ground = opened.project.building.levels[0]!;
+    const withCeiling = {
+      ...opened,
+      project: {
+        ...opened.project,
+        building: {
+          ...opened.project.building,
+          levels: [
+            {
+              ...ground,
+              walls: ground.walls.map((wall) =>
+                wall.id === 'wall-south'
+                  ? {
+                      ...wall,
+                      heightMode: 'TO_LEVEL' as const,
+                      topLevelId: 'first',
+                    }
+                  : wall,
+              ),
+            },
+            opened.project.building.levels[1]!,
+          ],
+        },
+      },
+    } as typeof opened;
+    const taken = copyObjects(withCeiling, 'ground', ['wall-south']);
+    const result = pasteClipboardCommand(
+      withCeiling,
+      'first',
+      taken,
+      { x: 0, y: 0 },
+      ids,
+    );
+    expect(result.status).toBe('OK');
+    if (result.status !== 'OK') return;
+    const dispatcher = new ProjectCommandDispatcher(withCeiling.project);
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+    const pasted = dispatcher.project.building.levels[1]!.walls.find(
+      ({ id }) => id === 'wall-upstairs',
+    )!;
+    // A reference nobody can resolve is worse than a height it can state.
+    expect(pasted.heightMode).toBe('EXPLICIT');
+  });
+});

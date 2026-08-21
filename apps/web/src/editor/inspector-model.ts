@@ -1,8 +1,13 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import {
   calculateWallNetArea,
+  deriveRoofPlanes,
+  roofEaveOutline,
+  roofRidgeElevationMm,
   resolveDimension,
+  stairDimensions,
 } from '@house-technical-designer/core-domain';
+import { routeFall } from '@house-technical-designer/editor-core';
 import { serializedTotalThicknessM } from '@house-technical-designer/assemblies';
 import { polygonArea } from '@house-technical-designer/geometry';
 import { assemblyView } from '../library/library-model.js';
@@ -19,6 +24,19 @@ export interface InspectorSection {
   readonly fields: readonly InspectorField[];
 }
 
+/** What each family of placed component is called in the interface. */
+export const COMPONENT_CATEGORY_LABELS: Readonly<Record<string, string>> = {
+  HEATING: 'Chauffage',
+  SANITARY: 'Sanitaire',
+  VENTILATION: 'Ventilation',
+  ELECTRICAL: 'Électricité',
+  LIGHTING: 'Éclairage',
+  PHOTOVOLTAIC: 'Photovoltaïque',
+  APPLIANCE: 'Appareil',
+  FURNITURE: 'Mobilier',
+  OTHER: 'Autre',
+};
+
 export interface InspectorSubject {
   readonly objectId: string;
   readonly kind:
@@ -30,6 +48,11 @@ export interface InspectorSubject {
     | 'NETWORK_EDGE'
     | 'NETWORK_NODE'
     | 'DIMENSION'
+    | 'COMPONENT'
+    | 'STAIR'
+    | 'ROOF_STRUCTURE'
+    | 'STRUCTURE'
+    | 'SITE'
     | 'UNKNOWN';
   readonly title: string;
   readonly sections: readonly InspectorSection[];
@@ -322,6 +345,10 @@ export function networkSubject(
           : typeof properties.diameterM === 'number'
             ? properties.diameterM
             : undefined;
+      // Waste water runs by gravity, so the fall a route actually has is worth
+      // reading beside the length: a branch drawn flat is a branch that does
+      // not drain, and nothing else would say so.
+      const fall = routeFall(edge.path);
       return {
         objectId,
         kind: 'NETWORK_EDGE',
@@ -331,6 +358,20 @@ export function networkSubject(
             title: 'Géométrie',
             fields: [
               field('Longueur', metres(lengthMm)),
+              field(
+                'Chute',
+                fall.fallMm === 0 ? undefined : `${Math.round(fall.fallMm)} mm`,
+                fall.fallMm === 0 ? 'Ce tronçon est horizontal.' : undefined,
+              ),
+              field(
+                'Pente',
+                fall.slopePercent === undefined || fall.fallMm === 0
+                  ? undefined
+                  : `${fall.slopePercent.toFixed(2)} %`,
+                fall.slopePercent === undefined
+                  ? 'Un tronçon sans longueur n’a pas de pente.'
+                  : 'Déduite du tracé et des altitudes de ses extrémités.',
+              ),
               field(
                 'Diamètre intérieur',
                 diameter === undefined
@@ -532,4 +573,381 @@ export function dimensionSubject(
     };
   }
   return undefined;
+}
+
+/** What a thing placed in the building shows in the inspector. */
+export function componentSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  for (const level of project.building.levels) {
+    const component = (level.components ?? []).find(
+      ({ id }) => id === objectId,
+    );
+    if (component === undefined) continue;
+    const definition = (project.equipment ?? []).find(
+      ({ id }) => id === component.definitionId,
+    );
+    const room = level.spaces.find(({ id }) => id === component.spaceId);
+    return {
+      objectId,
+      kind: 'COMPONENT',
+      title:
+        component.name ??
+        `${COMPONENT_CATEGORY_LABELS[component.category] ?? component.category} ${component.id}`,
+      sections: [
+        {
+          title: 'Implantation',
+          fields: [
+            field('Niveau', level.name),
+            field(
+              'Position',
+              `${Math.round(component.position.x)} ; ${Math.round(component.position.y)} mm`,
+            ),
+            field('Altitude sur le niveau', `${component.elevationMm} mm`),
+            field('Orientation', `${component.rotationDeg.toFixed(1)}°`),
+            field(
+              'Pièce',
+              room?.name,
+              room === undefined
+                ? 'Ce composant ne déclare aucune pièce.'
+                : undefined,
+            ),
+          ],
+        },
+        {
+          title: 'Modèle',
+          fields: [
+            field(
+              'Catégorie',
+              COMPONENT_CATEGORY_LABELS[component.category] ??
+                component.category,
+            ),
+            // The properties of the model belong to the model: repeating them
+            // here would be a second answer to one question, and the two would
+            // stop agreeing the first time one of them changed.
+            field(
+              'Modèle catalogue',
+              definition === undefined ? undefined : definition.kind,
+              definition === undefined
+                ? 'Ce composant ne renvoie à aucun modèle du catalogue.'
+                : undefined,
+            ),
+            field('Identifiant du modèle', component.definitionId),
+          ],
+        },
+        {
+          title: 'Références',
+          fields: [
+            field('Identifiant', component.id),
+            field(
+              'Support',
+              component.hostObjectId,
+              component.hostObjectId === undefined
+                ? 'Ce composant n’est fixé à rien.'
+                : undefined,
+            ),
+          ],
+        },
+      ],
+    };
+  }
+  return undefined;
+}
+
+/** What a stair shows: what it joins, and what that makes it measure. */
+export function stairSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  for (const level of project.building.levels) {
+    const stair = level.stairs.find(({ id }) => id === objectId);
+    if (stair === undefined) continue;
+    const top = project.building.levels.find(
+      ({ id }) => id === stair.topLevelId,
+    );
+    const riseMm =
+      top === undefined ? undefined : top.elevationMm - level.elevationMm;
+    const measured =
+      riseMm === undefined ? undefined : stairDimensions(stair, riseMm);
+    const comfortable =
+      measured === undefined
+        ? undefined
+        : measured.blondelMm >= 590 && measured.blondelMm <= 650;
+    return {
+      objectId,
+      kind: 'STAIR',
+      title: `Escalier ${stair.id}`,
+      sections: [
+        {
+          title: 'Ce qu’il joint',
+          fields: [
+            field('Niveau de départ', level.name),
+            field(
+              'Niveau d’arrivée',
+              top?.name,
+              top === undefined
+                ? 'Ce niveau n’existe pas dans le projet.'
+                : undefined,
+            ),
+            field(
+              'Hauteur à monter',
+              riseMm === undefined ? undefined : metres(riseMm),
+              riseMm === undefined
+                ? 'Sans niveau d’arrivée, la montée est inconnue.'
+                : undefined,
+            ),
+          ],
+        },
+        {
+          title: 'Dimensionnement',
+          fields: [
+            field('Nombre de contremarches', stair.riserCount),
+            field(
+              'Hauteur de marche',
+              measured === undefined
+                ? undefined
+                : `${measured.riserHeightMm.toFixed(1)} mm`,
+              measured === undefined
+                ? 'Elle se déduit de la montée, qui est inconnue.'
+                : 'Déduite de la montée et du nombre de contremarches.',
+            ),
+            field('Giron', `${stair.treadDepthMm} mm`),
+            field('Emmarchement', `${stair.widthMm} mm`),
+            field(
+              'Longueur au sol',
+              measured === undefined ? undefined : metres(measured.runMm),
+            ),
+            field(
+              'Formule de Blondel',
+              measured === undefined
+                ? undefined
+                : `${measured.blondelMm.toFixed(0)} mm`,
+              comfortable === undefined
+                ? undefined
+                : comfortable
+                  ? 'Entre 590 et 650 mm : confortable.'
+                  : 'Hors de 590–650 mm : inconfortable, à vous de décider.',
+            ),
+          ],
+        },
+        {
+          title: 'Références',
+          fields: [
+            field('Identifiant', stair.id),
+            field('Type', stair.stairType),
+            field('Paliers', (stair.landings ?? []).length),
+          ],
+        },
+      ],
+    };
+  }
+  return undefined;
+}
+
+/** What a roof described by its outline shows: what follows from that outline. */
+export function roofStructureSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  for (const level of project.building.levels) {
+    const roof = (level.roofStructures ?? []).find(({ id }) => id === objectId);
+    if (roof === undefined) continue;
+    const topology = deriveRoofPlanes(roof);
+    const ridge = roofRidgeElevationMm(roof);
+    const sloped = roof.edges.filter(({ kind }) => kind === 'SLOPED');
+    const projectedMm2 = Math.abs(polygonArea(roofEaveOutline(roof)));
+    return {
+      objectId,
+      kind: 'ROOF_STRUCTURE',
+      title: `Toiture ${roof.id}`,
+      sections: [
+        {
+          title: 'Forme',
+          fields: [
+            field('Côtés', roof.edges.length),
+            field('Pans', sloped.length),
+            field('Pignons', roof.edges.length - sloped.length),
+            field(
+              'Pentes',
+              sloped.length === 0
+                ? undefined
+                : [...new Set(sloped.map(({ slopeDeg }) => slopeDeg))]
+                    .map((slope) => `${slope}°`)
+                    .join(' · '),
+            ),
+          ],
+        },
+        {
+          title: 'Altitudes',
+          fields: [
+            field('Égout', `${roof.baseElevationMm} mm`),
+            field(
+              'Faîtage',
+              ridge === undefined ? undefined : `${Math.round(ridge)} mm`,
+              ridge === undefined
+                ? 'Le faîtage se déduit du contour, que cette version ne sait pas résoudre ici.'
+                : 'Déduit du contour et des pentes.',
+            ),
+          ],
+        },
+        {
+          title: 'Surfaces',
+          fields: [
+            field(
+              'Emprise sous égouts',
+              `${(projectedMm2 / 1_000_000).toFixed(2)} m²`,
+            ),
+            field(
+              'Pans déduits',
+              topology.status === 'DERIVED'
+                ? topology.planes.length
+                : undefined,
+              topology.status === 'DERIVED'
+                ? 'Les pans sont déduits et jamais enregistrés.'
+                : topology.reason,
+            ),
+          ],
+        },
+        {
+          title: 'Références',
+          fields: [
+            field('Identifiant', roof.id),
+            field('Assemblage', roof.assemblyId),
+          ],
+        },
+      ],
+    };
+  }
+  return undefined;
+}
+
+const STRUCTURE_LABELS: Readonly<Record<string, string>> = {
+  COLUMN: 'Poteau',
+  BEAM: 'Poutre',
+  FOOTING: 'Fondation',
+};
+
+/** What a structural member shows: what it is, where, and how big. */
+export function structureSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  for (const level of project.building.levels) {
+    const member = (level.structure ?? []).find(({ id }) => id === objectId);
+    if (member === undefined) continue;
+    const [from, to] = member.path;
+    const lengthMm =
+      from === undefined || to === undefined
+        ? undefined
+        : Math.hypot(to.x - from.x, to.y - from.y);
+    const material = (project.materialLibrary?.materials ?? []).find(
+      ({ id }) => id === member.materialId,
+    );
+    return {
+      objectId,
+      kind: 'STRUCTURE',
+      title: `${STRUCTURE_LABELS[member.kind] ?? member.kind} ${member.id}`,
+      sections: [
+        {
+          title: 'Implantation',
+          fields: [
+            field('Niveau', level.name),
+            field(
+              'Position',
+              from === undefined
+                ? undefined
+                : `${Math.round(from.x)} ; ${Math.round(from.y)} mm`,
+            ),
+            field(
+              'Portée',
+              lengthMm === undefined ? undefined : metres(lengthMm),
+              lengthMm === undefined
+                ? 'Un poteau et une fondation n’ont pas de portée.'
+                : undefined,
+            ),
+          ],
+        },
+        {
+          title: 'Section',
+          fields: [
+            field('Largeur', `${member.widthMm} mm`),
+            field('Profondeur', `${member.depthMm} mm`),
+            field(
+              'Hauteur',
+              member.heightMm === undefined
+                ? undefined
+                : `${member.heightMm} mm`,
+            ),
+            field(
+              'Matériau',
+              material?.name,
+              material === undefined
+                ? 'Aucun matériau n’est désigné : rien ne peut encore être vérifié.'
+                : undefined,
+            ),
+          ],
+        },
+        {
+          title: 'Références',
+          fields: [field('Identifiant', member.id)],
+        },
+      ],
+    };
+  }
+  return undefined;
+}
+
+/** What the parcel and what stands on it show. */
+export function siteSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  if (objectId === 'site:parcel' && project.site.parcelBoundary !== undefined) {
+    const areaMm2 = Math.abs(polygonArea(project.site.parcelBoundary));
+    return {
+      objectId,
+      kind: 'SITE',
+      title: 'Parcelle',
+      sections: [
+        {
+          title: 'Terrain',
+          fields: [
+            field('Surface', `${(areaMm2 / 1_000_000).toFixed(2)} m²`),
+            field('Sommets', project.site.parcelBoundary.outer.length),
+            field('Nord', `${project.site.northAngleDeg}°`),
+          ],
+        },
+      ],
+    };
+  }
+  const obstacle = (project.site.obstacles ?? []).find(
+    ({ id }) => id === objectId,
+  );
+  if (obstacle === undefined) return undefined;
+  const areaMm2 = Math.abs(polygonArea(obstacle.boundary));
+  return {
+    objectId,
+    kind: 'SITE',
+    title: obstacle.name ?? `Obstacle ${obstacle.id}`,
+    sections: [
+      {
+        title: 'Sur le terrain',
+        fields: [
+          field('Nature', obstacle.kind),
+          field('Emprise', `${(areaMm2 / 1_000_000).toFixed(2)} m²`),
+          field(
+            'Hauteur',
+            obstacle.heightMm === undefined
+              ? undefined
+              : `${obstacle.heightMm} mm`,
+            obstacle.heightMm === undefined
+              ? 'Sans hauteur, l’ombre portée ne peut pas être calculée.'
+              : undefined,
+          ),
+        ],
+      },
+      { title: 'Références', fields: [field('Identifiant', obstacle.id)] },
+    ],
+  };
 }
