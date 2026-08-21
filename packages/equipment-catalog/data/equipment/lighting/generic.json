@@ -1,0 +1,50 @@
+{
+  "definitions": [
+    {
+      "id": "generic-led-luminaire",
+      "familyId": "CEILING_LIGHT",
+      "kind": "LUMINAIRE",
+      "category": "LUMINAIRE",
+      "name": "Plafonnier LED",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 300,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "power",
+          "discipline": "ELECTRICAL",
+          "role": "SUPPLY",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 30
+          }
+        }
+      ],
+      "properties": {
+        "luminousFluxLm": 1400,
+        "electricalPowerW": 12,
+        "colorTemperatureK": 3000,
+        "cri": 80,
+        "powerFactor": 0.9
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-luminaire"
+          }
+        ],
+        "planFootprint": "CIRCLE",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    }
+  ]
+}

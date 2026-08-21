@@ -187,3 +187,58 @@ d'entretien se partage avec un couloir et pas avec un mur ; une prise d'air ne
 se partage pas avec un rejet ; une distance aux matériaux combustibles est une
 règle de sécurité et non un confort. Une seule liste de « dégagement en
 millimètres » ne peut rien dire de tout cela.
+
+## Les catalogues
+
+Le catalogue générique n'est plus une liste TypeScript. Il vit dans
+`packages/equipment-catalog/data/equipment/<métier>/*.json`, un dossier par
+métier, et chaque fiche nomme la famille dont elle est une entrée :
+
+```
+equipment/heating/generic.json      → CIRCULATOR, RADIATOR, HEAT_PUMP_AIR_WATER_MONOBLOC
+equipment/plumbing/generic.json     → WASHBASIN, SHOWER, WC, KITCHEN_SINK, ELECTRIC_DHW_TANK
+equipment/electrical/generic.json   → SOCKET_16A, MAIN_DISTRIBUTION_BOARD, MCB
+…
+```
+
+Les produits de réseau ont leur propre catalogue,
+`packages/catalog-registry/data/network-products/generic.json` : tubes, câbles,
+gaines, conduits de fumée. Ils ne sont pas des équipements — un PER 16×2 est un
+produit avec un diamètre, une rugosité et une classe de pression, et il y en a
+trois cents ; en faire des « définitions d'équipement » avec ports et
+dégagements reviendrait à décrire un tube comme une pompe à chaleur. Et rien de
+tout cela n'appartient à `NetworkEdge` : un tronçon est un tracé dans un
+bâtiment, le produit est ce dont le tracé est fait, et un projet emploie le même
+produit sur quarante tronçons.
+
+Un invariant vérifié à chaque intégration : le diamètre intérieur d'un tube doit
+s'accorder avec son diamètre extérieur et son épaisseur de paroi. Les trois
+nombres en font un de trop, un catalogue de trois cents tubes contiendra une
+faute de frappe, et refuser la fiche coûte moins cher que dimensionner un réseau
+sur un tube dont l'alésage est faux de quatre millimètres.
+
+## Ce que la validation refuse
+
+- une famille qui nomme un port, un dégagement, un module, un symbole ou un
+  schéma qui n'existe pas ;
+- une famille posée dans le bâtiment qui ne dit pas sur quoi elle peut l'être ;
+- un schéma de propriétés que personne n'emploie ;
+- une propriété qui n'est pas déclarée, ou déclarée dans une autre source ;
+- une valeur dérivée écrite parmi les valeurs stockées ;
+- une entrée sans provenance, ou un chiffre fabricant sans date ;
+- un tube dont l'alésage contredit ses parois.
+
+Tout cela est vérifié par les tests, donc à chaque intégration continue.
+
+## Comment ajouter une famille
+
+1. l'écrire dans `data/families/<domaine>.json` avec ses ports, ses modules, son
+   placement, ses dégagements et son schéma de propriétés ;
+2. ajouter le schéma dans `data/property-schemas/schemas.json` s'il n'existe pas
+   encore ;
+3. lancer les tests : ils refusent tout ce qui ne se raccorde à rien ;
+4. remplir le catalogue correspondant, chaque fiche déclarant sa provenance ;
+5. faire monter les axes de `status` à mesure que le modèle, le symbole, le
+   calcul et les tests arrivent.
+
+Rien de ces cinq étapes ne demande de toucher au code de l'application.

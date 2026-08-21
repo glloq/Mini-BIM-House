@@ -81,6 +81,25 @@ for (const axis of AXES) {
   );
 }
 
+const PRODUCTS = JSON.parse(
+  readFileSync(
+    'packages/catalog-registry/data/network-products/generic.json',
+    'utf8',
+  ),
+).products;
+const byProductFamily = new Map();
+for (const product of PRODUCTS)
+  byProductFamily.set(
+    product.family,
+    (byProductFamily.get(product.family) ?? 0) + 1,
+  );
+if (!Number.isFinite(wave)) {
+  console.log('');
+  console.log(`Produits de réseau catalogués : ${PRODUCTS.length}`);
+  for (const [family, count] of [...byProductFamily].sort())
+    console.log(`  ${family.padEnd(24)} ${String(count).padStart(4)}`);
+}
+
 const pending = chosen
   .filter((family) => completeness(family.status) < 1)
   .sort(

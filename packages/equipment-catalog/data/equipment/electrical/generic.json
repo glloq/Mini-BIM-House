@@ -1,0 +1,156 @@
+{
+  "definitions": [
+    {
+      "id": "generic-distribution-board",
+      "familyId": "MAIN_DISTRIBUTION_BOARD",
+      "kind": "DISTRIBUTION_BOARD",
+      "category": "DISTRIBUTION_BOARD",
+      "name": "Tableau de répartition",
+      "dimensions": {
+        "widthMm": 350,
+        "depthMm": 100,
+        "heightMm": 450
+      },
+      "ports": [
+        {
+          "id": "incoming",
+          "discipline": "ELECTRICAL",
+          "role": "INCOMING",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 225
+          }
+        },
+        {
+          "id": "outgoing",
+          "discipline": "ELECTRICAL",
+          "role": "OUTGOING",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -225
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230,
+        "rowCount": 3,
+        "moduleCapacity": 39
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-distribution-board"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-miniature-circuit-breaker",
+      "familyId": "MCB",
+      "kind": "PROTECTION_DEVICE",
+      "category": "PROTECTION_DEVICE",
+      "name": "Disjoncteur divisionnaire",
+      "dimensions": {
+        "widthMm": 18,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "discipline": "ELECTRICAL",
+          "role": "INCOMING",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42
+          }
+        },
+        {
+          "id": "load",
+          "discipline": "ELECTRICAL",
+          "role": "OUTGOING",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 16,
+        "curve": "C",
+        "breakingCapacityKA": 4.5
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-socket",
+      "familyId": "SOCKET_16A",
+      "kind": "SOCKET",
+      "category": "SOCKET",
+      "name": "Prise de courant 16 A",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 40,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "power",
+          "discipline": "ELECTRICAL",
+          "role": "SUPPLY",
+          "position": {
+            "x": 0,
+            "y": -20,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 16,
+        "nominalVoltageV": 230,
+        "poleCount": 2
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-socket"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.outlets"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "definitions": [
+    {
+      "id": "generic-inverter",
+      "familyId": "STRING_INVERTER",
+      "kind": "INVERTER",
+      "category": "INVERTER",
+      "name": "Onduleur photovoltaïque",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 180,
+        "heightMm": 550
+      },
+      "ports": [
+        {
+          "id": "dc",
+          "discipline": "ELECTRICAL",
+          "role": "DC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -275
+          }
+        },
+        {
+          "id": "ac",
+          "discipline": "ELECTRICAL",
+          "role": "AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 275
+          }
+        }
+      ],
+      "properties": {
+        "nominalAcPowerW": 5000,
+        "maximumDcPowerW": 7500,
+        "europeanEfficiency": 0.97,
+        "mpptInputCount": 2
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-inverter"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-pv-module",
+      "familyId": "PV_MODULE",
+      "kind": "PHOTOVOLTAIC",
+      "category": "PV_MODULE",
+      "name": "Module photovoltaïque",
+      "dimensions": {
+        "widthMm": 1134,
+        "depthMm": 35,
+        "heightMm": 1722
+      },
+      "ports": [
+        {
+          "id": "dc",
+          "discipline": "ELECTRICAL",
+          "role": "DC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -861
+          }
+        }
+      ],
+      "properties": {
+        "peakPowerWp": 400,
+        "moduleAreaM2": 1.95,
+        "moduleEfficiency": 0.205,
+        "temperatureCoefficientPerK": -0.0035,
+        "nominalVoltageV": 41
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-pv-module"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "solar.modules"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    }
+  ]
+}

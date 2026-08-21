@@ -30,6 +30,9 @@
       "@house-technical-designer/catalog-registry": [
         "./packages/catalog-registry/src/index.ts"
       ],
+      "@house-technical-designer/equipment-catalog": [
+        "./packages/equipment-catalog/src/index.ts"
+      ],
       "@house-technical-designer/thermal": ["./modules/thermal/src/index.ts"],
       "@house-technical-designer/water": ["./modules/water/src/index.ts"],
       "@house-technical-designer/rainwater": [

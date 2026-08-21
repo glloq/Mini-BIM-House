@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
 import { PROJECT_CALCULATION_MODULE_IDS } from '@house-technical-designer/calculation-adapters';
 import {
+  genericEquipmentCatalog,
+  genericEquipmentFamilies,
+} from '@house-technical-designer/equipment-catalog';
+import {
   DATA_REGISTRIES,
   FAMILY_REGISTRY,
   PORT_TYPES,
@@ -13,7 +17,11 @@ import {
   family,
   familiesOfRegistry,
   familiesOfWave,
+  invalidBore,
+  networkProduct,
   pendingOfWave,
+  productsOfFamily,
+  validateNetworkProducts,
   portsConnect,
   propertySchema,
   schemaOfFamily,
@@ -233,5 +241,73 @@ describe('the state of the work, measured', () => {
   it('knows a family by name', () => {
     expect(family('HEAT_PUMP_AIR_WATER_MONOBLOC')?.domain).toBe('HEATING');
     expect(family('NOWHERE')).toBeUndefined();
+  });
+});
+
+describe('the products a network is made of', () => {
+  it('agrees with the families it claims to belong to', () => {
+    // Three hundred tubes will have a typo in them, and a network sized on a
+    // tube whose bore is wrong by four millimetres is wrong quietly.
+    expect(validateNetworkProducts()).toEqual([]);
+  });
+
+  it('holds something for every trade that routes anything', () => {
+    for (const familyId of [
+      'WATER_PIPE',
+      'HEATING_PIPE',
+      'WASTEWATER_PIPE',
+      'RAINWATER_PIPE',
+      'ROUND_DUCT',
+      'ELECTRICAL_CABLE',
+      'FLUE_PIPE',
+    ])
+      expect(productsOfFamily(familyId).length, familyId).toBeGreaterThan(0);
+  });
+
+  it('never lets a bore disagree with its own walls', () => {
+    expect(
+      invalidBore({
+        outerDiameterMm: 16,
+        wallThicknessMm: 1.5,
+        innerDiameterMm: 13,
+      }),
+    ).toBeUndefined();
+    expect(
+      invalidBore({
+        outerDiameterMm: 16,
+        wallThicknessMm: 1.5,
+        innerDiameterMm: 12,
+      }),
+    ).toBeDefined();
+    // A product that states only two of the three says nothing to disagree with.
+    expect(invalidBore({ outerDiameterMm: 16 })).toBeUndefined();
+  });
+
+  it('knows a product by name', () => {
+    expect(networkProduct('pipe-pex-16x1.5')?.domain).toBe('PLUMBING');
+    expect(networkProduct('nowhere')).toBeUndefined();
+  });
+});
+
+describe('the generic catalogue, now that it is data', () => {
+  it('still holds every definition it held as code', () => {
+    expect(genericEquipmentCatalog().length).toBe(19);
+  });
+
+  it('ties every entry to a family of the nomenclature', () => {
+    for (const [definitionId, familyId] of genericEquipmentFamilies())
+      expect(family(familyId), definitionId).toBeDefined();
+  });
+
+  it('says of every entry where its values come from', () => {
+    for (const definition of genericEquipmentCatalog())
+      expect(definition.sources.length, definition.id).toBe(
+        Object.keys(definition.properties).length,
+      );
+  });
+
+  it('marks the families it feeds as having generic data', () => {
+    for (const familyId of genericEquipmentFamilies().values())
+      expect(family(familyId)?.status?.GENERIC_DATA, familyId).toBe('READY');
   });
 });
