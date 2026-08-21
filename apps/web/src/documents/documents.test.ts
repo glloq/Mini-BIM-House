@@ -39,8 +39,10 @@ const VIEW: SavedDrawingView = {
 
 function sheetWith(viewId: string): ProjectSheet {
   return {
-    id: 'sheet-a001',
-    number: 'A-001',
+    // The reference house ships its own A-001; this suite adds a second sheet
+    // rather than overwriting it, so what it asserts is what it created.
+    id: 'sheet-a900',
+    number: 'A-900',
     title: 'Plan du rez-de-chaussée',
     format: 'A3',
     orientation: 'LANDSCAPE',
@@ -98,8 +100,11 @@ describe('keeping a view rather than a picture', () => {
     dispatcher.dispatch(
       new SaveDrawingViewCommand({ ...VIEW, name: 'Autre nom' }),
     );
-    expect(dispatcher.project.drawingViews).toHaveLength(1);
-    expect(dispatcher.project.drawingViews?.[0]?.name).toBe('Autre nom');
+    const saved = dispatcher.project.drawingViews?.filter(
+      ({ id }) => id === VIEW.id,
+    );
+    expect(saved).toHaveLength(1);
+    expect(saved?.[0]?.name).toBe('Autre nom');
   });
 
   it('refuses to delete a view a sheet still lays out', () => {
@@ -108,23 +113,27 @@ describe('keeping a view rather than a picture', () => {
     const refused = dispatcher.dispatch(new RemoveDrawingViewCommand(VIEW.id));
     expect(refused.status).toBe('REJECTED');
     if (refused.status !== 'REJECTED') return;
-    expect(refused.errors.join(' ')).toContain('A-001');
+    expect(refused.errors.join(' ')).toContain('A-900');
   });
 
   it('lets the view go once no sheet holds it', () => {
     const dispatcher = withDocuments();
-    dispatcher.dispatch(new RemoveSheetCommand('sheet-a001'));
+    dispatcher.dispatch(new RemoveSheetCommand('sheet-a900'));
     expect(
       dispatcher.dispatch(new RemoveDrawingViewCommand(VIEW.id)).status,
     ).toBe('APPLIED');
-    expect(dispatcher.project.drawingViews).toHaveLength(0);
+    expect(
+      dispatcher.project.drawingViews?.some(({ id }) => id === VIEW.id),
+    ).toBe(false);
   });
 
   it('undoes a saved view as one action', () => {
     const dispatcher = new ProjectCommandDispatcher(project());
     dispatcher.dispatch(new SaveDrawingViewCommand(VIEW));
     expect(dispatcher.undo().status).toBe('APPLIED');
-    expect(dispatcher.project.drawingViews ?? []).toHaveLength(0);
+    expect(
+      (dispatcher.project.drawingViews ?? []).some(({ id }) => id === VIEW.id),
+    ).toBe(false);
   });
 });
 
@@ -153,7 +162,7 @@ describe('laying views out on sheets', () => {
     expect(cells.get('PROJECT_NAME')?.value).toBe(
       withDocuments().project.metadata.name,
     );
-    expect(cells.get('DRAWING_NUMBER')?.value).toBe('A-001');
+    expect(cells.get('DRAWING_NUMBER')?.value).toBe('A-900');
     // A cell the project cannot fill is marked unknown rather than invented.
     expect(cells.get('STATUS')?.state).toBe('UNKNOWN');
   });

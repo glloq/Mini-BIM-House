@@ -272,7 +272,12 @@ describe('what a copy knows about height once pasted upstairs', () => {
   /** The demonstration house with a first floor above the ground one. */
   function twoStoreys() {
     const opened = file();
-    const ground = opened.project.building.levels[0]!;
+    // The reference house puts its roof on the storey it covers; this suite is
+    // about copying one upstairs, so it starts from a roof on the ground.
+    const ground = {
+      ...opened.project.building.levels[0]!,
+      roofs: opened.project.building.levels.flatMap((level) => level.roofs),
+    };
     const first = {
       ...ground,
       id: 'first',

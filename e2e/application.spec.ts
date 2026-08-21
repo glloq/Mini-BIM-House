@@ -2077,17 +2077,22 @@ test('offers the objects stacked under one point, one after the other', async ({
 
   const title = page.locator('.inspector-subject h3');
   const seen: string[] = [];
-  for (let click = 0; click < 4; click += 1) {
+  // Click until the first one comes round again: what is stacked under a point
+  // depends on the house, and the rule under test is the cycling, not the
+  // number.
+  for (let click = 0; click < 12; click += 1) {
     await canvas.click({ position: stacked });
     await expect(title).toBeVisible();
-    seen.push((await title.textContent()) ?? '');
+    const shown = (await title.textContent()) ?? '';
+    if (click > 0 && shown === seen[0]) break;
+    seen.push(shown);
   }
-  // Each click offers the next one rather than the same one for ever.
+  // Each click offers the next one rather than the same one for ever, and the
+  // wall whose middle was avoided is the first.
   expect(seen[0]).toContain('wall-partition-h');
-  expect(new Set(seen).size).toBe(4);
-
+  expect(seen.length).toBeGreaterThan(3);
+  expect(new Set(seen).size).toBe(seen.length);
   // And round again, so nothing under the pointer is out of reach.
-  await canvas.click({ position: stacked });
   await expect(title).toHaveText(seen[0] ?? '');
   expect(errors).toEqual([]);
 });
@@ -2306,31 +2311,35 @@ test('keeps a view, lays it on a sheet and draws the sheet', async ({
   await page.getByLabel('Titre de la feuille').fill('Plan du rez-de-chaussée');
   await page.getByLabel('Format de la nouvelle feuille').selectOption('A3');
   await page.getByRole('button', { name: 'Ajouter une feuille' }).click();
+  // The reference house already carries a drawing set, so the sheet this test
+  // adds follows it rather than being the first.
   await expect(
-    page.getByRole('cell', { name: 'A-001', exact: true }),
+    page.getByRole('cell', { name: 'A-002', exact: true }),
   ).toBeVisible();
 
   // The sheet is drawn from the model, not from a picture kept aside.
   await page
     .getByRole('row')
-    .filter({ hasText: 'A-001' })
+    .filter({ hasText: 'A-002' })
     .getByRole('button', { name: 'Aperçu' })
     .click();
   const preview = page.locator('.sheet-preview svg').first();
   await expect(preview).toBeVisible();
   await expect(preview).toHaveAttribute('data-sheet-id', /sheet-/);
   // The title block says what the project says, and marks what it cannot say.
-  await expect(page.locator('.sheet-preview')).toContainText('A-001');
+  await expect(page.locator('.sheet-preview')).toContainText('A-002');
   await expect(page.locator('.sheet-preview')).toContainText('inconnu');
 
-  // A view a sheet still lays out cannot be taken away.
+  // A view a sheet still lays out cannot be taken away. A new sheet lays out
+  // the first view of the set, which in the reference house is its own plan of
+  // the ground floor.
   const views = page.getByRole('region', { name: 'Vues enregistrées' });
   await views
     .getByRole('row')
-    .filter({ hasText: 'Plan RDC' })
+    .filter({ hasText: 'Plan du rez-de-chaussée' })
     .getByRole('button', { name: 'Supprimer' })
     .click();
-  await expect(page.getByRole('status')).toContainText('A-001');
+  await expect(page.getByRole('status')).toContainText('A-002');
   expect(errors).toEqual([]);
 });
 
@@ -2346,10 +2355,10 @@ test('keeps a section, a façade, a roof plan and a site plan', async ({
     .click();
 
   for (const [kind, name] of [
-    ['Coupe', 'Coupe AA'],
-    ['Façade', 'Façade sud'],
-    ['Plan de toiture', 'Toiture'],
-    ['Plan de masse', 'Masse'],
+    ['Coupe', 'Coupe BB'],
+    ['Façade', 'Façade nord'],
+    ['Plan de toiture', 'Toiture BB'],
+    ['Plan de masse', 'Masse BB'],
   ] as const) {
     await page.getByLabel('Type de vue').selectOption({ label: kind });
     await page.getByLabel('Nom de la vue').fill(name);
@@ -2358,15 +2367,22 @@ test('keeps a section, a façade, a roof plan and a site plan', async ({
   }
 
   const views = page.getByRole('region', { name: 'Vues enregistrées' });
-  await expect(views.getByRole('cell', { name: 'SECTION' })).toBeVisible();
-  await expect(views.getByRole('cell', { name: 'ELEVATION' })).toBeVisible();
-  await expect(views.getByRole('cell', { name: 'ROOF' })).toBeVisible();
-  await expect(views.getByRole('cell', { name: 'SITE' })).toBeVisible();
+  for (const [name, type] of [
+    ['Coupe BB', 'SECTION'],
+    ['Façade nord', 'ELEVATION'],
+    ['Toiture BB', 'ROOF'],
+    ['Masse BB', 'SITE'],
+  ] as const)
+    await expect(
+      views.getByRole('row').filter({ hasText: name }).getByRole('cell', {
+        name: type,
+      }),
+    ).toBeVisible();
 
   // Opening a section shows the section, drawn from the model.
   await views
     .getByRole('row')
-    .filter({ hasText: 'Coupe AA' })
+    .filter({ hasText: 'Coupe BB' })
     .getByRole('button', { name: 'Ouvrir' })
     .click();
   const drawing = page.locator('.sheet-preview svg').first();
@@ -2398,18 +2414,18 @@ test('lays two views at two scales on one sheet', async ({ page }) => {
     .selectOption('PORTRAIT');
   await page.getByRole('button', { name: 'Ajouter une feuille' }).click();
 
-  const row = page.getByRole('row').filter({ hasText: 'A-001' });
+  const row = page.getByRole('row').filter({ hasText: 'A-002' });
   await row.getByRole('button', { name: 'Ajouter une vue' }).click();
   await row
-    .getByRole('combobox', { name: 'Vue 2 de la feuille A-001' })
+    .getByRole('combobox', { name: 'Vue 2 de la feuille A-002' })
     .selectOption({ label: 'Plan masse' });
   await row
     .getByRole('spinbutton', {
-      name: 'Échelle de la vue 2 de la feuille A-001',
+      name: 'Échelle de la vue 2 de la feuille A-002',
     })
     .fill('200');
   await row
-    .getByRole('textbox', { name: 'Indice de la feuille A-001' })
+    .getByRole('textbox', { name: 'Indice de la feuille A-002' })
     .fill('B');
 
   // Two frames on the paper, and the title block carries the revision.
@@ -2421,7 +2437,7 @@ test('lays two views at two scales on one sheet', async ({ page }) => {
 
   // Turning the paper relays the frames rather than leaving them off it.
   await row
-    .getByRole('combobox', { name: 'Orientation de la feuille A-001' })
+    .getByRole('combobox', { name: 'Orientation de la feuille A-002' })
     .selectOption('LANDSCAPE');
   await row.getByRole('button', { name: 'Aperçu' }).click();
   await expect(preview.locator('[data-viewport-id]')).toHaveCount(2);

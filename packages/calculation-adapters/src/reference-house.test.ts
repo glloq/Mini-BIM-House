@@ -91,9 +91,17 @@ describe('PR-069 reference house', () => {
     if (loaded.status !== 'OK') return;
 
     const { project } = loaded.file;
+    // Two storeys, joined by a stair: the reference house is the golden case
+    // and a house of one storey exercises none of what a storey above adds.
+    expect(project.building.levels.map(({ id }) => id)).toEqual([
+      'ground',
+      'first',
+    ]);
     const level = project.building.levels[0]!;
     expect(level.spaces).toHaveLength(4);
     expect(level.walls).toHaveLength(6);
+    expect(level.stairs[0]?.topLevelId).toBe('first');
+    expect(project.building.levels[1]?.spaces).toHaveLength(4);
     expect(project.systems?.map(({ discipline }) => discipline).sort()).toEqual(
       ['ELECTRICAL', 'VENTILATION', 'WASTEWATER', 'WATER'],
     );
@@ -101,12 +109,12 @@ describe('PR-069 reference house', () => {
     const context = createProjectCalculationContext(project, {
       climate: await climateDatasets(),
     });
-    expect(context.exteriorWalls).toHaveLength(4);
+    expect(context.exteriorWalls).toHaveLength(8);
     expect(
       context.exteriorWalls.reduce((sum, wall) => sum + wall.netAreaM2, 0),
-    ).toBeCloseTo(87.87, 8);
+    ).toBeCloseTo(173.59, 8);
     expect(context.roofs[0]?.projectedAreaM2).toBe(80);
-    expect(context.spaces).toHaveLength(4);
+    expect(context.spaces).toHaveLength(8);
     expect(context.systems).toHaveLength(4);
     expect(context.climateProfileId).toBe('reference-temperate');
     expect(context.climate?.datasetId).toBe('reference-temperate');
@@ -216,6 +224,46 @@ describe('PR-069 reference house', () => {
     expect(changedHeating.designLoadW as number).toBeLessThan(
       baseHeating.designLoadW as number,
     );
+  });
+
+  it('holds one of everything a house is made of', async () => {
+    // The golden case: if the reference house stops covering something, every
+    // suite that leans on it goes on passing by having nothing to check.
+    const loaded = loadProjectJson(await readFile(fixturePath, 'utf8'));
+    expect(loaded.status).toBe('OK');
+    if (loaded.status !== 'OK') return;
+    const { project } = loaded.file;
+    const levels = project.building.levels;
+    expect(levels).toHaveLength(2);
+    // Two storeys joined by a stair, a roof on the one it covers, a ground
+    // under the house.
+    expect(levels.flatMap(({ stairs }) => stairs)).toHaveLength(1);
+    expect(levels.flatMap(({ roofs }) => roofs).length).toBeGreaterThan(0);
+    expect(project.site.parcelBoundary).toBeDefined();
+    // Things placed, not only catalogued, and networks that reach both floors.
+    const components = levels.flatMap(({ components }) => components ?? []);
+    expect(components.length).toBeGreaterThan(8);
+    expect(new Set(components.map(({ levelId }) => levelId)).size).toBe(2);
+    for (const system of project.systems ?? []) {
+      expect(
+        system.nodes.some(({ levelId }) => levelId === 'first'),
+        system.id,
+      ).toBe(true);
+      // Every run says what it is made of, and the project carries its own
+      // copy of that product.
+      for (const edge of system.edges)
+        expect(
+          (project.networkProducts ?? []).some(
+            ({ id }) => id === edge.productId,
+          ),
+          edge.id,
+        ).toBe(true);
+    }
+    // A drawing set of every kind of view, laid out on a sheet.
+    expect(
+      [...new Set((project.drawingViews ?? []).map(({ type }) => type))].sort(),
+    ).toEqual(['ELEVATION', 'PLAN', 'ROOF', 'SECTION', 'SITE']);
+    expect(project.sheets?.[0]?.viewports.length).toBeGreaterThan(1);
   });
 
   it('runs every module on the reference house', async () => {

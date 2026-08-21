@@ -66,7 +66,28 @@ terminé.
 - un **registre des chartes graphiques** : quatre profils existaient, un seul
   était trouvable, et les trois autres revenaient comme « une charte que cette
   version ne connaît pas ». Une feuille imprimée prend le pendant imprimé de la
-  charte de l'écran.
+  charte de l'écran ;
+- **la maison de référence est devenue exhaustive.** Elle avait un niveau, aucun
+  objet posé, aucune vue et aucun produit réseau : toutes les suites qui
+  s'appuyaient dessus réussissaient en n'ayant rien à vérifier. Elle a
+  maintenant deux niveaux reliés par un escalier, une toiture posée sur le
+  niveau qu'elle couvre, un terrain avec ses limites et deux masques, dix objets
+  posés, quatre réseaux qui montent à l'étage dont chaque tronçon nomme son
+  produit, la copie de ces produits dans le projet, et un dossier de plans
+  portant les cinq sortes de vue sur une feuille A1. Un test exige qu'elle
+  continue de tenir un objet de chaque famille ;
+- **le module de coût chiffre au mètre et à l'unité**, plus seulement au mètre
+  cube de matériau. Toute la plomberie, l'électricité, la ventilation et les
+  équipements d'une maison étaient « comptés et non chiffrés » : un tronçon se
+  chiffre par le produit dont il est fait, un objet posé par son modèle, et le
+  lot suit le domaine du produit plutôt que d'être « enveloppe » pour tout le
+  monde ;
+- un câble du catalogue nomme son conducteur sous `conductor` et le résolveur ne
+  lisait que `material` : chaque câble ne disait rien de son cuivre ;
+- **la maison de démonstration se charge à la demande.** Cent kilooctets de JSON
+  derrière un bouton étaient chargés avec l'application : ouvrir son propre
+  projet passait par une démonstration. Le chargement initial descend de 245,3 à
+  239,3 kio.
 
 ## 0.3.0-beta.2 — non publiée
 

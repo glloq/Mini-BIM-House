@@ -51,7 +51,10 @@ import {
   safeFileStem,
   summarizeProject,
 } from './project-workspace.js';
-import { demoClimateDatasets, loadDemoProject } from './demo-project.js';
+// The demonstration house and its two climate datasets are a hundred kilobytes
+// of JSON behind one button. Loading them with the application would put a
+// demonstration in the way of opening one's own project.
+const demoProject = () => import('./demo-project.js');
 import { PlanCanvas } from './editor/PlanCanvas.js';
 import { ClearanceControl } from './editor/ClearanceControl.js';
 import { clearanceReport } from '@house-technical-designer/core-domain';
@@ -1867,13 +1870,17 @@ function App() {
             className="secondary"
             onClick={() =>
               replaceProject('Maison de démonstration', () => {
-                const demo = loadDemoProject();
-                if (demo.status === 'ERROR') {
-                  setMessage(demo.message);
-                  return;
-                }
-                setClimate(demoClimateDatasets());
-                adopt(demo.file, 'Maison de démonstration chargée.');
+                void (async () => {
+                  const { demoClimateDatasets, loadDemoProject } =
+                    await demoProject();
+                  const demo = loadDemoProject();
+                  if (demo.status === 'ERROR') {
+                    setMessage(demo.message);
+                    return;
+                  }
+                  setClimate(demoClimateDatasets());
+                  adopt(demo.file, 'Maison de démonstration chargée.');
+                })();
               })
             }
           >

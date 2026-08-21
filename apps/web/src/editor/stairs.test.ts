@@ -25,7 +25,7 @@ function file() {
   return result.file;
 }
 
-/** The reference house with a storey above, which it does not have. */
+/** Two bare storeys, so what this suite builds is the only stair there is. */
 function twoStoreys() {
   const source = file();
   const ground = source.project.building.levels[0]!;
@@ -36,7 +36,7 @@ function twoStoreys() {
       building: {
         ...source.project.building,
         levels: [
-          ground,
+          { ...ground, stairs: [] },
           {
             ...ground,
             id: entityId<'Level'>('upper'),
@@ -181,8 +181,8 @@ describe('building a stair from the plan', () => {
   });
 
   it('refuses to build one where nothing stands above', () => {
-    // The reference house has one storey; a stair there would arrive nowhere.
-    const result = addStairCommand(file(), 'ground', WALK, DRAFT, 'stair-main');
+    // A stair on the top storey of the reference house arrives nowhere.
+    const result = addStairCommand(file(), 'first', WALK, DRAFT, 'stair-main');
     expect(result.status).toBe('ERROR');
     if (result.status !== 'ERROR') return;
     expect(result.message).toContain('au-dessus');

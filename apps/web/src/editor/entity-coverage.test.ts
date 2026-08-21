@@ -44,6 +44,16 @@ const project = populatedProject();
 const editable = projectEntities(project).filter(({ family }) =>
   EDITABLE.includes(family),
 );
+/**
+ * The ones the ground storey draws.
+ *
+ * What a list or a palette offers is what the storey being drawn holds; an
+ * object of the storey above is reached by going up there, not by being listed
+ * twice.
+ */
+const onGround = editable.filter(
+  ({ levelId }) => levelId === undefined || levelId === 'ground',
+);
 
 describe('what the editor can reach, against what the project holds', () => {
   it('holds one object of every family the editor answers for', () => {
@@ -98,7 +108,7 @@ describe('what the editor can reach, against what the project holds', () => {
         objects.map(({ objectId }) => objectId),
       ),
     );
-    for (const { id, family } of editable)
+    for (const { id, family } of onGround)
       expect(listed.has(id), `${family} ${id}`).toBe(true);
   });
 
@@ -111,7 +121,7 @@ describe('what the editor can reach, against what the project holds', () => {
         select: vi.fn(),
       }).map(({ id }) => id),
     );
-    for (const { id, family } of editable)
+    for (const { id, family } of onGround)
       expect(found.has(id), `${family} ${id}`).toBe(true);
   });
 });

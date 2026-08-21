@@ -13,11 +13,21 @@ describe('bill of materials', () => {
   it('groups the takeoff by material, lot and level', () => {
     const report = buildBom(demo());
     expect(report.lines.length).toBeGreaterThan(0);
+    // Grouped by storey too, which is what makes two lines of the same
+    // material on two floors two lines rather than one.
     const insulation = report.lines.find(
-      (line) => line.materialId === 'material-insulation',
+      (line) =>
+        line.materialId === 'material-insulation' &&
+        line.levelName === 'Rez-de-chaussée',
     )!;
     expect(insulation.lot).toBe('INSULATION');
-    expect(insulation.levelName).toBe('Rez-de-chaussée');
+    expect(
+      report.lines.some(
+        (line) =>
+          line.materialId === 'material-insulation' &&
+          line.levelName === 'Étage',
+      ),
+    ).toBe(true);
     expect(insulation.netVolumeM3).toBeGreaterThan(0);
     expect(insulation.sourceEntityIds.length).toBeGreaterThan(1);
   });

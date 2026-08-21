@@ -6,11 +6,15 @@ import type {
   NetworkNode,
   TechnicalNetwork,
 } from '@house-technical-designer/core-domain';
-import { resolvedSegmentProperties } from '@house-technical-designer/network-products';
+import {
+  networkProduct,
+  resolvedSegmentProperties,
+} from '@house-technical-designer/network-products';
 import { UNNAMED_RUN } from '@house-technical-designer/quantities';
 import type {
   ProjectCalculationContext,
   ProjectClimateContext,
+  ProjectQuantityLine,
   ProjectSpaceCalculationElement,
 } from './project-context.js';
 import { equipmentNumber } from './project-context.js';
@@ -1718,10 +1722,61 @@ function dhwInput(context: ProjectCalculationContext): CalculationJson {
   };
 }
 
+/**
+ * What a line of the takeoff is priced by.
+ *
+ * A wall is priced by the material it is built of, per cubic metre. A run is
+ * priced by the product it is made of, per metre. A thing standing in the
+ * house is priced by its model, each. Three questions, three tables — and
+ * until now only the first existed, so a house's whole plumbing, wiring,
+ * ductwork and equipment were « counted and not priced ».
+ */
+interface PricedLine {
+  readonly itemId: string;
+  readonly sourceEntityId: string;
+  readonly materialId: string | null;
+  readonly priceKey: string;
+  readonly value: number;
+  readonly unit: string;
+  readonly lot: string;
+}
+
+/** The cost engine's own units; the takeoff counts things in « u ». */
+function costUnit(unit: string): string {
+  return unit === 'u' ? 'each' : unit;
+}
+
+function costLotOf(
+  context: ProjectCalculationContext,
+  line: ProjectQuantityLine,
+): string {
+  if (line.methodId === 'placed-equipment-v1') return 'OTHER';
+  if (line.methodId !== 'network-run-v1') return 'ENVELOPE';
+  // The project's own copy answers first: the trade a run belongs to must not
+  // change the day somebody reclassifies a tube in the installed catalogue.
+  const product =
+    context.networkProducts.find(({ id }) => id === line.sourceEntityId) ??
+    networkProduct(line.sourceEntityId);
+  switch (product?.domain) {
+    case 'WATER':
+    case 'WASTEWATER':
+    case 'RAINWATER':
+      return 'PLUMBING';
+    case 'VENTILATION':
+      return 'VENTILATION';
+    case 'ELECTRICAL':
+      return 'ELECTRICAL';
+    case 'HEATING':
+      return 'HEATING';
+    default:
+      return 'OTHER';
+  }
+}
+
 function costInput(context: ProjectCalculationContext): CalculationJson {
   const settings = context.settings;
-  const prices = settings.optionalNumberRecord('cost', 'unitPriceByMaterial');
   const currency = settings.optionalString('cost', 'currency') ?? 'EUR';
+  const prices = settings.optionalNumberRecord('cost', 'unitPriceByMaterial');
   const wasteFactors = settings.optionalNumberRecord(
     'cost',
     'wasteFactorByMaterial',
@@ -1730,6 +1785,22 @@ function costInput(context: ProjectCalculationContext): CalculationJson {
     'cost',
     'labourPriceByMaterial',
   );
+  const productPrices = settings.optionalNumberRecord(
+    'cost',
+    'unitPriceByProduct',
+  );
+  const productLabour = settings.optionalNumberRecord(
+    'cost',
+    'labourPriceByProduct',
+  );
+  const equipmentPrices = settings.optionalNumberRecord(
+    'cost',
+    'unitPriceByEquipment',
+  );
+  const equipmentLabour = settings.optionalNumberRecord(
+    'cost',
+    'labourPriceByEquipment',
+  );
   if (prices === undefined)
     settings.reportMissing(
       'cost',
@@ -1737,35 +1808,69 @@ function costInput(context: ProjectCalculationContext): CalculationJson {
       'MODULE_SETTINGS',
       'Declare unit prices per material, per cubic metre of installed material, in the cost module settings.',
     );
-  const lines = context.quantities.filter(
-    (line) => line.quantityType === 'VOLUME' && line.materialId !== undefined,
-  );
-  for (const line of lines)
-    if (prices?.[line.materialId!] === undefined)
+
+  const priced: PricedLine[] = [];
+  const unitPriceByKey: Record<string, number> = {};
+  const labourPriceByKey: Record<string, number> = {};
+  const wasteFactorByKey: Record<string, number> = {};
+
+  for (const line of context.quantities) {
+    // A run nobody has chosen a tube for is a different complaint, and it
+    // belongs to the network checks rather than to a total.
+    if (line.sourceEntityId === UNNAMED_RUN) continue;
+    const kind =
+      line.quantityType === 'VOLUME' && line.materialId !== undefined
+        ? 'MATERIAL'
+        : line.methodId === 'network-run-v1'
+          ? 'PRODUCT'
+          : line.methodId === 'placed-equipment-v1'
+            ? 'EQUIPMENT'
+            : undefined;
+    if (kind === undefined) continue;
+    const key = kind === 'MATERIAL' ? line.materialId! : line.sourceEntityId;
+    const table =
+      kind === 'MATERIAL'
+        ? prices
+        : kind === 'PRODUCT'
+          ? productPrices
+          : equipmentPrices;
+    const price = table?.[key];
+    if (price === undefined) {
+      const [setting, what] =
+        kind === 'MATERIAL'
+          ? ['unitPriceByMaterial', `material ${key}`]
+          : kind === 'PRODUCT'
+            ? ['unitPriceByProduct', `${key}, per metre of run`]
+            : ['unitPriceByEquipment', `${key}, per unit placed`];
       settings.reportMissing(
         'cost',
-        `unitPriceByMaterial/${line.materialId}`,
+        `${setting}/${key}`,
         'MODULE_SETTINGS',
-        `No unit price is declared for material ${line.materialId}.`,
+        `No unit price is declared for ${what}.`,
       );
-  // The things standing in the house and the tube feeding them are counted,
-  // and this module prices materials by the cubic metre. Saying so is what
-  // stops a total from looking complete when it covers the walls alone.
-  for (const line of context.quantities)
-    if (
-      // What somebody chose and this module cannot price. A run nobody has
-      // chosen a tube for is a different complaint, and it belongs to the
-      // network checks rather than to a total.
-      line.sourceEntityId !== UNNAMED_RUN &&
-      (line.methodId === 'placed-equipment-v1' ||
-        line.methodId === 'network-run-v1')
-    )
-      settings.reportMissing(
-        'cost',
-        `unpriced/${line.itemId}`,
-        'MODULE_SETTINGS',
-        `${line.sourceEntityId} is counted (${line.value} ${line.unit}) and this module prices materials by volume; its cost is not in the total.`,
-      );
+      continue;
+    }
+    const labour =
+      kind === 'MATERIAL'
+        ? labourPrices?.[key]
+        : kind === 'PRODUCT'
+          ? productLabour?.[key]
+          : equipmentLabour?.[key];
+    unitPriceByKey[key] = price;
+    if (labour !== undefined) labourPriceByKey[key] = labour;
+    const waste = kind === 'MATERIAL' ? wasteFactors?.[key] : undefined;
+    if (waste !== undefined) wasteFactorByKey[key] = waste;
+    priced.push({
+      itemId: line.itemId,
+      sourceEntityId: line.sourceEntityId,
+      materialId: line.materialId ?? null,
+      priceKey: key,
+      value: line.value,
+      unit: costUnit(line.unit),
+      lot: costLotOf(context, line),
+    });
+  }
+
   return {
     currency,
     ...(wasteFactors === undefined
@@ -1776,13 +1881,10 @@ function costInput(context: ProjectCalculationContext): CalculationJson {
       : { labourPriceByMaterial: { ...labourPrices } }),
     labourDeclared: labourPrices !== undefined,
     ...(prices === undefined ? {} : { unitPriceByMaterial: { ...prices } }),
-    quantities: lines.map((line) => ({
-      itemId: line.itemId,
-      sourceEntityId: line.sourceEntityId,
-      materialId: line.materialId ?? null,
-      value: line.value,
-      unit: line.unit,
-    })),
+    unitPriceByKey,
+    labourPriceByKey,
+    wasteFactorByKey,
+    quantities: priced.map((line) => ({ ...line })),
   };
 }
 
