@@ -1,0 +1,883 @@
+{
+  "families": [
+    {
+      "id": "WINDOW_FIXED",
+      "label": "Châssis fixe",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "WINDOW_CASEMENT",
+      "label": "Fenêtre à la française",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "WINDOW_TILT_TURN",
+      "label": "Fenêtre oscillo-battante",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "WINDOW_AWNING",
+      "label": "Fenêtre à projection",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "WINDOW_HOPPER",
+      "label": "Fenêtre à soufflet",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "WINDOW_SLIDING",
+      "label": "Fenêtre coulissante",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "WINDOW_DOUBLE_SLIDING",
+      "label": "Fenêtre coulissante à deux vantaux",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "WINDOW_ROOF",
+      "label": "Fenêtre de toit",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "WINDOW_BAY",
+      "label": "Baie vitrée",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "WINDOW_CORNER",
+      "label": "Fenêtre d’angle",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "WINDOW_MULTI_PANEL",
+      "label": "Ensemble menuisé",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "FRENCH_DOOR",
+      "label": "Porte-fenêtre",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "SLIDING_PATIO_DOOR",
+      "label": "Baie coulissante",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "LIFT_SLIDE_DOOR",
+      "label": "Baie levante coulissante",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "POCKET_SLIDING_DOOR",
+      "label": "Baie à galandage",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "iaq",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "WINDOW",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle porte une ouverture générique ; le type de menuiserie n’est pas encore distingué."
+    },
+    {
+      "id": "DOOR_SINGLE",
+      "label": "Porte simple",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "propertySchema": "DOOR",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      }
+    },
+    {
+      "id": "DOOR_DOUBLE",
+      "label": "Porte double",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "propertySchema": "DOOR",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      }
+    },
+    {
+      "id": "DOOR_SLIDING",
+      "label": "Porte coulissante",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "propertySchema": "DOOR",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      }
+    },
+    {
+      "id": "DOOR_POCKET",
+      "label": "Porte à galandage",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "propertySchema": "DOOR",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      }
+    },
+    {
+      "id": "DOOR_FOLDING",
+      "label": "Porte pliante",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "propertySchema": "DOOR",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      }
+    },
+    {
+      "id": "DOOR_FIRE",
+      "label": "Porte coupe-feu",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "propertySchema": "DOOR",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      }
+    },
+    {
+      "id": "DOOR_SECURITY",
+      "label": "Porte blindée",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "propertySchema": "DOOR",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      }
+    },
+    {
+      "id": "DOOR_GARAGE",
+      "label": "Porte de garage",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "propertySchema": "DOOR",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      }
+    },
+    {
+      "id": "DOOR_EXTERNAL",
+      "label": "Porte extérieure",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "propertySchema": "DOOR",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      }
+    },
+    {
+      "id": "DOOR_INTERNAL",
+      "label": "Porte intérieure",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "propertySchema": "DOOR",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLACEMENT": "READY",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      }
+    },
+    {
+      "id": "ROLLER_SHUTTER",
+      "label": "Volet roulant",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "calculators": ["thermal", "lighting", "cost"],
+      "placement": {
+        "allowedHosts": ["OPENING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "SOLAR_PROTECTION",
+      "status": {
+        "MODEL": "NONE",
+        "PROPERTIES": "NONE"
+      },
+      "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
+    },
+    {
+      "id": "HINGED_SHUTTER",
+      "label": "Volet battant",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "lighting", "cost"],
+      "placement": {
+        "allowedHosts": ["OPENING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "SOLAR_PROTECTION",
+      "status": {
+        "MODEL": "NONE",
+        "PROPERTIES": "NONE"
+      },
+      "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
+    },
+    {
+      "id": "EXTERNAL_BLIND",
+      "label": "Store extérieur",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "calculators": ["thermal", "lighting", "cost"],
+      "placement": {
+        "allowedHosts": ["OPENING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "SOLAR_PROTECTION",
+      "status": {
+        "MODEL": "NONE",
+        "PROPERTIES": "NONE"
+      },
+      "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
+    },
+    {
+      "id": "VENETIAN_EXTERNAL",
+      "label": "Brise-soleil orientable",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "calculators": ["thermal", "lighting", "cost"],
+      "placement": {
+        "allowedHosts": ["OPENING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "SOLAR_PROTECTION",
+      "status": {
+        "MODEL": "NONE",
+        "PROPERTIES": "NONE"
+      },
+      "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
+    },
+    {
+      "id": "INTERNAL_BLIND",
+      "label": "Store intérieur",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "lighting", "cost"],
+      "placement": {
+        "allowedHosts": ["OPENING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "SOLAR_PROTECTION",
+      "status": {
+        "MODEL": "NONE",
+        "PROPERTIES": "NONE"
+      },
+      "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
+    },
+    {
+      "id": "AWNING",
+      "label": "Store banne",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "calculators": ["thermal", "lighting", "cost"],
+      "placement": {
+        "allowedHosts": ["OPENING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "SOLAR_PROTECTION",
+      "status": {
+        "MODEL": "NONE",
+        "PROPERTIES": "NONE"
+      },
+      "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
+    },
+    {
+      "id": "OVERHANG",
+      "label": "Casquette",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "lighting", "cost"],
+      "placement": {
+        "allowedHosts": ["OPENING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "SOLAR_PROTECTION",
+      "status": {
+        "MODEL": "NONE",
+        "PROPERTIES": "NONE"
+      },
+      "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
+    },
+    {
+      "id": "BRISE_SOLEIL",
+      "label": "Brise-soleil fixe",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "lighting", "cost"],
+      "placement": {
+        "allowedHosts": ["OPENING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "SOLAR_PROTECTION",
+      "status": {
+        "MODEL": "NONE",
+        "PROPERTIES": "NONE"
+      },
+      "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
+    },
+    {
+      "id": "SCREEN",
+      "label": "Toile de protection",
+      "domain": "ARCHITECTURE",
+      "registry": "OPENING",
+      "priority": 1,
+      "calculators": ["thermal", "lighting", "cost"],
+      "placement": {
+        "allowedHosts": ["OPENING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["PHYSICAL", "OPENING"],
+      "propertySchema": "SOLAR_PROTECTION",
+      "status": {
+        "MODEL": "NONE",
+        "PROPERTIES": "NONE"
+      },
+      "hint": "Objet lié à une ouverture : il en réduit les apports solaires et la lumière."
+    }
+  ]
+}

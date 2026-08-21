@@ -1,0 +1,1206 @@
+{
+  "families": [
+    {
+      "id": "WASHBASIN",
+      "label": "Lavabo",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "WASTEWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "DOUBLE_WASHBASIN",
+      "label": "Lavabo double",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "WASTEWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BASIN",
+      "label": "Vasque",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "WASTEWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "KITCHEN_SINK",
+      "label": "Évier",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "WASTEWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "DOUBLE_SINK",
+      "label": "Évier deux bacs",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "WASTEWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "SHOWER",
+      "label": "Douche",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "WASTEWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "SHOWER_TRAY",
+      "label": "Receveur de douche",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "WALK_IN_SHOWER",
+      "label": "Douche à l’italienne",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "WASTEWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BATHTUB",
+      "label": "Baignoire",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "WASTEWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "WC",
+      "label": "WC",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "SOILWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "WALL_HUNG_WC",
+      "label": "WC suspendu",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "SOILWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BIDET",
+      "label": "Bidet",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "WASTEWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "URINAL",
+      "label": "Urinoir",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "SOILWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "WASHING_MACHINE_OUTLET",
+      "label": "Alimentation lave-linge",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WASTEWATER", "ELECTRICAL_AC"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "DISHWASHER_OUTLET",
+      "label": "Alimentation lave-vaisselle",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WASTEWATER", "ELECTRICAL_AC"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "OUTDOOR_TAP",
+      "label": "Robinet extérieur",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "UTILITY_SINK",
+      "label": "Bac de service",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "WASTEWATER"],
+      "calculators": ["water", "dhw", "wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "SANITARY_FIXTURE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "WATER_PUBLIC_CONNECTION",
+      "label": "Branchement public",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "WATER_METER",
+      "label": "Compteur d’eau",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "MAIN_VALVE",
+      "label": "Robinet d’arrêt général",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "BACKFLOW_PREVENTER",
+      "label": "Disconnecteur",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "PRESSURE_REDUCER",
+      "label": "Réducteur de pression",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "FILTER",
+      "label": "Filtre",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "SEDIMENT_FILTER",
+      "label": "Filtre à sédiments",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "CARBON_FILTER",
+      "label": "Filtre à charbon",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "UV_TREATMENT",
+      "label": "Traitement UV",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "WATER_SOFTENER",
+      "label": "Adoucisseur",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "BOOSTER_PUMP",
+      "label": "Surpresseur",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "PRESSURE_VESSEL",
+      "label": "Vase sous pression",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "MANIFOLD",
+      "label": "Nourrice",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "TEE",
+      "label": "Té",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "ELBOW",
+      "label": "Coude",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "COUPLING",
+      "label": "Manchon",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "REDUCER",
+      "label": "Réduction",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "ISOLATION_VALVE",
+      "label": "Vanne d’isolement",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "CHECK_VALVE",
+      "label": "Clapet anti-retour",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "BALANCING_VALVE",
+      "label": "Vanne d’équilibrage",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "DRAIN_VALVE",
+      "label": "Vanne de vidange",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "AIR_VENT",
+      "label": "Purgeur",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "FLOW_METER",
+      "label": "Débitmètre",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "SUB_METER",
+      "label": "Sous-compteur",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "THERMOSTATIC_MIXING_VALVE",
+      "label": "Mitigeur thermostatique",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "DHW_RECIRCULATION_PUMP",
+      "label": "Pompe de bouclage ECS",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["water", "dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "ELECTRIC_DHW_TANK",
+      "label": "Ballon électrique",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "ELECTRICAL_AC"],
+      "calculators": ["dhw", "electrical", "energy-balance", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "DHW_TANK",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "THERMODYNAMIC_DHW",
+      "label": "Chauffe-eau thermodynamique",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": [
+        "WATER_COLD",
+        "WATER_HOT",
+        "ELECTRICAL_AC",
+        "AIR_EXTRACT",
+        "CONDENSATE"
+      ],
+      "calculators": ["dhw", "electrical", "energy-balance", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "DHW_TANK",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HEAT_PUMP_DHW",
+      "label": "Ballon sur pompe à chaleur",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "PRIMARY_FLOW", "PRIMARY_RETURN"],
+      "calculators": ["dhw", "electrical", "energy-balance", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "DHW_TANK",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "INDIRECT_TANK",
+      "label": "Ballon à échangeur",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "PRIMARY_FLOW", "PRIMARY_RETURN"],
+      "calculators": ["dhw", "electrical", "energy-balance", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "DHW_TANK",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BUFFER_DHW",
+      "label": "Ballon tampon ECS",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["dhw", "electrical", "energy-balance", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "DHW_TANK",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "INSTANT_HEATER",
+      "label": "Chauffe-eau instantané",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "ELECTRICAL_AC"],
+      "calculators": ["dhw", "electrical", "energy-balance", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "DHW_TANK",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "SOLAR_DHW_TANK",
+      "label": "Ballon solaire",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT", "PRIMARY_FLOW", "PRIMARY_RETURN"],
+      "calculators": ["dhw", "electrical", "energy-balance", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "DHW_TANK",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "SAFETY_GROUP",
+      "label": "Groupe de sécurité",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "EXPANSION_VESSEL",
+      "label": "Vase d’expansion",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "THERMOSTATIC_MIXER",
+      "label": "Mitigeur",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "RECIRCULATION_PUMP",
+      "label": "Pompe de bouclage",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "TEMPERATURE_SENSOR",
+      "label": "Sonde de température",
+      "domain": "PLUMBING",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WATER_COLD", "WATER_HOT"],
+      "calculators": ["dhw", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    }
+  ]
+}

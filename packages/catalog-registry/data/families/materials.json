@@ -1,0 +1,1154 @@
+{
+  "families": [
+    {
+      "id": "GLASS_WOOL",
+      "label": "Laine de verre",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "ROCK_WOOL",
+      "label": "Laine de roche",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "WOOD_FIBER",
+      "label": "Fibre de bois",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "CELLULOSE",
+      "label": "Ouate de cellulose",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "HEMP",
+      "label": "Chanvre",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "CORK",
+      "label": "Liège",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "STRAW",
+      "label": "Paille",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "EPS",
+      "label": "Polystyrène expansé",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "XPS",
+      "label": "Polystyrène extrudé",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "PUR",
+      "label": "Polyuréthane",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "PIR",
+      "label": "Polyisocyanurate",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "PHENOLIC",
+      "label": "Mousse phénolique",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "AEROGEL",
+      "label": "Aérogel",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "VACUUM_PANEL",
+      "label": "Panneau isolant sous vide",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "FOAM_GLASS",
+      "label": "Verre cellulaire",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_INSULATION",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "CONCRETE",
+      "label": "Béton",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "REINFORCED_CONCRETE",
+      "label": "Béton armé",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "AAC",
+      "label": "Béton cellulaire",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "HOLLOW_BLOCK",
+      "label": "Bloc creux",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "SOLID_BLOCK",
+      "label": "Bloc plein",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "BRICK",
+      "label": "Brique",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "STONE",
+      "label": "Pierre",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "RAMMED_EARTH",
+      "label": "Pisé",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "WOOD_SOFTWOOD",
+      "label": "Bois résineux",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "WOOD_HARDWOOD",
+      "label": "Bois feuillu",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "GLULAM",
+      "label": "Lamellé-collé",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "CLT",
+      "label": "Bois lamellé-croisé",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "STEEL",
+      "label": "Acier",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "ALUMINIUM",
+      "label": "Aluminium",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "PLASTER",
+      "label": "Plâtre",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "GYPSUM_BOARD",
+      "label": "Plaque de plâtre",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "CEMENT_BOARD",
+      "label": "Panneau de ciment",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "LIME_PLASTER",
+      "label": "Enduit à la chaux",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "CEMENT_RENDER",
+      "label": "Enduit ciment",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "WOOD_PANEL",
+      "label": "Panneau bois",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "TILE",
+      "label": "Carrelage",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "STONE_FINISH",
+      "label": "Parement pierre",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "PAINT",
+      "label": "Peinture",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "PARQUET",
+      "label": "Parquet",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "LAMINATE",
+      "label": "Stratifié",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "CARPET",
+      "label": "Moquette",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "VINYL",
+      "label": "Sol souple",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "VAPOUR_BARRIER",
+      "label": "Pare-vapeur",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_MEMBRANE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "VAPOUR_RETARDER",
+      "label": "Frein-vapeur",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_MEMBRANE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "BREATHER_MEMBRANE",
+      "label": "Pare-pluie",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_MEMBRANE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "AIR_BARRIER",
+      "label": "Membrane d’étanchéité à l’air",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_MEMBRANE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "EPDM",
+      "label": "EPDM",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_MEMBRANE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "BITUMEN_MEMBRANE",
+      "label": "Membrane bitumineuse",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_MEMBRANE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "ROOF_MEMBRANE",
+      "label": "Membrane de toiture",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_MEMBRANE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "DRAINAGE_MEMBRANE",
+      "label": "Membrane drainante",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_MEMBRANE",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "READY"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    }
+  ]
+}

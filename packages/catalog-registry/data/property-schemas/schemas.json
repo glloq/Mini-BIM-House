@@ -1,0 +1,4166 @@
+{
+  "schemas": [
+    {
+      "family": "BATTERY_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "usableCapacityKwh",
+          "label": "Capacité utile",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kWh",
+          "minimum": 0
+        },
+        {
+          "key": "maximumChargePowerW",
+          "label": "Puissance de charge maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "maximumDischargePowerW",
+          "label": "Puissance de décharge maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "roundTripEfficiency",
+          "label": "Rendement aller-retour",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "minimumStateOfCharge",
+          "label": "État de charge minimal",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "cycleLife",
+          "label": "Nombre de cycles",
+          "type": "integer",
+          "source": "DEFINITION",
+          "minimum": 0,
+          "unit": "-"
+        }
+      ]
+    },
+    {
+      "family": "CABLE_PRODUCT",
+      "properties": [
+        {
+          "key": "conductor",
+          "label": "Conducteur",
+          "type": "enum",
+          "source": "DEFINITION",
+          "required": true,
+          "options": ["COPPER", "ALUMINIUM"]
+        },
+        {
+          "key": "conductorSectionMm2",
+          "label": "Section",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm²",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "coreCount",
+          "label": "Nombre de conducteurs",
+          "type": "integer",
+          "source": "DEFINITION",
+          "required": true,
+          "minimum": 1,
+          "unit": "-"
+        },
+        {
+          "key": "insulation",
+          "label": "Isolation",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "ratedVoltageV",
+          "label": "Tension assignée",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "V",
+          "minimum": 0
+        },
+        {
+          "key": "currentCapacityA",
+          "label": "Courant admissible",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "A",
+          "minimum": 0
+        },
+        {
+          "key": "resistivityOhmKm",
+          "label": "Résistance linéique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "Ω/km",
+          "minimum": 0
+        },
+        {
+          "key": "outerDiameterMm",
+          "label": "Diamètre extérieur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "COMBUSTION_APPLIANCE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "nominalOutputW",
+          "label": "Puissance nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "efficiency",
+          "label": "Rendement",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "fuel",
+          "label": "Combustible",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "flueDiameterMm",
+          "label": "Diamètre de buse",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "combustionAirFlowM3h",
+          "label": "Débit d’air comburant",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m³/h",
+          "minimum": 0
+        },
+        {
+          "key": "particulateEmission",
+          "label": "Émissions de particules",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mg/m³",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "CONDUIT_PRODUCT",
+      "properties": [
+        {
+          "key": "material",
+          "label": "Matériau",
+          "type": "string",
+          "source": "DEFINITION",
+          "required": true
+        },
+        {
+          "key": "outerDiameterMm",
+          "label": "Diamètre extérieur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "innerDiameterMm",
+          "label": "Diamètre intérieur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "fillRatio",
+          "label": "Taux de remplissage admissible",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "DATA_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "protocol",
+          "label": "Protocole",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "powerOverEthernet",
+          "label": "Alimentation par Ethernet",
+          "type": "boolean",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "activePowerW",
+          "label": "Puissance",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "DHW_TANK",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "volumeL",
+          "label": "Volume",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "L",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "standbyLossW",
+          "label": "Pertes statiques",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "heatingPowerW",
+          "label": "Puissance de chauffe",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "setpointTemperatureC",
+          "label": "Température de consigne",
+          "type": "number",
+          "source": "INSTANCE",
+          "unit": "°C"
+        },
+        {
+          "key": "exchangerAreaM2",
+          "label": "Surface d’échange",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m²",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "DOOR",
+      "properties": [
+        {
+          "key": "width",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "required": true,
+          "minimum": 1
+        },
+        {
+          "key": "height",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "required": true,
+          "minimum": 1
+        },
+        {
+          "key": "leafCount",
+          "label": "Nombre de vantaux",
+          "type": "integer",
+          "source": "DEFINITION",
+          "minimum": 1,
+          "unit": "-"
+        },
+        {
+          "key": "openingDirection",
+          "label": "Sens d’ouverture",
+          "type": "enum",
+          "source": "INSTANCE",
+          "options": ["INWARD", "OUTWARD", "SLIDING"]
+        },
+        {
+          "key": "openingAngle",
+          "label": "Angle d’ouverture",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°",
+          "minimum": 0,
+          "maximum": 180
+        },
+        {
+          "key": "frame",
+          "label": "Dormant",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "threshold",
+          "label": "Seuil",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "uw",
+          "label": "Coefficient Uw",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m²·K)",
+          "minimum": 0
+        },
+        {
+          "key": "airPermeability",
+          "label": "Perméabilité à l’air",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "rw",
+          "label": "Affaiblissement acoustique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "dB",
+          "minimum": 0
+        },
+        {
+          "key": "fireRating",
+          "label": "Résistance au feu",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "securityClass",
+          "label": "Classe de sécurité",
+          "type": "string",
+          "source": "DEFINITION"
+        }
+      ]
+    },
+    {
+      "family": "DUCT_PRODUCT",
+      "properties": [
+        {
+          "key": "shape",
+          "label": "Section",
+          "type": "enum",
+          "source": "DEFINITION",
+          "required": true,
+          "options": ["ROUND", "RECTANGULAR", "FLEXIBLE"]
+        },
+        {
+          "key": "diameterMm",
+          "label": "Diamètre",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "material",
+          "label": "Matériau",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "roughnessMm",
+          "label": "Rugosité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "insulationThicknessMm",
+          "label": "Épaisseur d’isolant",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "EARTHING_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "resistanceOhm",
+          "label": "Résistance de terre",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "Ω",
+          "minimum": 0
+        },
+        {
+          "key": "conductorSectionMm2",
+          "label": "Section",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm²",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "ELECTRICAL_ACCESSORY",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "ELECTRICAL_BOARD",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "moduleCount",
+          "label": "Nombre de modules",
+          "type": "integer",
+          "source": "DEFINITION",
+          "minimum": 0,
+          "unit": "-"
+        },
+        {
+          "key": "ratedCurrentA",
+          "label": "Courant assigné",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "A",
+          "minimum": 0
+        },
+        {
+          "key": "ipRating",
+          "label": "Indice de protection",
+          "type": "string",
+          "source": "DEFINITION"
+        }
+      ]
+    },
+    {
+      "family": "ELECTRICAL_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "ratedCurrentA",
+          "label": "Courant assigné",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "A",
+          "minimum": 0
+        },
+        {
+          "key": "ipRating",
+          "label": "Indice de protection",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "mountingHeightMm",
+          "label": "Hauteur de pose",
+          "type": "number",
+          "source": "INSTANCE",
+          "unit": "mm",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "ELECTRICAL_LOAD",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "activePowerW",
+          "label": "Puissance active",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "powerFactor",
+          "label": "Facteur de puissance",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "dutyCycle",
+          "label": "Facteur d’utilisation",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "annualEnergy",
+          "label": "Consommation annuelle",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "kWh"
+        }
+      ]
+    },
+    {
+      "family": "FLOOR_ASSEMBLY",
+      "properties": [
+        {
+          "key": "assemblyId",
+          "label": "Assemblage",
+          "type": "string",
+          "source": "DEFINITION",
+          "required": true
+        },
+        {
+          "key": "structuralRole",
+          "label": "Rôle structurel",
+          "type": "enum",
+          "source": "DEFINITION",
+          "options": ["LOAD_BEARING", "NON_LOAD_BEARING", "UNKNOWN"]
+        },
+        {
+          "key": "thermalBoundary",
+          "label": "Enveloppe thermique",
+          "type": "boolean",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "fireRating",
+          "label": "Résistance au feu",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "acousticRating",
+          "label": "Affaiblissement acoustique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "dB"
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m²",
+          "minimum": 0
+        },
+        {
+          "key": "carbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e/m²",
+          "minimum": 0
+        },
+        {
+          "key": "finishTop",
+          "label": "Finition supérieure",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "finishBottom",
+          "label": "Finition inférieure",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "loadCategory",
+          "label": "Catégorie de charge",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "moistureClass",
+          "label": "Classe d’humidité",
+          "type": "enum",
+          "source": "DEFINITION",
+          "options": ["DRY", "HUMID", "WET"]
+        }
+      ]
+    },
+    {
+      "family": "FLUE_COMPONENT",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "innerDiameterMm",
+          "label": "Diamètre intérieur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "distanceToCombustibleMm",
+          "label": "Distance aux combustibles",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "FLUE_PRODUCT",
+      "properties": [
+        {
+          "key": "material",
+          "label": "Matériau",
+          "type": "string",
+          "source": "DEFINITION",
+          "required": true
+        },
+        {
+          "key": "innerDiameterMm",
+          "label": "Diamètre intérieur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "insulationThicknessMm",
+          "label": "Épaisseur d’isolant",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "temperatureClass",
+          "label": "Classe de température",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "sootFireResistant",
+          "label": "Résistant au feu de cheminée",
+          "type": "boolean",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "distanceToCombustibleMm",
+          "label": "Distance aux matériaux combustibles",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "FURNITURE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "usageDepthMm",
+          "label": "Dégagement d’usage",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "movable",
+          "label": "Déplaçable",
+          "type": "boolean",
+          "source": "DEFINITION"
+        }
+      ]
+    },
+    {
+      "family": "HEATING_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "nominalPowerW",
+          "label": "Puissance électrique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "maximumHeadM",
+          "label": "Hauteur manométrique maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m",
+          "minimum": 0
+        },
+        {
+          "key": "maximumFlowM3h",
+          "label": "Débit maximal",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m³/h",
+          "minimum": 0
+        },
+        {
+          "key": "kvs",
+          "label": "Coefficient de débit",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m³/h",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "HEAT_EMITTER",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "nominalOutputW",
+          "label": "Puissance nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "nominalDeltaTK",
+          "label": "Écart nominal",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "K",
+          "minimum": 0
+        },
+        {
+          "key": "exponent",
+          "label": "Exposant caractéristique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0
+        },
+        {
+          "key": "waterContentL",
+          "label": "Contenance en eau",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "L",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "HEAT_GENERATOR",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "ratedHeatingPower",
+          "label": "Puissance nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "efficiency",
+          "label": "Rendement",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "minSupplyTemperature",
+          "label": "Température de départ minimale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "maxSupplyTemperature",
+          "label": "Température de départ maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "fuel",
+          "label": "Combustible",
+          "type": "string",
+          "source": "DEFINITION"
+        }
+      ]
+    },
+    {
+      "family": "HEAT_PUMP",
+      "properties": [
+        {
+          "key": "ratedHeatingPower",
+          "label": "Puissance calorifique nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "ratedCoolingPower",
+          "label": "Puissance frigorifique nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "minHeatingPower",
+          "label": "Puissance calorifique minimale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "maxHeatingPower",
+          "label": "Puissance calorifique maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "cop",
+          "label": "COP",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0
+        },
+        {
+          "key": "scop",
+          "label": "SCOP",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0
+        },
+        {
+          "key": "eer",
+          "label": "EER",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0
+        },
+        {
+          "key": "seer",
+          "label": "SEER",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0
+        },
+        {
+          "key": "minOutdoorTemperature",
+          "label": "Température extérieure minimale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "maxOutdoorTemperature",
+          "label": "Température extérieure maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "minSupplyTemperature",
+          "label": "Température de départ minimale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "maxSupplyTemperature",
+          "label": "Température de départ maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "pressureDrop",
+          "label": "Perte de charge",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "Pa",
+          "minimum": 0
+        },
+        {
+          "key": "refrigerant",
+          "label": "Fluide frigorigène",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "refrigerantCharge",
+          "label": "Charge de fluide",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kg",
+          "minimum": 0
+        },
+        {
+          "key": "gwp",
+          "label": "Pouvoir de réchauffement global",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0
+        },
+        {
+          "key": "auxiliaryHeaterPower",
+          "label": "Appoint électrique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "defrostStrategy",
+          "label": "Dégivrage",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "soundPowerIndoor",
+          "label": "Puissance acoustique intérieure",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "dB(A)",
+          "minimum": 0
+        },
+        {
+          "key": "soundPowerOutdoor",
+          "label": "Puissance acoustique extérieure",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "dB(A)",
+          "minimum": 0
+        },
+        {
+          "key": "supplyVoltageV",
+          "label": "Tension d’alimentation",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "V",
+          "minimum": 0
+        },
+        {
+          "key": "maximumElectricalPower",
+          "label": "Puissance électrique maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "maximumCurrent",
+          "label": "Courant maximal",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "A",
+          "minimum": 0
+        },
+        {
+          "key": "designFlow",
+          "label": "Débit de dimensionnement",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "m³/h"
+        },
+        {
+          "key": "annualElectricity",
+          "label": "Consommation annuelle",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "kWh"
+        },
+        {
+          "key": "operatingPoint",
+          "label": "Point de fonctionnement",
+          "type": "string",
+          "source": "DERIVED"
+        }
+      ]
+    },
+    {
+      "family": "LUMINAIRE",
+      "properties": [
+        {
+          "key": "power",
+          "label": "Puissance",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "luminousFlux",
+          "label": "Flux lumineux",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "lm",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "efficacy",
+          "label": "Efficacité lumineuse",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "lm/W"
+        },
+        {
+          "key": "cct",
+          "label": "Température de couleur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "K",
+          "minimum": 0
+        },
+        {
+          "key": "cri",
+          "label": "Indice de rendu des couleurs",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 100
+        },
+        {
+          "key": "beamAngle",
+          "label": "Angle d’ouverture",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°",
+          "minimum": 0,
+          "maximum": 360
+        },
+        {
+          "key": "photometricDistribution",
+          "label": "Distribution photométrique",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "ies",
+          "label": "Fichier IES",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "ldt",
+          "label": "Fichier LDT",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "ip",
+          "label": "Indice de protection",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "ik",
+          "label": "Résistance aux chocs",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "powerFactor",
+          "label": "Facteur de puissance",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "dimmable",
+          "label": "Gradable",
+          "type": "boolean",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "driverEfficiency",
+          "label": "Rendement du driver",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "lifetimeHours",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "h",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "MATERIAL_FINISH",
+      "properties": [
+        {
+          "key": "thermalConductivity",
+          "label": "Conductivité thermique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m·K)",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "designThermalConductivity",
+          "label": "Conductivité utile",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m·K)",
+          "minimum": 0
+        },
+        {
+          "key": "density",
+          "label": "Masse volumique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kg/m³",
+          "minimum": 0
+        },
+        {
+          "key": "specificHeat",
+          "label": "Chaleur massique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "J/(kg·K)",
+          "minimum": 0
+        },
+        {
+          "key": "vaporResistanceFactor",
+          "label": "Facteur de résistance à la vapeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 1
+        },
+        {
+          "key": "emissivity",
+          "label": "Émissivité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "waterAbsorption",
+          "label": "Absorption d’eau",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kg/(m²·s^0,5)",
+          "minimum": 0
+        },
+        {
+          "key": "acousticAbsorption",
+          "label": "Absorption acoustique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "reactionToFire",
+          "label": "Réaction au feu",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "compressiveStrength",
+          "label": "Résistance en compression",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MPa",
+          "minimum": 0
+        },
+        {
+          "key": "tensileStrength",
+          "label": "Résistance en traction",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MPa",
+          "minimum": 0
+        },
+        {
+          "key": "serviceTemperature",
+          "label": "Température de service",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e/kg",
+          "minimum": 0
+        },
+        {
+          "key": "primaryEnergy",
+          "label": "Énergie primaire",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MJ/kg",
+          "minimum": 0
+        },
+        {
+          "key": "recycledContent",
+          "label": "Contenu recyclé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "recyclability",
+          "label": "Recyclabilité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "epd",
+          "label": "Déclaration environnementale",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m³",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "MATERIAL_INSULATION",
+      "properties": [
+        {
+          "key": "thermalConductivity",
+          "label": "Conductivité thermique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m·K)",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "designThermalConductivity",
+          "label": "Conductivité utile",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m·K)",
+          "minimum": 0
+        },
+        {
+          "key": "density",
+          "label": "Masse volumique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kg/m³",
+          "minimum": 0
+        },
+        {
+          "key": "specificHeat",
+          "label": "Chaleur massique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "J/(kg·K)",
+          "minimum": 0
+        },
+        {
+          "key": "vaporResistanceFactor",
+          "label": "Facteur de résistance à la vapeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 1
+        },
+        {
+          "key": "emissivity",
+          "label": "Émissivité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "waterAbsorption",
+          "label": "Absorption d’eau",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kg/(m²·s^0,5)",
+          "minimum": 0
+        },
+        {
+          "key": "acousticAbsorption",
+          "label": "Absorption acoustique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "reactionToFire",
+          "label": "Réaction au feu",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "compressiveStrength",
+          "label": "Résistance en compression",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MPa",
+          "minimum": 0
+        },
+        {
+          "key": "tensileStrength",
+          "label": "Résistance en traction",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MPa",
+          "minimum": 0
+        },
+        {
+          "key": "serviceTemperature",
+          "label": "Température de service",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e/kg",
+          "minimum": 0
+        },
+        {
+          "key": "primaryEnergy",
+          "label": "Énergie primaire",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MJ/kg",
+          "minimum": 0
+        },
+        {
+          "key": "recycledContent",
+          "label": "Contenu recyclé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "recyclability",
+          "label": "Recyclabilité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "epd",
+          "label": "Déclaration environnementale",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m³",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "MATERIAL_MEMBRANE",
+      "properties": [
+        {
+          "key": "thermalConductivity",
+          "label": "Conductivité thermique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m·K)",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "designThermalConductivity",
+          "label": "Conductivité utile",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m·K)",
+          "minimum": 0
+        },
+        {
+          "key": "density",
+          "label": "Masse volumique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kg/m³",
+          "minimum": 0
+        },
+        {
+          "key": "specificHeat",
+          "label": "Chaleur massique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "J/(kg·K)",
+          "minimum": 0
+        },
+        {
+          "key": "vaporResistanceFactor",
+          "label": "Facteur de résistance à la vapeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 1
+        },
+        {
+          "key": "emissivity",
+          "label": "Émissivité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "waterAbsorption",
+          "label": "Absorption d’eau",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kg/(m²·s^0,5)",
+          "minimum": 0
+        },
+        {
+          "key": "acousticAbsorption",
+          "label": "Absorption acoustique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "reactionToFire",
+          "label": "Réaction au feu",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "compressiveStrength",
+          "label": "Résistance en compression",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MPa",
+          "minimum": 0
+        },
+        {
+          "key": "tensileStrength",
+          "label": "Résistance en traction",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MPa",
+          "minimum": 0
+        },
+        {
+          "key": "serviceTemperature",
+          "label": "Température de service",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e/kg",
+          "minimum": 0
+        },
+        {
+          "key": "primaryEnergy",
+          "label": "Énergie primaire",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MJ/kg",
+          "minimum": 0
+        },
+        {
+          "key": "recycledContent",
+          "label": "Contenu recyclé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "recyclability",
+          "label": "Recyclabilité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "epd",
+          "label": "Déclaration environnementale",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m³",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "MATERIAL_STRUCTURE",
+      "properties": [
+        {
+          "key": "thermalConductivity",
+          "label": "Conductivité thermique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m·K)",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "designThermalConductivity",
+          "label": "Conductivité utile",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m·K)",
+          "minimum": 0
+        },
+        {
+          "key": "density",
+          "label": "Masse volumique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kg/m³",
+          "minimum": 0
+        },
+        {
+          "key": "specificHeat",
+          "label": "Chaleur massique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "J/(kg·K)",
+          "minimum": 0
+        },
+        {
+          "key": "vaporResistanceFactor",
+          "label": "Facteur de résistance à la vapeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 1
+        },
+        {
+          "key": "emissivity",
+          "label": "Émissivité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "waterAbsorption",
+          "label": "Absorption d’eau",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kg/(m²·s^0,5)",
+          "minimum": 0
+        },
+        {
+          "key": "acousticAbsorption",
+          "label": "Absorption acoustique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "reactionToFire",
+          "label": "Réaction au feu",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "compressiveStrength",
+          "label": "Résistance en compression",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MPa",
+          "minimum": 0
+        },
+        {
+          "key": "tensileStrength",
+          "label": "Résistance en traction",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MPa",
+          "minimum": 0
+        },
+        {
+          "key": "serviceTemperature",
+          "label": "Température de service",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e/kg",
+          "minimum": 0
+        },
+        {
+          "key": "primaryEnergy",
+          "label": "Énergie primaire",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "MJ/kg",
+          "minimum": 0
+        },
+        {
+          "key": "recycledContent",
+          "label": "Contenu recyclé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "recyclability",
+          "label": "Recyclabilité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "epd",
+          "label": "Déclaration environnementale",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m³",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "PIPE_PRODUCT",
+      "properties": [
+        {
+          "key": "material",
+          "label": "Matériau",
+          "type": "enum",
+          "source": "DEFINITION",
+          "required": true,
+          "options": [
+            "COPPER",
+            "PEX",
+            "PER",
+            "MULTILAYER",
+            "PVC_PRESSURE",
+            "CPVC",
+            "PP_R",
+            "PEHD",
+            "STAINLESS",
+            "GALVANIZED_STEEL",
+            "CAST_IRON",
+            "PVC"
+          ]
+        },
+        {
+          "key": "nominalDiameter",
+          "label": "Diamètre nominal",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "outerDiameterMm",
+          "label": "Diamètre extérieur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "wallThicknessMm",
+          "label": "Épaisseur de paroi",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "innerDiameterMm",
+          "label": "Diamètre intérieur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "roughnessMm",
+          "label": "Rugosité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "maxPressureBar",
+          "label": "Pression maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "bar",
+          "minimum": 0
+        },
+        {
+          "key": "maxTemperatureC",
+          "label": "Température maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "linearMassKgM",
+          "label": "Masse linéique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kg/m",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m",
+          "minimum": 0
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e/m",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "PROTECTION_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "ratedCurrentA",
+          "label": "Calibre",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "A",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "breakingCapacityKa",
+          "label": "Pouvoir de coupure",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kA",
+          "minimum": 0
+        },
+        {
+          "key": "curve",
+          "label": "Courbe",
+          "type": "enum",
+          "source": "DEFINITION",
+          "options": ["B", "C", "D"]
+        },
+        {
+          "key": "residualCurrentMa",
+          "label": "Sensibilité différentielle",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mA",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "PV_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "peakPowerW",
+          "label": "Puissance crête",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "Wc",
+          "minimum": 0
+        },
+        {
+          "key": "moduleEfficiency",
+          "label": "Rendement",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "temperatureCoefficient",
+          "label": "Coefficient de température",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "%/K"
+        },
+        {
+          "key": "nominalPowerW",
+          "label": "Puissance nominale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "europeanEfficiency",
+          "label": "Rendement européen",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "maximumInputVoltageV",
+          "label": "Tension d’entrée maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "V",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "RAINWATER_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "capacityL",
+          "label": "Capacité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "L",
+          "minimum": 0
+        },
+        {
+          "key": "nominalDiameterMm",
+          "label": "Diamètre nominal",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "catchmentArea",
+          "label": "Surface de collecte",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "m²"
+        }
+      ]
+    },
+    {
+      "family": "REFRIGERANT_UNIT",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "ratedHeatingPower",
+          "label": "Puissance calorifique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "ratedCoolingPower",
+          "label": "Puissance frigorifique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W",
+          "minimum": 0
+        },
+        {
+          "key": "refrigerant",
+          "label": "Fluide frigorigène",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "soundPower",
+          "label": "Puissance acoustique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "dB(A)",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "ROOF_ASSEMBLY",
+      "properties": [
+        {
+          "key": "assemblyId",
+          "label": "Assemblage",
+          "type": "string",
+          "source": "DEFINITION",
+          "required": true
+        },
+        {
+          "key": "structuralRole",
+          "label": "Rôle structurel",
+          "type": "enum",
+          "source": "DEFINITION",
+          "options": ["LOAD_BEARING", "NON_LOAD_BEARING", "UNKNOWN"]
+        },
+        {
+          "key": "thermalBoundary",
+          "label": "Enveloppe thermique",
+          "type": "boolean",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "fireRating",
+          "label": "Résistance au feu",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "acousticRating",
+          "label": "Affaiblissement acoustique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "dB"
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m²",
+          "minimum": 0
+        },
+        {
+          "key": "carbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e/m²",
+          "minimum": 0
+        },
+        {
+          "key": "slope",
+          "label": "Pente",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°",
+          "minimum": 0,
+          "maximum": 90
+        },
+        {
+          "key": "overhang",
+          "label": "Débord",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "waterproofing",
+          "label": "Étanchéité",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "roofCovering",
+          "label": "Couverture",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "ventilatedGap",
+          "label": "Lame d’air ventilée",
+          "type": "boolean",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "snowRetention",
+          "label": "Arrêt de neige",
+          "type": "boolean",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "drainageType",
+          "label": "Évacuation",
+          "type": "enum",
+          "source": "DEFINITION",
+          "options": ["GUTTER", "ROOF_DRAIN", "SCUPPER"]
+        }
+      ]
+    },
+    {
+      "family": "ROOF_PART",
+      "properties": [
+        {
+          "key": "lengthMm",
+          "label": "Longueur",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "mm"
+        },
+        {
+          "key": "material",
+          "label": "Matériau",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "SAFETY_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "detectionType",
+          "label": "Type de détection",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "coverageM2",
+          "label": "Surface couverte",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m²",
+          "minimum": 0
+        },
+        {
+          "key": "batteryBackupHours",
+          "label": "Autonomie",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "h",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "SANITARY_FIXTURE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "designFlowLps",
+          "label": "Débit de calcul",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "L/s",
+          "required": true,
+          "minimum": 0
+        },
+        {
+          "key": "hotWaterFlowLps",
+          "label": "Débit d’eau chaude",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "L/s",
+          "minimum": 0
+        },
+        {
+          "key": "dischargeUnits",
+          "label": "Unités de vidange",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "UV",
+          "minimum": 0
+        },
+        {
+          "key": "minimumPressurePa",
+          "label": "Pression minimale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "Pa",
+          "minimum": 0
+        },
+        {
+          "key": "trapDiameterMm",
+          "label": "Diamètre de siphon",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "SITE_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "buriedDepthMm",
+          "label": "Profondeur d’enfouissement",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "capacityL",
+          "label": "Capacité",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "L",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "SOLAR_PROTECTION",
+      "properties": [
+        {
+          "key": "solarReductionFactor",
+          "label": "Facteur de réduction solaire",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "required": true,
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "visibleReductionFactor",
+          "label": "Facteur de réduction lumineuse",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "position",
+          "label": "Position",
+          "type": "enum",
+          "source": "DEFINITION",
+          "required": true,
+          "options": ["EXTERNAL", "INTEGRATED", "INTERNAL"]
+        },
+        {
+          "key": "openingRatio",
+          "label": "Taux d’ouverture",
+          "type": "number",
+          "source": "INSTANCE",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "controlMode",
+          "label": "Commande",
+          "type": "enum",
+          "source": "INSTANCE",
+          "options": ["MANUAL", "MOTORIZED", "AUTOMATIC"]
+        },
+        {
+          "key": "windLimit",
+          "label": "Limite de vent",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m/s",
+          "minimum": 0
+        },
+        {
+          "key": "motorized",
+          "label": "Motorisé",
+          "type": "boolean",
+          "source": "DEFINITION"
+        }
+      ]
+    },
+    {
+      "family": "STRUCTURAL_MEMBER",
+      "properties": [
+        {
+          "key": "material",
+          "label": "Matériau",
+          "type": "string",
+          "source": "DEFINITION",
+          "required": true
+        },
+        {
+          "key": "section",
+          "label": "Section",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "diameterMm",
+          "label": "Diamètre",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "orientation",
+          "label": "Orientation",
+          "type": "number",
+          "source": "INSTANCE",
+          "unit": "°"
+        },
+        {
+          "key": "structuralRole",
+          "label": "Rôle structurel",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "fireRating",
+          "label": "Résistance au feu",
+          "type": "string",
+          "source": "DEFINITION"
+        }
+      ]
+    },
+    {
+      "family": "UNDERFLOOR_HEATING",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "pipeMaterial",
+          "label": "Matériau du tube",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "pipeDiameterMm",
+          "label": "Diamètre du tube",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "spacingMm",
+          "label": "Pas de pose",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "supplyTemperatureC",
+          "label": "Température de départ",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "returnTemperatureC",
+          "label": "Température de retour",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°C"
+        },
+        {
+          "key": "maxLoopLengthM",
+          "label": "Longueur de boucle maximale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m",
+          "minimum": 0
+        },
+        {
+          "key": "floorResistance",
+          "label": "Résistance du plancher",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m²·K/W",
+          "minimum": 0
+        },
+        {
+          "key": "finishResistance",
+          "label": "Résistance du revêtement",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m²·K/W",
+          "minimum": 0
+        },
+        {
+          "key": "loopLength",
+          "label": "Longueur de boucle",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "m"
+        },
+        {
+          "key": "pressureDrop",
+          "label": "Perte de charge",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "Pa"
+        },
+        {
+          "key": "heatFlux",
+          "label": "Flux surfacique",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "W/m²"
+        },
+        {
+          "key": "surfaceTemperature",
+          "label": "Température de surface",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "°C"
+        }
+      ]
+    },
+    {
+      "family": "VENTILATION_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "nominalFlowM3h",
+          "label": "Débit nominal",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m³/h",
+          "minimum": 0
+        },
+        {
+          "key": "maximumFlowM3h",
+          "label": "Débit maximal",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m³/h",
+          "minimum": 0
+        },
+        {
+          "key": "specificFanPowerWM3h",
+          "label": "Puissance spécifique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m³/h)",
+          "minimum": 0
+        },
+        {
+          "key": "heatRecoveryEfficiency",
+          "label": "Rendement d’échange",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "soundPower",
+          "label": "Puissance acoustique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "dB(A)",
+          "minimum": 0
+        },
+        {
+          "key": "pressureDropPa",
+          "label": "Perte de charge",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "Pa",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "WALL_ASSEMBLY",
+      "properties": [
+        {
+          "key": "assemblyId",
+          "label": "Assemblage",
+          "type": "string",
+          "source": "DEFINITION",
+          "required": true
+        },
+        {
+          "key": "structuralRole",
+          "label": "Rôle structurel",
+          "type": "enum",
+          "source": "DEFINITION",
+          "options": ["LOAD_BEARING", "NON_LOAD_BEARING", "UNKNOWN"]
+        },
+        {
+          "key": "thermalBoundary",
+          "label": "Enveloppe thermique",
+          "type": "boolean",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "fireRating",
+          "label": "Résistance au feu",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "acousticRating",
+          "label": "Affaiblissement acoustique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "dB"
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€/m²",
+          "minimum": 0
+        },
+        {
+          "key": "carbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e/m²",
+          "minimum": 0
+        },
+        {
+          "key": "external",
+          "label": "Extérieur",
+          "type": "boolean",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "airTightness",
+          "label": "Perméabilité à l’air",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m³/(h·m²)",
+          "minimum": 0
+        },
+        {
+          "key": "waterResistance",
+          "label": "Résistance à l’eau",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "moistureExposure",
+          "label": "Exposition à l’humidité",
+          "type": "enum",
+          "source": "DEFINITION",
+          "options": ["DRY", "HUMID", "WET"]
+        }
+      ]
+    },
+    {
+      "family": "WASTEWATER_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "nominalDiameterMm",
+          "label": "Diamètre nominal",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "dischargeUnits",
+          "label": "Unités de vidange",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "UV",
+          "minimum": 0
+        },
+        {
+          "key": "minimumSlope",
+          "label": "Pente minimale",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m/m",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "WATER_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "label": "Profondeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "label": "Coût",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "€",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "label": "Durée de vie",
+          "type": "integer",
+          "source": "DEFINITION",
+          "unit": "an",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "label": "Carbone incorporé",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "kgCO2e",
+          "minimum": 0
+        },
+        {
+          "key": "nominalDiameterMm",
+          "label": "Diamètre nominal",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "pressureLossPa",
+          "label": "Perte de charge",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "Pa",
+          "minimum": 0
+        },
+        {
+          "key": "kvs",
+          "label": "Coefficient de débit",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "m³/h",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "WINDOW",
+      "properties": [
+        {
+          "key": "width",
+          "label": "Largeur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "required": true,
+          "minimum": 1
+        },
+        {
+          "key": "height",
+          "label": "Hauteur",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "required": true,
+          "minimum": 1
+        },
+        {
+          "key": "frameDepth",
+          "label": "Profondeur de dormant",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "frameWidth",
+          "label": "Largeur de dormant",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "sillHeight",
+          "label": "Allège",
+          "type": "number",
+          "source": "INSTANCE",
+          "unit": "mm",
+          "minimum": 0
+        },
+        {
+          "key": "wallReveal",
+          "label": "Tableau",
+          "type": "number",
+          "source": "INSTANCE",
+          "unit": "mm"
+        },
+        {
+          "key": "panelCount",
+          "label": "Nombre de vantaux",
+          "type": "integer",
+          "source": "DEFINITION",
+          "minimum": 1,
+          "unit": "-"
+        },
+        {
+          "key": "openingSide",
+          "label": "Sens d’ouverture",
+          "type": "enum",
+          "source": "INSTANCE",
+          "options": ["LEFT", "RIGHT", "NONE"]
+        },
+        {
+          "key": "openingDirection",
+          "label": "Ouvrant",
+          "type": "enum",
+          "source": "INSTANCE",
+          "options": ["INWARD", "OUTWARD", "SLIDING", "FIXED"]
+        },
+        {
+          "key": "openingAngle",
+          "label": "Angle d’ouverture",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "°",
+          "minimum": 0,
+          "maximum": 180
+        },
+        {
+          "key": "mullions",
+          "label": "Meneaux",
+          "type": "integer",
+          "source": "DEFINITION",
+          "minimum": 0,
+          "unit": "-"
+        },
+        {
+          "key": "transoms",
+          "label": "Traverses",
+          "type": "integer",
+          "source": "DEFINITION",
+          "minimum": 0,
+          "unit": "-"
+        },
+        {
+          "key": "uw",
+          "label": "Coefficient Uw",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m²·K)",
+          "minimum": 0
+        },
+        {
+          "key": "ug",
+          "label": "Coefficient Ug",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m²·K)",
+          "minimum": 0
+        },
+        {
+          "key": "uf",
+          "label": "Coefficient Uf",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m²·K)",
+          "minimum": 0
+        },
+        {
+          "key": "psiSpacer",
+          "label": "Pont thermique d’intercalaire",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "W/(m·K)"
+        },
+        {
+          "key": "gValue",
+          "label": "Facteur solaire",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "visibleTransmittance",
+          "label": "Transmission lumineuse",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "-",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "key": "airPermeability",
+          "label": "Perméabilité à l’air",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "waterTightness",
+          "label": "Étanchéité à l’eau",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "windResistance",
+          "label": "Résistance au vent",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "rw",
+          "label": "Affaiblissement acoustique",
+          "type": "number",
+          "source": "DEFINITION",
+          "unit": "dB",
+          "minimum": 0
+        },
+        {
+          "key": "fireRating",
+          "label": "Résistance au feu",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "securityClass",
+          "label": "Classe de sécurité",
+          "type": "string",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "glazing",
+          "label": "Vitrage",
+          "type": "enum",
+          "source": "DEFINITION",
+          "options": [
+            "SINGLE",
+            "DOUBLE",
+            "TRIPLE",
+            "LAMINATED",
+            "TEMPERED",
+            "LOW_E",
+            "SOLAR_CONTROL"
+          ]
+        },
+        {
+          "key": "cavityGas",
+          "label": "Gaz de remplissage",
+          "type": "enum",
+          "source": "DEFINITION",
+          "options": ["AIR", "ARGON", "KRYPTON"]
+        },
+        {
+          "key": "glazedArea",
+          "label": "Surface vitrée",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "m²"
+        },
+        {
+          "key": "solarGain",
+          "label": "Apports solaires",
+          "type": "number",
+          "source": "DERIVED",
+          "unit": "kWh"
+        }
+      ]
+    }
+  ]
+}

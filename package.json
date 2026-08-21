@@ -26,7 +26,8 @@
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install --with-deps chromium firefox webkit",
     "test:e2e:chromium": "playwright test --project=chromium --project=mobile",
-    "audit:licenses": "node scripts/audit-licenses.mjs"
+    "audit:licenses": "node scripts/audit-licenses.mjs",
+    "catalog:status": "node scripts/catalog-status.mjs"
   },
   "engines": {
     "node": ">=22.0.0"
