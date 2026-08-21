@@ -1,0 +1,260 @@
+{
+  "families": [
+    {
+      "id": "WATER_PIPE",
+      "label": "Tube d’eau",
+      "domain": "PLUMBING",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 2,
+      "calculators": ["water", "dhw", "cost", "environmental"],
+      "propertySchema": "PIPE_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "WASTEWATER_PIPE",
+      "label": "Tube d’évacuation",
+      "domain": "WASTEWATER",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 2,
+      "calculators": ["wastewater", "cost", "environmental"],
+      "propertySchema": "PIPE_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "RAINWATER_PIPE",
+      "label": "Tube d’eaux pluviales",
+      "domain": "RAINWATER",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 2,
+      "calculators": ["rainwater", "cost", "environmental"],
+      "propertySchema": "PIPE_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "HEATING_PIPE",
+      "label": "Tube de chauffage",
+      "domain": "HEATING",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["heating", "cost", "environmental"],
+      "propertySchema": "PIPE_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "REFRIGERANT_PIPE",
+      "label": "Liaison frigorifique",
+      "domain": "HEATING",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["heating", "cost"],
+      "propertySchema": "PIPE_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "ROUND_DUCT",
+      "label": "Gaine circulaire",
+      "domain": "VENTILATION",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["ventilation", "acoustics", "cost"],
+      "propertySchema": "DUCT_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "RECTANGULAR_DUCT",
+      "label": "Gaine rectangulaire",
+      "domain": "VENTILATION",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["ventilation", "acoustics", "cost"],
+      "propertySchema": "DUCT_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "FLEXIBLE_DUCT",
+      "label": "Gaine souple",
+      "domain": "VENTILATION",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["ventilation", "acoustics", "cost"],
+      "propertySchema": "DUCT_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "ELECTRICAL_CABLE",
+      "label": "Câble",
+      "domain": "ELECTRICAL",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["electrical", "cost", "environmental"],
+      "propertySchema": "CABLE_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "ELECTRICAL_WIRE",
+      "label": "Conducteur",
+      "domain": "ELECTRICAL",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["electrical", "cost"],
+      "propertySchema": "CABLE_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "PV_DC_CABLE",
+      "label": "Câble continu photovoltaïque",
+      "domain": "SOLAR",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["photovoltaic", "electrical", "cost"],
+      "propertySchema": "CABLE_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "PV_AC_CABLE",
+      "label": "Câble alternatif photovoltaïque",
+      "domain": "SOLAR",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["photovoltaic", "electrical", "cost"],
+      "propertySchema": "CABLE_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "CONDUIT",
+      "label": "Conduit",
+      "domain": "ELECTRICAL",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["electrical", "cost"],
+      "propertySchema": "CONDUIT_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "FLEXIBLE_CONDUIT",
+      "label": "Gaine ICTA",
+      "domain": "ELECTRICAL",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["electrical", "cost"],
+      "propertySchema": "CONDUIT_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "DATA_CABLE",
+      "label": "Câble de données",
+      "domain": "DATA",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["cost"],
+      "propertySchema": "CABLE_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    },
+    {
+      "id": "FLUE_PIPE",
+      "label": "Conduit de fumée",
+      "domain": "FLUE",
+      "registry": "NETWORK_PRODUCT",
+      "priority": 3,
+      "calculators": ["heating", "cost"],
+      "propertySchema": "FLUE_PRODUCT",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "READY",
+        "NETWORK": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le tronçon porte l’identifiant du produit ; le produit lui-même vit dans son propre catalogue."
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "definitions": [
+    {
+      "id": "generic-rainwater-tank",
+      "familyId": "RAINWATER_TANK",
+      "kind": "RAINWATER_TANK",
+      "category": "RAINWATER_TANK",
+      "name": "Cuve de récupération d’eau de pluie",
+      "dimensions": {
+        "widthMm": 2000,
+        "depthMm": 1500,
+        "heightMm": 1800
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "discipline": "RAINWATER",
+          "role": "INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 800
+          },
+          "nominalSize": 0.1
+        },
+        {
+          "id": "overflow",
+          "discipline": "RAINWATER",
+          "role": "OVERFLOW",
+          "position": {
+            "x": 900,
+            "y": 0,
+            "z": 700
+          },
+          "nominalSize": 0.1
+        },
+        {
+          "id": "outlet",
+          "discipline": "RAINWATER",
+          "role": "OUTLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -800
+          },
+          "nominalSize": 0.032
+        }
+      ],
+      "properties": {
+        "nominalVolumeL": 5000,
+        "initialVolumeL": 0,
+        "buried": true
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "RAINWATER",
+            "symbolId": "symbol-rainwater-tank"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "rainwater.equipment"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    }
+  ]
+}

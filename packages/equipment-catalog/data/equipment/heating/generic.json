@@ -1,0 +1,259 @@
+{
+  "definitions": [
+    {
+      "id": "generic-air-water-heat-pump",
+      "familyId": "HEAT_PUMP_AIR_WATER_MONOBLOC",
+      "kind": "HEAT_PUMP",
+      "category": "HEAT_PUMP",
+      "name": "Pompe à chaleur air/eau",
+      "dimensions": {
+        "widthMm": 1100,
+        "depthMm": 450,
+        "heightMm": 800
+      },
+      "ports": [
+        {
+          "id": "flow",
+          "discipline": "HEATING",
+          "role": "FLOW",
+          "position": {
+            "x": -400,
+            "y": 0,
+            "z": -350
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "return",
+          "discipline": "HEATING",
+          "role": "RETURN",
+          "position": {
+            "x": 400,
+            "y": 0,
+            "z": -350
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "power",
+          "discipline": "ELECTRICAL",
+          "role": "SUPPLY",
+          "position": {
+            "x": 0,
+            "y": 200,
+            "z": -350
+          }
+        }
+      ],
+      "properties": {
+        "nominalHeatingCapacityW": 8000,
+        "nominalCop": 4.2,
+        "minimumOutdoorTemperatureC": -20,
+        "maximumFlowTemperatureC": 60,
+        "supplyVoltageV": 230
+      },
+      "performanceCurves": [
+        {
+          "id": "cop-vs-outdoor-temperature",
+          "inputAxes": [
+            {
+              "id": "outdoorTemperatureC",
+              "unit": "°C"
+            }
+          ],
+          "output": "cop",
+          "outputUnit": "-",
+          "interpolation": "LINEAR",
+          "points": [
+            {
+              "inputs": [-15],
+              "output": 2
+            },
+            {
+              "inputs": [-7],
+              "output": 2.6
+            },
+            {
+              "inputs": [2],
+              "output": 3.4
+            },
+            {
+              "inputs": [7],
+              "output": 4.2
+            },
+            {
+              "inputs": [15],
+              "output": 5
+            }
+          ]
+        }
+      ],
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-heat-pump"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.generation"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-circulator-pump",
+      "familyId": "CIRCULATOR",
+      "kind": "PUMP",
+      "category": "PUMP",
+      "name": "Circulateur de chauffage",
+      "dimensions": {
+        "widthMm": 180,
+        "depthMm": 130,
+        "heightMm": 180
+      },
+      "ports": [
+        {
+          "id": "in",
+          "discipline": "HEATING",
+          "role": "RETURN",
+          "position": {
+            "x": -90,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "out",
+          "discipline": "HEATING",
+          "role": "FLOW",
+          "position": {
+            "x": 90,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.026
+        }
+      ],
+      "properties": {
+        "nominalPowerW": 45,
+        "maximumHeadM": 6,
+        "maximumFlowM3h": 3.5,
+        "supplyVoltageV": 230
+      },
+      "performanceCurves": [
+        {
+          "id": "head-vs-flow",
+          "inputAxes": [
+            {
+              "id": "flowM3h",
+              "unit": "m3/h"
+            }
+          ],
+          "output": "headM",
+          "outputUnit": "m",
+          "interpolation": "LINEAR",
+          "points": [
+            {
+              "inputs": [0],
+              "output": 6
+            },
+            {
+              "inputs": [1],
+              "output": 5.2
+            },
+            {
+              "inputs": [2],
+              "output": 3.9
+            },
+            {
+              "inputs": [3],
+              "output": 2
+            },
+            {
+              "inputs": [3.5],
+              "output": 0
+            }
+          ]
+        }
+      ],
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-pump"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "heating.equipment"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-radiator",
+      "familyId": "RADIATOR",
+      "kind": "RADIATOR",
+      "category": "RADIATOR",
+      "name": "Radiateur eau chaude",
+      "dimensions": {
+        "widthMm": 1000,
+        "depthMm": 100,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "flow",
+          "discipline": "HEATING",
+          "role": "FLOW",
+          "position": {
+            "x": -480,
+            "y": 0,
+            "z": -280
+          },
+          "nominalSize": 0.015
+        },
+        {
+          "id": "return",
+          "discipline": "HEATING",
+          "role": "RETURN",
+          "position": {
+            "x": 480,
+            "y": 0,
+            "z": -280
+          },
+          "nominalSize": 0.015
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 1200,
+        "nominalFlowTemperatureC": 55,
+        "nominalReturnTemperatureC": 45,
+        "nominalRoomTemperatureC": 20,
+        "exponent": 1.3
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-radiator"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    }
+  ]
+}

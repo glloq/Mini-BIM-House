@@ -1,0 +1,890 @@
+{
+  "families": [
+    {
+      "id": "WALL_EXTERNAL",
+      "label": "Mur extérieur",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "WALL_INTERNAL",
+      "label": "Mur intérieur",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "WALL_LOAD_BEARING",
+      "label": "Mur porteur",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "PARTITION",
+      "label": "Cloison",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "LINING",
+      "label": "Doublage",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "DOUBLE_WALL",
+      "label": "Mur double",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "BASEMENT_WALL",
+      "label": "Mur enterré",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "PARTY_WALL",
+      "label": "Mur mitoyen",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "CURTAIN_WALL",
+      "label": "Mur-rideau",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "FOUNDATION_WALL",
+      "label": "Mur de fondation",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "PARAPET",
+      "label": "Acrotère",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "LOW_WALL",
+      "label": "Muret",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "CLADDING",
+      "label": "Bardage",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "FACADE_PANEL",
+      "label": "Panneau de façade",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WALL_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL",
+        "TESTS": "PARTIAL"
+      }
+    },
+    {
+      "id": "GROUND_SLAB",
+      "label": "Dallage sur terre-plein",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "FLOOR_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "INTERMEDIATE_FLOOR",
+      "label": "Plancher intermédiaire",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "FLOOR_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "SUSPENDED_FLOOR",
+      "label": "Plancher sur vide sanitaire",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "FLOOR_ASSEMBLY",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      },
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+    },
+    {
+      "id": "ROOF_SLAB",
+      "label": "Dalle de toiture",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "FLOOR_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "BALCONY",
+      "label": "Balcon",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "FLOOR_ASSEMBLY",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      },
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+    },
+    {
+      "id": "TERRACE",
+      "label": "Terrasse",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "FLOOR_ASSEMBLY",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      },
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+    },
+    {
+      "id": "GARAGE_SLAB",
+      "label": "Dalle de garage",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "FLOOR_ASSEMBLY",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      },
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+    },
+    {
+      "id": "CEILING",
+      "label": "Plafond",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "FLOOR_ASSEMBLY",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      },
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+    },
+    {
+      "id": "SUSPENDED_CEILING",
+      "label": "Faux plafond",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "FLOOR_ASSEMBLY",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      },
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+    },
+    {
+      "id": "ACOUSTIC_CEILING",
+      "label": "Plafond acoustique",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "FLOOR_ASSEMBLY",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      },
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+    },
+    {
+      "id": "TECHNICAL_CEILING",
+      "label": "Plafond technique",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "FLOOR_ASSEMBLY",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      },
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+    },
+    {
+      "id": "ROOF_SLOPED",
+      "label": "Toiture en pente",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "rainwater",
+        "photovoltaic",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "ROOF_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "ROOF_GABLE",
+      "label": "Toiture à deux pans",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "rainwater",
+        "photovoltaic",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "ROOF_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "ROOF_HIPPED",
+      "label": "Toiture à quatre pans",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "rainwater",
+        "photovoltaic",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "ROOF_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "ROOF_SHED",
+      "label": "Toiture monopente",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "rainwater",
+        "photovoltaic",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "ROOF_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "ROOF_FLAT",
+      "label": "Toiture-terrasse",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "rainwater",
+        "photovoltaic",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "ROOF_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "ROOF_TERRACE",
+      "label": "Toiture-terrasse accessible",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "rainwater",
+        "photovoltaic",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "ROOF_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "GREEN_ROOF",
+      "label": "Toiture végétalisée",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "rainwater",
+        "photovoltaic",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "ROOF_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "ROOF_PANEL",
+      "label": "Panneau de toiture",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "rainwater",
+        "photovoltaic",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "ROOF_ASSEMBLY",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "QUANTITIES": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "RIDGE",
+      "label": "Faîtage",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 2,
+      "calculators": ["rainwater", "thermal"],
+      "propertySchema": "ROOF_PART",
+      "status": {
+        "MODEL": "PARTIAL"
+      },
+      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+    },
+    {
+      "id": "HIP",
+      "label": "Arêtier",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 2,
+      "calculators": ["rainwater", "thermal"],
+      "propertySchema": "ROOF_PART",
+      "status": {
+        "MODEL": "PARTIAL"
+      },
+      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+    },
+    {
+      "id": "VALLEY",
+      "label": "Noue",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 2,
+      "calculators": ["rainwater", "thermal"],
+      "propertySchema": "ROOF_PART",
+      "status": {
+        "MODEL": "PARTIAL"
+      },
+      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+    },
+    {
+      "id": "EAVE",
+      "label": "Égout",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 2,
+      "calculators": ["rainwater", "thermal"],
+      "propertySchema": "ROOF_PART",
+      "status": {
+        "MODEL": "PARTIAL"
+      },
+      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+    },
+    {
+      "id": "VERGE",
+      "label": "Rive",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 2,
+      "calculators": ["rainwater", "thermal"],
+      "propertySchema": "ROOF_PART",
+      "status": {
+        "MODEL": "PARTIAL"
+      },
+      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+    },
+    {
+      "id": "FLASHING",
+      "label": "Solin",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 2,
+      "calculators": ["rainwater", "thermal"],
+      "propertySchema": "ROOF_PART",
+      "status": {
+        "MODEL": "NONE"
+      },
+      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+    },
+    {
+      "id": "ROOF_WINDOW",
+      "label": "Fenêtre de toit",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 2,
+      "calculators": ["rainwater", "thermal"],
+      "propertySchema": "ROOF_PART",
+      "status": {
+        "MODEL": "NONE"
+      },
+      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+    },
+    {
+      "id": "SKYLIGHT",
+      "label": "Lanterneau",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 2,
+      "calculators": ["rainwater", "thermal"],
+      "propertySchema": "ROOF_PART",
+      "status": {
+        "MODEL": "NONE"
+      },
+      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+    },
+    {
+      "id": "CHIMNEY_OPENING",
+      "label": "Souche de cheminée",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 2,
+      "calculators": ["rainwater", "thermal"],
+      "propertySchema": "ROOF_PART",
+      "status": {
+        "MODEL": "NONE"
+      },
+      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+    },
+    {
+      "id": "VENT_OUTLET",
+      "label": "Sortie de toit",
+      "domain": "ARCHITECTURE",
+      "registry": "ASSEMBLY",
+      "priority": 2,
+      "calculators": ["rainwater", "thermal"],
+      "propertySchema": "ROOF_PART",
+      "status": {
+        "MODEL": "NONE"
+      },
+      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+    }
+  ]
+}

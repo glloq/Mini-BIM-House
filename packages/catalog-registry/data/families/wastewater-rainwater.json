@@ -1,0 +1,950 @@
+{
+  "families": [
+    {
+      "id": "TRAP",
+      "label": "Siphon",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "APPLIANCE_BRANCH",
+      "label": "Raccordement d’appareil",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "WASTE_BRANCH",
+      "label": "Branchement eaux usées",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "SOIL_BRANCH",
+      "label": "Branchement eaux-vannes",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "WASTE_STACK",
+      "label": "Chute eaux usées",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "SOIL_STACK",
+      "label": "Chute eaux-vannes",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "VENT_STACK",
+      "label": "Ventilation primaire",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "SECONDARY_VENT",
+      "label": "Ventilation secondaire",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "SANITARY_TEE",
+      "label": "Té sanitaire",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "WYE",
+      "label": "Culotte",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "LONG_RADIUS_BEND",
+      "label": "Coude à grand rayon",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "WASTE_REDUCER",
+      "label": "Réduction",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "CLEANOUT",
+      "label": "Tampon de dégorgement",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "ACCESS_CAP",
+      "label": "Bouchon de visite",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "INSPECTION_CHAMBER",
+      "label": "Regard de visite",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "BACKWATER_VALVE",
+      "label": "Clapet anti-retour",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "LIFTING_STATION",
+      "label": "Poste de relevage",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "SEWAGE_PUMP",
+      "label": "Pompe de relevage",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "PUBLIC_SEWER_CONNECTION",
+      "label": "Branchement au collecteur public",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "SEPTIC_TANK",
+      "label": "Fosse toutes eaux",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "GREASE_TRAP",
+      "label": "Bac à graisse",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "MICRO_TREATMENT_PLANT",
+      "label": "Micro-station",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "DRAIN_FIELD",
+      "label": "Épandage",
+      "domain": "WASTEWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "calculators": ["wastewater", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "WASTEWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "ROOF_CATCHMENT",
+      "label": "Surface de collecte",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      },
+      "hint": "La surface de collecte, la pente et l’orientation viennent de la toiture ; elles ne se ressaisissent pas."
+    },
+    {
+      "id": "VALLEY_GUTTER",
+      "label": "Noue",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "GUTTER",
+      "label": "Gouttière",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BOX_GUTTER",
+      "label": "Chéneau",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "ROOF_DRAIN",
+      "label": "Naissance",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "LEAF_GUARD",
+      "label": "Crapaudine",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "DOWNPIPE",
+      "label": "Descente",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "RAINWATER_CHAMBER",
+      "label": "Regard eaux pluviales",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "FIRST_FLUSH",
+      "label": "Dérivation des premières eaux",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "RAIN_FILTER",
+      "label": "Filtre à eaux pluviales",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "RAINWATER_TANK",
+      "label": "Cuve de récupération",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "UNDERGROUND_TANK",
+      "label": "Cuve enterrée",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "RAINWATER_PUMP",
+      "label": "Pompe de reprise",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "RAINWATER_BOOSTER",
+      "label": "Surpresseur eaux pluviales",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "OVERFLOW",
+      "label": "Trop-plein",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "SOAKAWAY",
+      "label": "Puits d’infiltration",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "INFILTRATION_TRENCH",
+      "label": "Tranchée d’infiltration",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "SWALE",
+      "label": "Noue paysagère",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "RETENTION_BASIN",
+      "label": "Bassin de rétention",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "DETENTION_BASIN",
+      "label": "Bassin d’orage",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "PUBLIC_STORM_CONNECTION",
+      "label": "Branchement pluvial public",
+      "domain": "RAINWATER",
+      "registry": "EQUIPMENT",
+      "priority": 2,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["rainwater", "cost"],
+      "placement": {
+        "allowedHosts": ["ROOF", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "RAINWATER_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    }
+  ]
+}

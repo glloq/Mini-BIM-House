@@ -1,0 +1,1210 @@
+{
+  "products": [
+    {
+      "id": "pipe-pex-12x1.1",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube PER 12×1.1",
+      "properties": {
+        "material": "PEX",
+        "outerDiameterMm": 12,
+        "wallThicknessMm": 1.1,
+        "innerDiameterMm": 9.8,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-pex-16x1.5",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube PER 16×1.5",
+      "properties": {
+        "material": "PEX",
+        "outerDiameterMm": 16,
+        "wallThicknessMm": 1.5,
+        "innerDiameterMm": 13.0,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-pex-20x1.9",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube PER 20×1.9",
+      "properties": {
+        "material": "PEX",
+        "outerDiameterMm": 20,
+        "wallThicknessMm": 1.9,
+        "innerDiameterMm": 16.2,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-pex-25x2.3",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube PER 25×2.3",
+      "properties": {
+        "material": "PEX",
+        "outerDiameterMm": 25,
+        "wallThicknessMm": 2.3,
+        "innerDiameterMm": 20.4,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-pex-32x2.9",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube PER 32×2.9",
+      "properties": {
+        "material": "PEX",
+        "outerDiameterMm": 32,
+        "wallThicknessMm": 2.9,
+        "innerDiameterMm": 26.2,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-multilayer-16x2.0",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube multicouche 16×2.0",
+      "properties": {
+        "material": "MULTILAYER",
+        "outerDiameterMm": 16,
+        "wallThicknessMm": 2.0,
+        "innerDiameterMm": 12.0,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-multilayer-20x2.0",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube multicouche 20×2.0",
+      "properties": {
+        "material": "MULTILAYER",
+        "outerDiameterMm": 20,
+        "wallThicknessMm": 2.0,
+        "innerDiameterMm": 16.0,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-multilayer-26x3.0",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube multicouche 26×3.0",
+      "properties": {
+        "material": "MULTILAYER",
+        "outerDiameterMm": 26,
+        "wallThicknessMm": 3.0,
+        "innerDiameterMm": 20.0,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-multilayer-32x3.0",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube multicouche 32×3.0",
+      "properties": {
+        "material": "MULTILAYER",
+        "outerDiameterMm": 32,
+        "wallThicknessMm": 3.0,
+        "innerDiameterMm": 26.0,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-copper-12x1.0",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube cuivre 12×1.0",
+      "properties": {
+        "material": "COPPER",
+        "outerDiameterMm": 12,
+        "wallThicknessMm": 1.0,
+        "innerDiameterMm": 10.0,
+        "roughnessMm": 0.0015,
+        "maxPressureBar": 16,
+        "maxTemperatureC": 110
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-copper-14x1.0",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube cuivre 14×1.0",
+      "properties": {
+        "material": "COPPER",
+        "outerDiameterMm": 14,
+        "wallThicknessMm": 1.0,
+        "innerDiameterMm": 12.0,
+        "roughnessMm": 0.0015,
+        "maxPressureBar": 16,
+        "maxTemperatureC": 110
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-copper-16x1.0",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube cuivre 16×1.0",
+      "properties": {
+        "material": "COPPER",
+        "outerDiameterMm": 16,
+        "wallThicknessMm": 1.0,
+        "innerDiameterMm": 14.0,
+        "roughnessMm": 0.0015,
+        "maxPressureBar": 16,
+        "maxTemperatureC": 110
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-copper-18x1.0",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube cuivre 18×1.0",
+      "properties": {
+        "material": "COPPER",
+        "outerDiameterMm": 18,
+        "wallThicknessMm": 1.0,
+        "innerDiameterMm": 16.0,
+        "roughnessMm": 0.0015,
+        "maxPressureBar": 16,
+        "maxTemperatureC": 110
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-copper-22x1.0",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube cuivre 22×1.0",
+      "properties": {
+        "material": "COPPER",
+        "outerDiameterMm": 22,
+        "wallThicknessMm": 1.0,
+        "innerDiameterMm": 20.0,
+        "roughnessMm": 0.0015,
+        "maxPressureBar": 16,
+        "maxTemperatureC": 110
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-copper-28x1.0",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube cuivre 28×1.0",
+      "properties": {
+        "material": "COPPER",
+        "outerDiameterMm": 28,
+        "wallThicknessMm": 1.0,
+        "innerDiameterMm": 26.0,
+        "roughnessMm": 0.0015,
+        "maxPressureBar": 16,
+        "maxTemperatureC": 110
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-copper-35x1.5",
+      "family": "WATER_PIPE",
+      "domain": "PLUMBING",
+      "label": "Tube cuivre 35×1.5",
+      "properties": {
+        "material": "COPPER",
+        "outerDiameterMm": 35,
+        "wallThicknessMm": 1.5,
+        "innerDiameterMm": 32.0,
+        "roughnessMm": 0.0015,
+        "maxPressureBar": 16,
+        "maxTemperatureC": 110
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "heating-pipe-multilayer-16x2.0",
+      "family": "HEATING_PIPE",
+      "domain": "HEATING",
+      "label": "Tube chauffage multicouche 16×2.0",
+      "properties": {
+        "material": "MULTILAYER",
+        "outerDiameterMm": 16,
+        "wallThicknessMm": 2.0,
+        "innerDiameterMm": 12.0,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "heating-pipe-multilayer-20x2.0",
+      "family": "HEATING_PIPE",
+      "domain": "HEATING",
+      "label": "Tube chauffage multicouche 20×2.0",
+      "properties": {
+        "material": "MULTILAYER",
+        "outerDiameterMm": 20,
+        "wallThicknessMm": 2.0,
+        "innerDiameterMm": 16.0,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "heating-pipe-multilayer-26x3.0",
+      "family": "HEATING_PIPE",
+      "domain": "HEATING",
+      "label": "Tube chauffage multicouche 26×3.0",
+      "properties": {
+        "material": "MULTILAYER",
+        "outerDiameterMm": 26,
+        "wallThicknessMm": 3.0,
+        "innerDiameterMm": 20.0,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "heating-pipe-multilayer-32x3.0",
+      "family": "HEATING_PIPE",
+      "domain": "HEATING",
+      "label": "Tube chauffage multicouche 32×3.0",
+      "properties": {
+        "material": "MULTILAYER",
+        "outerDiameterMm": 32,
+        "wallThicknessMm": 3.0,
+        "innerDiameterMm": 26.0,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "heating-pipe-multilayer-40x3.5",
+      "family": "HEATING_PIPE",
+      "domain": "HEATING",
+      "label": "Tube chauffage multicouche 40×3.5",
+      "properties": {
+        "material": "MULTILAYER",
+        "outerDiameterMm": 40,
+        "wallThicknessMm": 3.5,
+        "innerDiameterMm": 33.0,
+        "roughnessMm": 0.007,
+        "maxPressureBar": 10,
+        "maxTemperatureC": 95
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "waste-pipe-pvc-32",
+      "family": "WASTEWATER_PIPE",
+      "domain": "WASTEWATER",
+      "label": "Tube PVC évacuation Ø32",
+      "properties": {
+        "material": "PVC",
+        "outerDiameterMm": 32,
+        "wallThicknessMm": 3.0,
+        "innerDiameterMm": 26.0,
+        "roughnessMm": 0.03,
+        "maxPressureBar": 1,
+        "maxTemperatureC": 70
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "waste-pipe-pvc-40",
+      "family": "WASTEWATER_PIPE",
+      "domain": "WASTEWATER",
+      "label": "Tube PVC évacuation Ø40",
+      "properties": {
+        "material": "PVC",
+        "outerDiameterMm": 40,
+        "wallThicknessMm": 3.0,
+        "innerDiameterMm": 34.0,
+        "roughnessMm": 0.03,
+        "maxPressureBar": 1,
+        "maxTemperatureC": 70
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "waste-pipe-pvc-50",
+      "family": "WASTEWATER_PIPE",
+      "domain": "WASTEWATER",
+      "label": "Tube PVC évacuation Ø50",
+      "properties": {
+        "material": "PVC",
+        "outerDiameterMm": 50,
+        "wallThicknessMm": 3.0,
+        "innerDiameterMm": 44.0,
+        "roughnessMm": 0.03,
+        "maxPressureBar": 1,
+        "maxTemperatureC": 70
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "waste-pipe-pvc-75",
+      "family": "WASTEWATER_PIPE",
+      "domain": "WASTEWATER",
+      "label": "Tube PVC évacuation Ø75",
+      "properties": {
+        "material": "PVC",
+        "outerDiameterMm": 75,
+        "wallThicknessMm": 3.0,
+        "innerDiameterMm": 69.0,
+        "roughnessMm": 0.03,
+        "maxPressureBar": 1,
+        "maxTemperatureC": 70
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "waste-pipe-pvc-100",
+      "family": "WASTEWATER_PIPE",
+      "domain": "WASTEWATER",
+      "label": "Tube PVC évacuation Ø100",
+      "properties": {
+        "material": "PVC",
+        "outerDiameterMm": 100,
+        "wallThicknessMm": 3.0,
+        "innerDiameterMm": 94.0,
+        "roughnessMm": 0.03,
+        "maxPressureBar": 1,
+        "maxTemperatureC": 70
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "waste-pipe-pvc-125",
+      "family": "WASTEWATER_PIPE",
+      "domain": "WASTEWATER",
+      "label": "Tube PVC évacuation Ø125",
+      "properties": {
+        "material": "PVC",
+        "outerDiameterMm": 125,
+        "wallThicknessMm": 3.2,
+        "innerDiameterMm": 118.6,
+        "roughnessMm": 0.03,
+        "maxPressureBar": 1,
+        "maxTemperatureC": 70
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "rainwater-pipe-pvc-80",
+      "family": "RAINWATER_PIPE",
+      "domain": "RAINWATER",
+      "label": "Descente PVC Ø80",
+      "properties": {
+        "material": "PVC",
+        "outerDiameterMm": 80,
+        "wallThicknessMm": 3.0,
+        "innerDiameterMm": 74.0,
+        "roughnessMm": 0.03,
+        "maxPressureBar": 1,
+        "maxTemperatureC": 60
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "rainwater-pipe-pvc-100",
+      "family": "RAINWATER_PIPE",
+      "domain": "RAINWATER",
+      "label": "Descente PVC Ø100",
+      "properties": {
+        "material": "PVC",
+        "outerDiameterMm": 100,
+        "wallThicknessMm": 3.0,
+        "innerDiameterMm": 94.0,
+        "roughnessMm": 0.03,
+        "maxPressureBar": 1,
+        "maxTemperatureC": 60
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "rainwater-pipe-pvc-125",
+      "family": "RAINWATER_PIPE",
+      "domain": "RAINWATER",
+      "label": "Descente PVC Ø125",
+      "properties": {
+        "material": "PVC",
+        "outerDiameterMm": 125,
+        "wallThicknessMm": 3.2,
+        "innerDiameterMm": 118.6,
+        "roughnessMm": 0.03,
+        "maxPressureBar": 1,
+        "maxTemperatureC": 60
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "rainwater-pipe-pvc-160",
+      "family": "RAINWATER_PIPE",
+      "domain": "RAINWATER",
+      "label": "Descente PVC Ø160",
+      "properties": {
+        "material": "PVC",
+        "outerDiameterMm": 160,
+        "wallThicknessMm": 4.0,
+        "innerDiameterMm": 152.0,
+        "roughnessMm": 0.03,
+        "maxPressureBar": 1,
+        "maxTemperatureC": 60
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-round-80",
+      "family": "ROUND_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine circulaire Ø80",
+      "properties": {
+        "shape": "ROUND",
+        "diameterMm": 80,
+        "material": "Acier galvanisé",
+        "roughnessMm": 0.09
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-round-100",
+      "family": "ROUND_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine circulaire Ø100",
+      "properties": {
+        "shape": "ROUND",
+        "diameterMm": 100,
+        "material": "Acier galvanisé",
+        "roughnessMm": 0.09
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-round-125",
+      "family": "ROUND_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine circulaire Ø125",
+      "properties": {
+        "shape": "ROUND",
+        "diameterMm": 125,
+        "material": "Acier galvanisé",
+        "roughnessMm": 0.09
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-round-150",
+      "family": "ROUND_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine circulaire Ø150",
+      "properties": {
+        "shape": "ROUND",
+        "diameterMm": 150,
+        "material": "Acier galvanisé",
+        "roughnessMm": 0.09
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-round-160",
+      "family": "ROUND_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine circulaire Ø160",
+      "properties": {
+        "shape": "ROUND",
+        "diameterMm": 160,
+        "material": "Acier galvanisé",
+        "roughnessMm": 0.09
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-round-200",
+      "family": "ROUND_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine circulaire Ø200",
+      "properties": {
+        "shape": "ROUND",
+        "diameterMm": 200,
+        "material": "Acier galvanisé",
+        "roughnessMm": 0.09
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-round-250",
+      "family": "ROUND_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine circulaire Ø250",
+      "properties": {
+        "shape": "ROUND",
+        "diameterMm": 250,
+        "material": "Acier galvanisé",
+        "roughnessMm": 0.09
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-flexible-80",
+      "family": "FLEXIBLE_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine souple Ø80",
+      "properties": {
+        "shape": "FLEXIBLE",
+        "diameterMm": 80,
+        "material": "Aluminium",
+        "roughnessMm": 1.5,
+        "insulationThicknessMm": 25
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-flexible-125",
+      "family": "FLEXIBLE_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine souple Ø125",
+      "properties": {
+        "shape": "FLEXIBLE",
+        "diameterMm": 125,
+        "material": "Aluminium",
+        "roughnessMm": 1.5,
+        "insulationThicknessMm": 25
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-flexible-160",
+      "family": "FLEXIBLE_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine souple Ø160",
+      "properties": {
+        "shape": "FLEXIBLE",
+        "diameterMm": 160,
+        "material": "Aluminium",
+        "roughnessMm": 1.5,
+        "insulationThicknessMm": 25
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-3g1-5",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 3G1,5",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 1.5,
+        "coreCount": 3,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 16,
+        "resistivityOhmKm": 12.1
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-5g1-5",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 5G1,5",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 1.5,
+        "coreCount": 5,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 16,
+        "resistivityOhmKm": 12.1
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-3g2-5",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 3G2,5",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 2.5,
+        "coreCount": 3,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 20,
+        "resistivityOhmKm": 7.41
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-5g2-5",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 5G2,5",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 2.5,
+        "coreCount": 5,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 20,
+        "resistivityOhmKm": 7.41
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-3g4",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 3G4",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 4,
+        "coreCount": 3,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 27,
+        "resistivityOhmKm": 4.61
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-5g4",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 5G4",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 4,
+        "coreCount": 5,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 27,
+        "resistivityOhmKm": 4.61
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-3g6",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 3G6",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 6,
+        "coreCount": 3,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 34,
+        "resistivityOhmKm": 3.08
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-5g6",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 5G6",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 6,
+        "coreCount": 5,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 34,
+        "resistivityOhmKm": 3.08
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-3g10",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 3G10",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 10,
+        "coreCount": 3,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 46,
+        "resistivityOhmKm": 1.83
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-5g10",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 5G10",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 10,
+        "coreCount": 5,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 46,
+        "resistivityOhmKm": 1.83
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-3g16",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 3G16",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 16,
+        "coreCount": 3,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 62,
+        "resistivityOhmKm": 1.15
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-5g16",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 5G16",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 16,
+        "coreCount": 5,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 62,
+        "resistivityOhmKm": 1.15
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-3g25",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 3G25",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 25,
+        "coreCount": 3,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 80,
+        "resistivityOhmKm": 0.727
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-cu-5g25",
+      "family": "ELECTRICAL_CABLE",
+      "domain": "ELECTRICAL",
+      "label": "Câble cuivre 5G25",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 25,
+        "coreCount": 5,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 80,
+        "resistivityOhmKm": 0.727
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "conduit-icta-16",
+      "family": "FLEXIBLE_CONDUIT",
+      "domain": "ELECTRICAL",
+      "label": "Gaine ICTA Ø16",
+      "properties": {
+        "material": "PVC annelé",
+        "outerDiameterMm": 16,
+        "innerDiameterMm": 10.7,
+        "fillRatio": 0.33
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "conduit-icta-20",
+      "family": "FLEXIBLE_CONDUIT",
+      "domain": "ELECTRICAL",
+      "label": "Gaine ICTA Ø20",
+      "properties": {
+        "material": "PVC annelé",
+        "outerDiameterMm": 20,
+        "innerDiameterMm": 14.1,
+        "fillRatio": 0.33
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "conduit-icta-25",
+      "family": "FLEXIBLE_CONDUIT",
+      "domain": "ELECTRICAL",
+      "label": "Gaine ICTA Ø25",
+      "properties": {
+        "material": "PVC annelé",
+        "outerDiameterMm": 25,
+        "innerDiameterMm": 18.3,
+        "fillRatio": 0.33
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "conduit-icta-32",
+      "family": "FLEXIBLE_CONDUIT",
+      "domain": "ELECTRICAL",
+      "label": "Gaine ICTA Ø32",
+      "properties": {
+        "material": "PVC annelé",
+        "outerDiameterMm": 32,
+        "innerDiameterMm": 24.3,
+        "fillRatio": 0.33
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "conduit-icta-40",
+      "family": "FLEXIBLE_CONDUIT",
+      "domain": "ELECTRICAL",
+      "label": "Gaine ICTA Ø40",
+      "properties": {
+        "material": "PVC annelé",
+        "outerDiameterMm": 40,
+        "innerDiameterMm": 31.2,
+        "fillRatio": 0.33
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-insulated-80",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit isolé Ø80",
+      "properties": {
+        "material": "Inox double paroi",
+        "innerDiameterMm": 80,
+        "insulationThicknessMm": 25,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 80
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-insulated-100",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit isolé Ø100",
+      "properties": {
+        "material": "Inox double paroi",
+        "innerDiameterMm": 100,
+        "insulationThicknessMm": 25,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 80
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-insulated-125",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit isolé Ø125",
+      "properties": {
+        "material": "Inox double paroi",
+        "innerDiameterMm": 125,
+        "insulationThicknessMm": 25,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 80
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-insulated-150",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit isolé Ø150",
+      "properties": {
+        "material": "Inox double paroi",
+        "innerDiameterMm": 150,
+        "insulationThicknessMm": 25,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 80
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-insulated-180",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit isolé Ø180",
+      "properties": {
+        "material": "Inox double paroi",
+        "innerDiameterMm": 180,
+        "insulationThicknessMm": 25,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 80
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-insulated-200",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit isolé Ø200",
+      "properties": {
+        "material": "Inox double paroi",
+        "innerDiameterMm": 200,
+        "insulationThicknessMm": 25,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 80
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    }
+  ]
+}

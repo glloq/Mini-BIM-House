@@ -1,0 +1,219 @@
+{
+  "definitions": [
+    {
+      "id": "generic-air-terminal",
+      "familyId": "EXTRACT_TERMINAL",
+      "kind": "AIR_TERMINAL",
+      "category": "AIR_TERMINAL",
+      "name": "Bouche d’extraction",
+      "dimensions": {
+        "widthMm": 125,
+        "depthMm": 125,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "duct",
+          "discipline": "VENTILATION",
+          "role": "EXTRACT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -30
+          },
+          "nominalSize": 0.08
+        }
+      ],
+      "properties": {
+        "targetFlowM3h": 30,
+        "pressureDropPa": 60,
+        "airRole": "EXTRACT"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "VENTILATION",
+            "symbolId": "symbol-air-terminal"
+          }
+        ],
+        "planFootprint": "CIRCLE",
+        "layer": "ventilation.terminals"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-balanced-ventilation-unit",
+      "familyId": "BALANCED_VENTILATION_UNIT",
+      "kind": "VENTILATION_UNIT",
+      "category": "VENTILATION_UNIT",
+      "name": "VMC double flux avec échangeur",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 500
+      },
+      "ports": [
+        {
+          "id": "extract",
+          "discipline": "VENTILATION",
+          "role": "EXTRACT",
+          "position": {
+            "x": -300,
+            "y": -150,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "exhaust",
+          "discipline": "VENTILATION",
+          "role": "EXHAUST",
+          "position": {
+            "x": 300,
+            "y": -150,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "intake",
+          "discipline": "VENTILATION",
+          "role": "INTAKE",
+          "position": {
+            "x": 300,
+            "y": 150,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "supply",
+          "discipline": "VENTILATION",
+          "role": "SUPPLY",
+          "position": {
+            "x": -300,
+            "y": 150,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 250,
+        "nominalPowerW": 55,
+        "heatRecoveryEfficiency": 0.85,
+        "maximumStaticPressurePa": 200,
+        "systemType": "BALANCED",
+        "bypassAvailable": true
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "VENTILATION",
+            "symbolId": "symbol-ventilation-unit"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.equipment"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-extract-ventilation-unit",
+      "familyId": "EXTRACT_VENTILATION_UNIT",
+      "kind": "VENTILATION_UNIT",
+      "category": "VENTILATION_UNIT",
+      "name": "VMC simple flux hygroréglable",
+      "dimensions": {
+        "widthMm": 480,
+        "depthMm": 480,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "extract",
+          "discipline": "VENTILATION",
+          "role": "EXTRACT",
+          "position": {
+            "x": -240,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.125
+        },
+        {
+          "id": "exhaust",
+          "discipline": "VENTILATION",
+          "role": "EXHAUST",
+          "position": {
+            "x": 240,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.125
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 150,
+        "nominalPowerW": 22,
+        "maximumStaticPressurePa": 150,
+        "systemType": "EXTRACT"
+      },
+      "performanceCurves": [
+        {
+          "id": "pressure-vs-flow",
+          "inputAxes": [
+            {
+              "id": "flowM3h",
+              "unit": "m3/h"
+            }
+          ],
+          "output": "staticPressurePa",
+          "outputUnit": "Pa",
+          "interpolation": "LINEAR",
+          "points": [
+            {
+              "inputs": [0],
+              "output": 150
+            },
+            {
+              "inputs": [100],
+              "output": 120
+            },
+            {
+              "inputs": [200],
+              "output": 70
+            },
+            {
+              "inputs": [300],
+              "output": 0
+            }
+          ]
+        }
+      ],
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "VENTILATION",
+            "symbolId": "symbol-ventilation-unit"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.equipment"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    }
+  ]
+}

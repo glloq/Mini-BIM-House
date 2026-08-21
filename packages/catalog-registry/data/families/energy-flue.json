@@ -1,0 +1,1348 @@
+{
+  "families": [
+    {
+      "id": "PV_MODULE",
+      "label": "Module photovoltaïque",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "PV_ARRAY",
+      "label": "Champ photovoltaïque",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "PV_STRING",
+      "label": "Chaîne",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "ROOF_RAIL",
+      "label": "Rail de fixation",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "ROOF_HOOK",
+      "label": "Crochet de toiture",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "GROUND_MOUNT",
+      "label": "Structure au sol",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "OPTIMIZER",
+      "label": "Optimiseur",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "MICROINVERTER",
+      "label": "Micro-onduleur",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "STRING_INVERTER",
+      "label": "Onduleur de chaîne",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "HYBRID_INVERTER",
+      "label": "Onduleur hybride",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "DC_COMBINER",
+      "label": "Coffret de regroupement",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "DC_ISOLATOR",
+      "label": "Sectionneur continu",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "DC_FUSE",
+      "label": "Fusible continu",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "DC_SPD",
+      "label": "Parafoudre continu",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "AC_ISOLATOR",
+      "label": "Sectionneur alternatif",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "AC_PANEL",
+      "label": "Coffret alternatif",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "AC_SPD",
+      "label": "Parafoudre alternatif",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "PRODUCTION_METER",
+      "label": "Compteur de production",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "EXPORT_LIMITER",
+      "label": "Limiteur d’injection",
+      "domain": "SOLAR",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "calculators": [
+        "photovoltaic",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["ROOF", "SITE", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "PV_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BATTERY_CELL",
+      "label": "Cellule",
+      "domain": "STORAGE",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "calculators": [
+        "battery",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "propertySchema": "BATTERY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BATTERY_MODULE",
+      "label": "Module",
+      "domain": "STORAGE",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "calculators": [
+        "battery",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "propertySchema": "BATTERY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BATTERY_PACK",
+      "label": "Pack",
+      "domain": "STORAGE",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "calculators": [
+        "battery",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "propertySchema": "BATTERY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "BATTERY_RACK",
+      "label": "Armoire",
+      "domain": "STORAGE",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "calculators": [
+        "battery",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "propertySchema": "BATTERY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BMS",
+      "label": "Système de gestion de batterie",
+      "domain": "STORAGE",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "calculators": [
+        "battery",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "propertySchema": "BATTERY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BATTERY_FUSE",
+      "label": "Fusible batterie",
+      "domain": "STORAGE",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "calculators": [
+        "battery",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "propertySchema": "BATTERY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BATTERY_BREAKER",
+      "label": "Disjoncteur batterie",
+      "domain": "STORAGE",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "calculators": [
+        "battery",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "propertySchema": "BATTERY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BATTERY_ISOLATOR",
+      "label": "Sectionneur batterie",
+      "domain": "STORAGE",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "calculators": [
+        "battery",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "propertySchema": "BATTERY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BATTERY_INVERTER",
+      "label": "Onduleur batterie",
+      "domain": "STORAGE",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "calculators": [
+        "battery",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "propertySchema": "BATTERY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BACKUP_GATEWAY",
+      "label": "Coffret de secours",
+      "domain": "STORAGE",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "calculators": [
+        "battery",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "propertySchema": "BATTERY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "ATS",
+      "label": "Inverseur de source",
+      "domain": "STORAGE",
+      "registry": "EQUIPMENT",
+      "priority": 5,
+      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "calculators": [
+        "battery",
+        "electrical",
+        "energy-balance",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "propertySchema": "BATTERY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "WOOD_STOVE",
+      "label": "Poêle à bûches",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "COMBUSTIBLE_CLEARANCE",
+        "FIRE",
+        "THERMAL"
+      ],
+      "propertySchema": "COMBUSTION_APPLIANCE",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+    },
+    {
+      "id": "PELLET_STOVE",
+      "label": "Poêle à granulés",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "COMBUSTIBLE_CLEARANCE",
+        "FIRE",
+        "THERMAL"
+      ],
+      "propertySchema": "COMBUSTION_APPLIANCE",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+    },
+    {
+      "id": "WOOD_INSERT",
+      "label": "Insert bois",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "COMBUSTIBLE_CLEARANCE",
+        "FIRE",
+        "THERMAL"
+      ],
+      "propertySchema": "COMBUSTION_APPLIANCE",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+    },
+    {
+      "id": "PELLET_INSERT",
+      "label": "Insert à granulés",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "COMBUSTIBLE_CLEARANCE",
+        "FIRE",
+        "THERMAL"
+      ],
+      "propertySchema": "COMBUSTION_APPLIANCE",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+    },
+    {
+      "id": "FIREPLACE",
+      "label": "Cheminée",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "COMBUSTIBLE_CLEARANCE",
+        "FIRE",
+        "THERMAL"
+      ],
+      "propertySchema": "COMBUSTION_APPLIANCE",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+    },
+    {
+      "id": "BOILER_STOVE",
+      "label": "Poêle bouilleur",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR", "HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "COMBUSTIBLE_CLEARANCE",
+        "FIRE",
+        "THERMAL"
+      ],
+      "propertySchema": "COMBUSTION_APPLIANCE",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+    },
+    {
+      "id": "STOVE_COLLAR",
+      "label": "Buse",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "FLUE_ADAPTER",
+      "label": "Adaptateur",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "SINGLE_WALL_FLUE",
+      "label": "Conduit simple paroi",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "INSULATED_FLUE",
+      "label": "Conduit isolé",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "FLEXIBLE_LINER",
+      "label": "Tubage flexible",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "FLUE_ELBOW",
+      "label": "Coude de conduit",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "FLUE_TEE",
+      "label": "Té de conduit",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "FLUE_CLEANOUT",
+      "label": "Trappe de ramonage",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "WALL_PASSAGE",
+      "label": "Traversée de mur",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "FLOOR_PASSAGE",
+      "label": "Traversée de plancher",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "ROOF_PASSAGE",
+      "label": "Traversée de toiture",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "CHIMNEY_TERMINAL",
+      "label": "Sortie de toit",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "CHIMNEY_CAP",
+      "label": "Chapeau",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "COMBUSTION_AIR_INTAKE",
+      "label": "Prise d’air de combustion",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "COMBUSTION_AIR_DUCT",
+      "label": "Conduit d’air de combustion",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    },
+    {
+      "id": "EXTERNAL_AIR_TERMINAL",
+      "label": "Terminal d’air extérieur",
+      "domain": "FLUE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "propertySchema": "FLUE_COMPONENT",
+      "status": {
+        "MODEL": "NONE",
+        "PORTS": "NONE",
+        "GENERIC_DATA": "NONE"
+      }
+    }
+  ]
+}

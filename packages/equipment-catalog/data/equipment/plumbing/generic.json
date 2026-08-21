@@ -1,0 +1,332 @@
+{
+  "definitions": [
+    {
+      "id": "generic-dhw-tank",
+      "familyId": "ELECTRIC_DHW_TANK",
+      "kind": "DHW_TANK",
+      "category": "DHW_TANK",
+      "name": "Ballon d’eau chaude sanitaire",
+      "dimensions": {
+        "widthMm": 570,
+        "depthMm": 570,
+        "heightMm": 1500
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "discipline": "WATER",
+          "role": "COLD_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -740
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "hot",
+          "discipline": "WATER",
+          "role": "HOT_OUTLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 740
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "power",
+          "discipline": "ELECTRICAL",
+          "role": "SUPPLY",
+          "position": {
+            "x": 280,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "tankVolumeL": 200,
+        "usefulHeatingPowerW": 2000,
+        "standbyLossW": 45,
+        "storageTemperatureC": 60
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-dhw-tank"
+          }
+        ],
+        "planFootprint": "CIRCLE",
+        "layer": "water.equipment"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-kitchen-sink",
+      "familyId": "KITCHEN_SINK",
+      "kind": "SANITARY_FIXTURE",
+      "category": "SANITARY_FIXTURE",
+      "name": "Évier de cuisine",
+      "dimensions": {
+        "widthMm": 800,
+        "depthMm": 600,
+        "heightMm": 900
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "discipline": "WATER",
+          "role": "COLD",
+          "position": {
+            "x": -100,
+            "y": 0,
+            "z": -300
+          },
+          "nominalSize": 0.012
+        },
+        {
+          "id": "hot",
+          "discipline": "WATER",
+          "role": "HOT",
+          "position": {
+            "x": 100,
+            "y": 0,
+            "z": -300
+          },
+          "nominalSize": 0.012
+        },
+        {
+          "id": "drain",
+          "discipline": "WASTEWATER",
+          "role": "DRAIN",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -450
+          },
+          "nominalSize": 0.04
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.2,
+        "hotWaterFraction": 0.5,
+        "dischargeUnits": 1,
+        "minimumPressurePa": 100000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-kitchen-sink"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "water.fixtures"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-shower",
+      "familyId": "SHOWER",
+      "kind": "SANITARY_FIXTURE",
+      "category": "SANITARY_FIXTURE",
+      "name": "Douche",
+      "dimensions": {
+        "widthMm": 900,
+        "depthMm": 900,
+        "heightMm": 2000
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "discipline": "WATER",
+          "role": "COLD",
+          "position": {
+            "x": -100,
+            "y": 0,
+            "z": 200
+          },
+          "nominalSize": 0.012
+        },
+        {
+          "id": "hot",
+          "discipline": "WATER",
+          "role": "HOT",
+          "position": {
+            "x": 100,
+            "y": 0,
+            "z": 200
+          },
+          "nominalSize": 0.012
+        },
+        {
+          "id": "drain",
+          "discipline": "WASTEWATER",
+          "role": "DRAIN",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -1000
+          },
+          "nominalSize": 0.04
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.2,
+        "hotWaterFraction": 0.6,
+        "dischargeUnits": 2,
+        "minimumPressurePa": 100000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-shower"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "water.fixtures"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-washbasin",
+      "familyId": "WASHBASIN",
+      "kind": "SANITARY_FIXTURE",
+      "category": "SANITARY_FIXTURE",
+      "name": "Lavabo",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 450,
+        "heightMm": 850
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "discipline": "WATER",
+          "role": "COLD",
+          "position": {
+            "x": -100,
+            "y": 0,
+            "z": -300
+          },
+          "nominalSize": 0.012
+        },
+        {
+          "id": "hot",
+          "discipline": "WATER",
+          "role": "HOT",
+          "position": {
+            "x": 100,
+            "y": 0,
+            "z": -300
+          },
+          "nominalSize": 0.012
+        },
+        {
+          "id": "drain",
+          "discipline": "WASTEWATER",
+          "role": "DRAIN",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -400
+          },
+          "nominalSize": 0.032
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.2,
+        "hotWaterFraction": 0.5,
+        "dischargeUnits": 1,
+        "minimumPressurePa": 100000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-washbasin"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "water.fixtures"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-wc",
+      "familyId": "WC",
+      "kind": "SANITARY_FIXTURE",
+      "category": "SANITARY_FIXTURE",
+      "name": "WC à réservoir",
+      "dimensions": {
+        "widthMm": 380,
+        "depthMm": 700,
+        "heightMm": 800
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "discipline": "WATER",
+          "role": "COLD",
+          "position": {
+            "x": 0,
+            "y": 300,
+            "z": -300
+          },
+          "nominalSize": 0.012
+        },
+        {
+          "id": "drain",
+          "discipline": "WASTEWATER",
+          "role": "DRAIN",
+          "position": {
+            "x": 0,
+            "y": 250,
+            "z": -350
+          },
+          "nominalSize": 0.1
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.12,
+        "hotWaterFraction": 0,
+        "dischargeUnits": 4,
+        "flushVolumeL": 6
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-wc"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "water.fixtures"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    }
+  ]
+}

@@ -1,0 +1,1859 @@
+{
+  "families": [
+    {
+      "id": "HEAT_PUMP_AIR_WATER_MONOBLOC",
+      "label": "Pompe à chaleur air/eau monobloc",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "SERVICE",
+        "AIR_INTAKE",
+        "AIR_EXHAUST"
+      ],
+      "propertySchema": "HEAT_PUMP",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "HEAT_PUMP_AIR_WATER_SPLIT",
+      "label": "Pompe à chaleur air/eau bibloc",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "SERVICE",
+        "AIR_INTAKE",
+        "AIR_EXHAUST"
+      ],
+      "propertySchema": "HEAT_PUMP",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HEAT_PUMP_AIR_AIR",
+      "label": "Pompe à chaleur air/air",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "SERVICE",
+        "AIR_INTAKE",
+        "AIR_EXHAUST"
+      ],
+      "propertySchema": "HEAT_PUMP",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HEAT_PUMP_GROUND_WATER",
+      "label": "Pompe à chaleur sol/eau",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "SERVICE",
+        "AIR_INTAKE",
+        "AIR_EXHAUST"
+      ],
+      "propertySchema": "HEAT_PUMP",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HEAT_PUMP_WATER_WATER",
+      "label": "Pompe à chaleur eau/eau",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "SERVICE",
+        "AIR_INTAKE",
+        "AIR_EXHAUST"
+      ],
+      "propertySchema": "HEAT_PUMP",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "EXHAUST_AIR_HEAT_PUMP",
+      "label": "Pompe à chaleur sur air extrait",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "SERVICE",
+        "AIR_INTAKE",
+        "AIR_EXHAUST"
+      ],
+      "propertySchema": "HEAT_PUMP",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "REVERSIBLE_HEAT_PUMP",
+      "label": "Pompe à chaleur réversible",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": [
+        "PHYSICAL",
+        "MAINTENANCE",
+        "SERVICE",
+        "AIR_INTAKE",
+        "AIR_EXHAUST"
+      ],
+      "propertySchema": "HEAT_PUMP",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BOILER_GAS",
+      "label": "Chaudière gaz",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "HEAT_GENERATOR",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BOILER_OIL",
+      "label": "Chaudière fioul",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "HEAT_GENERATOR",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BOILER_BIOMASS",
+      "label": "Chaudière biomasse",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "HEAT_GENERATOR",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "ELECTRIC_BOILER",
+      "label": "Chaudière électrique",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "HEAT_GENERATOR",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "ELECTRIC_HEATER",
+      "label": "Convecteur électrique",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "HEAT_GENERATOR",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "SOLAR_THERMAL",
+      "label": "Capteur solaire thermique",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "HEAT_GENERATOR",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "DISTRICT_HEATING_INTERFACE",
+      "label": "Sous-station de réseau de chaleur",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "calculators": [
+        "heating",
+        "electrical",
+        "energy-balance",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "HEAT_GENERATOR",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "CIRCULATOR",
+      "label": "Circulateur",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "HEATING_MANIFOLD",
+      "label": "Collecteur",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BUFFER_TANK",
+      "label": "Ballon tampon",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HYDRAULIC_SEPARATOR",
+      "label": "Bouteille de découplage",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HEATING_EXPANSION_VESSEL",
+      "label": "Vase d’expansion",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "SAFETY_VALVE",
+      "label": "Soupape de sécurité",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "AIR_SEPARATOR",
+      "label": "Séparateur d’air",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HEATING_AIR_VENT",
+      "label": "Purgeur",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "DIRT_SEPARATOR",
+      "label": "Pot à boues",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "MAGNETIC_FILTER",
+      "label": "Filtre magnétique",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HEATING_ISOLATION_VALVE",
+      "label": "Vanne d’isolement",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HEATING_CHECK_VALVE",
+      "label": "Clapet",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HEATING_BALANCING_VALVE",
+      "label": "Vanne d’équilibrage",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "THREE_WAY_VALVE",
+      "label": "Vanne trois voies",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "MIXING_VALVE",
+      "label": "Vanne mélangeuse",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "HEATING_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "RADIATOR",
+      "label": "Radiateur",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "propertySchema": "HEAT_EMITTER",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "TOWEL_RADIATOR",
+      "label": "Sèche-serviettes",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "propertySchema": "HEAT_EMITTER",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "FAN_COIL",
+      "label": "Ventilo-convecteur",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "propertySchema": "HEAT_EMITTER",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "UNDERFLOOR_HEATING",
+      "label": "Plancher chauffant",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "propertySchema": "HEAT_EMITTER",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "WALL_HEATING",
+      "label": "Mur chauffant",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "propertySchema": "HEAT_EMITTER",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "CEILING_HEATING",
+      "label": "Plafond chauffant",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "calculators": ["heating", "acoustics", "cost", "environmental"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "propertySchema": "HEAT_EMITTER",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HEATING_ZONE",
+      "label": "Zone de chauffage",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "CONTROL"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "UNDERFLOOR_HEATING",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
+    },
+    {
+      "id": "UFH_MANIFOLD",
+      "label": "Collecteur de plancher chauffant",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "CONTROL"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "UNDERFLOOR_HEATING",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
+    },
+    {
+      "id": "UFH_LOOP",
+      "label": "Boucle",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "CONTROL"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "UNDERFLOOR_HEATING",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
+    },
+    {
+      "id": "UFH_ACTUATOR",
+      "label": "Tête électrothermique",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "CONTROL"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "UNDERFLOOR_HEATING",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
+    },
+    {
+      "id": "ROOM_THERMOSTAT",
+      "label": "Thermostat d’ambiance",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "CONTROL"],
+      "calculators": ["heating", "cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "UNDERFLOOR_HEATING",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
+    },
+    {
+      "id": "OUTDOOR_UNIT",
+      "label": "Unité extérieure",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "REFRIGERANT_LIQUID",
+        "REFRIGERANT_GAS",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": ["heating", "electrical", "acoustics", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "REFRIGERANT_UNIT",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+    },
+    {
+      "id": "INDOOR_UNIT",
+      "label": "Unité intérieure",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "REFRIGERANT_LIQUID",
+        "REFRIGERANT_GAS",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": ["heating", "electrical", "acoustics", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "REFRIGERANT_UNIT",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+    },
+    {
+      "id": "CASSETTE",
+      "label": "Cassette",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "REFRIGERANT_LIQUID",
+        "REFRIGERANT_GAS",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": ["heating", "electrical", "acoustics", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "REFRIGERANT_UNIT",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+    },
+    {
+      "id": "WALL_SPLIT_UNIT",
+      "label": "Split mural",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "REFRIGERANT_LIQUID",
+        "REFRIGERANT_GAS",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": ["heating", "electrical", "acoustics", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "REFRIGERANT_UNIT",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+    },
+    {
+      "id": "DUCTED_UNIT",
+      "label": "Gainable",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "REFRIGERANT_LIQUID",
+        "REFRIGERANT_GAS",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": ["heating", "electrical", "acoustics", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "REFRIGERANT_UNIT",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+    },
+    {
+      "id": "BRANCH_JOINT",
+      "label": "Boîtier de dérivation",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "REFRIGERANT_LIQUID",
+        "REFRIGERANT_GAS",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": ["heating", "electrical", "acoustics", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "REFRIGERANT_UNIT",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+    },
+    {
+      "id": "REFNET",
+      "label": "Répartiteur frigorifique",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "REFRIGERANT_LIQUID",
+        "REFRIGERANT_GAS",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": ["heating", "electrical", "acoustics", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "REFRIGERANT_UNIT",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+    },
+    {
+      "id": "CONDENSATE_DRAIN",
+      "label": "Évacuation des condensats",
+      "domain": "HEATING",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "REFRIGERANT_LIQUID",
+        "REFRIGERANT_GAS",
+        "ELECTRICAL_AC",
+        "CONDENSATE",
+        "CONTROL"
+      ],
+      "calculators": ["heating", "electrical", "acoustics", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "REFRIGERANT_UNIT",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+    },
+    {
+      "id": "EXTRACT_VENTILATION_UNIT",
+      "label": "VMC simple flux",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "AIR_SUPPLY",
+        "AIR_EXTRACT",
+        "AIR_OUTSIDE",
+        "AIR_EXHAUST",
+        "ELECTRICAL_AC",
+        "CONTROL"
+      ],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "BALANCED_VENTILATION_UNIT",
+      "label": "VMC double flux",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "AIR_SUPPLY",
+        "AIR_EXTRACT",
+        "AIR_OUTSIDE",
+        "AIR_EXHAUST",
+        "ELECTRICAL_AC",
+        "CONTROL"
+      ],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "DECENTRALIZED_HRV",
+      "label": "VMC double flux décentralisée",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "FAN",
+      "label": "Ventilateur",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": [
+        "AIR_SUPPLY",
+        "AIR_EXTRACT",
+        "AIR_OUTSIDE",
+        "AIR_EXHAUST",
+        "ELECTRICAL_AC",
+        "CONTROL"
+      ],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "AIR_INLET",
+      "label": "Entrée d’air",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "EXTRACT_TERMINAL",
+      "label": "Bouche d’extraction",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "READY",
+        "CALCULATION": "PARTIAL"
+      }
+    },
+    {
+      "id": "SUPPLY_TERMINAL",
+      "label": "Bouche de soufflage",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "EXHAUST_TERMINAL",
+      "label": "Rejet",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "OUTDOOR_AIR_INTAKE",
+      "label": "Prise d’air neuf",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "VENTILATION_ELBOW",
+      "label": "Coude",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "VENTILATION_TEE",
+      "label": "Té",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "Y_BRANCH",
+      "label": "Culotte",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "VENTILATION_REDUCER",
+      "label": "Réduction",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "TRANSITION",
+      "label": "Transformation",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "PLENUM",
+      "label": "Plénum",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "DAMPER",
+      "label": "Registre",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BALANCING_DAMPER",
+      "label": "Registre d’équilibrage",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "BACKDRAFT_DAMPER",
+      "label": "Clapet anti-retour",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "FIRE_DAMPER",
+      "label": "Clapet coupe-feu",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "SILENCER",
+      "label": "Silencieux",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "VENTILATION_FILTER",
+      "label": "Filtre",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "HEATING_COIL",
+      "label": "Batterie chaude",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "COOLING_COIL",
+      "label": "Batterie froide",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    },
+    {
+      "id": "VENTILATION_CONDENSATE_TRAP",
+      "label": "Siphon de condensats",
+      "domain": "VENTILATION",
+      "registry": "EQUIPMENT",
+      "priority": 4,
+      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "propertySchema": "VENTILATION_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "READY",
+        "GENERIC_DATA": "NONE",
+        "CALCULATION": "NONE"
+      }
+    }
+  ]
+}

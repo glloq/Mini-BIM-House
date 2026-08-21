@@ -1,0 +1,1712 @@
+{
+  "families": [
+    {
+      "id": "RJ45_SOCKET",
+      "label": "Prise RJ45",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "FIBER_TERMINATION",
+      "label": "Point de terminaison optique",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["FIBER", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "COAX_SOCKET",
+      "label": "Prise coaxiale",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["COAX", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "NETWORK_RACK",
+      "label": "Baie de brassage",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "PATCH_PANEL",
+      "label": "Panneau de brassage",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "NETWORK_SWITCH",
+      "label": "Commutateur",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "ROUTER",
+      "label": "Routeur",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ETHERNET", "FIBER", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "WIFI_ACCESS_POINT",
+      "label": "Point d’accès sans fil",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ETHERNET", "WIRELESS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "CAMERA",
+      "label": "Caméra",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "VIDEO_DOORBELL",
+      "label": "Platine de rue",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "INTERCOM",
+      "label": "Interphone",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["BUS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "DATA_TEMPERATURE_SENSOR",
+      "label": "Capteur de température",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "HUMIDITY_SENSOR",
+      "label": "Capteur d’humidité",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "CO2_SENSOR",
+      "label": "Capteur de CO₂",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "LEAK_SENSOR",
+      "label": "Détecteur de fuite",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "WINDOW_SENSOR",
+      "label": "Contact d’ouvrant",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "MOTION_SENSOR",
+      "label": "Détecteur de mouvement",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "DATA_PRESENCE_SENSOR",
+      "label": "Détecteur de présence",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "DATA_RELAY",
+      "label": "Relais",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["DRY_CONTACT", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "ACTUATOR",
+      "label": "Actionneur",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["CONTROL", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "ROLLER_SHUTTER_ACTUATOR",
+      "label": "Motorisation de volet",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["CONTROL", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "KNX_DEVICE",
+      "label": "Équipement KNX",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["BUS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "MODBUS_DEVICE",
+      "label": "Équipement Modbus",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["BUS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "MATTER_DEVICE",
+      "label": "Équipement Matter",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["WIRELESS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "ZIGBEE_DEVICE",
+      "label": "Équipement Zigbee",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["WIRELESS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "THREAD_DEVICE",
+      "label": "Équipement Thread",
+      "domain": "DATA",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["WIRELESS", "ELECTRICAL_AC"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["WALL", "CEILING", "SLAB"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "propertySchema": "DATA_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+    },
+    {
+      "id": "SMOKE_DETECTOR",
+      "label": "Détecteur de fumée",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "HEAT_DETECTOR",
+      "label": "Détecteur thermique",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "CO_DETECTOR",
+      "label": "Détecteur de monoxyde",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "SAFETY_CO2_DETECTOR",
+      "label": "Détecteur de CO₂",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "ALARM_PANEL",
+      "label": "Centrale d’alarme",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "SIREN",
+      "label": "Sirène",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "SAFETY_MOTION_DETECTOR",
+      "label": "Détecteur d’intrusion",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "DOOR_CONTACT",
+      "label": "Contact de porte",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "EXTINGUISHER",
+      "label": "Extincteur",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "FIRE_BLANKET",
+      "label": "Couverture anti-feu",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "SAFETY_EMERGENCY_LIGHT",
+      "label": "Éclairage de secours",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "EMERGENCY_STOP",
+      "label": "Arrêt d’urgence",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "ELECTRICAL_EMERGENCY_CUTOFF",
+      "label": "Coupure d’urgence",
+      "domain": "SAFETY",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "calculators": ["electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["CEILING", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "ACCESSIBILITY"],
+      "propertySchema": "SAFETY_DEVICE",
+      "status": {
+        "MODEL": "READY",
+        "PORTS": "PARTIAL",
+        "GENERIC_DATA": "NONE",
+        "RULES": "NONE"
+      }
+    },
+    {
+      "id": "SITE_WATER_METER",
+      "label": "Compteur d’eau extérieur",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "WATER_CHAMBER",
+      "label": "Regard d’eau",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["WATER_COLD"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "SEWER_CHAMBER",
+      "label": "Regard d’assainissement",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["WASTEWATER", "SOILWATER"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "SITE_RAINWATER_CHAMBER",
+      "label": "Regard pluvial",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "SITE_SEPTIC_TANK",
+      "label": "Fosse",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["WASTEWATER", "SOILWATER"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "SITE_MICRO_TREATMENT_PLANT",
+      "label": "Micro-station",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["WASTEWATER", "SOILWATER", "ELECTRICAL_AC"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "ELECTRICAL_SERVICE_BOX",
+      "label": "Coffret de branchement",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "UTILITY_METER",
+      "label": "Compteur de concession",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "SITE_EARTH_ROD",
+      "label": "Piquet de terre",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["EARTH"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "OUTDOOR_HEAT_PUMP",
+      "label": "Unité extérieure de pompe à chaleur",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "CONDENSATE"
+      ],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "GROUND_PV_ARRAY",
+      "label": "Champ photovoltaïque au sol",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["PV_DC", "EARTH"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "SITE_RAINWATER_TANK",
+      "label": "Cuve extérieure",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "WELL",
+      "label": "Puits",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["WATER_NON_POTABLE"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "BOREHOLE",
+      "label": "Forage",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["WATER_NON_POTABLE"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "SITE_DRAIN",
+      "label": "Drain",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["RAINWATER_OUT"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "SITE_EV_CHARGER",
+      "label": "Borne de recharge extérieure",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "SITE_EXTERIOR_SOCKET",
+      "label": "Prise extérieure",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "SITE_EXTERIOR_LIGHT",
+      "label": "Éclairage extérieur",
+      "domain": "SITE",
+      "registry": "EQUIPMENT",
+      "priority": 6,
+      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
+      "placement": {
+        "allowedHosts": ["SITE"],
+        "levelRequired": false,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "propertySchema": "SITE_DEVICE",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PORTS": "READY",
+        "PLACEMENT": "PARTIAL",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+    },
+    {
+      "id": "STRUCTURAL_COLUMN",
+      "label": "Poteau",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "STRUCTURAL_BEAM",
+      "label": "Poutre",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "READY",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "LINTEL",
+      "label": "Linteau",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "POST",
+      "label": "Montant",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "JOIST",
+      "label": "Solive",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "RAFTER",
+      "label": "Chevron",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "PURLIN",
+      "label": "Panne",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "TRUSS",
+      "label": "Ferme",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "STRIP_FOOTING",
+      "label": "Semelle filante",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "PAD_FOOTING",
+      "label": "Semelle isolée",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "RAFT",
+      "label": "Radier",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "PILE",
+      "label": "Pieu",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "GROUND_BEAM",
+      "label": "Longrine",
+      "domain": "STRUCTURE",
+      "registry": "ASSEMBLY",
+      "priority": 1,
+      "calculators": ["cost", "environmental"],
+      "propertySchema": "STRUCTURAL_MEMBER",
+      "status": {
+        "MODEL": "PARTIAL",
+        "PROPERTIES": "PARTIAL",
+        "PLAN_SYMBOL": "READY",
+        "CALCULATION": "NONE",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+    },
+    {
+      "id": "BED",
+      "label": "Lit",
+      "domain": "FURNITURE",
+      "registry": "EQUIPMENT",
+      "priority": 1,
+      "calculators": ["cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "FURNITURE",
+      "status": {
+        "MODEL": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+    },
+    {
+      "id": "SOFA",
+      "label": "Canapé",
+      "domain": "FURNITURE",
+      "registry": "EQUIPMENT",
+      "priority": 1,
+      "calculators": ["cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "FURNITURE",
+      "status": {
+        "MODEL": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+    },
+    {
+      "id": "CHAIR",
+      "label": "Chaise",
+      "domain": "FURNITURE",
+      "registry": "EQUIPMENT",
+      "priority": 1,
+      "calculators": ["cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "FURNITURE",
+      "status": {
+        "MODEL": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+    },
+    {
+      "id": "TABLE",
+      "label": "Table",
+      "domain": "FURNITURE",
+      "registry": "EQUIPMENT",
+      "priority": 1,
+      "calculators": ["cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "FURNITURE",
+      "status": {
+        "MODEL": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+    },
+    {
+      "id": "DESK",
+      "label": "Bureau",
+      "domain": "FURNITURE",
+      "registry": "EQUIPMENT",
+      "priority": 1,
+      "calculators": ["cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "FURNITURE",
+      "status": {
+        "MODEL": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+    },
+    {
+      "id": "WARDROBE",
+      "label": "Armoire",
+      "domain": "FURNITURE",
+      "registry": "EQUIPMENT",
+      "priority": 1,
+      "calculators": ["cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "FURNITURE",
+      "status": {
+        "MODEL": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+    },
+    {
+      "id": "CABINET",
+      "label": "Meuble",
+      "domain": "FURNITURE",
+      "registry": "EQUIPMENT",
+      "priority": 1,
+      "calculators": ["cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "FURNITURE",
+      "status": {
+        "MODEL": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+    },
+    {
+      "id": "KITCHEN_CABINET",
+      "label": "Meuble de cuisine",
+      "domain": "FURNITURE",
+      "registry": "EQUIPMENT",
+      "priority": 1,
+      "calculators": ["cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "FURNITURE",
+      "status": {
+        "MODEL": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+    },
+    {
+      "id": "WORKTOP",
+      "label": "Plan de travail",
+      "domain": "FURNITURE",
+      "registry": "EQUIPMENT",
+      "priority": 1,
+      "calculators": ["cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "FURNITURE",
+      "status": {
+        "MODEL": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+    },
+    {
+      "id": "SHELF",
+      "label": "Étagère",
+      "domain": "FURNITURE",
+      "registry": "EQUIPMENT",
+      "priority": 1,
+      "calculators": ["cost"],
+      "placement": {
+        "allowedHosts": ["SLAB", "WALL"],
+        "levelRequired": true,
+        "rotationAllowed": true
+      },
+      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "propertySchema": "FURNITURE",
+      "status": {
+        "MODEL": "READY",
+        "PLACEMENT": "READY",
+        "GENERIC_DATA": "NONE"
+      },
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+    }
+  ]
+}
