@@ -5,6 +5,57 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.2 — non publiée
+
+La chaîne complète : **catalogue → objet posé → réseau → calcul →
+vérifications**. Un audit avait constaté que le moteur était solide et que ce
+qui manquait était le raccordement de ses deux bouts.
+
+### Corrigé
+
+- **un niveau ne peut plus emporter ce qu'il contient.** Un étage tenant une
+  toiture, trois poteaux et une PAC comptait pour vide : le supprimer les
+  emportait sans un mot, le déplacer laissait la toiture à l'ancienne hauteur,
+  le dupliquer les perdait. Trois commandes tenaient trois listes écrites à la
+  main, et deux familles ajoutées au modèle n'en avaient atteint qu'une ;
+- l'importeur gardait sa propre liste de supports alors que l'éditeur en
+  acceptait davantage : une commande pouvait produire un projet que l'importeur
+  refusait — un fichier que l'application écrit et ne sait pas relire ;
+- le placement demandait « cet objet est-il un support ? » sans demander « ce
+  modèle-ci accepte-t-il ce genre de support ? » ;
+- l'épinglage de version existait des deux côtés sans se rencontrer : un
+  équipement ajouté depuis l'interface devenait un composant sans épingle ;
+- le chargeur du catalogue fabriquait `version: 1.0.0` par-dessus toutes les
+  fiches, et le contrôle inspectait ses propres réparations ;
+- un port en satisfaisait deux : le rapprochement se faisait par _service_, si
+  bien qu'une machine avec un seul raccordement d'eau passait pour une machine
+  qui en a deux. Trois familles fausses trouvées du premier coup ;
+- onze clés de propriété voulaient dire deux choses ou plus — `cost` en valait
+  quatre — et une perte de charge était dérivée ici, enregistrée là.
+
+### Ajouté
+
+- `ResolvedPlacedEquipment` : la fiche et la pose vues ensemble, dérivées et
+  jamais enregistrées. Les calculs lisaient le catalogue seul, si bien qu'un
+  projet avec trois radiateurs et un projet avec un seul étaient le même ;
+- un tronçon nomme son produit au lieu d'en recopier l'alésage et la rugosité
+  à la main, quarante fois par projet ;
+- une empreinte de contenu par fiche : corriger une fiche sans lever sa version
+  est refusé ;
+- les dégagements se voient sur le plan, par groupes, et leurs conflits
+  arrivent dans les vérifications ; une zone que personne n'a mesurée est
+  signalée plutôt que dessinée à zéro ;
+- un navigateur des 518 familles remplace la liste des 19 fiches ;
+- les limites d'import couvrent les vingt-six familles du modèle, le nombre
+  total d'objets et le nombre de points de géométrie.
+
+### Modifié
+
+- les types techniques descendent dans `technical-types` et les produits réseau
+  dans `network-products`, pour que nommer un port ne demande plus de dépendre
+  de cinq cents familles ;
+- six axes de statut se mesurent au lieu de se déclarer.
+
 ## 0.3.0-beta.1 — non publiée
 
 Quatre passes d'audit depuis la `0.2.0-beta.2`. L'application est passée d'une

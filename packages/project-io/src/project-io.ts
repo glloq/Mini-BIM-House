@@ -1,8 +1,19 @@
-import type { ProjectFile } from '@house-technical-designer/core-domain';
+import type {
+  EntityFamily,
+  HostType,
+  ProjectFile,
+} from '@house-technical-designer/core-domain';
+import { networkProduct } from '@house-technical-designer/network-products';
 import {
+  ENTITY_FAMILIES,
+  connectionRefusalBetween,
   entityCollisions,
+  hostAccepts,
   isTextNote,
+  portDisagreements,
+  levelHosts,
   localCollisions,
+  projectEntities,
   validateTextNote,
 } from '@house-technical-designer/core-domain';
 import validateProjectSchema from './generated-project-validator.js';
@@ -27,29 +38,68 @@ export const CURRENT_PROJECT_SCHEMA_VERSION = '1.1.0';
 export interface ProjectImportLimits {
   /** Size of the JSON text, in characters. */
   readonly maximumCharacters: number;
-  readonly maximumLevels: number;
-  readonly maximumWalls: number;
-  readonly maximumOpenings: number;
-  readonly maximumSpaces: number;
-  readonly maximumMaterials: number;
-  readonly maximumNetworkNodes: number;
-  readonly maximumNetworkEdges: number;
+  /**
+   * How many objects of each family a file may hold.
+   *
+   * Written by family rather than by hand, because the hand-written list had
+   * bounded seven of the twenty-six families the model knows: components,
+   * whole roofs, stairs, structural members, annotations, obstacles, ports,
+   * scenarios, saved views and sheets were all unbounded, and a file is
+   * refused for its walls while a million placed appliances go through.
+   */
+  readonly maximumByFamily: Partial<Readonly<Record<EntityFamily, number>>>;
+  /** Whatever the families, a file this large is not a house. */
+  readonly maximumEntities: number;
+  /**
+   * Every point of every outline, path and route.
+   *
+   * A hundred objects each carrying a hundred thousand vertices is a small
+   * project by every count above and a file nothing can draw.
+   */
+  readonly maximumGeometryPoints: number;
 }
 
 export const DEFAULT_PROJECT_IMPORT_LIMITS: ProjectImportLimits = {
   maximumCharacters: 32_000_000,
-  maximumLevels: 50,
-  maximumWalls: 20_000,
-  maximumOpenings: 20_000,
-  maximumSpaces: 5_000,
-  maximumMaterials: 5_000,
-  maximumNetworkNodes: 50_000,
-  maximumNetworkEdges: 50_000,
+  maximumByFamily: {
+    LEVEL: 50,
+    WALL: 20_000,
+    OPENING: 20_000,
+    SPACE: 5_000,
+    SLAB: 20_000,
+    ROOF_PLANE: 20_000,
+    ROOF_STRUCTURE: 5_000,
+    STAIR: 2_000,
+    STRUCTURAL_MEMBER: 50_000,
+    COMPONENT: 50_000,
+    ANNOTATION: 50_000,
+    ZONE: 5_000,
+    SITE_OBSTACLE: 5_000,
+    MATERIAL: 5_000,
+    ASSEMBLY: 5_000,
+    ASSEMBLY_LAYER: 50_000,
+    EQUIPMENT_DEFINITION: 20_000,
+    NETWORK: 2_000,
+    NETWORK_NODE: 50_000,
+    NETWORK_PORT: 100_000,
+    NETWORK_EDGE: 50_000,
+    SCENARIO: 500,
+    DRAWING_VIEW: 2_000,
+    SHEET: 2_000,
+    SHEET_VIEWPORT: 10_000,
+  },
+  maximumEntities: 500_000,
+  maximumGeometryPoints: 2_000_000,
 };
 
 /** What exceeded its bound, so the message can name it rather than say "too big". */
 export interface ProjectLimitBreach {
-  readonly limit: keyof ProjectImportLimits;
+  /** The family that overflowed, or the bound that is not one family's. */
+  readonly limit:
+    | EntityFamily
+    | 'maximumCharacters'
+    | 'maximumEntities'
+    | 'maximumGeometryPoints';
   readonly label: string;
   readonly actual: number;
   readonly maximum: number;
@@ -146,59 +196,102 @@ export function loadProjectJson(
   return { status: 'OK', file: structuredClone(file), migrationJournal };
 }
 
+/** What each family is called, so a refusal names the thing rather than a code. */
+const FAMILY_LABELS: Readonly<Record<EntityFamily, string>> = {
+  PROJECT: 'projets',
+  LEVEL: 'niveaux',
+  WALL: 'murs',
+  OPENING: 'ouvertures',
+  SPACE: 'pièces',
+  SLAB: 'dalles',
+  ROOF_PLANE: 'pans de toiture',
+  ROOF_STRUCTURE: 'toitures',
+  STAIR: 'escaliers',
+  STRUCTURAL_MEMBER: 'éléments de structure',
+  COMPONENT: 'composants posés',
+  ANNOTATION: 'annotations',
+  ZONE: 'zones',
+  SITE_OBSTACLE: 'obstacles de terrain',
+  MATERIAL: 'matériaux',
+  ASSEMBLY: 'assemblages',
+  ASSEMBLY_LAYER: 'couches d’assemblage',
+  EQUIPMENT_DEFINITION: 'fiches d’équipement',
+  NETWORK: 'réseaux',
+  NETWORK_NODE: 'nœuds de réseau',
+  NETWORK_PORT: 'ports de réseau',
+  NETWORK_EDGE: 'tronçons de réseau',
+  SCENARIO: 'scénarios',
+  DRAWING_VIEW: 'vues enregistrées',
+  SHEET: 'feuilles',
+  SHEET_VIEWPORT: 'fenêtres de feuille',
+};
+
+/**
+ * Every point of every outline, path and route the file carries.
+ *
+ * Counted by walking the value rather than by naming the fields that hold
+ * geometry: a family added to the model brings its own vertices, and a list
+ * written here would not know about them.
+ */
+function geometryPoints(value: unknown): number {
+  if (Array.isArray(value)) {
+    // A point is an object with two or three finite numbers and nothing else.
+    if (
+      value.length > 0 &&
+      value.every(
+        (item) =>
+          item !== null &&
+          typeof item === 'object' &&
+          typeof (item as { x?: unknown }).x === 'number' &&
+          typeof (item as { y?: unknown }).y === 'number',
+      )
+    )
+      return value.length;
+    return value.reduce<number>((sum, item) => sum + geometryPoints(item), 0);
+  }
+  if (value !== null && typeof value === 'object')
+    return Object.values(value).reduce<number>(
+      (sum, held) => sum + geometryPoints(held),
+      0,
+    );
+  return 0;
+}
+
 /** The first bound the file exceeds, counted on the validated model. */
 export function exceededLimit(
   file: ProjectFile,
   limits: ProjectImportLimits = DEFAULT_PROJECT_IMPORT_LIMITS,
 ): ProjectLimitBreach | undefined {
-  const levels = file.project.building.levels;
-  const networks = file.project.systems ?? [];
-  const counts: readonly {
-    readonly limit: keyof ProjectImportLimits;
-    readonly label: string;
-    readonly actual: number;
-  }[] = [
-    { limit: 'maximumLevels', label: 'niveaux', actual: levels.length },
-    {
-      limit: 'maximumWalls',
-      label: 'murs',
-      actual: total(levels, ({ walls }) => walls.length),
-    },
-    {
-      limit: 'maximumOpenings',
-      label: 'ouvertures',
-      actual: total(levels, ({ openings }) => openings.length),
-    },
-    {
-      limit: 'maximumSpaces',
-      label: 'pièces',
-      actual: total(levels, ({ spaces }) => spaces.length),
-    },
-    {
-      limit: 'maximumMaterials',
-      label: 'matériaux',
-      actual: file.project.materialLibrary?.materials.length ?? 0,
-    },
-    {
-      limit: 'maximumNetworkNodes',
-      label: 'nœuds de réseau',
-      actual: total(networks, ({ nodes }) => nodes.length),
-    },
-    {
-      limit: 'maximumNetworkEdges',
-      label: 'tronçons de réseau',
-      actual: total(networks, ({ edges }) => edges.length),
-    },
-  ];
-  for (const count of counts) {
-    const maximum = limits[count.limit];
-    if (count.actual > maximum) return { ...count, maximum };
+  const counts = new Map<EntityFamily, number>();
+  let entities = 0;
+  for (const { family } of projectEntities(file.project)) {
+    counts.set(family, (counts.get(family) ?? 0) + 1);
+    entities += 1;
   }
+  // In the order the families are declared, so that a file breaching two
+  // bounds is refused for the same one every time it is opened.
+  for (const family of ENTITY_FAMILIES) {
+    const maximum = limits.maximumByFamily[family];
+    const actual = counts.get(family) ?? 0;
+    if (maximum !== undefined && actual > maximum)
+      return { limit: family, label: FAMILY_LABELS[family], actual, maximum };
+  }
+  if (entities > limits.maximumEntities)
+    return {
+      limit: 'maximumEntities',
+      label: 'objets',
+      actual: entities,
+      maximum: limits.maximumEntities,
+    };
+  const points = geometryPoints(file.project);
+  if (points > limits.maximumGeometryPoints)
+    return {
+      limit: 'maximumGeometryPoints',
+      label: 'points de géométrie',
+      actual: points,
+      maximum: limits.maximumGeometryPoints,
+    };
   return undefined;
-}
-
-function total<T>(items: readonly T[], size: (item: T) => number): number {
-  return items.reduce((sum, item) => sum + size(item), 0);
 }
 
 /** Validates with the compiled canonical JSON Schema, then checks project-wide references. */
@@ -262,20 +355,21 @@ export function validateProjectReferences(
   /**
    * What a placed component may be physically fixed to.
    *
-   * A surface a thing can be hung on: a wall, a slab, a roof. Not a room,
-   * which is a volume and is named by `spaceId`; not a catalogue entry, which
-   * is a description and is named by `definitionId`. A node may be bound to
-   * far more than that — it stands for what it feeds — and lending a component
-   * the node's list is how a radiator ends up « fixed to » the model of a
-   * radiator.
+   * The same answer the editor gives, from the same registry. It used to be a
+   * list written here — a wall, a slab, a roof plane — while the editor had
+   * come to accept whole roofs, openings and other appliances. A command could
+   * therefore produce a project this importer would refuse, which is a file
+   * the application writes and cannot read back.
+   *
+   * A room is a volume and is named by `spaceId`; a catalogue entry is a
+   * description and is named by `definitionId`. A node may be bound to far
+   * more than any of this — it stands for what it feeds — and lending a
+   * component the node's list is how a radiator ends up « fixed to » the model
+   * of a radiator.
    */
-  const supports = new Set<string>(
-    file.project.building.levels.flatMap(({ walls, slabs, roofs }) => [
-      ...walls.map(({ id }) => id as string),
-      ...slabs.map(({ id }) => id as string),
-      ...roofs.map(({ id }) => id as string),
-    ]),
-  );
+  const supports = new Map<string, ReadonlySet<HostType>>();
+  for (const level of file.project.building.levels)
+    for (const [id, hosts] of levelHosts(level)) supports.set(id, hosts);
   /**
    * The level each object of the building belongs to.
    *
@@ -283,19 +377,12 @@ export function validateProjectReferences(
    * impossible: a node declared on the ground floor, sitting in a room upstairs
    * and fixed to a wall of a third level is three valid identifiers describing
    * a place that does not exist. Knowing where each object lives is what makes
-   * that check possible.
+   * that check possible — for every family the project holds, not for the six
+   * somebody remembered.
    */
   const levelOfObject = new Map<string, string>();
-  for (const level of file.project.building.levels)
-    for (const object of [
-      ...level.walls,
-      ...level.slabs,
-      ...level.roofs,
-      ...level.spaces,
-      ...level.openings,
-      ...(level.components ?? []),
-    ])
-      levelOfObject.set(object.id, level.id);
+  for (const { id, levelId } of projectEntities(file.project))
+    if (levelId !== undefined) levelOfObject.set(id, levelId);
   // Identifiers are unique across the whole project, not merely inside their
   // own list. Selection, overlays, dimensions and scenario paths all address
   // objects by identifier alone; two objects sharing one would make a click
@@ -430,7 +517,28 @@ export function validateProjectReferences(
       )
         issues.push({
           path: `${path}/hostObjectId`,
-          message: `references ${component.hostObjectId}, which is not a wall, a slab or a roof`,
+          message: `references ${component.hostObjectId}, which is nothing a component can be fixed to`,
+        });
+      // What the file itself says this model may be fixed to. Read from the
+      // project's own copy of the catalogue entry rather than from a
+      // catalogue: a house has to open the same way in two years, when the
+      // catalogue may have tightened a rule the house was drawn under.
+      const allowed =
+        component.definitionId === undefined
+          ? undefined
+          : file.project.equipment?.find(
+              ({ id }) => id === component.definitionId,
+            )?.allowedHosts;
+      if (
+        allowed !== undefined &&
+        allowed.length > 0 &&
+        component.hostObjectId !== undefined &&
+        supports.has(component.hostObjectId) &&
+        !hostAccepts(allowed, supports.get(component.hostObjectId))
+      )
+        issues.push({
+          path: `${path}/hostObjectId`,
+          message: `is fixed to ${component.hostObjectId}, which its own model does not accept: it goes on ${allowed.join(', ')}`,
         });
       // Each identifier can be real while the three together describe a place
       // that does not exist: a radiator on the ground floor, in a bedroom
@@ -634,20 +742,58 @@ export function validateProjectReferences(
           });
       }
     });
+    const portsById = new Map(network.ports.map((port) => [port.id, port]));
     network.ports.forEach((port, portIndex) => {
+      const at = `/project/systems/${networkIndex}/ports/${portIndex}`;
       if (!nodeIds.has(port.nodeId))
         issues.push({
-          path: `/project/systems/${networkIndex}/ports/${portIndex}/nodeId`,
+          path: `${at}/nodeId`,
           message: `references unknown network node ${port.nodeId}`,
         });
+      // A port that names a kind and then contradicts it is a port whose
+      // meaning depends on which field the reader happens to trust.
+      for (const message of portDisagreements(port))
+        issues.push({ path: `${at}/portTypeId`, message });
     });
     network.edges.forEach((edge, edgeIndex) => {
+      const at = `/project/systems/${networkIndex}/edges/${edgeIndex}`;
       for (const key of ['fromPortId', 'toPortId'] as const)
         if (!portIds.has(edge[key]))
           issues.push({
-            path: `/project/systems/${networkIndex}/edges/${edgeIndex}/${key}`,
+            path: `${at}/${key}`,
             message: `references unknown network port ${edge[key]}`,
           });
+      // The same rule the catalogue applies, from the same registry: a run
+      // between two ports that cannot be joined is a run nobody can build, and
+      // an import that accepts it hands the calculations a fiction.
+      const from = portsById.get(edge.fromPortId);
+      const to = portsById.get(edge.toPortId);
+      const refusal =
+        from === undefined || to === undefined
+          ? undefined
+          : connectionRefusalBetween(from, to);
+      if (refusal !== undefined)
+        issues.push({ path: `${at}/toPortId`, message: refusal });
+      // A run made of a product nobody has is a run whose bore, roughness and
+      // material are all unknown while the file claims to state them.
+      const product =
+        edge.productId === undefined
+          ? undefined
+          : networkProduct(edge.productId);
+      if (edge.productId !== undefined && product === undefined)
+        issues.push({
+          path: `${at}/productId`,
+          message: `references unknown network product ${edge.productId}`,
+        });
+      if (
+        product?.version !== undefined &&
+        edge.productVersion !== undefined &&
+        product.version !== edge.productVersion
+      )
+        issues.push({
+          path: `${at}/productVersion`,
+          message: `was drawn with ${edge.productId}@${edge.productVersion}, and the catalogue offers ${product.version}`,
+        });
     });
   });
   return issues;

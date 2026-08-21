@@ -653,6 +653,53 @@ describe('placing a thing in the building', () => {
     ).toBe('APPLIED');
   });
 
+  it('refuses a host the model itself does not accept', () => {
+    // Two questions, and only the first used to be asked. « Is this a
+    // support? » a roof is. « Does a radiator go on a roof? » it does not.
+    const base = withSupports();
+    const project = base.project;
+    const commands = new ProjectCommandDispatcher({
+      ...project,
+      equipment: (project.equipment ?? []).map((entry) =>
+        entry.id === 'radiator-model'
+          ? { ...entry, allowedHosts: ['WALL' as const] }
+          : entry,
+      ),
+    });
+    const result = commands.dispatch(
+      new AddComponentCommand('ground', {
+        ...draft,
+        definitionId: 'radiator-model',
+        hostObjectId: 'roof-whole',
+      }),
+    );
+    expect(result.status).toBe('REJECTED');
+    expect(
+      result.status === 'REJECTED' ? result.errors.join(' ') : '',
+    ).toContain('Mur');
+  });
+
+  it('accepts the host the model does accept', () => {
+    const base = withSupports();
+    const commands = new ProjectCommandDispatcher({
+      ...base.project,
+      equipment: (base.project.equipment ?? []).map((entry) =>
+        entry.id === 'radiator-model'
+          ? { ...entry, allowedHosts: ['WALL' as const] }
+          : entry,
+      ),
+    });
+    expect(
+      commands.dispatch(
+        new AddComponentCommand('ground', {
+          ...draft,
+          definitionId: 'radiator-model',
+          hostObjectId: 'south',
+        }),
+      ).status,
+    ).toBe('APPLIED');
+  });
+
   it('refuses a room, which is a volume rather than a support', () => {
     const commands = withSupports();
     const result = commands.dispatch(

@@ -632,6 +632,137 @@ function component(id: string, extra: object = {}): Record<string, unknown> {
   };
 }
 
+describe('what the networks say about themselves', () => {
+  function network(ports: readonly object[], edges: readonly object[] = []) {
+    return file([level], {
+      systems: [
+        {
+          id: 'water',
+          discipline: 'WATER',
+          systemType: 'POTABLE_COLD',
+          nodes: [
+            { id: 'n1', kind: 'SOURCE', position: { x: 0, y: 0, z: 0 } },
+            { id: 'n2', kind: 'FIXTURE', position: { x: 1, y: 0, z: 0 } },
+          ],
+          ports,
+          edges,
+        },
+      ],
+    });
+  }
+
+  it('refuses a port that names a kind and then contradicts it', () => {
+    // A port declaring a kind and a direction the kind denies is a port whose
+    // meaning depends on which field the reader happens to trust.
+    expect(
+      issues(
+        network([
+          {
+            id: 'p1',
+            nodeId: 'n1',
+            role: 'FLOW',
+            direction: 'IN',
+            portTypeId: 'WASTEWATER',
+          },
+        ]),
+      ),
+    ).toEqual([
+      '/project/systems/0/ports/0/portTypeId declares WASTEWATER, which is OUT, and says IN',
+    ]);
+  });
+
+  it('refuses a port naming a kind nobody defined', () => {
+    expect(
+      issues(
+        network([
+          {
+            id: 'p1',
+            nodeId: 'n1',
+            role: 'FLOW',
+            direction: 'OUT',
+            portTypeId: 'NOWHERE',
+          },
+        ]),
+      ),
+    ).toEqual([
+      '/project/systems/0/ports/0/portTypeId unknown port type NOWHERE',
+    ]);
+  });
+
+  it('refuses a run between two ports that could not be joined', () => {
+    const reported = issues(
+      network(
+        [
+          {
+            id: 'p1',
+            nodeId: 'n1',
+            role: 'FLOW',
+            direction: 'OUT',
+            portTypeId: 'WATER_COLD',
+          },
+          {
+            id: 'p2',
+            nodeId: 'n2',
+            role: 'FLOW',
+            direction: 'IN',
+            portTypeId: 'WASTEWATER_INLET',
+          },
+        ],
+        [
+          {
+            id: 'e1',
+            fromPortId: 'p1',
+            toPortId: 'p2',
+            kind: 'PIPE',
+            path: [
+              { x: 0, y: 0, z: 0 },
+              { x: 1, y: 0, z: 0 },
+            ],
+          },
+        ],
+      ),
+    );
+    expect(reported.join(' ')).toContain('/project/systems/0/edges/0/toPortId');
+  });
+
+  it('accepts a run that can be built', () => {
+    expect(
+      issues(
+        network(
+          [
+            {
+              id: 'p1',
+              nodeId: 'n1',
+              role: 'FLOW',
+              direction: 'OUT',
+              portTypeId: 'WATER_COLD',
+            },
+            {
+              id: 'p2',
+              nodeId: 'n2',
+              role: 'FLOW',
+              direction: 'IN',
+              portTypeId: 'WATER_COLD',
+            },
+          ],
+          [
+            {
+              id: 'e1',
+              fromPortId: 'p1',
+              toPortId: 'p2',
+              kind: 'PIPE',
+              path: [
+                { x: 0, y: 0, z: 0 },
+                { x: 1, y: 0, z: 0 },
+              ],
+            },
+          ],
+        ),
+      ),
+    ).toEqual([]);
+  });
+});
+
 describe('the things placed in the building', () => {
   it('accepts a level that says nothing about components', () => {
     // Every file written before components existed says nothing about them,
@@ -695,7 +826,7 @@ describe('the things placed in the building', () => {
         ]),
       ),
     ).toEqual([
-      '/project/building/levels/0/components/0/hostObjectId references nowhere, which is not a wall, a slab or a roof',
+      '/project/building/levels/0/components/0/hostObjectId references nowhere, which is nothing a component can be fixed to',
     ]);
   });
 
@@ -713,8 +844,95 @@ describe('the things placed in the building', () => {
         ]),
       ),
     ).toEqual([
-      '/project/building/levels/0/components/0/hostObjectId references space-living, which is not a wall, a slab or a roof',
+      '/project/building/levels/0/components/0/hostObjectId references space-living, which is nothing a component can be fixed to',
     ]);
+  });
+
+  it('refuses a component fixed to something its own model does not accept', () => {
+    // The rule travels in the file rather than being looked up in a catalogue:
+    // a house drawn today has to open the same way in two years, when the
+    // catalogue may have tightened a rule the house was legal under.
+    expect(
+      issues(
+        file(
+          [
+            {
+              ...level,
+              walls: [wall('wall-south', 'ground')],
+              roofs: [
+                {
+                  id: 'roof-plane',
+                  type: 'ROOF_PLANE',
+                  levelId: 'ground',
+                  footprint: {
+                    outer: [
+                      { x: 0, y: 0 },
+                      { x: 5000, y: 0 },
+                      { x: 5000, y: 4000 },
+                    ],
+                  },
+                  assemblyId: 'assembly',
+                  slopeDeg: 30,
+                  azimuthDeg: 180,
+                  baseElevationMm: 2500,
+                },
+              ],
+              components: [
+                component('c', {
+                  definitionId: 'radiator-model',
+                  hostObjectId: 'roof-plane',
+                }),
+              ],
+            },
+          ],
+          {
+            equipment: [
+              {
+                id: 'radiator-model',
+                kind: 'RADIATOR',
+                catalogKind: 'GENERIC',
+                allowedHosts: ['WALL'],
+                properties: {},
+              },
+            ],
+          },
+        ),
+      ),
+    ).toEqual([
+      '/project/building/levels/0/components/0/hostObjectId is fixed to roof-plane, which its own model does not accept: it goes on WALL',
+    ]);
+  });
+
+  it('accepts the host that model does accept', () => {
+    expect(
+      issues(
+        file(
+          [
+            {
+              ...level,
+              walls: [wall('wall-south', 'ground')],
+              components: [
+                component('c', {
+                  definitionId: 'radiator-model',
+                  hostObjectId: 'wall-south',
+                }),
+              ],
+            },
+          ],
+          {
+            equipment: [
+              {
+                id: 'radiator-model',
+                kind: 'RADIATOR',
+                catalogKind: 'GENERIC',
+                allowedHosts: ['WALL'],
+                properties: {},
+              },
+            ],
+          },
+        ),
+      ),
+    ).toEqual([]);
   });
 
   it('refuses a component whose room is on another storey', () => {

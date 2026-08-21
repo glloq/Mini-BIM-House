@@ -10,6 +10,10 @@ import { findSnap, modelToScreen } from '@house-technical-designer/editor-core';
 import type { Segment2D } from '@house-technical-designer/geometry';
 import type { AnalysisOverlay } from '@house-technical-designer/calculation-core';
 import {
+  clearancePrimitives,
+  type ClearanceGroupId,
+} from './clearance-overlay.js';
+import {
   buildPlanView,
   overlayPrimitives,
   objectsInBox,
@@ -106,6 +110,8 @@ export interface PlanCanvasProps {
   readonly onEditGeometry?: (edit: GeometryEdit) => void;
   /** Analysis values projected onto the drawing, when one is selected. */
   readonly overlay?: AnalysisOverlay;
+  /** Which groups of clearance zones the user has asked to see. */
+  readonly clearanceGroups?: readonly ClearanceGroupId[];
 }
 
 /** Segments the snap engine considers: every wall axis on the level. */
@@ -145,6 +151,7 @@ export function PlanCanvas({
   onObjectMenu,
   selectableFamily,
   overlay,
+  clearanceGroups = [],
 }: PlanCanvasProps) {
   const container = useRef<HTMLDivElement>(null);
   const panOrigin = useRef<{ x: number; y: number } | undefined>(undefined);
@@ -371,11 +378,32 @@ export function PlanCanvas({
       });
   }, [base.primitives, editor.selection, moveDelta]);
 
+  /**
+   * The room the placed machines need around them.
+   *
+   * Worked out here and never stored: the zones are the catalogue entry and
+   * the placement seen together, and a stored copy stops agreeing the moment
+   * anything moves.
+   */
+  const clearances = useMemo<readonly ScenePrimitive[]>(
+    () =>
+      clearancePrimitives(project, {
+        ...(editor.levelId === undefined ? {} : { levelId: editor.levelId }),
+        groups: clearanceGroups,
+      }),
+    [project, editor.levelId, clearanceGroups],
+  );
+
   const plan: PlanViewResult = useMemo(() => {
-    if (overlay === undefined && ghost.length === 0) return base;
+    if (overlay === undefined && ghost.length === 0 && clearances.length === 0)
+      return base;
     return buildPlanView(project, {
       ...(editor.levelId === undefined ? {} : { levelId: editor.levelId }),
-      layers: { ...editor.layers, 'analysis.overlay': true },
+      layers: {
+        ...editor.layers,
+        'analysis.overlay': true,
+        'analysis.clearances': clearances.length > 0,
+      },
       selection: editor.selection,
       ...(editor.hoveredId === undefined
         ? {}
@@ -383,6 +411,7 @@ export function PlanCanvas({
       extraPrimitives: [
         ...preview,
         ...ghost,
+        ...clearances,
         ...(overlay === undefined
           ? []
           : overlayPrimitives(base.primitives, overlay)),
@@ -392,6 +421,7 @@ export function PlanCanvas({
   }, [
     base,
     ghost,
+    clearances,
     overlay,
     project,
     editor.levelId,

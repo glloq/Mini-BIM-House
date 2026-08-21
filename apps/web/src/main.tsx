@@ -53,6 +53,9 @@ import {
 } from './project-workspace.js';
 import { demoClimateDatasets, loadDemoProject } from './demo-project.js';
 import { PlanCanvas } from './editor/PlanCanvas.js';
+import { ClearanceControl } from './editor/ClearanceControl.js';
+import { clearanceReport } from '@house-technical-designer/core-domain';
+import type { ClearanceGroupId } from './editor/clearance-overlay.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { LayersPanel } from './editor/LayersPanel.js';
 import { ToolBar } from './editor/ToolBar.js';
@@ -354,6 +357,9 @@ function App() {
 
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
+  const [clearanceGroups, setClearanceGroups] = useState<
+    readonly ClearanceGroupId[]
+  >([]);
   /**
    * The variant being drawn, when the plan is showing one.
    *
@@ -1416,6 +1422,18 @@ function App() {
     return applied.status === 'OK' ? applied.project : undefined;
   }, [file.project, scenarioMode]);
 
+  /**
+   * The room the machines need, and where two of them disagree.
+   *
+   * Counted here so the plan can say how many problems it is not showing:
+   * a zone nobody has measured is not drawn, and a plan that silently drew
+   * nothing would look like a plan with nothing to say.
+   */
+  const clearances = useMemo(
+    () => clearanceReport(scenarioProject ?? file.project),
+    [scenarioProject, file.project],
+  );
+
   /** What this variant adds, removes and changes, drawn like an analysis. */
   const scenarioOverlay = useMemo(
     () =>
@@ -2175,6 +2193,12 @@ function App() {
                     )}
                 </section>
               )}
+              <ClearanceControl
+                groups={clearanceGroups}
+                onChange={setClearanceGroups}
+                conflicts={clearances.conflicts.length}
+                unmeasured={clearances.unmeasured.length}
+              />
               <OverlayControl
                 overlayId={overlayId}
                 onChange={setOverlayId}
@@ -2249,6 +2273,7 @@ function App() {
               onEditGeometry={editGeometry}
               wallThicknessMm={wallThicknessMm}
               {...(drawnOverlay === undefined ? {} : { overlay: drawnOverlay })}
+              clearanceGroups={clearanceGroups}
             />
             <StatusBar
               editor={editor}

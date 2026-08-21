@@ -1,26 +1,4 @@
-import type { DataDomain } from './registries.js';
 import type { PropertyValue } from './property-schemas.js';
-import type { ProvenanceRecord } from './provenance.js';
-
-/**
- * A length of something a network is made of: pipe, cable, duct, flue.
- *
- * These are not equipment. A PER 16×2 is a product with a diameter, a
- * roughness and a pressure class, and there are three hundred of them; making
- * each one an « equipment definition » with ports and clearances would be
- * describing a tube as though it were a heat pump. And none of it belongs in
- * `NetworkEdge`: an edge is a run drawn in a building, the product is what the
- * run is made of, and one project uses the same product on forty edges.
- */
-export interface NetworkProduct {
-  readonly id: string;
-  /** PIPE, CABLE, DUCT, CONDUIT, FLUE — the family it is an entry of. */
-  readonly family: string;
-  readonly domain: DataDomain;
-  readonly label: string;
-  readonly properties: Readonly<Record<string, PropertyValue>>;
-  readonly provenance: ProvenanceRecord;
-}
 
 export interface NetworkProductIssue {
   readonly path: string;

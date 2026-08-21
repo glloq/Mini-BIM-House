@@ -217,7 +217,15 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["PV_DC_INPUT"],
+          "minCount": 1,
+          "maxCount": 4
+        },
+        "ELECTRICAL_AC",
+        "EARTH"
+      ],
       "calculators": [
         "photovoltaic",
         "electrical",

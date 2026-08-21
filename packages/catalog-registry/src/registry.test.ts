@@ -4,6 +4,7 @@ import { PROJECT_CALCULATION_MODULE_IDS } from '@house-technical-designer/calcul
 import {
   genericEquipment,
   genericEquipmentCatalog,
+  rawGenericEquipmentEntries,
 } from '@house-technical-designer/equipment-catalog';
 import {
   DATA_REGISTRIES,
@@ -37,6 +38,9 @@ import {
   familyStatus,
   MEASURED_AXES,
   validateProvenance,
+  PROPERTY_DEFINITION_REGISTRY,
+  propertyDefinition,
+  validatePropertyDefinitions,
   validatePropertySchema,
   validateRegistry,
   validateSchemas,
@@ -372,7 +376,7 @@ describe('the generic catalogue, checked against its own families', () => {
     // where the schema says `maximumChargePowerW`. Both files were valid on
     // their own, the family said GENERIC_DATA: READY, and the integration was
     // green — because nothing compared the two.
-    expect(validateCatalog(genericEquipmentCatalog(), symbols)).toEqual([]);
+    expect(validateCatalog(rawGenericEquipmentEntries(), symbols)).toEqual([]);
   });
 
   it('ties every entry to a family of the nomenclature', () => {
@@ -465,55 +469,135 @@ describe('the schemas everything else is measured against', () => {
   });
 
   it('refuses a key declared twice, which would silently keep the second', () => {
+    const defined = () => ({
+      id: 'a',
+      label: 'A',
+      type: 'number' as const,
+      unit: 'W',
+    });
     expect(
-      validatePropertySchema({
-        family: 'X',
-        properties: [
-          {
-            key: 'a',
-            label: 'A',
-            type: 'number',
-            unit: 'W',
-            source: 'DEFINITION',
-          },
-          {
-            key: 'a',
-            label: 'A bis',
-            type: 'number',
-            unit: 'W',
-            source: 'DEFINITION',
-          },
-        ],
-      }).map(({ message }) => message),
+      validatePropertySchema(
+        {
+          family: 'X',
+          properties: [
+            { key: 'a', source: 'DEFINITION' },
+            { key: 'a', source: 'DEFINITION' },
+          ],
+        },
+        defined,
+      ).map(({ message }) => message),
     ).toContain('is declared more than once');
   });
 
-  it('refuses an enum that accepts anything and a range nothing satisfies', () => {
-    const issues = validatePropertySchema({
-      family: 'X',
-      properties: [
-        { key: 'a', label: 'A', type: 'enum', source: 'DEFINITION' },
+  it('refuses a family naming a property nothing defines', () => {
+    // Two hundred and forty-six keys over forty-four schemas had drifted
+    // eleven times; a key now means one thing, and a family says which keys it
+    // uses rather than inventing one.
+    expect(
+      validatePropertySchema(
         {
-          key: 'b',
-          label: 'B',
-          type: 'number',
-          unit: 'W',
-          source: 'DEFINITION',
-          minimum: 10,
-          maximum: 1,
+          family: 'X',
+          properties: [{ key: 'invented', source: 'DEFINITION' }],
         },
-        { key: 'c', label: 'C', type: 'number', source: 'DEFINITION' },
-        { key: '', label: '', type: 'nope', source: 'nowhere' },
-      ],
-    }).map(({ message }) => message);
-    expect(issues).toContain('is an enum and names no value it accepts');
+        () => undefined,
+      ).map(({ message }) => message),
+    ).toContain('names no property this application defines');
+  });
+
+  it('refuses a range nothing satisfies and a list of the wrong kind', () => {
+    const issues = validatePropertySchema(
+      {
+        family: 'X',
+        properties: [
+          { key: 'b', source: 'DEFINITION', minimum: 10, maximum: 1 },
+          { key: 'b', source: 'DEFINITION', options: ['x'] },
+        ],
+      },
+      () => ({ id: 'b', label: 'B', type: 'number' as const, unit: 'W' }),
+    ).map(({ message }) => message);
     expect(issues).toContain(
       'has a minimum above its maximum, which nothing can satisfy',
     );
+    expect(issues).toContain('number values cannot be listed');
+  });
+
+  it('refuses a definition whose unit and quantity disagree', () => {
+    // A power measured in millimetres is a property nobody can convert and
+    // nobody can check.
+    expect(
+      validatePropertyDefinitions([
+        { id: 'a', label: 'A', type: 'number', unit: 'mm', quantity: 'POWER' },
+      ]).map(({ message }) => message),
+    ).toContain(
+      'says it measures POWER and is written in mm, which measures LENGTH',
+    );
+  });
+
+  it('refuses a unit this application does not write', () => {
+    // `KW`, `kw` and `kW` are three spellings of one unit and only one of them
+    // is the symbol.
+    expect(
+      validatePropertyDefinitions([
+        { id: 'a', label: 'A', type: 'number', unit: 'KW' },
+      ]).map(({ message }) => message),
+    ).toContain('KW is not one of the units this application writes');
+  });
+
+  it('lets a file written with an older spelling still open', () => {
+    // Cleaning up a key is otherwise a choice between breaking every file that
+    // used it and never cleaning it up.
+    const schema = {
+      family: 'X',
+      properties: [
+        {
+          key: 'maxChargePowerKw',
+          label: 'Puissance de charge',
+          type: 'number' as const,
+          unit: 'kW',
+          source: 'DEFINITION' as const,
+          aliases: ['maxChargePowerKW'],
+        },
+      ],
+    };
+    expect(
+      validateProperties(schema, { maxChargePowerKW: 2.5 }, 'DEFINITION').map(
+        ({ message }) => message,
+      ),
+    ).toEqual(['maxChargePowerKW is an older spelling of maxChargePowerKw']);
+    expect(
+      validateProperties(schema, { maxChargePowerKw: 2.5 }, 'DEFINITION'),
+    ).toEqual([]);
+  });
+
+  it('carries the unit and what it measures down to the form that shows it', () => {
+    const schema = propertySchema('BATTERY_DEVICE')!;
+    const power = schema.properties.find(
+      ({ key }) => key === 'maxChargePowerKW',
+    );
+    expect(power?.unit).toBe('kW');
+    expect(power?.quantity).toBe('POWER');
+    expect(power?.label).toBe('Puissance de charge maximale');
+  });
+
+  it('defines every key exactly once, for the whole application', () => {
+    // `cost` meant a cost, a cost per square metre, a cost per metre and a
+    // cost per cubic metre; `pressureDrop` was stored in one schema and
+    // derived in another, which is how a derived figure ends up in a file.
+    const keys = PROPERTY_DEFINITION_REGISTRY.map(({ id }) => id);
+    expect(new Set(keys).size).toBe(keys.length);
+    for (const schema of PROPERTY_SCHEMA_REGISTRY)
+      for (const property of schema.properties)
+        expect(propertyDefinition(property.key), property.key).toBeDefined();
+  });
+
+  it('refuses a key defined twice and a number with no unit', () => {
+    const issues = validatePropertyDefinitions([
+      { id: 'a', label: 'A', type: 'number', unit: 'W' },
+      { id: 'a', label: 'A bis', type: 'number', unit: 'W' },
+      { id: 'b', label: 'B', type: 'number' },
+    ]).map(({ message }) => message);
+    expect(issues).toContain('is defined more than once');
     expect(issues).toContain('is a number and states no unit');
-    expect(issues).toContain('unknown type nope');
-    expect(issues).toContain('unknown source nowhere');
-    expect(issues).toContain('must have a key');
   });
 });
 
@@ -529,25 +613,55 @@ describe('the room a thing needs around it', () => {
   };
 
   it('puts each zone on the side the entry asks for, turned with the object', () => {
-    const [zone] = clearanceZones(placement, [
+    const zone = clearanceZones(placement, [
       { zone: 'AIR_EXHAUST', frontMm: 2000 },
-    ]);
+    ]).find(({ zone: kind }) => kind === 'AIR_EXHAUST');
     // Front is the object's own forward direction: at rest it points east, so
     // the exhaust reaches 2.2 m along x and nothing behind.
     expect(Math.max(...zone!.footprint.map(({ x }) => x))).toBeCloseTo(2200);
     expect(Math.min(...zone!.footprint.map(({ x }) => x))).toBeCloseTo(-200);
-    const [turned] = clearanceZones({ ...placement, rotationDeg: 90 }, [
+    const turned = clearanceZones({ ...placement, rotationDeg: 90 }, [
       { zone: 'AIR_EXHAUST', frontMm: 2000 },
-    ]);
+    ]).find(({ zone: kind }) => kind === 'AIR_EXHAUST');
     expect(Math.max(...turned!.footprint.map(({ y }) => y))).toBeCloseTo(2200);
   });
 
   it('measures height from the underside of the thing', () => {
-    const [zone] = clearanceZones(placement, [
+    const zone = clearanceZones(placement, [
       { zone: 'SERVICE', aboveMm: 500, belowMm: 100 },
-    ]);
+    ]).find(({ zone: kind }) => kind === 'SERVICE');
     expect(zone!.baseMm).toBe(-100);
     expect(zone!.topMm).toBe(1300);
+  });
+
+  it('always draws the volume the thing itself occupies', () => {
+    // An object occupies its own dimensions; asking an entry to state that
+    // would be asking it to repeat what it already says.
+    const physical = clearanceZones(placement, []).find(
+      ({ zone }) => zone === 'PHYSICAL',
+    );
+    expect(physical?.known).toBe(true);
+    expect(Math.max(...physical!.footprint.map(({ x }) => x))).toBeCloseTo(200);
+    expect(physical?.topMm).toBe(800);
+  });
+
+  it('says when a zone is required and nobody has measured it', () => {
+    // « Nobody has said » is not « none »: drawing it as zero would put a
+    // machine against a wall and call the plan checked.
+    const zones = clearanceZones(placement, [], ['MAINTENANCE', 'AIR_INTAKE']);
+    expect(zones.filter(({ known }) => !known).map(({ zone }) => zone)).toEqual(
+      ['MAINTENANCE', 'AIR_INTAKE'],
+    );
+  });
+
+  it('never tests a volume nobody has measured', () => {
+    const first = clearanceZones(placement, [], ['AIR_EXHAUST']);
+    const second = clearanceZones(
+      { ...placement, objectId: 'other', position: { x: 5000, y: 0 } },
+      [],
+      ['AIR_INTAKE'],
+    );
+    expect(clearanceConflicts([...first, ...second])).toEqual([]);
   });
 
   it('lets two people share the space in front of two appliances', () => {

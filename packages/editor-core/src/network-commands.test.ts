@@ -424,3 +424,115 @@ describe('network commands', () => {
     ).toBe('REJECTED');
   });
 });
+
+/** A water network whose ports name their kinds, plus a drain that does not. */
+function networkProject(): Project {
+  return baseProject([
+    {
+      id: 'water',
+      discipline: 'WATER',
+      systemType: 'POTABLE_COLD',
+      nodes: [
+        { id: 'water:source', kind: 'SOURCE', position: { x: 0, y: 0, z: 0 } },
+        {
+          id: 'water:basin',
+          kind: 'FIXTURE',
+          position: { x: 1000, y: 0, z: 0 },
+        },
+        {
+          id: 'water:drain',
+          kind: 'OUTLET',
+          position: { x: 2000, y: 0, z: 0 },
+        },
+      ],
+      ports: [
+        {
+          id: 'water:source-out',
+          nodeId: 'water:source',
+          role: 'FLOW',
+          direction: 'OUT',
+          portTypeId: 'WATER_COLD',
+        },
+        {
+          id: 'water:basin-in',
+          nodeId: 'water:basin',
+          role: 'FLOW',
+          direction: 'IN',
+          portTypeId: 'WATER_COLD',
+        },
+        {
+          id: 'water:drain-in',
+          nodeId: 'water:drain',
+          role: 'FLOW',
+          direction: 'IN',
+          portTypeId: 'WASTEWATER_INLET',
+        },
+      ],
+      edges: [],
+    },
+  ] as unknown as readonly TechnicalNetwork[]);
+}
+
+describe('what a network may be joined to', () => {
+  it('names the kind of every port it creates from a system', () => {
+    // A template said `FLOW` going `OUT`, which is true of an eau froide, an
+    // eau usée and a circuit de chauffage alike — so nothing could tell
+    // whether a run between two of them made sense.
+    const [source] = templatePorts(
+      'water:source',
+      networkNodeTemplates('WATER')[0]!,
+      'POTABLE_COLD',
+    );
+    expect(source?.portTypeId).toBe('WATER_COLD');
+    const [extract] = templatePorts(
+      'vent:fan',
+      networkNodeTemplates('VENTILATION')[0]!,
+      'EXTRACT',
+    );
+    expect(extract?.portTypeId).toBe('AIR_EXHAUST');
+  });
+
+  it('leaves a system it does not know unnamed rather than guessing', () => {
+    const [port] = templatePorts(
+      'other:source',
+      networkNodeTemplates('OTHER')[0]!,
+      'SOMETHING_ELSE',
+    );
+    expect(port?.portTypeId).toBeUndefined();
+  });
+
+  it('refuses to draw a run that could not be built', () => {
+    const commands = new ProjectCommandDispatcher(networkProject());
+    const rejected = commands.dispatch(
+      new ConnectNetworkPortsCommand('water', {
+        id: 'water:bad',
+        fromPortId: 'water:source-out',
+        toPortId: 'water:drain-in',
+        kind: 'PIPE',
+        path: [
+          { x: 0, y: 0, z: 0 },
+          { x: 1000, y: 0, z: 0 },
+        ],
+      }),
+    );
+    expect(rejected.status).toBe('REJECTED');
+  });
+
+  it('draws the run that can', () => {
+    const commands = new ProjectCommandDispatcher(networkProject());
+    expect(
+      commands.dispatch(
+        new ConnectNetworkPortsCommand('water', {
+          id: 'water:good',
+          fromPortId: 'water:source-out',
+          toPortId: 'water:basin-in',
+          kind: 'PIPE',
+          path: [
+            { x: 0, y: 0, z: 0 },
+            { x: 1000, y: 0, z: 0 },
+          ],
+        }),
+      ).status,
+    ).toBe('APPLIED');
+  });
+});

@@ -1,7 +1,7 @@
 # État de préparation à la bêta
 
 Ce fichier ne raconte pas l'histoire du projet : il dit où en est la version
-`0.3.0-beta.1` aujourd'hui. L'historique des passes d'audit et de leurs
+`0.3.0-beta.2` aujourd'hui. L'historique des passes d'audit et de leurs
 correctifs reste dans `IMPLEMENTATION_STATUS.md`, et ce qui a changé d'une
 version à l'autre dans `../CHANGELOG.md`.
 
@@ -27,6 +27,14 @@ remplir tout cela : sept registres, 518 familles, les catalogues, et surtout
 les contrôles qui empêchent de la remplir de travers. C'est ce qui sépare la
 `0.2.0-beta.2` de la `0.3.0-beta.1`.
 
+Une cinquième passe a suivi, celle de l'intégrité du modèle BIM : ce qu'un
+niveau contient, ce qu'un composant posé apporte aux calculs, ce dont un
+tronçon est fait, ce qu'une clé de propriété veut dire, et la place que les
+machines demandent autour d'elles. Elle a fermé un défaut capable de faire
+perdre du travail sans un mot — un niveau contenant une toiture, des poteaux
+et une PAC comptait pour vide — et branché la chaîne
+catalogue → objet posé → réseau → calcul → vérifications.
+
 ## Les portes de la bêta
 
 | Porte   | Ce qu'elle exige                                                    | État    |
@@ -50,8 +58,10 @@ les contrôles qui empêchent de la remplir de travers. C'est ce qui sépare la
 | BETA-17 | GitHub Pages réellement accessible et vérifié après déploiement     | PARTIEL |
 | BETA-18 | migrations et versions figées pour les premiers utilisateurs        | FAIT    |
 
-**BETA-05** : seize familles d'objets sont recensées à l'import et toutes les
-références y sont confrontées — appartenance de niveau, assemblage, matériau,
+**BETA-05** : les vingt-six familles d'objets du modèle sont recensées par un
+index unique — celui-là même que la validation, la sélection, l'arbre du
+projet, la palette et la suppression interrogent — et toutes les références y
+sont confrontées — appartenance de niveau, assemblage, matériau,
 pièce, équipement, port, `spaceIds` des zones, `wallId` des cotes,
 `hostObjectId` et `levelId` des nœuds de réseau. L'unicité des identifiants est
 tranchée et écrite : elle vaut pour tout le projet, pas seulement pour la

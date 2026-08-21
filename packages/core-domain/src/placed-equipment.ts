@@ -1,0 +1,186 @@
+import type { Point3D } from '@house-technical-designer/geometry';
+import type { ClearanceZone } from '@house-technical-designer/technical-types';
+import type { ComponentCategory, ComponentInstance } from './component.js';
+import type { EquipmentDefinition, JsonValue, Project } from './types.js';
+
+/**
+ * One thing standing in the building, with everything known about it.
+ *
+ * The model held the two halves apart and nothing put them together. A
+ * catalogue entry said what a heat pump of that model is; a component said
+ * where this one stands. The calculations read the first and never the second,
+ * so a project with three radiators and a project with one were the same
+ * project as far as heating was concerned — and moving something changed
+ * nothing at all.
+ *
+ * Derived, and never written to the project. It is the entry and the placement
+ * seen together, and storing it would be a second answer to a question the
+ * model already answers — one that stops agreeing the moment either half
+ * changes.
+ */
+export interface ResolvedPlacedEquipment {
+  readonly instanceId: string;
+  readonly definitionId?: string;
+  readonly definitionVersion?: string;
+  readonly familyId?: string;
+  /** What the catalogue calls this kind of thing: `RADIATOR`, `LUMINAIRE`. */
+  readonly kind?: string;
+  readonly category: ComponentCategory;
+  readonly name?: string;
+  readonly levelId: string;
+  readonly spaceId?: string;
+  readonly hostObjectId?: string;
+  /** Where it stands, the height counted from the ground rather than the floor. */
+  readonly position: Point3D;
+  readonly rotationDeg: number;
+  /** What the model says, the same for every one of them. */
+  readonly definitionProperties: Readonly<Record<string, JsonValue>>;
+  /** What this one carries beyond its model. */
+  readonly instanceProperties: Readonly<Record<string, JsonValue>>;
+  /** The two seen together, the instance winning. */
+  readonly resolvedProperties: Readonly<Record<string, JsonValue>>;
+  readonly ports: readonly {
+    readonly id: string;
+    readonly portTypeId?: string;
+  }[];
+  /** The zones this kind of thing has, measured or not. */
+  readonly requiredClearances: readonly ClearanceZone[];
+  readonly clearances: readonly {
+    readonly zone: ClearanceZone;
+    readonly frontMm?: number;
+    readonly backMm?: number;
+    readonly leftMm?: number;
+    readonly rightMm?: number;
+    readonly aboveMm?: number;
+    readonly belowMm?: number;
+    readonly reason?: string;
+  }[];
+  readonly dimensions?: {
+    readonly widthMm?: number;
+    readonly depthMm?: number;
+    readonly heightMm?: number;
+  };
+  readonly provenance?: EquipmentDefinition['provenance'];
+  /**
+   * What is wrong with this placement, said rather than absorbed.
+   *
+   * A component naming a model the project no longer holds, or pinning a
+   * version the project's own copy has moved past, is reported here: the
+   * calculations must be able to say « designed with figures that are no
+   * longer these » instead of quietly using whichever ones are loaded.
+   */
+  readonly issues: readonly string[];
+}
+
+function resolveOne(
+  component: ComponentInstance,
+  levelElevationMm: number,
+  definition: EquipmentDefinition | undefined,
+): ResolvedPlacedEquipment {
+  const issues: string[] = [];
+  if (component.definitionId !== undefined && definition === undefined)
+    issues.push(`names no model the project holds: ${component.definitionId}`);
+  if (
+    definition?.version !== undefined &&
+    component.definitionVersion !== undefined &&
+    definition.version !== component.definitionVersion
+  )
+    issues.push(
+      `was placed with ${component.definitionId}@${component.definitionVersion}, and the project now holds ${definition.version}`,
+    );
+  const name = component.name ?? definition?.name;
+  const definitionProperties = definition?.properties ?? {};
+  const instanceProperties = component.properties ?? {};
+  return {
+    instanceId: component.id,
+    ...(component.definitionId === undefined
+      ? {}
+      : { definitionId: component.definitionId }),
+    ...(component.definitionVersion === undefined
+      ? {}
+      : { definitionVersion: component.definitionVersion }),
+    ...(definition?.familyId === undefined
+      ? {}
+      : { familyId: definition.familyId }),
+    ...(definition?.kind === undefined ? {} : { kind: definition.kind }),
+    category: component.category,
+    ...(name === undefined ? {} : { name }),
+    levelId: component.levelId,
+    ...(component.spaceId === undefined ? {} : { spaceId: component.spaceId }),
+    ...(component.hostObjectId === undefined
+      ? {}
+      : { hostObjectId: component.hostObjectId }),
+    // Absolute, like a roof elevation and like a network node: a calculation
+    // comparing two storeys cannot do it from two heights above two floors.
+    position: {
+      x: component.position.x,
+      y: component.position.y,
+      z: levelElevationMm + component.elevationMm,
+    },
+    rotationDeg: component.rotationDeg,
+    definitionProperties,
+    instanceProperties,
+    resolvedProperties: { ...definitionProperties, ...instanceProperties },
+    ports: definition?.ports ?? [],
+    clearances: definition?.clearances ?? [],
+    requiredClearances: definition?.requiredClearances ?? [],
+    ...(definition?.dimensions === undefined
+      ? {}
+      : { dimensions: definition.dimensions }),
+    ...(definition?.provenance === undefined
+      ? {}
+      : { provenance: definition.provenance }),
+    issues,
+  };
+}
+
+/** Everything placed in the building, resolved against what the project holds. */
+export function placedEquipment(
+  project: Project,
+): readonly ResolvedPlacedEquipment[] {
+  const definitions = new Map(
+    (project.equipment ?? []).map((entry) => [entry.id, entry]),
+  );
+  return project.building.levels.flatMap((level) =>
+    (level.components ?? []).map((component) =>
+      resolveOne(
+        component,
+        level.elevationMm,
+        component.definitionId === undefined
+          ? undefined
+          : definitions.get(component.definitionId),
+      ),
+    ),
+  );
+}
+
+function grouped<T extends string>(
+  placed: readonly ResolvedPlacedEquipment[],
+  key: (one: ResolvedPlacedEquipment) => T | undefined,
+): Readonly<Record<string, readonly ResolvedPlacedEquipment[]>> {
+  const groups: Record<string, ResolvedPlacedEquipment[]> = {};
+  for (const one of placed) {
+    const found = key(one);
+    if (found === undefined) continue;
+    (groups[found] ??= []).push(one);
+  }
+  return groups;
+}
+
+export function placedEquipmentByFamily(
+  placed: readonly ResolvedPlacedEquipment[],
+): Readonly<Record<string, readonly ResolvedPlacedEquipment[]>> {
+  return grouped(placed, ({ familyId }) => familyId);
+}
+
+export function placedEquipmentByKind(
+  placed: readonly ResolvedPlacedEquipment[],
+): Readonly<Record<string, readonly ResolvedPlacedEquipment[]>> {
+  return grouped(placed, ({ kind }) => kind);
+}
+
+export function placedEquipmentBySpace(
+  placed: readonly ResolvedPlacedEquipment[],
+): Readonly<Record<string, readonly ResolvedPlacedEquipment[]>> {
+  return grouped(placed, ({ spaceId }) => spaceId);
+}

@@ -15,8 +15,13 @@ import { queryMaterials } from '@house-technical-designer/materials';
 import { calculateThermalResistance } from '@house-technical-designer/thermal';
 import type {
   EquipmentDefinition as ProjectEquipment,
+  HostType,
   Project,
 } from '@house-technical-designer/core-domain';
+import {
+  isClearanceZone,
+  type ClearanceZone,
+} from '@house-technical-designer/technical-types';
 import type { EquipmentDefinition } from '@house-technical-designer/equipment-catalog';
 import {
   assembliesUsingMaterial,
@@ -368,22 +373,63 @@ export function withEditedProperty(
 /**
  * Copies a catalogue definition into the project.
  *
- * The project keeps the catalogue identifier and version so a later catalogue
- * update never rewrites a project silently.
+ * A copy, and not a summary. It used to keep four fields and hide the rest
+ * inside `properties` — `catalogDefinitionId`, `catalogDefinitionVersion` —
+ * where nothing could read them: the version pin looked for `version` at the
+ * top and found nothing, so a component placed from the interface recorded no
+ * pin at all, and the whole point of pinning was lost between two panels.
+ *
+ * What travels is what makes the entry more than a bag of numbers: the family
+ * it belongs to, its version, what it may be fixed to, what it is connected
+ * by, the room it needs, and where its figures came from. A project claiming
+ * to be self-contained has to carry them, because the catalogue it was copied
+ * from will move and this file must not.
  */
 export function projectEquipmentFromCatalog(
   definition: EquipmentDefinition,
   takenIds: readonly string[],
+  allowedHosts?: readonly HostType[],
+  requiredClearances?: readonly ClearanceZone[],
 ): ProjectEquipment {
   return {
     id: nextLibraryId('equipment', definition.name, takenIds),
+    familyId: definition.familyId,
     kind: definition.kind,
     catalogKind: definition.catalogKind,
-    properties: {
-      ...definition.properties,
-      name: definition.name,
-      catalogDefinitionId: definition.id,
-      catalogDefinitionVersion: definition.version,
-    },
+    version: definition.version,
+    name: definition.name,
+    category: definition.category,
+    ...(definition.manufacturer === undefined
+      ? {}
+      : { manufacturer: definition.manufacturer }),
+    ...(definition.model === undefined ? {} : { model: definition.model }),
+    ...(definition.dimensions === undefined
+      ? {}
+      : { dimensions: definition.dimensions }),
+    ...(allowedHosts === undefined ? {} : { allowedHosts }),
+    ...(requiredClearances === undefined ? {} : { requiredClearances }),
+    ports: definition.ports.map((port) => ({
+      id: port.id,
+      portTypeId: port.portTypeId,
+      position: port.position,
+    })),
+    ...(definition.clearances === undefined
+      ? {}
+      : {
+          clearances: definition.clearances.filter(
+            (
+              clearance,
+            ): clearance is typeof clearance & { zone: ClearanceZone } =>
+              isClearanceZone(clearance.zone),
+          ),
+        }),
+    provenance: definition.provenance,
+    ...(definition.costEntryId === undefined
+      ? {}
+      : { costEntryId: definition.costEntryId }),
+    ...(definition.environmentalDeclarationId === undefined
+      ? {}
+      : { environmentalDeclarationId: definition.environmentalDeclarationId }),
+    properties: { ...definition.properties, name: definition.name },
   };
 }

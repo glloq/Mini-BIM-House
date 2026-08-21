@@ -1658,3 +1658,83 @@ button.icon {
   padding: 0.15rem 0.3rem;
   color: #5b6b63;
 }
+
+/* The clearance switches: one line per kind of room, so that turning on the
+   air of a heat pump does not also draw every maintenance rectangle. */
+.clearance-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+}
+
+.clearance-groups label {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+/* The nomenclature browser: five hundred families need filters and one open
+   row at a time, not a longer list. */
+.catalog-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.catalog-toggle {
+  align-items: center;
+  align-self: flex-end;
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.catalog-row {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.35rem 0;
+  text-align: left;
+  width: 100%;
+}
+
+.catalog-detail {
+  border-left: 2px solid var(--border, #d8d8d8);
+  margin: 0 0 0.5rem 0.5rem;
+  padding-left: 0.75rem;
+}
+
+.catalog-detail dl {
+  display: grid;
+  gap: 0.15rem 0.75rem;
+  grid-template-columns: auto 1fr;
+  margin: 0 0 0.35rem;
+}
+
+.catalog-detail dt {
+  font-weight: 600;
+}
+
+.catalog-detail dd {
+  margin: 0;
+}
+
+.catalog-entries {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+}
+
+.catalog-entries li {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  padding: 0.15rem 0;
+}

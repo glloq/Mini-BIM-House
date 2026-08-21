@@ -1,7 +1,12 @@
-import { isClearanceZone, CLEARANCE_LABELS } from './clearances.js';
-import type { ClearanceZoneDefinition } from './clearances.js';
+import {
+  CLEARANCE_LABELS,
+  isClearanceZone,
+  isPortType,
+  portRequirement,
+  unmetRequirements,
+  type ClearanceZoneDefinition,
+} from '@house-technical-designer/technical-types';
 import type { FamilyDefinition } from './families.js';
-import { isPortType, portType } from './port-types.js';
 import {
   validateProperties,
   type PropertySchema,
@@ -33,6 +38,54 @@ export interface CatalogEntryCandidate {
   readonly rendering?: {
     readonly symbols?: readonly { readonly symbolId: string }[];
   };
+}
+
+/**
+ * A version, as versions are compared.
+ *
+ * Free text would let `1.0`, `v1.0.0` and `1.0.0-final` all name the same
+ * entry and none of them sort against the others; a project pinning one could
+ * never be told whether the catalogue had moved forward or back.
+ */
+const SEMVER =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/u;
+
+/**
+ * What this entry says, reduced to one string.
+ *
+ * A version is a promise: `generic-battery@1.0.0` must mean the same figures
+ * today as it did when a project pinned it. Nothing enforced that promise, so
+ * a fiche could be corrected in place and every project holding the old pin
+ * would silently be designing with the new numbers while claiming the old
+ * ones. Comparing this against what was recorded is how the promise is kept.
+ *
+ * Order does not matter and formatting does not either: what is compared is
+ * the content, sorted, not the file.
+ */
+export function catalogFingerprint(entry: CatalogEntryCandidate): string {
+  const canonical = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(canonical);
+    if (value !== null && typeof value === 'object')
+      return Object.fromEntries(
+        Object.entries(value as Record<string, unknown>)
+          .filter(([, held]) => held !== undefined)
+          .sort(([first], [second]) => first.localeCompare(second))
+          .map(([key, held]) => [key, canonical(held)]),
+      );
+    return value;
+  };
+  const { id: _id, version: _version, ...rest } = entry;
+  const text = JSON.stringify(canonical(rest));
+  // A short, stable digest: the point is to notice a change, not to resist an
+  // attacker, and a hash nobody can read is a hash nobody checks.
+  let low = 0x811c9dc5;
+  let high = 0x01000193;
+  for (let index = 0; index < text.length; index += 1) {
+    low = Math.imul(low ^ text.charCodeAt(index), 0x01000193) >>> 0;
+    high =
+      Math.imul(high + text.charCodeAt(index) * (index + 1), 0x85ebca6b) >>> 0;
+  }
+  return `${low.toString(16).padStart(8, '0')}${high.toString(16).padStart(8, '0')}`;
 }
 
 export interface CatalogIssue {
@@ -68,8 +121,12 @@ export function validateCatalogEntry(
     issues.push({ entryId: entry.id, path, message });
   };
   if (entry.id.trim() === '') at('id', 'must not be empty');
-  if (entry.version !== undefined && entry.version.trim() === '')
-    at('version', 'must not be empty');
+  // Every entry states its version, and states it the way versions are
+  // compared. Without one, a project can pin nothing and a correction reaches
+  // every house already designed with the entry.
+  if (entry.version === undefined) at('version', 'must state a version');
+  else if (!SEMVER.test(entry.version))
+    at('version', `${entry.version} is not a version of the form 1.0.0`);
 
   const family = known.family(entry.familyId);
   if (family === undefined) {
@@ -99,7 +156,7 @@ export function validateCatalogEntry(
   // The ports: each one a kind the registry knows, and between them at least
   // what the family says such a thing is connected by. A heat pump missing its
   // return is a heat pump nothing can route.
-  const declared = new Set<string>();
+  const declared: string[] = [];
   for (const [index, port] of (entry.ports ?? []).entries()) {
     if (port.portTypeId === undefined) {
       at(`ports/${index}`, `${port.id} does not say what kind of port it is`);
@@ -109,14 +166,17 @@ export function validateCatalogEntry(
       at(`ports/${index}`, `unknown port type ${port.portTypeId}`);
       continue;
     }
-    declared.add(port.portTypeId);
+    declared.push(port.portTypeId);
   }
-  for (const required of family.ports ?? [])
-    if (!declared.has(required) && !servedBy(declared, required))
-      at(
-        'ports',
-        `${family.id} is connected by ${required}, which this entry does not declare`,
-      );
+  // Each declared port answers for one requirement and no more. Matching by
+  // service let `HEATING_RETURN` satisfy a family asking for both a flow and a
+  // return, since the two carry the same water — so a heat pump with one water
+  // connection passed for one with two.
+  for (const issue of unmetRequirements(
+    (family.ports ?? []).map(portRequirement),
+    declared,
+  ))
+    at('ports', `${family.id} ${issue.message}`);
 
   // The room around it: the family says which zones such a thing has, the
   // entry says how far each one reaches. An entry claiming a zone its family
@@ -135,7 +195,13 @@ export function validateCatalogEntry(
       at(`clearances/${index}`, `unknown clearance zone ${clearance.zone}`);
       continue;
     }
-    if (!zones.has(clearance.zone))
+    // What an object occupies is its own dimensions, which it already states.
+    if (clearance.zone === 'PHYSICAL')
+      at(
+        `clearances/${index}`,
+        'the volume a thing occupies is its own dimensions and is not declared',
+      );
+    else if (!zones.has(clearance.zone))
       at(
         `clearances/${index}`,
         `${family.id} declares no ${CLEARANCE_LABELS[clearance.zone]} zone`,
@@ -159,21 +225,4 @@ export function validateCatalogEntry(
   for (const issue of validateProvenance(entry.provenance))
     at(issue.path, issue.message);
   return issues;
-}
-
-/**
- * Whether a port the family asks for is served by one the entry declares.
- *
- * A family says a heat pump is connected by `HEATING_FLOW`; an entry may
- * declare the facing `HEATING_RETURN` for the same circuit. What matters is
- * that the service is there, not that the two strings match.
- */
-function servedBy(declared: ReadonlySet<string>, required: string): boolean {
-  const wanted = portType(required);
-  if (wanted === undefined) return false;
-  for (const id of declared) {
-    const found = portType(id);
-    if (found?.service === wanted.service) return true;
-  }
-  return false;
 }

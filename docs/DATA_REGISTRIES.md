@@ -212,6 +212,34 @@ Une propriété dérivée trouvée parmi les valeurs enregistrées est une erreu
 non un avertissement : c'est une deuxième réponse à une question à laquelle le
 modèle répond déjà, et les deux se contrediront au premier changement.
 
+## Une propriété, une définition
+
+`cost` voulait dire quatre choses — un coût, un coût au mètre carré, un coût
+au mètre, un coût au mètre cube — et `pressureDrop` était une valeur
+enregistrée dans un schéma et une valeur dérivée dans un autre, ce qui est
+exactement la façon dont une valeur dérivée finit écrite dans un fichier et se
+contredit elle-même. Deux cent quarante-six clés réparties sur quarante-quatre
+schémas avaient déjà divergé onze fois ; à cinq cents familles ce serait
+irrattrapable.
+
+Une clé est donc définie **une fois**, dans
+`data/property-schemas/properties.json` : ce qu'elle veut dire, son type, son
+unité, ce que cette unité mesure, et les orthographes plus anciennes sous
+lesquelles un fichier a pu l'écrire. Une famille dit ensuite **quelles** clés
+elle emploie et ce qu'elle en accepte — une plage, une liste — et ne répète
+rien du reste :
+
+```json
+{ "key": "maxChargePowerKW", "source": "DEFINITION", "minimum": 0 }
+```
+
+Les unités forment elles aussi une liste fermée, avec la grandeur que chacune
+mesure. `KW`, `kw` et `kW` sont trois orthographes d'une seule unité et une
+seule est le symbole ; à cinq cents familles, une unité tapée à la main est une
+unité tapée de trois façons, et une valeur lue dans la mauvaise est fausse d'un
+facteur mille. Une propriété dont l'unité et la grandeur se contredisent est
+refusée.
+
 ## La provenance
 
 Chaque entrée dit d'où viennent ses valeurs, sans exception : `GENERIC`,
@@ -248,7 +276,25 @@ Les côtés sont locaux à l'objet : une rotation les emporte avec lui.
 `clearanceZones()` en déduit les volumes réels d'un objet posé — jamais
 enregistrés, puisqu'ils sont la fiche et la pose vues ensemble — et
 `clearanceConflicts()` dit lesquels se disputent le même volume, avec la
-raison. Le mètre carré devant une chaudière et celui devant un lave-linge
+raison.
+
+`PHYSICAL` ne se déclare jamais : un objet occupe ses propres dimensions, et
+le lui faire écrire serait lui faire répéter ce qu'il dit déjà. À l'inverse,
+une zone que la famille demande et que personne n'a mesurée revient
+**inconnue** plutôt qu'absente — « personne ne l'a dit » n'est pas « il n'en
+faut pas », et la dessiner à zéro mettrait une machine contre un mur en
+déclarant le plan vérifié. Une zone inconnue n'est ni dessinée ni comparée à
+quoi que ce soit ; elle est signalée dans les vérifications.
+
+Le plan les montre par groupes — encombrement, entretien et usage, air,
+chaleur et feu, travail électrique — parce que toutes les zones de tous les
+appareils à la fois font un plan couvert de rectangles que personne ne lit.
+
+**Ce que la géométrie dit et ce qu'elle ne dit pas.** « Ces volumes se
+chevauchent, et ces deux natures de volume ne le peuvent pas » est une
+constatation géométrique. « C'est interdit » dépend d'un pays et d'une année :
+c'est l'affaire d'un Rule Pack, qui sait lesquels. Une géométrie qui trancherait
+répondrait pour toutes les juridictions à la fois. Le mètre carré devant une chaudière et celui devant un lave-linge
 peuvent être le même : une personne s'y tient, jamais dans les deux à la fois.
 Le volume où une machine prend son air et celui où une autre rejette le sien ne
 le peuvent pas, quelle que soit la distance entre les deux.

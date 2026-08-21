@@ -16,7 +16,7 @@
  */
 import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
 import { PROJECT_CALCULATION_MODULE_IDS } from '@house-technical-designer/calculation-adapters';
-import { genericEquipmentCatalog } from '@house-technical-designer/equipment-catalog';
+import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
 import {
   FAMILY_REGISTRY,
   NETWORK_PRODUCT_REGISTRY,
@@ -63,10 +63,13 @@ const sections: readonly Section[] = [
     ),
   },
   {
+    // Read as the files state it, not as the loader repaired it: a provenance
+    // of `GENRIC` used to become `OTHER` on the way in, so the typo was mended
+    // before any gate could see it.
     title: 'Catalogue générique',
-    counted: genericEquipmentCatalog().length,
+    counted: rawGenericEquipmentEntries().length,
     noun: 'définitions',
-    issues: validateCatalog(genericEquipmentCatalog(), symbols).map(
+    issues: validateCatalog(rawGenericEquipmentEntries(), symbols).map(
       ({ entryId, path, message }) => ({ subject: entryId, path, message }),
     ),
   },

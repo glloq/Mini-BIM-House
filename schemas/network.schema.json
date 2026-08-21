@@ -57,6 +57,9 @@
           "equipmentId": {
             "type": "string"
           },
+          "componentId": {
+            "type": "string"
+          },
           "properties": {
             "type": "object",
             "description": "Physical properties the node states about itself. Numbers must be finite; the application never writes a value nobody entered.",
@@ -99,6 +102,9 @@
             "type": "string"
           },
           "nodeId": {
+            "type": "string"
+          },
+          "portTypeId": {
             "type": "string"
           },
           "role": {
@@ -153,6 +159,12 @@
             "type": "string"
           },
           "catalogItemId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "productVersion": {
             "type": "string"
           },
           "properties": {

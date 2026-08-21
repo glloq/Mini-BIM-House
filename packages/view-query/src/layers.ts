@@ -143,6 +143,14 @@ export const PLAN_LAYERS = [
     disciplines: ['OTHER'],
     defaultVisible: false,
   },
+  {
+    // Off by default: the room around a machine matters when somebody is
+    // placing it, and it hides the plan the rest of the time.
+    id: 'analysis.clearances',
+    label: 'Dégagements',
+    disciplines: ['OTHER'],
+    defaultVisible: false,
+  },
 ] as const satisfies readonly LayerDescriptor[];
 
 export type PlanLayerId = (typeof PLAN_LAYERS)[number]['id'];

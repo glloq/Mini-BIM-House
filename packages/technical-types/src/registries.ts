@@ -49,6 +49,26 @@ export const DATA_DOMAINS = [
 ] as const;
 export type DataDomain = (typeof DATA_DOMAINS)[number];
 
+/** What each trade is called, so a screen can name one without a table of its own. */
+export const DATA_DOMAIN_LABELS: Readonly<Record<DataDomain, string>> = {
+  ARCHITECTURE: 'Architecture',
+  STRUCTURE: 'Structure',
+  SITE: 'Terrain',
+  PLUMBING: 'Plomberie',
+  WASTEWATER: 'Évacuation',
+  RAINWATER: 'Eaux pluviales',
+  HEATING: 'Chauffage',
+  VENTILATION: 'Ventilation',
+  ELECTRICAL: 'Électricité',
+  LIGHTING: 'Éclairage',
+  SOLAR: 'Solaire',
+  STORAGE: 'Stockage',
+  FLUE: 'Fumées',
+  DATA: 'Données',
+  SAFETY: 'Sécurité',
+  FURNITURE: 'Mobilier',
+};
+
 export function isDataDomain(value: string): value is DataDomain {
   return (DATA_DOMAINS as readonly string[]).includes(value);
 }

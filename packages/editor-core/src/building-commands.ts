@@ -23,7 +23,9 @@ import {
   detectSpaceBoundaries,
   entityId,
   isComponentCategory,
+  hostAccepts,
   levelHosts,
+  HOST_TYPE_LABELS,
   isDimension,
   isDimensionType,
   isTextNote,
@@ -45,6 +47,11 @@ import {
   polygonArea,
   validatePolygon,
 } from '@house-technical-designer/geometry';
+import {
+  duplicatedLevel,
+  levelContents,
+  raisedContents,
+} from './level-entities.js';
 import type { CommandValidation } from './commands.js';
 import type {
   ProjectCommand,
@@ -219,77 +226,12 @@ export class DuplicateLevelCommand extends BuildingCommand {
   }
   protected apply(project: Project): Project {
     const source = this.source(project)!;
-    const levelId = entityId<'Level'>(this.draft.id);
-    const suffix = `@${this.draft.id}`;
-    // Roof elevations are absolute in the project, so a copy placed one storey
-    // higher has to be raised by that much; keeping the value would leave the
-    // new roof at the height of the old one.
-    const deltaZ = this.draft.elevationMm - source.elevationMm;
-    const level: Level = {
-      id: levelId,
-      name: this.draft.name,
-      elevationMm: this.draft.elevationMm,
-      defaultStoreyHeightMm: this.draft.defaultStoreyHeightMm,
-      walls: source.walls.map((wall) => ({
-        ...wall,
-        id: entityId<'Wall'>(`${wall.id}${suffix}`),
-        levelId,
-      })),
-      openings: source.openings.map((opening) => ({
-        ...opening,
-        id: entityId<'Opening'>(`${opening.id}${suffix}`),
-        hostElementId: entityId<'Wall'>(`${opening.hostElementId}${suffix}`),
-      })),
-      slabs: source.slabs.map((slab) => ({
-        ...slab,
-        id: entityId<'Slab'>(`${slab.id}${suffix}`),
-        levelId,
-      })),
-      roofs: source.roofs.map((roof) => ({
-        ...roof,
-        id: entityId<'RoofPlane'>(`${roof.id}${suffix}`),
-        levelId,
-        baseElevationMm: roof.baseElevationMm + deltaZ,
-      })),
-      spaces: source.spaces.map((space) => ({
-        ...space,
-        id: entityId<'Space'>(`${space.id}${suffix}`),
-        levelId,
-      })),
-      stairs: source.stairs.map((stair) => ({
-        ...stair,
-        id: entityId<'Stair'>(`${stair.id}${suffix}`),
-        levelId,
-        topLevelId: this.storeyAbove(project)!.id,
-      })),
-      // Annotations come along: a dimension re-pointed at the duplicated walls,
-      // a note carried as it is. A copy that silently dropped them would look
-      // like a faithful copy and not be one.
-      annotations: source.annotations.map((annotation) =>
-        isDimension(annotation)
-          ? {
-              ...annotation,
-              id: `${annotation.id}${suffix}` as typeof annotation.id,
-              first: {
-                ...annotation.first,
-                wallId: entityId<'Wall'>(`${annotation.first.wallId}${suffix}`),
-              },
-              second: {
-                ...annotation.second,
-                wallId: entityId<'Wall'>(
-                  `${annotation.second.wallId}${suffix}`,
-                ),
-              },
-            }
-          : {
-              ...annotation,
-              id: `${annotation.id}${suffix}` as typeof annotation.id,
-            },
-      ),
-    };
     return withLevels(
       project,
-      sortedByElevation([...project.building.levels, level]),
+      sortedByElevation([
+        ...project.building.levels,
+        duplicatedLevel(source, this.draft, this.storeyAbove(project)?.id),
+      ]),
     );
   }
 }
@@ -380,15 +322,7 @@ function withRaisedNodes(
  */
 function raised(level: Level, changes: Partial<Omit<LevelDraft, 'id'>>): Level {
   const next = { ...level, ...changes };
-  const deltaZ = next.elevationMm - level.elevationMm;
-  if (deltaZ === 0) return next;
-  return {
-    ...next,
-    roofs: next.roofs.map((roof) => ({
-      ...roof,
-      baseElevationMm: roof.baseElevationMm + deltaZ,
-    })),
-  };
+  return raisedContents(next, next.elevationMm - level.elevationMm);
 }
 
 export class RemoveLevelCommand extends BuildingCommand {
@@ -401,22 +335,15 @@ export class RemoveLevelCommand extends BuildingCommand {
       return rejected(`Le niveau ${this.levelId} est introuvable.`);
     if (project.building.levels.length === 1)
       return rejected('Un projet doit conserver au moins un niveau.');
-    const contents =
-      level.walls.length +
-      level.openings.length +
-      level.slabs.length +
-      level.roofs.length +
-      level.spaces.length +
-      // Annotations count too: a level holding nothing but dimensions is not
-      // empty, and deleting it would take work with it without warning. The
-      // same holds for what this version cannot edit at all: a stair the file
-      // carries is data, and deleting it silently would lose it for good.
-      level.annotations.length +
-      level.stairs.length;
-    return contents === 0
+    // Counted from the project's own index rather than from a list written
+    // here. The list written here had fallen two families behind the model, so
+    // a storey holding a whole roof, three posts and a heat pump counted as
+    // empty and deleting it took all of them without a word.
+    const contents = levelContents(level);
+    return contents.length === 0
       ? ok()
       : rejected(
-          `Le niveau ${level.name} contient encore ${contents} objet(s). Videz-le avant de le supprimer.`,
+          `Le niveau ${level.name} contient encore ${contents.length} objet(s). Videz-le avant de le supprimer.`,
         );
   }
   protected apply(project: Project): Project {
@@ -675,15 +602,40 @@ export class RemoveRoofCommand extends BuildingCommand {
 }
 
 /**
- * What a placed component may be physically fixed to, on one storey.
+ * Why a thing of this model may not hang there, when it may not.
  *
- * A surface a thing can be hung on. A room is a volume and is named by
- * `spaceId`; a catalogue entry is a description and is named by
- * `definitionId`. Keeping the three apart is what stops a radiator from being
- * « fixed to » the model of a radiator.
+ * Two questions, and only the first was being asked. « Is this object a
+ * support? » a wall is, a room is not. « Does *this* model accept *this kind*
+ * of support? » a radiator hangs on a wall, a heat pump stands on the ground,
+ * a roof window belongs to a roof. Answering only the first let a radiator be
+ * fixed to a roof because a roof is a support of something.
+ *
+ * The rule is read from the project's own copy of the catalogue entry, not
+ * from a catalogue: a house drawn today must open the same way in two years,
+ * and the editor, the importer and the checks must all answer alike.
  */
-function supportsOf(level: Level): ReadonlySet<string> {
-  return new Set(levelHosts(level).keys());
+function hostRefusal(
+  project: Project,
+  level: Level,
+  definitionId: string | undefined,
+  hostObjectId: string | undefined,
+): string | undefined {
+  const hosts = levelHosts(level);
+  if (hostObjectId !== undefined && !hosts.has(hostObjectId))
+    return `${hostObjectId} n'est pas un support de ce niveau : un composant se fixe à un mur, une dalle, une toiture, une baie ou un autre appareil, jamais à une pièce ni à une fiche catalogue.`;
+  if (definitionId === undefined) return undefined;
+  const allowed = (project.equipment ?? []).find(
+    ({ id }) => id === definitionId,
+  )?.allowedHosts;
+  if (allowed === undefined || allowed.length === 0) return undefined;
+  const named = allowed.map((host) => HOST_TYPE_LABELS[host]).join(', ');
+  if (hostObjectId === undefined)
+    return allowed.includes('SITE')
+      ? undefined
+      : `Ce modèle se fixe à : ${named}. Il ne peut pas être posé sans support.`;
+  return hostAccepts(allowed, hosts.get(hostObjectId))
+    ? undefined
+    : `Ce modèle se fixe à : ${named}, et ${hostObjectId} n'en est pas un.`;
 }
 
 /**
@@ -754,13 +706,13 @@ export class AddComponentCommand extends BuildingCommand {
       return rejected(
         `La pièce ${this.draft.spaceId} n'est pas sur ce niveau.`,
       );
-    if (
-      this.draft.hostObjectId !== undefined &&
-      !supportsOf(level).has(this.draft.hostObjectId)
-    )
-      return rejected(
-        `${this.draft.hostObjectId} n'est pas un support de ce niveau : un composant se fixe à un mur, une dalle, une toiture, une baie ou un autre appareil, jamais à une pièce ni à une fiche catalogue.`,
-      );
+    const refusal = hostRefusal(
+      project,
+      level,
+      this.draft.definitionId,
+      this.draft.hostObjectId,
+    );
+    if (refusal !== undefined) return rejected(refusal);
     const issues = validateComponentInstance(this.instance(project));
     return issues.length > 0
       ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
@@ -846,13 +798,17 @@ export class UpdateComponentCommand extends BuildingCommand {
       return rejected(
         `La pièce ${this.patch.spaceId} n'est pas sur ce niveau.`,
       );
-    if (
-      typeof this.patch.hostObjectId === 'string' &&
-      !supportsOf(level).has(this.patch.hostObjectId)
-    )
-      return rejected(
-        `${this.patch.hostObjectId} n'est pas un support de ce niveau : un composant se fixe à un mur, une dalle, une toiture, une baie ou un autre appareil, jamais à une pièce ni à une fiche catalogue.`,
-      );
+    // Read from what the edit will produce rather than from the patch: a patch
+    // that changes only the model has to be checked against the host the
+    // component already hangs on, and the other way round.
+    const edited = this.patched(project, component);
+    const refusal = hostRefusal(
+      project,
+      level,
+      edited.definitionId,
+      edited.hostObjectId,
+    );
+    if (refusal !== undefined) return rejected(refusal);
     const issues = validateComponentInstance(this.patched(project, component));
     return issues.length > 0
       ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))

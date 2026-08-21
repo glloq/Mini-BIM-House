@@ -97,15 +97,44 @@ export interface ClearanceZoneInstance {
   readonly footprint: readonly { readonly x: number; readonly y: number }[];
   readonly baseMm: number;
   readonly topMm: number;
+  /**
+   * Whether anybody has said how far this zone reaches.
+   *
+   * A family says a heat pump has an air intake; if no entry says how much
+   * room it needs, the answer is « nobody has said », not « none ». Drawing it
+   * as zero would put a machine against a wall and call the plan checked.
+   */
+  readonly known: boolean;
   readonly reason?: string;
 }
 
-/** The room a placed object claims, zone by zone. */
+/**
+ * The room a placed object claims, zone by zone.
+ *
+ * `PHYSICAL` is never declared and always produced: an object occupies its own
+ * dimensions, and asking an entry to state that would be asking it to repeat
+ * what it already says. Everything else is room around it, and a zone the
+ * family requires but nobody has measured comes back unknown rather than
+ * absent — the difference between « it needs none » and « nobody has said ».
+ */
 export function clearanceZones(
   placement: ClearancePlacement,
   definitions: readonly ClearanceZoneDefinition[],
+  required: readonly ClearanceZone[] = [],
 ): readonly ClearanceZoneInstance[] {
-  return definitions.map((definition) => {
+  const stated = new Set(definitions.map(({ zone }) => zone));
+  const all: readonly (ClearanceZoneDefinition & {
+    readonly known: boolean;
+  })[] = [
+    { zone: 'PHYSICAL', known: true },
+    ...definitions
+      .filter(({ zone }) => zone !== 'PHYSICAL')
+      .map((definition) => ({ ...definition, known: true })),
+    ...required
+      .filter((zone) => zone !== 'PHYSICAL' && !stated.has(zone))
+      .map((zone) => ({ zone, known: false })),
+  ];
+  return all.map((definition) => {
     // Local axes: x from back to front, y from right to left, z upwards.
     const front = placement.depthMm / 2 + (definition.frontMm ?? 0);
     const back = placement.depthMm / 2 + (definition.backMm ?? 0);
@@ -130,6 +159,7 @@ export function clearanceZones(
       baseMm: placement.elevationMm - (definition.belowMm ?? 0),
       topMm:
         placement.elevationMm + placement.heightMm + (definition.aboveMm ?? 0),
+      known: definition.known,
       ...(definition.reason === undefined ? {} : { reason: definition.reason }),
     };
   });
@@ -386,6 +416,9 @@ export function clearanceConflicts(
   for (const [index, first] of zones.entries())
     for (const second of zones.slice(index + 1)) {
       if (first.objectId === second.objectId) continue;
+      // A volume nobody has measured cannot be tested against anything. It is
+      // reported as missing, elsewhere, rather than assumed to be empty.
+      if (!first.known || !second.known) continue;
       const refusal = clearanceRefusal(first.zone, second.zone);
       if (refusal === undefined) continue;
       if (!heightsMeet(first, second)) continue;

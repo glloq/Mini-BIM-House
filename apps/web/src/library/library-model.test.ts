@@ -134,16 +134,49 @@ describe('library identifiers', () => {
 });
 
 describe('equipment placed from the catalogue', () => {
-  it('pins the catalogue definition and version it was copied from', () => {
+  it('pins the version it was copied from where the pin is looked for', () => {
+    // The version used to be hidden inside `properties` as
+    // `catalogDefinitionVersion`, while the placement pin looked for `version`
+    // at the top and found nothing. A component placed from this panel
+    // therefore recorded no pin at all: the whole point of pinning was lost
+    // between two panels.
     const definition = genericEquipment('generic-dhw-tank')!;
     const placed = projectEquipmentFromCatalog(definition, []);
     expect(placed.kind).toBe(definition.kind);
     expect(placed.catalogKind).toBe('GENERIC');
-    expect(placed.properties.catalogDefinitionId).toBe(definition.id);
-    expect(placed.properties.catalogDefinitionVersion).toBe(definition.version);
+    expect(placed.version).toBe(definition.version);
+    expect(placed.familyId).toBe(definition.familyId);
     expect(placed.properties.tankVolumeL).toBe(
       definition.properties.tankVolumeL,
     );
+  });
+
+  it('copies what makes the entry more than a bag of numbers', () => {
+    const definition = genericEquipment('generic-air-water-heat-pump')!;
+    const placed = projectEquipmentFromCatalog(
+      definition,
+      [],
+      ['SLAB', 'SITE'],
+    );
+    expect(placed.ports?.map(({ portTypeId }) => portTypeId)).toEqual(
+      definition.ports.map(({ portTypeId }) => portTypeId),
+    );
+    expect(placed.clearances?.map(({ zone }) => zone)).toEqual(
+      definition.clearances?.map(({ zone }) => zone),
+    );
+    expect(placed.allowedHosts).toEqual(['SLAB', 'SITE']);
+    expect(placed.provenance?.type).toBe('GENERIC');
+    expect(placed.dimensions).toEqual(definition.dimensions);
+  });
+
+  it('carries no catalogue metadata smuggled inside the properties', () => {
+    const definition = genericEquipment('generic-dhw-tank')!;
+    const placed = projectEquipmentFromCatalog(definition, []);
+    expect(
+      Object.keys(placed.properties).filter((key) =>
+        key.startsWith('catalogDefinition'),
+      ),
+    ).toEqual([]);
   });
 
   it('gives each copy a distinct project identifier', () => {

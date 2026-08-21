@@ -1,3 +1,9 @@
+import {
+  portRequirement,
+  unknownPortKinds,
+  type DataDomain,
+  type DataRegistry,
+} from '@house-technical-designer/technical-types';
 import architecture from '../data/families/architecture.json' with { type: 'json' };
 import dataSafetySite from '../data/families/data-safety-site.json' with { type: 'json' };
 import electrical from '../data/families/electrical.json' with { type: 'json' };
@@ -8,33 +14,42 @@ import networkProducts from '../data/families/network-products.json' with { type
 import openings from '../data/families/openings.json' with { type: 'json' };
 import plumbing from '../data/families/plumbing.json' with { type: 'json' };
 import wastewaterRainwater from '../data/families/wastewater-rainwater.json' with { type: 'json' };
-import networkProductCatalog from '../data/network-products/generic.json' with { type: 'json' };
+import propertyDefinitions from '../data/property-schemas/properties.json' with { type: 'json' };
 import propertySchemas from '../data/property-schemas/schemas.json' with { type: 'json' };
 import type {
   CatalogEntryCandidate,
   CatalogIssue,
 } from './catalog-validation.js';
-import { validateCatalogEntry } from './catalog-validation.js';
+import {
+  catalogFingerprint,
+  validateCatalogEntry,
+} from './catalog-validation.js';
+import fingerprints from '../data/fingerprints.json' with { type: 'json' };
 import type { FamilyDefinition, FamilyIssue } from './families.js';
 import { validateFamily } from './families.js';
-import type { NetworkProduct } from './network-products.js';
 import { invalidBore } from './network-products.js';
 import {
+  NETWORK_PRODUCT_REGISTRY,
+  networkProductsOfFamily,
+} from '@house-technical-designer/network-products';
+import {
+  describedProperty,
   validateProperties,
+  validatePropertyDefinitions,
   validatePropertySchema,
+  type PropertyDefinition,
   type PropertyIssue,
   type PropertySchema,
+  type PropertySchemaFile,
 } from './property-schemas.js';
 import { validateProvenance } from './provenance.js';
 import type { FamilyReview } from './report.js';
 import { isHostType } from '@house-technical-designer/core-domain';
-import { isPortType } from './port-types.js';
 import {
   type FamilyStatus,
   type MeasuredAxis,
   type StatusValue,
 } from './status.js';
-import type { DataDomain, DataRegistry } from './registries.js';
 
 /**
  * The master nomenclature, as data.
@@ -71,18 +86,72 @@ export const FAMILY_REGISTRY: readonly FamilyDefinition[] = SOURCES.flatMap(
  * is what the run is made of, and one project uses the same product on forty
  * edges.
  */
-export const NETWORK_PRODUCT_REGISTRY: readonly NetworkProduct[] = (
-  networkProductCatalog as { readonly products: readonly NetworkProduct[] }
-).products;
 
-export const PROPERTY_SCHEMA_REGISTRY: readonly PropertySchema[] = (
-  propertySchemas as { readonly schemas: readonly PropertySchema[] }
+/**
+ * Every property this application knows, defined once.
+ *
+ * Two hundred and forty-six keys were spread over forty-four schemas, and
+ * eleven of them had already drifted: `cost` meant four different quantities
+ * and `pressureDrop` was stored in one schema and derived in another. A key
+ * now means one thing, and a family says which keys it uses.
+ */
+export const PROPERTY_DEFINITION_REGISTRY: readonly PropertyDefinition[] = (
+  propertyDefinitions as { readonly properties: readonly PropertyDefinition[] }
+).properties;
+
+const DEFINITION_BY_ID = new Map<string, PropertyDefinition>();
+for (const definition of PROPERTY_DEFINITION_REGISTRY) {
+  DEFINITION_BY_ID.set(definition.id, definition);
+  // An older spelling still opens the files that used it.
+  for (const alias of definition.aliases ?? [])
+    DEFINITION_BY_ID.set(alias, definition);
+}
+
+/** What a key means, whichever spelling of it a file uses. */
+export function propertyDefinition(
+  key: string,
+): PropertyDefinition | undefined {
+  return DEFINITION_BY_ID.get(key);
+}
+
+const SCHEMA_FILES = (
+  propertySchemas as { readonly schemas: readonly PropertySchemaFile[] }
 ).schemas;
 
+/**
+ * The schemas as everything downstream reads them.
+ *
+ * Each family's constraints resolved against the property definitions. A key
+ * nothing defines is left described by itself rather than dropped: the gate
+ * reports it, and dropping it would hide the very thing that is wrong.
+ */
+export const PROPERTY_SCHEMA_REGISTRY: readonly PropertySchema[] =
+  SCHEMA_FILES.map((schema) => ({
+    family: schema.family,
+    properties: schema.properties.map((constraint) => {
+      const definition = propertyDefinition(constraint.key);
+      return definition === undefined
+        ? {
+            key: constraint.key,
+            label: constraint.key,
+            type: 'string' as const,
+            source: constraint.source,
+          }
+        : describedProperty(definition, constraint);
+    }),
+  }));
+
+/**
+ * What each catalogue entry said when its version was fixed.
+ *
+ * Data rather than code: it is regenerated by a script and read by a gate, and
+ * nobody is meant to reason about it.
+ */
+export const CATALOG_FINGERPRINTS: Readonly<Record<string, string>> = (
+  fingerprints as { readonly entries: Readonly<Record<string, string>> }
+).entries;
+
 const BY_ID = new Map(FAMILY_REGISTRY.map((family) => [family.id, family]));
-const PRODUCT_BY_ID = new Map(
-  NETWORK_PRODUCT_REGISTRY.map((product) => [product.id, product]),
-);
 const SCHEMA_BY_FAMILY = new Map(
   PROPERTY_SCHEMA_REGISTRY.map((schema) => [schema.family, schema]),
 );
@@ -103,16 +172,8 @@ export function schemaOfFamily(id: string): PropertySchema | undefined {
     : SCHEMA_BY_FAMILY.get(found.propertySchema);
 }
 
-export function networkProduct(id: string): NetworkProduct | undefined {
-  return PRODUCT_BY_ID.get(id);
-}
-
 /** Every product of one family, which is what a run may be made of. */
-export function productsOfFamily(familyId: string): readonly NetworkProduct[] {
-  return NETWORK_PRODUCT_REGISTRY.filter(
-    (product) => product.family === familyId,
-  );
-}
+export const productsOfFamily = networkProductsOfFamily;
 
 export interface ProductIssue {
   readonly productId: string;
@@ -139,6 +200,11 @@ export function validateNetworkProducts(): readonly ProductIssue[] {
       at('family', `unknown family ${product.family}`);
       continue;
     }
+    // A run records which version of a product it was drawn with, so every
+    // product has to state one, and state it the way versions are compared.
+    if (product.version === undefined) at('version', 'must state a version');
+    else if (!/^\d+\.\d+\.\d+$/u.test(product.version))
+      at('version', `${product.version} is not a version of the form 1.0.0`);
     if (owner.registry !== 'NETWORK_PRODUCT')
       at('family', `${product.family} is not a network product family`);
     if (owner.domain !== product.domain)
@@ -172,6 +238,7 @@ export function validateNetworkProducts(): readonly ProductIssue[] {
 export function validateCatalog(
   entries: readonly CatalogEntryCandidate[],
   symbols: ReadonlySet<string>,
+  recorded: Readonly<Record<string, string>> = CATALOG_FINGERPRINTS,
 ): readonly CatalogIssue[] {
   const seen = new Set<string>();
   const issues: CatalogIssue[] = [];
@@ -190,8 +257,33 @@ export function validateCatalog(
         symbols,
       }),
     );
+    // A version is a promise: `generic-battery@1.0.0` has to mean the same
+    // figures today as when a project pinned it. Correcting a fiche in place
+    // would leave every project holding the old pin designing with the new
+    // numbers while claiming the old ones.
+    const stamp = recorded[`${entry.id}@${entry.version ?? ''}`];
+    if (stamp !== undefined && stamp !== catalogFingerprint(entry))
+      issues.push({
+        entryId: entry.id,
+        path: 'version',
+        message: `has changed without its version changing: ${entry.id}@${entry.version} no longer says what it said. Raise the version, then run npm run catalog:fingerprints.`,
+      });
   }
   return issues;
+}
+
+/** Everything the catalogue says right now, entry by entry. */
+export function catalogFingerprints(
+  entries: readonly CatalogEntryCandidate[],
+): Readonly<Record<string, string>> {
+  return Object.fromEntries(
+    [...entries]
+      .sort((first, second) => first.id.localeCompare(second.id))
+      .map((entry) => [
+        `${entry.id}@${entry.version ?? ''}`,
+        catalogFingerprint(entry),
+      ]),
+  );
 }
 
 /**
@@ -234,8 +326,10 @@ export function measuredStatus(
     owner.propertySchema === undefined
       ? undefined
       : SCHEMA_BY_FAMILY.get(owner.propertySchema);
-  const declaredPorts = owner.ports ?? [];
-  const knownPorts = declaredPorts.every((port) => isPortType(port));
+  const declaredPorts = (owner.ports ?? []).map(portRequirement);
+  const knownPorts = declaredPorts.every(
+    (requirement) => unknownPortKinds(requirement).length === 0,
+  );
   const plan = owner.graphics?.planSymbol;
 
   // Declaring something is not knowing it: eight families declared ports made
@@ -335,8 +429,12 @@ export interface SchemaIssue extends PropertyIssue {
  */
 export function validateSchemas(): readonly SchemaIssue[] {
   const issues: SchemaIssue[] = [];
+  // The definitions first: they are what the schemas are measured against, so
+  // a definition that is wrong makes a check pass that should have failed.
+  for (const issue of validatePropertyDefinitions(PROPERTY_DEFINITION_REGISTRY))
+    issues.push({ schemaId: 'propriétés', ...issue });
   const seen = new Set<string>();
-  for (const schema of PROPERTY_SCHEMA_REGISTRY) {
+  for (const schema of SCHEMA_FILES) {
     if (seen.has(schema.family))
       issues.push({
         schemaId: schema.family,
@@ -344,9 +442,21 @@ export function validateSchemas(): readonly SchemaIssue[] {
         message: 'is declared more than once',
       });
     seen.add(schema.family);
-    for (const issue of validatePropertySchema(schema))
+    for (const issue of validatePropertySchema(schema, propertyDefinition))
       issues.push({ schemaId: schema.family, ...issue });
   }
+  // A property nobody uses is a property nobody maintains, and it will be
+  // wrong by the time a family finally names it.
+  const used = new Set(
+    SCHEMA_FILES.flatMap(({ properties }) => properties.map(({ key }) => key)),
+  );
+  for (const definition of PROPERTY_DEFINITION_REGISTRY)
+    if (!used.has(definition.id))
+      issues.push({
+        schemaId: 'propriétés',
+        path: definition.id,
+        message: 'is defined and no family uses it',
+      });
   return issues;
 }
 
