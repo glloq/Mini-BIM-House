@@ -1,5 +1,6 @@
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
-import type { Project } from '@house-technical-designer/core-domain';
+import type { Project, TextNote } from '@house-technical-designer/core-domain';
+import { isTextNote } from '@house-technical-designer/core-domain';
 import {
   AddComponentCommand,
   AddOpeningCommand,
@@ -9,6 +10,7 @@ import {
   AddSiteObstacleCommand,
   AddSlabCommand,
   AddStairCommand,
+  AddTextNoteCommand,
   AddStructuralMemberCommand,
   MoveNetworkEdgeVertexCommand,
   MoveWallCommand,
@@ -22,6 +24,7 @@ import {
   UpdateSlabCommand,
   UpdateStairCommand,
   UpdateStructuralMemberCommand,
+  UpdateTextNoteCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 
@@ -313,6 +316,36 @@ export const dimensionTransform: TransformProvider = (
       )
     : undefined;
 
+/**
+ * A note travels with what it annotates, text and leader together.
+ *
+ * Its letters are never turned by a mirror: text read backwards is text nobody
+ * reads. What it points at moves, what it says stays legible.
+ */
+export const noteTransform: TransformProvider = (
+  project,
+  levelId,
+  objectId,
+  transform,
+) => {
+  const note = (levelOf(project, levelId)?.annotations ?? []).find(
+    (annotation): annotation is TextNote =>
+      annotation.id === objectId && isTextNote(annotation),
+  );
+  if (note === undefined) return undefined;
+  return done(
+    new UpdateTextNoteCommand(levelId, note.id, {
+      at: transformPoint(transform, note.at),
+      ...(note.leaderTo === undefined
+        ? {}
+        : { leaderTo: transformPoint(transform, note.leaderTo) }),
+      ...(transform.kind === 'ROTATE'
+        ? { rotationDeg: (note.rotationDeg ?? 0) + transform.angleDeg }
+        : {}),
+    }),
+  );
+};
+
 export const slabTransform: TransformProvider = (
   project,
   levelId,
@@ -599,6 +632,41 @@ export const openingDuplicate: DuplicateProvider = (
         hostElementId: host as (typeof opening)['hostElementId'],
       }),
     ),
+  );
+};
+
+export const noteDuplicate: DuplicateProvider = (
+  project,
+  levelId,
+  objectId,
+  deltaMm,
+  { newId },
+) => {
+  const note = (levelOf(project, levelId)?.annotations ?? []).find(
+    (annotation): annotation is TextNote =>
+      annotation.id === objectId && isTextNote(annotation),
+  );
+  if (note === undefined) return undefined;
+  const copyId = newId('note');
+  return duplicated(
+    copyId,
+    new AddTextNoteCommand(levelId, {
+      id: copyId,
+      at: { x: note.at.x + deltaMm.x, y: note.at.y + deltaMm.y },
+      text: note.text,
+      ...(note.heightMm === undefined ? {} : { heightMm: note.heightMm }),
+      ...(note.rotationDeg === undefined
+        ? {}
+        : { rotationDeg: note.rotationDeg }),
+      ...(note.leaderTo === undefined
+        ? {}
+        : {
+            leaderTo: {
+              x: note.leaderTo.x + deltaMm.x,
+              y: note.leaderTo.y + deltaMm.y,
+            },
+          }),
+    }),
   );
 };
 

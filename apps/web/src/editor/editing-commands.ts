@@ -27,6 +27,7 @@ import {
   AddSiteObstacleCommand,
   AddSpaceCommand,
   AddStairCommand,
+  AddTextNoteCommand,
   AddStructuralMemberCommand,
   AddWallCommand,
   MoveNetworkEdgeVertexCommand,
@@ -853,6 +854,42 @@ function nearestWallEndpoint(
  * dimension line sits from it. The offset is signed, so the user places the
  * line on the side they clicked rather than on a side the application chose.
  */
+/**
+ * Writes a note on the plan, where it was clicked.
+ *
+ * A note says something to a human being; nothing about it is derived and
+ * nothing reads it back. What it must not be is empty: an annotation with no
+ * text is an invisible object the user cannot find again.
+ */
+export function addTextNoteCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  points: readonly Point2D[],
+  draft: { readonly text: string; readonly heightMm: number },
+  id: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const at = points[0];
+  if (at === undefined)
+    return { status: 'ERROR', message: 'Une annotation se pose en un point.' };
+  if (draft.text.trim() === '')
+    return {
+      status: 'ERROR',
+      message: 'Écrivez le texte de l’annotation avant de la poser.',
+    };
+  return {
+    status: 'OK',
+    command: new AddTextNoteCommand(level.id, {
+      id,
+      at: { ...at },
+      text: draft.text,
+      heightMm: draft.heightMm,
+    }),
+  };
+}
+
 export function addDimensionCommand(
   file: ProjectFile,
   levelId: string | undefined,

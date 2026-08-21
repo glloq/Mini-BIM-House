@@ -4,11 +4,16 @@ import type {
   RoofEdge,
   StairType,
   StructuralMemberKind,
+  TextNote,
   Opening,
   Project,
   Wall,
 } from '@house-technical-designer/core-domain';
-import { isDimension } from '@house-technical-designer/core-domain';
+import {
+  DEFAULT_NOTE_HEIGHT_MM,
+  isDimension,
+  isTextNote,
+} from '@house-technical-designer/core-domain';
 import type { JsonValue } from '@house-technical-designer/core-domain';
 import { edgePropertySchema } from '@house-technical-designer/editor-core';
 import {
@@ -26,6 +31,7 @@ import {
   UpdateRoofStructureCommand,
   UpdateStairCommand,
   UpdateStructuralMemberCommand,
+  UpdateTextNoteCommand,
   UpdateWallCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
@@ -89,6 +95,14 @@ export interface InspectorEdit {
   readonly label: string;
   readonly control: InspectorControl;
   readonly hint?: string;
+  /**
+   * Where in the file this property lives, when it is not `<object>/<id>`.
+   *
+   * A scenario names what it varies by a path into the project. Nearly every
+   * property here is named after the field it writes, so the path follows from
+   * the object and the identifier; the ones that are not say so.
+   */
+  readonly scenarioPath?: string;
   readonly apply: (value: string) => ProjectCommand | undefined;
 }
 
@@ -579,6 +593,70 @@ export function roofEditsFor(
 }
 
 /** Les propriétés modifiables d’une cote. */
+/** What a note lets the user change: what it says and how big it says it. */
+export function noteEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  for (const level of project.building.levels) {
+    const note = level.annotations.find(
+      (annotation): annotation is TextNote =>
+        annotation.id === objectId && isTextNote(annotation),
+    );
+    if (note === undefined) continue;
+    return [
+      {
+        id: 'text',
+        semanticId: 'note.text',
+        label: 'Texte',
+        control: { kind: 'TEXT', value: note.text },
+        hint: 'Écrit tel quel sur le plan ; aucun calcul ne le lit.',
+        apply: (value) =>
+          value.trim() === ''
+            ? undefined
+            : new UpdateTextNoteCommand(level.id, note.id, { text: value }),
+      },
+      {
+        id: 'heightMm',
+        semanticId: 'note.heightMm',
+        label: 'Hauteur des lettres',
+        control: {
+          kind: 'NUMBER',
+          value: note.heightMm ?? DEFAULT_NOTE_HEIGHT_MM,
+          unit: 'mm',
+          step: 0.5,
+          min: 0.5,
+        },
+        hint: 'Sur le papier, à l’échelle de la feuille.',
+        apply: (value) => {
+          const heightMm = parsed(value);
+          return heightMm === undefined || heightMm <= 0
+            ? undefined
+            : new UpdateTextNoteCommand(level.id, note.id, { heightMm });
+        },
+      },
+      {
+        id: 'rotationDeg',
+        semanticId: 'note.rotationDeg',
+        label: 'Orientation',
+        control: {
+          kind: 'NUMBER',
+          value: note.rotationDeg ?? 0,
+          unit: '°',
+          step: 15,
+        },
+        apply: (value) => {
+          const rotationDeg = parsed(value);
+          return rotationDeg === undefined
+            ? undefined
+            : new UpdateTextNoteCommand(level.id, note.id, { rotationDeg });
+        },
+      },
+    ];
+  }
+  return undefined;
+}
+
 export function dimensionEditsFor(
   project: Project,
   objectId: string,
@@ -675,6 +753,7 @@ export function networkNodeEditsFor(
       ).map(([axis, label]) => ({
         id: `position-${axis}`,
         semanticId: `networkNode.position.${axis}`,
+        scenarioPath: `systems/${network.id}/nodes/${node.id}/position/${axis}`,
         label,
         control: {
           kind: 'NUMBER' as const,
@@ -1118,10 +1197,14 @@ export function networkEdgeEditsFor(
           next === undefined ? rest : { ...rest, [descriptor.key]: next },
         );
       };
+      // A segment keeps what it is made of under `properties`, so the path a
+      // scenario would vary is not the object's path plus the field name.
+      const scenarioPath = `systems/${network.id}/edges/${edge.id}/properties/${descriptor.key}`;
       if (descriptor.kind === 'CHOICE')
         return {
           id: descriptor.key,
           semanticId: `networkEdge.${descriptor.key}`,
+          scenarioPath,
           label: descriptor.label,
           control: {
             kind: 'SELECT' as const,
@@ -1137,6 +1220,7 @@ export function networkEdgeEditsFor(
       return {
         id: descriptor.key,
         semanticId: `networkEdge.${descriptor.key}`,
+        scenarioPath,
         label: descriptor.label,
         control: {
           kind: 'NUMBER' as const,

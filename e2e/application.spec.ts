@@ -429,6 +429,9 @@ test('reshapes a wall after drawing it, instead of redrawing it', async ({
   await loadDemo(page);
   const canvas = page.locator('.plan-canvas');
   const canvasBox = (await canvas.boundingBox())!;
+  // Scinder, décaler, joindre et ajuster sont des outils de productivité CAO :
+  // ils apparaissent au niveau Expert de l'interface.
+  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
   // The east wall carries no opening and no partition crosses it.
   const east = (await page.locator('[id="wall:wall-east"]').boundingBox())!;
   await canvas.click({
@@ -954,6 +957,7 @@ test('turns and reflects a selection about its own centre', async ({
 test('offsets, joins and aligns walls from the plan', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
@@ -1032,6 +1036,123 @@ test('draws a wall of a typed length, at the cursor', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Annuler', exact: true }).click();
   await expect(walls).toHaveCount(6);
+  expect(errors).toEqual([]);
+});
+
+test('chains a run of walls entirely from the typed fields', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  await expect(walls).toHaveCount(6);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+
+  await page.getByRole('button', { name: 'Mur continu', exact: true }).click();
+  await canvas.click({ position: { x: 80, y: 320 } });
+  const dynamic = page.locator('.dynamic-input');
+  await expect(dynamic).toBeVisible();
+
+  // Enter placed the point and, on the second one, also ended the run: a chain
+  // drawn from the fields could never have three corners. Placing a point and
+  // finishing a run are two decisions, so they are two gestures.
+  for (const [lengthMm, angleDeg] of [
+    ['3000', '0'],
+    ['2000', '90'],
+    ['3000', '180'],
+  ] as const) {
+    await page.getByLabel('Longueur du tracé').fill(lengthMm);
+    await page.getByLabel('Angle du tracé').fill(angleDeg);
+    await page.keyboard.press('Enter');
+  }
+  await expect(dynamic).toBeVisible();
+  await expect(page.locator('.canvas-status')).toContainText('4 point(s)');
+
+  await dynamic.getByRole('button', { name: /Terminer/ }).click();
+  await expect(page.getByRole('status')).toContainText('Ajouter 3 murs');
+  await expect(walls).toHaveCount(9);
+  expect(errors).toEqual([]);
+});
+
+test('offers only the field the tool actually takes', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+
+  // An axis of symmetry has a direction that matters and a length that does
+  // not; the tool has always said so, and both fields were shown all the same.
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await canvas.click({ position: { x: 200, y: 300 } });
+  await page.getByRole('button', { name: 'Miroir', exact: true }).click();
+  await canvas.click({ position: { x: 120, y: 200 } });
+  const dynamic = page.locator('.dynamic-input');
+  await expect(dynamic).toBeVisible();
+  await expect(page.getByLabel('Angle du tracé')).toBeVisible();
+  await expect(page.getByLabel('Longueur du tracé')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test('shows as much of the editor as the user asks for', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+
+  // Forty buttons are a wall for someone drawing their first plan and a
+  // necessary set for someone building a set of documents. Nothing is
+  // disabled: what changes is what is on screen.
+  const wall = page.getByRole('button', { name: 'Mur', exact: true });
+  const mirror = page.getByRole('button', { name: 'Miroir', exact: true });
+  await expect(wall).toBeVisible();
+  await expect(mirror).toBeHidden();
+
+  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
+  await expect(mirror).toBeVisible();
+  await mirror.click();
+
+  // A tool the narrower level does not offer cannot stay active with no button
+  // to say so.
+  await page.getByLabel('Niveau d’interface').selectOption('QUICK');
+  await expect(mirror).toBeHidden();
+  await expect(wall).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Sélection', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  expect(errors).toEqual([]);
+});
+
+test('writes on the plan what the model does not say', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+
+  // A drawing carries what the building is and what the person drawing it
+  // wants read; only the first had anywhere to live.
+  const options = page.getByRole('group', { name: 'Options de l’outil' });
+  await page.getByRole('button', { name: 'Annotation', exact: true }).click();
+  await options.getByLabel('Texte').fill('Existant à démolir');
+  await canvas.click({ position: { x: 200, y: 260 } });
+  await expect(page.getByRole('status')).toContainText(
+    'Ajouter une annotation',
+  );
+  await expect(page.locator('[id^="note:"]')).toHaveCount(1);
+
+  // It is an object of the editor like any other: selected, described, edited.
+  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await canvas.click({ position: { x: 200, y: 260 } });
+  await expect(page.locator('.inspector-subject h3')).toContainText(
+    'Existant à démolir',
+  );
+  await expect(page.locator('.inspector-subject')).toContainText('personne');
+
+  // An annotation with nothing written on it is an invisible object.
+  await page.getByRole('button', { name: 'Annotation', exact: true }).click();
+  await options.getByLabel('Texte').fill('');
+  await canvas.click({ position: { x: 240, y: 300 } });
+  await expect(page.getByRole('status')).toContainText('texte');
+  await expect(page.locator('[id^="note:"]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
 
@@ -2347,8 +2468,15 @@ test('builds a variant by pointing at the plan', async ({ page }) => {
     'Ce que la variante change',
   );
 
-  // A property no scenario path names is refused out loud.
+  // Every property the inspector offers can vary, not the four that used to
+  // be written down: the reference face is one of them.
   await page.getByLabel('Face de référence').selectOption('LEFT');
+  await expect(page.getByRole('status')).toContainText('Face de référence');
+
+  // A property the file does not store cannot: the length of a wall is read
+  // off its two points, and a variant setting it would write nothing.
+  await page.getByRole('spinbutton', { name: 'Longueur' }).fill('7000');
+  await page.getByRole('spinbutton', { name: 'Longueur' }).blur();
   await expect(page.getByRole('status')).toContainText('ne peut pas encore');
   expect(errors).toEqual([]);
 });

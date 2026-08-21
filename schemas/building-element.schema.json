@@ -364,6 +364,52 @@
         }
       },
       "additionalProperties": true
+    },
+    "TextNote": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "at",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "const": "TEXT"
+        },
+        "at": {
+          "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point2D"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "heightMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rotationDeg": {
+          "type": "number"
+        },
+        "leaderTo": {
+          "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point2D"
+        }
+      },
+      "additionalProperties": true
+    },
+    "Annotation": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Dimension"
+        },
+        {
+          "$ref": "#/$defs/TextNote"
+        }
+      ]
     }
   },
   "oneOf": [

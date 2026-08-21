@@ -1,5 +1,6 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import { openPorts } from '@house-technical-designer/editor-core';
+import { listedFamilies } from '../editor/object-editors.js';
 
 export interface ProjectTreeProps {
   readonly project: Project;
@@ -14,31 +15,6 @@ export interface ProjectTreeProps {
 
 /** How many objects of one family are listed before the count stands in. */
 const LISTED_PER_FAMILY = 40;
-
-/**
- * One line of the tree: what it points at, and what it is called.
- *
- * The two used to travel packed into one string and split apart to be read
- * back — with a separator each family had to remember. Two of them forgot and
- * used a space, so a placed component sent « component-1 Radiateur séjour »
- * where an identifier was expected, and clicking it selected nothing. Two
- * fields cannot do that.
- */
-interface TreeEntry {
-  readonly objectId: string;
-  readonly label: string;
-}
-
-const named = ({ id }: { readonly id: string }): TreeEntry => ({
-  objectId: id,
-  label: id,
-});
-
-const STRUCTURE_LABELS: Readonly<Record<string, string>> = {
-  COLUMN: 'Poteau',
-  BEAM: 'Poutre',
-  FOOTING: 'Fondation',
-};
 
 /**
  * The project as a tree, which is how a building is thought about.
@@ -59,38 +35,20 @@ export function ProjectTree({
   const levels = project.building.levels;
   const active = levels.find(({ id }) => id === levelId) ?? levels[0];
 
+  /**
+   * The families of the storey, asked of the families themselves.
+   *
+   * This list used to be written here, and the command palette wrote its own:
+   * nine families in one, five in the other, and everything added later
+   * missing from both. What belongs to the project rather than to a floor —
+   * the networks, the ground — has its own section further down.
+   */
   const families =
     active === undefined
       ? []
-      : ([
-          ['Murs', active.walls.map(named)],
-          ['Ouvertures', active.openings.map(named)],
-          [
-            'Pièces',
-            active.spaces.map(({ id, name }) => ({
-              objectId: id,
-              label: name,
-            })),
-          ],
-          ['Dalles', active.slabs.map(named)],
-          ['Toitures', active.roofs.map(named)],
-          ['Toitures complètes', (active.roofStructures ?? []).map(named)],
-          ['Escaliers', active.stairs.map(named)],
-          [
-            'Structure',
-            (active.structure ?? []).map((member) => ({
-              objectId: member.id,
-              label: `${STRUCTURE_LABELS[member.kind] ?? member.kind} ${member.id}`,
-            })),
-          ],
-          [
-            'Composants',
-            (active.components ?? []).map((component) => ({
-              objectId: component.id,
-              label: component.name ?? component.category,
-            })),
-          ],
-        ] as const);
+      : listedFamilies(project, active.id).filter(
+          ({ scope }) => scope === 'LEVEL',
+        );
 
   return (
     <nav className="project-tree" aria-label="Arborescence du projet">
@@ -127,14 +85,14 @@ export function ProjectTree({
               </button>
               {level.id === active?.id && (
                 <ul>
-                  {families.map(([label, ids]) => (
+                  {families.map(({ label, objects }) => (
                     <li key={label}>
                       <details>
                         <summary>
-                          {label} <small>({ids.length})</small>
+                          {label} <small>({objects.length})</small>
                         </summary>
                         <ul>
-                          {ids
+                          {objects
                             .slice(0, LISTED_PER_FAMILY)
                             .map(({ objectId, label: name }) => (
                               <li key={objectId}>
@@ -152,11 +110,11 @@ export function ProjectTree({
                                 </button>
                               </li>
                             ))}
-                          {ids.length > LISTED_PER_FAMILY && (
+                          {objects.length > LISTED_PER_FAMILY && (
                             <li>
                               <span className="tree-fact">
-                                et {ids.length - LISTED_PER_FAMILY} autre(s) —
-                                cherchez-les avec Ctrl+K
+                                et {objects.length - LISTED_PER_FAMILY} autre(s)
+                                — cherchez-les avec Ctrl+K
                               </span>
                             </li>
                           )}

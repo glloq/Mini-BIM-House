@@ -11,9 +11,26 @@ export interface DynamicInputProps {
   /** What the user has locked, if anything. */
   readonly lockedLengthMm?: number;
   readonly lockedAngleDeg?: number;
+  /**
+   * Which of the two the tool actually takes.
+   *
+   * The mirror tool takes an angle and no length — an axis has a direction and
+   * no end — and the fields were shown all the same: typing a length into a
+   * tool that ignores it is watching a value do nothing.
+   */
+  readonly accepts: { readonly length: boolean; readonly angle: boolean };
   readonly onChange: (patch: DirectInputPatch) => void;
   /** Asks the tool to place its point with what is locked. */
   readonly onCommit: () => void;
+  /**
+   * Ends a run, which is not the same as placing a point.
+   *
+   * A run of walls has no number of corners known in advance: Enter placed the
+   * point and, on the second one, also ended the run, so a chain drawn from the
+   * fields could never have three corners. Placing and finishing are two
+   * gestures because they are two decisions.
+   */
+  readonly onFinish?: () => void;
   readonly onCancel: () => void;
 }
 
@@ -32,8 +49,10 @@ export function DynamicInput({
   angleDeg,
   lockedLengthMm,
   lockedAngleDeg,
+  accepts,
   onChange,
   onCommit,
+  onFinish,
   onCancel,
 }: DynamicInputProps) {
   const length = useRef<HTMLInputElement>(null);
@@ -57,7 +76,10 @@ export function DynamicInput({
   function handleKey(event: React.KeyboardEvent<HTMLDivElement>): void {
     if (event.key === 'Enter') {
       event.preventDefault();
-      onCommit();
+      // Ctrl+Entrée ends the run; Entrée places a point and keeps drawing.
+      if ((event.ctrlKey || event.metaKey) && onFinish !== undefined)
+        onFinish();
+      else onCommit();
       return;
     }
     if (event.key === 'Escape') {
@@ -71,36 +93,51 @@ export function DynamicInput({
       className="dynamic-input"
       style={{ left: `${atPx.x}px`, top: `${atPx.y}px` }}
       onKeyDown={handleKey}
+      // These fields sit over the drawing surface, and the drawing surface
+      // places a point wherever it is pressed: clicking into the length field
+      // was also clicking on the plan. What is pressed here is pressed here.
+      onPointerDown={(event) => event.stopPropagation()}
+      onPointerUp={(event) => event.stopPropagation()}
     >
-      <label>
-        <span>Longueur</span>
-        <input
-          ref={length}
-          type="text"
-          inputMode="decimal"
-          aria-label="Longueur du tracé"
-          placeholder={`${Math.round(lengthMm)} mm`}
-          value={lengthText}
-          onChange={(event) => commitLength(event.target.value)}
-        />
-        {lockedLengthMm !== undefined && (
-          <span className="lock">verrouillé</span>
-        )}
-      </label>
-      <label>
-        <span>Angle</span>
-        <input
-          type="text"
-          inputMode="decimal"
-          aria-label="Angle du tracé"
-          placeholder={`${angleDeg.toFixed(1)}°`}
-          value={angleText}
-          onChange={(event) => commitAngle(event.target.value)}
-        />
-        {lockedAngleDeg !== undefined && (
-          <span className="lock">verrouillé</span>
-        )}
-      </label>
+      {accepts.length && (
+        <label>
+          <span>Longueur</span>
+          <input
+            ref={length}
+            type="text"
+            inputMode="decimal"
+            aria-label="Longueur du tracé"
+            placeholder={`${Math.round(lengthMm)} mm`}
+            value={lengthText}
+            onChange={(event) => commitLength(event.target.value)}
+          />
+          {lockedLengthMm !== undefined && (
+            <span className="lock">verrouillé</span>
+          )}
+        </label>
+      )}
+      {accepts.angle && (
+        <label>
+          <span>Angle</span>
+          <input
+            ref={accepts.length ? undefined : length}
+            type="text"
+            inputMode="decimal"
+            aria-label="Angle du tracé"
+            placeholder={`${angleDeg.toFixed(1)}°`}
+            value={angleText}
+            onChange={(event) => commitAngle(event.target.value)}
+          />
+          {lockedAngleDeg !== undefined && (
+            <span className="lock">verrouillé</span>
+          )}
+        </label>
+      )}
+      {onFinish !== undefined && (
+        <button type="button" className="secondary" onClick={onFinish}>
+          Terminer (Ctrl+Entrée)
+        </button>
+      )}
     </div>
   );
 }

@@ -5,12 +5,15 @@ import type {
   Project,
   Space,
   TechnicalNetwork,
+  TextNote,
   Wall,
 } from '@house-technical-designer/core-domain';
 import {
   deriveRoofPlanes,
   deriveWallFaces,
+  DEFAULT_NOTE_HEIGHT_MM,
   isDimension,
+  isTextNote,
   resolveDimension,
   portAnchors,
   resolveStraightWallJoin,
@@ -825,7 +828,7 @@ function componentPrimitives(level: Level): readonly PrimitiveDraft[] {
       },
       layer: 'components.placed',
       zIndex: 45,
-      discipline: 'OTHER' as const,
+      discipline: disciplineOfComponent(component.category),
       metadata: {
         category: component.category,
         ...(component.definitionId === undefined
@@ -837,6 +840,33 @@ function componentPrimitives(level: Level): readonly PrimitiveDraft[] {
       },
     };
   });
+}
+
+/**
+ * What discipline a placed thing belongs to.
+ *
+ * A radiator is heating, a basin is water, a socket is electricity. Drawing
+ * them all as « other » made an exported plan unable to say which trade each
+ * symbol belonged to, which is the first thing a drawing is read for. The
+ * furniture and the appliances stay « other », because they belong to no trade.
+ */
+function disciplineOfComponent(category: string): Discipline {
+  switch (category) {
+    case 'HEATING':
+      return 'HEATING';
+    case 'SANITARY':
+      return 'WATER';
+    case 'VENTILATION':
+      return 'VENTILATION';
+    case 'ELECTRICAL':
+      return 'ELECTRICAL';
+    case 'LIGHTING':
+      return 'LIGHTING';
+    case 'PHOTOVOLTAIC':
+      return 'PV';
+    default:
+      return 'OTHER';
+  }
 }
 
 /**
@@ -1033,6 +1063,53 @@ function roofStructurePrimitives(level: Level): readonly PrimitiveDraft[] {
   return drafts;
 }
 
+/**
+ * A note written on the drawing, and the line to what it points at.
+ *
+ * Nothing here derives anything: the text is what someone wrote, and the plan
+ * shows it where they put it. A note that points at something is drawn with a
+ * leader, because a note beside a wall and a note about that wall are two
+ * different statements.
+ */
+function textNotePrimitives(note: TextNote): readonly PrimitiveDraft[] {
+  const shared = {
+    sourceObjectId: note.id,
+    layer: 'annotation.notes',
+    discipline: 'ARCHITECTURE' as const,
+  };
+  const drafts: PrimitiveDraft[] = [
+    {
+      ...shared,
+      id: `note:${note.id}`,
+      semanticRole: 'ANNOTATION',
+      geometry: {
+        kind: 'TEXT',
+        anchor: note.at,
+        text: note.text,
+        ...(note.rotationDeg === undefined
+          ? {}
+          : { rotationDeg: note.rotationDeg }),
+      },
+      zIndex: 72,
+      metadata: {
+        heightMm: note.heightMm ?? DEFAULT_NOTE_HEIGHT_MM,
+      },
+    },
+  ];
+  if (note.leaderTo !== undefined)
+    drafts.push({
+      ...shared,
+      id: `note-leader:${note.id}`,
+      semanticRole: 'ANNOTATION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: { points: [note.at, note.leaderTo], closed: false },
+      },
+      zIndex: 71,
+    });
+  return drafts;
+}
+
 function structurePrimitives(level: Level): readonly PrimitiveDraft[] {
   return (level.structure ?? []).flatMap((member) => {
     const outline = structuralFootprint(member);
@@ -1045,7 +1122,7 @@ function structurePrimitives(level: Level): readonly PrimitiveDraft[] {
         geometry: { kind: 'POLYGON' as const, polygon: { outer: outline } },
         layer: 'structure.members',
         zIndex: 20,
-        discipline: 'ARCHITECTURE' as const,
+        discipline: 'STRUCTURE' as const,
         metadata: { kind: member.kind },
       },
     ];
@@ -1070,7 +1147,7 @@ function sitePrimitives(project: Project): readonly PrimitiveDraft[] {
       geometry: { kind: 'POLYGON', polygon: parcel },
       layer: 'site.parcel',
       zIndex: 1,
-      discipline: 'OTHER',
+      discipline: 'SITE',
     });
   for (const obstacle of project.site.obstacles ?? [])
     drafts.push({
@@ -1080,7 +1157,7 @@ function sitePrimitives(project: Project): readonly PrimitiveDraft[] {
       geometry: { kind: 'POLYGON', polygon: obstacle.boundary },
       layer: 'site.parcel',
       zIndex: 2,
-      discipline: 'OTHER',
+      discipline: 'SITE',
       metadata: {
         ...(obstacle.kind === undefined ? {} : { kind: obstacle.kind }),
         ...(obstacle.heightMm === undefined
@@ -1203,6 +1280,8 @@ export function buildPlanView(
     for (const annotation of level.annotations)
       if (isDimension(annotation))
         drafts.push(...dimensionPrimitives(annotation, level, issues));
+      else if (isTextNote(annotation))
+        drafts.push(...textNotePrimitives(annotation));
     drafts.push(...slabAndRoofPrimitives(level));
     drafts.push(...componentPrimitives(level));
     drafts.push(...stairPrimitives(level));

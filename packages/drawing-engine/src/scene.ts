@@ -14,8 +14,19 @@ export type GraphicProfileId = string & {
 
 export type DrawingViewType =
   'PLAN' | 'SECTION' | 'ELEVATION' | 'DETAIL' | 'SCHEMATIC';
+/**
+ * What part of the building a primitive belongs to.
+ *
+ * The structure and the ground used to be « architecture » and « other »: a
+ * post and a parcel were drawn under the same heading as a wall and a
+ * radiator, so an exported drawing could not separate the frame from the
+ * masonry, nor the plot from the furniture. A discipline is what a drawing is
+ * read by.
+ */
 export type Discipline =
   | 'ARCHITECTURE'
+  | 'STRUCTURE'
+  | 'SITE'
   | 'WATER'
   | 'WASTEWATER'
   | 'VENTILATION'

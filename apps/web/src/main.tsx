@@ -114,6 +114,7 @@ import {
 } from './calculations/overlay-source.js';
 import {
   isCurrentRun,
+  needsRecalculation,
   runProjectCalculations,
   type CalculationRun,
 } from './calculations/calculation-runner.js';
@@ -382,6 +383,8 @@ function App() {
   const [calculationBusy, setCalculationBusy] = useState(false);
   /** Bumped by an explicit recompute; the effect above watches it. */
   const [calculationGeneration, setCalculationGeneration] = useState(0);
+  /** The last « recompute » the effect actually honoured. */
+  const honouredGeneration = useRef(0);
 
   const importInput = useRef<HTMLInputElement>(null);
   const session = useRef(new ProjectEditingSession(file));
@@ -1207,6 +1210,21 @@ function App() {
     // run for the current revision rather than reuse whatever was last left.
     if (overlayId === 'none' && tab !== 'calculations' && tab !== 'checks')
       return;
+    // The results already in hand answer for this project, this revision and
+    // this climate: asking the seventeen modules again would produce the same
+    // numbers. Switching tabs, turning an overlay on, renaming a view — none
+    // of it changed anything a module reads.
+    if (
+      !needsRecalculation(
+        calculationRun,
+        file.project,
+        climate,
+        calculationGeneration,
+        honouredGeneration.current,
+      )
+    )
+      return;
+    honouredGeneration.current = calculationGeneration;
     let current = true;
     setCalculationBusy(true);
     void runProjectCalculations(file.project, climate)
@@ -1219,6 +1237,9 @@ function App() {
     return () => {
       current = false;
     };
+    // `calculationRun` is read to decide whether it still answers, and set by
+    // this effect: listing it would make the effect wake itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [climate, file.project, overlayId, tab, calculationGeneration]);
 
   /**
@@ -1415,7 +1436,7 @@ function App() {
     (objectId: string, edit: InspectorEdit, value: string): boolean => {
       if (scenarioMode === undefined) return false;
       const project = session.current.file.project;
-      const target = targetForEdit(project, objectId, edit.id);
+      const target = targetForEdit(project, objectId, edit);
       if (target === undefined) {
         setMessage(
           `« ${edit.label} » ne peut pas encore varier dans un scénario.`,
@@ -2218,6 +2239,7 @@ function App() {
               editor={{ ...editor, levelId: activeLevelId } as EditorState}
               dispatch={dispatchEditor}
               onCommitPoints={commitPoints}
+              onFinishRun={finishRun}
               onMoveSelection={moveSelection}
               onCommand={runCommand}
               onObjectMenu={(objectId, atPx) =>

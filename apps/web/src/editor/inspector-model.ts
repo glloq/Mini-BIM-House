@@ -1,7 +1,14 @@
-import type { Project } from '@house-technical-designer/core-domain';
+import type {
+  Dimension,
+  Project,
+  TextNote,
+} from '@house-technical-designer/core-domain';
 import {
   calculateWallNetArea,
+  DEFAULT_NOTE_HEIGHT_MM,
   deriveRoofPlanes,
+  isDimension,
+  isTextNote,
   roofEaveOutline,
   roofRidgeElevationMm,
   resolveDimension,
@@ -48,6 +55,7 @@ export interface InspectorSubject {
     | 'NETWORK_EDGE'
     | 'NETWORK_NODE'
     | 'DIMENSION'
+    | 'NOTE'
     | 'COMPONENT'
     | 'STAIR'
     | 'ROOF_STRUCTURE'
@@ -522,12 +530,69 @@ const DIMENSION_TYPE_LABELS: Readonly<Record<string, string>> = {
   VERTICAL: 'Verticale',
 };
 
+/** What a note shows: what it says, and where it says it. */
+export function noteSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  for (const level of project.building.levels) {
+    const note = level.annotations.find(
+      (annotation): annotation is TextNote =>
+        annotation.id === objectId && isTextNote(annotation),
+    );
+    if (note === undefined) continue;
+    return {
+      objectId,
+      kind: 'NOTE',
+      title: note.text,
+      sections: [
+        {
+          title: 'Ce qu’elle dit',
+          fields: [
+            field('Texte', note.text),
+            field(
+              'Hauteur des lettres',
+              `${note.heightMm ?? DEFAULT_NOTE_HEIGHT_MM} mm`,
+              'Sur le papier, à l’échelle de la feuille.',
+            ),
+            field(
+              'Renvoi',
+              note.leaderTo === undefined
+                ? undefined
+                : `${Math.round(note.leaderTo.x)} ; ${Math.round(note.leaderTo.y)} mm`,
+              note.leaderTo === undefined
+                ? 'Cette annotation ne désigne rien en particulier.'
+                : undefined,
+            ),
+          ],
+        },
+        {
+          title: 'Références',
+          fields: [
+            field('Identifiant', note.id),
+            field('Niveau', level.name),
+            field(
+              'Lue par',
+              'personne',
+              'Une annotation s’adresse à un lecteur ; aucun calcul ne la lit.',
+            ),
+          ],
+        },
+      ],
+    };
+  }
+  return undefined;
+}
+
 export function dimensionSubject(
   project: Project,
   objectId: string,
 ): InspectorSubject | undefined {
   for (const level of project.building.levels) {
-    const dimension = level.annotations.find(({ id }) => id === objectId);
+    const dimension = level.annotations.find(
+      (annotation): annotation is Dimension =>
+        annotation.id === objectId && isDimension(annotation),
+    );
     if (dimension === undefined) continue;
     const resolution = resolveDimension(dimension, level.walls);
     return {

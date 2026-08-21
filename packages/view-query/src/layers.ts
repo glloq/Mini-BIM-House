@@ -9,7 +9,15 @@ import type { Discipline } from '@house-technical-designer/drawing-engine';
 export interface LayerDescriptor {
   readonly id: string;
   readonly label: string;
-  readonly discipline: Discipline;
+  /**
+   * The disciplines the layer carries.
+   *
+   * Usually one. A layer of placed things carries several, because a radiator
+   * belongs to heating and a socket to electricity while one switch turns both
+   * on: the layer is what the user hides, the discipline is what the drawing
+   * is read by, and they are not the same axis.
+   */
+  readonly disciplines: readonly Discipline[];
   /** Whether the layer is on when no explicit choice has been made. */
   readonly defaultVisible: boolean;
 }
@@ -18,103 +26,121 @@ export const PLAN_LAYERS = [
   {
     id: 'architecture.walls',
     label: 'Murs',
-    discipline: 'ARCHITECTURE',
+    disciplines: ['ARCHITECTURE'],
     defaultVisible: true,
   },
   {
     id: 'architecture.wall-layers',
     label: 'Couches de matériaux',
-    discipline: 'ARCHITECTURE',
+    disciplines: ['ARCHITECTURE'],
     defaultVisible: true,
   },
   {
     id: 'architecture.openings',
     label: 'Ouvertures',
-    discipline: 'ARCHITECTURE',
+    disciplines: ['ARCHITECTURE'],
     defaultVisible: true,
   },
   {
     id: 'architecture.slabs',
     label: 'Dalles',
-    discipline: 'ARCHITECTURE',
+    disciplines: ['ARCHITECTURE'],
     defaultVisible: true,
   },
   {
     id: 'architecture.roofs',
     label: 'Toitures',
-    discipline: 'ARCHITECTURE',
+    disciplines: ['ARCHITECTURE'],
     defaultVisible: false,
   },
   {
     id: 'architecture.spaces',
     label: 'Pièces',
-    discipline: 'ARCHITECTURE',
+    disciplines: ['ARCHITECTURE'],
     defaultVisible: true,
   },
   {
     id: 'architecture.space-labels',
     label: 'Étiquettes de pièces',
-    discipline: 'ARCHITECTURE',
+    disciplines: ['ARCHITECTURE'],
     defaultVisible: true,
   },
   {
     id: 'architecture.stairs',
     label: 'Escaliers',
-    discipline: 'ARCHITECTURE',
+    disciplines: ['ARCHITECTURE'],
     defaultVisible: true,
   },
   {
     id: 'structure.members',
     label: 'Structure',
-    discipline: 'ARCHITECTURE',
+    disciplines: ['STRUCTURE'],
     defaultVisible: true,
   },
   {
     id: 'site.parcel',
     label: 'Terrain',
-    discipline: 'OTHER',
+    disciplines: ['SITE'],
     defaultVisible: true,
   },
   {
     id: 'components.placed',
     label: 'Équipements posés',
-    discipline: 'OTHER',
+    // A placed thing belongs to the discipline of what it is: a radiator is
+    // heating, a socket electricity, a basin water. One switch shows them all
+    // because one drawing shows them all, and the exported drawing still says
+    // which is which.
+    disciplines: [
+      'HEATING',
+      'WATER',
+      'VENTILATION',
+      'ELECTRICAL',
+      'LIGHTING',
+      'PV',
+      'OTHER',
+    ],
     defaultVisible: true,
   },
   {
     id: 'annotation.dimensions',
     label: 'Cotations',
-    discipline: 'ARCHITECTURE',
+    disciplines: ['ARCHITECTURE'],
+    defaultVisible: true,
+  },
+  {
+    id: 'annotation.notes',
+    label: 'Annotations',
+    disciplines: ['ARCHITECTURE'],
     defaultVisible: true,
   },
   {
     id: 'water.pipes',
     label: 'Eau',
-    discipline: 'WATER',
+    disciplines: ['WATER'],
     defaultVisible: false,
   },
   {
     id: 'wastewater.pipes',
     label: 'Évacuations',
-    discipline: 'WASTEWATER',
+    disciplines: ['WASTEWATER'],
     defaultVisible: false,
   },
   {
     id: 'ventilation.ducts',
     label: 'Ventilation',
-    discipline: 'VENTILATION',
+    disciplines: ['VENTILATION'],
     defaultVisible: false,
   },
   {
     id: 'electrical.circuits',
     label: 'Électricité',
-    discipline: 'ELECTRICAL',
+    disciplines: ['ELECTRICAL'],
     defaultVisible: false,
   },
   {
     id: 'analysis.overlay',
     label: 'Analyse',
-    discipline: 'OTHER',
+    disciplines: ['OTHER'],
     defaultVisible: false,
   },
 ] as const satisfies readonly LayerDescriptor[];
@@ -143,6 +169,7 @@ const ARCHITECTURE_BASE: readonly PlanLayerId[] = [
   'site.parcel',
   'components.placed',
   'annotation.dimensions',
+  'annotation.notes',
 ];
 
 /** Discipline views the user can switch between without a second model. */
@@ -266,6 +293,6 @@ export function visibleDisciplines(
 ): readonly Discipline[] {
   const disciplines = PLAN_LAYERS.filter(
     ({ id }) => visibility[id] === true,
-  ).map(({ discipline }) => discipline);
+  ).flatMap(({ disciplines: carried }) => carried);
   return [...new Set<Discipline>(disciplines)];
 }

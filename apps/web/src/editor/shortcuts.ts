@@ -20,6 +20,7 @@ export type ShortcutCommandId =
   | 'tool.beam'
   | 'tool.site'
   | 'tool.dimension'
+  | 'tool.note'
   | 'tool.network'
   | 'tool.networkRoute'
   | 'tool.networkBranch'
@@ -89,6 +90,7 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
   { id: 'tool.site', label: 'Terrain', key: 'g', group: 'Outils' },
   { id: 'tool.component', label: 'Composant', key: 'k', group: 'Outils' },
   { id: 'tool.dimension', label: 'Cotation', key: 'd', group: 'Outils' },
+  { id: 'tool.note', label: 'Annotation', key: 'n', group: 'Outils' },
   { id: 'tool.network', label: 'Réseau', key: 'r', group: 'Outils' },
   {
     id: 'tool.networkRoute',

@@ -475,3 +475,100 @@ describe('wall preview', () => {
     ).toBeUndefined();
   });
 });
+
+/** The fixture with a post, a plot and three placed things on it. */
+function withEverything(): Project {
+  const base = project();
+  const ground = base.building.levels[0]!;
+  const placed = (
+    id: string,
+    category: 'HEATING' | 'SANITARY' | 'FURNITURE',
+    x: number,
+  ) => ({
+    id: entityId<'ComponentInstance'>(id),
+    type: 'COMPONENT_INSTANCE' as const,
+    levelId,
+    category,
+    position: { x, y: 1000 },
+    elevationMm: 300,
+    rotationDeg: 0,
+  });
+  return {
+    ...base,
+    site: {
+      ...base.site,
+      parcelBoundary: {
+        outer: [
+          { x: -2000, y: -2000 },
+          { x: 9000, y: -2000 },
+          { x: 9000, y: 7000 },
+          { x: -2000, y: 7000 },
+        ],
+      },
+    },
+    building: {
+      ...base.building,
+      levels: [
+        {
+          ...ground,
+          structure: [
+            {
+              id: entityId<'StructuralMember'>('member-column'),
+              type: 'STRUCTURAL_MEMBER',
+              levelId,
+              kind: 'COLUMN',
+              path: [{ x: 2000, y: 2000 }],
+              widthMm: 200,
+              depthMm: 200,
+            },
+          ],
+          components: [
+            placed('component-radiator', 'HEATING', 1000),
+            placed('component-sink', 'SANITARY', 2000),
+            placed('component-sofa', 'FURNITURE', 3000),
+          ],
+        },
+      ],
+    },
+  };
+}
+
+describe('what discipline a drawing reads each thing by', () => {
+  it('separates the frame, the ground and the trades', () => {
+    // A post, a parcel and a radiator were « architecture » and « other »: an
+    // exported drawing could not tell the frame from the masonry, nor the plot
+    // from the furniture.
+    const project = withEverything();
+    const view = buildPlanView(project, {
+      levelId: 'ground',
+      layers: defaultVisibility(),
+    });
+    const disciplineOf = (id: string) =>
+      view.primitives.find((primitive) => primitive.id === id)?.discipline;
+    expect(disciplineOf('structure:member-column')).toBe('STRUCTURE');
+    expect(disciplineOf('site:parcel')).toBe('SITE');
+    expect(disciplineOf('component:component-radiator')).toBe('HEATING');
+    expect(disciplineOf('component:component-sink')).toBe('WATER');
+    expect(disciplineOf('component:component-sofa')).toBe('OTHER');
+  });
+
+  it('keeps every one of them visible under its own layer', () => {
+    // A discipline the visible layers do not carry is filtered out of the
+    // scene: giving the post its own discipline had to give the layer it is
+    // drawn on the same one, or the post would have vanished.
+    const view = buildPlanView(withEverything(), {
+      levelId: 'ground',
+      layers: defaultVisibility(),
+    });
+    for (const id of [
+      'structure:member-column',
+      'site:parcel',
+      'component:component-radiator',
+      'component:component-sink',
+    ])
+      expect(
+        view.primitives.some((primitive) => primitive.id === id),
+        id,
+      ).toBe(true);
+  });
+});

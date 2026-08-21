@@ -663,17 +663,19 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   que les pans dont elle est sûre.
 - **Murs courbes et raccords visuels L/T/X** : hors périmètre de la bêta.
 - **Export PDF vectoriel** : les feuilles s'exportent en PDF multipage, mais
-  chaque page est une image de la feuille tramée à 200 ppp. Le format PDF ne
-  connaît pas le SVG, et le convertir en tracés PDF reviendrait à écrire un
-  second moteur de dessin. Le tirage est à l'échelle ; le texte n'y est ni
-  sélectionnable ni recherchable.
+  chaque page est une image de la feuille. Le format PDF ne connaît pas le SVG,
+  et le convertir en tracés PDF reviendrait à écrire un second moteur de
+  dessin. Le tirage est à l'échelle ; le texte n'y est ni sélectionnable ni
+  recherchable. La densité de trame dépend du format : elle est annoncée avant
+  l'export, et c'est la feuille la plus grande qui la fixe — 203 ppp jusqu'au
+  A2, 180 en A1, 127 en A0.
 - **Exports DXF et IFC** : hors périmètre de la bêta.
 - **Calcul de structure, géotechnique, simulation thermique dynamique, confort
   d'été avancé, éclairage naturel** : hors périmètre de la bêta. Les poteaux,
   poutres et fondations se décrivent et se dessinent ; rien ne les vérifie
   encore.
-- **Modes QUICK / DESIGN / EXPERT** : non implémentés ; l'interface a une
-  seule densité.
+- **Réglages de calcul encore invisibles** : quelques entrées que les moteurs
+  lisent ne se règlent pas encore depuis l'interface.
 - **Analyses projetées sur le plan** : dix analyses sont branchées —
   transmission, déperditions et données manquantes pour le thermique ; vitesse
   et pertes de charge pour l'eau et pour les gaines ; pente des collecteurs ;
@@ -690,9 +692,9 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   collée d'un niveau à l'autre, pivotée d'un quart de tour ou d'un angle tracé,
   retournée autour d'un axe tracé, décalée parallèlement, jointe, ajustée et
   alignée.
-- **Annotations** : la cotation existe ; les notes de texte, les étiquettes
-  associatives, les repères, les trames et les repères de coupe restent hors
-  périmètre.
+- **Annotations** : la cotation et les notes de texte existent ; les étiquettes
+  associatives, les repères de coupe, les trames et les hachures paramétrées
+  restent hors périmètre.
 - **Conformité réglementaire** : le moteur de règles et les Rule Packs
   existent ; l'espace Vérifications rassemble les constats du modèle et des
   calculs, mais aucun référentiel réglementaire n'est livré, et rien n'est

@@ -1526,6 +1526,138 @@ panneau annonce désormais, avant l'export, la densité de la feuille la plus
 réduite — celle qui borne la netteté de l'ensemble — et le message de fin dit la
 même chose.
 
+## Trouver, lire et faire varier — lot E du dixième audit
+
+### Une seule liste des familles
+
+L'arborescence parcourait neuf familles, la palette Ctrl+K en parcourait cinq,
+et les deux listes étaient écrites à la main. Les escaliers, les toitures
+complètes, les poteaux, les composants posés, les tronçons de réseau et le
+terrain ne figuraient dans aucune des deux : ils se dessinaient, s'inspectaient,
+se déplaçaient — et ne se trouvaient pas. Un objet qu'on ne peut pas chercher par
+son nom n'existe que tant qu'il est à l'écran.
+
+Une famille du registre déclare maintenant comment elle se liste, comment elle
+s'appelle au pluriel, et si elle appartient à un niveau ou au projet. L'arbre
+affiche les familles du niveau, la palette les affiche toutes, et les deux lisent
+la même réponse. La palette dit de surcroît de quelle famille et de quel niveau
+vient chaque ligne ; un réseau traverse les étages, donc il n'en nomme aucun.
+
+### Un dessin qui dit de quel métier il parle
+
+Un poteau, une parcelle et un radiateur étaient « architecture » et « autre » : un
+plan exporté ne pouvait distinguer ni l'ossature de la maçonnerie, ni le terrain
+du mobilier. Les disciplines `STRUCTURE` et `SITE` existent désormais, et un
+objet posé prend la discipline de ce qu'il est — un radiateur est du chauffage,
+un lavabo de l'eau, une prise de l'électricité ; le mobilier et l'électroménager
+restent « autre », parce qu'ils ne relèvent d'aucun métier.
+
+Un calque porte donc plusieurs disciplines lorsque c'est le cas : un seul
+interrupteur montre tous les équipements posés, parce qu'un seul dessin les
+montre tous, et le SVG exporté continue de dire lequel est lequel. Les deux axes
+— ce que l'utilisateur masque, ce que le dessin donne à lire — ne sont pas le
+même axe, et le type le dit maintenant.
+
+### N'importe quelle propriété peut varier
+
+Le mode scénario refusait tout ce qui n'était pas dans une liste de chemins
+écrite à la main : assemblage et hauteur de mur, épaisseur de couche, propriété
+d'équipement. Pointer un escalier et changer son giron répondait « ne peut pas
+encore varier dans un scénario » — la propriété était éditable, comparable, et
+simplement inatteignable.
+
+Une famille dit maintenant où vivent ses objets dans le fichier ; une propriété
+dit comment elle s'y appelle quand ce n'est pas son propre identifiant — les
+propriétés d'un tronçon vivent sous `properties/`. Ce qu'un variant peut changer
+est donc exactement ce que l'inspecteur montre. Une propriété que le fichier ne
+stocke pas est refusée comme avant : la longueur et l'angle d'un mur se lisent
+sur ses deux points, et un scénario écrivant `walls/x/lengthMm` remplirait un
+champ que rien ne lit.
+
+### Saisie dynamique : placer un point n'est pas terminer un tracé
+
+Deux défauts d'un même champ. Le premier : un outil déclare ce qu'il accepte —
+l'outil Miroir prend un angle et pas de longueur, parce qu'un axe a une
+direction et pas de bout — et les deux champs étaient affichés quand même.
+Taper une longueur dans un outil qui l'ignore, c'est regarder une valeur ne rien
+faire. Le champ suit maintenant la déclaration.
+
+Le second : Entrée plaçait le point et, dès qu'il y en avait assez pour l'outil,
+terminait aussi le tracé. Sur un mur continu — dont personne ne connaît le
+nombre de coins à l'avance — une chaîne saisie au clavier ne pouvait donc jamais
+avoir trois angles. Entrée place un point, Ctrl+Entrée ou le bouton « Terminer »
+achève le tracé : ce sont deux décisions, ce sont deux gestes.
+
+Au passage, les champs ne traversent plus le plan : cliquer dans la case
+Longueur posait aussi un point sur le dessin, parce que la surface de dessin
+reçoit tout ce qu'on presse au-dessus d'elle.
+
+### Dix analyses qui colorent vraiment quelque chose
+
+Une analyse nomme les objets par identifiant, le plan les nomme par identifiant,
+et rien ne force les deux chaînes à être la même. Quand elles diffèrent,
+l'analyse s'exécute, la légende s'affiche, et pas une ligne du dessin ne change
+de couleur — ce qui se lit exactement comme « rien à signaler ».
+
+Les dix analyses sont donc désormais exécutées pour de bon sur la maison de
+référence, et chacune doit nommer des objets que le plan dessine et en colorer
+au moins un. Une analyse que la maison de référence ne peut pas produire est
+listée explicitement, pour qu'une disparition silencieuse se voie.
+
+### Les calculs ne se refont plus pour rien
+
+Les dix-sept modules se relançaient à chaque changement du projet — et à chaque
+changement de quoi que ce soit : ouvrir l'onglet Calculs avec une analyse déjà
+affichée, passer aux Vérifications et revenir, renommer une vue enregistrée.
+Rien de tout cela ne change un nombre, et tout cela payait la série complète.
+Un résultat déjà obtenu pour ce projet, cette révision et ce climat est la
+réponse ; seule une demande explicite de recalcul force une nouvelle série.
+
+### Une maison qu'on ne peut plus appeler petite
+
+La maison de référence a six murs et trois pièces, et ce que coûte la vue en
+plan sur six murs ne dit rien de ce qu'elle coûte sur six cents — or elle est
+reconstruite à chaque mouvement du curseur. Une grande maison dérivée — trois
+niveaux, quarante pièces, 240 murs — sert maintenant de charge de mesure et de
+test : un niveau se redessine en 2,1 ms, les vérifications des trois niveaux en
+7,6 ms, et chaque mur comme chaque pièce atteint bien le dessin. Les chiffres
+sont consignés dans `PERFORMANCE_BASELINE.md`.
+
+### Écrire sur le plan ce que le modèle ne dit pas
+
+« Reprise en sous-œuvre », « cote à vérifier sur site », « existant à démolir » :
+un dessin porte ce qu'est le bâtiment et ce que la personne qui le dessine veut
+faire lire, et seul le premier avait où vivre. Un niveau portait des annotations
+et l'union n'avait qu'un membre, la cotation.
+
+Une note est maintenant un objet de l'éditeur comme un autre — sélectionnée,
+décrite, modifiée, déplacée, dupliquée, supprimée, trouvée par son texte dans
+la palette, écrite dans le fichier et relue —, elle a son calque, et
+l'inspecteur dit explicitement qu'aucun calcul ne la lit : c'est du texte libre
+qui s'adresse à un lecteur, et il le reste. Une note sans texte est refusée par
+l'outil comme par le lecteur : ce serait un objet invisible que personne ne
+retrouverait.
+
+Le compilateur a nommé chaque endroit qui supposait qu'une annotation était
+forcément une cote — commandes, inspecteur, suppression, duplication de niveau,
+lecture de fichier. C'est ce que vaut une union discriminée.
+
+### Trois densités d'interface, un seul produit
+
+Une quarantaine de boutons sont un mur pour qui dessine son premier plan et un
+jeu nécessaire pour qui monte un dossier. La réponse n'est pas de retirer des
+outils : c'est de dire lesquels suffisent à dessiner une maison — sélection,
+murs, ouvertures, pièces — et de laisser venir les autres quand on les demande.
+
+Un outil déclare le niveau à partir duquel il est offert ; ce qu'il ne déclare
+pas est offert à partir de « Conception », qui est là où se situe un projet
+ordinaire. Rien n'est désactivé et rien ne se comporte autrement : un projet
+dessiné en « Essentiel » est le même fichier qu'un projet dessiné en « Expert ».
+Le niveau appartient à l'éditeur et non au projet — le nombre d'outils que
+quelqu'un veut devant lui ne dit rien du bâtiment — et quitter un niveau qui
+n'offre plus l'outil actif rend la main à la sélection, faute de quoi l'outil
+resterait actif sans bouton pour le dire.
+
 ## Ce qui reste ouvert après les lots A à H
 
 Les huit lots du neuvième audit sont traités. Ce qui n'a pas été fait, et
@@ -1539,15 +1671,18 @@ pourquoi :
 - **PDF vectoriel.** Les pages exportées sont des images de chaque feuille : le
   format PDF ne connaît pas le SVG, et le convertir en tracés reviendrait à
   écrire un second moteur de dessin.
-- **Annotations typées** — notes de texte, étiquettes associatives, repères,
-  trames, repères de coupe. La cotation existe ; le reste attend.
-- **Modes QUICK / DESIGN / EXPERT.** L'interface a toujours une seule densité.
+- **Annotations typées** — étiquettes associatives, repères de coupe, trames,
+  hachures paramétrées. La cotation et les notes de texte existent ; le reste
+  attend.
 - **Calcul de structure et géotechnique.** Les poteaux, poutres et fondations
   se décrivent et se dessinent ; rien ne les vérifie encore, et le calcul, quand
   il viendra, lira ce modèle plutôt que d'en demander un autre.
-- **Performance sur très grand projet.** `runProjectCalculations()` recrée
-  toujours l'orchestrateur à chaque exécution, et le banc d'essai reste celui
-  d'une maison de référence plutôt que d'une maison de mille murs.
+- **Cache de calcul par changement.** Un résultat déjà obtenu pour ce projet,
+  cette révision et ce climat est réutilisé, ce qui supprime les recalculs
+  gratuits ; ce qui manque est l'invalidation sélective — modifier un mur
+  relance les dix-sept modules, alors que le `ChangeSet` de la commande dit
+  exactement ce qui a bougé. `runProjectCalculations()` recrée par ailleurs
+  l'orchestrateur à chaque exécution.
 - **Exports DXF et IFC, collaboration en ligne.** Hors périmètre.
 
 ## Budget de chargement

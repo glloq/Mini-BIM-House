@@ -3,15 +3,21 @@ import { loadDemoProject } from '../demo-project.js';
 import { SHORTCUTS } from './shortcuts.js';
 import { optionValue } from './tool-options.js';
 import { OBJECT_FAMILIES } from './object-editors.js';
+import { createEditorState, editorReducer } from './editor-state.js';
 import {
+  EDITOR_LEVELS,
   EDITOR_TOOLS,
   constrainsDrafting,
   dynamicInputOf,
   populatedToolGroups,
+  populatedToolGroupsAtLevel,
   requiredPoints,
+  toolAtLevel,
   toolDefinition,
   toolsInGroup,
+  toolsInGroupAtLevel,
   optionsOf,
+  type EditorLevel,
   type ToolCommandContext,
 } from './tool-registry.js';
 
@@ -320,5 +326,66 @@ describe('restricting what a click may take', () => {
       'ALL',
       ...OBJECT_FAMILIES.map(({ id }) => id),
     ]);
+  });
+});
+
+describe('how much of the editor is shown', () => {
+  it('offers what a house needs at the narrowest level', () => {
+    const offered = EDITOR_TOOLS.filter((tool) => toolAtLevel(tool, 'QUICK'));
+    expect(offered.map(({ id }) => id)).toEqual([
+      'SELECT',
+      'WALL',
+      'WALL_RUN',
+      'OPENING',
+      'SPACE',
+    ]);
+  });
+
+  it('offers everything at the widest, and nothing beyond it', () => {
+    expect(
+      EDITOR_TOOLS.filter((tool) => toolAtLevel(tool, 'EXPERT')),
+    ).toHaveLength(EDITOR_TOOLS.length);
+  });
+
+  it('grows: what one level offers, the next offers too', () => {
+    const at = (level: EditorLevel) =>
+      new Set(
+        EDITOR_TOOLS.filter((tool) => toolAtLevel(tool, level)).map(
+          ({ id }) => id,
+        ),
+      );
+    for (const id of at('QUICK')) expect(at('DESIGN').has(id)).toBe(true);
+    for (const id of at('DESIGN')) expect(at('EXPERT').has(id)).toBe(true);
+  });
+
+  it('leaves an unshown group out rather than showing an empty one', () => {
+    for (const level of EDITOR_LEVELS)
+      for (const group of populatedToolGroupsAtLevel(level))
+        expect(toolsInGroupAtLevel(group, level).length).toBeGreaterThan(0);
+  });
+
+  it('puts the tool back to selection when its own level is left', () => {
+    // A tool the new level does not offer would stay active with no button to
+    // say so.
+    const state = editorReducer(
+      {
+        ...createEditorState({ widthPx: 800, heightPx: 600 }),
+        activeTool: 'MIRROR',
+      },
+      { type: 'SET_EDITOR_LEVEL', level: 'QUICK' },
+    );
+    expect(state.editorLevel).toBe('QUICK');
+    expect(state.activeTool).toBe('SELECT');
+  });
+
+  it('keeps a tool the new level still offers', () => {
+    const state = editorReducer(
+      {
+        ...createEditorState({ widthPx: 800, heightPx: 600 }),
+        activeTool: 'WALL',
+      },
+      { type: 'SET_EDITOR_LEVEL', level: 'QUICK' },
+    );
+    expect(state.activeTool).toBe('WALL');
   });
 });

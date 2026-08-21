@@ -1,4 +1,5 @@
 import type { Project } from '@house-technical-designer/core-domain';
+import { listedFamilies } from '../editor/object-editors.js';
 
 /**
  * One thing the palette can do, whatever kind of thing it is.
@@ -78,9 +79,16 @@ export interface ObjectEntrySource {
 /**
  * The objects the palette can take the user to.
  *
- * Only the storey being drawn is offered. Naming an object of another level
- * would select something the plan is not showing, and the whole project would
- * have to be walked on every keystroke.
+ * Every family, not the five that happened to be written down here: the walls,
+ * the openings, the rooms, the slabs and the roof planes were listed, and the
+ * stairs, the roofs, the posts, the placed things, the pipes and the ground
+ * were not. An object nobody can find by name is an object that only exists if
+ * it is already on the screen.
+ *
+ * A storey's objects are those of the storey being drawn — naming one from
+ * another floor would select something the plan is not showing. What belongs to
+ * the project rather than to a floor — the networks, the parcel — is offered
+ * whatever plan is open, because that is where it lives.
  */
 export function objectEntries(
   source: ObjectEntrySource,
@@ -91,18 +99,18 @@ export function objectEntries(
       ? levels[0]
       : levels.find(({ id }) => id === source.levelId);
   if (level === undefined) return [];
-  const ids = [
-    ...level.walls.map(({ id }) => id as string),
-    ...level.openings.map(({ id }) => id as string),
-    ...level.spaces.map(({ id }) => id as string),
-    ...level.slabs.map(({ id }) => id as string),
-    ...level.roofs.map(({ id }) => id as string),
-  ];
-  return ids.map((objectId) => ({
-    id: objectId,
-    label: source.describe(objectId),
-    group: 'Objets',
-    hint: level.name,
-    run: () => source.select(objectId),
-  }));
+  return listedFamilies(source.project, level.id).flatMap((family) =>
+    family.objects.map(({ objectId, label }) => ({
+      id: objectId,
+      // What the inspector would say, so the palette and the panel name the
+      // same object the same way.
+      label: source.describe(objectId) || label,
+      group: 'Objets',
+      hint:
+        family.scope === 'PROJECT'
+          ? family.label
+          : `${family.label} · ${level.name}`,
+      run: () => source.select(objectId),
+    })),
+  );
 }

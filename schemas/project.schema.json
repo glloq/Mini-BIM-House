@@ -286,7 +286,7 @@
         "annotations": {
           "type": "array",
           "items": {
-            "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Dimension"
+            "$ref": "https://house-technical-designer.local/schemas/building-element.schema.json#/$defs/Annotation"
           }
         },
         "components": {
