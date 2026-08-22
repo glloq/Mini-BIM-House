@@ -7,6 +7,7 @@ import { networkProduct } from '@house-technical-designer/network-products';
 import {
   ENTITY_FAMILIES,
   connectionRefusalBetween,
+  danglingReferences,
   entityCollisions,
   hostAccepts,
   isTextNote,
@@ -325,6 +326,19 @@ export function validateProjectFile(
 export function validateProjectReferences(
   file: ProjectFile,
 ): readonly ProjectValidationIssue[] {
+  /*
+   * Every pointer, checked once, before the specific rules run.
+   *
+   * The loops below were each correct and the set of them was never complete:
+   * an opening naming a model the file does not carry went in without a word,
+   * because nobody had written that particular loop. `projectReferences()` is
+   * the single list of what points at what, so the generic question — does
+   * this object exist at all — is asked from it.
+   *
+   * The specific rules stay: they say *which* object a pointer may name — the
+   * same storey, the right kind of host, the right discipline — which is a
+   * different question and a harder one.
+   */
   const issues: ProjectValidationIssue[] = [];
   const levels = new Set(file.project.building.levels.map(({ id }) => id));
   const walls = new Set(
@@ -824,6 +838,33 @@ export function validateProjectReferences(
         });
     });
   });
+
+  /*
+   * The pointers no specific rule happened to cover.
+   *
+   * The loops above were each correct and the set of them was never complete:
+   * an opening naming a model the file does not carry went in without a word,
+   * because nobody had written that particular loop. `projectReferences()` is
+   * the single list of what points at what, so the generic question — does
+   * this object exist at all — is asked from it, once, for everything.
+   *
+   * A fault a loop above already named is not named twice: the specific
+   * message says more, so it is the one that survives.
+   */
+  const alreadyNamed = new Set(
+    issues.flatMap(({ message }) =>
+      // Split on anything that is not part of an identifier, so « nowhere, »
+      // and « « nowhere » » both yield `nowhere`.
+      message.split(/[^A-Za-z0-9:_-]+/u).filter((word) => word !== ''),
+    ),
+  );
+  for (const dangling of danglingReferences(file.project))
+    if (!alreadyNamed.has(dangling.toId))
+      issues.push({
+        path: `/project/${dangling.path}`,
+        message: dangling.message,
+      });
+
   return issues;
 }
 

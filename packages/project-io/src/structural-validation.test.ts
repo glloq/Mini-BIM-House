@@ -1076,3 +1076,55 @@ describe('the things placed in the building', () => {
     expect(issues(fine)).toEqual([]);
   });
 });
+
+/**
+ * Every pointer, checked once.
+ *
+ * The loops of the importer were each correct and the set of them was never
+ * complete: an opening naming a model the file does not carry went in without
+ * a word, because nobody had written that particular loop.
+ */
+describe('the pointers no specific rule happened to cover', () => {
+  const hosted = (over: Record<string, unknown> = {}) => ({
+    id: 'window',
+    type: 'OPENING',
+    openingType: 'WINDOW',
+    hostElementId: 'wall-ground',
+    offsetAlongHostMm: 1000,
+    sillHeightMm: 900,
+    widthMm: 1200,
+    heightMm: 1000,
+    ...over,
+  });
+  const withOpening = (over: Record<string, unknown> = {}) =>
+    file([
+      {
+        ...level,
+        walls: [wall('wall-ground', 'ground')],
+        openings: [hosted(over)],
+      },
+    ]);
+
+  it('refuses an opening naming a model the project has not', () => {
+    const reported = issues(
+      withOpening({ definitionId: 'opening-model-nobody-carries' }),
+    ).join(' ');
+    expect(reported).toContain('opening-model-nobody-carries');
+    expect(reported).toContain('ne tient pas');
+  });
+
+  it('names each fault once, with the message that says the most', () => {
+    // A wall the project does not hold is already reported by the rule that
+    // knows an opening must be hosted on one; the generic pass must not say it
+    // a second time in weaker words.
+    expect(
+      issues(withOpening({ hostElementId: 'nowhere' })).filter((message) =>
+        message.includes('nowhere'),
+      ),
+    ).toHaveLength(1);
+  });
+
+  it('says nothing about a file whose pointers all land', () => {
+    expect(issues(withOpening())).toEqual([]);
+  });
+});

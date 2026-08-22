@@ -115,6 +115,12 @@ export function populatedProject(): Project {
             },
           ],
           components: [
+            // The reference house's own components stay: its ventilation unit
+            // and its luminaires are named by network nodes, and replacing the
+            // list left those nodes pointing at nothing — which the importer
+            // refuses, and which is exactly what a fixture claiming to be a
+            // whole project must not do.
+            ...(ground.components ?? []),
             {
               id: entityId('component-radiator'),
               type: 'COMPONENT_INSTANCE',

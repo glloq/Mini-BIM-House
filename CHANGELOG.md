@@ -5,6 +5,31 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.10 — non publiée
+
+L'**intégrité des références**, demandée une seule fois.
+
+### Corrigé
+
+- **une ouverture nommant un modèle que le fichier ne porte pas entrait sans
+  un mot.** L'importeur vérifiait ses références boucle par boucle : les
+  ouvertures contre leur mur porteur, les nœuds contre leur niveau, les cartons
+  contre leur vue. Chaque boucle était juste et l'ensemble n'a jamais été
+  complet. `projectReferences()` est la liste unique de ce qui pointe vers
+  quoi, et la question générique — cet objet existe-t-il — s'y pose désormais
+  une fois, pour tout. Les règles spécifiques restent : elles disent _quel_
+  objet un pointeur a le droit de nommer, ce qui est une autre question.
+- **le projet de test des commandes pointait vers des composants qu'il avait
+  lui-même retirés.** Le nouveau contrôle l'a trouvé du premier coup : le
+  gabarit remplaçait la liste des composants du rez-de-chaussée au lieu de s'y
+  ajouter, et les nœuds de ventilation et d'éclairage de la maison de référence
+  se retrouvaient sans objet.
+
+### Ajouté
+
+- `danglingReferences()` dans `core-domain`. Un défaut qu'une règle spécifique
+  nomme déjà n'est pas nommé deux fois : le message le plus précis survit.
+
 ## 0.3.0-beta.9 — non publiée
 
 La passe sur l'**intégrité de la création de projet** : cinq endroits où la
