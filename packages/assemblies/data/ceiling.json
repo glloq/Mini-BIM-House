@@ -1,0 +1,117 @@
+{
+  "formatVersion": "1.0.0",
+  "assemblies": [
+    {
+      "id": "generic-ceiling-insulated",
+      "familyId": "CEILING",
+      "category": "CEILING",
+      "name": "Plafond isolé sous comble",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "insulation",
+          "materialId": "generic-cellulose",
+          "thicknessM": 0.3,
+          "role": "INSULATION"
+        },
+        {
+          "id": "membrane",
+          "materialId": "generic-vapour-retarder",
+          "thicknessM": 0.0002,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-ceiling-suspended",
+      "familyId": "SUSPENDED_CEILING",
+      "category": "CEILING",
+      "name": "Faux plafond suspendu sur plénum",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "air-gap",
+          "materialId": "generic-air-cavity",
+          "thicknessM": 0.15,
+          "role": "AIR_GAP"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-ceiling-acoustic",
+      "familyId": "ACOUSTIC_CEILING",
+      "category": "CEILING",
+      "name": "Plafond acoustique absorbant",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "air-gap",
+          "materialId": "generic-air-cavity",
+          "thicknessM": 0.1,
+          "role": "AIR_GAP"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-rock-wool",
+          "thicknessM": 0.05,
+          "role": "INSULATION"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.0125,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-ceiling-technical",
+      "familyId": "TECHNICAL_CEILING",
+      "category": "CEILING",
+      "name": "Plafond technique sur plénum de distribution",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "service-cavity",
+          "materialId": "generic-air-cavity",
+          "thicknessM": 0.3,
+          "role": "SERVICE_CAVITY"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-cement-board",
+          "thicknessM": 0.012,
+          "role": "FINISH"
+        }
+      ]
+    }
+  ]
+}

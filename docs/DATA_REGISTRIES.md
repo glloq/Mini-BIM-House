@@ -38,7 +38,7 @@ chose est faite, par quoi elle se raccorde, comment elle se dessine, quels
 modules la lisent et où en est le travail. Une **entrée de catalogue** dit
 ensuite que celle-ci fait 8 kW.
 
-La nomenclature vit dans `packages/catalog-registry/data/families/*.json` : 520
+La nomenclature vit dans `packages/catalog-registry/data/families/*.json` : 527
 familles, une par ligne de la liste des métiers. Elle n'est pas du code parce
 qu'elle n'en est pas : elle change sans que le code change, et plusieurs
 personnes doivent pouvoir travailler sur des parties différentes sans se
@@ -683,10 +683,11 @@ L'architecture est figée. À partir d'ici, la règle est courte :
 > c'est tout.
 
 Si une fiche ne peut pas être représentée avec les contrats existants, on
-n'étend pas le format en passant : on ouvre un **`CONTRACT_GAP`** — une issue
-qui dit quelle fiche, quel registre, quel champ manque et pourquoi les contrats
-actuels ne suffisent pas. Le format évolue alors délibérément, avec sa version,
-plutôt que par accrétion sous la pression d'une fiche pressée.
+n'étend pas le format en passant : on ouvre un **`CONTRACT_GAP`** — un écart
+écrit dans [`docs/CONTRACT_GAPS.md`](CONTRACT_GAPS.md), qui dit quelle fiche,
+quel registre, quel champ manque et pourquoi les contrats actuels ne suffisent
+pas. Le format évolue alors délibérément, avec sa version, plutôt que par
+accrétion sous la pression d'une fiche pressée.
 
 Ce qui rend cette règle tenable :
 

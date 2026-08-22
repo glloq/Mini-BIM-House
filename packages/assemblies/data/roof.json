@@ -1,0 +1,377 @@
+{
+  "formatVersion": "1.0.0",
+  "assemblies": [
+    {
+      "id": "generic-roof-sloped-clay-tile",
+      "familyId": "ROOF_SLOPED",
+      "category": "ROOF",
+      "name": "Toiture en pente couverte en tuiles terre cuite",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "cladding",
+          "materialId": "generic-clay-tile",
+          "thicknessM": 0.015,
+          "role": "CLADDING"
+        },
+        {
+          "id": "air-gap",
+          "materialId": "generic-air-cavity",
+          "thicknessM": 0.04,
+          "role": "AIR_GAP",
+          "ventilated": true
+        },
+        {
+          "id": "membrane",
+          "materialId": "generic-breather-membrane",
+          "thicknessM": 0.0005,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-glass-wool",
+          "thicknessM": 0.2,
+          "role": "INSULATION"
+        },
+        {
+          "id": "membrane-2",
+          "materialId": "generic-vapour-retarder",
+          "thicknessM": 0.0002,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-gable-concrete-tile",
+      "familyId": "ROOF_GABLE",
+      "category": "ROOF",
+      "name": "Toiture à deux pans en tuiles béton",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "cladding",
+          "materialId": "generic-concrete-tile",
+          "thicknessM": 0.02,
+          "role": "CLADDING"
+        },
+        {
+          "id": "air-gap",
+          "materialId": "generic-air-cavity",
+          "thicknessM": 0.04,
+          "role": "AIR_GAP",
+          "ventilated": true
+        },
+        {
+          "id": "membrane",
+          "materialId": "generic-breather-membrane",
+          "thicknessM": 0.0005,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-wood-fibre",
+          "thicknessM": 0.06,
+          "role": "INSULATION"
+        },
+        {
+          "id": "insulation-2",
+          "materialId": "generic-cellulose",
+          "thicknessM": 0.24,
+          "role": "INSULATION"
+        },
+        {
+          "id": "membrane-2",
+          "materialId": "generic-vapour-retarder",
+          "thicknessM": 0.0002,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-hipped-slate",
+      "familyId": "ROOF_HIPPED",
+      "category": "ROOF",
+      "name": "Toiture à quatre pans couverte en ardoise",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "cladding",
+          "materialId": "generic-slate",
+          "thicknessM": 0.006,
+          "role": "CLADDING"
+        },
+        {
+          "id": "air-gap",
+          "materialId": "generic-air-cavity",
+          "thicknessM": 0.04,
+          "role": "AIR_GAP",
+          "ventilated": true
+        },
+        {
+          "id": "membrane",
+          "materialId": "generic-breather-membrane",
+          "thicknessM": 0.0005,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-rock-wool",
+          "thicknessM": 0.22,
+          "role": "INSULATION"
+        },
+        {
+          "id": "membrane-2",
+          "materialId": "generic-vapour-retarder",
+          "thicknessM": 0.0002,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-shed-metal",
+      "familyId": "ROOF_SHED",
+      "category": "ROOF",
+      "name": "Toiture monopente en couverture métallique",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "cladding",
+          "materialId": "generic-metal-roofing",
+          "thicknessM": 0.0007,
+          "role": "CLADDING"
+        },
+        {
+          "id": "air-gap",
+          "materialId": "generic-air-cavity",
+          "thicknessM": 0.04,
+          "role": "AIR_GAP",
+          "ventilated": true
+        },
+        {
+          "id": "membrane",
+          "materialId": "generic-breather-membrane",
+          "thicknessM": 0.0005,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-pir",
+          "thicknessM": 0.14,
+          "role": "INSULATION"
+        },
+        {
+          "id": "membrane-2",
+          "materialId": "generic-vapour-barrier",
+          "thicknessM": 0.0002,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-osb",
+          "thicknessM": 0.018,
+          "role": "STRUCTURAL"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-flat-warm",
+      "familyId": "ROOF_FLAT",
+      "category": "ROOF",
+      "name": "Toiture-terrasse inaccessible en toiture chaude",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "waterproofing",
+          "materialId": "generic-roof-membrane",
+          "thicknessM": 0.0015,
+          "role": "WATERPROOFING"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-pir",
+          "thicknessM": 0.14,
+          "role": "INSULATION"
+        },
+        {
+          "id": "membrane",
+          "materialId": "generic-vapour-barrier",
+          "thicknessM": 0.0002,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-concrete",
+          "thicknessM": 0.2,
+          "role": "STRUCTURAL"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-terrace-accessible",
+      "familyId": "ROOF_TERRACE",
+      "category": "ROOF",
+      "name": "Toiture-terrasse accessible carrelée",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "finish",
+          "materialId": "generic-ceramic-tile",
+          "thicknessM": 0.02,
+          "role": "FINISH"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-screed",
+          "thicknessM": 0.05,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "waterproofing",
+          "materialId": "generic-roof-membrane",
+          "thicknessM": 0.0015,
+          "role": "WATERPROOFING"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-xps",
+          "thicknessM": 0.12,
+          "role": "INSULATION"
+        },
+        {
+          "id": "membrane",
+          "materialId": "generic-vapour-barrier",
+          "thicknessM": 0.0002,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "structural-2",
+          "materialId": "generic-concrete",
+          "thicknessM": 0.2,
+          "role": "STRUCTURAL"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-green-extensive",
+      "familyId": "GREEN_ROOF",
+      "category": "ROOF",
+      "name": "Toiture végétalisée extensive",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "finish",
+          "materialId": "generic-green-roof-substrate",
+          "thicknessM": 0.1,
+          "role": "FINISH"
+        },
+        {
+          "id": "membrane",
+          "materialId": "generic-drainage-membrane",
+          "thicknessM": 0.025,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "waterproofing",
+          "materialId": "generic-epdm",
+          "thicknessM": 0.0015,
+          "role": "WATERPROOFING"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-foam-glass",
+          "thicknessM": 0.14,
+          "role": "INSULATION"
+        },
+        {
+          "id": "membrane-2",
+          "materialId": "generic-vapour-barrier",
+          "thicknessM": 0.0002,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-concrete",
+          "thicknessM": 0.2,
+          "role": "STRUCTURAL"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-panel-sandwich",
+      "familyId": "ROOF_PANEL",
+      "category": "ROOF",
+      "name": "Panneau de toiture sandwich",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "structural",
+          "materialId": "generic-osb",
+          "thicknessM": 0.012,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-pur",
+          "thicknessM": 0.12,
+          "role": "INSULATION"
+        },
+        {
+          "id": "structural-2",
+          "materialId": "generic-osb",
+          "thicknessM": 0.012,
+          "role": "STRUCTURAL"
+        }
+      ]
+    }
+  ]
+}

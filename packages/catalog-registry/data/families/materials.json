@@ -1107,11 +1107,7 @@
       "registry": "MATERIAL",
       "category": "AIR",
       "priority": 1,
-      "calculators": [
-        "thermal",
-        "hygrothermal",
-        "acoustics"
-      ],
+      "calculators": ["thermal", "hygrothermal", "acoustics"],
       "propertySchema": "MATERIAL_INSULATION",
       "hint": "Une lame d’air est une couche d’assemblage comme une autre : elle a une résistance, une épaisseur et une place dans l’ordre des couches."
     },
@@ -1131,6 +1127,160 @@
       ],
       "propertySchema": "MATERIAL_STRUCTURE",
       "hint": "Le verre comme matériau de couche ; un vitrage complet est une ouverture, pas un matériau."
+    },
+    {
+      "id": "TILE_CLAY",
+      "label": "Tuile en terre cuite",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "category": "FINISH",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "TILE_CONCRETE",
+      "label": "Tuile en béton",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "category": "FINISH",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "SLATE",
+      "label": "Ardoise",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "category": "FINISH",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "METAL_ROOFING",
+      "label": "Couverture métallique",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "category": "METAL",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "BITUMEN_SHINGLE",
+      "label": "Bardeau bitumineux",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "category": "FINISH",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_FINISH",
+      "status": {
+        "MODEL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "SCREED",
+      "label": "Chape",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "category": "STRUCTURE",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
+    },
+    {
+      "id": "GREEN_ROOF_SUBSTRATE",
+      "label": "Substrat de végétalisation",
+      "domain": "ARCHITECTURE",
+      "registry": "MATERIAL",
+      "category": "OTHER",
+      "priority": 1,
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "MATERIAL_STRUCTURE",
+      "status": {
+        "MODEL": "READY",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "PARTIAL"
+      },
+      "hint": "Le modèle Material accepte la fiche ; les valeurs génériques restent à saisir."
     }
   ]
 }

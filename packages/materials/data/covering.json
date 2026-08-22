@@ -1,0 +1,271 @@
+{
+  "formatVersion": "1.0.0",
+  "materials": [
+    {
+      "id": "generic-clay-tile",
+      "familyId": "TILE_CLAY",
+      "category": "FINISH",
+      "name": "Tuile en terre cuite",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 1.0,
+        "density": 2000,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 40,
+        "reactionToFire": "A1",
+        "acousticAbsorption": {
+          "125": 0.04,
+          "250": 0.04,
+          "500": 0.05,
+          "1000": 0.05,
+          "2000": 0.05,
+          "4000": 0.05
+        }
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        },
+        {
+          "property": "acousticAbsorption",
+          "sourceType": "GENERIC",
+          "reference": "Typical published absorption coefficients for this family of surfaces"
+        }
+      ]
+    },
+    {
+      "id": "generic-concrete-tile",
+      "familyId": "TILE_CONCRETE",
+      "category": "FINISH",
+      "name": "Tuile en béton",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 1.5,
+        "density": 2100,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 100,
+        "reactionToFire": "A1",
+        "acousticAbsorption": {
+          "125": 0.04,
+          "250": 0.04,
+          "500": 0.05,
+          "1000": 0.05,
+          "2000": 0.05,
+          "4000": 0.05
+        }
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        },
+        {
+          "property": "acousticAbsorption",
+          "sourceType": "GENERIC",
+          "reference": "Typical published absorption coefficients for this family of surfaces"
+        }
+      ]
+    },
+    {
+      "id": "generic-slate",
+      "familyId": "SLATE",
+      "category": "FINISH",
+      "name": "Ardoise naturelle",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 2.2,
+        "density": 2800,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 800,
+        "reactionToFire": "A1",
+        "acousticAbsorption": {
+          "125": 0.02,
+          "250": 0.02,
+          "500": 0.03,
+          "1000": 0.03,
+          "2000": 0.04,
+          "4000": 0.04
+        }
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        },
+        {
+          "property": "acousticAbsorption",
+          "sourceType": "GENERIC",
+          "reference": "Typical published absorption coefficients for this family of surfaces"
+        }
+      ]
+    },
+    {
+      "id": "generic-metal-roofing",
+      "familyId": "METAL_ROOFING",
+      "category": "METAL",
+      "name": "Couverture métallique en zinc",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 110,
+        "density": 7200,
+        "specificHeat": 380,
+        "vaporResistanceFactor": 100000,
+        "reactionToFire": "A1",
+        "acousticAbsorption": {
+          "125": 0.05,
+          "250": 0.04,
+          "500": 0.03,
+          "1000": 0.03,
+          "2000": 0.02,
+          "4000": 0.02
+        }
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        },
+        {
+          "property": "acousticAbsorption",
+          "sourceType": "GENERIC",
+          "reference": "Typical published absorption coefficients for this family of surfaces"
+        }
+      ]
+    },
+    {
+      "id": "generic-bitumen-shingle",
+      "familyId": "BITUMEN_SHINGLE",
+      "category": "FINISH",
+      "name": "Bardeau bitumineux",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.23,
+        "density": 1100,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 50000,
+        "reactionToFire": "E",
+        "acousticAbsorption": {
+          "125": 0.03,
+          "250": 0.03,
+          "500": 0.04,
+          "1000": 0.05,
+          "2000": 0.05,
+          "4000": 0.05
+        }
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        },
+        {
+          "property": "acousticAbsorption",
+          "sourceType": "GENERIC",
+          "reference": "Typical published absorption coefficients for this family of surfaces"
+        }
+      ]
+    },
+    {
+      "id": "generic-screed",
+      "familyId": "SCREED",
+      "category": "STRUCTURE",
+      "name": "Chape ciment",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 1.15,
+        "density": 2000,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 30,
+        "reactionToFire": "A1",
+        "acousticAbsorption": {
+          "125": 0.02,
+          "250": 0.02,
+          "500": 0.03,
+          "1000": 0.03,
+          "2000": 0.04,
+          "4000": 0.05
+        }
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        },
+        {
+          "property": "acousticAbsorption",
+          "sourceType": "GENERIC",
+          "reference": "Typical published absorption coefficients for this family of surfaces"
+        }
+      ]
+    },
+    {
+      "id": "generic-green-roof-substrate",
+      "familyId": "GREEN_ROOF_SUBSTRATE",
+      "category": "OTHER",
+      "name": "Substrat de végétalisation extensive",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.4,
+        "density": 1000,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 2,
+        "reactionToFire": "A1",
+        "acousticAbsorption": {
+          "125": 0.15,
+          "250": 0.25,
+          "500": 0.4,
+          "1000": 0.55,
+          "2000": 0.6,
+          "4000": 0.6
+        }
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        },
+        {
+          "property": "acousticAbsorption",
+          "sourceType": "GENERIC",
+          "reference": "Typical published absorption coefficients for this family of surfaces"
+        }
+      ]
+    }
+  ]
+}

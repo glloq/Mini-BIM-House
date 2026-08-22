@@ -128,7 +128,10 @@ describe('the catalogue as rows, before it is the catalogue as entries', () => {
     );
     expect(
       index.find({ registries: ['MATERIAL'], categories: ['METAL'] }).length,
-    ).toBe(2);
+    ).toBe(
+      rawGenericMaterialEntries().filter(({ category }) => category === 'METAL')
+        .length,
+    );
     expect(index.find({ capabilities: ['PERFORMANCE_MAPPED'] }).length).toBe(3);
   });
 

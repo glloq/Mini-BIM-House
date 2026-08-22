@@ -1,6 +1,6 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "c0cb28f059556142",
+  "releaseId": "c90e48095ab9d32d",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
@@ -21,6 +21,7 @@
     {
       "registry": "MATERIAL",
       "sources": [
+        "packages/materials/data/covering.json",
         "packages/materials/data/finish.json",
         "packages/materials/data/generic.json",
         "packages/materials/data/insulation.json",
@@ -29,9 +30,9 @@
         "packages/materials/data/structure.json",
         "packages/materials/data/wood.json"
       ],
-      "entryCount": 52,
+      "entryCount": 59,
       "formatVersion": "1.0.0",
-      "fingerprint": "f883bb01fc58c5fe"
+      "fingerprint": "54ea491c006aa9c2"
     },
     {
       "registry": "OPENING",
@@ -45,11 +46,15 @@
     {
       "registry": "ASSEMBLY",
       "sources": [
-        "packages/assemblies/data/generic.json"
+        "packages/assemblies/data/ceiling.json",
+        "packages/assemblies/data/floor.json",
+        "packages/assemblies/data/generic.json",
+        "packages/assemblies/data/roof.json",
+        "packages/assemblies/data/wall.json"
       ],
-      "entryCount": 7,
+      "entryCount": 35,
       "formatVersion": "1.0.0",
-      "fingerprint": "6af40080177b82d5"
+      "fingerprint": "c09d61d7a461cbb2"
     },
     {
       "registry": "NETWORK_PRODUCT",
