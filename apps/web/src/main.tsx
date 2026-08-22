@@ -8,7 +8,6 @@ import {
   useReducer,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -151,6 +150,25 @@ import {
   saveLayout,
   type WorkspaceLayout,
 } from './shell/workspace-layout.js';
+import { AppShell } from './shell/AppShell.js';
+import { TopBar } from './shell/TopBar.js';
+import { PrimaryRail } from './shell/PrimaryRail.js';
+import { ContextPanel } from './shell/ContextPanel.js';
+import { ShellStatusBar } from './shell/ShellStatusBar.js';
+import {
+  activeTab as activeTabOf,
+  DEFAULT_SHELL_NAVIGATION,
+  goToTab,
+  goToWorkspace,
+  type ShellNavigation,
+} from './ux/navigation-state.js';
+import {
+  LEGACY_WORKSPACE_LABELS,
+  LEGACY_WORKSPACE_TABS,
+  primaryWorkspace,
+  workspaceOfLegacyTab,
+  type LegacyWorkspaceTab,
+} from './ux/workspaces.js';
 import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import {
@@ -302,52 +320,26 @@ function downloadBlob(blob: Blob, fileName: string): void {
 /** The smallest window framing one object leaves around it. */
 const FRAMING_MINIMUM_MM = 1000;
 
-const WORKSPACE_GROUPS = [
-  { label: 'Projet', tabs: [{ id: 'project', label: 'Projet' }] },
-  {
-    label: 'Conception',
-    tabs: [
-      { id: 'plan', label: 'Plan architectural' },
-      { id: 'building', label: 'Niveaux et pièces' },
-    ],
-  },
-  {
-    label: 'Bibliothèques',
-    tabs: [
-      { id: 'materials', label: 'Matériaux' },
-      { id: 'assemblies', label: 'Assemblages' },
-    ],
-  },
-  {
-    label: 'Technique',
-    tabs: [
-      { id: 'equipment', label: 'Équipements' },
-      { id: 'networks', label: 'Réseaux' },
-    ],
-  },
-  {
-    label: 'Résultats',
-    tabs: [
-      { id: 'calculations', label: 'Calculs' },
-      { id: 'quantities', label: 'Quantités' },
-      { id: 'scenarios', label: 'Scénarios' },
-      { id: 'checks', label: 'Vérifications' },
-    ],
-  },
-  {
-    label: 'Documents',
-    tabs: [{ id: 'documents', label: 'Vues et feuilles' }],
-  },
-] as const;
-
-type WorkspaceTab = (typeof WORKSPACE_GROUPS)[number]['tabs'][number]['id'];
-
 function App() {
   const [file, setFile] = useState<ProjectFile>(() =>
     createBlankProject(new Date().toISOString()),
   );
   const [message, setMessage] = useState('Nouveau projet local prêt.');
-  const [tab, setTab] = useState<WorkspaceTab>('plan');
+  /**
+   * Which of the five spaces is open, and what was last read in each.
+   *
+   * The eleven destinations are still there; they are reached through the
+   * space they belong to instead of through one column of eleven buttons.
+   */
+  const [navigation, setNavigation] = useState<ShellNavigation>(
+    DEFAULT_SHELL_NAVIGATION,
+  );
+  const tab = activeTabOf(navigation);
+  const setTab = useCallback(
+    (next: LegacyWorkspaceTab) =>
+      setNavigation((current) => goToTab(current, next)),
+    [],
+  );
   const [selectedMaterialId, setSelectedMaterialId] = useState<string>();
   const [selectedAssemblyId, setSelectedAssemblyId] = useState<string>();
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>();
@@ -1332,24 +1324,27 @@ function App() {
    * without the networks reappearing with them, at whatever zoom the user
    * happened to be at. That was a different drawing wearing the same name.
    */
-  const applyView = useCallback((view: SavedDrawingView) => {
-    const restored = restoredView(session.current.file.project, view);
-    if (restored.levelId !== undefined)
-      dispatchEditor({ type: 'SET_LEVEL', levelId: restored.levelId });
-    dispatchEditor({ type: 'SET_LAYERS', layers: restored.layers });
-    dispatchEditor({
-      type: 'SET_CAMERA',
-      centreModelMm: restored.centreMm,
-      pixelsPerMm: restored.pixelsPerMm,
-    });
-    setOverlayId(restored.overlayId);
-    setTab('plan');
-    setMessage(
-      restored.unresolved.length === 0
-        ? `Vue « ${view.name} » rétablie : niveau, calques, cadrage et analyse.`
-        : `Vue « ${view.name} » rétablie, sauf ${restored.unresolved.join(' ; ')}.`,
-    );
-  }, []);
+  const applyView = useCallback(
+    (view: SavedDrawingView) => {
+      const restored = restoredView(session.current.file.project, view);
+      if (restored.levelId !== undefined)
+        dispatchEditor({ type: 'SET_LEVEL', levelId: restored.levelId });
+      dispatchEditor({ type: 'SET_LAYERS', layers: restored.layers });
+      dispatchEditor({
+        type: 'SET_CAMERA',
+        centreModelMm: restored.centreMm,
+        pixelsPerMm: restored.pixelsPerMm,
+      });
+      setOverlayId(restored.overlayId);
+      setTab('plan');
+      setMessage(
+        restored.unresolved.length === 0
+          ? `Vue « ${view.name} » rétablie : niveau, calques, cadrage et analyse.`
+          : `Vue « ${view.name} » rétablie, sauf ${restored.unresolved.join(' ; ')}.`,
+      );
+    },
+    [setTab],
+  );
 
   /**
    * Writes the drawing set as one PDF.
@@ -1586,15 +1581,13 @@ function App() {
           dispatchEditor({ type: 'SET_TOOL', tool: tool.id });
         },
       })),
-      ...WORKSPACE_GROUPS.flatMap((group) =>
-        group.tabs.map((entry) => ({
-          id: `espace:${entry.id}`,
-          label: entry.label,
-          group: 'Espaces',
-          hint: group.label,
-          run: () => setTab(entry.id),
-        })),
-      ),
+      ...LEGACY_WORKSPACE_TABS.map((entry) => ({
+        id: `espace:${entry}`,
+        label: LEGACY_WORKSPACE_LABELS[entry],
+        group: 'Espaces',
+        hint: primaryWorkspace(workspaceOfLegacyTab(entry)).label,
+        run: () => setTab(entry),
+      })),
       ...SHORTCUTS.filter(
         (binding) =>
           binding.id !== 'palette.open' && !binding.id.startsWith('tool.'),
@@ -1626,7 +1619,7 @@ function App() {
         },
       }),
     ],
-    [activeLevelId, file.project, runShortcut],
+    [activeLevelId, file.project, runShortcut, setTab],
   );
 
   useEffect(() => {
@@ -1712,12 +1705,15 @@ function App() {
     );
   }
 
-  const selectOnPlan = useCallback((objectIds: readonly string[]): void => {
-    dispatchEditor({ type: 'CLEAR_SELECTION' });
-    for (const objectId of objectIds)
-      dispatchEditor({ type: 'SELECT', objectId, additive: true });
-    setTab('plan');
-  }, []);
+  const selectOnPlan = useCallback(
+    (objectIds: readonly string[]): void => {
+      dispatchEditor({ type: 'CLEAR_SELECTION' });
+      for (const objectId of objectIds)
+        dispatchEditor({ type: 'SELECT', objectId, additive: true });
+      setTab('plan');
+    },
+    [setTab],
+  );
 
   /** Takes the user where a finding can actually be dealt with. */
   const applyFix = useCallback(
@@ -1744,7 +1740,7 @@ function App() {
       }
       setTab(fix.tab);
     },
-    [selectNetwork, selectOnPlan],
+    [selectNetwork, selectOnPlan, setTab],
   );
 
   // A run computed on an earlier revision — or with another climate file — is
@@ -1806,323 +1802,155 @@ function App() {
   }, [file.project, toolDrafts, toolOption]);
 
   return (
-    <main className="workspace">
-      <header className="app-header">
-        <div>
-          <p className="eyebrow">Mini BIM local-first</p>
-          <h1>House Technical Designer</h1>
-        </div>
-        <div className="actions">
-          <button
-            type="button"
-            className="secondary menu-toggle"
-            aria-expanded={menuOpen}
-            aria-controls="workspace-sidebar"
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            Espaces de travail
-          </button>
-          <button
-            type="button"
-            className="secondary panel-toggle"
-            aria-pressed={layout.sidebarShown}
-            title="Afficher ou masquer le panneau de navigation"
-            onClick={() => changeLayout({ sidebarShown: !layout.sidebarShown })}
-          >
-            Navigation
-          </button>
-          <button
-            type="button"
-            className="secondary panel-toggle"
-            aria-pressed={layout.inspectorShown}
-            title="Afficher ou masquer l’inspecteur"
-            onClick={() =>
-              changeLayout({ inspectorShown: !layout.inspectorShown })
-            }
-          >
-            Inspecteur
-          </button>
-          <button className="secondary" onClick={undo}>
-            Annuler
-          </button>
-          <button className="secondary" onClick={redo}>
-            Rétablir
-          </button>
-          <button
-            className="secondary"
-            onClick={() =>
-              replaceProject('Nouveau projet', () => setCreating(true))
-            }
-          >
-            Nouveau projet
-          </button>
-          <button
-            className="secondary"
-            onClick={() =>
-              replaceProject('Ouvrir un projet', () =>
-                importInput.current?.click(),
-              )
-            }
-          >
-            Ouvrir
-          </button>
-          <button
-            className="secondary"
-            onClick={() =>
-              replaceProject('Maison de démonstration', () => {
-                void (async () => {
-                  const { demoClimateDatasets, loadDemoProject } =
-                    await demoProject();
-                  const demo = loadDemoProject();
-                  if (demo.status === 'ERROR') {
-                    setMessage(demo.message);
-                    return;
-                  }
-                  setClimate(demoClimateDatasets());
-                  adopt(demo.file, 'Maison de démonstration chargée.');
-                })();
-              })
-            }
-          >
-            Maison de démonstration
-          </button>
-          <button
-            className="secondary"
-            title="Projet et jeux climatiques dans un seul fichier"
-            onClick={() => void saveContainer()}
-          >
-            Sauvegarder
-          </button>
-          <button
-            className="secondary"
-            title="Le projet seul, en JSON lisible"
-            onClick={saveProject}
-          >
-            Exporter le JSON
-          </button>
-          <button
-            onClick={() => {
-              const artifact = exportProjectPlan(file, {
-                ...(activeLevelId === undefined
-                  ? {}
-                  : { levelId: activeLevelId }),
-                layers: editor.layers,
-              });
-              download(artifact.content, artifact.fileName, artifact.mediaType);
-            }}
-          >
-            Exporter SVG
-          </button>
-          <input
-            ref={importInput}
-            hidden
-            type="file"
-            accept=".json,.houseproj"
-            onChange={(event) => void importProject(event.target.files?.[0])}
-          />
-        </div>
-      </header>
-
-      <section className="project-bar">
-        <div>
-          <span>Projet actif</span>
-          <strong>{file.project.metadata.name}</strong>
-        </div>
-        <p role="status" aria-label="État de l’application">
-          {message}
-        </p>
-        <span className={`save-state save-${saveState.toLowerCase()}`}>
-          {SAVE_STATE_LABELS[saveState]}
-        </span>
-      </section>
-
-      {exportFailure !== undefined && (
-        <section className="panel recovery-prompt" role="alertdialog">
-          <p>
-            <strong>Export impossible.</strong> Le projet ouvert contient{' '}
-            {exportFailure.length} incohérence(s) que le format refuse
-            d’enregistrer. Corrigez-les, puis exportez à nouveau ; rien n’a été
-            écrit.
-          </p>
-          <ul className="alert-list">
-            {exportFailure.slice(0, 8).map((issue) => (
-              <li key={issue}>
-                <span className="badge missing">à corriger</span>
-                <span>{issue}</span>
-              </li>
-            ))}
-          </ul>
-          {exportFailure.length > 8 && (
-            <p className="hint">
-              et {exportFailure.length - 8} autre(s) non affichée(s).
-            </p>
-          )}
-          <div className="actions">
-            <button type="button" onClick={() => setExportFailure(undefined)}>
-              Fermer
-            </button>
-          </div>
-        </section>
-      )}
-
-      {pendingReplacement !== undefined && (
-        <section className="panel recovery-prompt" role="alertdialog">
-          <p>
-            Ce projet contient des modifications qui n’ont pas été exportées. «{' '}
-            {pendingReplacement.label} » les remplacerait.
-          </p>
-          <div className="actions">
-            <button
-              type="button"
-              onClick={() => {
-                // Only an export that actually happened may authorise
-                // replacing the project it was meant to protect.
-                void saveContainer().then((written) => {
-                  if (!written) return;
-                  pendingReplacement.run();
-                  setPendingReplacement(undefined);
-                });
-              }}
-            >
-              Exporter puis continuer
-            </button>
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => {
-                pendingReplacement.run();
-                setPendingReplacement(undefined);
-              }}
-            >
-              Continuer sans exporter
-            </button>
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => setPendingReplacement(undefined)}
-            >
-              Annuler
-            </button>
-          </div>
-        </section>
-      )}
-
-      {creating && (
-        <Suspense
-          fallback={<p className="notice">Chargement de l’assistant…</p>}
-        >
-          <NewProjectWizard
-            onCancel={() => setCreating(false)}
-            onCreate={(draft) => {
-              setCreating(false);
-              setClimate([]);
-              const created = projectFromDraft(draft, new Date().toISOString());
-              adopt(
-                created,
-                `Nouveau projet « ${created.project.metadata.name} » prêt : ${created.project.building.levels.length} niveau(x), bibliothèque générique incluse.`,
-              );
-            }}
-          />
-        </Suspense>
-      )}
-
-      {objectMenu !== undefined && activeLevelId !== undefined && (
-        <ObjectMenu
-          title={inspectObject(file.project, objectMenu.objectId).title}
-          atPx={objectMenu.atPx}
-          entries={objectMenuEntries(objectMenu.objectId)}
-          onClose={() => setObjectMenu(undefined)}
-        />
-      )}
-
-      {paletteOpen && (
-        <CommandPalette
-          entries={paletteEntries}
-          onClose={() => setPaletteOpen(false)}
-        />
-      )}
-
-      {recovery !== undefined && (
-        <section className="panel recovery-prompt" role="alertdialog">
-          <p>
-            Une sauvegarde locale plus récente a été trouvée (
-            {new Date(recovery.savedAt).toLocaleString('fr-FR')}). Restaurer ?
-          </p>
-          <div className="actions">
-            <button
-              type="button"
-              onClick={() => {
-                setClimate(recovery.climate);
-                adopt(
-                  recovery.file,
-                  recovery.climate.length === 0
-                    ? 'Sauvegarde locale restaurée : elle n’a pas encore été exportée.'
-                    : `Sauvegarde locale restaurée avec ${recovery.climate.length} jeu(x) climatiques : elle n’a pas encore été exportée.`,
-                  'AUTOSAVED',
-                );
-                setRecovery(undefined);
-              }}
-            >
-              Restaurer
-            </button>
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => {
-                void discardAutosave();
-                setRecovery(undefined);
-              }}
-            >
-              Ignorer et supprimer
-            </button>
-          </div>
-        </section>
-      )}
-
-      <div
-        className="workspace-grid"
-        style={{ '--workspace-columns': columns } as CSSProperties}
-      >
-        {menuOpen && (
-          <button
-            type="button"
-            className="drawer-backdrop"
-            aria-label="Fermer les espaces de travail"
-            onClick={() => setMenuOpen(false)}
-          />
-        )}
-        <aside
-          id="workspace-sidebar"
-          hidden={!layout.sidebarShown && !menuOpen}
-          className={menuOpen ? 'sidebar panel open' : 'sidebar panel'}
-        >
-          <p className="panel-label">Modèle</p>
-          <nav aria-label="Sections du projet" className="workspace-tabs">
-            {WORKSPACE_GROUPS.map((group) => (
-              <div
-                key={group.label}
-                className="workspace-group"
-                role="group"
-                aria-label={group.label}
+    <AppShell
+      columns={columns}
+      contextPanelHidden={!layout.sidebarShown}
+      drawerOpen={menuOpen}
+      onCloseDrawer={() => setMenuOpen(false)}
+      inspectorHidden={!layout.inspectorShown}
+      topBar={
+        <TopBar
+          eyebrow="Mini BIM local-first"
+          title="House Technical Designer"
+          actions={
+            <>
+              <button
+                type="button"
+                className="secondary menu-toggle"
+                aria-expanded={menuOpen}
+                aria-controls="workspace-sidebar"
+                onClick={() => setMenuOpen((open) => !open)}
               >
-                <p className="workspace-group-label">{group.label}</p>
-                {group.tabs.map((entry) => (
-                  <button
-                    key={entry.id}
-                    type="button"
-                    className={entry.id === tab ? 'active' : undefined}
-                    aria-current={entry.id === tab ? 'page' : undefined}
-                    onClick={() => {
-                      setTab(entry.id);
-                      setMenuOpen(false);
-                    }}
-                  >
-                    {entry.label}
-                  </button>
-                ))}
-              </div>
-            ))}
-          </nav>
+                Panneau
+              </button>
+              <button
+                type="button"
+                className="secondary panel-toggle"
+                aria-pressed={layout.sidebarShown}
+                title="Afficher ou masquer le panneau de navigation"
+                onClick={() =>
+                  changeLayout({ sidebarShown: !layout.sidebarShown })
+                }
+              >
+                Navigation
+              </button>
+              <button
+                type="button"
+                className="secondary panel-toggle"
+                aria-pressed={layout.inspectorShown}
+                title="Afficher ou masquer l’inspecteur"
+                onClick={() =>
+                  changeLayout({ inspectorShown: !layout.inspectorShown })
+                }
+              >
+                Inspecteur
+              </button>
+              <button className="secondary" onClick={undo}>
+                Annuler
+              </button>
+              <button className="secondary" onClick={redo}>
+                Rétablir
+              </button>
+              <button
+                className="secondary"
+                onClick={() =>
+                  replaceProject('Nouveau projet', () => setCreating(true))
+                }
+              >
+                Nouveau projet
+              </button>
+              <button
+                className="secondary"
+                onClick={() =>
+                  replaceProject('Ouvrir un projet', () =>
+                    importInput.current?.click(),
+                  )
+                }
+              >
+                Ouvrir
+              </button>
+              <button
+                className="secondary"
+                onClick={() =>
+                  replaceProject('Maison de démonstration', () => {
+                    void (async () => {
+                      const { demoClimateDatasets, loadDemoProject } =
+                        await demoProject();
+                      const demo = loadDemoProject();
+                      if (demo.status === 'ERROR') {
+                        setMessage(demo.message);
+                        return;
+                      }
+                      setClimate(demoClimateDatasets());
+                      adopt(demo.file, 'Maison de démonstration chargée.');
+                    })();
+                  })
+                }
+              >
+                Maison de démonstration
+              </button>
+              <button
+                className="secondary"
+                title="Projet et jeux climatiques dans un seul fichier"
+                onClick={() => void saveContainer()}
+              >
+                Sauvegarder
+              </button>
+              <button
+                className="secondary"
+                title="Le projet seul, en JSON lisible"
+                onClick={saveProject}
+              >
+                Exporter le JSON
+              </button>
+              <button
+                onClick={() => {
+                  const artifact = exportProjectPlan(file, {
+                    ...(activeLevelId === undefined
+                      ? {}
+                      : { levelId: activeLevelId }),
+                    layers: editor.layers,
+                  });
+                  download(
+                    artifact.content,
+                    artifact.fileName,
+                    artifact.mediaType,
+                  );
+                }}
+              >
+                Exporter SVG
+              </button>
+              <input
+                ref={importInput}
+                hidden
+                type="file"
+                accept=".json,.houseproj"
+                onChange={(event) =>
+                  void importProject(event.target.files?.[0])
+                }
+              />
+            </>
+          }
+        />
+      }
+      rail={
+        <PrimaryRail
+          workspace={navigation.workspace}
+          onSelect={(workspace) => {
+            setNavigation((current) => goToWorkspace(current, workspace));
+            setMenuOpen(false);
+          }}
+        />
+      }
+      contextPanel={
+        <ContextPanel
+          navigation={navigation}
+          activeTab={tab}
+          onSelectTab={(next) => {
+            setTab(next);
+            setMenuOpen(false);
+          }}
+        >
           <label className="level-selector">
             Niveau
             <select
@@ -2233,9 +2061,10 @@ function App() {
               />
             </>
           )}
-        </aside>
-
-        {layout.sidebarShown ? (
+        </ContextPanel>
+      }
+      contextSeparator={
+        layout.sidebarShown ? (
           <PanelSeparator
             label="Redimensionner le panneau de navigation"
             widthPx={layout.sidebarPx}
@@ -2244,216 +2073,222 @@ function App() {
           />
         ) : (
           <div className="panel-edge-empty" />
-        )}
+        )
+      }
+      canvas={
+        <>
+          {tab === 'plan' && (
+            <section className="canvas-panel panel" id="plan">
+              <header className="panel-heading">
+                <div>
+                  <p className="panel-label">Vue active</p>
+                  <h2>
+                    Plan ·{' '}
+                    {levels.find(({ id }) => id === activeLevelId)?.name ??
+                      'aucun niveau'}
+                  </h2>
+                </div>
+              </header>
+              <ToolBar
+                project={file.project}
+                editor={editor}
+                dispatch={dispatchEditor}
+                drafts={toolDrafts}
+                onDraftChange={(key, value) =>
+                  setToolDrafts((current) => ({ ...current, [key]: value }))
+                }
+                onTransform={transformSelection}
+                onAlign={alignSelection}
+              />
+              <PlanCanvas
+                project={scenarioProject ?? file.project}
+                editor={{ ...editor, levelId: activeLevelId } as EditorState}
+                dispatch={dispatchEditor}
+                onCommitPoints={commitPoints}
+                onFinishRun={finishRun}
+                onMoveSelection={moveSelection}
+                onCommand={runCommand}
+                onObjectMenu={(objectId, atPx) =>
+                  setObjectMenu({ objectId, atPx })
+                }
+                selectableFamily={selectableFamily}
+                onEditGeometry={editGeometry}
+                wallThicknessMm={wallThicknessMm}
+                {...(drawnOverlay === undefined
+                  ? {}
+                  : { overlay: drawnOverlay })}
+                clearanceGroups={clearanceGroups}
+              />
+              <StatusBar
+                editor={editor}
+                dispatch={dispatchEditor}
+                levelName={
+                  levels.find(({ id }) => id === activeLevelId)?.name ??
+                  'aucun niveau'
+                }
+              />
+            </section>
+          )}
 
-        {tab === 'plan' && (
-          <section className="canvas-panel panel" id="plan">
-            <header className="panel-heading">
-              <div>
-                <p className="panel-label">Vue active</p>
-                <h2>
-                  Plan ·{' '}
-                  {levels.find(({ id }) => id === activeLevelId)?.name ??
-                    'aucun niveau'}
-                </h2>
-              </div>
-            </header>
-            <ToolBar
-              project={file.project}
-              editor={editor}
-              dispatch={dispatchEditor}
-              drafts={toolDrafts}
-              onDraftChange={(key, value) =>
-                setToolDrafts((current) => ({ ...current, [key]: value }))
-              }
-              onTransform={transformSelection}
-              onAlign={alignSelection}
-            />
-            <PlanCanvas
-              project={scenarioProject ?? file.project}
-              editor={{ ...editor, levelId: activeLevelId } as EditorState}
-              dispatch={dispatchEditor}
-              onCommitPoints={commitPoints}
-              onFinishRun={finishRun}
-              onMoveSelection={moveSelection}
-              onCommand={runCommand}
-              onObjectMenu={(objectId, atPx) =>
-                setObjectMenu({ objectId, atPx })
-              }
-              selectableFamily={selectableFamily}
-              onEditGeometry={editGeometry}
-              wallThicknessMm={wallThicknessMm}
-              {...(drawnOverlay === undefined ? {} : { overlay: drawnOverlay })}
-              clearanceGroups={clearanceGroups}
-            />
-            <StatusBar
-              editor={editor}
-              dispatch={dispatchEditor}
-              levelName={
-                levels.find(({ id }) => id === activeLevelId)?.name ??
-                'aucun niveau'
-              }
-            />
-          </section>
-        )}
+          {tab === 'project' && (
+            <LazyWorkspace>
+              <ProjectPanel
+                project={file.project}
+                climate={climate}
+                onCommand={runCommand}
+                onClimateChange={setClimate}
+                onMessage={setMessage}
+              />
+            </LazyWorkspace>
+          )}
 
-        {tab === 'project' && (
-          <LazyWorkspace>
-            <ProjectPanel
-              project={file.project}
-              climate={climate}
-              onCommand={runCommand}
-              onClimateChange={setClimate}
-              onMessage={setMessage}
-            />
-          </LazyWorkspace>
-        )}
+          {tab === 'building' && (
+            <LazyWorkspace>
+              <BuildingPanel
+                project={file.project}
+                levelId={activeLevelId}
+                onCommand={runCommand}
+                onSelectLevel={(levelId) =>
+                  dispatchEditor({ type: 'SET_LEVEL', levelId })
+                }
+                onSelectObjects={selectOnPlan}
+              />
+            </LazyWorkspace>
+          )}
 
-        {tab === 'building' && (
-          <LazyWorkspace>
-            <BuildingPanel
-              project={file.project}
-              levelId={activeLevelId}
-              onCommand={runCommand}
-              onSelectLevel={(levelId) =>
-                dispatchEditor({ type: 'SET_LEVEL', levelId })
-              }
-              onSelectObjects={selectOnPlan}
-            />
-          </LazyWorkspace>
-        )}
+          {tab === 'materials' && (
+            <LazyWorkspace>
+              <MaterialsPanel
+                project={file.project}
+                onCommand={runCommand}
+                {...(selectedMaterialId === undefined
+                  ? {}
+                  : { selectedId: selectedMaterialId })}
+                onSelect={setSelectedMaterialId}
+              />
+            </LazyWorkspace>
+          )}
 
-        {tab === 'materials' && (
-          <LazyWorkspace>
-            <MaterialsPanel
-              project={file.project}
-              onCommand={runCommand}
-              {...(selectedMaterialId === undefined
-                ? {}
-                : { selectedId: selectedMaterialId })}
-              onSelect={setSelectedMaterialId}
-            />
-          </LazyWorkspace>
-        )}
+          {tab === 'assemblies' && (
+            <LazyWorkspace>
+              <AssembliesPanel
+                project={file.project}
+                onCommand={runCommand}
+                {...(selectedAssemblyId === undefined
+                  ? {}
+                  : { selectedId: selectedAssemblyId })}
+                onSelect={setSelectedAssemblyId}
+              />
+            </LazyWorkspace>
+          )}
 
-        {tab === 'assemblies' && (
-          <LazyWorkspace>
-            <AssembliesPanel
-              project={file.project}
-              onCommand={runCommand}
-              {...(selectedAssemblyId === undefined
-                ? {}
-                : { selectedId: selectedAssemblyId })}
-              onSelect={setSelectedAssemblyId}
-            />
-          </LazyWorkspace>
-        )}
+          {tab === 'networks' && (
+            <LazyWorkspace>
+              <NetworksPanel
+                project={file.project}
+                levelId={activeLevelId}
+                selectedNetworkId={
+                  activeNetworkId === '' ? undefined : activeNetworkId
+                }
+                onSelectNetwork={selectNetwork}
+                onCommand={runCommand}
+                {...(inspectNetworkObjectId === undefined
+                  ? {}
+                  : { inspectObjectId: inspectNetworkObjectId })}
+                onSelectObjects={(objectIds) => {
+                  if (activeNetwork !== undefined)
+                    dispatchEditor({
+                      type: 'SHOW_LAYERS',
+                      layerIds: [networkLayerId(activeNetwork.discipline)],
+                    });
+                  selectOnPlan(objectIds);
+                }}
+                onMessage={setMessage}
+              />
+            </LazyWorkspace>
+          )}
 
-        {tab === 'networks' && (
-          <LazyWorkspace>
-            <NetworksPanel
-              project={file.project}
-              levelId={activeLevelId}
-              selectedNetworkId={
-                activeNetworkId === '' ? undefined : activeNetworkId
-              }
-              onSelectNetwork={selectNetwork}
-              onCommand={runCommand}
-              {...(inspectNetworkObjectId === undefined
-                ? {}
-                : { inspectObjectId: inspectNetworkObjectId })}
-              onSelectObjects={(objectIds) => {
-                if (activeNetwork !== undefined)
-                  dispatchEditor({
-                    type: 'SHOW_LAYERS',
-                    layerIds: [networkLayerId(activeNetwork.discipline)],
-                  });
-                selectOnPlan(objectIds);
-              }}
-              onMessage={setMessage}
-            />
-          </LazyWorkspace>
-        )}
+          {tab === 'calculations' && (
+            <LazyWorkspace>
+              <CalculationsPanel
+                project={file.project}
+                climate={climate}
+                {...(currentRun === undefined ? {} : { run: currentRun })}
+                running={calculationBusy}
+                onRecompute={() =>
+                  setCalculationGeneration((generation) => generation + 1)
+                }
+                onSelectObjects={selectOnPlan}
+              />
+            </LazyWorkspace>
+          )}
 
-        {tab === 'calculations' && (
-          <LazyWorkspace>
-            <CalculationsPanel
-              project={file.project}
-              climate={climate}
-              {...(currentRun === undefined ? {} : { run: currentRun })}
-              running={calculationBusy}
-              onRecompute={() =>
-                setCalculationGeneration((generation) => generation + 1)
-              }
-              onSelectObjects={selectOnPlan}
-            />
-          </LazyWorkspace>
-        )}
+          {tab === 'quantities' && (
+            <LazyWorkspace>
+              <QuantitiesPanel
+                project={file.project}
+                onSelectObjects={selectOnPlan}
+                onExportCsv={(content, fileName) =>
+                  download(content, fileName, 'text/csv;charset=utf-8')
+                }
+              />
+            </LazyWorkspace>
+          )}
 
-        {tab === 'quantities' && (
-          <LazyWorkspace>
-            <QuantitiesPanel
-              project={file.project}
-              onSelectObjects={selectOnPlan}
-              onExportCsv={(content, fileName) =>
-                download(content, fileName, 'text/csv;charset=utf-8')
-              }
-            />
-          </LazyWorkspace>
-        )}
+          {tab === 'documents' && (
+            <LazyWorkspace>
+              <DocumentsPanel
+                project={file.project}
+                onCommand={runCommand}
+                onMessage={setMessage}
+                onCaptureView={captureView}
+                onApplyView={applyView}
+                onExport={exportSheets}
+                newId={(prefix) => `${prefix}-${crypto.randomUUID()}`}
+              />
+            </LazyWorkspace>
+          )}
 
-        {tab === 'documents' && (
-          <LazyWorkspace>
-            <DocumentsPanel
-              project={file.project}
-              onCommand={runCommand}
-              onMessage={setMessage}
-              onCaptureView={captureView}
-              onApplyView={applyView}
-              onExport={exportSheets}
-              newId={(prefix) => `${prefix}-${crypto.randomUUID()}`}
-            />
-          </LazyWorkspace>
-        )}
+          {tab === 'checks' && (
+            <LazyWorkspace>
+              <ChecksPanel
+                project={file.project}
+                {...(currentRun === undefined ? {} : { run: currentRun })}
+                running={calculationBusy}
+                onFix={applyFix}
+              />
+            </LazyWorkspace>
+          )}
 
-        {tab === 'checks' && (
-          <LazyWorkspace>
-            <ChecksPanel
-              project={file.project}
-              {...(currentRun === undefined ? {} : { run: currentRun })}
-              running={calculationBusy}
-              onFix={applyFix}
-            />
-          </LazyWorkspace>
-        )}
+          {tab === 'scenarios' && (
+            <LazyWorkspace>
+              <ScenariosPanel
+                project={file.project}
+                climate={climate}
+                onCommand={runCommand}
+                onMessage={setMessage}
+                onPromote={promoteScenario}
+              />
+            </LazyWorkspace>
+          )}
 
-        {tab === 'scenarios' && (
-          <LazyWorkspace>
-            <ScenariosPanel
-              project={file.project}
-              climate={climate}
-              onCommand={runCommand}
-              onMessage={setMessage}
-              onPromote={promoteScenario}
-            />
-          </LazyWorkspace>
-        )}
-
-        {tab === 'equipment' && (
-          <LazyWorkspace>
-            <EquipmentPanel
-              project={file.project}
-              onCommand={runCommand}
-              onMessage={setMessage}
-              {...(selectedEquipmentId === undefined
-                ? {}
-                : { selectedId: selectedEquipmentId })}
-              onSelect={setSelectedEquipmentId}
-            />
-          </LazyWorkspace>
-        )}
-
-        {layout.inspectorShown ? (
+          {tab === 'equipment' && (
+            <LazyWorkspace>
+              <EquipmentPanel
+                project={file.project}
+                onCommand={runCommand}
+                onMessage={setMessage}
+                {...(selectedEquipmentId === undefined
+                  ? {}
+                  : { selectedId: selectedEquipmentId })}
+                onSelect={setSelectedEquipmentId}
+              />
+            </LazyWorkspace>
+          )}
+        </>
+      }
+      inspectorSeparator={
+        layout.inspectorShown ? (
           <PanelSeparator
             label="Redimensionner l’inspecteur"
             widthPx={layout.inspectorPx}
@@ -2462,13 +2297,10 @@ function App() {
           />
         ) : (
           <div className="panel-edge-empty" />
-        )}
-
-        <aside
-          className="inspector panel"
-          id="inventory"
-          hidden={!layout.inspectorShown}
-        >
+        )
+      }
+      inspector={
+        <>
           <p className="panel-label">Inspecteur</p>
           {tab === 'plan' ? (
             <InspectorPanel
@@ -2499,9 +2331,170 @@ function App() {
             Les résultats calculés restent dérivés et ne sont pas enregistrés
             comme source de vérité.
           </p>
-        </aside>
-      </div>
-    </main>
+        </>
+      }
+      statusBar={
+        <ShellStatusBar
+          projectName={file.project.metadata.name}
+          message={message}
+          saveLabel={SAVE_STATE_LABELS[saveState]}
+          saveState={saveState}
+        />
+      }
+      overlays={
+        <>
+          {exportFailure !== undefined && (
+            <section className="panel recovery-prompt" role="alertdialog">
+              <p>
+                <strong>Export impossible.</strong> Le projet ouvert contient{' '}
+                {exportFailure.length} incohérence(s) que le format refuse
+                d’enregistrer. Corrigez-les, puis exportez à nouveau ; rien n’a
+                été écrit.
+              </p>
+              <ul className="alert-list">
+                {exportFailure.slice(0, 8).map((issue) => (
+                  <li key={issue}>
+                    <span className="badge missing">à corriger</span>
+                    <span>{issue}</span>
+                  </li>
+                ))}
+              </ul>
+              {exportFailure.length > 8 && (
+                <p className="hint">
+                  et {exportFailure.length - 8} autre(s) non affichée(s).
+                </p>
+              )}
+              <div className="actions">
+                <button
+                  type="button"
+                  onClick={() => setExportFailure(undefined)}
+                >
+                  Fermer
+                </button>
+              </div>
+            </section>
+          )}
+
+          {pendingReplacement !== undefined && (
+            <section className="panel recovery-prompt" role="alertdialog">
+              <p>
+                Ce projet contient des modifications qui n’ont pas été
+                exportées. « {pendingReplacement.label} » les remplacerait.
+              </p>
+              <div className="actions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Only an export that actually happened may authorise
+                    // replacing the project it was meant to protect.
+                    void saveContainer().then((written) => {
+                      if (!written) return;
+                      pendingReplacement.run();
+                      setPendingReplacement(undefined);
+                    });
+                  }}
+                >
+                  Exporter puis continuer
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => {
+                    pendingReplacement.run();
+                    setPendingReplacement(undefined);
+                  }}
+                >
+                  Continuer sans exporter
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => setPendingReplacement(undefined)}
+                >
+                  Annuler
+                </button>
+              </div>
+            </section>
+          )}
+
+          {creating && (
+            <Suspense
+              fallback={<p className="notice">Chargement de l’assistant…</p>}
+            >
+              <NewProjectWizard
+                onCancel={() => setCreating(false)}
+                onCreate={(draft) => {
+                  setCreating(false);
+                  setClimate([]);
+                  const created = projectFromDraft(
+                    draft,
+                    new Date().toISOString(),
+                  );
+                  adopt(
+                    created,
+                    `Nouveau projet « ${created.project.metadata.name} » prêt : ${created.project.building.levels.length} niveau(x), bibliothèque générique incluse.`,
+                  );
+                }}
+              />
+            </Suspense>
+          )}
+
+          {objectMenu !== undefined && activeLevelId !== undefined && (
+            <ObjectMenu
+              title={inspectObject(file.project, objectMenu.objectId).title}
+              atPx={objectMenu.atPx}
+              entries={objectMenuEntries(objectMenu.objectId)}
+              onClose={() => setObjectMenu(undefined)}
+            />
+          )}
+
+          {paletteOpen && (
+            <CommandPalette
+              entries={paletteEntries}
+              onClose={() => setPaletteOpen(false)}
+            />
+          )}
+
+          {recovery !== undefined && (
+            <section className="panel recovery-prompt" role="alertdialog">
+              <p>
+                Une sauvegarde locale plus récente a été trouvée (
+                {new Date(recovery.savedAt).toLocaleString('fr-FR')}). Restaurer
+                ?
+              </p>
+              <div className="actions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setClimate(recovery.climate);
+                    adopt(
+                      recovery.file,
+                      recovery.climate.length === 0
+                        ? 'Sauvegarde locale restaurée : elle n’a pas encore été exportée.'
+                        : `Sauvegarde locale restaurée avec ${recovery.climate.length} jeu(x) climatiques : elle n’a pas encore été exportée.`,
+                      'AUTOSAVED',
+                    );
+                    setRecovery(undefined);
+                  }}
+                >
+                  Restaurer
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => {
+                    void discardAutosave();
+                    setRecovery(undefined);
+                  }}
+                >
+                  Ignorer et supprimer
+                </button>
+              </div>
+            </section>
+          )}
+        </>
+      }
+    />
   );
 }
 

@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
+import { openDestination } from './support/navigation.js';
+
 /**
  * Console errors are a failure, not noise: a blank page caused by an unhandled
  * module error is exactly what these tests exist to catch.
@@ -39,12 +41,12 @@ test('a new project ships a library a wall can be drawn with', async ({
   page,
 }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Matériaux', exact: true }).click();
+  await openDestination(page, 'Matériaux');
   await expect(page.locator('.library-table tbody tr').first()).toBeVisible();
   const materials = await page.locator('.library-table tbody tr').count();
   expect(materials).toBeGreaterThan(10);
 
-  await page.getByRole('button', { name: 'Assemblages', exact: true }).click();
+  await openDestination(page, 'Assemblages');
   await expect(page.locator('.assembly-card')).toHaveCount(4);
 });
 
@@ -103,7 +105,7 @@ test('selects an object and describes it in the inspector', async ({
 test('runs every calculation module from the dashboard', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await openDestination(page, 'Calculs');
   await expect(page.locator('.dashboard-card').first()).toBeVisible();
   await expect(page.locator('.module-header')).toHaveCount(17);
   // No module may end in a hard failure on the reference project.
@@ -133,7 +135,7 @@ test('lists the bill of materials and offers a CSV export', async ({
   page,
 }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Quantités', exact: true }).click();
+  await openDestination(page, 'Quantités');
   await expect(page.locator('.library-table tbody tr').first()).toBeVisible();
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Exporter en CSV' }).click();
@@ -143,7 +145,7 @@ test('lists the bill of materials and offers a CSV export', async ({
 
 test('compares a scenario against the project', async ({ page }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Scénarios', exact: true }).click();
+  await openDestination(page, 'Scénarios');
   await expect(page.locator('.delta').first()).toBeVisible({ timeout: 20_000 });
   const deltas = await page.locator('.delta').allTextContents();
   expect(deltas.some((value) => value.includes('-'))).toBe(true);
@@ -168,7 +170,7 @@ test('saves the project and reloads it unchanged', async ({ page }) => {
 
 test('carries the climate with the project in one file', async ({ page }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   // The demonstration project comes with its datasets loaded in the session.
   await expect(page.locator('.library-panel')).not.toContainText(
     'Aucun jeu de données climatiques',
@@ -190,11 +192,11 @@ test('carries the climate with the project in one file', async ({ page }) => {
   await page.setInputFiles('input[type="file"]', saved);
   await expect(page.getByRole('status')).toContainText('climatiques');
 
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   await expect(page.locator('.library-panel')).not.toContainText(
     'Aucun jeu de données climatiques',
   );
-  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await openDestination(page, 'Calculs');
   await expect(page.locator('.dashboard-card').first()).toBeVisible();
 });
 
@@ -270,7 +272,7 @@ test('restores the climate along with the autosaved project', async ({
   // The weather the session was calculating with comes back with the project;
   // without it the modules would silently report missing inputs again.
   await expect(page.getByRole('status')).toContainText('climatiques');
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   await expect(page.locator('.library-panel')).not.toContainText(
     'Aucun jeu de données climatiques',
   );
@@ -304,7 +306,7 @@ test('creates a technical network, places a node on the plan and routes it', asy
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Réseaux', exact: true }).click();
+  await openDestination(page, 'Réseaux');
   await expect(page.locator('.library-table tbody tr').first()).toBeVisible();
 
   await page.getByLabel('Discipline', { exact: true }).selectOption('HEATING');
@@ -324,7 +326,7 @@ test('creates a technical network, places a node on the plan and routes it', asy
     '1 port(s) libre(s)',
   );
 
-  await page.getByRole('button', { name: 'Plan architectural' }).click();
+  await openDestination(page, 'Plan');
   await page.getByRole('button', { name: 'Réseau', exact: true }).click();
   await page
     .getByLabel('Réseau', { exact: true })
@@ -333,7 +335,7 @@ test('creates a technical network, places a node on the plan and routes it', asy
   await page.locator('.plan-canvas').click({ position: { x: 260, y: 240 } });
   await expect(page.getByRole('status')).toContainText('Ajouter un nœud');
 
-  await page.getByRole('button', { name: 'Réseaux', exact: true }).click();
+  await openDestination(page, 'Réseaux');
   await page.getByLabel('Départ').selectOption({ index: 1 });
   await page.getByLabel('Arrivée').selectOption({ index: 1 });
   await page.getByRole('button', { name: 'Relier' }).click();
@@ -349,7 +351,7 @@ test('sizes a duct and a terminal from the network inspector', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Réseaux', exact: true }).click();
+  await openDestination(page, 'Réseaux');
   await page
     .locator('.library-table tbody tr', { hasText: 'Ventilation' })
     .getByRole('button', { name: 'Ventilation' })
@@ -501,7 +503,7 @@ test('reshapes a wall after drawing it, instead of redrawing it', async ({
 test('reshapes the footprint of a slab corner by corner', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Niveaux et pièces' }).click();
+  await openDestination(page, 'Niveaux et pièces');
   const slab = page.locator('.catalog-list li', { hasText: 'slab' }).first();
   await slab.getByRole('button', { name: 'Modifier le contour' }).click();
 
@@ -1013,6 +1015,11 @@ test('draws a wall of a typed length, at the cursor', async ({ page }) => {
   await loadDemo(page);
   const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
   await expect(walls).toHaveCount(6);
+  const wallIds = async (): Promise<readonly string[]> =>
+    walls.evaluateAll((nodes) =>
+      nodes.map((node) => node.getAttribute('id') ?? ''),
+    );
+  const before = await wallIds();
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
 
@@ -1032,9 +1039,20 @@ test('draws a wall of a typed length, at the cursor', async ({ page }) => {
   await expect(walls).toHaveCount(7);
   await expect(dynamic).toBeHidden();
 
-  // The wall measures what was typed.
+  // The wall measures what was typed. Where to click is read from where the
+  // wall was actually drawn: how many pixels a metre takes depends on how wide
+  // the canvas is, and that is a layout decision, not a fact of the wall.
   await page.getByRole('button', { name: 'Sélection', exact: true }).click();
-  await canvas.click({ position: { x: 200, y: 300 } });
+  const drawnId = (await wallIds()).find((id) => !before.includes(id));
+  expect(drawnId).toBeDefined();
+  const drawnBox = (await page.locator(`[id="${drawnId!}"]`).boundingBox())!;
+  const canvasBox = (await canvas.boundingBox())!;
+  await canvas.click({
+    position: {
+      x: drawnBox.x - canvasBox.x + drawnBox.width / 2,
+      y: drawnBox.y - canvasBox.y + drawnBox.height / 2,
+    },
+  });
   await expect(
     page.getByRole('spinbutton', { name: 'Longueur (mm)' }),
   ).toHaveValue('4500');
@@ -1301,7 +1319,7 @@ test('offers on an object only what its family can do', async ({ page }) => {
 
 test('chooses which contour a slab is built from', async ({ page }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Niveaux et pièces' }).click();
+  await openDestination(page, 'Niveaux et pièces');
   const contour = page.getByLabel('Contour');
   await expect(contour).toBeVisible();
   const options = await contour.locator('option').allTextContents();
@@ -1417,7 +1435,7 @@ test('the assistant asks what a new project cannot be guessed', async ({
   await page.getByRole('button', { name: 'Créer le projet' }).click();
 
   await expect(page.getByRole('status')).toContainText('3 niveau(x)');
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   await expect(page.getByLabel('Nom du projet')).toHaveValue(
     'Maison des Lilas',
   );
@@ -1496,13 +1514,15 @@ test('names the project, its site and its calculation settings', async ({
   page,
 }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
 
   // The name is editable, and it names the exported file.
   const name = page.getByLabel('Nom du projet');
   await name.fill('Maison Dupont');
   await name.press('Enter');
-  await expect(page.locator('.project-bar strong')).toHaveText('Maison Dupont');
+  await expect(page.locator('.shell-status strong')).toHaveText(
+    'Maison Dupont',
+  );
 
   // Half a location is refused rather than completed with a zero; the pair is
   // stored once both halves are given.
@@ -1549,7 +1569,7 @@ test('names the project, its site and its calculation settings', async ({
 
 test('chooses the octave bands the acoustic study covers', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   await page.getByLabel('Module').selectOption('acoustics');
 
   const bands = page.getByRole('group', { name: /Bandes étudiées/ });
@@ -1602,7 +1622,7 @@ test('associates a climate dataset and reports what it covers', async ({
   page,
 }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   await expect(page.locator('.notice.warning')).toContainText(
     'Aucun jeu de données climatiques',
   );
@@ -1630,7 +1650,7 @@ test('creates a scenario, states what it changes and compares it', async ({
   page,
 }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Scénarios', exact: true }).click();
+  await openDestination(page, 'Scénarios');
 
   await page.getByLabel('Nouveau scénario').fill('Isolation renforcée');
   await page.getByRole('button', { name: 'Créer', exact: true }).click();
@@ -1663,7 +1683,7 @@ test('creates a scenario, states what it changes and compares it', async ({
 
 test('promotes a scenario into the project', async ({ page }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Scénarios', exact: true }).click();
+  await openDestination(page, 'Scénarios');
   await page.getByLabel('Scénario comparé').selectOption({ index: 0 });
   const before = await page
     .locator('.library-table tbody tr')
@@ -1687,10 +1707,10 @@ test('gathers what the project does not resolve and offers to fix it', async ({
 }) => {
   await loadDemo(page);
   // Run the modules first: their missing inputs are part of the findings.
-  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await openDestination(page, 'Calculs');
   await expect(page.locator('.module-header')).toHaveCount(17);
 
-  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await openDestination(page, 'Vérifications');
   const findings = page.locator('.alert-list li');
   await expect(findings.first()).toBeVisible();
 
@@ -1718,10 +1738,10 @@ test('puts what the house needs beside what is standing in it', async ({
   // The heating load and the count of heat generators were both computed and
   // never compared. What was missing was not a number, it was the sentence.
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await openDestination(page, 'Calculs');
   await expect(page.locator('.module-header')).toHaveCount(17);
 
-  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await openDestination(page, 'Vérifications');
   const findings = page.locator('.alert-list li');
   await expect(findings.first()).toBeVisible();
   // The reference house computes a heating load and holds no generator: not
@@ -1799,12 +1819,12 @@ test('restores a local snapshot without claiming it was exported', async ({
 
 test('activates a rule pack and reports what it checked', async ({ page }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await openDestination(page, 'Vérifications');
   await expect(page.locator('.library-panel')).toContainText(
     'Aucun référentiel activé',
   );
 
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   await page.getByRole('checkbox', { name: /fr-rainwater-example/ }).check();
   await expect(page.getByRole('status')).toContainText(
     'Modifier les référentiels activés',
@@ -1812,37 +1832,37 @@ test('activates a rule pack and reports what it checked', async ({ page }) => {
 
   // The demonstration project states a country but no reference date, and the
   // date decides which text applies: the pack is not run, and says why.
-  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await openDestination(page, 'Vérifications');
   await expect(page.locator('.library-panel')).toContainText(
     'date de référence',
   );
   await expect(page.locator('.rule-panel')).toHaveCount(0);
 
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   // Targeted by id: the pack list explains applicability in words that repeat
   // the field labels, so a label lookup would match two controls.
   await page.locator('#regulatory-date').fill('2020-01-01');
   await page.locator('#regulatory-date').press('Enter');
   // Before the text came into force: still no verdict, and the reason is the
   // date rather than the project.
-  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await openDestination(page, 'Vérifications');
   await expect(page.locator('.library-panel')).toContainText('2020-01-01');
   await expect(page.locator('.rule-panel')).toHaveCount(0);
 
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   await page.locator('#regulatory-country').fill('BE');
   await page.locator('#regulatory-country').press('Enter');
   await page.locator('#regulatory-date').fill('2026-01-01');
   await page.locator('#regulatory-date').press('Enter');
-  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await openDestination(page, 'Vérifications');
   await expect(page.locator('.library-panel')).toContainText('BE');
   await expect(page.locator('.rule-panel')).toHaveCount(0);
 
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   await page.locator('#regulatory-country').fill('FR');
   await page.locator('#regulatory-country').press('Enter');
 
-  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await openDestination(page, 'Vérifications');
   const report = page.locator('.rule-panel');
   await expect(report).toBeVisible();
   await expect(report).toContainText('fr-rainwater-example');
@@ -1853,7 +1873,7 @@ test('activates a rule pack and reports what it checked', async ({ page }) => {
 
   // Two rainwater systems, judged one by one rather than through the first.
   for (const system of ['ROOF_DRAINAGE', 'HARVESTING']) {
-    await page.getByRole('button', { name: 'Réseaux', exact: true }).click();
+    await openDestination(page, 'Réseaux');
     await page
       .getByLabel('Discipline', { exact: true })
       .selectOption('RAINWATER');
@@ -1864,7 +1884,7 @@ test('activates a rule pack and reports what it checked', async ({ page }) => {
     ).toHaveCount(1);
   }
 
-  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await openDestination(page, 'Vérifications');
   await expect(report.locator('.rule-card')).toHaveCount(2);
   const cards = report.locator('.rule-card');
   await expect(cards.first()).toContainText('Objets :');
@@ -1880,7 +1900,7 @@ test('never shows calculation results from an earlier revision', async ({
   page,
 }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await openDestination(page, 'Calculs');
   await expect(page.locator('.dashboard-card').first()).toBeVisible();
   const computedOn = await page
     .locator('.library-panel .hint')
@@ -1889,19 +1909,19 @@ test('never shows calculation results from an earlier revision', async ({
   expect(computedOn).toContain('révision');
 
   // Edit the model after the results were produced.
-  await page.getByRole('button', { name: 'Plan architectural' }).click();
+  await openDestination(page, 'Plan');
   await page.getByRole('button', { name: 'Mur', exact: true }).click();
   const canvas = page.locator('.plan-canvas');
   await canvas.click({ position: { x: 120, y: 380 } });
   await canvas.click({ position: { x: 420, y: 380 } });
 
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   const revision =
     (await page.locator('#project-revision').textContent()) ?? '';
   const current = /^(\d+)/u.exec(revision.trim())?.[1];
   expect(current).toBeDefined();
 
-  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await openDestination(page, 'Vérifications');
   // The panel recomputes rather than presenting the numbers of the house as it
   // was before the wall was drawn.
   await expect(
@@ -1913,7 +1933,7 @@ test('chooses a scenario reference among the objects the project holds', async (
   page,
 }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Scénarios' }).click();
+  await openDestination(page, 'Scénarios');
   await page.getByLabel('Nouveau scénario').fill('Autre assemblage');
   await page.getByRole('button', { name: 'Créer', exact: true }).click();
 
@@ -1948,7 +1968,7 @@ test('keeps a scenario selected after deleting another one', async ({
   page,
 }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Scénarios', exact: true }).click();
+  await openDestination(page, 'Scénarios');
   await page.getByLabel('Nouveau scénario').fill('Variante B');
   await page.getByRole('button', { name: 'Créer', exact: true }).click();
   const compared = page.getByLabel('Scénario comparé');
@@ -1969,7 +1989,7 @@ test('takes the price of a product by the metre and of a model by the unit', asy
   // A house's whole plumbing, wiring and equipment had prices the interface
   // could not take: the screen knew one table, and it was per cubic metre.
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await openDestination(page, 'Projet');
   await page.getByLabel('Module', { exact: true }).selectOption('cost');
   await expect(
     page.getByRole('columnheader', { name: 'Produit réseau' }),
@@ -1989,9 +2009,9 @@ test('never offers to fix a value the settings screen cannot take', async ({
   page,
 }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await openDestination(page, 'Calculs');
   await expect(page.locator('.module-header')).toHaveCount(17);
-  await page.getByRole('button', { name: 'Vérifications' }).click();
+  await openDestination(page, 'Vérifications');
 
   const findings = page.locator('.alert-list li');
   await expect(findings.first()).toBeVisible();
@@ -2016,7 +2036,7 @@ test('an emptied equipment field is gone after a save and a reload', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Équipements', exact: true }).click();
+  await openDestination(page, 'Équipements');
   await page
     .getByRole('button', { name: 'equipment-dhw-tank', exact: true })
     .click();
@@ -2043,7 +2063,7 @@ test('an emptied equipment field is gone after a save and a reload', async ({
     await prompt.getByRole('button', { name: 'Ignorer et supprimer' }).click();
   await page.setInputFiles('input[type="file"]', saved);
   await expect(page.getByRole('status')).toContainText('chargé et validé');
-  await page.getByRole('button', { name: 'Équipements', exact: true }).click();
+  await openDestination(page, 'Équipements');
   await page
     .getByRole('button', { name: 'equipment-dhw-tank', exact: true })
     .click();
@@ -2372,9 +2392,7 @@ test('keeps a view, lays it on a sheet and draws the sheet', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page
-    .getByRole('button', { name: 'Vues et feuilles', exact: true })
-    .click();
+  await openDestination(page, 'Vues et feuilles');
   await expect(
     page.getByRole('heading', { name: 'Vues et feuilles' }),
   ).toBeVisible();
@@ -2425,9 +2443,7 @@ test('keeps a section, a façade, a roof plan and a site plan', async ({
   // opening one gave a plan of a storey wearing the section's name.
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page
-    .getByRole('button', { name: 'Vues et feuilles', exact: true })
-    .click();
+  await openDestination(page, 'Vues et feuilles');
 
   for (const [kind, name] of [
     ['Coupe', 'Coupe BB'],
@@ -2470,9 +2486,7 @@ test('keeps a section, a façade, a roof plan and a site plan', async ({
 test('lays two views at two scales on one sheet', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page
-    .getByRole('button', { name: 'Vues et feuilles', exact: true })
-    .click();
+  await openDestination(page, 'Vues et feuilles');
 
   // Two views to lay out: a sheet carrying a plan and its neighbour is the
   // ordinary case of a drawing set, and it could not be expressed at all.
@@ -2530,9 +2544,7 @@ test('reopens a saved view exactly as it was saved', async ({ page }) => {
   const stairs = page.getByRole('checkbox', { name: 'Escaliers' });
   await expect(stairs).toBeChecked();
   await stairs.uncheck();
-  await page
-    .getByRole('button', { name: 'Vues et feuilles', exact: true })
-    .click();
+  await openDestination(page, 'Vues et feuilles');
   await page.getByLabel('Nom de la vue').fill('Sans les escaliers');
   await page.getByRole('button', { name: 'Enregistrer cette vue' }).click();
   await expect(page.getByRole('status')).toContainText('enregistrée');
@@ -2540,14 +2552,10 @@ test('reopens a saved view exactly as it was saved', async ({ page }) => {
   // The layer turned back on, and the view reopened. Restoring used to turn
   // layers on and never off, so the view came back showing what it had been
   // saved without.
-  await page
-    .getByRole('button', { name: 'Plan architectural', exact: true })
-    .click();
+  await openDestination(page, 'Plan');
   await stairs.check();
   await expect(stairs).toBeChecked();
-  await page
-    .getByRole('button', { name: 'Vues et feuilles', exact: true })
-    .click();
+  await openDestination(page, 'Vues et feuilles');
   await page
     .getByRole('row')
     .filter({ hasText: 'Sans les escaliers' })
@@ -2563,10 +2571,10 @@ test('builds a variant by pointing at the plan', async ({ page }) => {
   await loadDemo(page);
 
   // A variant to build.
-  await page.getByRole('button', { name: 'Scénarios', exact: true }).click();
+  await openDestination(page, 'Scénarios');
   await page.getByLabel('Nouveau scénario').fill('Isolation renforcée');
   await page.getByRole('button', { name: 'Créer', exact: true }).click();
-  await page.getByRole('button', { name: 'Plan architectural' }).click();
+  await openDestination(page, 'Plan');
 
   const mode = page.getByRole('region', { name: 'Scénario', exact: true });
   await mode.getByLabel('Dessiner la variante').selectOption({ index: 1 });
@@ -2662,7 +2670,7 @@ test('browses the whole nomenclature and places what can be placed', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Équipements', exact: true }).click();
+  await openDestination(page, 'Équipements');
 
   // The panel used to list the nineteen generic entries while the rest of the
   // application had been checking five hundred and eighteen families.

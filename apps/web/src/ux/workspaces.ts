@@ -156,3 +156,60 @@ export function workspaceOfLegacyTab(
 ): PrimaryWorkspace {
   return LEGACY_WORKSPACE_HOME[tab];
 }
+
+export const LEGACY_WORKSPACE_LABELS = {
+  project: 'Projet',
+  plan: 'Plan',
+  building: 'Niveaux et pièces',
+  materials: 'Matériaux',
+  assemblies: 'Assemblages',
+  equipment: 'Équipements',
+  networks: 'Réseaux',
+  calculations: 'Calculs',
+  quantities: 'Quantités',
+  scenarios: 'Scénarios',
+  checks: 'Vérifications',
+  documents: 'Vues et feuilles',
+} as const satisfies Record<LegacyWorkspaceTab, string>;
+
+/**
+ * What the context panel calls its group of destinations, per space.
+ *
+ * Three levels of density and no more: the space, the group, the action. A
+ * fourth level is where a person stops knowing where they are.
+ */
+export const CONTEXT_GROUP_LABELS = {
+  PROJECT: 'Le projet',
+  BUILD: 'Dessiner',
+  SYSTEMS: 'Réseaux',
+  ANALYZE: 'Résultats',
+  DOCUMENTS: 'Sortir',
+} as const satisfies Record<PrimaryWorkspace, string>;
+
+/** The destinations a space holds, in the order the panel lists them. */
+export function legacyTabsOfWorkspace(
+  workspace: PrimaryWorkspace,
+): readonly LegacyWorkspaceTab[] {
+  return LEGACY_WORKSPACE_TABS.filter(
+    (tab) => LEGACY_WORKSPACE_HOME[tab] === workspace,
+  );
+}
+
+/**
+ * What a space opens on when it is entered for the first time.
+ *
+ * The plan for Construire, because that is what the space is; the first
+ * destination otherwise. Never nothing: a space that opens on an empty canvas
+ * is a space that has to be explained.
+ */
+export function defaultTabOfWorkspace(
+  workspace: PrimaryWorkspace,
+): LegacyWorkspaceTab {
+  if (workspace === 'BUILD') return 'plan';
+  const [first] = legacyTabsOfWorkspace(workspace);
+  // The table above is exhaustive over the twelve destinations, so every space
+  // holds at least one. This is a narrowing, not a fallback.
+  if (first === undefined)
+    throw new Error(`L’espace ${workspace} n’a aucune destination.`);
+  return first;
+}

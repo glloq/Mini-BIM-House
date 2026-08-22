@@ -1,6 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
+import { DESTINATIONS, openDestination } from './support/navigation.js';
+
 /**
  * What an automated audit can check, checked on every workspace.
  *
@@ -9,19 +11,6 @@ import { expect, test, type Page } from '@playwright/test';
  * is unreadable against its background. Those are the failures this catches,
  * and they are failures, not warnings.
  */
-const WORKSPACES = [
-  'Projet',
-  'Plan architectural',
-  'Niveaux et pièces',
-  'Matériaux',
-  'Assemblages',
-  'Équipements',
-  'Réseaux',
-  'Calculs',
-  'Quantités',
-  'Scénarios',
-  'Vérifications',
-] as const;
 
 async function audit(page: Page) {
   return new AxeBuilder({ page })
@@ -51,14 +40,14 @@ test('every workspace passes the automated accessibility rules', async ({
   await page.getByRole('button', { name: 'Maison de démonstration' }).click();
   await expect(page.getByRole('status')).toContainText('démonstration');
 
-  for (const workspace of WORKSPACES) {
-    await page.getByRole('button', { name: workspace, exact: true }).click();
+  for (const destination of DESTINATIONS) {
+    await openDestination(page, destination);
     // The panel arrives on demand; auditing before it is there audits nothing.
     await expect(page.locator('.canvas-panel')).toBeVisible();
     const { violations } = await audit(page);
     expect(
       violations,
-      `${workspace} :\n${describeViolations(violations)}`,
+      `${destination} :\n${describeViolations(violations)}`,
     ).toEqual([]);
   }
 });

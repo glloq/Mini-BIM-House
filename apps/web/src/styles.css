@@ -1,4 +1,29 @@
 :root {
+  /*
+   * The palette, named once.
+   *
+   * Colour written into a component is colour that cannot be changed without
+   * reading every component. These are the only names the shell knows; the
+   * older panels still carry their own values and move onto these as they are
+   * rewritten.
+   */
+  --ink: #172126;
+  --ink-soft: #5a6860;
+  --ink-strong: #12352a;
+  --surface: #fff;
+  --surface-sunken: #e8edea;
+  --surface-raised: rgba(255, 255, 255, 0.7);
+  --line: #d2dbd6;
+  --accent: #285e49;
+  --accent-soft: #dce7e0;
+  --shadow: rgba(12, 24, 19, 0.3);
+  --scrim: rgba(12, 24, 19, 0.45);
+  /* The fixed edges of the shell. */
+  --rail-width: 56px;
+  --topbar-height: 52px;
+  --statusbar-height: 32px;
+}
+:root {
   color: #172126;
   background: #e8edea;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
@@ -48,12 +73,6 @@ button.secondary {
 .app-header,
 .actions,
 .panel-heading,
-.project-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
 .app-header {
   margin-bottom: 1rem;
 }
@@ -79,25 +98,6 @@ h2 {
   font-weight: 850;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-}
-.project-bar {
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid #d2dbd6;
-  border-radius: 0.8rem;
-  background: rgba(255, 255, 255, 0.7);
-}
-.project-bar div {
-  display: grid;
-  gap: 0.15rem;
-}
-.project-bar span,
-.project-bar p {
-  color: #5a6860;
-  font-size: 0.74rem;
-}
-.project-bar p {
-  margin: 0;
 }
 .workspace-grid {
   display: grid;
@@ -357,10 +357,6 @@ h2 {
 }
 @media (max-width: 720px) {
   .app-header,
-  .project-bar {
-    align-items: flex-start;
-    flex-direction: column;
-  }
   .actions {
     flex-wrap: wrap;
   }
@@ -488,36 +484,6 @@ button.icon {
 }
 
 /* Library panels: materials, assemblies and equipment. */
-.workspace-tabs {
-  display: grid;
-  gap: 0.6rem;
-}
-.workspace-group {
-  display: grid;
-  gap: 0.15rem;
-}
-.workspace-group-label {
-  margin: 0 0 0.1rem;
-  padding: 0 0.6rem;
-  font-size: 0.68rem;
-  font-weight: 750;
-  color: #5a6860;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.workspace-tabs button {
-  border: 0;
-  background: none;
-  color: #31443b;
-  font-weight: 650;
-  text-align: left;
-  padding: 0.45rem 0.6rem;
-  border-radius: 0.5rem;
-}
-.workspace-tabs button.active {
-  background: #dce7e0;
-  color: #12352a;
-}
 .library-panel {
   display: grid;
   gap: 1rem;
@@ -1232,10 +1198,10 @@ button.icon {
 /* Save state and crash handling. */
 /*
  * The save state is a pill with a colour of its own; written as `.save-state`
- * alone it lost to `.project-bar span` and was drawn in the muted grey of the
- * text beside it — unreadable on its own background, and no longer a state.
+ * alone it lost to the muted text of the band it sat in, and was drawn in the
+ * same grey — unreadable on its own background, and no longer a state.
  */
-.project-bar .save-state {
+.shell-status .save-state {
   border-radius: 999px;
   padding: 0.2rem 0.7rem;
   font-size: 0.72rem;
@@ -1737,4 +1703,171 @@ button.icon {
   gap: 0.5rem;
   justify-content: space-between;
   padding: 0.15rem 0;
+}
+
+/*
+ * The shell: a top edge, a rail, the panels, a bottom edge.
+ *
+ * The rail is outside the resizable grid on purpose. It is the one part of the
+ * application whose width is not a preference: a person who has learnt that
+ * Systèmes is the third entry has learnt a position, and a position that moves
+ * has not been learnt.
+ */
+.shell-body {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+.shell-body > .workspace-grid {
+  flex: 1;
+  min-width: 0;
+}
+.primary-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 0 0 var(--rail-width);
+  width: var(--rail-width);
+  padding: 0.35rem 0.2rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: var(--surface-raised);
+  align-self: start;
+  position: sticky;
+  top: 0.5rem;
+}
+.rail-entry {
+  display: grid;
+  gap: 0.1rem;
+  justify-items: center;
+  border: 0;
+  padding: 0.45rem 0.1rem;
+  border-radius: 0.6rem;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.rail-entry:hover {
+  background: var(--surface);
+}
+.rail-entry.active {
+  background: var(--accent-soft);
+  color: var(--ink-strong);
+}
+.rail-letter {
+  display: grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.rail-entry.active .rail-letter {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--surface);
+}
+.rail-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+.context-group {
+  display: grid;
+  gap: 0.15rem;
+  margin-bottom: 0.75rem;
+}
+.context-group-label {
+  margin: 0 0 0.1rem;
+  padding: 0 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 750;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.context-group button {
+  border: 0;
+  background: none;
+  color: #31443b;
+  font-weight: 650;
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.5rem;
+}
+.context-group button.active {
+  background: var(--accent-soft);
+  color: var(--ink-strong);
+}
+/*
+ * The status line, along the bottom.
+ *
+ * It was a band under the header, which is where the eye is not. Down here it
+ * can be read without being looked at — and the count of checks will be able
+ * to sit beside it without pushing the drawing down.
+ */
+.shell-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: var(--statusbar-height);
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: var(--surface-raised);
+  font-size: 0.74rem;
+}
+.shell-status-project {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+.shell-status-key {
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.shell-status-message {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  /*
+   * The rail becomes a row on a phone. It never becomes a drawer: five entries
+   * that are always visible are what the whole arrangement is for.
+   */
+  .shell-body {
+    flex-direction: column;
+  }
+  .primary-rail {
+    position: static;
+    flex-direction: row;
+    width: auto;
+    flex-basis: auto;
+    justify-content: space-between;
+  }
+  .rail-entry {
+    flex: 1;
+  }
+  .shell-status {
+    flex-wrap: wrap;
+  }
+  .shell-status-message {
+    flex-basis: 100%;
+    white-space: normal;
+  }
 }
