@@ -36,7 +36,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": ["PV_DC", "EARTH"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -54,7 +54,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PV_MODULE"
     },
     {
       "id": "PV_STRING",
@@ -62,7 +63,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": ["PV_DC", "EARTH"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -80,7 +81,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PV_MODULE"
     },
     {
       "id": "ROOF_RAIL",
@@ -88,7 +90,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": [],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -106,7 +108,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "ROOF_HOOK",
@@ -114,7 +118,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": [],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -132,7 +136,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "GROUND_MOUNT",
@@ -140,7 +145,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": ["EARTH"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -158,7 +163,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "OPTIMIZER",
@@ -166,7 +172,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": ["PV_DC_INPUT", "PV_DC"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -184,7 +190,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "MICROINVERTER",
@@ -192,7 +199,15 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["PV_DC_INPUT"],
+          "minCount": 1,
+          "maxCount": 4
+        },
+        "ELECTRICAL_AC",
+        "EARTH"
+      ],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -210,7 +225,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "INVERTER"
     },
     {
       "id": "STRING_INVERTER",
@@ -256,7 +272,17 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["PV_DC_INPUT"],
+          "minCount": 1,
+          "maxCount": 4
+        },
+        "BATTERY_DC",
+        "ELECTRICAL_AC",
+        "CONTROL",
+        "EARTH"
+      ],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -274,7 +300,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "INVERTER"
     },
     {
       "id": "DC_COMBINER",
@@ -282,7 +309,15 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["PV_DC_INPUT"],
+          "minCount": 1,
+          "maxCount": 12
+        },
+        "PV_DC",
+        "EARTH"
+      ],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -300,7 +335,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "DISTRIBUTION_BOARD"
     },
     {
       "id": "DC_ISOLATOR",
@@ -308,7 +344,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": ["PV_DC_INPUT", "PV_DC"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -326,7 +362,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "DC_FUSE",
@@ -334,7 +372,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": ["PV_DC_INPUT", "PV_DC"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -352,7 +390,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "DC_SPD",
@@ -360,7 +399,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": ["PV_DC_INPUT", "EARTH"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -378,7 +417,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "AC_ISOLATOR",
@@ -386,7 +426,14 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        },
+        "EARTH"
+      ],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -404,7 +451,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "AC_PANEL",
@@ -412,7 +460,14 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        },
+        "EARTH"
+      ],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -430,7 +485,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "DISTRIBUTION_BOARD"
     },
     {
       "id": "AC_SPD",
@@ -438,7 +494,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -456,7 +512,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "PRODUCTION_METER",
@@ -464,7 +521,13 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -482,7 +545,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["CONTROL", "EARTH"]
     },
     {
       "id": "EXPORT_LIMITER",
@@ -490,7 +555,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["PV_DC", "ELECTRICAL_AC", "EARTH"],
+      "ports": ["ELECTRICAL_AC", "CONTROL"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -508,7 +573,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "BATTERY_CELL",
@@ -516,7 +583,7 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "ports": ["BATTERY_DC"],
       "calculators": [
         "battery",
         "electrical",
@@ -534,7 +601,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "BATTERY"
     },
     {
       "id": "BATTERY_MODULE",
@@ -542,7 +610,7 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "ports": ["BATTERY_DC", "CONTROL", "EARTH"],
       "calculators": [
         "battery",
         "electrical",
@@ -560,7 +628,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "BATTERY"
     },
     {
       "id": "BATTERY_PACK",
@@ -599,7 +668,7 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "ports": ["BATTERY_DC", "CONTROL", "EARTH"],
       "calculators": [
         "battery",
         "electrical",
@@ -617,7 +686,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "BATTERY"
     },
     {
       "id": "BMS",
@@ -625,7 +695,7 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "ports": ["BATTERY_DC", "CONTROL"],
       "calculators": [
         "battery",
         "electrical",
@@ -643,7 +713,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "BATTERY_FUSE",
@@ -651,7 +723,13 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["BATTERY_DC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": [
         "battery",
         "electrical",
@@ -669,7 +747,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "BATTERY_BREAKER",
@@ -677,7 +756,13 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["BATTERY_DC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": [
         "battery",
         "electrical",
@@ -695,7 +780,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["CONTROL", "EARTH"]
     },
     {
       "id": "BATTERY_ISOLATOR",
@@ -703,7 +790,13 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["BATTERY_DC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": [
         "battery",
         "electrical",
@@ -721,7 +814,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "BATTERY_INVERTER",
@@ -747,7 +842,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "INVERTER"
     },
     {
       "id": "BACKUP_GATEWAY",
@@ -755,7 +851,15 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        },
+        "CONTROL",
+        "EARTH"
+      ],
       "calculators": [
         "battery",
         "electrical",
@@ -773,7 +877,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "DISTRIBUTION_BOARD"
     },
     {
       "id": "ATS",
@@ -781,7 +886,14 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": ["BATTERY_DC", "ELECTRICAL_AC", "CONTROL", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 3,
+          "maxCount": 3
+        },
+        "EARTH"
+      ],
       "calculators": [
         "battery",
         "electrical",
@@ -799,7 +911,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "WOOD_STOVE",
@@ -807,7 +921,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS"],
       "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
       "placement": {
         "allowedHosts": ["SLAB", "WALL"],
@@ -825,7 +939,9 @@
       "status": {
         "MODEL": "NONE"
       },
-      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
       "id": "PELLET_STOVE",
@@ -833,7 +949,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS", "ELECTRICAL_AC"],
       "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
       "placement": {
         "allowedHosts": ["SLAB", "WALL"],
@@ -851,7 +967,9 @@
       "status": {
         "MODEL": "NONE"
       },
-      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
       "id": "WOOD_INSERT",
@@ -859,7 +977,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS"],
       "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
       "placement": {
         "allowedHosts": ["SLAB", "WALL"],
@@ -877,7 +995,9 @@
       "status": {
         "MODEL": "NONE"
       },
-      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
       "id": "PELLET_INSERT",
@@ -885,7 +1005,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS", "ELECTRICAL_AC"],
       "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
       "placement": {
         "allowedHosts": ["SLAB", "WALL"],
@@ -903,7 +1023,9 @@
       "status": {
         "MODEL": "NONE"
       },
-      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
       "id": "FIREPLACE",
@@ -911,7 +1033,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS"],
       "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
       "placement": {
         "allowedHosts": ["SLAB", "WALL"],
@@ -929,7 +1051,9 @@
       "status": {
         "MODEL": "NONE"
       },
-      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
       "id": "BOILER_STOVE",
@@ -937,7 +1061,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR", "HEATING_FLOW", "HEATING_RETURN"],
+      "ports": ["FLUE_GAS", "HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC"],
       "calculators": ["heating", "iaq", "acoustics", "cost", "environmental"],
       "placement": {
         "allowedHosts": ["SLAB", "WALL"],
@@ -955,7 +1079,9 @@
       "status": {
         "MODEL": "NONE"
       },
-      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle."
+      "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
       "id": "STOVE_COLLAR",
@@ -963,7 +1089,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET", "FLUE_GAS"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -974,7 +1100,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "FLUE_ADAPTER",
@@ -982,7 +1110,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET", "FLUE_GAS"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -993,7 +1121,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "SINGLE_WALL_FLUE",
@@ -1001,7 +1131,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET", "FLUE_GAS"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1012,7 +1142,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "INSULATED_FLUE",
@@ -1020,7 +1152,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET", "FLUE_GAS"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1031,7 +1163,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "FLEXIBLE_LINER",
@@ -1039,7 +1173,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET", "FLUE_GAS"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1050,7 +1184,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "FLUE_ELBOW",
@@ -1058,7 +1194,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET", "FLUE_GAS"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1069,7 +1205,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "FLUE_TEE",
@@ -1077,7 +1215,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET", "FLUE_GAS"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1088,7 +1226,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "FLUE_CLEANOUT",
@@ -1096,7 +1236,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET", "FLUE_GAS"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1107,7 +1247,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "WALL_PASSAGE",
@@ -1115,7 +1257,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET", "FLUE_GAS"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1126,7 +1268,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "FLOOR_PASSAGE",
@@ -1134,7 +1278,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET", "FLUE_GAS"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1145,7 +1289,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "ROOF_PASSAGE",
@@ -1153,7 +1299,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET", "FLUE_GAS"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1164,7 +1310,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "CHIMNEY_TERMINAL",
@@ -1172,7 +1320,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1183,7 +1331,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "CHIMNEY_CAP",
@@ -1191,7 +1341,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["FLUE_GAS_INLET"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1202,7 +1352,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "COMBUSTION_AIR_INTAKE",
@@ -1210,7 +1362,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["COMBUSTION_AIR_SOURCE"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1221,7 +1373,8 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "COMBUSTION_AIR_DUCT",
@@ -1229,7 +1382,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1240,7 +1393,8 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "EXTERNAL_AIR_TERMINAL",
@@ -1248,7 +1402,7 @@
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FLUE_GAS", "COMBUSTION_AIR"],
+      "ports": ["COMBUSTION_AIR_SOURCE"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "ROOF"],
@@ -1259,7 +1413,9 @@
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["FLUE_GAS_INLET"]
     }
   ]
 }

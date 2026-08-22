@@ -6,7 +6,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        },
+        "EARTH"
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -18,7 +25,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "DISTRIBUTION_BOARD"
     },
     {
       "id": "SERVICE_METER",
@@ -26,7 +34,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -38,7 +52,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["EARTH", "CONTROL"]
     },
     {
       "id": "MAIN_BREAKER",
@@ -46,7 +62,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -58,7 +80,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "AGCP",
@@ -66,7 +90,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -78,7 +108,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "MAIN_DISTRIBUTION_BOARD",
@@ -117,7 +149,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 64
+        },
+        "EARTH"
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -129,7 +168,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "DISTRIBUTION_BOARD"
     },
     {
       "id": "SPD",
@@ -149,7 +189,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "MAIN_ISOLATOR",
@@ -157,7 +198,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -169,7 +216,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "ENERGY_METER",
@@ -177,7 +226,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -189,7 +244,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["EARTH", "CONTROL"]
     },
     {
       "id": "ELECTRICAL_SUB_METER",
@@ -197,7 +254,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -209,7 +272,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["EARTH", "CONTROL"]
     },
     {
       "id": "MCB",
@@ -247,7 +312,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
@@ -259,7 +330,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "RCD",
@@ -267,7 +339,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
@@ -279,7 +357,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "RCBO",
@@ -287,7 +366,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
@@ -299,7 +384,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "MCCB",
@@ -307,7 +393,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
@@ -319,7 +411,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "CONTACTOR",
@@ -327,7 +420,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
@@ -339,7 +438,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "RELAY",
@@ -347,7 +448,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
@@ -359,7 +466,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "TIMER",
@@ -367,7 +476,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
@@ -379,7 +494,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "LOAD_SHEDDING_RELAY",
@@ -387,7 +504,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
@@ -399,7 +522,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "SURGE_PROTECTOR",
@@ -407,7 +532,7 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
@@ -419,7 +544,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "ARC_FAULT_DEVICE",
@@ -427,7 +553,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
@@ -439,7 +571,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "JUNCTION_BOX",
@@ -447,7 +580,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 8
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING"],
@@ -459,7 +598,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "WALL_BOX",
@@ -467,7 +608,7 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING"],
@@ -479,7 +620,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "FLOOR_BOX",
@@ -499,7 +642,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "TERMINAL_BLOCK",
@@ -507,7 +652,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 12
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING"],
@@ -519,7 +670,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "CABLE_TRAY",
@@ -527,7 +680,7 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING"],
@@ -539,7 +692,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "CABLE_LADDER",
@@ -547,7 +702,7 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING"],
@@ -559,7 +714,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "SOCKET_16A",
@@ -591,7 +748,7 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -603,7 +760,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "USB_SOCKET",
@@ -611,7 +769,7 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -623,7 +781,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "EXTERIOR_SOCKET",
@@ -631,7 +790,7 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -643,7 +802,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "SPECIAL_SOCKET",
@@ -651,7 +811,7 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -663,7 +823,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "COOKER_OUTLET",
@@ -671,7 +832,7 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -683,7 +844,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "CABLE_OUTLET",
@@ -691,7 +853,7 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -703,7 +865,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "SWITCH",
@@ -711,7 +874,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -723,7 +892,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "DOUBLE_SWITCH",
@@ -731,7 +901,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 3,
+          "maxCount": 3
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -743,7 +919,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "TWO_WAY_SWITCH",
@@ -751,7 +928,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 3,
+          "maxCount": 3
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -763,7 +946,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "INTERMEDIATE_SWITCH",
@@ -771,7 +955,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 4,
+          "maxCount": 4
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -783,7 +973,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "PUSH_BUTTON",
@@ -791,7 +982,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -803,7 +1000,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "DIMMER",
@@ -811,7 +1009,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -823,7 +1027,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "ROLLER_SHUTTER_SWITCH",
@@ -831,7 +1037,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 3,
+          "maxCount": 3
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
@@ -843,7 +1055,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "OVEN",
@@ -863,7 +1077,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "HOB",
@@ -883,7 +1099,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "REFRIGERATOR",
@@ -903,7 +1121,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "FREEZER",
@@ -923,7 +1143,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "WASHING_MACHINE",
@@ -943,7 +1165,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "DISHWASHER",
@@ -963,7 +1187,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "DRYER",
@@ -983,7 +1209,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "MICROWAVE",
@@ -1003,7 +1231,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "EV_CHARGER",
@@ -1023,7 +1253,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "POOL_PUMP",
@@ -1043,7 +1275,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PUMP",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "EARTH_ELECTRODE",
@@ -1063,7 +1297,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "EARTH_ROD",
@@ -1083,7 +1318,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "FOUNDATION_EARTH_LOOP",
@@ -1103,7 +1339,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "EARTH_BAR",
@@ -1111,7 +1348,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 16
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
@@ -1123,7 +1366,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "MAIN_EARTHING_TERMINAL",
@@ -1131,7 +1375,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 16
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
@@ -1143,7 +1393,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "PROTECTIVE_CONDUCTOR",
@@ -1151,7 +1402,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
@@ -1163,7 +1420,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "EQUIPOTENTIAL_BONDING",
@@ -1171,7 +1429,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 16
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
@@ -1183,7 +1447,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "BATHROOM_BONDING",
@@ -1191,7 +1456,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 16
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
@@ -1203,7 +1474,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "SPD_EARTH_CONNECTION",
@@ -1211,7 +1483,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
@@ -1223,7 +1501,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "CEILING_LIGHT",
@@ -1256,7 +1535,7 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
@@ -1268,7 +1547,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "SPOTLIGHT",
@@ -1276,7 +1557,7 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
@@ -1288,7 +1569,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "PENDANT",
@@ -1296,7 +1579,7 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
@@ -1308,7 +1591,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "WALL_LIGHT",
@@ -1316,7 +1601,7 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
@@ -1328,7 +1613,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "LED_STRIP",
@@ -1336,7 +1623,7 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
@@ -1348,7 +1635,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "FLOOR_LIGHT",
@@ -1356,7 +1645,7 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
@@ -1368,7 +1657,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "EXTERIOR_LIGHT",
@@ -1376,7 +1667,7 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
@@ -1388,7 +1679,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "EMERGENCY_LIGHT",
@@ -1396,7 +1689,7 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
@@ -1408,7 +1701,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "PRESENCE_SENSOR",
@@ -1416,7 +1711,13 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 1,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
@@ -1428,7 +1729,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "LIGHT_SENSOR",
@@ -1436,7 +1739,7 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
@@ -1448,7 +1751,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "LIGHTING_CONTROLLER",
@@ -1468,7 +1773,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     }
   ]
 }

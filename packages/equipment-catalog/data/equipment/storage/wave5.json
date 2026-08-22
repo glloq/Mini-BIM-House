@@ -1,0 +1,630 @@
+{
+  "definitions": [
+    {
+      "id": "generic-battery-cell",
+      "familyId": "BATTERY_CELL",
+      "name": "Cellule lithium fer phosphate",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 130,
+        "depthMm": 36,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "dc",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 100
+          }
+        }
+      ],
+      "properties": {
+        "usableCapacityKWh": 0.32,
+        "minimumSoc": 0.1,
+        "maximumSoc": 0.95,
+        "maxChargePowerKW": 0.16,
+        "maxDischargePowerKW": 0.32,
+        "chargeEfficiency": 0.97,
+        "dischargeEfficiency": 0.97,
+        "cycleLife": 6000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "THERMAL",
+          "leftMm": 5,
+          "rightMm": 5,
+          "reason": "Jeu de gonflement entre cellules et dissipation par les grandes faces"
+        }
+      ]
+    },
+    {
+      "id": "generic-battery-module",
+      "familyId": "BATTERY_MODULE",
+      "name": "Module batterie 19 pouces",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 442,
+        "depthMm": 450,
+        "heightMm": 133
+      },
+      "ports": [
+        {
+          "id": "dc",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": -120,
+            "y": -225,
+            "z": 0
+          }
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 120,
+            "y": -225,
+            "z": 0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": -225,
+            "z": -66
+          }
+        }
+      ],
+      "properties": {
+        "usableCapacityKWh": 5,
+        "minimumSoc": 0.1,
+        "maximumSoc": 0.95,
+        "maxChargePowerKW": 2.5,
+        "maxDischargePowerKW": 2.5,
+        "chargeEfficiency": 0.96,
+        "dischargeEfficiency": 0.96,
+        "cycleLife": 6000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-battery"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Extraction du module hors de son armoire"
+        },
+        {
+          "zone": "THERMAL",
+          "backMm": 100,
+          "reason": "Ventilation arrière des cellules"
+        }
+      ]
+    },
+    {
+      "id": "generic-battery-rack",
+      "familyId": "BATTERY_RACK",
+      "name": "Armoire batterie",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 1400
+      },
+      "ports": [
+        {
+          "id": "dc",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": 0,
+            "y": -300,
+            "z": -700
+          }
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 150,
+            "y": -300,
+            "z": -700
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": -150,
+            "y": -300,
+            "z": -700
+          }
+        }
+      ],
+      "properties": {
+        "usableCapacityKWh": 25,
+        "minimumSoc": 0.1,
+        "maximumSoc": 0.95,
+        "maxChargePowerKW": 12.5,
+        "maxDischargePowerKW": 12.5,
+        "chargeEfficiency": 0.96,
+        "dischargeEfficiency": 0.96,
+        "cycleLife": 6000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-battery"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 1000,
+          "reason": "Extraction des modules et accès au câblage de puissance"
+        },
+        {
+          "zone": "THERMAL",
+          "backMm": 150,
+          "aboveMm": 300,
+          "reason": "Dissipation des modules et circulation d’air dans l’armoire"
+        },
+        {
+          "zone": "FIRE",
+          "frontMm": 1000,
+          "leftMm": 1000,
+          "rightMm": 1000,
+          "aboveMm": 1000,
+          "reason": "Distance aux matériaux combustibles autour du stockage"
+        }
+      ]
+    },
+    {
+      "id": "generic-bms",
+      "familyId": "BMS",
+      "name": "Système de gestion de batterie",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 80,
+        "heightMm": 180
+      },
+      "ports": [
+        {
+          "id": "dc",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": -125,
+            "y": 0,
+            "z": -90
+          }
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 125,
+            "y": 0,
+            "z": -90
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "reason": "Accès au bornier de mesure et lecture des voyants"
+        }
+      ]
+    },
+    {
+      "id": "generic-battery-inverter",
+      "familyId": "BATTERY_INVERTER",
+      "name": "Onduleur de batterie",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 450,
+        "depthMm": 200,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "dc",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": -150,
+            "y": 0,
+            "z": -300
+          }
+        },
+        {
+          "id": "ac",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -300
+          }
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 150,
+            "y": 0,
+            "z": -300
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 195,
+            "y": 0,
+            "z": -300
+          }
+        }
+      ],
+      "properties": {
+        "maxChargePowerKW": 5,
+        "maxDischargePowerKW": 5,
+        "chargeEfficiency": 0.96,
+        "dischargeEfficiency": 0.96
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-inverter"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "aboveMm": 300,
+          "belowMm": 300,
+          "reason": "Accès aux bornes continues et alternatives"
+        },
+        {
+          "zone": "THERMAL",
+          "leftMm": 200,
+          "rightMm": 200,
+          "reason": "Ventilation du dissipateur"
+        }
+      ]
+    },
+    {
+      "id": "generic-battery-isolator",
+      "familyId": "BATTERY_ISOLATOR",
+      "name": "Sectionneur batterie",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 90,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "dc-in",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": -55,
+            "y": 0,
+            "z": -80
+          }
+        },
+        {
+          "id": "dc-out",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": 55,
+            "y": 0,
+            "z": -80
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "reason": "Manœuvre de la poignée et consignation du stockage"
+        }
+      ]
+    },
+    {
+      "id": "generic-battery-breaker",
+      "familyId": "BATTERY_BREAKER",
+      "name": "Disjoncteur batterie",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 90,
+        "depthMm": 90,
+        "heightMm": 130
+      },
+      "ports": [
+        {
+          "id": "dc-in",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 65
+          }
+        },
+        {
+          "id": "dc-out",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -65
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "reason": "Manœuvre et réarmement de l’appareil"
+        }
+      ]
+    },
+    {
+      "id": "generic-battery-fuse",
+      "familyId": "BATTERY_FUSE",
+      "name": "Fusible batterie",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 60,
+        "heightMm": 120
+      },
+      "ports": [
+        {
+          "id": "dc-in",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 60
+          }
+        },
+        {
+          "id": "dc-out",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -60
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "reason": "Remplacement de la cartouche, batterie consignée"
+        }
+      ]
+    },
+    {
+      "id": "generic-backup-gateway",
+      "familyId": "BACKUP_GATEWAY",
+      "name": "Coffret de secours",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 160,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "ac-grid",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -140,
+            "y": 0,
+            "z": -300
+          }
+        },
+        {
+          "id": "ac-backup",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 140,
+            "y": 0,
+            "z": -300
+          }
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 300
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -300
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-distribution-board"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Ouverture de la porte et repérage des départs secourus"
+        }
+      ]
+    },
+    {
+      "id": "generic-ats",
+      "familyId": "ATS",
+      "name": "Inverseur de source",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 130,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "ac-source-1",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -90,
+            "y": 0,
+            "z": 150
+          }
+        },
+        {
+          "id": "ac-source-2",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 90,
+            "y": 0,
+            "z": 150
+          }
+        },
+        {
+          "id": "ac-load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -150
+          }
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 90,
+            "y": 0,
+            "z": -150
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": -90,
+            "y": 0,
+            "z": -150
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès aux bornes des deux sources et manœuvre manuelle de secours"
+        }
+      ]
+    }
+  ]
+}

@@ -4,7 +4,7 @@ import {
   familyCapabilities,
   family,
 } from '@house-technical-designer/catalog-registry';
-import { projectEquipmentFromCatalog } from './library-model.js';
+import { nextLibraryId, projectEquipmentFromCatalog } from './library-model.js';
 import type { EquipmentDefinition as ProjectEquipment } from '@house-technical-designer/core-domain';
 import type { HostType } from '@house-technical-designer/core-domain';
 import { isHostType } from '@house-technical-designer/core-domain';
@@ -43,6 +43,26 @@ const copyOf = (entry: ReturnType<typeof genericCatalog>[number]) =>
     family(entry.familyId)?.clearances,
     familyCapabilities(entry.familyId),
   );
+
+describe('what a fiche becomes when it is placed', () => {
+  it('gives every fiche a project identifier of its own', () => {
+    // The identifier a placed object gets is derived from its name, so two
+    // fiches called the same thing land on the same one. Three pairs did:
+    // a heating air vent and a plumbing one, two emergency luminaires, two
+    // septic tanks — each pair being two families of the nomenclature that
+    // describe the same object from two trades. Renaming makes them tellable
+    // apart; this refuses the next pair.
+    const byId = new Map<string, string>();
+    const clashes: string[] = [];
+    for (const entry of genericCatalog()) {
+      const id = nextLibraryId('equipment', entry.name, []);
+      const first = byId.get(id);
+      if (first !== undefined) clashes.push(`${first} / ${entry.id} → ${id}`);
+      else byId.set(id, entry.id);
+    }
+    expect(clashes).toEqual([]);
+  });
+});
 
 describe('a project carries the whole entry, not a summary of it', () => {
   it('leaves no field of the catalogue behind', () => {
@@ -125,11 +145,26 @@ describe('a project carries the whole entry, not a summary of it', () => {
     // panel produced a project the importer would have refused on reopening.
     // The rule this suite exists for is that a command must never be able to
     // do that.
+    // The identifiers accumulate, as they do in the interface: the panel hands
+    // the command the ones the project already holds, and `nextLibraryId`
+    // suffixes around them. Passing an empty list every time was a fiction
+    // that only held while no two fiches were named alike.
     const commands = new ProjectCommandDispatcher(populatedProject());
-    for (const entry of genericCatalog())
+    const taken: string[] = [];
+    for (const entry of genericCatalog()) {
+      const copy = projectEquipmentFromCatalog(
+        entry,
+        taken,
+        hostsOf(entry.familyId),
+        family(entry.familyId)?.clearances,
+        familyCapabilities(entry.familyId),
+      );
+      taken.push(copy.id);
       expect(
-        commands.dispatch(new AddEquipmentCommand(copyOf(entry))).status,
+        commands.dispatch(new AddEquipmentCommand(copy)).status,
+        copy.id,
       ).toBe('APPLIED');
+    }
     const issues = validateProjectFile({
       format: 'house-technical-designer-project',
       schemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,

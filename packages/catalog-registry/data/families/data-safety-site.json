@@ -6,7 +6,7 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "ports": ["ETHERNET"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -18,7 +18,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER"
     },
     {
       "id": "FIBER_TERMINATION",
@@ -26,7 +27,13 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["FIBER", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["FIBER"],
+          "maxCount": 2,
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -38,7 +45,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "COAX_SOCKET",
@@ -46,7 +55,7 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["COAX", "ELECTRICAL_AC"],
+      "ports": ["COAX"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -58,7 +67,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER"
     },
     {
       "id": "NETWORK_RACK",
@@ -66,7 +76,12 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ETHERNET"],
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -78,7 +93,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC", "FIBER"]
     },
     {
       "id": "PATCH_PANEL",
@@ -86,7 +103,12 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ETHERNET"],
+          "minCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -98,7 +120,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER"
     },
     {
       "id": "NETWORK_SWITCH",
@@ -106,7 +129,13 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ETHERNET"],
+          "minCount": 2
+        },
+        "ELECTRICAL_AC"
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -118,7 +147,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["FIBER"]
     },
     {
       "id": "ROUTER",
@@ -126,7 +157,13 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ETHERNET", "FIBER", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ETHERNET"],
+          "minCount": 1
+        },
+        "ELECTRICAL_AC"
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -138,7 +175,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["FIBER", "COAX", "WIRELESS"]
     },
     {
       "id": "WIFI_ACCESS_POINT",
@@ -146,7 +185,7 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ETHERNET", "WIRELESS", "ELECTRICAL_AC"],
+      "ports": ["ETHERNET", "WIRELESS"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -158,7 +197,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "CAMERA",
@@ -166,7 +207,7 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "ports": ["ETHERNET"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -178,7 +219,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC", "WIRELESS"]
     },
     {
       "id": "VIDEO_DOORBELL",
@@ -186,7 +229,13 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ETHERNET", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ETHERNET", "BUS"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -198,7 +247,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "INTERCOM",
@@ -206,7 +257,7 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["BUS", "ELECTRICAL_AC"],
+      "ports": ["BUS"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -218,7 +269,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "DATA_TEMPERATURE_SENSOR",
@@ -226,7 +279,13 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["BUS", "WIRELESS"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -238,7 +297,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "HUMIDITY_SENSOR",
@@ -246,7 +307,13 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["BUS", "WIRELESS"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -258,7 +325,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "CO2_SENSOR",
@@ -266,7 +335,13 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["BUS", "WIRELESS"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -278,7 +353,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "LEAK_SENSOR",
@@ -286,7 +363,13 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["BUS", "WIRELESS"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -298,7 +381,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "WINDOW_SENSOR",
@@ -306,7 +391,13 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["BUS", "WIRELESS"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -318,7 +409,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "MOTION_SENSOR",
@@ -326,7 +419,13 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["BUS", "WIRELESS"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -338,7 +437,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "DATA_PRESENCE_SENSOR",
@@ -346,7 +447,13 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["BUS", "WIRELESS", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["BUS", "WIRELESS"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -358,7 +465,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "DATA_RELAY",
@@ -378,7 +487,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["BUS", "CONTROL", "WIRELESS"]
     },
     {
       "id": "ACTUATOR",
@@ -398,7 +509,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["BUS", "WIRELESS"]
     },
     {
       "id": "ROLLER_SHUTTER_ACTUATOR",
@@ -418,7 +531,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["BUS", "WIRELESS"]
     },
     {
       "id": "KNX_DEVICE",
@@ -426,7 +541,7 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["BUS", "ELECTRICAL_AC"],
+      "ports": ["BUS"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -438,7 +553,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "MODBUS_DEVICE",
@@ -446,7 +563,7 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["BUS", "ELECTRICAL_AC"],
+      "ports": ["BUS"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -458,7 +575,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "MATTER_DEVICE",
@@ -466,7 +585,7 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["WIRELESS", "ELECTRICAL_AC"],
+      "ports": ["WIRELESS"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -478,7 +597,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "ZIGBEE_DEVICE",
@@ -486,7 +607,7 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["WIRELESS", "ELECTRICAL_AC"],
+      "ports": ["WIRELESS"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -498,7 +619,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "THREAD_DEVICE",
@@ -506,7 +629,7 @@
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["WIRELESS", "ELECTRICAL_AC"],
+      "ports": ["WIRELESS"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "CEILING", "SLAB"],
@@ -518,7 +641,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir."
+      "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "SMOKE_DETECTOR",
@@ -526,7 +651,7 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -538,7 +663,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC", "DRY_CONTACT", "BUS", "WIRELESS"]
     },
     {
       "id": "HEAT_DETECTOR",
@@ -546,7 +673,7 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -558,7 +685,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC", "DRY_CONTACT", "BUS", "WIRELESS"]
     },
     {
       "id": "CO_DETECTOR",
@@ -566,7 +695,7 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -578,7 +707,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC", "DRY_CONTACT", "BUS", "WIRELESS"]
     },
     {
       "id": "SAFETY_CO2_DETECTOR",
@@ -586,7 +717,7 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -598,7 +729,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC", "DRY_CONTACT", "BUS", "WIRELESS"]
     },
     {
       "id": "ALARM_PANEL",
@@ -606,7 +739,7 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -618,7 +751,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["WIRELESS", "BUS", "ETHERNET", "DRY_CONTACT"]
     },
     {
       "id": "SIREN",
@@ -626,7 +761,13 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": [
+        {
+          "anyOf": ["WIRELESS", "BUS", "DRY_CONTACT"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -638,7 +779,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "SAFETY_MOTION_DETECTOR",
@@ -646,7 +789,13 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": [
+        {
+          "anyOf": ["WIRELESS", "BUS", "DRY_CONTACT"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -658,7 +807,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "DOOR_CONTACT",
@@ -666,7 +817,7 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": ["DRY_CONTACT"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -678,7 +829,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["WIRELESS"]
     },
     {
       "id": "EXTINGUISHER",
@@ -686,7 +839,7 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -698,7 +851,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "FIRE_BLANKET",
@@ -706,7 +860,7 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -718,7 +872,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "SAFETY_EMERGENCY_LIGHT",
@@ -726,7 +881,7 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -738,7 +893,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["DRY_CONTACT", "BUS"]
     },
     {
       "id": "EMERGENCY_STOP",
@@ -746,7 +903,7 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": ["DRY_CONTACT"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -758,7 +915,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "ELECTRICAL_EMERGENCY_CUTOFF",
@@ -766,7 +925,13 @@
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "DRY_CONTACT"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "maxCount": 2,
+          "minCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL"],
@@ -778,7 +943,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "RULES": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["DRY_CONTACT"]
     },
     {
       "id": "SITE_WATER_METER",
@@ -786,7 +953,13 @@
       "domain": "SITE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["WATER_COLD"],
+      "ports": [
+        {
+          "anyOf": ["WATER_COLD"],
+          "maxCount": 2,
+          "minCount": 2
+        }
+      ],
       "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE"],
@@ -798,7 +971,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER"
     },
     {
       "id": "WATER_CHAMBER",
@@ -806,7 +980,13 @@
       "domain": "SITE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["WATER_COLD"],
+      "ports": [
+        {
+          "anyOf": ["WATER_COLD"],
+          "maxCount": 2,
+          "minCount": 2
+        }
+      ],
       "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE"],
@@ -818,7 +998,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER"
     },
     {
       "id": "SEWER_CHAMBER",
@@ -826,7 +1007,18 @@
       "domain": "SITE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["WASTEWATER", "SOILWATER"],
+      "ports": [
+        {
+          "anyOf": ["SOILWATER_INLET", "WASTEWATER_INLET"],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": ["SOILWATER", "WASTEWATER"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE"],
@@ -838,7 +1030,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER"
     },
     {
       "id": "SITE_RAINWATER_CHAMBER",
@@ -858,7 +1051,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER"
     },
     {
       "id": "SITE_SEPTIC_TANK",
@@ -866,7 +1060,18 @@
       "domain": "SITE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["WASTEWATER", "SOILWATER"],
+      "ports": [
+        {
+          "anyOf": ["SOILWATER_INLET", "WASTEWATER_INLET"],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": ["SOILWATER", "WASTEWATER"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE"],
@@ -878,7 +1083,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER"
     },
     {
       "id": "SITE_MICRO_TREATMENT_PLANT",
@@ -886,7 +1092,19 @@
       "domain": "SITE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["WASTEWATER", "SOILWATER", "ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["SOILWATER_INLET", "WASTEWATER_INLET"],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": ["SOILWATER", "WASTEWATER"],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        "ELECTRICAL_AC"
+      ],
       "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE"],
@@ -898,7 +1116,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER"
     },
     {
       "id": "ELECTRICAL_SERVICE_BOX",
@@ -906,7 +1125,13 @@
       "domain": "SITE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "maxCount": 2,
+          "minCount": 2
+        }
+      ],
       "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE"],
@@ -918,7 +1143,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "DISTRIBUTION_BOARD",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "UTILITY_METER",
@@ -926,7 +1153,13 @@
       "domain": "SITE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "maxCount": 2,
+          "minCount": 2
+        }
+      ],
       "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE"],
@@ -938,7 +1171,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER"
     },
     {
       "id": "SITE_EARTH_ROD",
@@ -958,7 +1192,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER"
     },
     {
       "id": "OUTDOOR_HEAT_PUMP",
@@ -966,12 +1201,7 @@
       "domain": "SITE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": [
-        "HEATING_FLOW",
-        "HEATING_RETURN",
-        "ELECTRICAL_AC",
-        "CONDENSATE"
-      ],
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC"],
       "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE"],
@@ -983,7 +1213,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "HEAT_PUMP",
+      "optionalPorts": ["CONDENSATE", "REFRIGERANT_LIQUID", "REFRIGERANT_GAS"]
     },
     {
       "id": "GROUND_PV_ARRAY",
@@ -1003,7 +1235,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "PV_MODULE"
     },
     {
       "id": "SITE_RAINWATER_TANK",
@@ -1023,7 +1256,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "RAINWATER_TANK",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "WELL",
@@ -1043,7 +1278,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "BOREHOLE",
@@ -1063,7 +1300,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "SITE_DRAIN",
@@ -1083,7 +1322,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER"
     },
     {
       "id": "SITE_EV_CHARGER",
@@ -1103,7 +1343,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "OTHER",
+      "optionalPorts": ["ETHERNET", "WIRELESS", "CONTROL"]
     },
     {
       "id": "SITE_EXTERIOR_SOCKET",
@@ -1123,7 +1365,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "SOCKET"
     },
     {
       "id": "SITE_EXTERIOR_LIGHT",
@@ -1131,7 +1374,7 @@
       "domain": "SITE",
       "registry": "EQUIPMENT",
       "priority": 6,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["water", "wastewater", "rainwater", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE"],
@@ -1143,7 +1386,9 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau."
+      "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL", "WIRELESS"]
     },
     {
       "id": "STRUCTURAL_COLUMN",

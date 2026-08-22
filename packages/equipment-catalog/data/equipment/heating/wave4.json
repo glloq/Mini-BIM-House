@@ -1,0 +1,3603 @@
+{
+  "definitions": [
+    {
+      "id": "generic-gas-condensing-boiler",
+      "familyId": "BOILER_GAS",
+      "name": "Chaudière gaz à condensation",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 450,
+        "depthMm": 360,
+        "heightMm": 750
+      },
+      "ports": [
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -120,
+            "y": 0,
+            "z": -375
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 120,
+            "y": 0,
+            "z": -375
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": -300
+          }
+        },
+        {
+          "id": "flue",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 375
+          },
+          "nominalSize": 0.06
+        },
+        {
+          "id": "combustion-air",
+          "portTypeId": "COMBUSTION_AIR",
+          "position": {
+            "x": 0,
+            "y": 60,
+            "z": 375
+          },
+          "nominalSize": 0.1
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 60,
+            "y": 0,
+            "z": -375
+          },
+          "nominalSize": 0.032
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 24000,
+        "efficiency": 0.98,
+        "minSupplyTemperature": 30,
+        "maxSupplyTemperature": 80,
+        "fuel": "NATURAL_GAS"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.generation"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "belowMm": 300,
+          "reason": "Accès à la façade, au siphon et aux raccordements"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 700,
+          "aboveMm": 300,
+          "reason": "Dépose du corps de chauffe et du ventilateur"
+        }
+      ]
+    },
+    {
+      "id": "generic-oil-condensing-boiler",
+      "familyId": "BOILER_OIL",
+      "name": "Chaudière fioul à condensation",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 700,
+        "heightMm": 1200
+      },
+      "ports": [
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -150,
+            "y": -350,
+            "z": 400
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 150,
+            "y": -350,
+            "z": 400
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -250,
+            "y": -350,
+            "z": 300
+          }
+        },
+        {
+          "id": "flue",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 350,
+            "z": 500
+          },
+          "nominalSize": 0.1
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 100,
+            "y": -350,
+            "z": -600
+          },
+          "nominalSize": 0.032
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 25000,
+        "efficiency": 0.96,
+        "minSupplyTemperature": 40,
+        "maxSupplyTemperature": 80,
+        "fuel": "OIL"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.generation"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 800,
+          "reason": "Accès frontal au brûleur et au tableau de commande"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 1000,
+          "leftMm": 400,
+          "rightMm": 400,
+          "reason": "Ramonage du corps de chauffe et dépose du brûleur"
+        }
+      ]
+    },
+    {
+      "id": "generic-pellet-boiler",
+      "familyId": "BOILER_BIOMASS",
+      "name": "Chaudière à granulés",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 800,
+        "depthMm": 900,
+        "heightMm": 1500
+      },
+      "ports": [
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -200,
+            "y": -450,
+            "z": 600
+          },
+          "nominalSize": 0.032
+        },
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 200,
+            "y": -450,
+            "z": 600
+          },
+          "nominalSize": 0.032
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -350,
+            "y": -450,
+            "z": 400
+          }
+        },
+        {
+          "id": "flue",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 450,
+            "z": 600
+          },
+          "nominalSize": 0.13
+        },
+        {
+          "id": "combustion-air",
+          "portTypeId": "COMBUSTION_AIR",
+          "position": {
+            "x": -150,
+            "y": 450,
+            "z": 500
+          },
+          "nominalSize": 0.1
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 20000,
+        "efficiency": 0.9,
+        "minSupplyTemperature": 40,
+        "maxSupplyTemperature": 80,
+        "fuel": "WOOD_PELLET"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.generation"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 1000,
+          "aboveMm": 400,
+          "reason": "Chargement du réservoir et extraction du cendrier"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 1200,
+          "leftMm": 500,
+          "rightMm": 500,
+          "reason": "Ramonage de l’échangeur et dépose du foyer"
+        }
+      ]
+    },
+    {
+      "id": "generic-electric-boiler",
+      "familyId": "ELECTRIC_BOILER",
+      "name": "Chaudière électrique murale",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 450,
+        "depthMm": 250,
+        "heightMm": 750
+      },
+      "ports": [
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -120,
+            "y": 0,
+            "z": -375
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 120,
+            "y": 0,
+            "z": -375
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": -300
+          }
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 12000,
+        "efficiency": 0.99,
+        "minSupplyTemperature": 30,
+        "maxSupplyTemperature": 80,
+        "fuel": "ELECTRICITY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.generation"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "belowMm": 300,
+          "reason": "Accès au tableau de commande et aux raccordements"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 700,
+          "reason": "Dépose des corps de chauffe électriques"
+        }
+      ]
+    },
+    {
+      "id": "generic-electric-convector",
+      "familyId": "ELECTRIC_HEATER",
+      "name": "Convecteur électrique",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 800,
+        "depthMm": 110,
+        "heightMm": 450
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -400,
+            "y": 0,
+            "z": -225
+          }
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 1500,
+        "efficiency": 1,
+        "fuel": "ELECTRICITY"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-radiator"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "belowMm": 120,
+          "reason": "Veine d’air en façade et dépose de l’appareil sur sa patère"
+        }
+      ]
+    },
+    {
+      "id": "generic-district-heating-substation",
+      "familyId": "DISTRICT_HEATING_INTERFACE",
+      "name": "Sous-station de réseau de chaleur",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 400,
+        "heightMm": 900
+      },
+      "ports": [
+        {
+          "id": "primary-flow",
+          "portTypeId": "PRIMARY_FLOW",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": -450
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "primary-return",
+          "portTypeId": "PRIMARY_RETURN",
+          "position": {
+            "x": -100,
+            "y": 0,
+            "z": -450
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 100,
+            "y": 0,
+            "z": -450
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 200,
+            "y": 0,
+            "z": -450
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -300,
+            "y": 0,
+            "z": -300
+          }
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 30000,
+        "efficiency": 0.98,
+        "minSupplyTemperature": 40,
+        "maxSupplyTemperature": 90
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.generation"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Relevé du comptage et manœuvre des vannes"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 900,
+          "rightMm": 400,
+          "reason": "Dépose de l’échangeur à plaques"
+        }
+      ]
+    },
+    {
+      "id": "generic-flat-plate-solar-collector",
+      "familyId": "SOLAR_THERMAL",
+      "name": "Capteur solaire thermique plan",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 1200,
+        "depthMm": 90,
+        "heightMm": 2000
+      },
+      "ports": [
+        {
+          "id": "primary-flow",
+          "portTypeId": "PRIMARY_FLOW",
+          "position": {
+            "x": 500,
+            "y": 0,
+            "z": 1000
+          },
+          "nominalSize": 0.018
+        },
+        {
+          "id": "primary-return",
+          "portTypeId": "PRIMARY_RETURN",
+          "position": {
+            "x": -500,
+            "y": 0,
+            "z": -1000
+          },
+          "nominalSize": 0.018
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 1750,
+        "efficiency": 0.78,
+        "maxSupplyTemperature": 95
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.generation"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Nettoyage du vitrage et contrôle des raccords"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 1000,
+          "aboveMm": 600,
+          "reason": "Dépose du capteur sur ses rails de fixation"
+        }
+      ]
+    },
+    {
+      "id": "generic-air-air-heat-pump",
+      "familyId": "HEAT_PUMP_AIR_AIR",
+      "name": "Pompe à chaleur air/air",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 900,
+        "depthMm": 350,
+        "heightMm": 750
+      },
+      "ports": [
+        {
+          "id": "liquid",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": -300,
+            "y": 175,
+            "z": -300
+          },
+          "nominalSize": 0.0064
+        },
+        {
+          "id": "gas",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": -200,
+            "y": 175,
+            "z": -300
+          },
+          "nominalSize": 0.0095
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -400,
+            "y": 175,
+            "z": -250
+          }
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -375
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "nominalHeatingCapacityW": 5000,
+        "nominalCop": 4.0,
+        "ratedCoolingPower": 4500,
+        "eer": 3.6,
+        "scop": 4.1,
+        "seer": 6.5,
+        "refrigerant": "R32",
+        "refrigerantCharge": 1.2,
+        "gwp": 675,
+        "minimumOutdoorTemperatureC": -15,
+        "soundPowerOutdoor": 62,
+        "supplyVoltageV": 230,
+        "maximumElectricalPower": 2000
+      },
+      "performanceCurves": [
+        {
+          "id": "cop-vs-outdoor-temperature",
+          "inputAxes": [
+            {
+              "id": "outdoorTemperatureC",
+              "unit": "°C"
+            }
+          ],
+          "output": "cop",
+          "outputUnit": "-",
+          "interpolation": "LINEAR",
+          "points": [
+            {
+              "inputs": [-15],
+              "output": 2.1
+            },
+            {
+              "inputs": [-7],
+              "output": 2.7
+            },
+            {
+              "inputs": [2],
+              "output": 3.4
+            },
+            {
+              "inputs": [7],
+              "output": 4.0
+            },
+            {
+              "inputs": [15],
+              "output": 4.8
+            }
+          ]
+        }
+      ],
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-heat-pump"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "rightMm": 300,
+          "reason": "Accès aux raccords frigorifiques et au bornier"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 1000,
+          "aboveMm": 400,
+          "reason": "Dépose du capot et du compresseur"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "backMm": 300,
+          "reason": "Reprise d’air sur l’évaporateur"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "frontMm": 2000,
+          "reason": "Soufflage du ventilateur, sans obstacle en vis-à-vis"
+        }
+      ]
+    },
+    {
+      "id": "generic-air-water-heat-pump-split",
+      "familyId": "HEAT_PUMP_AIR_WATER_SPLIT",
+      "name": "Pompe à chaleur air/eau bibloc",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 1000,
+        "depthMm": 400,
+        "heightMm": 800
+      },
+      "ports": [
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -350,
+            "y": 0,
+            "z": -400
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 350,
+            "y": 0,
+            "z": -400
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "liquid",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": -300,
+            "y": 200,
+            "z": -300
+          },
+          "nominalSize": 0.0064
+        },
+        {
+          "id": "gas",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": -200,
+            "y": 200,
+            "z": -300
+          },
+          "nominalSize": 0.0127
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 200,
+            "z": -350
+          }
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 100,
+            "y": 0,
+            "z": -400
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "nominalHeatingCapacityW": 8000,
+        "nominalCop": 4.3,
+        "scop": 4.3,
+        "maximumFlowTemperatureC": 60,
+        "minimumOutdoorTemperatureC": -20,
+        "refrigerant": "R32",
+        "refrigerantCharge": 1.8,
+        "gwp": 675,
+        "auxiliaryHeaterPower": 3000,
+        "soundPowerOutdoor": 60,
+        "supplyVoltageV": 230,
+        "maximumElectricalPower": 3200
+      },
+      "performanceCurves": [
+        {
+          "id": "cop-vs-outdoor-temperature",
+          "inputAxes": [
+            {
+              "id": "outdoorTemperatureC",
+              "unit": "°C"
+            }
+          ],
+          "output": "cop",
+          "outputUnit": "-",
+          "interpolation": "LINEAR",
+          "points": [
+            {
+              "inputs": [-15],
+              "output": 2.0
+            },
+            {
+              "inputs": [-7],
+              "output": 2.6
+            },
+            {
+              "inputs": [2],
+              "output": 3.5
+            },
+            {
+              "inputs": [7],
+              "output": 4.3
+            },
+            {
+              "inputs": [15],
+              "output": 5.1
+            }
+          ]
+        }
+      ],
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-heat-pump"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 1000,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Accès à la façade technique et aux liaisons frigorifiques"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 1000,
+          "aboveMm": 500,
+          "reason": "Dépose du capot et de l’échangeur"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "backMm": 300,
+          "reason": "Reprise d’air sur l’évaporateur"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "frontMm": 2000,
+          "reason": "Soufflage du ventilateur, sans obstacle en vis-à-vis"
+        }
+      ]
+    },
+    {
+      "id": "generic-ground-water-heat-pump",
+      "familyId": "HEAT_PUMP_GROUND_WATER",
+      "name": "Pompe à chaleur sol/eau",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 650,
+        "heightMm": 1100
+      },
+      "ports": [
+        {
+          "id": "primary-flow",
+          "portTypeId": "PRIMARY_FLOW",
+          "position": {
+            "x": -200,
+            "y": -325,
+            "z": 400
+          },
+          "nominalSize": 0.032
+        },
+        {
+          "id": "primary-return",
+          "portTypeId": "PRIMARY_RETURN",
+          "position": {
+            "x": -100,
+            "y": -325,
+            "z": 400
+          },
+          "nominalSize": 0.032
+        },
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 100,
+            "y": -325,
+            "z": 400
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 200,
+            "y": -325,
+            "z": 400
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -300,
+            "y": -325,
+            "z": 300
+          }
+        }
+      ],
+      "properties": {
+        "nominalHeatingCapacityW": 9000,
+        "nominalCop": 4.6,
+        "scop": 4.8,
+        "maximumFlowTemperatureC": 55,
+        "refrigerant": "R32",
+        "refrigerantCharge": 1.6,
+        "gwp": 675,
+        "soundPowerIndoor": 45,
+        "supplyVoltageV": 400,
+        "maximumElectricalPower": 2600
+      },
+      "performanceCurves": [
+        {
+          "id": "cop-vs-supply-temperature",
+          "inputAxes": [
+            {
+              "id": "supplyTemperatureC",
+              "unit": "°C"
+            }
+          ],
+          "output": "cop",
+          "outputUnit": "-",
+          "interpolation": "LINEAR",
+          "points": [
+            {
+              "inputs": [30],
+              "output": 5.2
+            },
+            {
+              "inputs": [35],
+              "output": 4.6
+            },
+            {
+              "inputs": [45],
+              "output": 3.8
+            },
+            {
+              "inputs": [55],
+              "output": 3.1
+            }
+          ]
+        }
+      ],
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-heat-pump"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Accès frontal aux raccordements et au régulateur"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 1000,
+          "leftMm": 400,
+          "rightMm": 400,
+          "reason": "Dépose des capots et du module frigorifique"
+        }
+      ]
+    },
+    {
+      "id": "generic-water-water-heat-pump",
+      "familyId": "HEAT_PUMP_WATER_WATER",
+      "name": "Pompe à chaleur eau/eau",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 650,
+        "heightMm": 1100
+      },
+      "ports": [
+        {
+          "id": "primary-flow",
+          "portTypeId": "PRIMARY_FLOW",
+          "position": {
+            "x": -200,
+            "y": -325,
+            "z": 400
+          },
+          "nominalSize": 0.032
+        },
+        {
+          "id": "primary-return",
+          "portTypeId": "PRIMARY_RETURN",
+          "position": {
+            "x": -100,
+            "y": -325,
+            "z": 400
+          },
+          "nominalSize": 0.032
+        },
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 100,
+            "y": -325,
+            "z": 400
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 200,
+            "y": -325,
+            "z": 400
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -300,
+            "y": -325,
+            "z": 300
+          }
+        }
+      ],
+      "properties": {
+        "nominalHeatingCapacityW": 10000,
+        "nominalCop": 5.2,
+        "scop": 5.4,
+        "maximumFlowTemperatureC": 55,
+        "refrigerant": "R32",
+        "refrigerantCharge": 1.6,
+        "gwp": 675,
+        "soundPowerIndoor": 46,
+        "supplyVoltageV": 400,
+        "maximumElectricalPower": 2500
+      },
+      "performanceCurves": [
+        {
+          "id": "cop-vs-supply-temperature",
+          "inputAxes": [
+            {
+              "id": "supplyTemperatureC",
+              "unit": "°C"
+            }
+          ],
+          "output": "cop",
+          "outputUnit": "-",
+          "interpolation": "LINEAR",
+          "points": [
+            {
+              "inputs": [30],
+              "output": 5.8
+            },
+            {
+              "inputs": [35],
+              "output": 5.2
+            },
+            {
+              "inputs": [45],
+              "output": 4.3
+            },
+            {
+              "inputs": [55],
+              "output": 3.5
+            }
+          ]
+        }
+      ],
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-heat-pump"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Accès frontal aux raccordements et au régulateur"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 1000,
+          "leftMm": 400,
+          "rightMm": 400,
+          "reason": "Dépose des capots et du module frigorifique"
+        }
+      ]
+    },
+    {
+      "id": "generic-exhaust-air-heat-pump",
+      "familyId": "EXHAUST_AIR_HEAT_PUMP",
+      "name": "Pompe à chaleur sur air extrait",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 2000
+      },
+      "ports": [
+        {
+          "id": "extract",
+          "portTypeId": "AIR_EXTRACT",
+          "position": {
+            "x": -300,
+            "y": 0,
+            "z": 900
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "exhaust",
+          "portTypeId": "AIR_EXHAUST",
+          "position": {
+            "x": 300,
+            "y": 0,
+            "z": 900
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -150,
+            "y": -300,
+            "z": 700
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 150,
+            "y": -300,
+            "z": 700
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -250,
+            "y": -300,
+            "z": 600
+          }
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 0,
+            "y": -300,
+            "z": -900
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "nominalHeatingCapacityW": 4000,
+        "nominalCop": 3.2,
+        "scop": 3.4,
+        "maximumFlowTemperatureC": 55,
+        "refrigerant": "R290",
+        "refrigerantCharge": 0.6,
+        "gwp": 3,
+        "soundPowerIndoor": 50,
+        "supplyVoltageV": 230,
+        "maximumElectricalPower": 1500
+      },
+      "performanceCurves": [
+        {
+          "id": "cop-vs-supply-temperature",
+          "inputAxes": [
+            {
+              "id": "supplyTemperatureC",
+              "unit": "°C"
+            }
+          ],
+          "output": "cop",
+          "outputUnit": "-",
+          "interpolation": "LINEAR",
+          "points": [
+            {
+              "inputs": [35],
+              "output": 3.6
+            },
+            {
+              "inputs": [45],
+              "output": 3.0
+            },
+            {
+              "inputs": [55],
+              "output": 2.5
+            }
+          ]
+        }
+      ],
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-heat-pump"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Accès frontal au filtre et aux raccordements"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 900,
+          "aboveMm": 400,
+          "reason": "Dépose du module frigorifique par le dessus"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "aboveMm": 300,
+          "reason": "Reprise de l’air extrait sur l’évaporateur"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "aboveMm": 300,
+          "reason": "Rejet de l’air refroidi vers l’extérieur"
+        }
+      ]
+    },
+    {
+      "id": "generic-reversible-heat-pump",
+      "familyId": "REVERSIBLE_HEAT_PUMP",
+      "name": "Pompe à chaleur air/eau réversible",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 1100,
+        "depthMm": 450,
+        "heightMm": 850
+      },
+      "ports": [
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -400,
+            "y": 0,
+            "z": -425
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 400,
+            "y": 0,
+            "z": -425
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 225,
+            "z": -375
+          }
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 100,
+            "y": 0,
+            "z": -425
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "nominalHeatingCapacityW": 8000,
+        "nominalCop": 4.2,
+        "scop": 4.2,
+        "ratedCoolingPower": 7000,
+        "eer": 3.4,
+        "seer": 5.5,
+        "maximumFlowTemperatureC": 55,
+        "minimumOutdoorTemperatureC": -20,
+        "refrigerant": "R32",
+        "refrigerantCharge": 1.9,
+        "gwp": 675,
+        "defrostStrategy": "REVERSE_CYCLE",
+        "soundPowerOutdoor": 62,
+        "supplyVoltageV": 230,
+        "maximumElectricalPower": 3400
+      },
+      "performanceCurves": [
+        {
+          "id": "cop-vs-outdoor-temperature",
+          "inputAxes": [
+            {
+              "id": "outdoorTemperatureC",
+              "unit": "°C"
+            }
+          ],
+          "output": "cop",
+          "outputUnit": "-",
+          "interpolation": "LINEAR",
+          "points": [
+            {
+              "inputs": [-15],
+              "output": 1.9
+            },
+            {
+              "inputs": [-7],
+              "output": 2.5
+            },
+            {
+              "inputs": [2],
+              "output": 3.4
+            },
+            {
+              "inputs": [7],
+              "output": 4.2
+            },
+            {
+              "inputs": [15],
+              "output": 5.0
+            }
+          ]
+        },
+        {
+          "id": "eer-vs-outdoor-temperature",
+          "inputAxes": [
+            {
+              "id": "outdoorTemperatureC",
+              "unit": "°C"
+            }
+          ],
+          "output": "eer",
+          "outputUnit": "-",
+          "interpolation": "LINEAR",
+          "points": [
+            {
+              "inputs": [25],
+              "output": 4.4
+            },
+            {
+              "inputs": [30],
+              "output": 3.8
+            },
+            {
+              "inputs": [35],
+              "output": 3.4
+            },
+            {
+              "inputs": [40],
+              "output": 2.9
+            }
+          ]
+        }
+      ],
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-heat-pump"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 1000,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Accès à la façade technique et aux raccordements"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 1000,
+          "aboveMm": 500,
+          "reason": "Dépose du capot et de l’échangeur"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "backMm": 300,
+          "reason": "Reprise d’air sur la batterie extérieure"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "frontMm": 2000,
+          "reason": "Soufflage du ventilateur, sans obstacle en vis-à-vis"
+        }
+      ]
+    },
+    {
+      "id": "generic-outdoor-unit",
+      "familyId": "OUTDOOR_UNIT",
+      "name": "Unité extérieure",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 950,
+        "depthMm": 330,
+        "heightMm": 750
+      },
+      "ports": [
+        {
+          "id": "liquid",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": -350,
+            "y": 165,
+            "z": -300
+          },
+          "nominalSize": 0.0064
+        },
+        {
+          "id": "gas",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": -250,
+            "y": 165,
+            "z": -300
+          },
+          "nominalSize": 0.0095
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -420,
+            "y": 165,
+            "z": -250
+          }
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -375
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 5000,
+        "ratedCoolingPower": 4500,
+        "refrigerant": "R32",
+        "soundPower": 62
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-heat-pump"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 1000,
+          "rightMm": 300,
+          "aboveMm": 400,
+          "reason": "Accès aux vannes, au bornier et dépose du capot pour le compresseur"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "backMm": 300,
+          "reason": "Reprise d’air sur la batterie"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "frontMm": 1500,
+          "reason": "Soufflage du ventilateur"
+        }
+      ]
+    },
+    {
+      "id": "generic-indoor-unit",
+      "familyId": "INDOOR_UNIT",
+      "name": "Unité intérieure",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 900,
+        "depthMm": 200,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "liquid",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": -400,
+            "y": 0,
+            "z": -150
+          },
+          "nominalSize": 0.0064
+        },
+        {
+          "id": "gas",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": -330,
+            "y": 0,
+            "z": -150
+          },
+          "nominalSize": 0.0095
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": -250,
+            "y": 0,
+            "z": -150
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -430,
+            "y": 0,
+            "z": -100
+          }
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 3500,
+        "ratedCoolingPower": 3000,
+        "refrigerant": "R32",
+        "soundPower": 45
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "belowMm": 200,
+          "reason": "Dépose de la façade et nettoyage des filtres"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "aboveMm": 150,
+          "reason": "Reprise d’air ambiant sur la face supérieure"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "frontMm": 1500,
+          "reason": "Veine de soufflage vers la pièce"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-split-unit",
+      "familyId": "WALL_SPLIT_UNIT",
+      "name": "Split mural",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 900,
+        "depthMm": 220,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "liquid",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": -400,
+            "y": 0,
+            "z": -150
+          },
+          "nominalSize": 0.0064
+        },
+        {
+          "id": "gas",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": -330,
+            "y": 0,
+            "z": -150
+          },
+          "nominalSize": 0.0095
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": -250,
+            "y": 0,
+            "z": -150
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -430,
+            "y": 0,
+            "z": -100
+          }
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 3500,
+        "ratedCoolingPower": 3000,
+        "refrigerant": "R32",
+        "soundPower": 46
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "belowMm": 200,
+          "reason": "Dépose de la façade et nettoyage des filtres"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "aboveMm": 150,
+          "reason": "Reprise d’air ambiant sur la face supérieure"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "frontMm": 1500,
+          "reason": "Veine de soufflage vers la pièce"
+        }
+      ]
+    },
+    {
+      "id": "generic-ceiling-cassette",
+      "familyId": "CASSETTE",
+      "name": "Cassette de plafond",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 280
+      },
+      "ports": [
+        {
+          "id": "liquid",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": -300,
+            "y": -200,
+            "z": 0
+          },
+          "nominalSize": 0.0064
+        },
+        {
+          "id": "gas",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": -300,
+            "y": -100,
+            "z": 0
+          },
+          "nominalSize": 0.0127
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": -300,
+            "y": 100,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -300,
+            "y": 200,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 4000,
+        "ratedCoolingPower": 3500,
+        "refrigerant": "R32",
+        "soundPower": 48
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "belowMm": 500,
+          "aboveMm": 250,
+          "reason": "Dépose de la grille, du filtre et accès au bac à condensats"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "belowMm": 300,
+          "reason": "Reprise d’air centrale"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "belowMm": 300,
+          "reason": "Soufflage périphérique le long du plafond"
+        }
+      ]
+    },
+    {
+      "id": "generic-ducted-unit",
+      "familyId": "DUCTED_UNIT",
+      "name": "Gainable",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 900,
+        "depthMm": 600,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "liquid",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": -450,
+            "y": -200,
+            "z": 0
+          },
+          "nominalSize": 0.0064
+        },
+        {
+          "id": "gas",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": -450,
+            "y": -100,
+            "z": 0
+          },
+          "nominalSize": 0.0127
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": -450,
+            "y": 100,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -450,
+            "y": 200,
+            "z": 0
+          }
+        },
+        {
+          "id": "air-inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": 0,
+            "y": -300,
+            "z": 0
+          },
+          "nominalSize": 0.25
+        },
+        {
+          "id": "air-outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 0,
+            "y": 300,
+            "z": 0
+          },
+          "nominalSize": 0.25
+        }
+      ],
+      "properties": {
+        "ratedHeatingPower": 6000,
+        "ratedCoolingPower": 5500,
+        "refrigerant": "R32",
+        "soundPower": 55
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "belowMm": 600,
+          "frontMm": 800,
+          "reason": "Trappe d’accès au filtre, au motoventilateur et dépose de l’appareil"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "backMm": 300,
+          "reason": "Plénum de reprise en amont de l’appareil"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "frontMm": 300,
+          "reason": "Plénum de soufflage en aval de l’appareil"
+        }
+      ]
+    },
+    {
+      "id": "generic-refnet-joint",
+      "familyId": "REFNET",
+      "name": "Répartiteur frigorifique",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 150,
+        "heightMm": 120
+      },
+      "ports": [
+        {
+          "id": "liquid-in",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": -150,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.0095
+        },
+        {
+          "id": "gas-in",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": -150,
+            "y": 60,
+            "z": 0
+          },
+          "nominalSize": 0.0159
+        },
+        {
+          "id": "liquid-out-1",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": 150,
+            "y": -40,
+            "z": 0
+          },
+          "nominalSize": 0.0064
+        },
+        {
+          "id": "gas-out-1",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": 150,
+            "y": 20,
+            "z": 0
+          },
+          "nominalSize": 0.0127
+        },
+        {
+          "id": "liquid-out-2",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": 0,
+            "y": -75,
+            "z": 0
+          },
+          "nominalSize": 0.0064
+        },
+        {
+          "id": "gas-out-2",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": 60,
+            "y": -75,
+            "z": 0
+          },
+          "nominalSize": 0.0127
+        }
+      ],
+      "properties": {
+        "refrigerant": "R32"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 200,
+          "frontMm": 300,
+          "reason": "Accès aux brasures et à l’isolation des liaisons"
+        }
+      ]
+    },
+    {
+      "id": "generic-branch-joint-box",
+      "familyId": "BRANCH_JOINT",
+      "name": "Boîtier de dérivation frigorifique",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 300,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "liquid-in",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": -200,
+            "y": -100,
+            "z": 0
+          },
+          "nominalSize": 0.0095
+        },
+        {
+          "id": "gas-in",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.0159
+        },
+        {
+          "id": "liquid-out-1",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": 200,
+            "y": -100,
+            "z": 0
+          },
+          "nominalSize": 0.0064
+        },
+        {
+          "id": "gas-out-1",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": 200,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.0127
+        },
+        {
+          "id": "liquid-out-2",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": 200,
+            "y": 100,
+            "z": 0
+          },
+          "nominalSize": 0.0064
+        },
+        {
+          "id": "gas-out-2",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": 0,
+            "y": 150,
+            "z": 0
+          },
+          "nominalSize": 0.0127
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -200,
+            "y": 100,
+            "z": 0
+          }
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 0,
+            "y": -150,
+            "z": -100
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "refrigerant": "R32",
+        "soundPower": 35
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "belowMm": 600,
+          "frontMm": 600,
+          "reason": "Trappe d’accès aux détendeurs et dépose du bac à condensats"
+        }
+      ]
+    },
+    {
+      "id": "generic-condensate-pump",
+      "familyId": "CONDENSATE_DRAIN",
+      "name": "Pompe de relevage de condensats",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 180,
+        "depthMm": 60,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "CONDENSATE_INLET",
+          "position": {
+            "x": -90,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 90,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.01
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 30
+          }
+        }
+      ],
+      "properties": {
+        "soundPower": 35
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.equipment"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 250,
+          "aboveMm": 150,
+          "reason": "Dépose du bac et nettoyage du flotteur"
+        }
+      ]
+    },
+    {
+      "id": "generic-towel-radiator",
+      "familyId": "TOWEL_RADIATOR",
+      "name": "Sèche-serviettes eau chaude",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 500,
+        "depthMm": 100,
+        "heightMm": 1200
+      },
+      "ports": [
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -250,
+            "y": 0,
+            "z": -600
+          },
+          "nominalSize": 0.015
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 250,
+            "y": 0,
+            "z": -600
+          },
+          "nominalSize": 0.015
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 600,
+        "exponent": 1.3,
+        "waterContentL": 4,
+        "nominalFlowTemperatureC": 55,
+        "nominalReturnTemperatureC": 45,
+        "nominalRoomTemperatureC": 20
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-radiator"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "belowMm": 150,
+          "frontMm": 300,
+          "reason": "Accès aux robinets et purge de l’appareil"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 400,
+          "reason": "Dégagement devant l’échelle pour poser et prendre le linge"
+        }
+      ]
+    },
+    {
+      "id": "generic-fan-coil",
+      "familyId": "FAN_COIL",
+      "name": "Ventilo-convecteur",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 1000,
+        "depthMm": 220,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -450,
+            "y": 0,
+            "z": -300
+          },
+          "nominalSize": 0.015
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -380,
+            "y": 0,
+            "z": -300
+          },
+          "nominalSize": 0.015
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -480,
+            "y": 0,
+            "z": -250
+          }
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": -300,
+            "y": 0,
+            "z": -300
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 2500,
+        "waterContentL": 1.5,
+        "nominalFlowTemperatureC": 45,
+        "nominalReturnTemperatureC": 40,
+        "nominalRoomTemperatureC": 20
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-radiator"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "reason": "Dépose de la façade et nettoyage du filtre"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 800,
+          "reason": "Veine de soufflage dégagée vers la pièce"
+        }
+      ]
+    },
+    {
+      "id": "generic-underfloor-heating-surface",
+      "familyId": "UNDERFLOOR_HEATING",
+      "name": "Plancher chauffant à eau",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 1000,
+        "depthMm": 1000,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -500,
+            "y": 0,
+            "z": -45
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 500,
+            "y": 0,
+            "z": -45
+          },
+          "nominalSize": 0.016
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 70,
+        "exponent": 1.1,
+        "waterContentL": 1.2,
+        "nominalFlowTemperatureC": 35,
+        "nominalReturnTemperatureC": 30,
+        "nominalRoomTemperatureC": 20
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-wall-heating-surface",
+      "familyId": "WALL_HEATING",
+      "name": "Mur chauffant à eau",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 1000,
+        "depthMm": 60,
+        "heightMm": 1000
+      },
+      "ports": [
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -500,
+            "y": 0,
+            "z": -500
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 500,
+            "y": 0,
+            "z": -500
+          },
+          "nominalSize": 0.016
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 80,
+        "exponent": 1.05,
+        "waterContentL": 0.9,
+        "nominalFlowTemperatureC": 40,
+        "nominalReturnTemperatureC": 33,
+        "nominalRoomTemperatureC": 20
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 100,
+          "reason": "Paroi chauffante à laisser libre de tout meuble adossé"
+        }
+      ]
+    },
+    {
+      "id": "generic-ceiling-heating-surface",
+      "familyId": "CEILING_HEATING",
+      "name": "Plafond chauffant à eau",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 1000,
+        "depthMm": 1000,
+        "heightMm": 50
+      },
+      "ports": [
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -500,
+            "y": 0,
+            "z": 25
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 500,
+            "y": 0,
+            "z": 25
+          },
+          "nominalSize": 0.016
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 60,
+        "exponent": 1.05,
+        "waterContentL": 0.7,
+        "nominalFlowTemperatureC": 35,
+        "nominalReturnTemperatureC": 30,
+        "nominalRoomTemperatureC": 20
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "belowMm": 400,
+          "reason": "Trappe d’accès aux collecteurs du panneau"
+        }
+      ]
+    },
+    {
+      "id": "generic-ufh-loop",
+      "familyId": "UFH_LOOP",
+      "name": "Boucle de plancher chauffant",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 3600,
+        "depthMm": 3600,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -1800,
+            "y": 0,
+            "z": -45
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -1800,
+            "y": 100,
+            "z": -45
+          },
+          "nominalSize": 0.016
+        }
+      ],
+      "properties": {
+        "pipeMaterial": "PE-RT",
+        "pipeDiameterMm": 16,
+        "spacingMm": 150,
+        "supplyTemperatureC": 35,
+        "returnTemperatureC": 30,
+        "maxLoopLengthM": 100,
+        "floorResistance": 0.09,
+        "finishResistance": 0.1
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.emitters"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-ufh-manifold",
+      "familyId": "UFH_MANIFOLD",
+      "name": "Collecteur de plancher chauffant 4 circuits",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 480,
+        "depthMm": 110,
+        "heightMm": 420
+      },
+      "ports": [
+        {
+          "id": "primary-in",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -240,
+            "y": 0,
+            "z": 100
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "primary-out",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -240,
+            "y": 0,
+            "z": -100
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "loop-1-flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -75,
+            "y": 0,
+            "z": 210
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "loop-2-flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -25,
+            "y": 0,
+            "z": 210
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "loop-3-flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 25,
+            "y": 0,
+            "z": 210
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "loop-4-flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 75,
+            "y": 0,
+            "z": 210
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "loop-1-return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -75,
+            "y": 0,
+            "z": -210
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "loop-2-return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -25,
+            "y": 0,
+            "z": -210
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "loop-3-return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 25,
+            "y": 0,
+            "z": -210
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "loop-4-return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 75,
+            "y": 0,
+            "z": -210
+          },
+          "nominalSize": 0.016
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 240,
+            "y": 0,
+            "z": 150
+          }
+        }
+      ],
+      "properties": {
+        "pipeDiameterMm": 16,
+        "supplyTemperatureC": 35,
+        "returnTemperatureC": 30
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Ouverture du coffret, équilibrage et purge des circuits"
+        }
+      ]
+    },
+    {
+      "id": "generic-ufh-actuator",
+      "familyId": "UFH_ACTUATOR",
+      "name": "Tête électrothermique",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 45,
+        "depthMm": 45,
+        "heightMm": 55
+      },
+      "ports": [
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 27
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.controls"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 120,
+          "reason": "Dépose de la tête sur l’embase du collecteur"
+        }
+      ]
+    },
+    {
+      "id": "generic-room-thermostat",
+      "familyId": "ROOM_THERMOSTAT",
+      "name": "Thermostat d’ambiance",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 86,
+        "depthMm": 30,
+        "heightMm": 86
+      },
+      "ports": [
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": -15,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.controls"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 200,
+          "reason": "Accès frontal au boîtier et à ses piles"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-zone",
+      "familyId": "HEATING_ZONE",
+      "name": "Zone de chauffage",
+      "version": "1.0.0",
+      "ports": [],
+      "properties": {
+        "supplyTemperatureC": 35,
+        "returnTemperatureC": 30
+      },
+      "rendering": {
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "heating.controls"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-heating-air-separator",
+      "familyId": "AIR_SEPARATOR",
+      "name": "Séparateur d’air",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 120,
+        "heightMm": 220
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -60.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 60.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "kvs": 12,
+        "maximumFlowM3h": 3.5
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Purge du séparateur et dépose de la cartouche"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-dirt-separator",
+      "familyId": "DIRT_SEPARATOR",
+      "name": "Pot à boues",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 120,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -60.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 60.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "kvs": 11,
+        "maximumFlowM3h": 3.5
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Vidange du pot et évacuation des boues"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-magnetic-filter",
+      "familyId": "MAGNETIC_FILTER",
+      "name": "Filtre magnétique",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 110,
+        "heightMm": 230
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -55.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 55.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "kvs": 9,
+        "maximumFlowM3h": 3
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Dépose de l’aimant et rinçage de la cuve"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-isolation-valve",
+      "familyId": "HEATING_ISOLATION_VALVE",
+      "name": "Vanne d’isolement",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 90,
+        "depthMm": 55,
+        "heightMm": 70
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -45.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 45.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "kvs": 15
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Manœuvre de la poignée quart de tour"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-check-valve",
+      "familyId": "HEATING_CHECK_VALVE",
+      "name": "Clapet anti-retour",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 70,
+        "depthMm": 55,
+        "heightMm": 55
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -35.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 35.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "kvs": 7
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Dépose du clapet pour contrôle du ressort"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-balancing-valve",
+      "familyId": "HEATING_BALANCING_VALVE",
+      "name": "Vanne d’équilibrage",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 100,
+        "depthMm": 60,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -50.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 50.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "kvs": 4.5,
+        "maximumFlowM3h": 2
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Accès aux prises de pression et à la molette de réglage"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-air-vent",
+      "familyId": "HEATING_AIR_VENT",
+      "name": "Purgeur automatique de chauffage",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 50,
+        "depthMm": 50,
+        "heightMm": 110
+      },
+      "ports": [
+        {
+          "id": "connection",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -55
+          },
+          "nominalSize": 0.015
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 200,
+          "reason": "Dépose du purgeur et contrôle du flotteur"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-expansion-vessel",
+      "familyId": "HEATING_EXPANSION_VESSEL",
+      "name": "Vase d’expansion",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 280,
+        "depthMm": 280,
+        "heightMm": 350
+      },
+      "ports": [
+        {
+          "id": "connection",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -175
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "belowMm": 300,
+          "frontMm": 300,
+          "reason": "Contrôle de la pression de gonflage à la valve"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-safety-valve",
+      "familyId": "SAFETY_VALVE",
+      "name": "Soupape de sécurité",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 90,
+        "depthMm": 60,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -45,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.015
+        },
+        {
+          "id": "discharge",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -45
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "kvs": 2
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Manœuvre de la molette d’essai et visibilité de la décharge"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-mixing-valve",
+      "familyId": "MIXING_VALVE",
+      "name": "Vanne mélangeuse trois voies",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 90,
+        "heightMm": 120
+      },
+      "ports": [
+        {
+          "id": "hot-inlet",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -60,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "bypass-inlet",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -60
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 60,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.026
+        }
+      ],
+      "properties": {
+        "kvs": 6.3
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "aboveMm": 200,
+          "reason": "Accès au repère de position et au servomoteur"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-three-way-valve",
+      "familyId": "THREE_WAY_VALVE",
+      "name": "Vanne trois voies",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 85,
+        "heightMm": 110
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -55,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "outlet-a",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 55,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "outlet-b",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -55
+          },
+          "nominalSize": 0.026
+        }
+      ],
+      "properties": {
+        "kvs": 6.3
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Manœuvre de la vanne et accès au repère de position"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-buffer-tank",
+      "familyId": "BUFFER_TANK",
+      "name": "Ballon tampon",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 1400
+      },
+      "ports": [
+        {
+          "id": "primary-in",
+          "portTypeId": "PRIMARY_RETURN",
+          "position": {
+            "x": -300,
+            "y": 0,
+            "z": 500
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "primary-out",
+          "portTypeId": "PRIMARY_FLOW",
+          "position": {
+            "x": -300,
+            "y": 0,
+            "z": -500
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 300,
+            "y": 0,
+            "z": 500
+          },
+          "nominalSize": 0.026
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 300,
+            "y": 0,
+            "z": -500
+          },
+          "nominalSize": 0.026
+        }
+      ],
+      "properties": {
+        "maximumFlowM3h": 3.5
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès aux piquages, à la purge et à la vidange"
+        }
+      ]
+    },
+    {
+      "id": "generic-hydraulic-separator",
+      "familyId": "HYDRAULIC_SEPARATOR",
+      "name": "Bouteille de découplage",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 140,
+        "depthMm": 140,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "primary-in",
+          "portTypeId": "PRIMARY_RETURN",
+          "position": {
+            "x": -70,
+            "y": 0,
+            "z": 200
+          },
+          "nominalSize": 0.032
+        },
+        {
+          "id": "primary-out",
+          "portTypeId": "PRIMARY_FLOW",
+          "position": {
+            "x": -70,
+            "y": 0,
+            "z": -200
+          },
+          "nominalSize": 0.032
+        },
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 70,
+            "y": 0,
+            "z": 200
+          },
+          "nominalSize": 0.032
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 70,
+            "y": 0,
+            "z": -200
+          },
+          "nominalSize": 0.032
+        }
+      ],
+      "properties": {
+        "maximumFlowM3h": 3.5
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 250,
+          "belowMm": 250,
+          "frontMm": 300,
+          "reason": "Purge en partie haute et vidange des boues en pied"
+        }
+      ]
+    },
+    {
+      "id": "generic-heating-manifold",
+      "familyId": "HEATING_MANIFOLD",
+      "name": "Collecteur de chauffage 3 départs",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 500,
+        "depthMm": 80,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "primary-in",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -250,
+            "y": 0,
+            "z": 40
+          },
+          "nominalSize": 0.032
+        },
+        {
+          "id": "primary-out",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -250,
+            "y": 0,
+            "z": -40
+          },
+          "nominalSize": 0.032
+        },
+        {
+          "id": "branch-1-flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": -100,
+            "y": 0,
+            "z": 80
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "branch-2-flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 80
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "branch-3-flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 100,
+            "y": 0,
+            "z": 80
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "branch-1-return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": -100,
+            "y": 0,
+            "z": -80
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "branch-2-return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -80
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "branch-3-return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 100,
+            "y": 0,
+            "z": -80
+          },
+          "nominalSize": 0.02
+        }
+      ],
+      "properties": {
+        "maximumFlowM3h": 3.5
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "heating.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "reason": "Manœuvre des vannes de départ et purge du collecteur"
+        }
+      ]
+    }
+  ]
+}

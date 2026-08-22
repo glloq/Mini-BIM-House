@@ -1,0 +1,2991 @@
+{
+  "definitions": [
+    {
+      "id": "generic-agcp",
+      "familyId": "AGCP",
+      "name": "Appareil général de commande et de protection",
+      "dimensions": {
+        "widthMm": 90,
+        "depthMm": 75,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 80.0
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -80.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230,
+        "ipRating": "IP30"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "ELECTRICAL_WORKING",
+          "frontMm": 700,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Zone de travail devant un appareillage sous tension"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Manœuvre et plombage de l’appareil de branchement"
+        }
+      ]
+    },
+    {
+      "id": "generic-sub-distribution-board",
+      "familyId": "SUB_DISTRIBUTION_BOARD",
+      "name": "Tableau divisionnaire",
+      "dimensions": {
+        "widthMm": 350,
+        "depthMm": 100,
+        "heightMm": 330
+      },
+      "ports": [
+        {
+          "id": "incoming",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 165
+          }
+        },
+        {
+          "id": "outgoing",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -165
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 165
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230,
+        "rowCount": 2,
+        "moduleCapacity": 26,
+        "ipRating": "IP30"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-distribution-board"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "ELECTRICAL_WORKING",
+          "frontMm": 700,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Zone de travail devant un appareillage sous tension"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Ouverture de la porte et repérage des circuits"
+        }
+      ]
+    },
+    {
+      "id": "generic-grid-connection",
+      "familyId": "GRID_CONNECTION",
+      "name": "Coffret de branchement",
+      "dimensions": {
+        "widthMm": 420,
+        "depthMm": 180,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "network",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 90,
+            "z": 300
+          }
+        },
+        {
+          "id": "installation",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 90,
+            "z": -300
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 90,
+            "z": -300
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230,
+        "ipRating": "IP44"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-distribution-board"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "ELECTRICAL_WORKING",
+          "frontMm": 700,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Zone de travail devant un appareillage sous tension"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Accès du distributeur au coffret depuis le domaine public"
+        }
+      ]
+    },
+    {
+      "id": "generic-main-breaker",
+      "familyId": "MAIN_BREAKER",
+      "name": "Disjoncteur de branchement",
+      "dimensions": {
+        "widthMm": 90,
+        "depthMm": 75,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 80.0
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -80.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "ELECTRICAL_WORKING",
+          "frontMm": 700,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Zone de travail devant un appareillage sous tension"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Manœuvre de la manette et plombage"
+        }
+      ]
+    },
+    {
+      "id": "generic-main-isolator",
+      "familyId": "MAIN_ISOLATOR",
+      "name": "Sectionneur général",
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "ELECTRICAL_WORKING",
+          "frontMm": 700,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Zone de travail devant un appareillage sous tension"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Manœuvre de coupure et condamnation"
+        }
+      ]
+    },
+    {
+      "id": "generic-service-meter",
+      "familyId": "SERVICE_METER",
+      "name": "Compteur de branchement",
+      "dimensions": {
+        "widthMm": 215,
+        "depthMm": 65,
+        "heightMm": 320
+      },
+      "ports": [
+        {
+          "id": "network",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 32,
+            "z": 160
+          }
+        },
+        {
+          "id": "installation",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 32,
+            "z": -160
+          }
+        },
+        {
+          "id": "teleinformation",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": 32,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230,
+        "ipRating": "IP51"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "ELECTRICAL_WORKING",
+          "frontMm": 700,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Zone de travail devant un appareillage sous tension"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Relève et intervention du gestionnaire de réseau"
+        }
+      ]
+    },
+    {
+      "id": "generic-energy-meter",
+      "familyId": "ENERGY_METER",
+      "name": "Compteur d’énergie modulaire",
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        },
+        {
+          "id": "teleinformation",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": -35,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "ELECTRICAL_WORKING",
+          "frontMm": 700,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Zone de travail devant un appareillage sous tension"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Lecture de l’index et câblage"
+        }
+      ]
+    },
+    {
+      "id": "generic-electrical-sub-meter",
+      "familyId": "ELECTRICAL_SUB_METER",
+      "name": "Sous-compteur d’énergie",
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        },
+        {
+          "id": "teleinformation",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": -35,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "ELECTRICAL_WORKING",
+          "frontMm": 700,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Zone de travail devant un appareillage sous tension"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Lecture de l’index et câblage"
+        }
+      ]
+    },
+    {
+      "id": "generic-spd-head",
+      "familyId": "SPD",
+      "name": "Parafoudre de tête d’installation",
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "ELECTRICAL_WORKING",
+          "frontMm": 700,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Zone de travail devant un appareillage sous tension"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Contrôle du témoin et remplacement de la cartouche"
+        }
+      ]
+    },
+    {
+      "id": "generic-arc-fault-device",
+      "familyId": "ARC_FAULT_DEVICE",
+      "name": "Détecteur d’arc",
+      "dimensions": {
+        "widthMm": 36,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 16
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-mccb",
+      "familyId": "MCCB",
+      "name": "Disjoncteur boîtier moulé",
+      "dimensions": {
+        "widthMm": 78,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 100,
+        "breakingCapacityKA": 25
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-rcbo",
+      "familyId": "RCBO",
+      "name": "Disjoncteur différentiel",
+      "dimensions": {
+        "widthMm": 36,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 16,
+        "curve": "C",
+        "residualCurrentMa": 30,
+        "breakingCapacityKA": 6
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-rcd",
+      "familyId": "RCD",
+      "name": "Interrupteur différentiel",
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 40,
+        "residualCurrentMa": 30
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-fuse",
+      "familyId": "FUSE",
+      "name": "Coupe-circuit à fusible",
+      "dimensions": {
+        "widthMm": 18,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 16
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-contactor",
+      "familyId": "CONTACTOR",
+      "name": "Contacteur modulaire",
+      "dimensions": {
+        "widthMm": 36,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 20
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-relay",
+      "familyId": "RELAY",
+      "name": "Télérupteur modulaire",
+      "dimensions": {
+        "widthMm": 18,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 16
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-timer",
+      "familyId": "TIMER",
+      "name": "Minuterie d’escalier",
+      "dimensions": {
+        "widthMm": 18,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 16
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-load-shedding-relay",
+      "familyId": "LOAD_SHEDDING_RELAY",
+      "name": "Délesteur",
+      "dimensions": {
+        "widthMm": 36,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42.5
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42.5
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 20
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-surge-protector",
+      "familyId": "SURGE_PROTECTOR",
+      "name": "Parafoudre modulaire de type 2",
+      "dimensions": {
+        "widthMm": 36,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 20
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-circuit-breaker"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-main-earthing-terminal",
+      "familyId": "MAIN_EARTHING_TERMINAL",
+      "name": "Borne principale de terre",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 30,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "earth-conductor",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": -60,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "bonding",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 60,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "conductorSectionMm2": 25
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.earthing"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-earth-bar",
+      "familyId": "EARTH_BAR",
+      "name": "Barrette de coupure de terre",
+      "dimensions": {
+        "widthMm": 90,
+        "depthMm": 30,
+        "heightMm": 30
+      },
+      "ports": [
+        {
+          "id": "upstream",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": -45,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "downstream",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 45,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "conductorSectionMm2": 25
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.earthing"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-earth-rod",
+      "familyId": "EARTH_ROD",
+      "name": "Piquet de terre",
+      "dimensions": {
+        "widthMm": 25,
+        "depthMm": 25,
+        "heightMm": 1500
+      },
+      "ports": [
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 750
+          }
+        }
+      ],
+      "properties": {
+        "conductorSectionMm2": 25
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE",
+        "layer": "electrical.earthing"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-earth-electrode",
+      "familyId": "EARTH_ELECTRODE",
+      "name": "Prise de terre en tranchée",
+      "ports": [
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "conductorSectionMm2": 25
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-foundation-earth-loop",
+      "familyId": "FOUNDATION_EARTH_LOOP",
+      "name": "Boucle à fond de fouille",
+      "ports": [
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "conductorSectionMm2": 25
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-equipotential-bonding",
+      "familyId": "EQUIPOTENTIAL_BONDING",
+      "name": "Liaison équipotentielle principale",
+      "ports": [
+        {
+          "id": "terminal",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "element",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -100
+          }
+        }
+      ],
+      "properties": {
+        "conductorSectionMm2": 25
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-bathroom-bonding",
+      "familyId": "BATHROOM_BONDING",
+      "name": "Liaison équipotentielle locale",
+      "ports": [
+        {
+          "id": "terminal",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "element",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -100
+          }
+        }
+      ],
+      "properties": {
+        "conductorSectionMm2": 2.5
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-protective-conductor",
+      "familyId": "PROTECTIVE_CONDUCTOR",
+      "name": "Conducteur de protection",
+      "ports": [
+        {
+          "id": "upstream",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "downstream",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -100
+          }
+        }
+      ],
+      "properties": {
+        "conductorSectionMm2": 2.5
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-spd-earth-connection",
+      "familyId": "SPD_EARTH_CONNECTION",
+      "name": "Raccordement de terre du parafoudre",
+      "ports": [
+        {
+          "id": "device",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "terminal",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -100
+          }
+        }
+      ],
+      "properties": {
+        "conductorSectionMm2": 10
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-cable-tray",
+      "familyId": "CABLE_TRAY",
+      "name": "Chemin de câbles perforé 200 mm",
+      "dimensions": {
+        "widthMm": 200,
+        "depthMm": 3000,
+        "heightMm": 60
+      },
+      "ports": [],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.containment"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 150,
+          "reason": "Pose et dépose des câbles par le dessus"
+        }
+      ]
+    },
+    {
+      "id": "generic-cable-ladder",
+      "familyId": "CABLE_LADDER",
+      "name": "Échelle à câbles 300 mm",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 3000,
+        "heightMm": 90
+      },
+      "ports": [],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.containment"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 200,
+          "reason": "Pose et dépose des câbles par le dessus"
+        }
+      ]
+    },
+    {
+      "id": "generic-junction-box",
+      "familyId": "JUNCTION_BOX",
+      "name": "Boîte de dérivation 100 × 100",
+      "dimensions": {
+        "widthMm": 100,
+        "depthMm": 100,
+        "heightMm": 50
+      },
+      "ports": [
+        {
+          "id": "incoming",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -50,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "outgoing",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 50,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.containment"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Ouverture du couvercle et reprise des connexions"
+        }
+      ]
+    },
+    {
+      "id": "generic-terminal-block",
+      "familyId": "TERMINAL_BLOCK",
+      "name": "Bornier de répartition",
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 45,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "incoming",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -36,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "outgoing",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 36,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.distribution"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 150,
+          "reason": "Serrage et contrôle des bornes"
+        }
+      ]
+    },
+    {
+      "id": "generic-floor-box",
+      "familyId": "FLOOR_BOX",
+      "name": "Boîte de sol 4 modules",
+      "dimensions": {
+        "widthMm": 200,
+        "depthMm": 200,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -40
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -40
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.outlets"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 400,
+          "reason": "Ouverture du couvercle et branchement"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-box",
+      "familyId": "WALL_BOX",
+      "name": "Boîte d’encastrement Ø 67",
+      "dimensions": {
+        "widthMm": 71,
+        "depthMm": 40,
+        "heightMm": 71
+      },
+      "ports": [],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "CIRCLE",
+        "layer": "electrical.containment"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 100,
+          "reason": "Dépose de l’appareillage qu’elle reçoit"
+        }
+      ]
+    },
+    {
+      "id": "generic-double-socket",
+      "familyId": "DOUBLE_SOCKET",
+      "name": "Prise double 16 A",
+      "dimensions": {
+        "widthMm": 150,
+        "depthMm": 40,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 16,
+        "nominalVoltageV": 230,
+        "poleCount": 2
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-socket"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.outlets"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 100,
+          "reason": "Débattement de la fiche"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la prise"
+        }
+      ]
+    },
+    {
+      "id": "generic-exterior-socket",
+      "familyId": "EXTERIOR_SOCKET",
+      "name": "Prise extérieure étanche 16 A",
+      "dimensions": {
+        "widthMm": 90,
+        "depthMm": 50,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -25.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": -25.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 16,
+        "nominalVoltageV": 230,
+        "poleCount": 2,
+        "ipRating": "IP55"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-socket"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.outlets"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 100,
+          "reason": "Débattement de la fiche"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la prise"
+        }
+      ]
+    },
+    {
+      "id": "generic-special-socket",
+      "familyId": "SPECIAL_SOCKET",
+      "name": "Prise spécialisée 20 A",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 45,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -22.5,
+            "z": 0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": -22.5,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 20,
+        "nominalVoltageV": 230,
+        "poleCount": 2
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-socket"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.outlets"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 100,
+          "reason": "Débattement de la fiche"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la prise"
+        }
+      ]
+    },
+    {
+      "id": "generic-cooker-outlet",
+      "familyId": "COOKER_OUTLET",
+      "name": "Sortie de cuisson 32 A",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 45,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -22.5,
+            "z": 0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": -22.5,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 32,
+        "nominalVoltageV": 230,
+        "poleCount": 2
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-socket"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.outlets"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 100,
+          "reason": "Débattement de la fiche"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la prise"
+        }
+      ]
+    },
+    {
+      "id": "generic-cable-outlet",
+      "familyId": "CABLE_OUTLET",
+      "name": "Sortie de câble 20 A",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 40,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 20,
+        "nominalVoltageV": 230,
+        "poleCount": 2
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-socket"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.outlets"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 100,
+          "reason": "Débattement de la fiche"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la prise"
+        }
+      ]
+    },
+    {
+      "id": "generic-usb-socket",
+      "familyId": "USB_SOCKET",
+      "name": "Prise USB double",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 45,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -22.5,
+            "z": 0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": -22.5,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-socket"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.outlets"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 100,
+          "reason": "Débattement de la fiche"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la prise"
+        }
+      ]
+    },
+    {
+      "id": "generic-switch",
+      "familyId": "SWITCH",
+      "name": "Interrupteur simple allumage",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 40,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": -20.0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 10,
+        "nominalVoltageV": 230,
+        "poleCount": 1
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "electrical.switch"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.controls"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 50,
+          "reason": "Manœuvre de la commande"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la commande"
+        }
+      ]
+    },
+    {
+      "id": "generic-two-way-switch",
+      "familyId": "TWO_WAY_SWITCH",
+      "name": "Interrupteur va-et-vient",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 40,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": -20.0
+          }
+        },
+        {
+          "id": "load-2",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": -40.0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 10,
+        "nominalVoltageV": 230,
+        "poleCount": 1
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "electrical.switch"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.controls"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 50,
+          "reason": "Manœuvre de la commande"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la commande"
+        }
+      ]
+    },
+    {
+      "id": "generic-intermediate-switch",
+      "familyId": "INTERMEDIATE_SWITCH",
+      "name": "Permutateur",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 40,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": -20.0
+          }
+        },
+        {
+          "id": "load-2",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": -40.0
+          }
+        },
+        {
+          "id": "load-3",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": -60.0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 10,
+        "nominalVoltageV": 230,
+        "poleCount": 1
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "electrical.switch"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.controls"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 50,
+          "reason": "Manœuvre de la commande"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la commande"
+        }
+      ]
+    },
+    {
+      "id": "generic-double-switch",
+      "familyId": "DOUBLE_SWITCH",
+      "name": "Double interrupteur",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 40,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": -20.0
+          }
+        },
+        {
+          "id": "load-2",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": -40.0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 10,
+        "nominalVoltageV": 230,
+        "poleCount": 1
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "electrical.switch"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.controls"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 50,
+          "reason": "Manœuvre de la commande"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la commande"
+        }
+      ]
+    },
+    {
+      "id": "generic-push-button",
+      "familyId": "PUSH_BUTTON",
+      "name": "Bouton poussoir",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 40,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20.0,
+            "z": -20.0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 10,
+        "nominalVoltageV": 230,
+        "poleCount": 1
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "electrical.switch"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.controls"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 50,
+          "reason": "Manœuvre de la commande"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la commande"
+        }
+      ]
+    },
+    {
+      "id": "generic-dimmer",
+      "familyId": "DIMMER",
+      "name": "Variateur rotatif",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 45,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -22.5,
+            "z": 0
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -22.5,
+            "z": -20.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "electrical.switch"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.controls"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 50,
+          "reason": "Manœuvre de la commande"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la commande"
+        }
+      ]
+    },
+    {
+      "id": "generic-roller-shutter-switch",
+      "familyId": "ROLLER_SHUTTER_SWITCH",
+      "name": "Commande de volet roulant",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 45,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -22.5,
+            "z": 0
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -22.5,
+            "z": -20.0
+          }
+        },
+        {
+          "id": "load-2",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -22.5,
+            "z": -40.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "electrical.switch"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.controls"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 50,
+          "reason": "Manœuvre de la commande"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Approche pour atteindre la commande"
+        }
+      ]
+    },
+    {
+      "id": "generic-dishwasher",
+      "familyId": "DISHWASHER",
+      "name": "Lave-vaisselle",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 850
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": -425.0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": -425.0
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 1800
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.loads"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Extraction de l’appareil pour intervention"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 900,
+          "reason": "Ouverture de la porte et service devant l’appareil"
+        }
+      ]
+    },
+    {
+      "id": "generic-washing-machine",
+      "familyId": "WASHING_MACHINE",
+      "name": "Lave-linge",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 850
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": -425.0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": -425.0
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 2200
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.loads"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Extraction de l’appareil pour intervention"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 900,
+          "reason": "Ouverture de la porte et service devant l’appareil"
+        }
+      ]
+    },
+    {
+      "id": "generic-dryer",
+      "familyId": "DRYER",
+      "name": "Sèche-linge",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 850
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": -425.0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": -425.0
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 2000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.loads"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Extraction de l’appareil pour intervention"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 900,
+          "reason": "Ouverture de la porte et service devant l’appareil"
+        }
+      ]
+    },
+    {
+      "id": "generic-refrigerator",
+      "familyId": "REFRIGERATOR",
+      "name": "Réfrigérateur",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 650,
+        "heightMm": 1800
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 325.0,
+            "z": -900.0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 325.0,
+            "z": -900.0
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 100,
+        "dutyCycle": 0.4
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.loads"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Extraction de l’appareil pour intervention"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 900,
+          "reason": "Ouverture de la porte et service devant l’appareil"
+        }
+      ]
+    },
+    {
+      "id": "generic-freezer",
+      "familyId": "FREEZER",
+      "name": "Congélateur armoire",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 650,
+        "heightMm": 1700
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 325.0,
+            "z": -850.0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 325.0,
+            "z": -850.0
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 150,
+        "dutyCycle": 0.4
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.loads"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Extraction de l’appareil pour intervention"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 900,
+          "reason": "Ouverture de la porte et service devant l’appareil"
+        }
+      ]
+    },
+    {
+      "id": "generic-oven",
+      "familyId": "OVEN",
+      "name": "Four encastrable",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 570,
+        "heightMm": 595
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 285.0,
+            "z": -297.5
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 285.0,
+            "z": -297.5
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 3000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.loads"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Extraction de l’appareil pour intervention"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 900,
+          "reason": "Ouverture de la porte et service devant l’appareil"
+        }
+      ]
+    },
+    {
+      "id": "generic-hob",
+      "familyId": "HOB",
+      "name": "Plaque de cuisson à induction",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 520,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 260.0,
+            "z": -30.0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 260.0,
+            "z": -30.0
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 7200
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.loads"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "belowMm": 100,
+          "reason": "Ventilation et accès au boîtier de raccordement"
+        },
+        {
+          "zone": "USAGE",
+          "aboveMm": 650,
+          "reason": "Hauteur libre au-dessus du plan de cuisson"
+        }
+      ]
+    },
+    {
+      "id": "generic-microwave",
+      "familyId": "MICROWAVE",
+      "name": "Four à micro-ondes",
+      "dimensions": {
+        "widthMm": 500,
+        "depthMm": 400,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 200.0,
+            "z": -150.0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 200.0,
+            "z": -150.0
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 1200
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.loads"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Extraction de l’appareil pour intervention"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 900,
+          "reason": "Ouverture de la porte et service devant l’appareil"
+        }
+      ]
+    },
+    {
+      "id": "generic-ev-charger",
+      "familyId": "EV_CHARGER",
+      "name": "Borne de recharge 7,4 kW",
+      "dimensions": {
+        "widthMm": 350,
+        "depthMm": 180,
+        "heightMm": 500
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 90.0,
+            "z": -250.0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 90.0,
+            "z": -250.0
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 7400
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.loads"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Ouverture du capot et contrôle du câblage"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 900,
+          "reason": "Manipulation du câble de recharge"
+        }
+      ]
+    },
+    {
+      "id": "generic-pool-pump",
+      "familyId": "POOL_PUMP",
+      "name": "Pompe de filtration de piscine",
+      "dimensions": {
+        "widthMm": 500,
+        "depthMm": 300,
+        "heightMm": 350
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 150.0,
+            "z": -175.0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 150.0,
+            "z": -175.0
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 750
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.loads"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "aboveMm": 300,
+          "reason": "Dépose du préfiltre et du moteur"
+        },
+        {
+          "zone": "USAGE",
+          "frontMm": 500,
+          "reason": "Nettoyage du panier de préfiltre"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,411 @@
+{
+  "definitions": [
+    {
+      "id": "generic-smoke-alarm",
+      "familyId": "SMOKE_DETECTOR",
+      "name": "Détecteur avertisseur autonome de fumée",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 40,
+        "heightMm": 110
+      },
+      "ports": [],
+      "properties": {
+        "detectionType": "SMOKE_OPTICAL",
+        "coverageM2": 50
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      }
+    },
+    {
+      "id": "generic-co-alarm",
+      "familyId": "CO_DETECTOR",
+      "name": "Détecteur de monoxyde de carbone",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 100,
+        "depthMm": 40,
+        "heightMm": 100
+      },
+      "ports": [],
+      "properties": {
+        "detectionType": "CO"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      }
+    },
+    {
+      "id": "generic-heat-alarm",
+      "familyId": "HEAT_DETECTOR",
+      "name": "Détecteur thermique",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 100,
+        "depthMm": 40,
+        "heightMm": 100
+      },
+      "ports": [],
+      "properties": {
+        "detectionType": "HEAT"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      }
+    },
+    {
+      "id": "generic-co2-alarm",
+      "familyId": "SAFETY_CO2_DETECTOR",
+      "name": "Détecteur de CO₂",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 100,
+        "depthMm": 40,
+        "heightMm": 100
+      },
+      "ports": [],
+      "properties": {
+        "detectionType": "CO2"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      }
+    },
+    {
+      "id": "generic-water-extinguisher-6l",
+      "familyId": "EXTINGUISHER",
+      "name": "Extincteur à eau pulvérisée 6 L",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 180,
+        "depthMm": 180,
+        "heightMm": 550
+      },
+      "ports": [],
+      "properties": {},
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      },
+      "clearances": [
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 600,
+          "reason": "Prise en main immédiate de l’appareil"
+        }
+      ]
+    },
+    {
+      "id": "generic-fire-blanket",
+      "familyId": "FIRE_BLANKET",
+      "name": "Couverture anti-feu 1,2 × 1,2 m",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 80,
+        "heightMm": 350
+      },
+      "ports": [],
+      "properties": {},
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 500,
+          "reason": "Extraction de l’étui d’un seul geste"
+        }
+      ]
+    },
+    {
+      "id": "generic-door-contact",
+      "familyId": "DOOR_CONTACT",
+      "name": "Contact de porte",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 70,
+        "depthMm": 20,
+        "heightMm": 20
+      },
+      "ports": [
+        {
+          "id": "contact",
+          "portTypeId": "DRY_CONTACT",
+          "position": {
+            "x": 0,
+            "y": 10,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "detectionType": "MAGNETIC_CONTACT"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-intrusion-detector",
+      "familyId": "SAFETY_MOTION_DETECTOR",
+      "name": "Détecteur d’intrusion infrarouge",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 60,
+        "depthMm": 50,
+        "heightMm": 100
+      },
+      "ports": [
+        {
+          "id": "radio",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "detectionType": "MOTION_PIR",
+        "coverageM2": 60
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-outdoor-siren",
+      "familyId": "SIREN",
+      "name": "Sirène extérieure",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 90,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "radio",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {},
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-alarm-panel",
+      "familyId": "ALARM_PANEL",
+      "name": "Centrale d’alarme",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 80,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -125
+          }
+        },
+        {
+          "id": "radio",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "batteryBackupHours": 24
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 700,
+          "reason": "Accès au clavier et remplacement de la batterie"
+        }
+      ]
+    },
+    {
+      "id": "generic-emergency-luminaire",
+      "familyId": "SAFETY_EMERGENCY_LIGHT",
+      "name": "Bloc autonome d’éclairage de sécurité d’évacuation",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 70,
+        "heightMm": 130
+      },
+      "ports": [
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 35,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "batteryBackupHours": 1
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-luminaire"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-emergency-stop",
+      "familyId": "EMERGENCY_STOP",
+      "name": "Bouton d’arrêt d’urgence coup-de-poing",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 80,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "contact",
+          "portTypeId": "DRY_CONTACT",
+          "position": {
+            "x": 0,
+            "y": 40,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {},
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      },
+      "clearances": [
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 700,
+          "reason": "Accès sans obstacle au bouton"
+        }
+      ]
+    },
+    {
+      "id": "generic-emergency-cutoff",
+      "familyId": "ELECTRICAL_EMERGENCY_CUTOFF",
+      "name": "Coupure d’urgence générale",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 100,
+        "depthMm": 90,
+        "heightMm": 150
+      },
+      "ports": [
+        {
+          "id": "line",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 75
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -75
+          }
+        }
+      ],
+      "properties": {},
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 700,
+          "reason": "Manœuvre depuis l’extérieur du local, sans obstacle"
+        }
+      ]
+    }
+  ]
+}

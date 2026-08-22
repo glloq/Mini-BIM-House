@@ -1,28 +1,38 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "8939b318bfd28f24",
+  "releaseId": "2947473a9b09961c",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
       "sources": [
+        "packages/equipment-catalog/data/equipment/data/wave6.json",
         "packages/equipment-catalog/data/equipment/electrical/generic.json",
+        "packages/equipment-catalog/data/equipment/electrical/wave3.json",
+        "packages/equipment-catalog/data/equipment/flue/wave6.json",
         "packages/equipment-catalog/data/equipment/furniture/generic.json",
         "packages/equipment-catalog/data/equipment/heating/generic.json",
+        "packages/equipment-catalog/data/equipment/heating/wave4.json",
         "packages/equipment-catalog/data/equipment/lighting/generic.json",
+        "packages/equipment-catalog/data/equipment/lighting/wave3.json",
         "packages/equipment-catalog/data/equipment/plumbing/dhw.json",
         "packages/equipment-catalog/data/equipment/plumbing/fixtures.json",
         "packages/equipment-catalog/data/equipment/plumbing/generic.json",
         "packages/equipment-catalog/data/equipment/plumbing/water-devices.json",
         "packages/equipment-catalog/data/equipment/rainwater/generic.json",
         "packages/equipment-catalog/data/equipment/rainwater/network.json",
+        "packages/equipment-catalog/data/equipment/safety/wave6.json",
+        "packages/equipment-catalog/data/equipment/site/wave6.json",
         "packages/equipment-catalog/data/equipment/solar/generic.json",
+        "packages/equipment-catalog/data/equipment/solar/wave5.json",
         "packages/equipment-catalog/data/equipment/storage/generic.json",
+        "packages/equipment-catalog/data/equipment/storage/wave5.json",
         "packages/equipment-catalog/data/equipment/ventilation/generic.json",
+        "packages/equipment-catalog/data/equipment/ventilation/wave4.json",
         "packages/equipment-catalog/data/equipment/wastewater/generic.json"
       ],
-      "entryCount": 122,
+      "entryCount": 362,
       "formatVersion": "1.0.0",
-      "fingerprint": "0f1ed5d02d3d752c"
+      "fingerprint": "8b7341433150426e"
     },
     {
       "registry": "MATERIAL",
@@ -68,11 +78,12 @@
     {
       "registry": "NETWORK_PRODUCT",
       "sources": [
-        "packages/network-products/data/generic.json"
+        "packages/network-products/data/generic.json",
+        "packages/network-products/data/wave3.json"
       ],
-      "entryCount": 66,
+      "entryCount": 83,
       "formatVersion": "1.0.0",
-      "fingerprint": "8335a702e5e19742"
+      "fingerprint": "0181db32d88c52a2"
     },
     {
       "registry": "SYMBOL",

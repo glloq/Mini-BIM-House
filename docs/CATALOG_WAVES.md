@@ -77,7 +77,61 @@ suivantes ajoutent des fiches, et les fiches ne pèsent pas là.
 
 Aucun de ces six points n'est un défaut d'architecture. Ce sont des contrats
 qui n'avaient jamais été exercés — ce qui est précisément ce qu'une première
-vague de données sert à découvrir. Les vagues 3 à 6 peuvent partir.
+vague de données sert à découvrir.
+
+## Ce que les vagues 3 à 6 ont montré
+
+Les six vagues sont faites. **504 familles sur 527 ont une fiche générique** ;
+les 23 restantes sont `CG-01` et `CG-02`. Quatre agents ont travaillé en
+parallèle, chacun sur ses propres fichiers de données, et déposé leurs
+corrections de nomenclature dans des fichiers de correctifs fusionnés en série
+— la nomenclature est le fichier partagé, et quatre écritures concurrentes
+dessus se seraient écrasées.
+
+**Le constat de la vague 2 s'est répété, partout.** Les listes de ports avaient
+été écrites par lot, un lot par schéma de propriétés, et tout y était
+obligatoire :
+
+| Domaine     | Familles corrigées |
+| ----------- | ------------------ |
+| ventilation | 21 sur 21          |
+| fumée       | 22 sur 22          |
+| données     | 26 sur 26          |
+| sécurité    | 13 sur 13          |
+| solaire     | 17 sur 17          |
+| électricité | 52 sur 68          |
+| chauffage   | 35 sur 45          |
+
+Ce que cela donnait : un coude de ventilation devait être à la fois soufflage,
+extraction, air neuf et rejet ; les 22 familles de fumée avaient deux sorties
+et aucune entrée, donc **rien ne pouvait se chaîner** — un conduit de cheminée
+était indescriptible ; un crochet de toiture était raccordé au réseau ; un
+extincteur demandait du 230 V ; une prise avait un bus de commande et pas de
+terre ; un capteur exigeait le bus **et** la radio ; un convecteur électrique
+réclamait un départ et un retour d'eau. Toutes ces familles disent maintenant
+ce qu'un tel objet a toujours, ce que certaines variantes ont, et ce dont il a
+l'un d'un ensemble.
+
+**Un objet dont personne ne pouvait se servir.** La bouche d'extraction
+déclarait `AIR_EXTRACT`, de sens _entrant_, comme le caisson auquel elle est
+censée se raccorder : deux ports entrants ne s'apparient pas. Elle passe en
+`AIR_EXTRACT_OUTLET`, version 1.2.0 — le contenu change, la version aussi.
+
+**Trois fiches portaient le même nom qu'une autre**, et l'identifiant d'un
+objet posé se déduit de son nom : le projet refusait le second. C'est `CG-08`,
+vu de près. Les noms sont distingués, un test refuse la paire suivante.
+
+**Le poids, encore, et la bonne nouvelle.** 240 fiches et 17 produits de réseau
+de plus : le total produit prend 24 kio, et le chargement initial **moins d'un
+kio**. C'est exactement ce que la séparation devait donner, et la raison pour
+laquelle ce budget se compte en deux nombres et non en un.
+
+Huit écarts de contrat sont écrits dans [`CONTRACT_GAPS.md`](CONTRACT_GAPS.md)
+plutôt que contournés — dont trois nouveaux qui pèsent : le vocabulaire des
+ports ignore le combustible et l'eau glacée (`CG-05`), une quarantaine de
+familles ont un schéma de propriétés qui ne les décrit pas (`CG-06`), et
+`PHYSICAL` est déclaré par 396 familles alors que la porte le refuse
+systématiquement (`CG-07`).
 
 ## Remplir une vague
 

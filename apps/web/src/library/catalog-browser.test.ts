@@ -49,8 +49,20 @@ describe('browsing the nomenclature', () => {
     ).toBe(true);
     const searched = catalogRows(entriesByFamily, known, { search: 'pompe' });
     expect(searched.length).toBeGreaterThan(0);
+    // A row matches on what the search looks at: the family's name, its
+    // identifier, or the name of a fiche it holds. « Évacuation des
+    // condensats » holds a « Pompe de relevage des condensats », and finding
+    // it by that word is the point — the family label alone was enough only
+    // while every fiche was named after its family.
     expect(
-      searched.every(({ label }) => label.toLowerCase().includes('pompe')),
+      searched.every(
+        ({ familyId, label }) =>
+          label.toLowerCase().includes('pompe') ||
+          familyId.toLowerCase().includes('pompe') ||
+          (entriesByFamily[familyId] ?? []).some(({ label: name }) =>
+            name.toLowerCase().includes('pompe'),
+          ),
+      ),
     ).toBe(true);
   });
 
