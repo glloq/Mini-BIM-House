@@ -41,11 +41,15 @@ export const BUDGETS = {
    * could wait went the other way in the same pass: the creation page, the
    * visibility popover and everything they pull are now on demand.
    *
+   * Raised once more, by two kio, for the resolved-number layer: what a total
+   * says when one of its terms is unknown. It is a hundred lines and it is in
+   * the initial chunk because the calculation adapters are.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 252 * 1024,
+  initialGzipBytes: 254 * 1024,
   /** Everything the build produces, gzipped. */
-  totalGzipBytes: 372 * 1024,
+  totalGzipBytes: 374 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

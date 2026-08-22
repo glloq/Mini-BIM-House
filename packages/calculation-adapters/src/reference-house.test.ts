@@ -482,16 +482,23 @@ describe('the whole envelope, checked by hand', () => {
     expect(result.status, JSON.stringify(result)).toBe('OK');
     if (result.status !== 'OK') return;
 
-    // The surface resistances the method declares, whatever they are.
+    // Each element takes the films its own direction of flow and its own far
+    // side call for: heat does not leave a house the same way through the
+    // floor as through the walls.
     const input = built.inputs.thermal as Readonly<Record<string, number>>;
-    const opaqueU =
+    const wallU =
       1 /
       ((input.insideSurfaceResistanceM2KW ?? 0) +
         1 +
         (input.outsideSurfaceResistanceM2KW ?? 0));
+    // Upward through the roof: Rsi 0,10, Rse 0,04.
+    const roofU = 1 / (0.1 + 1 + 0.04);
+    // Downward onto the ground: Rsi 0,17, and no external film — earth is not
+    // a breeze.
+    const floorU = 1 / (0.17 + 1);
     // 4 × 10 × 3 = 120 m² of wall, less 4 m² of window.
     const expected =
-      opaqueU * (120 - 4) + U_WINDOW * 4 + opaqueU * 100 + opaqueU * 100;
+      wallU * (120 - 4) + U_WINDOW * 4 + roofU * 100 + floorU * 100;
     expect(
       result.result.outputs.heatTransferCoefficientWK as number,
     ).toBeCloseTo(expected, 6);

@@ -90,6 +90,47 @@ describe('the figures the documentation states', () => {
       `"version": "${version}"`,
     );
     expect(readFileSync('CHANGELOG.md', 'utf8')).toContain(`## ${version}`);
+    // The readiness page says where *this* version stands, so it has to be
+    // this version. It said beta.5 while the package said beta.6.
+    expect(readFileSync('docs/BETA_READINESS.md', 'utf8')).toContain(
+      `\`${version}\` aujourd'hui`,
+    );
+  });
+
+  it('never states a count of analyses in words while another states a figure', async () => {
+    const { OVERLAY_OPTIONS } =
+      await import('../apps/web/src/calculations/overlay-source.ts');
+    const analyses = OVERLAY_OPTIONS.filter(({ id }) => id !== 'none').length;
+    // A number written in letters escapes the digit check above, and that is
+    // how « 18 résultats » and « dix analyses » came to sit in one document.
+    const WRITTEN = {
+      deux: 2,
+      trois: 3,
+      quatre: 4,
+      cinq: 5,
+      six: 6,
+      sept: 7,
+      huit: 8,
+      neuf: 9,
+      dix: 10,
+      onze: 11,
+      douze: 12,
+      treize: 13,
+      quatorze: 14,
+      quinze: 15,
+      seize: 16,
+      'dix-sept': 17,
+      'dix-huit': 18,
+      'dix-neuf': 19,
+      vingt: 20,
+    };
+    for (const path of DOCUMENTS) {
+      const text = readFileSync(path, 'utf8');
+      for (const [word, value] of Object.entries(WRITTEN))
+        for (const noun of ['analyses', 'résultats projetés'])
+          if (new RegExp(`\\b${word} ${noun}\\b`, 'iu').test(text))
+            expect(value, `${path} says « ${word} ${noun} »`).toBe(analyses);
+    }
   });
 
   it('has no document still promising what is already done', () => {

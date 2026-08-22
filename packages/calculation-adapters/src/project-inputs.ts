@@ -1,4 +1,13 @@
 import type { CalculationJson } from '@house-technical-designer/calculation-core';
+import {
+  describeUnknown,
+  known,
+  resolvedNumber,
+  sumResolved,
+  unknown,
+  valueOf,
+  type ResolvedNumber,
+} from '@house-technical-designer/calculation-core';
 import type {
   EquipmentDefinition,
   JsonValue,
@@ -220,11 +229,16 @@ function networksForDiscipline(
 /**
  * Accumulates a per-terminal quantity along a network towards its source, so a
  * duct or pipe carries the demand of everything downstream of it.
+ *
+ * A terminal that states no flow makes the whole run unknown rather than
+ * contributing zero. A pipe fed by a shower at 0,15 L/s and a basin nobody
+ * described used to come out at 0,15 L/s — the total, unmarked, and wrong.
+ * What comes out now is « au moins 0,15 L/s, et voici le nœud qui manque ».
  */
 function edgeFlows(
   network: TechnicalNetwork,
   terminalFlow: (nodeId: string) => number | undefined,
-): ReadonlyMap<string, number> {
+): ReadonlyMap<string, ResolvedNumber> {
   const portNode = new Map(network.ports.map((port) => [port.id, port.nodeId]));
   const downstream = new Map<string, string[]>();
   for (const edge of network.edges) {
@@ -235,21 +249,43 @@ function edgeFlows(
     bucket.push(to);
     downstream.set(from, bucket);
   }
-  const cache = new Map<string, number>();
-  const collect = (nodeId: string, seen: ReadonlySet<string>): number => {
+  const cache = new Map<string, ResolvedNumber>();
+  const collect = (
+    nodeId: string,
+    seen: ReadonlySet<string>,
+  ): ResolvedNumber => {
     const cached = cache.get(nodeId);
     if (cached !== undefined) return cached;
-    if (seen.has(nodeId)) return 0;
+    // A loop contributes nothing rather than contributing forever; it is a
+    // fact about the drawing, not about the flow, and the network validation
+    // is what reports it.
+    if (seen.has(nodeId)) return known(0);
     const nextSeen = new Set(seen).add(nodeId);
-    const own = terminalFlow(nodeId) ?? 0;
-    const total = (downstream.get(nodeId) ?? []).reduce(
-      (sum, child) => sum + collect(child, nextSeen),
+    const children = downstream.get(nodeId) ?? [];
+    const stated = terminalFlow(nodeId);
+    /*
+     * A junction states no flow of its own, and that is not an unknown: it
+     * carries what is under it. A leaf that states no flow is the unknown —
+     * it is the thing that was supposed to consume something, and nobody said
+     * how much.
+     *
+     * Read from the shape of the run rather than from a list of node kinds:
+     * a list would treat tomorrow's kind of terminal as a junction, silently.
+     */
+    const own =
+      stated !== undefined
+        ? known(stated)
+        : children.length > 0
+          ? known(0)
+          : unknown([nodeId]);
+    const total = sumResolved([
       own,
-    );
+      ...children.map((child) => collect(child, nextSeen)),
+    ]);
     cache.set(nodeId, total);
     return total;
   };
-  const flows = new Map<string, number>();
+  const flows = new Map<string, ResolvedNumber>();
   for (const edge of network.edges) {
     const to = portNode.get(edge.toPortId);
     if (to === undefined) continue;
@@ -417,16 +453,23 @@ function thermalInput(context: ProjectCalculationContext): CalculationJson {
 /** Ventilation design flow per space, read from the ventilation network terminals. */
 function spaceVentilationFlowsM3h(
   context: ProjectCalculationContext,
-): ReadonlyMap<string, number> {
-  const flows = new Map<string, number>();
+): ReadonlyMap<string, ResolvedNumber> {
+  // A room served by two terminals, one of which states no flow, has an
+  // unknown flow — not the flow of the other one. Skipping the silent terminal
+  // would hand the heating engine a room that breathes half as much as it
+  // does, with nothing on screen to say so.
+  const perSpace = new Map<string, ResolvedNumber[]>();
   for (const network of networksForDiscipline(context, 'VENTILATION'))
     for (const node of network.nodes) {
       const spaceId = node.spaceId;
-      const flow = nodeNumber(node, 'targetFlowM3h');
-      if (spaceId === undefined || flow === undefined) continue;
-      flows.set(spaceId, (flows.get(spaceId) ?? 0) + flow);
+      if (spaceId === undefined) continue;
+      const bucket = perSpace.get(spaceId) ?? [];
+      bucket.push(resolvedNumber(nodeNumber(node, 'targetFlowM3h'), node.id));
+      perSpace.set(spaceId, bucket);
     }
-  return flows;
+  return new Map(
+    [...perSpace].map(([spaceId, flows]) => [spaceId, sumResolved(flows)]),
+  );
 }
 
 function heatingInput(context: ProjectCalculationContext): CalculationJson {
@@ -464,14 +507,66 @@ function heatingInput(context: ProjectCalculationContext): CalculationJson {
     'heating',
     'heatRecoveryEfficiency',
   );
+  /*
+   * The additional design load a room carries beyond its envelope and its air.
+   *
+   * The engine is right to ask: it is a real design input — a heated towel
+   * rail, an allowance for a large glazed loggia, a room that has to come up
+   * to temperature fast. Nothing in the model states it, and the adapter used
+   * to answer « supposons 0 W » on every room without saying so.
+   *
+   * Zero is a defensible answer and it stays the answer; what changes is that
+   * it is now written down, travels with the result, and can be replaced by a
+   * figure the person actually chose.
+   */
+  const declaredOtherW = settings.optionalNumber(
+    'heating',
+    'additionalRoomLoadW',
+  );
+  const otherW = declaredOtherW ?? 0;
+  if (declaredOtherW === undefined)
+    settings.assume(
+      'heating',
+      'additionalRoomLoadW',
+      0,
+      'Aucune charge additionnelle déclarée pour les pièces',
+    );
+  /*
+   * Which parts of the envelope belong to which room.
+   *
+   * The room load used to be the building's transmission shared out by floor
+   * area — an honest fallback, recorded as one, that could not tell a room
+   * with three façades from a room with one. It stays as the fallback for a
+   * room whose walls do not enclose it, and the note below says which rooms
+   * fell back.
+   */
+  const attribution = new Map(
+    context.roomEnvelopes.map((room) => [room.spaceId, room]),
+  );
+  for (const room of attribution.values())
+    if (room.unresolved !== undefined)
+      settings.note(
+        'heating',
+        `rooms/${room.spaceId}/envelope`,
+        'PROJECT',
+        room.unresolved,
+      );
   const rooms = context.spaces.map((space) => {
-    const flowM3h = ventilationFlows.get(space.spaceId);
-    if (flowM3h === undefined)
+    const resolved = ventilationFlows.get(space.spaceId);
+    const flowM3h = resolved === undefined ? undefined : valueOf(resolved);
+    if (resolved === undefined)
       settings.reportMissing(
         'heating',
         `rooms/${space.spaceId}/ventilationFlowM3h`,
         'PROJECT',
         `No ventilation terminal serves ${space.name}; its ventilation loss is unknown.`,
+      );
+    else if (resolved.status === 'UNKNOWN')
+      settings.reportMissing(
+        'heating',
+        `rooms/${space.spaceId}/ventilationFlowM3h`,
+        'PROJECT',
+        `${space.name} : ${describeUnknown(resolved)}`,
       );
     if (space.floorAreaM2 === undefined)
       settings.reportMissing(
@@ -487,6 +582,13 @@ function heatingInput(context: ProjectCalculationContext): CalculationJson {
         ? {}
         : { floorAreaM2: space.floorAreaM2 }),
       ...(flowM3h === undefined ? {} : { ventilationFlowM3h: flowM3h }),
+      otherW,
+      // What this room actually loses heat through. Its walls and their
+      // openings are its own; the roof and the floor are shared by area.
+      envelopeElementIds: [
+        ...(attribution.get(space.spaceId)?.elementIds ?? []),
+      ],
+      horizontalShare: attribution.get(space.spaceId)?.horizontalShare ?? 0,
     };
   });
   return {
@@ -650,9 +752,9 @@ function ventilationInput(context: ProjectCalculationContext): CalculationJson {
   const roughnessM = settings.methodConstant('ventilation', 'ductRoughnessM');
   const nodeFlow = new Map(
     networks.flatMap((network) =>
-      network.nodes.map((node): readonly [string, number] => [
+      network.nodes.map((node): readonly [string, number | undefined] => [
         node.id,
-        nodeNumber(node, 'targetFlowM3h') ?? 0,
+        nodeNumber(node, 'targetFlowM3h'),
       ]),
     ),
   );
@@ -682,7 +784,11 @@ function ventilationInput(context: ProjectCalculationContext): CalculationJson {
         segmentProperties(context, edge),
         'heightM',
       );
-      const flowM3h = flows.get(edge.id);
+      // A run whose terminals are not all described has no cumulated flow —
+      // it has a lower bound and a list of what is missing. `null` is what the
+      // engine reads as « je ne sais pas » ; the note says which nodes.
+      const cumulated = flows.get(edge.id);
+      const flowM3h = cumulated === undefined ? undefined : valueOf(cumulated);
       // A rectangular duct is sized by its two sides; asking it for a diameter
       // would report a value it can never have.
       if (shape === 'ROUND' && diameterM === undefined)
@@ -702,7 +808,14 @@ function ventilationInput(context: ProjectCalculationContext): CalculationJson {
           'PROJECT',
           `Rectangular duct ${edge.id} states no width and height.`,
         );
-      if (flowM3h === undefined || flowM3h <= 0)
+      if (cumulated !== undefined && cumulated.status === 'UNKNOWN')
+        settings.reportMissing(
+          'ventilation',
+          `segments/${edge.id}/flowM3h`,
+          'PROJECT',
+          `Duct ${edge.id}: ${describeUnknown(cumulated)}`,
+        );
+      else if (flowM3h === undefined || flowM3h <= 0)
         settings.reportMissing(
           'ventilation',
           `segments/${edge.id}/flowM3h`,
@@ -777,9 +890,9 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
   );
   const nodeFlow = new Map(
     networks.flatMap((network) =>
-      network.nodes.map((node): readonly [string, number] => [
+      network.nodes.map((node): readonly [string, number | undefined] => [
         node.id,
-        nodeNumber(node, 'designFlowLps') ?? 0,
+        nodeNumber(node, 'designFlowLps'),
       ]),
     ),
   );
@@ -796,7 +909,9 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
         segmentProperties(context, edge),
         'internalDiameterM',
       );
-      const cumulatedLps = flows.get(edge.id) ?? 0;
+      const cumulated = flows.get(edge.id);
+      const cumulatedLps =
+        cumulated === undefined ? undefined : valueOf(cumulated);
       if (diameterM === undefined)
         settings.reportMissing(
           'water',
@@ -804,7 +919,14 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
           'PROJECT',
           `Pipe ${edge.id} has no internal diameter.`,
         );
-      if (cumulatedLps <= 0)
+      if (cumulated !== undefined && cumulated.status === 'UNKNOWN')
+        settings.reportMissing(
+          'water',
+          `segments/${edge.id}/flow`,
+          'PROJECT',
+          `Pipe ${edge.id} : ${describeUnknown(cumulated)}`,
+        );
+      else if (cumulatedLps === undefined || cumulatedLps <= 0)
         settings.reportMissing(
           'water',
           `segments/${edge.id}/flow`,
@@ -817,9 +939,9 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
         networkId: network.id,
         lengthM: pathLengthM(edge.path),
         internalDiameterM: diameterM ?? null,
-        cumulatedDesignFlowLps: cumulatedLps,
+        cumulatedDesignFlowLps: cumulatedLps ?? null,
         flowM3s:
-          simultaneity === undefined
+          simultaneity === undefined || cumulatedLps === undefined
             ? null
             : (cumulatedLps * simultaneity) / 1000,
         localLossCoefficient: localLosses(
@@ -1360,8 +1482,12 @@ function rainwaterInput(context: ProjectCalculationContext): CalculationJson {
     ...(hours === undefined ? {} : { periodHours: [...hours] }),
     ...(dailyDemandL === undefined ? {} : { dailyDemandL }),
     ...(nominalVolumeL === undefined ? {} : { nominalVolumeL }),
+    // What is in the tank on the first day is a measurement, and « la cuve
+    // est vide » is one of the answers it can have — but nobody said it here.
+    // An empty tank makes the first weeks of the balance look worse than they
+    // are, and a full one makes them look better; neither is a default.
     initialVolumeL:
-      equipmentNumber(context, tank, 'initialVolumeL', 'rainwater') ?? 0,
+      equipmentNumber(context, tank, 'initialVolumeL', 'rainwater') ?? null,
     surfaces: context.roofs.map((roof) => ({
       surfaceId: roof.roofId,
       projectedAreaM2: roof.projectedAreaM2,
@@ -1409,11 +1535,23 @@ function iaqInput(context: ProjectCalculationContext): CalculationJson {
         space.unresolvedGeometry ??
           `Space ${space.name} has no boundary or storey height to derive a volume from.`,
       );
+    const resolvedFlow = flows.get(space.spaceId);
+    if (resolvedFlow !== undefined && resolvedFlow.status === 'UNKNOWN')
+      settings.reportMissing(
+        'iaq',
+        `rooms/${space.spaceId}/flowM3h`,
+        'PROJECT',
+        `${space.name} : ${describeUnknown(resolvedFlow)}`,
+      );
     return {
       roomId: space.spaceId,
       name: space.name,
       volumeM3: space.volumeM3 ?? null,
-      flowM3h: flows.get(space.spaceId) ?? null,
+      // A room whose terminals do not all state a flow has no flow to give the
+      // air-quality engine: `null` is « je ne sais pas », and the note above
+      // says which terminal is silent.
+      flowM3h:
+        resolvedFlow === undefined ? null : (valueOf(resolvedFlow) ?? null),
       occupants: occupants ?? null,
     };
   });
@@ -1438,24 +1576,34 @@ function photovoltaicInput(
   // model produce twice as much as one, and reading the catalogue alone made
   // the two projects identical.
   const modules = equipmentOfKind(context, 'PHOTOVOLTAIC');
-  const installedPowerWp = modules.definitions.reduce<number | undefined>(
-    (total, definition) => {
-      const own = equipmentNumber(
-        context,
-        definition,
-        'installedPowerWp',
-        'photovoltaic',
-      );
-      return own === undefined ? total : (total ?? 0) + own;
-    },
-    undefined,
+  // Two panels at 450 Wc and a third nobody described are not a 900 Wc
+  // installation: they are an installation of at least 900 Wc whose size
+  // nobody knows. Adding only what is stated would size an inverter for a
+  // field that is bigger than the number says.
+  const declaredPower = sumResolved(
+    modules.definitions.map((definition) =>
+      resolvedNumber(
+        equipmentNumber(
+          context,
+          definition,
+          'installedPowerWp',
+          'photovoltaic',
+        ),
+        definition.id,
+      ),
+    ),
   );
+  const installedPowerWp =
+    modules.definitions.length === 0 ? undefined : valueOf(declaredPower);
   if (installedPowerWp === undefined)
     settings.reportMissing(
       'photovoltaic',
       'installedPowerWp',
       'EQUIPMENT',
-      'No photovoltaic equipment declares an installed peak power.',
+      declaredPower.status === 'UNKNOWN' &&
+        declaredPower.missingSourceIds.length > 0
+        ? describeUnknown(declaredPower)
+        : 'No photovoltaic equipment declares an installed peak power.',
     );
   else if (modules.placed > 1)
     settings.note(

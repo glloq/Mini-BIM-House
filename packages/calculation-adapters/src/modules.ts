@@ -8,8 +8,15 @@ import type {
   ModuleCalculation,
 } from '@house-technical-designer/calculation-core';
 import {
+  known,
+  resolvedNumber,
+  sumResolved,
+  valueOf,
+} from '@house-technical-designer/calculation-core';
+import {
   aggregateThermalEnvelope,
   calculateElementTransmission,
+  surfaceResistances,
   type ThermalElementResult,
 } from '@house-technical-designer/thermal';
 import { calculateHeatingLoads } from '@house-technical-designer/heating';
@@ -172,11 +179,38 @@ export const thermalAdapter: CalculationModule = {
   },
   calculate(input) {
     const data = record(input)!;
-    const method = {
-      id: 'assembly-u-value-v1',
-      version: '2',
-      insideSurfaceResistanceM2KW: number(data.insideSurfaceResistanceM2KW)!,
-      outsideSurfaceResistanceM2KW: number(data.outsideSurfaceResistanceM2KW)!,
+    /*
+     * The declared films, which are the horizontal case.
+     *
+     * They were applied to every element — a floor, a ceiling and a façade all
+     * got Rsi 0,13 — and heat does not leave a house the same way through the
+     * floor as through the walls. Each element now takes the films its own
+     * direction of flow and its own far side call for, and the declared pair
+     * stays the horizontal reference the settings can override.
+     */
+    const declared = {
+      inside: number(data.insideSurfaceResistanceM2KW)!,
+      outside: number(data.outsideSurfaceResistanceM2KW)!,
+    };
+    const filmsFor = (kind: string, boundary: string) => {
+      const resolved = surfaceResistances(
+        kind,
+        boundary === 'GROUND' || boundary === 'UNHEATED'
+          ? boundary
+          : 'EXTERIOR',
+      );
+      // A horizontal element facing the outside is the case the settings
+      // describe, so a value chosen there still wins for it.
+      return resolved.direction === 'HORIZONTAL' &&
+        resolved.boundary === 'EXTERIOR'
+        ? {
+            insideSurfaceResistanceM2KW: declared.inside,
+            outsideSurfaceResistanceM2KW: declared.outside,
+          }
+        : {
+            insideSurfaceResistanceM2KW: resolved.insideSurfaceResistanceM2KW,
+            outsideSurfaceResistanceM2KW: resolved.outsideSurfaceResistanceM2KW,
+          };
     };
     const results: ThermalElementResult[] = rows(data.elements).map(
       (element) => {
@@ -196,7 +230,14 @@ export const thermalAdapter: CalculationModule = {
           string(element.id)!,
           number(element.areaM2)!,
           layers,
-          method,
+          {
+            id: 'assembly-u-value-v1',
+            version: '3',
+            ...filmsFor(
+              string(element.kind) ?? 'WALL_OPAQUE',
+              string(element.boundaryCondition) ?? 'EXTERIOR',
+            ),
+          },
           declaredUValueWm2K === undefined ? {} : { declaredUValueWm2K },
         );
       },
@@ -292,10 +333,30 @@ export const heatingAdapter: CalculationModule = {
     const indoorC = number(data.designIndoorTemperatureC)!;
     const outdoorC = number(data.designOutdoorTemperatureC)!;
     const deltaK = indoorC - outdoorC;
-    const envelopeH = number(
-      dependency(dependencies, 'thermal').heatTransferCoefficientWK,
+    const thermal = dependency(dependencies, 'thermal');
+    const envelopeH = number(thermal.heatTransferCoefficientWK);
+    /*
+     * What each element of the envelope loses, by identity.
+     *
+     * With it, a room's transmission is the sum of its own walls, its own
+     * windows and its share of what is above and below — not the building's
+     * total shared out by floor area. Two rooms of 15 m², one with three
+     * façades and a large north window, the other with one façade and a small
+     * south one, no longer receive the same load.
+     */
+    const elementH = new Map(
+      rows(thermal.elements).map((element) => [
+        string(element.id) ?? '',
+        number(element.heatTransferCoefficientWK),
+      ]),
     );
     const roomRows = rows(data.rooms);
+    /** The rooms whose walls could not be attributed, named in the ledger. */
+    const estimated: string[] = [];
+    // The denominator of the prorata, over the rooms whose area is known. A
+    // room with no derivable area contributes nothing here and receives no
+    // share below — it is reported as missing rather than given a slice of a
+    // building it cannot be measured against.
     const totalFloorAreaM2 = roomRows.reduce(
       (total, room) => total + (number(room.floorAreaM2) ?? 0),
       0,
@@ -319,12 +380,43 @@ export const heatingAdapter: CalculationModule = {
     const rooms = roomRows.map((room) => {
       const roomId = string(room.roomId)!;
       const floorAreaM2 = number(room.floorAreaM2);
-      const share =
+      const own = strings(room.envelopeElementIds);
+      // A room with no share of the storey — no derivable floor area — takes
+      // none of the roof and none of the ground floor. Its own walls are still
+      // charged to it in full; a zero share is « rien de ce qui est partagé »,
+      // not a missing measurement.
+      const horizontalShare = number(room.horizontalShare) ?? 0;
+      /*
+       * The room's own transmission, when the model could attribute one.
+       *
+       * A wall or a window belongs to the room whose walls enclose it, whole.
+       * A roof, a ceiling or a ground floor is genuinely shared, so it enters
+       * at the room's share of the storey's floor area — a room does not own a
+       * piece of roof the way it owns a façade.
+       */
+      const attributed =
+        own.length === 0
+          ? undefined
+          : own.reduce<number | undefined>((total, elementId) => {
+              const value = elementH.get(elementId);
+              if (total === undefined || value === undefined) return undefined;
+              const horizontal =
+                elementId.startsWith('envelope:roof:') ||
+                elementId.startsWith('envelope:slab:');
+              return total + value * (horizontal ? horizontalShare : 1);
+            }, 0);
+      // The old prorata, kept for a room whose walls do not enclose it. It was
+      // recorded as an assumption and it still is; what changes is that it is
+      // no longer the nominal method.
+      const prorata =
         envelopeH === undefined ||
         floorAreaM2 === undefined ||
         totalFloorAreaM2 <= 0
           ? undefined
           : (envelopeH * floorAreaM2) / totalFloorAreaM2;
+      const share = attributed ?? prorata;
+      if (attributed === undefined && prorata !== undefined)
+        estimated.push(roomId);
       const flowM3h = number(room.ventilationFlowM3h);
       return {
         roomId,
@@ -339,7 +431,13 @@ export const heatingAdapter: CalculationModule = {
         ...(recovery === undefined
           ? {}
           : { heatRecoveryPresent: true, heatRecoveryEfficiency: recovery }),
-        otherW: 0,
+        // The additional load comes from the input, where it was either chosen
+        // or recorded as an assumption. The adapter used to answer « 0 W » on
+        // every room, silently, to an engine that knew how to say « je ne sais
+        // pas ».
+        ...(number(room.otherW) === undefined
+          ? {}
+          : { otherW: number(room.otherW)! }),
       };
     });
     const result = calculateHeatingLoads(rooms, {
@@ -348,15 +446,27 @@ export const heatingAdapter: CalculationModule = {
       airDensityKgM3: number(data.airDensityKgM3)!,
       airSpecificHeatJKgK: number(data.airSpecificHeatJKgK)!,
     });
-    const ventilationH = rooms.reduce<number>(
-      (total, room) =>
-        total +
-        (room.ventilationFlowM3s ?? 0) *
-          number(data.airDensityKgM3)! *
-          number(data.airSpecificHeatJKgK)! *
-          (1 - (recovery ?? 0)),
-      0,
-    );
+    /*
+     * The building's ventilation coefficient, which is a claim about every
+     * room. One room whose flow nobody stated makes the claim unstatable —
+     * summing the rooms that spoke would report a house that breathes less
+     * than it does, and the figure would look like a measurement.
+     */
+    const ventilationH =
+      valueOf(
+        sumResolved(
+          rooms.map((room) =>
+            room.ventilationFlowM3s === undefined
+              ? resolvedNumber(undefined, room.roomId)
+              : known(
+                  room.ventilationFlowM3s *
+                    number(data.airDensityKgM3)! *
+                    number(data.airSpecificHeatJKgK)! *
+                    (1 - (recovery ?? 0)),
+                ),
+          ),
+        ),
+      ) ?? null;
     return {
       status: result.status,
       outputs: {
@@ -381,8 +491,12 @@ export const heatingAdapter: CalculationModule = {
       assumptions: [
         assumption(
           'transmissionAllocation',
-          'floor-area-prorata',
-          'Envelope transmission is allocated to rooms in proportion to their floor area.',
+          estimated.length === 0
+            ? 'per-room-envelope'
+            : `per-room-envelope; floor-area-prorata for ${estimated.join(', ')}`,
+          estimated.length === 0
+            ? 'Each room is charged its own walls and openings, and its share of what is above and below.'
+            : 'Each room is charged its own walls and openings; the rooms named fell back to a share of the building total, because the walls of their storey do not enclose them.',
         ),
         assumption(
           'designIndoorTemperatureC',
@@ -569,6 +683,9 @@ export const lightingAdapter: CalculationModule = {
           id: string(placement.id)!,
           luminaireId: string(placement.luminaireId)!,
           roomId,
+          // A placed thing always has coordinates — the domain requires them
+          // — so this is the JSON being read back into numbers, not a
+          // position being invented for something that has none.
           position: {
             x: number(record(placement.position ?? null)?.x) ?? 0,
             y: number(record(placement.position ?? null)?.y) ?? 0,
@@ -868,6 +985,9 @@ export const ventilationAdapter: CalculationModule = {
                     heightM: heightM!,
                   }),
               roughnessM: number(segment.roughnessM)!,
+              // A segment that states no fitting has none: the zero is the
+              // adapter's declared assumption, recorded by `localLosses()` when
+              // the input was built.
               localLossCoefficient: number(segment.localLossCoefficient) ?? 0,
             },
           },
@@ -888,20 +1008,40 @@ export const ventilationAdapter: CalculationModule = {
         pressureLossPa: result.totalPressureLossPa ?? null,
       };
     });
-    const totalPressureLossPa = segments.reduce<number>(
-      (total, segment) => total + (number(segment.pressureLossPa) ?? 0),
-      0,
-    );
+    // A run whose segments are not all sized has no total pressure loss:
+    // adding only the ones that computed would under-report the fan, and the
+    // number would look like a measurement.
+    const totalPressureLossPa =
+      valueOf(
+        sumResolved(
+          segments.map((segment) =>
+            resolvedNumber(
+              number(segment.pressureLossPa),
+              string(segment.id) ?? 'segment',
+            ),
+          ),
+        ),
+      ) ?? null;
     return {
       status: warnings.length === 0 ? 'OK' : 'PARTIAL',
       outputs: {
         segments,
         totalPressureLossPa,
         terminals: rows(data.terminals).map((terminal) => ({ ...terminal })),
-        designFlowM3h: rows(data.terminals).reduce<number>(
-          (total, terminal) => total + (number(terminal.targetFlowM3h) ?? 0),
-          0,
-        ),
+        // The unit is sized on what its terminals ask for. A terminal that
+        // asks for nothing stated is not a terminal that asks for zero, and a
+        // unit sized on the ones that spoke is a unit too small.
+        designFlowM3h:
+          valueOf(
+            sumResolved(
+              rows(data.terminals).map((terminal) =>
+                resolvedNumber(
+                  number(terminal.targetFlowM3h),
+                  string(terminal.id) ?? 'terminal',
+                ),
+              ),
+            ),
+          ) ?? null,
       },
       warnings,
       assumptions: declaredConstants(
@@ -1086,6 +1226,8 @@ export const waterAdapter: CalculationModule = {
           internalDiameterM,
           flowM3s,
           roughnessM: number(segment.roughnessM)!,
+          // Declared assumption: a segment that states no fitting has none,
+          // recorded by `localLosses()` when the input was built.
           localLossCoefficient: number(segment.localLossCoefficient) ?? 0,
         },
         context,
@@ -1103,10 +1245,20 @@ export const waterAdapter: CalculationModule = {
       status: warnings.length === 0 ? 'OK' : 'PARTIAL',
       outputs: {
         segments,
-        totalPressureLossPa: segments.reduce<number>(
-          (total, segment) => total + (number(segment.pressureLossPa) ?? 0),
-          0,
-        ),
+        // A run whose segments are not all sized has no total pressure loss:
+        // adding only the ones that computed would under-report the fan or the
+        // pump, and the number would look like a measurement.
+        totalPressureLossPa:
+          valueOf(
+            sumResolved(
+              segments.map((segment) =>
+                resolvedNumber(
+                  number(segment.pressureLossPa),
+                  string(segment.id) ?? 'segment',
+                ),
+              ),
+            ),
+          ) ?? null,
         maximumVelocityMs: segments.reduce<number | null>((peak, segment) => {
           const velocity = number(segment.velocityMs);
           if (velocity === undefined) return peak;
@@ -1239,10 +1391,20 @@ export const wastewaterAdapter: CalculationModule = {
           lengthM: segment.lengthM ?? null,
           totalDischargeUnits: segment.totalDischargeUnits ?? null,
         })),
-        totalDischargeUnits: rows(data.nodes).reduce<number>(
-          (total, node) => total + (number(node.dischargeUnits) ?? 0),
-          0,
-        ),
+        // Same rule: a stack whose fixtures are not all described has no
+        // total of discharge units, and sizing a downpipe on the ones that
+        // spoke would under-size it.
+        totalDischargeUnits:
+          valueOf(
+            sumResolved(
+              rows(data.nodes).map((node) =>
+                resolvedNumber(
+                  number(node.dischargeUnits),
+                  string(node.id) ?? 'node',
+                ),
+              ),
+            ),
+          ) ?? null,
       },
       warnings,
       assumptions: declaredConstants(
@@ -1326,7 +1488,13 @@ export const rainwaterAdapter: CalculationModule = {
       mainsTopUpSeriesL: periods.map(() => 0),
       tank: {
         nominalVolumeL: number(data.nominalVolumeL)!,
-        initialVolumeL: number(data.initialVolumeL) ?? 0,
+        // What is in the tank on the first day is a measurement. An empty tank
+        // makes the first weeks look worse than they are and a full one makes
+        // them look better; the engine is told nothing rather than told a
+        // guess, and it already knows how to report that.
+        ...(number(data.initialVolumeL) === undefined
+          ? {}
+          : { initialVolumeL: number(data.initialVolumeL)! }),
       },
     });
     return {
@@ -1586,10 +1754,13 @@ export const energyBalanceAdapter: CalculationModule = {
     const heating = dependency(dependencies, 'heating');
     const transmissionH = number(heating.transmissionHeatTransferCoefficientWK);
     const ventilationH = number(heating.ventilationHeatTransferCoefficientWK);
+    // A building coefficient is transmission plus ventilation. One of the two
+    // missing makes the coefficient missing — a house that only loses heat
+    // through its walls is not a house, it is half a calculation.
     const heatingH =
-      transmissionH === undefined
+      transmissionH === undefined || ventilationH === undefined
         ? undefined
-        : transmissionH + (ventilationH ?? 0);
+        : transmissionH + ventilationH;
     if (heatingH === undefined)
       warnings.push(
         missingWarning(
@@ -1649,6 +1820,8 @@ export const energyBalanceAdapter: CalculationModule = {
     const pvGeneration = numbers(pv.dispatchGenerationWh);
     const pvAligned = pvPeriods.length === periods.length;
     const pvWh = periods.map((_period, index) =>
+      // Reading past the end of an aligned series, not a missing value: the
+      // guard above is what decides whether the series is usable at all.
       pvAligned ? (pvGeneration[index] ?? 0) : 0,
     );
     if (!pvAligned && pvPeriods.length > 0)
@@ -1988,6 +2161,8 @@ export const acousticsAdapter: CalculationModule = {
         return [];
       }
       const absorptionByBand = Object.fromEntries(
+        // A band the defaults table does not name contributes nothing, which
+        // is what a table of defaults means.
         bands.map((band) => [String(band), defaults[String(band)] ?? 0]),
       );
       if (Object.values(absorptionByBand).every((value) => value === 0))

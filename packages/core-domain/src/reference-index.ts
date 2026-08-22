@@ -1,5 +1,9 @@
 import { isDimension } from './annotation.js';
-import { levelEntities, type EntityFamily } from './entity-index.js';
+import {
+  levelEntities,
+  projectEntities,
+  type EntityFamily,
+} from './entity-index.js';
 import type { Project } from './types.js';
 
 /**
@@ -289,4 +293,34 @@ export function referencesFromOutsideLevel(
   return projectReferences(project).filter(
     (reference) => going.has(reference.toId) && !inside.has(reference.fromId),
   );
+}
+
+/**
+ * A pointer that names nothing.
+ *
+ * The importer checked its references one loop at a time: openings against
+ * their host wall, nodes against their level, viewports against their view.
+ * Every loop was correct and the set of them was never complete — an opening
+ * naming a model the file does not carry went in without a word, because
+ * nobody had written that particular loop.
+ *
+ * This is the same question asked once, over every pointer the project holds.
+ * The specific rules stay where they are: they say *which* object a pointer
+ * may name — the same storey, the right kind of host, the right discipline —
+ * and this one says only that the object exists at all.
+ */
+export interface DanglingReference extends ProjectReference {
+  readonly message: string;
+}
+
+export function danglingReferences(
+  project: Project,
+): readonly DanglingReference[] {
+  const known = new Set(projectEntities(project).map(({ id }) => id));
+  return projectReferences(project)
+    .filter((reference) => !known.has(reference.toId))
+    .map((reference) => ({
+      ...reference,
+      message: `${reference.path} nomme ${reference.label} « ${reference.toId} », que le projet ne tient pas.`,
+    }));
 }

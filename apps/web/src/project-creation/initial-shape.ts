@@ -11,19 +11,28 @@
 import type { ProjectFile } from '@house-technical-designer/core-domain';
 import {
   AddSlabCommand,
+  ProjectTransactionCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 
 import { addWallRunCommand } from '../editor/editing-commands.js';
 import type { InitialBuildingShape } from '../ux/new-project-draft.js';
-import { shapeOutline } from './new-project.js';
+import { shapeIssues, shapeOutline } from './new-project.js';
 
 export const EXTERIOR_WALL_ASSEMBLY = 'assembly-exterior-wall';
 export const GROUND_SLAB_ASSEMBLY = 'assembly-floor';
 
 export type InitialShapeResult =
   | { readonly status: 'NONE' }
-  | { readonly status: 'OK'; readonly commands: readonly ProjectCommand[] }
+  /**
+   * One command, not a list.
+   *
+   * Six walls and a slab either arrive together or not at all: a footprint
+   * half drawn — because the fifth wall was refused — is a shape nobody chose,
+   * and undoing it would take seven presses. A transaction is also one entry
+   * in the undo history, which is what « annuler l'emprise » means.
+   */
+  | { readonly status: 'OK'; readonly command: ProjectCommand }
   | { readonly status: 'ERROR'; readonly message: string };
 
 /**
@@ -39,6 +48,11 @@ export function initialShapeCommands(
   newId: (prefix: string) => string,
 ): InitialShapeResult {
   if (shape.kind === 'NONE') return { status: 'NONE' };
+  // The relations between the arm and the box are checked before anything is
+  // drawn: a U whose arms cross produces a contour nobody could have drawn by
+  // hand, and the walls that come out of it look like a defect in the tool.
+  const wrong = shapeIssues(shape);
+  if (wrong.length > 0) return { status: 'ERROR', message: wrong.join(' ') };
   const outline = shapeOutline(shape);
   if (outline.length < 3)
     return { status: 'ERROR', message: 'Cette emprise n’a pas de contour.' };
@@ -65,5 +79,12 @@ export function initialShapeCommands(
     role: 'FLOOR',
     elevationOffsetMm: 0,
   });
-  return { status: 'OK', commands: [walls.command, slab] };
+  return {
+    status: 'OK',
+    command: new ProjectTransactionCommand(
+      `initial-shape:${shape.kind}:${newId('')}`,
+      'Poser l’emprise de départ',
+      [walls.command, slab],
+    ),
+  };
 }

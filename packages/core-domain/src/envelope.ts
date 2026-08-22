@@ -60,13 +60,38 @@ function slabAreaM2(slab: Slab): number {
 }
 
 /**
+ * Where the heated house stops, upwards.
+ *
+ * A house can be closed at the top in two ways, and the model says which by
+ * what it holds:
+ *
+ * - a ceiling slab on the topmost storey, with a roof over it — the roof
+ *   space between them is not heated, so the **ceiling** is the boundary and
+ *   the roof is outside it;
+ * - no ceiling slab — a cathedral roof, or a flat roof — so the **roof
+ *   planes** are the boundary.
+ *
+ * Counting both is what the envelope used to do, because the ceiling rule
+ * looked at `level.roofs` while the roof loop read `allRoofPlanes()`, which
+ * also holds the roofs described by their outline. A house with a modern roof
+ * and a ceiling lost heat through both, and its design load came out too high.
+ */
+function ceilingBounded(level: Level, highest: boolean): boolean {
+  return (
+    highest &&
+    allRoofPlanes(level).length > 0 &&
+    level.slabs.some(({ role }) => role === 'CEILING')
+  );
+}
+
+/**
  * What a slab bounds.
  *
  * A floor on the lowest storey sits on the ground; a floor between two heated
  * storeys separates nothing and is not part of the envelope. A terrace is a
- * roof one can stand on. A ceiling on the topmost storey closes the house.
- * These are stated rules, and a slab the rules do not cover stays out of the
- * envelope rather than being counted as an outside wall.
+ * roof one can stand on. These are stated rules, and a slab the rules do not
+ * cover stays out of the envelope rather than being counted as an outside
+ * wall.
  */
 function slabEnvelope(
   slab: Slab,
@@ -82,9 +107,13 @@ function slabEnvelope(
     case 'TERRACE':
       return { kind: 'ROOF', boundary: 'EXTERIOR' };
     case 'CEILING':
-      return highest && level.roofs.length === 0
-        ? { kind: 'CEILING', boundary: 'EXTERIOR' }
-        : undefined;
+      if (!highest) return undefined;
+      // Under a roof, the ceiling gives onto a roof space that nobody heats —
+      // which is warmer than outside, and the calculation is entitled to know
+      // it. With no roof above, the ceiling is the outside.
+      return allRoofPlanes(level).length > 0
+        ? { kind: 'CEILING', boundary: 'UNHEATED' }
+        : { kind: 'CEILING', boundary: 'EXTERIOR' };
     default:
       return undefined;
   }
@@ -159,7 +188,13 @@ export function resolveEnvelope(project: Project): readonly EnvelopeElement[] {
           : { definitionId: opening.definitionId }),
       });
     }
-    for (const plane of allRoofPlanes(level)) {
+    // A roof over a ceiling is not the thermal boundary: the ceiling is, and
+    // counting the two would make the house lose its heat twice.
+    const roofIsBoundary = !ceilingBounded(
+      level,
+      level.elevationMm === highest,
+    );
+    for (const plane of roofIsBoundary ? allRoofPlanes(level) : []) {
       const resolved = resolveRoofGeometry(plane, level);
       elements.push({
         id: `envelope:roof:${plane.id}`,

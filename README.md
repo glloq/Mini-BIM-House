@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml/badge.svg)](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml)
 [![Licence AGPL-3.0-only](https://img.shields.io/badge/licence-AGPL--3.0--only-blue)](LICENSE)
-![Version 0.3.0-beta.6](https://img.shields.io/badge/version-0.3.0--beta.6-yellow)
+![Version 0.3.0-beta.10](https://img.shields.io/badge/version-0.3.0--beta.10-yellow)
 ![Statut bêta](https://img.shields.io/badge/statut-b%C3%AAta-yellow)
 
-> **Version 0.3.0-beta.6 — bêta.** L'application couvre le parcours complet et
+> **Version 0.3.0-beta.10 — bêta.** L'application couvre le parcours complet et
 > ses formats sont stabilisés ; l'interface peut encore bouger et plusieurs
 > sujets restent hors périmètre. Voir
 > [Ce que l'application ne fait pas](#ce-que-lapplication-ne-fait-pas), le
@@ -628,7 +628,7 @@ sans casser le noyau.
 
 # État du projet
 
-**Version 0.3.0-beta.6, bêta.** L'application couvre le parcours complet :
+**Version 0.3.0-beta.10, bêta.** L'application couvre le parcours complet :
 dessiner, composer, calculer, superposer, métrer, comparer, exporter. Ce qu'un
 fichier de projet promet d'une version à l'autre est écrit dans
 [`CHANGELOG.md`](CHANGELOG.md).
@@ -702,7 +702,7 @@ fichier de projet promet d'une version à l'autre est écrit dans
 
 ## Ce que l'application ne fait pas
 
-Cette liste décrit la `0.3.0-beta.6` telle qu'elle est aujourd'hui, et rien
+Cette liste décrit la `0.3.0-beta.10` telle qu'elle est aujourd'hui, et rien
 d'autre : ce qui y figure n'existe pas encore dans l'application.
 
 - **Toitures sur contour quelconque** : une toiture est décrite par son
@@ -723,13 +723,15 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   d'été avancé, éclairage naturel** : hors périmètre de la bêta. Les poteaux,
   poutres et fondations se décrivent et se dessinent ; rien ne les vérifie
   encore.
-- **Réglages de calcul encore invisibles** : quelques entrées que les moteurs
-  lisent ne se règlent pas encore depuis l'interface.
-- **Analyses projetées sur le plan** : dix analyses sont branchées —
-  transmission, déperditions et données manquantes pour le thermique ; vitesse
-  et pertes de charge pour l'eau et pour les gaines ; pente des collecteurs ;
-  chute de tension et puissance foisonnée par circuit. Les autres résultats se
-  lisent dans les tableaux.
+- **Deux moteurs sans réglage propre** : l'enveloppe thermique et la
+  ventilation lisent des constantes de méthode et des données du projet ; ils
+  n'ont aucune hypothèse à choisir, et l'écran des réglages le dit plutôt que
+  d'afficher une page vide.
+- **Analyses projetées sur le plan** : les analyses branchées vont de la
+  transmission et des déperditions aux vitesses et pertes de charge de l'eau et
+  des gaines, à la pente des collecteurs, à la chute de tension et à la
+  puissance foisonnée par circuit. Les autres résultats se lisent dans les
+  tableaux.
 - **Productivité CAO** : congés, chanfreins, réseaux de contraintes
   paramétriques et transformations multiples restent hors périmètre. Ce qui
   existe : chaîne de murs continue, murs en rectangle, mur polyligne, extrémité

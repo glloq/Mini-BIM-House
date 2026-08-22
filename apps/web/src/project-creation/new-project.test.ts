@@ -23,6 +23,7 @@ import {
   newProjectIssues,
   projectFromNewDraft,
   scopeOf,
+  shapeIssues,
   shapeOutline,
 } from './new-project.js';
 
@@ -251,10 +252,63 @@ describe('the footprint a shape describes', () => {
     );
     expect(built.status).toBe('OK');
     if (built.status !== 'OK') return;
-    expect(built.commands).toHaveLength(2);
-    expect(built.commands.map(({ label }) => label)).toEqual([
-      'Ajouter 4 murs',
-      'Ajouter une dalle',
-    ]);
+    // One command, not two: the walls and the slab arrive together or not at
+    // all, and « annuler l'emprise » is one press.
+    expect(built.command.label).toBe('Poser l’emprise de départ');
+  });
+
+  it('refuses a shape that would fold back on itself, before drawing it', () => {
+    const file = projectFromNewDraft(draft(), NOW);
+    // Two arms of 6 m in a 10 m width would cross through each other.
+    const crossing = initialShapeCommands(
+      file,
+      { kind: 'U', widthMm: 10000, depthMm: 8000, wingMm: 6000 },
+      (prefix) => prefix,
+    );
+    expect(crossing.status).toBe('ERROR');
+    if (crossing.status !== 'ERROR') return;
+    expect(crossing.message).toContain('croiseraient');
+  });
+});
+
+describe('what the creation page asked for and used to throw away', () => {
+  it('keeps the address, without pretending it is a latitude', () => {
+    const file = projectFromNewDraft(
+      draft({ location: { address: 'Quimper, France' } }),
+      NOW,
+    );
+    expect(file.project.site.locationLabel).toBe('Quimper, France');
+    // An address is not a position: the sun still cannot be computed, and the
+    // modules that need coordinates still say so.
+    expect(file.project.site.location).toBeUndefined();
+  });
+
+  it('states the country it is going to apply', () => {
+    // The field showed « FR » as a placeholder and the constructor applied FR
+    // anyway, so an empty-looking field produced a French project.
+    expect(DEFAULT_NEW_PROJECT_DRAFT.location.countryCode).toBe('FR');
+    expect(
+      projectFromNewDraft(draft(), NOW).project.regulatoryContext?.country,
+    ).toBe('FR');
+  });
+
+  it('refuses a wing that does not fit the box it is cut from', () => {
+    const wrong = (shape: Parameters<typeof shapeIssues>[0]) =>
+      shapeIssues(shape).join(' ');
+    expect(
+      wrong({ kind: 'U', widthMm: 10000, depthMm: 8000, wingMm: 6000 }),
+    ).toContain('croiseraient');
+    expect(
+      wrong({ kind: 'L', widthMm: 8000, depthMm: 6000, wingMm: 6000 }),
+    ).toContain('plus courte');
+    expect(
+      wrong({ kind: 'T', widthMm: 8000, depthMm: 6000, wingMm: 9000 }),
+    ).toContain('plus étroit');
+    // And accepts the ones that do fit.
+    expect(
+      shapeIssues({ kind: 'U', widthMm: 12000, depthMm: 8000, wingMm: 3000 }),
+    ).toEqual([]);
+    expect(shapeIssues({ kind: 'NONE' })).toEqual([]);
+    expect(shapeIssues(undefined)).toEqual([]);
   });
 });

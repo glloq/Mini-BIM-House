@@ -38,7 +38,11 @@ export const DEFAULT_NEW_PROJECT_DRAFT: NewProjectDraft = {
   startMode: 'GUIDED',
   units: 'METRIC',
   levels: DEFAULT_LEVEL_STACK,
-  location: {},
+  // The country is stated rather than left to a fallback further down. The
+  // field showed « FR » as a placeholder and the constructor applied FR
+  // anyway, so an empty-looking field produced a French project: what the
+  // person sees and what gets written are now the same thing.
+  location: { countryCode: 'FR' },
   enabledDomains: defaultDomainsFor('NEW_BUILD'),
   initialShape: { kind: 'NONE' },
 };
@@ -76,12 +80,61 @@ export function newProjectIssues(draft: NewProjectDraft): readonly string[] {
   for (const id of draft.enabledDomains)
     if (!isDesignDomainId(id)) issues.push(`Domaine inconnu : ${String(id)}.`);
   issues.push(...validateProjectScope(scopeOf(draft)));
-  const shape = draft.initialShape;
-  if (shape !== undefined && shape.kind !== 'NONE') {
-    if (!((shape.widthMm ?? 0) > 0) || !((shape.depthMm ?? 0) > 0))
-      issues.push('Une emprise a besoin d’une largeur et d’une profondeur.');
-    if (shape.kind !== 'RECTANGLE' && !((shape.wingMm ?? 0) > 0))
-      issues.push('Cette forme a besoin d’une aile.');
+  issues.push(...shapeIssues(draft.initialShape));
+  return issues;
+}
+
+/**
+ * Why this footprint cannot be drawn, if it cannot.
+ *
+ * A positive wing is not enough. A U whose two arms are each 6 m in a 10 m
+ * width leaves them crossing through each other, and the walls that come out
+ * of it are a contour nobody could have drawn by hand. The relations between
+ * the arm and the box are what make the shape a shape.
+ */
+export function shapeIssues(
+  shape: InitialBuildingShape | undefined,
+): readonly string[] {
+  if (shape === undefined || shape.kind === 'NONE') return [];
+  const issues: string[] = [];
+  const width = shape.widthMm ?? 0;
+  const depth = shape.depthMm ?? 0;
+  const wing = shape.wingMm ?? 0;
+  if (!(width > 0) || !(depth > 0))
+    issues.push('Une emprise a besoin d’une largeur et d’une profondeur.');
+  if (shape.kind === 'RECTANGLE') return issues;
+  if (!(wing > 0)) {
+    issues.push('Cette forme a besoin d’une aile.');
+    return issues;
+  }
+  if (!(width > 0) || !(depth > 0)) return issues;
+  switch (shape.kind) {
+    case 'L':
+      if (wing >= Math.min(width, depth))
+        issues.push(
+          'L’aile d’un L doit être plus courte que la largeur et que la profondeur : sinon la forme est un rectangle, ou se replie sur elle-même.',
+        );
+      break;
+    case 'T':
+      if (wing >= width)
+        issues.push(
+          'Le pied d’un T doit être plus étroit que la largeur totale.',
+        );
+      if (wing >= depth)
+        issues.push(
+          'Le pied d’un T doit être moins profond que la profondeur totale.',
+        );
+      break;
+    case 'U':
+      if (2 * wing >= width)
+        issues.push(
+          'Les deux bras d’un U ne tiennent pas dans cette largeur : ils se croiseraient.',
+        );
+      if (wing >= depth)
+        issues.push('Les bras d’un U doivent être moins profonds que le U.');
+      break;
+    default:
+      break;
   }
   return issues;
 }
@@ -193,7 +246,8 @@ export function projectFromNewDraft(
     levelFrom(template, level, elevationMm),
   );
   const coordinates = locatedCoordinates(draft);
-  const { altitudeM, countryCode } = draft.location;
+  const { address, altitudeM, countryCode } = draft.location;
+  const locationLabel = address?.trim();
   const author = draft.metadata.author?.trim();
   const description = draft.metadata.description?.trim();
   return {
@@ -214,6 +268,13 @@ export function projectFromNewDraft(
         // plan, where it can be seen against the drawing rather than typed as
         // a number nobody can check.
         northAngleDeg: 0,
+        // « Quimper, France » is what a person knows about their site. No
+        // geocoder turns it into a latitude here, and it is worth keeping
+        // anyway: the page asked for it and used to throw it away, which is
+        // worse than not asking.
+        ...(locationLabel === undefined || locationLabel === ''
+          ? {}
+          : { locationLabel }),
         ...(coordinates === undefined ? {} : { location: coordinates }),
         ...(altitudeM === undefined ? {} : { altitudeM }),
       },

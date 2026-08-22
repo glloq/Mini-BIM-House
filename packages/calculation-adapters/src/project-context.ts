@@ -16,7 +16,9 @@ import {
   placedEquipmentByFamily,
   placedEquipmentByKind,
   placedEquipmentBySpace,
+  envelopeByRoom,
   resolveEnvelope,
+  type RoomEnvelope,
   resolveRoofGeometry,
   resolveSpaceGeometry,
   resolveWallGeometry,
@@ -145,6 +147,15 @@ export interface ProjectCalculationContext {
    * and the slabs that actually close the house.
    */
   readonly envelope: readonly EnvelopeElement[];
+  /**
+   * Which parts of that envelope belong to which room.
+   *
+   * A room's walls and their openings are its own; the roof and the floor are
+   * shared by area. Without it, a room's heating load was the building's
+   * transmission shared out by floor area, which cannot tell a room with three
+   * façades from a room with one.
+   */
+  readonly roomEnvelopes: readonly RoomEnvelope[];
   readonly spaces: readonly ProjectSpaceCalculationElement[];
   readonly rawSpaces: readonly Space[];
   readonly zones: readonly Zone[];
@@ -410,6 +421,7 @@ export function createProjectCalculationContext(
     assemblies,
     exteriorWalls,
     envelope: resolveEnvelope(project),
+    roomEnvelopes: envelopeByRoom(project),
     climateSelection: selection,
     spaces,
     rawSpaces,

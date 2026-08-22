@@ -1958,6 +1958,20 @@ function App() {
                 created,
                 `Nouveau projet « ${name} » prêt : ${levels} niveau(x), bibliothèque générique incluse.`,
               );
+              /*
+               * The start mode decides what happens next, not what the file
+               * holds. « Être guidé » lands in Projet with the guide open and
+               * the first step named; « page blanche » lands on the plan with
+               * nothing in the way. The project is the same either way — a
+               * mode that changed the BIM would be a second kind of project.
+               */
+              setNavigation((current) =>
+                goToWorkspace(
+                  current,
+                  draft.startMode === 'GUIDED' ? 'PROJECT' : 'BUILD',
+                ),
+              );
+              setNavigatorOpen(false);
               const shape = draft.initialShape;
               if (shape === undefined || shape.kind === 'NONE') return;
               const built = initialShapeCommands(
@@ -1970,7 +1984,7 @@ function App() {
                 return;
               }
               if (built.status === 'NONE') return;
-              for (const command of built.commands) runCommand(command);
+              runCommand(built.command);
               setMessage(
                 `Nouveau projet « ${name} » prêt : ${levels} niveau(x) et une emprise de départ.`,
               );

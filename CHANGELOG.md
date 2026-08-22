@@ -5,6 +5,142 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.10 — non publiée
+
+L'**intégrité des références**, demandée une seule fois.
+
+### Corrigé
+
+- **une ouverture nommant un modèle que le fichier ne porte pas entrait sans
+  un mot.** L'importeur vérifiait ses références boucle par boucle : les
+  ouvertures contre leur mur porteur, les nœuds contre leur niveau, les cartons
+  contre leur vue. Chaque boucle était juste et l'ensemble n'a jamais été
+  complet. `projectReferences()` est la liste unique de ce qui pointe vers
+  quoi, et la question générique — cet objet existe-t-il — s'y pose désormais
+  une fois, pour tout. Les règles spécifiques restent : elles disent _quel_
+  objet un pointeur a le droit de nommer, ce qui est une autre question.
+- **le projet de test des commandes pointait vers des composants qu'il avait
+  lui-même retirés.** Le nouveau contrôle l'a trouvé du premier coup : le
+  gabarit remplaçait la liste des composants du rez-de-chaussée au lieu de s'y
+  ajouter, et les nœuds de ventilation et d'éclairage de la maison de référence
+  se retrouvaient sans objet.
+
+### Ajouté
+
+- `danglingReferences()` dans `core-domain`. Un défaut qu'une règle spécifique
+  nomme déjà n'est pas nommé deux fois : le message le plus précis survit.
+
+## 0.3.0-beta.9 — non publiée
+
+La passe sur l'**intégrité de la création de projet** : cinq endroits où la
+page demandait quelque chose et n'en faisait rien, ou faisait autre chose.
+
+### Corrigé
+
+- **l'adresse saisie était perdue.** La page la demandait, le constructeur ne
+  gardait que latitude, longitude, altitude et pays. `Site.locationLabel` la
+  conserve — « Quimper, France » est ce qu'une personne sait de son terrain, et
+  aucun géocodeur n'est nécessaire pour que ce soit utile. Elle ne remplace
+  jamais des coordonnées : un projet avec une adresse et sans position reste un
+  projet dont le soleil ne se calcule pas, et les modules le disent toujours.
+- **le champ pays affichait « FR » en filigrane et appliquait FR quand même**,
+  donc un champ visuellement vide produisait un projet français. Le brouillon
+  énonce maintenant le pays qu'il va écrire.
+- **une emprise en U pouvait se croiser avec elle-même.** Seul le signe de
+  l'aile était vérifié ; deux bras de 6 m dans 10 m de largeur passaient l'un
+  à travers l'autre et produisaient un contour que personne n'aurait dessiné à
+  la main. Les relations entre l'aile et la boîte sont vérifiées avant que quoi
+  que ce soit ne soit tracé.
+- **l'emprise arrivait mur par mur.** Six murs et une dalle arrivent maintenant
+  ensemble ou pas du tout, et « annuler l'emprise » est une seule pression au
+  lieu de sept.
+- **`startMode` ne servait à rien.** « Être guidé » arrive dans Projet avec le
+  guide ouvert, « page blanche » arrive sur le plan sans rien devant. Le projet
+  BIM est le même dans les deux cas — un mode qui changerait le modèle serait
+  une deuxième sorte de projet.
+
+## 0.3.0-beta.8 — non publiée
+
+La passe sur les **limites thermiques** : où la maison chauffée s'arrête, et
+ce que chaque pièce perd réellement.
+
+### Corrigé
+
+- **une maison à toiture moderne et plafond perdait sa chaleur deux fois.** La
+  règle du plafond regardait `level.roofs` pendant que la boucle des toitures
+  lisait `allRoofPlanes()`, qui tient aussi les toitures décrites par leur
+  contour. Le modèle dit maintenant lequel des deux est la limite : un plafond
+  sous une toiture donne sur des combles que personne ne chauffe — le plafond
+  est la limite, la toiture est dehors ; sans plafond, ce sont les pans qui
+  ferment la maison.
+- **un plafond sous combles n'était pas exposé au vent** et recevait pourtant
+  la résistance superficielle extérieure. Il donne sur un local non chauffé, ce
+  que `boundaryCondition` disait déjà sans que le calcul s'en serve.
+- **un plancher, un plafond et une façade avaient les mêmes films d'air.**
+  Rsi 0,13 et Rse 0,04 sont le cas horizontal ; ISO 6946 en donne trois selon
+  le sens du flux, et une dalle sur terre-plein n'a pas de film extérieur du
+  tout — la terre n'est pas une brise.
+- **deux pièces de 15 m², l'une à trois façades et grande baie nord, l'autre à
+  une façade et petite fenêtre sud, recevaient presque la même charge.** Les
+  murs qui entourent une pièce et les ouvertures qui les percent lui sont
+  maintenant attribués en propre ; la toiture et le plancher, qui sont
+  réellement partagés, entrent au prorata de sa surface. Le prorata global
+  reste pour une pièce dont les murs ne l'enferment pas, et la pièce est
+  nommée dans le journal des hypothèses.
+
+### Ajouté
+
+- `envelopeByRoom()` dans `core-domain` : quelle part de l'enveloppe appartient
+  à quelle pièce.
+- `surfaceResistances()` dans le module thermique : les films d'air selon le
+  sens du flux et selon ce qu'il y a de l'autre côté, avec leur référence.
+
+## 0.3.0-beta.7 — non publiée
+
+La passe sur la **propagation des inconnues** dans les calculs. Le projet
+affirme depuis le début qu'une donnée inconnue reste inconnue ; la règle tenait
+partout où une valeur était lue, et cédait partout où des valeurs étaient
+additionnées.
+
+### Corrigé
+
+- **un total ne dit plus la somme de ce qu'il connaît.** Un tube alimenté par
+  une douche à 0,15 L/s et un lavabo que personne n'a décrit sortait à
+  0,15 L/s — le total, sans marque, et faux. `ResolvedNumber` et `sumResolved`
+  rendent le tronçon indéterminé, en gardant la borne basse et le nom du nœud
+  qui manque. Même chose pour les gaines, les pertes de charge cumulées, les
+  unités de décharge, le débit de dimensionnement d'un caisson et le
+  coefficient de ventilation d'un bâtiment.
+- **une pièce servie par deux bouches dont une se tait** avait le débit de
+  l'autre. Elle n'a plus de débit, et le chauffage comme la qualité de l'air le
+  disent.
+- **trois panneaux dont un ne déclare pas sa puissance** ne font plus une
+  installation de la somme des deux autres.
+- **la charge additionnelle des pièces** était injectée à 0 W par l'adaptateur,
+  à un moteur qui savait pourtant dire « je ne sais pas ». Zéro reste la
+  réponse, mais elle est déclarée comme hypothèse, voyage avec le résultat et
+  se remplace par un chiffre choisi.
+- **le volume initial d'une cuve** était supposé nul. Une cuve vide fait
+  paraître les premières semaines pires qu'elles ne sont, une cuve pleine
+  meilleures ; aucune des deux n'est un défaut.
+- **le coefficient d'un bâtiment** se calculait avec la transmission seule
+  quand la ventilation manquait.
+
+### Ajouté
+
+- `ResolvedNumber` dans `calculation-core` : `sumResolved`, `minResolved`,
+  `maxResolved`, `averageResolved`, `mapResolved`, et de quoi dire à voix haute
+  ce qui manque.
+- un test d'architecture qui refuse tout `?? 0` inexpliqué dans les
+  adaptateurs de calcul. Un zéro délibéré reste permis ; il doit dire pourquoi.
+
+### Documentation
+
+- le README annonçait « 18 résultats » puis « dix analyses » dans la même
+  version, et la page de préparation à la bêta nommait encore `beta.5`. Le test
+  documentaire compte désormais aussi les nombres écrits en lettres, qui
+  échappaient au contrôle des chiffres.
+
 ## 0.3.0-beta.6 — non publiée
 
 La refonte de l'**interface**. Onze destinations en une colonne répondaient à
