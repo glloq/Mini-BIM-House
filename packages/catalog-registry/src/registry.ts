@@ -27,6 +27,22 @@ import {
 import fingerprints from '../data/fingerprints.json' with { type: 'json' };
 import type { FamilyDefinition, FamilyIssue } from './families.js';
 import { validateFamily } from './families.js';
+import {
+  capabilitiesOf,
+  hasCapability,
+  type CatalogCapability,
+} from './capabilities.js';
+import {
+  isOfferable,
+  DEFAULT_LIFECYCLE,
+  type CatalogRef,
+} from './catalog-identity.js';
+import {
+  genericEquipmentCatalog,
+  isEquipmentCategory,
+  type EquipmentCategory,
+  type EquipmentDefinition,
+} from '@house-technical-designer/equipment-catalog';
 import { invalidBore } from './network-products.js';
 import {
   NETWORK_PRODUCT_REGISTRY,
@@ -164,6 +180,80 @@ export function propertySchema(id: string): PropertySchema | undefined {
   return SCHEMA_BY_FAMILY.get(id);
 }
 
+/**
+ * The coarse grouping one family's entries fall into.
+ *
+ * The single statement the catalogue projects `kind` and `category` from. An
+ * entry no longer says either, so this is where a screen sorting nineteen — or
+ * ten thousand — entries gets its buckets.
+ */
+export function categoryOfFamily(
+  familyId: string,
+): EquipmentCategory | undefined {
+  const found = BY_ID.get(familyId)?.category;
+  return found === undefined || !isEquipmentCategory(found) ? undefined : found;
+}
+
+/** Everything a thing of this family can have done to it. */
+export function familyCapabilities(
+  familyId: string,
+): readonly CatalogCapability[] {
+  const found = BY_ID.get(familyId);
+  return found === undefined ? [] : capabilitiesOf(found);
+}
+
+export function familyHasCapability(
+  familyId: string,
+  capability: CatalogCapability,
+): boolean {
+  const found = BY_ID.get(familyId);
+  return found !== undefined && hasCapability(found, capability);
+}
+
+/**
+ * Every family something may be done to, whatever it is.
+ *
+ * The replacement for `registry === 'EQUIPMENT' || registry === 'OPENING'` and
+ * its dozen cousins. A new family gets its behaviour by declaring what it can
+ * do; nothing here has to learn its name.
+ */
+export function familiesWithCapability(
+  capability: CatalogCapability,
+): readonly FamilyDefinition[] {
+  return FAMILY_REGISTRY.filter((entry) => hasCapability(entry, capability));
+}
+
+/** Whether this family may still be offered to somebody starting a design. */
+export function familyIsOfferable(familyId: string): boolean {
+  const found = BY_ID.get(familyId);
+  return (
+    found !== undefined && isOfferable(found.lifecycle ?? DEFAULT_LIFECYCLE)
+  );
+}
+
+/** What one catalogue entry is, said the one way every registry says it. */
+export function equipmentRef(entry: {
+  readonly id: string;
+  readonly version?: string;
+}): CatalogRef {
+  return { registry: 'EQUIPMENT', id: entry.id, version: entry.version ?? '' };
+}
+
+/**
+ * The generic catalogue with its families' projections stamped on.
+ *
+ * What the interface reads. `genericEquipmentCatalog()` gives the entries as
+ * their files state them, and their files no longer state a category — the
+ * family does. Anything grouping, filtering or sorting entries has to come
+ * through here, or it will group by a field that is empty in every entry.
+ */
+export function genericCatalog(): readonly EquipmentDefinition[] {
+  return genericEquipmentCatalog().map((entry) => {
+    const category = categoryOfFamily(entry.familyId);
+    return category === undefined ? entry : { ...entry, category };
+  });
+}
+
 /** The property schema a family's entries are checked against, if it names one. */
 export function schemaOfFamily(id: string): PropertySchema | undefined {
   const found = BY_ID.get(id);
@@ -261,6 +351,16 @@ export function validateCatalog(
     // figures today as when a project pinned it. Correcting a fiche in place
     // would leave every project holding the old pin designing with the new
     // numbers while claiming the old ones.
+    // A family that somebody has actually modelled an entry of has to say what
+    // bucket it belongs to: the entry no longer does, and a screen sorting ten
+    // thousand references by a field nobody stated sorts them into one heap.
+    const owner = BY_ID.get(entry.familyId);
+    if (owner !== undefined && owner.category === undefined)
+      issues.push({
+        entryId: entry.id,
+        path: 'familyId',
+        message: `${owner.id} has catalogue entries and states no category`,
+      });
     const stamp = recorded[`${entry.id}@${entry.version ?? ''}`];
     if (stamp !== undefined && stamp !== catalogFingerprint(entry))
       issues.push({
@@ -507,6 +607,7 @@ export function validateRegistry(known: {
       symbols: known.symbols,
       propertySchemas: schemas,
       calculators: known.calculators,
+      families: new Set(BY_ID.keys()),
     }))
       issues.push({ familyId: entry.id, ...issue });
   }

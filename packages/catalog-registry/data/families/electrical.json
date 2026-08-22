@@ -85,6 +85,7 @@
       "label": "Tableau général",
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
+      "category": "DISTRIBUTION_BOARD",
       "priority": 3,
       "ports": [
         {
@@ -215,6 +216,7 @@
       "label": "Disjoncteur divisionnaire",
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
+      "category": "PROTECTION_DEVICE",
       "priority": 3,
       "ports": [
         {
@@ -564,6 +566,7 @@
       "label": "Prise 16 A",
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
+      "category": "SOCKET",
       "priority": 3,
       "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
@@ -1227,6 +1230,7 @@
       "label": "Plafonnier",
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
+      "category": "LUMINAIRE",
       "priority": 3,
       "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],

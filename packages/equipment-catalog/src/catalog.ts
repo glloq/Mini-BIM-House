@@ -214,7 +214,7 @@ export function queryEquipment(
           [
             definition.name,
             definition.id,
-            definition.kind,
+            definition.familyId,
             definition.manufacturer ?? '',
             definition.model ?? '',
           ].join(' '),
@@ -223,7 +223,8 @@ export function queryEquipment(
     .filter(
       (definition) =>
         query.categories === undefined ||
-        query.categories.includes(definition.category),
+        (definition.category !== undefined &&
+          query.categories.includes(definition.category)),
     )
     .filter(
       (definition) =>
@@ -239,7 +240,7 @@ export function queryEquipment(
     .slice()
     .sort(
       (first, second) =>
-        first.category.localeCompare(second.category) ||
+        (first.category ?? '').localeCompare(second.category ?? '') ||
         first.name.localeCompare(second.name, 'fr') ||
         first.id.localeCompare(second.id),
     );

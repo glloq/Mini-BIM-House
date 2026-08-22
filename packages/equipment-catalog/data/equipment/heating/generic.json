@@ -3,8 +3,6 @@
     {
       "id": "generic-air-water-heat-pump",
       "familyId": "HEAT_PUMP_AIR_WATER_MONOBLOC",
-      "kind": "HEAT_PUMP",
-      "category": "HEAT_PUMP",
       "name": "Pompe à chaleur air/eau",
       "dimensions": {
         "widthMm": 1100,
@@ -15,8 +13,6 @@
         {
           "id": "flow",
           "portTypeId": "HEATING_FLOW",
-          "discipline": "HEATING",
-          "role": "FLOW",
           "position": {
             "x": -400,
             "y": 0,
@@ -27,8 +23,6 @@
         {
           "id": "return",
           "portTypeId": "HEATING_RETURN",
-          "discipline": "HEATING",
-          "role": "RETURN",
           "position": {
             "x": 400,
             "y": 0,
@@ -39,8 +33,6 @@
         {
           "id": "power",
           "portTypeId": "ELECTRICAL_AC",
-          "discipline": "ELECTRICAL",
-          "role": "SUPPLY",
           "position": {
             "x": 0,
             "y": 200,
@@ -101,7 +93,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "heating.generation"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -135,8 +127,6 @@
     {
       "id": "generic-circulator-pump",
       "familyId": "CIRCULATOR",
-      "kind": "PUMP",
-      "category": "PUMP",
       "name": "Circulateur de chauffage",
       "dimensions": {
         "widthMm": 180,
@@ -147,8 +137,6 @@
         {
           "id": "in",
           "portTypeId": "HEATING_RETURN",
-          "discipline": "HEATING",
-          "role": "RETURN",
           "position": {
             "x": -90,
             "y": 0,
@@ -159,8 +147,6 @@
         {
           "id": "out",
           "portTypeId": "HEATING_FLOW",
-          "discipline": "HEATING",
-          "role": "FLOW",
           "position": {
             "x": 90,
             "y": 0,
@@ -171,8 +157,6 @@
         {
           "id": "power",
           "portTypeId": "ELECTRICAL_AC",
-          "discipline": "ELECTRICAL",
-          "role": "POWER",
           "position": {
             "x": -90,
             "y": 0,
@@ -232,7 +216,7 @@
         "planFootprint": "SYMBOL_ONLY",
         "layer": "heating.equipment"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -248,8 +232,6 @@
     {
       "id": "generic-radiator",
       "familyId": "RADIATOR",
-      "kind": "RADIATOR",
-      "category": "RADIATOR",
       "name": "Radiateur eau chaude",
       "dimensions": {
         "widthMm": 1000,
@@ -260,8 +242,6 @@
         {
           "id": "flow",
           "portTypeId": "HEATING_FLOW",
-          "discipline": "HEATING",
-          "role": "FLOW",
           "position": {
             "x": -480,
             "y": 0,
@@ -272,8 +252,6 @@
         {
           "id": "return",
           "portTypeId": "HEATING_RETURN",
-          "discipline": "HEATING",
-          "role": "RETURN",
           "position": {
             "x": 480,
             "y": 0,
@@ -299,7 +277,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "heating.emitters"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

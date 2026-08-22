@@ -3,8 +3,6 @@
     {
       "id": "generic-air-terminal",
       "familyId": "EXTRACT_TERMINAL",
-      "kind": "AIR_TERMINAL",
-      "category": "AIR_TERMINAL",
       "name": "Bouche d’extraction",
       "dimensions": {
         "widthMm": 125,
@@ -15,8 +13,6 @@
         {
           "id": "duct",
           "portTypeId": "AIR_EXTRACT",
-          "discipline": "VENTILATION",
-          "role": "EXTRACT",
           "position": {
             "x": 0,
             "y": 0,
@@ -40,7 +36,7 @@
         "planFootprint": "CIRCLE",
         "layer": "ventilation.terminals"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -61,8 +57,6 @@
     {
       "id": "generic-balanced-ventilation-unit",
       "familyId": "BALANCED_VENTILATION_UNIT",
-      "kind": "VENTILATION_UNIT",
-      "category": "VENTILATION_UNIT",
       "name": "VMC double flux avec échangeur",
       "dimensions": {
         "widthMm": 600,
@@ -73,8 +67,6 @@
         {
           "id": "extract",
           "portTypeId": "AIR_EXTRACT",
-          "discipline": "VENTILATION",
-          "role": "EXTRACT",
           "position": {
             "x": -300,
             "y": -150,
@@ -85,8 +77,6 @@
         {
           "id": "exhaust",
           "portTypeId": "AIR_EXHAUST",
-          "discipline": "VENTILATION",
-          "role": "EXHAUST",
           "position": {
             "x": 300,
             "y": -150,
@@ -97,8 +87,6 @@
         {
           "id": "intake",
           "portTypeId": "AIR_OUTSIDE",
-          "discipline": "VENTILATION",
-          "role": "INTAKE",
           "position": {
             "x": 300,
             "y": 150,
@@ -109,8 +97,6 @@
         {
           "id": "supply",
           "portTypeId": "AIR_SUPPLY",
-          "discipline": "VENTILATION",
-          "role": "SUPPLY",
           "position": {
             "x": -300,
             "y": 150,
@@ -121,8 +107,6 @@
         {
           "id": "power",
           "portTypeId": "ELECTRICAL_AC",
-          "discipline": "ELECTRICAL",
-          "role": "POWER",
           "position": {
             "x": -300,
             "y": -150,
@@ -148,7 +132,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "ventilation.equipment"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -175,8 +159,6 @@
     {
       "id": "generic-extract-ventilation-unit",
       "familyId": "EXTRACT_VENTILATION_UNIT",
-      "kind": "VENTILATION_UNIT",
-      "category": "VENTILATION_UNIT",
       "name": "VMC simple flux hygroréglable",
       "dimensions": {
         "widthMm": 480,
@@ -187,8 +169,6 @@
         {
           "id": "extract",
           "portTypeId": "AIR_EXTRACT",
-          "discipline": "VENTILATION",
-          "role": "EXTRACT",
           "position": {
             "x": -240,
             "y": 0,
@@ -199,8 +179,6 @@
         {
           "id": "exhaust",
           "portTypeId": "AIR_EXHAUST",
-          "discipline": "VENTILATION",
-          "role": "EXHAUST",
           "position": {
             "x": 240,
             "y": 0,
@@ -211,8 +189,6 @@
         {
           "id": "power",
           "portTypeId": "ELECTRICAL_AC",
-          "discipline": "ELECTRICAL",
-          "role": "POWER",
           "position": {
             "x": -240,
             "y": 0,
@@ -268,7 +244,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "ventilation.equipment"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

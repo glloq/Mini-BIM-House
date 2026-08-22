@@ -643,6 +643,7 @@
       "label": "Cuve de récupération",
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
+      "category": "RAINWATER_TANK",
       "priority": 2,
       "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
       "calculators": ["rainwater", "cost"],

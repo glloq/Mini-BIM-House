@@ -13,6 +13,7 @@ import {
   type PropertyValue,
 } from './property-schemas.js';
 import { validateProvenance, type ProvenanceCandidate } from './provenance.js';
+import { hasCapability } from './capabilities.js';
 
 /**
  * A catalogue entry as anything that produces one states it.
@@ -38,6 +39,15 @@ export interface CatalogEntryCandidate {
   readonly rendering?: {
     readonly symbols?: readonly { readonly symbolId: string }[];
   };
+  readonly performanceCurves?: readonly { readonly id: string }[];
+  /**
+   * The bucket the entry claims for itself.
+   *
+   * It must not claim one. Kept in the shape only so that the gate can say so:
+   * a field silently ignored is a field somebody will go on filling in.
+   */
+  readonly category?: string;
+  readonly kind?: string;
 }
 
 /**
@@ -177,6 +187,28 @@ export function validateCatalogEntry(
     declared,
   ))
     at('ports', `${family.id} ${issue.message}`);
+
+  // Three taxonomies for one thing is how they drift. The family says what
+  // this is; an entry repeating it in its own words is the second version of a
+  // sentence that already existed, and `generic-pv-module` proved it — `kind:
+  // PHOTOVOLTAIC` beside `category: PV_MODULE`, both files valid, at nineteen
+  // entries.
+  if (entry.category !== undefined)
+    at('category', 'the category is the family’s and is not restated here');
+  if (entry.kind !== undefined)
+    at('kind', 'the kind is the family’s category and is not restated here');
+
+  // What an entry is allowed to carry is what its family can do. An entry with
+  // a performance map in a family nothing tabulates is a map no calculation
+  // will ever open, and it will sit there looking complete.
+  if (
+    (entry.performanceCurves ?? []).length > 0 &&
+    !hasCapability(family, 'PERFORMANCE_MAPPED')
+  )
+    at(
+      'performanceCurves',
+      `${family.id} does not declare a tabulated performance`,
+    );
 
   // The room around it: the family says which zones such a thing has, the
   // entry says how far each one reaches. An entry claiming a zone its family

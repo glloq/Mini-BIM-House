@@ -125,7 +125,9 @@ Les vagues sont un ordre de travail, pas une importance :
   "label": "Pompe à chaleur air/eau monobloc",
   "domain": "HEATING",
   "registry": "EQUIPMENT",
+  "category": "HEAT_PUMP",
   "priority": 4,
+  "capabilities": ["PERFORMANCE_MAPPED"],
   "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC"],
   "optionalPorts": ["CONDENSATE", "CONTROL"],
   "calculators": [
@@ -159,6 +161,73 @@ dix-sept moteurs de calcul, les symboles contre la bibliothèque, le schéma de
 propriétés contre les schémas déclarés. Une famille qui nomme quelque chose qui
 n'existe pas est refusée par les tests, pas découverte des mois plus tard devant
 un utilisateur.
+
+## Une seule taxonomie
+
+Une fiche de catalogue déclarait autrefois trois choses pour dire la même : son
+`familyId`, son `kind` et sa `category`. À dix-neuf fiches, deux d'entre elles
+avaient déjà divergé — `generic-pv-module` annonçait `kind: PHOTOVOLTAIC` et
+`category: PV_MODULE`, les deux fichiers étaient valides, et rien ne les
+comparait.
+
+La famille est désormais la seule phrase. Elle porte `category` ; la fiche n'en
+porte aucune, et la porte de validation refuse celle qui essaierait. Ce que
+l'interface trie et filtre lui est apposé à la sortie, par `categoryOfFamily`,
+donc une seule fois et au même endroit pour tout le monde.
+
+Même règle pour les ports d'une fiche : `discipline` et `role` étaient deux
+chaînes libres à côté du `portTypeId`, qui dit déjà le domaine, le fluide, le
+service et le sens. Elles ont disparu.
+
+## Ce qu'une famille peut faire
+
+Le moteur demandait `category === 'HEAT_PUMP'` et `registry === 'EQUIPMENT'` à
+une douzaine d'endroits, ce qui veut dire qu'ajouter une famille d'un genre
+imprévu — un filtre d'eaux pluviales, un dérivateur solaire — demandait de
+modifier le moteur. La règle que cette application se donne est l'inverse :
+_ajouter une famille ou dix mille références ne doit demander aucune
+modification du moteur._
+
+Une **capability** est la phrase qui rend cela possible. Elle dit ce qu'on peut
+faire d'une famille — la poser, la raccorder, la dessiner, la compter — sans
+dire ce qu'elle est. Onze en tout, liste fermée :
+
+| Lue de ce que la famille déclare                                                                             | Déclarée, parce que rien ne l'implique                    |
+| ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| `PLACEABLE`, `CONNECTABLE`, `CLEARANCE_ZONED`, `PLAN_DRAWN`, `SCHEMATIC_DRAWN`, `RUN_MATERIAL`, `CALCULATED` | `LAYERED`, `PIERCING`, `PERFORMANCE_MAPPED`, `QUANTIFIED` |
+
+Les sept premières ne s'écrivent pas : une famille qui déclare des ports _est_
+raccordable, et le dire une seconde fois est la façon dont les deux finissent
+par se contredire. C'est la même règle que les axes de statut mesurés, et pour
+la même raison. `capabilitiesOf` donne la réponse entière ; lire
+`family.capabilities` n'en donne que la moitié tapée à la main.
+
+## Le cycle de vie et les vagues
+
+Un catalogue qui ne fait que grandir est un catalogue que personne ne peut
+corriger : le jour où un chiffre générique se révèle faux, il faut choisir entre
+le changer sous les pieds de tous les projets qui l'ont épinglé et le laisser là
+pour toujours. Aucun des deux n'est acceptable, donc une fiche se **retire** :
+
+`DRAFT` → `ACTIVE` → `DEPRECATED` → `WITHDRAWN`
+
+Elle cesse d'être proposée, elle continue d'ouvrir les fichiers qui la
+contiennent, et elle dit quoi employer à la place. Une fiche qui quitte le
+service sans nommer son remplaçant ni dire pourquoi elle n'en a pas est refusée :
+sinon le problème est déplacé sur celui qui la rencontre, qui reçoit « ne plus
+employer » et pas de seconde phrase.
+
+La vague (`priority`) est l'une des six, pas un entier libre. Une famille écrite
+en vague 9 n'apparaîtrait dans aucun plan de travail, silencieusement, parce que
+personne ne cherche une vague 9.
+
+## Une référence, dite pareil partout
+
+Les sept registres nommaient leurs entrées de sept façons. `CatalogRef` est la
+phrase commune — `EQUIPMENT:generic-wc@1.1.0` — et `validateCatalogIdentity`
+vérifie ce que toute fiche de tout registre doit dire d'elle-même : un
+identifiant en minuscules, une version comparable, un cycle de vie connu, une
+vague connue, une provenance.
 
 ## Les ports
 
@@ -359,7 +428,13 @@ sur un tube dont l'alésage est faux de quatre millimètres.
 - une propriété qui n'est pas déclarée, ou déclarée dans une autre source ;
 - une valeur dérivée écrite parmi les valeurs stockées ;
 - une entrée sans provenance, ou un chiffre fabricant sans date ;
-- un tube dont l'alésage contredit ses parois.
+- un tube dont l'alésage contredit ses parois ;
+- une fiche qui redit le `kind` ou la `category` de sa famille ;
+- une famille dont on a modélisé des fiches et qui ne dit pas sa catégorie ;
+- une capability lue de ce que la famille déclare et réécrite à la main ;
+- une vague hors des six, un cycle de vie inconnu, un remplaçant qui n'existe
+  pas ou une famille qui se remplace elle-même ;
+- une courbe de performance dans une famille qui n'en déclare aucune.
 
 Tout cela est vérifié par les tests, donc à chaque intégration continue.
 

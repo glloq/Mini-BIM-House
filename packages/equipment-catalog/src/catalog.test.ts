@@ -18,28 +18,42 @@ const pump = () => genericEquipment('generic-circulator-pump')!;
 
 describe('generic equipment catalogue', () => {
   it('ships the equipment families the MVP needs to place and connect', () => {
-    const categories = new Set(
-      genericEquipmentCatalog().map(({ category }) => category),
+    const families = new Set(
+      genericEquipmentCatalog().map(({ familyId }) => familyId),
     );
-    expect(categories).toEqual(
+    expect(families).toEqual(
       new Set([
-        'PUMP',
-        'VENTILATION_UNIT',
-        'AIR_TERMINAL',
+        'CIRCULATOR',
+        'BALANCED_VENTILATION_UNIT',
+        'EXTRACT_VENTILATION_UNIT',
+        'EXTRACT_TERMINAL',
         'RADIATOR',
-        'HEAT_PUMP',
-        'DHW_TANK',
+        'HEAT_PUMP_AIR_WATER_MONOBLOC',
+        'ELECTRIC_DHW_TANK',
         'PV_MODULE',
-        'INVERTER',
-        'BATTERY',
-        'LUMINAIRE',
-        'SOCKET',
-        'DISTRIBUTION_BOARD',
-        'PROTECTION_DEVICE',
-        'SANITARY_FIXTURE',
+        'STRING_INVERTER',
+        'BATTERY_PACK',
+        'CEILING_LIGHT',
+        'SOCKET_16A',
+        'MAIN_DISTRIBUTION_BOARD',
+        'MCB',
+        'KITCHEN_SINK',
+        'SHOWER',
+        'WASHBASIN',
+        'WC',
         'RAINWATER_TANK',
       ]),
     );
+  });
+
+  it('states no category of its own, because the family states it', () => {
+    // Three taxonomies for one thing — `familyId`, `kind`, `category` — had
+    // already parted company at nineteen entries: `generic-pv-module` said
+    // `PHOTOVOLTAIC` in one field and `PV_MODULE` in the other. The family is
+    // the single statement now, and `categoryOfFamily` stamps it on the way
+    // out; an entry read straight from its file carries none.
+    for (const definition of genericEquipmentCatalog())
+      expect(definition.category).toBeUndefined();
   });
 
   it('validates cleanly and sources every property as generic data', () => {
@@ -136,9 +150,22 @@ describe('catalogue queries and instances', () => {
     expect(
       queryEquipment(catalog, { search: 'pompe' }).map(({ id }) => id),
     ).toEqual(['generic-air-water-heat-pump']);
+    // Filtering by category needs entries somebody has resolved: the files
+    // state none, so an unresolved catalogue answers nothing rather than
+    // answering everything.
     expect(
       queryEquipment(catalog, { categories: ['SANITARY_FIXTURE'] }),
-    ).toHaveLength(4);
+    ).toEqual([]);
+    expect(
+      queryEquipment(
+        catalog.map((entry) =>
+          entry.familyId === 'WC'
+            ? { ...entry, category: 'SANITARY_FIXTURE' as const }
+            : entry,
+        ),
+        { categories: ['SANITARY_FIXTURE'] },
+      ).map(({ id }) => id),
+    ).toEqual(['generic-wc']);
     expect(queryEquipment(catalog, { catalogKinds: ['PRODUCT'] })).toEqual([]);
     // Accent-insensitive search keeps French names findable.
     expect(

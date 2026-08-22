@@ -4,7 +4,6 @@ import { CatalogSearch } from '../catalog/CatalogSearch.js';
 import { matchesQuery, type CatalogQuery } from '../catalog/catalog-filter.js';
 import type { Project } from '@house-technical-designer/core-domain';
 import type { EquipmentDefinition } from '@house-technical-designer/equipment-catalog';
-import { genericEquipmentCatalog } from '@house-technical-designer/equipment-catalog';
 import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
 import {
   AddEquipmentCommand,
@@ -13,7 +12,10 @@ import {
   nodesUsingEquipment,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
-import { family } from '@house-technical-designer/catalog-registry';
+import {
+  family,
+  genericCatalog,
+} from '@house-technical-designer/catalog-registry';
 import type { HostType } from '@house-technical-designer/core-domain';
 import { isHostType } from '@house-technical-designer/core-domain';
 import { projectEquipmentFromCatalog } from './library-model.js';
@@ -55,7 +57,7 @@ export function EquipmentPanel({
   selectedId,
   onSelect,
 }: EquipmentPanelProps) {
-  const catalog = useMemo(() => genericEquipmentCatalog(), []);
+  const catalog = useMemo(() => genericCatalog(), []);
   /**
    * The catalogue entries of each family, worked out once.
    *

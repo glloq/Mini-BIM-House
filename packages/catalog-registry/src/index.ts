@@ -4,6 +4,8 @@ export * from '@house-technical-designer/technical-types';
 // The products a run can be made of. Re-exported for the same reason: reading
 // the catalogue should not mean importing three packages to name one tube.
 export * from '@house-technical-designer/network-products';
+export * from './capabilities.js';
+export * from './catalog-identity.js';
 export * from './catalog-validation.js';
 export * from './families.js';
 export * from './network-products.js';

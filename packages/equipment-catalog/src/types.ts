@@ -15,27 +15,33 @@ export type EquipmentCatalogKind = 'GENERIC' | 'PRODUCT' | 'CUSTOM';
  * definition cannot silently introduce a category the interface and the
  * calculation modules do not know how to treat.
  */
-export type EquipmentCategory =
-  | 'HEAT_PUMP'
-  | 'BOILER'
-  | 'RADIATOR'
-  | 'UNDERFLOOR_HEATING'
-  | 'DHW_TANK'
-  | 'VENTILATION_UNIT'
-  | 'AIR_TERMINAL'
-  | 'FAN'
-  | 'PUMP'
-  | 'PV_MODULE'
-  | 'INVERTER'
-  | 'BATTERY'
-  | 'LUMINAIRE'
-  | 'SOCKET'
-  | 'DISTRIBUTION_BOARD'
-  | 'PROTECTION_DEVICE'
-  | 'SANITARY_FIXTURE'
-  | 'RAINWATER_TANK'
-  | 'SENSOR'
-  | 'OTHER';
+export const EQUIPMENT_CATEGORIES = [
+  'HEAT_PUMP',
+  'BOILER',
+  'RADIATOR',
+  'UNDERFLOOR_HEATING',
+  'DHW_TANK',
+  'VENTILATION_UNIT',
+  'AIR_TERMINAL',
+  'FAN',
+  'PUMP',
+  'PV_MODULE',
+  'INVERTER',
+  'BATTERY',
+  'LUMINAIRE',
+  'SOCKET',
+  'DISTRIBUTION_BOARD',
+  'PROTECTION_DEVICE',
+  'SANITARY_FIXTURE',
+  'RAINWATER_TANK',
+  'SENSOR',
+  'OTHER',
+] as const;
+export type EquipmentCategory = (typeof EQUIPMENT_CATEGORIES)[number];
+
+export function isEquipmentCategory(value: string): value is EquipmentCategory {
+  return (EQUIPMENT_CATEGORIES as readonly string[]).includes(value);
+}
 
 export type PropertySourceType =
   | 'GENERIC'
@@ -92,15 +98,15 @@ export interface EquipmentPortDefinition {
   /**
    * The kind of connection this is, from the port registry.
    *
-   * `discipline` and `role` were two free strings, so a heat pump declared
-   * `HEATING` / `FLOW` while its family declared `HEATING_FLOW` and nothing
-   * could tell that these were the same thing — or notice when they stopped
-   * being. The registry decides what may be joined to what; a port that does
-   * not name one of its types is a port nothing can check.
+   * `discipline` and `role` sat beside it as two free strings, so a heat pump
+   * declared `HEATING` / `FLOW` while its port type said `HEATING_FLOW` and
+   * nothing could tell that these were the same thing — or notice when they
+   * stopped being. They are gone: the port type carries a domain, a medium, a
+   * service and a direction, and anything wanting one of those reads it there.
+   * The registry decides what may be joined to what; a port that does not name
+   * one of its types is a port nothing can check.
    */
   readonly portTypeId: string;
-  readonly discipline: string;
-  readonly role: string;
   /** Port position relative to the equipment origin, in millimetres. */
   readonly position: Point3D;
   readonly direction?: EquipmentDirection;
@@ -180,8 +186,21 @@ export interface EquipmentDefinition {
    * with it.
    */
   readonly familyId: string;
-  readonly kind: string;
-  readonly category: EquipmentCategory;
+  /**
+   * The coarse grouping this entry falls into, as a projection of its family.
+   *
+   * Not stated by the file, and no longer stated twice. An entry used to carry
+   * a `kind` and a `category` beside its `familyId` — three taxonomies for one
+   * thing — and at nineteen entries one of them had already drifted:
+   * `generic-pv-module` said `kind: PHOTOVOLTAIC` and `category: PV_MODULE`.
+   * Nothing was wrong with either file, because nothing compared them.
+   *
+   * The family is the one statement now. This field is what
+   * `categoryOfFamily` stamps on the way out, which is why it is optional: an
+   * entry read straight from its file has not been resolved yet, and saying so
+   * is better than inventing `OTHER`.
+   */
+  readonly category?: EquipmentCategory;
   readonly name: string;
   readonly catalogKind: EquipmentCatalogKind;
   readonly manufacturer?: string;

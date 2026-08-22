@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
 import { materialId } from '@house-technical-designer/materials';
 import { createBlankProject } from '../project-workspace.js';
+import { genericCatalog } from '@house-technical-designer/catalog-registry';
 import { genericEquipment } from '@house-technical-designer/equipment-catalog';
 import {
   assemblyView,
@@ -142,13 +143,27 @@ describe('equipment placed from the catalogue', () => {
     // between two panels.
     const definition = genericEquipment('generic-dhw-tank')!;
     const placed = projectEquipmentFromCatalog(definition, []);
-    expect(placed.kind).toBe(definition.kind);
     expect(placed.catalogKind).toBe('GENERIC');
     expect(placed.version).toBe(definition.version);
     expect(placed.familyId).toBe(definition.familyId);
     expect(placed.properties.tankVolumeL).toBe(
       definition.properties.tankVolumeL,
     );
+  });
+
+  it('takes its bucket from the family, and says the family when nothing resolved it', () => {
+    // The entry states no category of its own any more. What the interface
+    // hands over has been through `genericCatalog`, which stamps the family's;
+    // an entry read straight from its file has not, and the copy then names
+    // the family rather than inventing a bucket for it.
+    const resolved = genericCatalog().find(
+      ({ id }) => id === 'generic-dhw-tank',
+    )!;
+    expect(projectEquipmentFromCatalog(resolved, []).kind).toBe('DHW_TANK');
+    expect(
+      projectEquipmentFromCatalog(genericEquipment('generic-dhw-tank')!, [])
+        .kind,
+    ).toBe('ELECTRIC_DHW_TANK');
   });
 
   it('copies what makes the entry more than a bag of numbers', () => {

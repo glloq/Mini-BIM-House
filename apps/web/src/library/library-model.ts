@@ -391,14 +391,21 @@ export function projectEquipmentFromCatalog(
   allowedHosts?: readonly HostType[],
   requiredClearances?: readonly ClearanceZone[],
 ): ProjectEquipment {
+  // What bucket this belongs to is the family's word, not the entry's: the
+  // entry used to carry a `kind` and a `category` of its own, and the copy
+  // taken into the project carried whichever of the two it happened to read.
+  // It arrives here already stamped by `genericCatalog`, which is also why
+  // this file does not reach for the nomenclature itself — five hundred
+  // families of JSON would follow it into the first screen the user sees.
+  const category = definition.category;
   return {
     id: nextLibraryId('equipment', definition.name, takenIds),
     familyId: definition.familyId,
-    kind: definition.kind,
+    kind: category ?? definition.familyId,
     catalogKind: definition.catalogKind,
     version: definition.version,
     name: definition.name,
-    category: definition.category,
+    ...(category === undefined ? {} : { category }),
     ...(definition.manufacturer === undefined
       ? {}
       : { manufacturer: definition.manufacturer }),
