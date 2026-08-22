@@ -21,29 +21,31 @@ describe('generic equipment catalogue', () => {
     const families = new Set(
       genericEquipmentCatalog().map(({ familyId }) => familyId),
     );
-    expect(families).toEqual(
-      new Set([
-        'CIRCULATOR',
-        'BALANCED_VENTILATION_UNIT',
-        'EXTRACT_VENTILATION_UNIT',
-        'EXTRACT_TERMINAL',
-        'RADIATOR',
-        'HEAT_PUMP_AIR_WATER_MONOBLOC',
-        'ELECTRIC_DHW_TANK',
-        'PV_MODULE',
-        'STRING_INVERTER',
-        'BATTERY_PACK',
-        'CEILING_LIGHT',
-        'SOCKET_16A',
-        'MAIN_DISTRIBUTION_BOARD',
-        'MCB',
-        'KITCHEN_SINK',
-        'SHOWER',
-        'WASHBASIN',
-        'WC',
-        'RAINWATER_TANK',
-      ]),
-    );
+    // « Ce dont le MVP a besoin » is a floor, not an inventory: the catalogue
+    // grows past this list wave after wave, and asserting equality would have
+    // turned every new fiche into an edit here.
+    for (const needed of [
+      'CIRCULATOR',
+      'BALANCED_VENTILATION_UNIT',
+      'EXTRACT_VENTILATION_UNIT',
+      'EXTRACT_TERMINAL',
+      'RADIATOR',
+      'HEAT_PUMP_AIR_WATER_MONOBLOC',
+      'ELECTRIC_DHW_TANK',
+      'PV_MODULE',
+      'STRING_INVERTER',
+      'BATTERY_PACK',
+      'CEILING_LIGHT',
+      'SOCKET_16A',
+      'MAIN_DISTRIBUTION_BOARD',
+      'MCB',
+      'KITCHEN_SINK',
+      'SHOWER',
+      'WASHBASIN',
+      'WC',
+      'RAINWATER_TANK',
+    ])
+      expect(families.has(needed), needed).toBe(true);
   });
 
   it('states no category of its own, because the family states it', () => {
@@ -70,9 +72,22 @@ describe('generic equipment catalogue', () => {
     }
   });
 
-  it('gives every definition ports a network can attach to', () => {
-    for (const definition of genericEquipmentCatalog())
-      expect(definition.ports.length).toBeGreaterThan(0);
+  it('makes every definition say what it connects by, empty included', () => {
+    // It used to demand at least one port of every fiche, which held while
+    // every fiche was a technical device. A bed connects to nothing, and an
+    // empty list is how it says so — « unstated » and « none » must not be
+    // the same thing. That a fiche whose family requires a connection has one
+    // is the gate's business, and `validateCatalog` proves it there.
+    for (const definition of genericEquipmentCatalog()) {
+      expect(Array.isArray(definition.ports), definition.id).toBe(true);
+      for (const port of definition.ports) {
+        expect(port.id, definition.id).not.toBe('');
+        expect(port.portTypeId, definition.id).toBeDefined();
+      }
+    }
+    expect(
+      genericEquipmentCatalog().filter(({ ports }) => ports.length > 0).length,
+    ).toBeGreaterThan(0);
   });
 });
 

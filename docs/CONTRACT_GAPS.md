@@ -64,6 +64,28 @@ vraisemblablement des **ouvertures** rangées dans le registre des assemblages :
 une fenêtre de toit a un Uw, un facteur solaire et un vantail, c'est-à-dire le
 contrat `OPENING`, pas celui d'une paroi.
 
+## CG-04 — le mobilier n'a pas de catégorie d'équipement
+
+**Registre** `EQUIPMENT` · **10 familles** · vague 1
+
+`BED`, `SOFA`, `CHAIR`, `TABLE`, `DESK`, `WARDROBE`, `CABINET`,
+`KITCHEN_CABINET`, `WORKTOP`, `SHELF`.
+
+Les dix fiches existent, passent la porte et se posent. Ce qui manque est plus
+petit : `EQUIPMENT_CATEGORIES` est une liste fermée de vingt valeurs — pompe à
+chaleur, radiateur, ballon, luminaire, prise, appareil sanitaire… — et aucune ne
+dit « mobilier ». Les dix familles portent donc `OTHER`, ce qui est exact et peu
+utile : l'index par catégorie ne sait pas répondre « montre-moi le mobilier ».
+
+Cette liste est une énumération TypeScript, pas une donnée. L'allonger est une
+modification du format, ce qu'une PR de remplissage ne fait pas — d'où cette
+ligne plutôt qu'une valeur ajoutée en passant. Le jour où le format bouge,
+`FURNITURE` est la valeur à ajouter, et les dix familles la prendront.
+
+Le mobilier n'a pas non plus de symbole de plan, et cela n'est pas un écart de
+contrat : l'axe `PLAN_SYMBOL` le mesure déjà à `NONE`, ce qui est la bonne
+réponse tant que personne n'a dessiné de symbole de lit.
+
 ## CG-03 — la nomenclature des matériaux n'avait pas de couverture
 
 **Registre** `MATERIAL` · **résolu**

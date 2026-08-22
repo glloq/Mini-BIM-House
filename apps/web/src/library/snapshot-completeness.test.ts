@@ -104,7 +104,10 @@ describe('a project carries the whole entry, not a summary of it', () => {
       expect(copy.version).toBeDefined();
       expect(copy.provenance?.type).toBeDefined();
       expect(copy.allowedHosts?.length).toBeGreaterThan(0);
-      expect(copy.ports?.length ?? 0).toBeGreaterThan(0);
+      // The ports as the fiche states them, empty included: a bed connects to
+      // nothing, and the copy has to carry that rather than leave the field
+      // out, or « unstated » and « none » become the same answer.
+      expect(copy.ports, copy.id).toBeDefined();
       expect(copy.capabilities).toContain('PLACEABLE');
     }
   });

@@ -1,11 +1,12 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "0ce102961ea1ac3e",
+  "releaseId": "c0969f9b37be64d0",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
       "sources": [
         "packages/equipment-catalog/data/equipment/electrical/generic.json",
+        "packages/equipment-catalog/data/equipment/furniture/generic.json",
         "packages/equipment-catalog/data/equipment/heating/generic.json",
         "packages/equipment-catalog/data/equipment/lighting/generic.json",
         "packages/equipment-catalog/data/equipment/plumbing/generic.json",
@@ -14,9 +15,9 @@
         "packages/equipment-catalog/data/equipment/storage/generic.json",
         "packages/equipment-catalog/data/equipment/ventilation/generic.json"
       ],
-      "entryCount": 19,
+      "entryCount": 29,
       "formatVersion": "1.0.0",
-      "fingerprint": "3639f09470ff41c2"
+      "fingerprint": "44627b0b44f2549c"
     },
     {
       "registry": "MATERIAL",

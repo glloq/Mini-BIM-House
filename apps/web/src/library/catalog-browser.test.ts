@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
+import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
 import {
   FAMILY_REGISTRY,
   catalogEvidence,
@@ -57,7 +58,12 @@ describe('browsing the nomenclature', () => {
     const placeable = catalogRows(entriesByFamily, known, {
       withGenericData: true,
     });
-    expect(placeable.length).toBe(19);
+    // The families somebody has written a fiche for — counted from the fiches,
+    // so a filling wave answers this question differently without editing it.
+    expect(placeable.length).toBe(
+      new Set(rawGenericEquipmentEntries().map(({ familyId }) => familyId))
+        .size,
+    );
     expect(placeable.every(({ entryCount }) => entryCount > 0)).toBe(true);
   });
 

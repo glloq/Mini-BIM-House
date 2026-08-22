@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
 import { PROJECT_CALCULATION_MODULE_IDS } from '@house-technical-designer/calculation-adapters';
 import {
+  equipmentCatalogSources,
   genericEquipment,
   genericEquipmentCatalog,
   rawGenericEquipmentEntries,
@@ -367,8 +368,14 @@ describe('the products a network is made of', () => {
 describe('the generic catalogue, checked against its own families', () => {
   const symbols = KNOWN.symbols;
 
-  it('still holds every definition it held as code', () => {
-    expect(genericEquipmentCatalog().length).toBe(19);
+  it('holds every definition every catalogue file states', () => {
+    // Counted from the files rather than written down: a filling wave adds
+    // fiches, and a literal total here would have made each one a TypeScript
+    // change.
+    expect(genericEquipmentCatalog().length).toBe(
+      rawGenericEquipmentEntries().length,
+    );
+    expect(equipmentCatalogSources().length).toBeGreaterThan(1);
   });
 
   it('agrees with the family and the schema each entry names', () => {
@@ -407,14 +414,24 @@ describe('the generic catalogue, checked against its own families', () => {
     // nobody has written an entry for cannot claim otherwise.
     const known = { symbols, entries: genericEquipmentCatalog() };
     for (const definition of genericEquipmentCatalog()) {
+      const owner = family(definition.familyId)!;
       const status = familyStatus(definition.familyId, known);
       expect(status.GENERIC_DATA, definition.familyId).toBe('READY');
-      expect(status.PORTS, definition.familyId).toBe('VALIDATED');
+      // Each axis says what it measures and nothing more. Every fiche used to
+      // be a technical device, so « has an entry » and « has ports » and « has
+      // a plan symbol » were the same families; a bed has none of the last two
+      // and is not thereby incomplete. What has to hold is that a family
+      // declaring ports proves them, and a family naming a symbol has one.
+      expect(status.PORTS, definition.familyId).toBe(
+        (owner.ports ?? []).length === 0 ? 'NONE' : 'VALIDATED',
+      );
+      expect(status.PLAN_SYMBOL, definition.familyId).toBe(
+        owner.graphics?.planSymbol === undefined ? 'NONE' : 'READY',
+      );
       // Not TESTS: a fiche that passes the gate is what GENERIC_DATA says,
       // and calling it « tested » was the same measurement wearing a stronger
       // word. A family is tested when a fixture is made of it.
       expect(status.TESTS, definition.familyId).toBe('NONE');
-      expect(status.PLAN_SYMBOL, definition.familyId).toBe('READY');
     }
     const untouched = familyStatus('FLUE_PIPE', known);
     expect(untouched.GENERIC_DATA).toBe('NONE');

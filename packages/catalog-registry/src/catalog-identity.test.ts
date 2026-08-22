@@ -204,7 +204,7 @@ describe('one taxonomy, projected rather than restated', () => {
 
   it('stamps the family’s category on every resolved entry', () => {
     const resolved = genericCatalog();
-    expect(resolved).toHaveLength(19);
+    expect(resolved).toHaveLength(rawGenericEquipmentEntries().length);
     for (const entry of resolved)
       expect(entry.category).toBe(categoryOfFamily(entry.familyId));
     expect(
