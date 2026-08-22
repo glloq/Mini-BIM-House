@@ -14,6 +14,32 @@ import {
   validateCatalogFingerprints,
   type CatalogSummary,
 } from './index.js';
+import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
+import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
+import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
+import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies';
+import { NETWORK_PRODUCT_REGISTRY } from '@house-technical-designer/network-products';
+import { rawGenericSymbolEntries } from '@house-technical-designer/drawing-engine';
+
+/**
+ * How many entries the six registries ship, counted rather than written down.
+ *
+ * It used to be `19 + 16 + 12 + 7 + 66 + 27`, which said something true and
+ * said it in the one place a filling wave must not have to touch: a catalogue
+ * PR adds JSON, and a literal total here would have made every one of them a
+ * TypeScript change. What the row list has to satisfy is not a number, it is
+ * « one row per entry, and no entry without a row ».
+ */
+function shippedEntryCount(): number {
+  return (
+    rawGenericEquipmentEntries().length +
+    rawGenericMaterialEntries().length +
+    rawGenericOpeningEntries().length +
+    rawGenericAssemblyEntries().length +
+    NETWORK_PRODUCT_REGISTRY.length +
+    rawGenericSymbolEntries().length
+  );
+}
 
 describe('what is installed, said once', () => {
   it('names every catalogue file, its registry and what it holds', () => {
@@ -57,7 +83,7 @@ describe('the catalogue as rows, before it is the catalogue as entries', () => {
   it('summarises all six registries into one list', () => {
     const summaries = catalogSummaries();
     expect(new Set(summaries.map(({ registry }) => registry)).size).toBe(6);
-    expect(summaries.length).toBe(19 + 16 + 12 + 7 + 66 + 27);
+    expect(summaries.length).toBe(shippedEntryCount());
     for (const summary of summaries) {
       expect(summary.label).not.toBe('');
       expect(summary.version).toMatch(/^\d+\.\d+\.\d+$/u);
@@ -88,10 +114,18 @@ describe('the catalogue as rows, before it is the catalogue as entries', () => {
 
   it('answers a filtered question from a map rather than a scan', () => {
     const index = buildCatalogIndex(catalogSummaries());
-    expect(index.byRegistry.get('SYMBOL')).toHaveLength(27);
+    expect(index.byRegistry.get('SYMBOL')).toHaveLength(
+      rawGenericSymbolEntries().length,
+    );
     expect(index.byFamily.get('WINDOW_CASEMENT')).toHaveLength(1);
-    expect(index.byCategory.get('INSULATION')).toHaveLength(6);
-    expect(index.byCapability.get('RUN_MATERIAL')?.length).toBe(66);
+    expect(index.byCategory.get('INSULATION')).toHaveLength(
+      rawGenericMaterialEntries().filter(
+        ({ category }) => category === 'INSULATION',
+      ).length,
+    );
+    expect(index.byCapability.get('RUN_MATERIAL')?.length).toBe(
+      NETWORK_PRODUCT_REGISTRY.length,
+    );
     expect(
       index.find({ registries: ['MATERIAL'], categories: ['METAL'] }).length,
     ).toBe(2);
@@ -176,7 +210,7 @@ describe('what the version gate covers, and what it says is proven', () => {
     // inherit the other's promise.
     const stamps = catalogFingerprints();
     const keys = Object.keys(stamps);
-    expect(keys.length).toBe(19 + 16 + 12 + 7 + 66 + 27);
+    expect(keys.length).toBe(shippedEntryCount());
     expect(new Set(keys.map((key) => key.split(':')[0])).size).toBe(6);
     expect(stamps['MATERIAL:generic-rock-wool@1.0.0']).toMatch(
       /^[0-9a-f]{16}$/u,

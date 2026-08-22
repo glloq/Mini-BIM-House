@@ -1,6 +1,6 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "378110d2d09f8f9e",
+  "releaseId": "c0cb28f059556142",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
@@ -21,11 +21,17 @@
     {
       "registry": "MATERIAL",
       "sources": [
-        "packages/materials/data/generic.json"
+        "packages/materials/data/finish.json",
+        "packages/materials/data/generic.json",
+        "packages/materials/data/insulation.json",
+        "packages/materials/data/masonry.json",
+        "packages/materials/data/membrane.json",
+        "packages/materials/data/structure.json",
+        "packages/materials/data/wood.json"
       ],
-      "entryCount": 16,
+      "entryCount": 52,
       "formatVersion": "1.0.0",
-      "fingerprint": "f7aeb6177d7edc0f"
+      "fingerprint": "f883bb01fc58c5fe"
     },
     {
       "registry": "OPENING",

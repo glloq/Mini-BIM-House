@@ -14,6 +14,8 @@ import {
 import { formatCatalogRef } from '@house-technical-designer/technical-types';
 import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
 import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
+import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
+import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies';
 import { NETWORK_PRODUCT_REGISTRY } from '@house-technical-designer/network-products';
 import {
   CURRENT_PROJECT_SCHEMA_VERSION,
@@ -77,8 +79,10 @@ describe('one of everything, carried by a project', () => {
     expect(house.equipment).toHaveLength(rawGenericEquipmentEntries().length);
     expect(house.openingTypes).toHaveLength(rawGenericOpeningEntries().length);
     expect(house.networkProducts).toHaveLength(NETWORK_PRODUCT_REGISTRY.length);
-    expect(house.materialLibrary?.materials.length).toBe(16);
-    expect(house.assemblies).toHaveLength(7);
+    expect(house.materialLibrary?.materials.length).toBe(
+      rawGenericMaterialEntries().length,
+    );
+    expect(house.assemblies).toHaveLength(rawGenericAssemblyEntries().length);
   });
 
   it('is a project the importer accepts', () => {

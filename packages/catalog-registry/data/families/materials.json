@@ -71,6 +71,7 @@
       "label": "Ouate de cellulose",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "INSULATION",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -92,6 +93,7 @@
       "label": "Chanvre",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "INSULATION",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -113,6 +115,7 @@
       "label": "Liège",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "INSULATION",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -134,6 +137,7 @@
       "label": "Paille",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "INSULATION",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -199,6 +203,7 @@
       "label": "Polyuréthane",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "INSULATION",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -242,6 +247,7 @@
       "label": "Mousse phénolique",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "INSULATION",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -263,6 +269,7 @@
       "label": "Aérogel",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "INSULATION",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -284,6 +291,7 @@
       "label": "Panneau isolant sous vide",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "INSULATION",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -305,6 +313,7 @@
       "label": "Verre cellulaire",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "INSULATION",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -326,6 +335,7 @@
       "label": "Béton",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "STRUCTURE",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -369,6 +379,7 @@
       "label": "Béton cellulaire",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MASONRY",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -412,6 +423,7 @@
       "label": "Bloc plein",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MASONRY",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -455,6 +467,7 @@
       "label": "Pierre",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MASONRY",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -476,6 +489,7 @@
       "label": "Pisé",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MASONRY",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -519,6 +533,7 @@
       "label": "Bois feuillu",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "WOOD",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -540,6 +555,7 @@
       "label": "Lamellé-collé",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "WOOD",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -561,6 +577,7 @@
       "label": "Bois lamellé-croisé",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "WOOD",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -626,6 +643,7 @@
       "label": "Plâtre",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "FINISH",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -669,6 +687,7 @@
       "label": "Panneau de ciment",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "FINISH",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -690,6 +709,7 @@
       "label": "Enduit à la chaux",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "FINISH",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -711,6 +731,7 @@
       "label": "Enduit ciment",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "FINISH",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -754,6 +775,7 @@
       "label": "Carrelage",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "FINISH",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -775,6 +797,7 @@
       "label": "Parement pierre",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "FINISH",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -796,6 +819,7 @@
       "label": "Peinture",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "FINISH",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -817,6 +841,7 @@
       "label": "Parquet",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "FINISH",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -838,6 +863,7 @@
       "label": "Stratifié",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "FINISH",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -859,6 +885,7 @@
       "label": "Moquette",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "FINISH",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -880,6 +907,7 @@
       "label": "Sol souple",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "FINISH",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -901,6 +929,7 @@
       "label": "Pare-vapeur",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MEMBRANE",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -922,6 +951,7 @@
       "label": "Frein-vapeur",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MEMBRANE",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -943,6 +973,7 @@
       "label": "Pare-pluie",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MEMBRANE",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -964,6 +995,7 @@
       "label": "Membrane d’étanchéité à l’air",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MEMBRANE",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -985,6 +1017,7 @@
       "label": "EPDM",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MEMBRANE",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -1006,6 +1039,7 @@
       "label": "Membrane bitumineuse",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MEMBRANE",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -1027,6 +1061,7 @@
       "label": "Membrane de toiture",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MEMBRANE",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -1048,6 +1083,7 @@
       "label": "Membrane drainante",
       "domain": "ARCHITECTURE",
       "registry": "MATERIAL",
+      "category": "MEMBRANE",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -1071,7 +1107,11 @@
       "registry": "MATERIAL",
       "category": "AIR",
       "priority": 1,
-      "calculators": ["thermal", "hygrothermal", "acoustics"],
+      "calculators": [
+        "thermal",
+        "hygrothermal",
+        "acoustics"
+      ],
       "propertySchema": "MATERIAL_INSULATION",
       "hint": "Une lame d’air est une couche d’assemblage comme une autre : elle a une résistance, une épaisseur et une place dans l’ordre des couches."
     },

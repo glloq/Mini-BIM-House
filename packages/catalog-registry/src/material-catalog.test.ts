@@ -10,7 +10,10 @@ import {
   type AssemblyEntryCandidate,
   type MaterialEntryCandidate,
 } from './index.js';
-import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
+import {
+  materialCatalogSources,
+  rawGenericMaterialEntries,
+} from '@house-technical-designer/materials';
 import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies';
 
 const known = { family, schema: propertySchema };
@@ -47,7 +50,12 @@ const assembly = (
 describe('the material catalogue goes through a gate like everything else', () => {
   it('passes on everything the application ships', () => {
     expect(validateMaterialCatalog()).toEqual([]);
-    expect(rawGenericMaterialEntries()).toHaveLength(16);
+    // « On everything » is measured from the files, so that adding a file is
+    // covered by this gate without editing it.
+    expect(materialCatalogSources().length).toBeGreaterThan(1);
+    expect(rawGenericMaterialEntries().length).toBeGreaterThanOrEqual(
+      materialCatalogSources().length,
+    );
   });
 
   it('refuses a family that is not a material family', () => {
