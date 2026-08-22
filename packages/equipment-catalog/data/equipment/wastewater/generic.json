@@ -1,0 +1,1157 @@
+{
+  "definitions": [
+    {
+      "id": "generic-trap-dn40",
+      "familyId": "TRAP",
+      "name": "Siphon DN 40",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 120,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -60.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 60.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 40,
+        "dischargeUnits": 1
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-appliance-branch-dn40",
+      "familyId": "APPLIANCE_BRANCH",
+      "name": "Raccordement d’appareil DN 40",
+      "dimensions": {
+        "widthMm": 200,
+        "depthMm": 100,
+        "heightMm": 100
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -100.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 100.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 40,
+        "dischargeUnits": 1,
+        "minimumSlope": 0.02
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-waste-branch-dn50",
+      "familyId": "WASTE_BRANCH",
+      "name": "Branchement eaux usées DN 50",
+      "dimensions": {
+        "widthMm": 1000,
+        "depthMm": 60,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -500.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 500.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 50,
+        "dischargeUnits": 4,
+        "minimumSlope": 0.02
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-soil-branch-dn100",
+      "familyId": "SOIL_BRANCH",
+      "name": "Branchement eaux-vannes DN 100",
+      "dimensions": {
+        "widthMm": 1000,
+        "depthMm": 110,
+        "heightMm": 110
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "SOILWATER_INLET",
+          "position": {
+            "x": -500.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "SOILWATER",
+          "position": {
+            "x": 500.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100,
+        "dischargeUnits": 8,
+        "minimumSlope": 0.01
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-waste-stack-dn100",
+      "familyId": "WASTE_STACK",
+      "name": "Chute eaux usées DN 100",
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 110,
+        "heightMm": 3000
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 1500.0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -1500.0
+          }
+        },
+        {
+          "id": "vent",
+          "portTypeId": "DRAIN_VENT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 1500.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100,
+        "dischargeUnits": 20
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-soil-stack-dn100",
+      "familyId": "SOIL_STACK",
+      "name": "Chute eaux-vannes DN 100",
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 110,
+        "heightMm": 3000
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "SOILWATER_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 1500.0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "SOILWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -1500.0
+          }
+        },
+        {
+          "id": "vent",
+          "portTypeId": "DRAIN_VENT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 1500.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100,
+        "dischargeUnits": 24
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-vent-stack-dn100",
+      "familyId": "VENT_STACK",
+      "name": "Ventilation primaire DN 100",
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 110,
+        "heightMm": 2000
+      },
+      "ports": [
+        {
+          "id": "vent",
+          "portTypeId": "DRAIN_VENT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 1000.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-secondary-vent-dn50",
+      "familyId": "SECONDARY_VENT",
+      "name": "Ventilation secondaire DN 50",
+      "dimensions": {
+        "widthMm": 60,
+        "depthMm": 60,
+        "heightMm": 1000
+      },
+      "ports": [
+        {
+          "id": "vent",
+          "portTypeId": "DRAIN_VENT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 500.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 50
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-sanitary-tee-dn100",
+      "familyId": "SANITARY_TEE",
+      "name": "Té sanitaire DN 100",
+      "dimensions": {
+        "widthMm": 200,
+        "depthMm": 110,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 100.0
+          }
+        },
+        {
+          "id": "branch",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -100.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -100.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-wye-dn100",
+      "familyId": "WYE",
+      "name": "Culotte DN 100",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 110,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 125.0
+          }
+        },
+        {
+          "id": "branch",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -125.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -125.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-long-radius-bend-dn100",
+      "familyId": "LONG_RADIUS_BEND",
+      "name": "Coude à grand rayon DN 100",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 110,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -125.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 125.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-waste-reducer-dn100-50",
+      "familyId": "WASTE_REDUCER",
+      "name": "Réduction DN 100 / 50",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 110,
+        "heightMm": 110
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -60.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 60.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-cleanout-dn100",
+      "familyId": "CLEANOUT",
+      "name": "Tampon de dégorgement DN 100",
+      "dimensions": {
+        "widthMm": 200,
+        "depthMm": 110,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -100.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 100.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-access-cap-dn100",
+      "familyId": "ACCESS_CAP",
+      "name": "Bouchon de visite DN 100",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 120,
+        "heightMm": 40
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -20.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-inspection-chamber",
+      "familyId": "INSPECTION_CHAMBER",
+      "name": "Regard de visite 400 × 400",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 400,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -200.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 200.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100,
+        "minimumSlope": 0.01
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-backwater-valve-dn100",
+      "familyId": "BACKWATER_VALVE",
+      "name": "Clapet anti-retour DN 100",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 150,
+        "heightMm": 150
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -150.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 150.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-lifting-station",
+      "familyId": "LIFTING_STATION",
+      "name": "Poste de relevage 300 l",
+      "dimensions": {
+        "widthMm": 800,
+        "depthMm": 600,
+        "heightMm": 900
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -400.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 400.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 50,
+        "dischargeUnits": 12
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-pump"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-sewage-pump",
+      "familyId": "SEWAGE_PUMP",
+      "name": "Pompe de relevage",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 250,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -125.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 125.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 125.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 50
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-pump"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-public-sewer-connection",
+      "familyId": "PUBLIC_SEWER_CONNECTION",
+      "name": "Branchement au collecteur public DN 160",
+      "dimensions": {
+        "widthMm": 1000,
+        "depthMm": 170,
+        "heightMm": 170
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -500.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 160,
+        "minimumSlope": 0.01
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-septic-tank-3000",
+      "familyId": "SEPTIC_TANK",
+      "name": "Fosse toutes eaux 3 000 l",
+      "dimensions": {
+        "widthMm": 2000,
+        "depthMm": 1200,
+        "heightMm": 1500
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "SOILWATER_INLET",
+          "position": {
+            "x": -1000.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 1000.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-grease-trap",
+      "familyId": "GREASE_TRAP",
+      "name": "Bac à graisse 200 l",
+      "dimensions": {
+        "widthMm": 700,
+        "depthMm": 500,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -350.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 350.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 50
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-micro-treatment-plant",
+      "familyId": "MICRO_TREATMENT_PLANT",
+      "name": "Micro-station 5 équivalents-habitants",
+      "dimensions": {
+        "widthMm": 2000,
+        "depthMm": 1400,
+        "heightMm": 1800
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "SOILWATER_INLET",
+          "position": {
+            "x": -1000.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 1000.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 700.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-drain-field",
+      "familyId": "DRAIN_FIELD",
+      "name": "Épandage 60 m²",
+      "dimensions": {
+        "widthMm": 10000,
+        "depthMm": 6000,
+        "heightMm": 800
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WASTEWATER_INLET",
+          "position": {
+            "x": -5000.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100,
+        "minimumSlope": 0.005
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    }
+  ]
+}

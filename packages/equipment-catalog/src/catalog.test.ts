@@ -162,9 +162,17 @@ describe('catalogue queries and instances', () => {
     expect(
       queryEquipment(catalog, { search: 'circulateur' }).map(({ id }) => id),
     ).toEqual(['generic-circulator-pump']);
+    // Read from the catalogue rather than listed: every wave brings more
+    // pumps, and the property under test is that the search finds them all.
     expect(
-      queryEquipment(catalog, { search: 'pompe' }).map(({ id }) => id),
-    ).toEqual(['generic-air-water-heat-pump']);
+      new Set(queryEquipment(catalog, { search: 'pompe' }).map(({ id }) => id)),
+    ).toEqual(
+      new Set(
+        catalog
+          .filter(({ name }) => name.toLowerCase().includes('pompe'))
+          .map(({ id }) => id),
+      ),
+    );
     // Filtering by category needs entries somebody has resolved: the files
     // state none, so an unresolved catalogue answers nothing rather than
     // answering everything.
@@ -182,10 +190,20 @@ describe('catalogue queries and instances', () => {
       ).map(({ id }) => id),
     ).toEqual(['generic-wc']);
     expect(queryEquipment(catalog, { catalogKinds: ['PRODUCT'] })).toEqual([]);
-    // Accent-insensitive search keeps French names findable.
+    // Accent-insensitive search keeps French names findable: « evier » has to
+    // find every « Évier », and there is more than one of them now.
+    expect(
+      new Set(queryEquipment(catalog, { search: 'evier' }).map(({ id }) => id)),
+    ).toEqual(
+      new Set(
+        catalog
+          .filter(({ name }) => name.toLowerCase().includes('évier'))
+          .map(({ id }) => id),
+      ),
+    );
     expect(
       queryEquipment(catalog, { search: 'evier' }).map(({ id }) => id),
-    ).toEqual(['generic-kitchen-sink']);
+    ).toContain('generic-kitchen-sink');
   });
 
   it('resolves a placement and lets it override a definition property', () => {

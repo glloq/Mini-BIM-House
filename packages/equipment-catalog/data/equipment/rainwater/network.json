@@ -1,0 +1,966 @@
+{
+  "definitions": [
+    {
+      "id": "generic-roof-catchment",
+      "familyId": "ROOF_CATCHMENT",
+      "name": "Surface de collecte",
+      "dimensions": {
+        "widthMm": 8000,
+        "depthMm": 5000,
+        "heightMm": 50
+      },
+      "ports": [
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -25.0
+          }
+        }
+      ],
+      "properties": {},
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-valley-gutter",
+      "familyId": "VALLEY_GUTTER",
+      "name": "Noue de toiture",
+      "dimensions": {
+        "widthMm": 4000,
+        "depthMm": 400,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -2000.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 2000.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 150
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-gutter-dn125",
+      "familyId": "GUTTER",
+      "name": "Gouttière demi-ronde DN 125",
+      "dimensions": {
+        "widthMm": 6000,
+        "depthMm": 125,
+        "heightMm": 125
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -3000.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 3000.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 125
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-box-gutter",
+      "familyId": "BOX_GUTTER",
+      "name": "Chéneau encaissé",
+      "dimensions": {
+        "widthMm": 6000,
+        "depthMm": 300,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -3000.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 3000.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 150
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-drain-dn100",
+      "familyId": "ROOF_DRAIN",
+      "name": "Naissance DN 100",
+      "dimensions": {
+        "widthMm": 200,
+        "depthMm": 200,
+        "heightMm": 150
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 75.0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -75.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-leaf-guard",
+      "familyId": "LEAF_GUARD",
+      "name": "Crapaudine",
+      "dimensions": {
+        "widthMm": 150,
+        "depthMm": 150,
+        "heightMm": 120
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 60.0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -60.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-downpipe-dn100",
+      "familyId": "DOWNPIPE",
+      "name": "Descente DN 100",
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 110,
+        "heightMm": 3000
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 1500.0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -1500.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-rainwater-chamber",
+      "familyId": "RAINWATER_CHAMBER",
+      "name": "Regard eaux pluviales 400 × 400",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 400,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -200.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 200.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-first-flush",
+      "familyId": "FIRST_FLUSH",
+      "name": "Dérivation des premières eaux",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 300,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -150.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 150.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100,
+        "nominalVolumeL": 40
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-rain-filter",
+      "familyId": "RAIN_FILTER",
+      "name": "Filtre à eaux pluviales",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 300,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -150.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 150.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-underground-tank-5000",
+      "familyId": "UNDERGROUND_TANK",
+      "name": "Cuve enterrée 5 000 l",
+      "dimensions": {
+        "widthMm": 2200,
+        "depthMm": 1600,
+        "heightMm": 1600
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -1100.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 1100.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "overflow",
+          "portTypeId": "RAINWATER_OVERFLOW",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 800.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVolumeL": 5000,
+        "buried": true
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "RAINWATER",
+            "symbolId": "symbol-rainwater-tank"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-rainwater-pump",
+      "familyId": "RAINWATER_PUMP",
+      "name": "Pompe de reprise",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 200,
+        "heightMm": 350
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -125.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 125.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 100.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 32
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-pump"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-rainwater-booster",
+      "familyId": "RAINWATER_BOOSTER",
+      "name": "Surpresseur eaux pluviales",
+      "dimensions": {
+        "widthMm": 450,
+        "depthMm": 350,
+        "heightMm": 700
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -225.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 225.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 175.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 32
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-pump"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-overflow-dn100",
+      "familyId": "OVERFLOW",
+      "name": "Trop-plein DN 100",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 110,
+        "heightMm": 110
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_OVERFLOW_INLET",
+          "position": {
+            "x": -150.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 150.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-soakaway",
+      "familyId": "SOAKAWAY",
+      "name": "Puits d’infiltration",
+      "dimensions": {
+        "widthMm": 1200,
+        "depthMm": 1200,
+        "heightMm": 2000
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 1000.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100,
+        "buried": true
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-infiltration-trench",
+      "familyId": "INFILTRATION_TRENCH",
+      "name": "Tranchée d’infiltration",
+      "dimensions": {
+        "widthMm": 10000,
+        "depthMm": 800,
+        "heightMm": 1000
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -5000.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 100,
+        "buried": true
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-swale",
+      "familyId": "SWALE",
+      "name": "Noue paysagère",
+      "dimensions": {
+        "widthMm": 15000,
+        "depthMm": 2000,
+        "heightMm": 500
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -7500.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVolumeL": 6000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-retention-basin",
+      "familyId": "RETENTION_BASIN",
+      "name": "Bassin de rétention 20 m³",
+      "dimensions": {
+        "widthMm": 8000,
+        "depthMm": 5000,
+        "heightMm": 1200
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -4000.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 4000.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVolumeL": 20000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-detention-basin",
+      "familyId": "DETENTION_BASIN",
+      "name": "Bassin d’orage 40 m³",
+      "dimensions": {
+        "widthMm": 10000,
+        "depthMm": 6000,
+        "heightMm": 1500
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -5000.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 5000.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalVolumeL": 40000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-public-storm-connection",
+      "familyId": "PUBLIC_STORM_CONNECTION",
+      "name": "Branchement pluvial public DN 160",
+      "dimensions": {
+        "widthMm": 1000,
+        "depthMm": 170,
+        "heightMm": 170
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -500.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 160
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    }
+  ]
+}

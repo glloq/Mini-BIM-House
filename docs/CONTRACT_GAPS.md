@@ -64,23 +64,28 @@ vraisemblablement des **ouvertures** rangées dans le registre des assemblages :
 une fenêtre de toit a un Uw, un facteur solaire et un vantail, c'est-à-dire le
 contrat `OPENING`, pas celui d'une paroi.
 
-## CG-04 — le mobilier n'a pas de catégorie d'équipement
+## CG-04 — le vocabulaire des catégories d'équipement est trop court
 
-**Registre** `EQUIPMENT` · **10 familles** · vague 1
+**Registre** `EQUIPMENT` · **une centaine de familles** · vagues 1 et 2
 
-`BED`, `SOFA`, `CHAIR`, `TABLE`, `DESK`, `WARDROBE`, `CABINET`,
-`KITCHEN_CABINET`, `WORKTOP`, `SHELF`.
+Le mobilier d'abord — `BED`, `SOFA`, `CHAIR`, `TABLE`, `DESK`, `WARDROBE`,
+`CABINET`, `KITCHEN_CABINET`, `WORKTOP`, `SHELF` — puis, en vague 2, presque
+toute la plomberie de distribution et l'évacuation : robinetterie, raccords,
+filtration, regards, chutes, gouttières, bassins.
 
-Les dix fiches existent, passent la porte et se posent. Ce qui manque est plus
+Les fiches existent, passent la porte et se posent. Ce qui manque est plus
 petit : `EQUIPMENT_CATEGORIES` est une liste fermée de vingt valeurs — pompe à
 chaleur, radiateur, ballon, luminaire, prise, appareil sanitaire… — et aucune ne
-dit « mobilier ». Les dix familles portent donc `OTHER`, ce qui est exact et peu
-utile : l'index par catégorie ne sait pas répondre « montre-moi le mobilier ».
+dit « mobilier », « robinetterie », « raccord » ni « ouvrage d'assainissement ».
+Ces familles portent donc `OTHER`, ce qui est exact et peu utile : l'index par
+catégorie ne sait pas répondre « montre-moi le mobilier », ni « montre-moi les
+vannes ».
 
 Cette liste est une énumération TypeScript, pas une donnée. L'allonger est une
 modification du format, ce qu'une PR de remplissage ne fait pas — d'où cette
 ligne plutôt qu'une valeur ajoutée en passant. Le jour où le format bouge,
-`FURNITURE` est la valeur à ajouter, et les dix familles la prendront.
+`FURNITURE`, `VALVE`, `FITTING`, `DRAINAGE` et `RAINWATER_DEVICE` sont les
+valeurs à ajouter, et ces familles les prendront.
 
 Le mobilier n'a pas non plus de symbole de plan, et cela n'est pas un écart de
 contrat : l'axe `PLAN_SYMBOL` le mesure déjà à `NONE`, ce qui est la bonne

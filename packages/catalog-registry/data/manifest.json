@@ -1,6 +1,6 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "c0969f9b37be64d0",
+  "releaseId": "8939b318bfd28f24",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
@@ -9,15 +9,20 @@
         "packages/equipment-catalog/data/equipment/furniture/generic.json",
         "packages/equipment-catalog/data/equipment/heating/generic.json",
         "packages/equipment-catalog/data/equipment/lighting/generic.json",
+        "packages/equipment-catalog/data/equipment/plumbing/dhw.json",
+        "packages/equipment-catalog/data/equipment/plumbing/fixtures.json",
         "packages/equipment-catalog/data/equipment/plumbing/generic.json",
+        "packages/equipment-catalog/data/equipment/plumbing/water-devices.json",
         "packages/equipment-catalog/data/equipment/rainwater/generic.json",
+        "packages/equipment-catalog/data/equipment/rainwater/network.json",
         "packages/equipment-catalog/data/equipment/solar/generic.json",
         "packages/equipment-catalog/data/equipment/storage/generic.json",
-        "packages/equipment-catalog/data/equipment/ventilation/generic.json"
+        "packages/equipment-catalog/data/equipment/ventilation/generic.json",
+        "packages/equipment-catalog/data/equipment/wastewater/generic.json"
       ],
-      "entryCount": 29,
+      "entryCount": 122,
       "formatVersion": "1.0.0",
-      "fingerprint": "44627b0b44f2549c"
+      "fingerprint": "0f1ed5d02d3d752c"
     },
     {
       "registry": "MATERIAL",
