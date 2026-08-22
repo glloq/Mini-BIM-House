@@ -1,0 +1,1965 @@
+{
+  "formatVersion": "1.0.0",
+  "id": "generic-technical-symbols",
+  "version": "1.0.0",
+  "licence": "AGPL-3.0-only",
+  "symbols": [
+    {
+      "id": "architecture.north",
+      "name": "Nord",
+      "version": "1.0.0",
+      "semanticType": "NORTH_ARROW",
+      "discipline": "ARCHITECTURE",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": 0,
+              "y": -3
+            },
+            {
+              "x": 1.5,
+              "y": 2
+            },
+            {
+              "x": 0,
+              "y": 1
+            },
+            {
+              "x": -1.5,
+              "y": 2
+            }
+          ],
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "architecture.room-marker",
+      "name": "Repère de pièce",
+      "version": "1.0.0",
+      "semanticType": "ROOM_MARKER",
+      "discipline": "ARCHITECTURE",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 2,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "water.valve",
+      "name": "Vanne",
+      "version": "1.0.0",
+      "semanticType": "VALVE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2,
+              "y": -1.5
+            },
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": -2,
+              "y": 1.5
+            }
+          ],
+          "role": "WATER_COLD"
+        },
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": 2,
+              "y": -1.5
+            },
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 2,
+              "y": 1.5
+            }
+          ],
+          "role": "WATER_COLD"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "water.flow",
+      "name": "Sens de flux",
+      "version": "1.0.0",
+      "semanticType": "FLOW_DIRECTION",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYLINE",
+          "points": [
+            {
+              "x": -2.5,
+              "y": 0
+            },
+            {
+              "x": 2.5,
+              "y": 0
+            },
+            {
+              "x": 1,
+              "y": -1.2
+            },
+            {
+              "x": 2.5,
+              "y": 0
+            },
+            {
+              "x": 1,
+              "y": 1.2
+            }
+          ],
+          "role": "WATER_COLD"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "ventilation.supply",
+      "name": "Bouche de soufflage",
+      "version": "1.0.0",
+      "semanticType": "SUPPLY_TERMINAL",
+      "discipline": "VENTILATION",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 2,
+          "role": "VENT_SUPPLY"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": -1.4
+          },
+          "end": {
+            "x": 1.4,
+            "y": 1.4
+          },
+          "role": "VENT_SUPPLY"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": 1.4
+          },
+          "end": {
+            "x": 1.4,
+            "y": -1.4
+          },
+          "role": "VENT_SUPPLY"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "ventilation.extract",
+      "name": "Bouche d'extraction",
+      "version": "1.0.0",
+      "semanticType": "EXTRACT_TERMINAL",
+      "discipline": "VENTILATION",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 2,
+          "role": "VENT_EXHAUST"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "electrical.socket",
+      "name": "Prise",
+      "version": "1.0.0",
+      "semanticType": "SOCKET_OUTLET",
+      "discipline": "ELECTRICAL",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 2,
+          "role": "ELECTRICAL_POWER"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": 0
+          },
+          "end": {
+            "x": 1.4,
+            "y": 0
+          },
+          "role": "ELECTRICAL_POWER"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "electrical.light-point",
+      "name": "Point lumineux",
+      "version": "1.0.0",
+      "semanticType": "LIGHT_POINT",
+      "discipline": "ELECTRICAL",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 2,
+          "role": "ELECTRICAL_LIGHTING"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": -1.4
+          },
+          "end": {
+            "x": 1.4,
+            "y": 1.4
+          },
+          "role": "ELECTRICAL_LIGHTING"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": 1.4
+          },
+          "end": {
+            "x": 1.4,
+            "y": -1.4
+          },
+          "role": "ELECTRICAL_LIGHTING"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "electrical.switch",
+      "name": "Interrupteur",
+      "version": "1.0.0",
+      "semanticType": "SWITCH",
+      "discipline": "ELECTRICAL",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": -1.5,
+            "y": 0
+          },
+          "radius": 0.4,
+          "role": "ELECTRICAL_CONTROL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.1,
+            "y": -0.2
+          },
+          "end": {
+            "x": 1.8,
+            "y": -1.8
+          },
+          "role": "ELECTRICAL_CONTROL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-heat-pump",
+      "name": "Pompe à chaleur",
+      "version": "1.0.0",
+      "semanticType": "HEAT_PUMP",
+      "discipline": "HEATING",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2.6,
+              "y": -2
+            },
+            {
+              "x": 2.6,
+              "y": -2
+            },
+            {
+              "x": 2.6,
+              "y": 2
+            },
+            {
+              "x": -2.6,
+              "y": 2
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": -0.8
+          },
+          "end": {
+            "x": 1.4,
+            "y": -0.8
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": 0.8
+          },
+          "end": {
+            "x": 1.4,
+            "y": 0.8
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": -0.8
+          },
+          "end": {
+            "x": 1.4,
+            "y": 0.8
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-pump",
+      "name": "Circulateur",
+      "version": "1.0.0",
+      "semanticType": "PUMP",
+      "discipline": "HEATING",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 2,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 0,
+            "y": -2
+          },
+          "end": {
+            "x": 0,
+            "y": 2
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -2,
+            "y": 0
+          },
+          "end": {
+            "x": 2,
+            "y": 0
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-radiator",
+      "name": "Radiateur",
+      "version": "1.0.0",
+      "semanticType": "RADIATOR",
+      "discipline": "HEATING",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2.6,
+              "y": -1.4
+            },
+            {
+              "x": 2.6,
+              "y": -1.4
+            },
+            {
+              "x": 2.6,
+              "y": 1.4
+            },
+            {
+              "x": -2.6,
+              "y": 1.4
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.3,
+            "y": -1.4
+          },
+          "end": {
+            "x": -1.3,
+            "y": 1.4
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 0,
+            "y": -1.4
+          },
+          "end": {
+            "x": 0,
+            "y": 1.4
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 1.3,
+            "y": -1.4
+          },
+          "end": {
+            "x": 1.3,
+            "y": 1.4
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-dhw-tank",
+      "name": "Ballon d’eau chaude",
+      "version": "1.0.0",
+      "semanticType": "DHW_TANK",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -1.6,
+              "y": -2.6
+            },
+            {
+              "x": 1.6,
+              "y": -2.6
+            },
+            {
+              "x": 1.6,
+              "y": 2.6
+            },
+            {
+              "x": -1.6,
+              "y": 2.6
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.6,
+            "y": 0.8
+          },
+          "end": {
+            "x": 1.6,
+            "y": 0.8
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -0.8,
+            "y": 1.7
+          },
+          "end": {
+            "x": 0.8,
+            "y": 1.7
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-ventilation-unit",
+      "name": "Centrale de ventilation",
+      "version": "1.0.0",
+      "semanticType": "VENTILATION_UNIT",
+      "discipline": "VENTILATION",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2.6,
+              "y": -2
+            },
+            {
+              "x": 2.6,
+              "y": -2
+            },
+            {
+              "x": 2.6,
+              "y": 2
+            },
+            {
+              "x": -2.6,
+              "y": 2
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -2.6,
+            "y": -0.6
+          },
+          "end": {
+            "x": 2.6,
+            "y": -0.6
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -2.6,
+            "y": 0.6
+          },
+          "end": {
+            "x": 2.6,
+            "y": 0.6
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-air-terminal",
+      "name": "Bouche d’aération",
+      "version": "1.0.0",
+      "semanticType": "AIR_TERMINAL",
+      "discipline": "VENTILATION",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 2,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": -1.4
+          },
+          "end": {
+            "x": 1.4,
+            "y": 1.4
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": 1.4
+          },
+          "end": {
+            "x": 1.4,
+            "y": -1.4
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-washbasin",
+      "name": "Lavabo",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2.2,
+              "y": -1.5
+            },
+            {
+              "x": 2.2,
+              "y": -1.5
+            },
+            {
+              "x": 2.2,
+              "y": 1.5
+            },
+            {
+              "x": -2.2,
+              "y": 1.5
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 2,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-shower",
+      "name": "Douche",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2.2,
+              "y": -2.2
+            },
+            {
+              "x": 2.2,
+              "y": -2.2
+            },
+            {
+              "x": 2.2,
+              "y": 2.2
+            },
+            {
+              "x": -2.2,
+              "y": 2.2
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -2.2,
+            "y": -2.2
+          },
+          "end": {
+            "x": 2.2,
+            "y": 2.2
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -2.2,
+            "y": 2.2
+          },
+          "end": {
+            "x": 2.2,
+            "y": -2.2
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-wc",
+      "name": "WC",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -1.4,
+              "y": -2.2
+            },
+            {
+              "x": 1.4,
+              "y": -2.2
+            },
+            {
+              "x": 1.4,
+              "y": 2.2
+            },
+            {
+              "x": -1.4,
+              "y": 2.2
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 2,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-kitchen-sink",
+      "name": "Évier",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2.6,
+              "y": -1.6
+            },
+            {
+              "x": 2.6,
+              "y": -1.6
+            },
+            {
+              "x": 2.6,
+              "y": 1.6
+            },
+            {
+              "x": -2.6,
+              "y": 1.6
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 0,
+            "y": -1.6
+          },
+          "end": {
+            "x": 0,
+            "y": 1.6
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-rainwater-tank",
+      "name": "Cuve de récupération",
+      "version": "1.0.0",
+      "semanticType": "RAINWATER_TANK",
+      "discipline": "OTHER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2.4,
+              "y": -2
+            },
+            {
+              "x": 2.4,
+              "y": -2
+            },
+            {
+              "x": 2.4,
+              "y": 2
+            },
+            {
+              "x": -2.4,
+              "y": 2
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -2.4,
+            "y": 0.4
+          },
+          "end": {
+            "x": 2.4,
+            "y": 0.4
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-distribution-board",
+      "name": "Tableau électrique",
+      "version": "1.0.0",
+      "semanticType": "DISTRIBUTION_BOARD",
+      "discipline": "ELECTRICAL",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2.6,
+              "y": -1.8
+            },
+            {
+              "x": 2.6,
+              "y": -1.8
+            },
+            {
+              "x": 2.6,
+              "y": 1.8
+            },
+            {
+              "x": -2.6,
+              "y": 1.8
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.3,
+            "y": -1.8
+          },
+          "end": {
+            "x": -1.3,
+            "y": 1.8
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 0,
+            "y": -1.8
+          },
+          "end": {
+            "x": 0,
+            "y": 1.8
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 1.3,
+            "y": -1.8
+          },
+          "end": {
+            "x": 1.3,
+            "y": 1.8
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-circuit-breaker",
+      "name": "Disjoncteur",
+      "version": "1.0.0",
+      "semanticType": "PROTECTION_DEVICE",
+      "discipline": "ELECTRICAL",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -1,
+              "y": -2.4
+            },
+            {
+              "x": 1,
+              "y": -2.4
+            },
+            {
+              "x": 1,
+              "y": 2.4
+            },
+            {
+              "x": -1,
+              "y": 2.4
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1,
+            "y": -1.2
+          },
+          "end": {
+            "x": 1,
+            "y": 1.2
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-socket",
+      "name": "Prise de courant",
+      "version": "1.0.0",
+      "semanticType": "SOCKET",
+      "discipline": "ELECTRICAL",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "ARC",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 2,
+          "startAngleDeg": 0,
+          "endAngleDeg": 180,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -2,
+            "y": 0
+          },
+          "end": {
+            "x": 2,
+            "y": 0
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 0,
+            "y": 0
+          },
+          "end": {
+            "x": 0,
+            "y": -2
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-luminaire",
+      "name": "Luminaire",
+      "version": "1.0.0",
+      "semanticType": "LUMINAIRE",
+      "discipline": "ELECTRICAL",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 2,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": -1.4
+          },
+          "end": {
+            "x": 1.4,
+            "y": 1.4
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.4,
+            "y": 1.4
+          },
+          "end": {
+            "x": 1.4,
+            "y": -1.4
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-pv-module",
+      "name": "Module photovoltaïque",
+      "version": "1.0.0",
+      "semanticType": "PV_MODULE",
+      "discipline": "PV",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2.6,
+              "y": -1.8
+            },
+            {
+              "x": 2.6,
+              "y": -1.8
+            },
+            {
+              "x": 2.6,
+              "y": 1.8
+            },
+            {
+              "x": -2.6,
+              "y": 1.8
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -0.9,
+            "y": -1.8
+          },
+          "end": {
+            "x": -0.9,
+            "y": 1.8
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 0.9,
+            "y": -1.8
+          },
+          "end": {
+            "x": 0.9,
+            "y": 1.8
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -2.6,
+            "y": 0
+          },
+          "end": {
+            "x": 2.6,
+            "y": 0
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-inverter",
+      "name": "Onduleur",
+      "version": "1.0.0",
+      "semanticType": "INVERTER",
+      "discipline": "ELECTRICAL",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2,
+              "y": -2
+            },
+            {
+              "x": 2,
+              "y": -2
+            },
+            {
+              "x": 2,
+              "y": 2
+            },
+            {
+              "x": -2,
+              "y": 2
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -2,
+            "y": 2
+          },
+          "end": {
+            "x": 2,
+            "y": -2
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    },
+    {
+      "id": "symbol-battery",
+      "name": "Batterie",
+      "version": "1.0.0",
+      "semanticType": "BATTERY",
+      "discipline": "ELECTRICAL",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -3,
+          "y": -3
+        },
+        "max": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -2.4,
+              "y": -1.6
+            },
+            {
+              "x": 2.4,
+              "y": -1.6
+            },
+            {
+              "x": 2.4,
+              "y": 1.6
+            },
+            {
+              "x": -2.4,
+              "y": 1.6
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -1.2,
+            "y": -1.6
+          },
+          "end": {
+            "x": -1.2,
+            "y": 1.6
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 1.2,
+            "y": -0.8
+          },
+          "end": {
+            "x": 1.2,
+            "y": 0.8
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "PAPER_SPACE",
+        "nominalSizeMm": 6
+      }
+    }
+  ]
+}

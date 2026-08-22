@@ -14,7 +14,11 @@
  * which entry, which property. Contributors get it in a second without running
  * thirteen hundred tests; the integration gets it as a gate.
  */
-import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
+import {
+  SYMBOL_LIBRARY_V1,
+  rawGenericSymbolEntries,
+  symbolCatalogIssues,
+} from '@house-technical-designer/drawing-engine';
 import { PROJECT_CALCULATION_MODULE_IDS } from '@house-technical-designer/calculation-adapters';
 import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
 import {
@@ -114,6 +118,18 @@ const sections: readonly Section[] = [
     })),
   },
   {
+    // The last of the seven registries to live in TypeScript, and the only one
+    // whose defects used to stop the application rather than be reported.
+    title: 'Symboles',
+    counted: rawGenericSymbolEntries().length,
+    noun: 'symboles',
+    issues: symbolCatalogIssues().map(({ symbolId, path, message }) => ({
+      subject: symbolId,
+      path,
+      message,
+    })),
+  },
+  {
     title: 'Produits réseau',
     counted: NETWORK_PRODUCT_REGISTRY.length,
     noun: 'produits',
@@ -136,7 +152,6 @@ for (const { title, counted, noun, issues } of sections) {
   for (const { subject, path, message } of issues)
     console.log(`    ${subject} · ${path} : ${message}`);
 }
-console.log(`  ${symbols.size} symboles disponibles.`);
 
 if (failed) {
   console.error(

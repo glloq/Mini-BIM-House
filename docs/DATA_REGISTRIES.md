@@ -430,6 +430,26 @@ valeur par bande d'octave, les bandes prises dans une liste fermée — un
 coefficient déposé à 300 Hz est un coefficient qu'aucune norme, aucun calcul et
 aucune autre fiche ne pourra jamais aligner.
 
+## Les symboles
+
+Le septième registre était vingt-sept définitions écrites en TypeScript avec
+quatre fonctions d'aide pour les tenir courtes. Cela marche à vingt-sept et
+s'arrête à trois cents : personne ne lit le fichier, deux personnes ne peuvent
+pas l'éditer en même temps, et aucune porte ne peut le lire non plus.
+
+`packages/drawing-engine/data/symbols/generic.json` les porte, chacune avec sa
+version et sa provenance : un plan tracé l'an dernier doit se retracer pareil
+cette année, et un glyphe copié d'une planche publiée est le dessin de
+quelqu'un d'autre. La bibliothèque, elle, porte sa licence — ce qu'on a le droit
+de faire de ces dessins n'est la propriété d'aucun d'eux en particulier.
+
+Le constructeur de bibliothèque lève toujours une exception, ce qui est juste
+pour une erreur de programmation et inutile pour un fichier de données : un
+glyphe à la boîte englobante inversée arrêtait l'application au chargement au
+lieu d'apparaître dans le même rapport que tous les autres défauts de catalogue.
+`symbolCatalogIssues` fait la seconde chose ; les deux posent les mêmes
+questions.
+
 ## Les ouvertures
 
 Le modèle portait `Opening.definitionId`, la nomenclature déclarait trente-quatre
