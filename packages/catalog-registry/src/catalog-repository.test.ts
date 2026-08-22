@@ -9,8 +9,9 @@ import {
   familiesExercisedBy,
   installedCatalog,
   lazyCatalogRepository,
+  catalogFingerprints,
   measuredStatus,
-  validateCatalog,
+  validateCatalogFingerprints,
   type CatalogSummary,
 } from './index.js';
 
@@ -167,34 +168,56 @@ describe('where the catalogues come from', () => {
 });
 
 describe('what the version gate covers, and what it says is proven', () => {
-  const entries = [
-    {
-      id: 'generic-nothing',
-      familyId: 'RADIATOR',
-      version: '1.0.0',
-      properties: {},
-    },
-  ];
+  it('covers all six registries, keyed by reference', () => {
+    // `MATERIAL:generic-rock-wool@1.0.0` has to mean the same figures today as
+    // when a project pinned it, exactly as an equipment entry does — and only
+    // the equipment catalogue was protected. Two registries may also hold the
+    // same identifier, so a key that cannot tell them apart would let one
+    // inherit the other's promise.
+    const stamps = catalogFingerprints();
+    const keys = Object.keys(stamps);
+    expect(keys.length).toBe(19 + 16 + 12 + 7 + 66 + 27);
+    expect(new Set(keys.map((key) => key.split(':')[0])).size).toBe(6);
+    expect(stamps['MATERIAL:generic-rock-wool@1.0.0']).toMatch(
+      /^[0-9a-f]{16}$/u,
+    );
+    expect(validateCatalogFingerprints(stamps)).toEqual([]);
+  });
 
   it('refuses an entry no fingerprint covers', () => {
     // It used to pass in silence, so the mechanism protected only the entries
     // somebody had remembered to stamp — and ten thousand new ones would have
     // been ten thousand entries outside it.
     expect(
-      validateCatalog(entries, new Set(), {}).map(({ message }) => message),
+      validateCatalogFingerprints({}).map(({ message }) => message),
     ).toContain(
-      'is not recorded: generic-nothing@1.0.0 has no fingerprint. Run npm run catalog:fingerprints.',
+      'is not recorded: it has no fingerprint. Run npm run catalog:fingerprints.',
     );
   });
 
   it('refuses a fingerprint no entry claims', () => {
     // The next entry to take that identifier would inherit it.
     expect(
-      validateCatalog([], new Set(), { 'generic-gone@1.0.0': 'abcd' }).map(
-        ({ message }) => message,
-      ),
+      validateCatalogFingerprints({
+        ...catalogFingerprints(),
+        'MATERIAL:generic-gone@1.0.0': 'abcd',
+      }).map(({ ref }) => ref),
+    ).toEqual(['MATERIAL:generic-gone@1.0.0']);
+  });
+
+  it('refuses a fiche corrected in place, in any registry', () => {
+    const stamps = { ...catalogFingerprints() };
+    stamps['SYMBOL:symbol-heat-pump@1.0.0'] = '0000000000000000';
+    expect(
+      validateCatalogFingerprints(stamps).map(({ ref, message }) => [
+        ref,
+        message,
+      ]),
     ).toEqual([
-      'is recorded and no entry claims it. Run npm run catalog:fingerprints.',
+      [
+        'SYMBOL:symbol-heat-pump@1.0.0',
+        'has changed without its version changing: it no longer says what it said. Raise the version, then run npm run catalog:fingerprints.',
+      ],
     ]);
   });
 

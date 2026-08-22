@@ -27,6 +27,8 @@ import {
   NETWORK_PRODUCT_REGISTRY,
   PROPERTY_SCHEMA_REGISTRY,
   currentCatalogManifest,
+  stampedCatalogEntries,
+  validateCatalogFingerprints,
   validateAssemblyCatalog,
   validateCatalog,
   validateMaterialCatalog,
@@ -151,6 +153,7 @@ const sections: readonly Section[] = [
  * which is worse than none: it is a promise about what a project was designed
  * with.
  */
+const fingerprints = validateCatalogFingerprints();
 const manifest = currentCatalogManifest();
 const recorded = existsSync(MANIFEST_PATH)
   ? (JSON.parse(readFileSync(MANIFEST_PATH, 'utf8')) as {
@@ -168,6 +171,17 @@ for (const { title, counted, noun, issues } of sections) {
   console.log(`✗ ${title} — ${issues.length} anomalies sur ${counted} ${noun}`);
   for (const { subject, path, message } of issues)
     console.log(`    ${subject} · ${path} : ${message}`);
+}
+
+if (fingerprints.length === 0)
+  console.log(
+    `✓ Empreintes — ${stampedCatalogEntries().length} fiches, tous registres`,
+  );
+else {
+  console.log(`✗ Empreintes — ${fingerprints.length} anomalies`);
+  for (const { ref, message } of fingerprints)
+    console.log(`    ${ref} : ${message}`);
+  failed = true;
 }
 
 if (recorded === undefined)
