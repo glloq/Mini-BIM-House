@@ -1,0 +1,246 @@
+{
+  "formatVersion": "1.0.0",
+  "openings": [
+    {
+      "id": "generic-window-awning-double",
+      "familyId": "WINDOW_AWNING",
+      "category": "WINDOW",
+      "name": "Fenêtre à projection, double vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 1000,
+        "height": 800,
+        "panelCount": 1,
+        "uw": 1.4,
+        "ug": 1.1,
+        "uf": 1.8,
+        "gValue": 0.6,
+        "visibleTransmittance": 0.78,
+        "rw": 32,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON",
+        "frameDepth": 70,
+        "frameWidth": 60,
+        "openingAngle": 30
+      }
+    },
+    {
+      "id": "generic-window-hopper-double",
+      "familyId": "WINDOW_HOPPER",
+      "category": "WINDOW",
+      "name": "Fenêtre à soufflet, double vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 800,
+        "height": 600,
+        "panelCount": 1,
+        "uw": 1.5,
+        "ug": 1.1,
+        "uf": 1.9,
+        "gValue": 0.6,
+        "visibleTransmittance": 0.78,
+        "rw": 31,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON",
+        "frameDepth": 70,
+        "frameWidth": 60,
+        "openingAngle": 15
+      }
+    },
+    {
+      "id": "generic-window-sliding-double",
+      "familyId": "WINDOW_SLIDING",
+      "category": "WINDOW",
+      "name": "Fenêtre coulissante, double vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 1400,
+        "height": 1200,
+        "panelCount": 2,
+        "uw": 1.8,
+        "ug": 1.1,
+        "uf": 2.2,
+        "gValue": 0.58,
+        "visibleTransmittance": 0.76,
+        "rw": 30,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON",
+        "frameDepth": 80,
+        "frameWidth": 70
+      }
+    },
+    {
+      "id": "generic-window-sliding-two-leaf",
+      "familyId": "WINDOW_DOUBLE_SLIDING",
+      "category": "WINDOW",
+      "name": "Fenêtre coulissante à deux vantaux, double vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 2000,
+        "height": 1200,
+        "panelCount": 2,
+        "uw": 1.9,
+        "ug": 1.1,
+        "uf": 2.3,
+        "gValue": 0.57,
+        "visibleTransmittance": 0.75,
+        "rw": 30,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON",
+        "frameDepth": 80,
+        "frameWidth": 70,
+        "mullions": 1
+      }
+    },
+    {
+      "id": "generic-window-bay-triple",
+      "familyId": "WINDOW_BAY",
+      "category": "WINDOW",
+      "name": "Baie vitrée fixe, triple vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 2400,
+        "height": 2150,
+        "panelCount": 1,
+        "uw": 1.0,
+        "ug": 0.6,
+        "uf": 1.4,
+        "gValue": 0.5,
+        "visibleTransmittance": 0.7,
+        "rw": 36,
+        "glazing": "TRIPLE",
+        "cavityGas": "ARGON",
+        "frameDepth": 90,
+        "frameWidth": 65
+      }
+    },
+    {
+      "id": "generic-window-corner-double",
+      "familyId": "WINDOW_CORNER",
+      "category": "WINDOW",
+      "name": "Fenêtre d’angle, double vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 1600,
+        "height": 1400,
+        "panelCount": 2,
+        "uw": 1.6,
+        "ug": 1.1,
+        "uf": 2.0,
+        "gValue": 0.58,
+        "visibleTransmittance": 0.76,
+        "rw": 32,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON",
+        "frameDepth": 80,
+        "frameWidth": 70,
+        "mullions": 1
+      }
+    },
+    {
+      "id": "generic-window-multi-panel-double",
+      "familyId": "WINDOW_MULTI_PANEL",
+      "category": "WINDOW",
+      "name": "Ensemble menuisé à trois modules, double vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 3000,
+        "height": 1400,
+        "panelCount": 3,
+        "uw": 1.5,
+        "ug": 1.1,
+        "uf": 1.9,
+        "gValue": 0.58,
+        "visibleTransmittance": 0.76,
+        "rw": 33,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON",
+        "frameDepth": 80,
+        "frameWidth": 65,
+        "mullions": 2,
+        "transoms": 1
+      }
+    },
+    {
+      "id": "generic-lift-slide-door-triple",
+      "familyId": "LIFT_SLIDE_DOOR",
+      "category": "WINDOW",
+      "name": "Baie levante coulissante, triple vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 3000,
+        "height": 2200,
+        "panelCount": 2,
+        "uw": 1.2,
+        "ug": 0.6,
+        "uf": 1.6,
+        "gValue": 0.5,
+        "visibleTransmittance": 0.7,
+        "rw": 37,
+        "glazing": "TRIPLE",
+        "cavityGas": "ARGON",
+        "frameDepth": 100,
+        "frameWidth": 80,
+        "mullions": 1
+      }
+    },
+    {
+      "id": "generic-pocket-sliding-door-double",
+      "familyId": "POCKET_SLIDING_DOOR",
+      "category": "WINDOW",
+      "name": "Baie à galandage, double vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 2400,
+        "height": 2150,
+        "panelCount": 2,
+        "uw": 1.7,
+        "ug": 1.1,
+        "uf": 2.1,
+        "gValue": 0.57,
+        "visibleTransmittance": 0.75,
+        "rw": 31,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON",
+        "frameDepth": 90,
+        "frameWidth": 70
+      }
+    }
+  ]
+}

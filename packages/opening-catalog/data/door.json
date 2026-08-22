@@ -1,0 +1,133 @@
+{
+  "formatVersion": "1.0.0",
+  "openings": [
+    {
+      "id": "generic-door-single",
+      "familyId": "DOOR_SINGLE",
+      "category": "DOOR",
+      "name": "Porte simple à âme pleine",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 830,
+        "height": 2040,
+        "leafCount": 1,
+        "uw": 2.2,
+        "rw": 27
+      }
+    },
+    {
+      "id": "generic-door-double",
+      "familyId": "DOOR_DOUBLE",
+      "category": "DOOR",
+      "name": "Porte double",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 1460,
+        "height": 2040,
+        "leafCount": 2,
+        "uw": 2.2,
+        "rw": 27
+      }
+    },
+    {
+      "id": "generic-door-sliding",
+      "familyId": "DOOR_SLIDING",
+      "category": "DOOR",
+      "name": "Porte coulissante en applique",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 830,
+        "height": 2040,
+        "leafCount": 1,
+        "uw": 2.6,
+        "rw": 18
+      }
+    },
+    {
+      "id": "generic-door-pocket",
+      "familyId": "DOOR_POCKET",
+      "category": "DOOR",
+      "name": "Porte à galandage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 830,
+        "height": 2040,
+        "leafCount": 1,
+        "uw": 2.6,
+        "rw": 16
+      }
+    },
+    {
+      "id": "generic-door-folding",
+      "familyId": "DOOR_FOLDING",
+      "category": "DOOR",
+      "name": "Porte pliante",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 830,
+        "height": 2040,
+        "leafCount": 2,
+        "uw": 2.8,
+        "rw": 15
+      }
+    },
+    {
+      "id": "generic-door-fire-ei30",
+      "familyId": "DOOR_FIRE",
+      "category": "DOOR",
+      "name": "Porte coupe-feu EI 30",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 930,
+        "height": 2040,
+        "leafCount": 1,
+        "uw": 2.0,
+        "rw": 32,
+        "fireRating": "EI30"
+      }
+    },
+    {
+      "id": "generic-door-security",
+      "familyId": "DOOR_SECURITY",
+      "category": "DOOR",
+      "name": "Porte blindée",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 900,
+        "height": 2150,
+        "leafCount": 1,
+        "uw": 1.6,
+        "rw": 40,
+        "securityClass": "RC3"
+      }
+    }
+  ]
+}

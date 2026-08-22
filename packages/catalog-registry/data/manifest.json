@@ -1,6 +1,6 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "c90e48095ab9d32d",
+  "releaseId": "0ce102961ea1ac3e",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
@@ -37,11 +37,14 @@
     {
       "registry": "OPENING",
       "sources": [
-        "packages/opening-catalog/data/generic.json"
+        "packages/opening-catalog/data/door.json",
+        "packages/opening-catalog/data/generic.json",
+        "packages/opening-catalog/data/solar-protection.json",
+        "packages/opening-catalog/data/window.json"
       ],
-      "entryCount": 12,
+      "entryCount": 34,
       "formatVersion": "1.0.0",
-      "fingerprint": "1bb0b2c75aebc930"
+      "fingerprint": "e2d3de032f02e081"
     },
     {
       "registry": "ASSEMBLY",
