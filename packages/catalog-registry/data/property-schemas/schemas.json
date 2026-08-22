@@ -82,6 +82,35 @@
           "source": "DEFINITION",
           "minimum": 0,
           "maximum": 1
+        },
+        {
+          "key": "nominalVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "nominalCapacityAh",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ratedCurrentA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "breakingCapacityKA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ipRating",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "ratedVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
         }
       ]
     },
@@ -281,6 +310,19 @@
           "key": "activePowerW",
           "source": "DEFINITION",
           "minimum": 0
+        },
+        {
+          "key": "entryCount",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ipRating",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "material",
+          "source": "DEFINITION"
         }
       ]
     },
@@ -528,6 +570,44 @@
           "key": "embodiedCarbon",
           "source": "DEFINITION",
           "minimum": 0
+        },
+        {
+          "key": "ipRating",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "loadCapacityKgM",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "entryCount",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "lengthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "moduleCapacity",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "poleCount",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "loadCapacityKg",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "material",
+          "source": "DEFINITION"
         }
       ]
     },
@@ -580,6 +660,11 @@
         },
         {
           "key": "moduleCapacity",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ratedCurrentA",
           "source": "DEFINITION",
           "minimum": 0
         }
@@ -802,6 +887,11 @@
           "key": "distanceToCombustibleMm",
           "source": "DEFINITION",
           "minimum": 0
+        },
+        {
+          "key": "lengthMm",
+          "source": "DEFINITION",
+          "minimum": 0
         }
       ]
     },
@@ -889,6 +979,68 @@
       ]
     },
     {
+      "family": "HEATING_CONTROL",
+      "properties": [
+        {
+          "key": "widthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "source": "DEFINITION",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "supplyVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "electricalPowerW",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "circuitCount",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "minimumSetPointC",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "maximumSetPointC",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "setPointC",
+          "source": "INSTANCE"
+        }
+      ]
+    },
+    {
       "family": "HEATING_DEVICE",
       "properties": [
         {
@@ -943,6 +1095,21 @@
         },
         {
           "key": "supplyVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "tankVolumeL",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "capacityL",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "maxPressureBar",
           "source": "DEFINITION",
           "minimum": 0
         }
@@ -1221,7 +1388,7 @@
           "source": "DEFINITION"
         },
         {
-          "key": "ip",
+          "key": "ipRating",
           "source": "DEFINITION"
         },
         {
@@ -1804,6 +1971,16 @@
           "key": "breakingCapacityKA",
           "source": "DEFINITION",
           "minimum": 0
+        },
+        {
+          "key": "protectionLevelUpV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "surgeCurrentKA",
+          "source": "DEFINITION",
+          "minimum": 0
         }
       ]
     },
@@ -1883,6 +2060,64 @@
         },
         {
           "key": "mpptInputCount",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ratedCurrentA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ratedVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "breakingCapacityKA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "protectionLevelUpV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "surgeCurrentKA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "loadCapacityKgM",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "lengthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ipRating",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "material",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "openCircuitVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "shortCircuitCurrentA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "loadCapacityKg",
           "source": "DEFINITION",
           "minimum": 0
         }
@@ -2138,6 +2373,33 @@
           "key": "batteryBackupHours",
           "source": "DEFINITION",
           "minimum": 0
+        },
+        {
+          "key": "capacityL",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "material",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "ratedCurrentA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "breakingCapacityKA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ipRating",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "soundPowerLevel",
+          "source": "DEFINITION"
         }
       ]
     },
@@ -2203,6 +2465,89 @@
         },
         {
           "key": "flushVolumeL",
+          "source": "DEFINITION",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "SENSOR_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "source": "DEFINITION",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "supplyVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "electricalPowerW",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "coverageM2",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "detectionAngleDeg",
+          "source": "DEFINITION",
+          "minimum": 0,
+          "maximum": 360
+        },
+        {
+          "key": "minimumSetPointC",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "maximumSetPointC",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "ipRating",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "circuitCount",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "mountingHeightM",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "activePowerW",
           "source": "DEFINITION",
           "minimum": 0
         }
@@ -2334,6 +2679,84 @@
         },
         {
           "key": "fireRating",
+          "source": "DEFINITION"
+        }
+      ]
+    },
+    {
+      "family": "SURGE_PROTECTOR_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "source": "DEFINITION",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "surgeProtectorType",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "nominalVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "maximumContinuousVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "protectionLevelUpV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "surgeCurrentKA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "maximumSurgeCurrentKA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "poleCount",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "moduleCapacity",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ipRating",
           "source": "DEFINITION"
         }
       ]
@@ -2501,6 +2924,11 @@
         {
           "key": "airRole",
           "source": "DEFINITION"
+        },
+        {
+          "key": "waterSealHeightMm",
+          "source": "DEFINITION",
+          "minimum": 0
         }
       ]
     },

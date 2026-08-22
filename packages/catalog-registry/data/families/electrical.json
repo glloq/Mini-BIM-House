@@ -6,19 +6,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "DISTRIBUTION_BOARD"
     },
     {
       "id": "SERVICE_METER",
@@ -26,19 +27,21 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["EARTH", "CONTROL"]
     },
     {
       "id": "MAIN_BREAKER",
@@ -46,19 +49,21 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "AGCP",
@@ -66,19 +71,21 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "MAIN_DISTRIBUTION_BOARD",
@@ -91,7 +98,7 @@
         {
           "anyOf": ["ELECTRICAL_AC"],
           "minCount": 2,
-          "maxCount": 64
+          "maxCount": 2
         },
         "EARTH"
       ],
@@ -101,7 +108,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "READY",
@@ -117,19 +124,27 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        },
+        "EARTH"
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "DISTRIBUTION_BOARD"
     },
     {
       "id": "SPD",
@@ -144,12 +159,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
-      "propertySchema": "ELECTRICAL_BOARD",
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
+      "propertySchema": "SURGE_PROTECTOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "MAIN_ISOLATOR",
@@ -157,19 +173,21 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "ENERGY_METER",
@@ -177,19 +195,21 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["EARTH", "CONTROL"]
     },
     {
       "id": "ELECTRICAL_SUB_METER",
@@ -197,19 +217,21 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "EARTH"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["EARTH", "CONTROL"]
     },
     {
       "id": "MCB",
@@ -218,20 +240,13 @@
       "registry": "EQUIPMENT",
       "category": "PROTECTION_DEVICE",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -247,19 +262,19 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "RCD",
@@ -267,19 +282,19 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "RCBO",
@@ -287,19 +302,19 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "MCCB",
@@ -307,19 +322,19 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "CONTACTOR",
@@ -327,19 +342,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "RELAY",
@@ -347,19 +363,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "TIMER",
@@ -367,19 +384,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "LOAD_SHEDDING_RELAY",
@@ -387,19 +405,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "SURGE_PROTECTOR",
@@ -407,19 +426,19 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
-      "propertySchema": "PROTECTION_DEVICE",
+      "propertySchema": "SURGE_PROTECTOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "ARC_FAULT_DEVICE",
@@ -427,19 +446,19 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PROTECTION_DEVICE"
     },
     {
       "id": "JUNCTION_BOX",
@@ -447,19 +466,27 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "WALL_BOX",
@@ -467,19 +494,21 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "FLOOR_BOX",
@@ -494,12 +523,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "TERMINAL_BLOCK",
@@ -507,19 +538,27 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "CABLE_TRAY",
@@ -527,19 +566,21 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "CABLE_LADDER",
@@ -547,19 +588,21 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC"],
+      "ports": [],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "SOCKET_16A",
@@ -575,7 +618,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -591,19 +634,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "USB_SOCKET",
@@ -611,19 +655,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "EXTERIOR_SOCKET",
@@ -631,19 +676,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "SPECIAL_SOCKET",
@@ -651,19 +697,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "COOKER_OUTLET",
@@ -671,19 +718,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "CABLE_OUTLET",
@@ -691,19 +739,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SOCKET"
     },
     {
       "id": "SWITCH",
@@ -711,19 +760,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "DOUBLE_SWITCH",
@@ -731,19 +781,27 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        "ELECTRICAL_AC_INPUT",
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "TWO_WAY_SWITCH",
@@ -751,19 +809,27 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        "ELECTRICAL_AC_INPUT",
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "INTERMEDIATE_SWITCH",
@@ -771,19 +837,31 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC_INPUT"],
+          "minCount": 2,
+          "maxCount": 2
+        },
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "PUSH_BUTTON",
@@ -791,19 +869,20 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "DIMMER",
@@ -811,19 +890,21 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "ROLLER_SHUTTER_SWITCH",
@@ -831,19 +912,28 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        "ELECTRICAL_AC_INPUT",
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "OVEN",
@@ -858,12 +948,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "HOB",
@@ -878,12 +970,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "REFRIGERATOR",
@@ -898,12 +992,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "FREEZER",
@@ -918,12 +1014,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "WASHING_MACHINE",
@@ -938,12 +1036,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "DISHWASHER",
@@ -958,12 +1058,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "DRYER",
@@ -978,12 +1080,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "MICROWAVE",
@@ -998,12 +1102,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "EV_CHARGER",
@@ -1018,12 +1124,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "POOL_PUMP",
@@ -1038,12 +1146,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PUMP",
+      "optionalPorts": ["EARTH"]
     },
     {
       "id": "EARTH_ELECTRODE",
@@ -1058,12 +1168,12 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "EARTH_ROD",
@@ -1078,12 +1188,12 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "FOUNDATION_EARTH_LOOP",
@@ -1098,12 +1208,12 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "EARTH_BAR",
@@ -1111,19 +1221,25 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 16
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "MAIN_EARTHING_TERMINAL",
@@ -1131,19 +1247,25 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 16
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "PROTECTIVE_CONDUCTOR",
@@ -1151,19 +1273,25 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "EQUIPOTENTIAL_BONDING",
@@ -1171,19 +1299,25 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 16
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "BATHROOM_BONDING",
@@ -1191,19 +1325,25 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 16
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "SPD_EARTH_CONNECTION",
@@ -1211,19 +1351,25 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["EARTH"],
+      "ports": [
+        {
+          "anyOf": ["EARTH"],
+          "minCount": 2,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["SITE", "WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "CEILING_LIGHT",
@@ -1239,7 +1385,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "READY",
@@ -1256,19 +1402,21 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "SPOTLIGHT",
@@ -1276,19 +1424,21 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "PENDANT",
@@ -1296,19 +1446,21 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "WALL_LIGHT",
@@ -1316,19 +1468,21 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "LED_STRIP",
@@ -1336,19 +1490,21 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "FLOOR_LIGHT",
@@ -1356,19 +1512,21 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "EXTERIOR_LIGHT",
@@ -1376,19 +1534,21 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "EMERGENCY_LIGHT",
@@ -1396,19 +1556,21 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "LUMINAIRE",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "PRESENCE_SENSOR",
@@ -1416,19 +1578,27 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        {
+          "anyOf": ["ELECTRICAL_AC"],
+          "minCount": 1,
+          "maxCount": 2
+        }
+      ],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
-      "propertySchema": "LUMINAIRE",
+      "clearances": ["MAINTENANCE"],
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "LIGHT_SENSOR",
@@ -1436,19 +1606,21 @@
       "domain": "LIGHTING",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": ["ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": ["lighting", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
-      "propertySchema": "LUMINAIRE",
+      "clearances": ["MAINTENANCE"],
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "SENSOR",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "LIGHTING_CONTROLLER",
@@ -1463,12 +1635,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
-      "propertySchema": "LUMINAIRE",
+      "clearances": ["MAINTENANCE"],
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     }
   ]
 }

@@ -12,7 +12,7 @@
       "ports": [
         {
           "id": "duct",
-          "portTypeId": "AIR_EXTRACT",
+          "portTypeId": "AIR_EXTRACT_OUTLET",
           "position": {
             "x": 0,
             "y": 0,
@@ -36,7 +36,7 @@
         "planFootprint": "CIRCLE",
         "layer": "ventilation.terminals"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

@@ -1,0 +1,950 @@
+{
+  "definitions": [
+    {
+      "id": "generic-pv-array",
+      "familyId": "PV_ARRAY",
+      "name": "Champ photovoltaïque",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 6804,
+        "depthMm": 40,
+        "heightMm": 3444
+      },
+      "ports": [
+        {
+          "id": "dc",
+          "portTypeId": "PV_DC",
+          "position": {
+            "x": -3402,
+            "y": 0,
+            "z": -1722
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 3402,
+            "y": 0,
+            "z": -1722
+          }
+        }
+      ],
+      "properties": {
+        "peakPowerWp": 4800,
+        "moduleAreaM2": 23.4,
+        "moduleEfficiency": 0.205,
+        "temperatureCoefficientPerK": -0.0035,
+        "nominalVoltageV": 246,
+        "openCircuitVoltageV": 297,
+        "shortCircuitCurrentA": 20.8
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-pv-module"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "solar.modules"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "leftMm": 400,
+          "rightMm": 400,
+          "reason": "Circulation de pose et de nettoyage en périphérie du champ"
+        }
+      ]
+    },
+    {
+      "id": "generic-pv-string",
+      "familyId": "PV_STRING",
+      "name": "Chaîne photovoltaïque",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 4536,
+        "depthMm": 35,
+        "heightMm": 3444
+      },
+      "ports": [
+        {
+          "id": "dc",
+          "portTypeId": "PV_DC",
+          "position": {
+            "x": -2268,
+            "y": 0,
+            "z": -1722
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 2268,
+            "y": 0,
+            "z": -1722
+          }
+        }
+      ],
+      "properties": {
+        "peakPowerWp": 3200,
+        "moduleAreaM2": 15.6,
+        "moduleEfficiency": 0.205,
+        "temperatureCoefficientPerK": -0.0035,
+        "nominalVoltageV": 328,
+        "openCircuitVoltageV": 396,
+        "shortCircuitCurrentA": 10.4
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-pv-module"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "solar.modules"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Dépose d’un module de la chaîne"
+        }
+      ]
+    },
+    {
+      "id": "generic-hybrid-inverter",
+      "familyId": "HYBRID_INVERTER",
+      "name": "Onduleur hybride",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 500,
+        "depthMm": 200,
+        "heightMm": 650
+      },
+      "ports": [
+        {
+          "id": "pv-1",
+          "portTypeId": "PV_DC_INPUT",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": -325
+          }
+        },
+        {
+          "id": "pv-2",
+          "portTypeId": "PV_DC_INPUT",
+          "position": {
+            "x": -130,
+            "y": 0,
+            "z": -325
+          }
+        },
+        {
+          "id": "battery",
+          "portTypeId": "BATTERY_DC",
+          "position": {
+            "x": -40,
+            "y": 0,
+            "z": -325
+          }
+        },
+        {
+          "id": "ac",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 90,
+            "y": 0,
+            "z": -325
+          }
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 170,
+            "y": 0,
+            "z": -325
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 220,
+            "y": 0,
+            "z": -325
+          }
+        }
+      ],
+      "properties": {
+        "nominalAcPowerW": 5000,
+        "maximumDcPowerW": 7500,
+        "europeanEfficiency": 0.965,
+        "mpptInputCount": 2
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-inverter"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "aboveMm": 300,
+          "belowMm": 300,
+          "reason": "Accès aux bornes continues, alternatives et batterie, ventilation du dissipateur"
+        }
+      ]
+    },
+    {
+      "id": "generic-microinverter",
+      "familyId": "MICROINVERTER",
+      "name": "Micro-onduleur",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 220,
+        "depthMm": 175,
+        "heightMm": 35
+      },
+      "ports": [
+        {
+          "id": "pv",
+          "portTypeId": "PV_DC_INPUT",
+          "position": {
+            "x": -110,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "ac",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 110,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 110,
+            "y": 50,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalAcPowerW": 350,
+        "maximumDcPowerW": 500,
+        "europeanEfficiency": 0.965,
+        "mpptInputCount": 1
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-inverter"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "solar.modules"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 200,
+          "reason": "Dépose du module pour atteindre l’appareil sous le champ"
+        }
+      ]
+    },
+    {
+      "id": "generic-optimizer",
+      "familyId": "OPTIMIZER",
+      "name": "Optimiseur de puissance",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 130,
+        "depthMm": 120,
+        "heightMm": 30
+      },
+      "ports": [
+        {
+          "id": "dc-in",
+          "portTypeId": "PV_DC_INPUT",
+          "position": {
+            "x": -65,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "dc-out",
+          "portTypeId": "PV_DC",
+          "position": {
+            "x": 65,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "maximumDcPowerW": 500
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "solar.modules"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 200,
+          "reason": "Dépose du module pour atteindre l’appareil sous le champ"
+        }
+      ]
+    },
+    {
+      "id": "generic-dc-combiner",
+      "familyId": "DC_COMBINER",
+      "name": "Coffret de regroupement continu",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 130,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "string-1",
+          "portTypeId": "PV_DC_INPUT",
+          "position": {
+            "x": -120,
+            "y": 0,
+            "z": -200
+          }
+        },
+        {
+          "id": "string-2",
+          "portTypeId": "PV_DC_INPUT",
+          "position": {
+            "x": -60,
+            "y": 0,
+            "z": -200
+          }
+        },
+        {
+          "id": "dc-out",
+          "portTypeId": "PV_DC",
+          "position": {
+            "x": 90,
+            "y": 0,
+            "z": -200
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 140,
+            "y": 0,
+            "z": -200
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 1000,
+        "ratedCurrentA": 32
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-distribution-board"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Ouverture de la porte et intervention sur les appareils modulaires"
+        }
+      ]
+    },
+    {
+      "id": "generic-dc-isolator",
+      "familyId": "DC_ISOLATOR",
+      "name": "Sectionneur continu",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 90,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "dc-in",
+          "portTypeId": "PV_DC_INPUT",
+          "position": {
+            "x": -55,
+            "y": 0,
+            "z": -80
+          }
+        },
+        {
+          "id": "dc-out",
+          "portTypeId": "PV_DC",
+          "position": {
+            "x": 55,
+            "y": 0,
+            "z": -80
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 1000,
+        "ratedCurrentA": 25
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "reason": "Manœuvre de la poignée et consignation du champ"
+        }
+      ]
+    },
+    {
+      "id": "generic-dc-fuse",
+      "familyId": "DC_FUSE",
+      "name": "Porte-fusible de chaîne",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 18,
+        "depthMm": 70,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "dc-in",
+          "portTypeId": "PV_DC_INPUT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 45
+          }
+        },
+        {
+          "id": "dc-out",
+          "portTypeId": "PV_DC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -45
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 1000,
+        "ratedCurrentA": 15
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Remplacement de la cartouche, chaîne consignée"
+        }
+      ]
+    },
+    {
+      "id": "generic-dc-spd",
+      "familyId": "DC_SPD",
+      "name": "Parafoudre continu",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 70,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "dc",
+          "portTypeId": "PV_DC_INPUT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 45
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -45
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 1000,
+        "protectionLevelUpV": 3800,
+        "surgeCurrentKA": 20,
+        "surgeProtectorType": "Type 2",
+        "maximumContinuousVoltageV": 1000,
+        "maximumSurgeCurrentKA": 40,
+        "poleCount": 3,
+        "ipRating": "IP20"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Lecture du témoin et remplacement des cartouches"
+        }
+      ]
+    },
+    {
+      "id": "generic-ac-isolator",
+      "familyId": "AC_ISOLATOR",
+      "name": "Sectionneur alternatif",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 90,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "ac-in",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
+          "position": {
+            "x": -55,
+            "y": 0,
+            "z": -80
+          }
+        },
+        {
+          "id": "ac-out",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 55,
+            "y": 0,
+            "z": -80
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -80
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 400,
+        "ratedCurrentA": 25
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "reason": "Manœuvre de la poignée et coupure visible à la demande du gestionnaire de réseau"
+        }
+      ]
+    },
+    {
+      "id": "generic-ac-panel",
+      "familyId": "AC_PANEL",
+      "name": "Coffret de protection alternatif",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 130,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "ac-in",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
+          "position": {
+            "x": -100,
+            "y": 0,
+            "z": -200
+          }
+        },
+        {
+          "id": "ac-out",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 100,
+            "y": 0,
+            "z": -200
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 140,
+            "y": 0,
+            "z": -200
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 400,
+        "ratedCurrentA": 25
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-distribution-board"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Ouverture de la porte et intervention sur les appareils modulaires"
+        }
+      ]
+    },
+    {
+      "id": "generic-ac-spd",
+      "familyId": "AC_SPD",
+      "name": "Parafoudre alternatif",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 70,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "ac",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 45
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -45
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230,
+        "protectionLevelUpV": 1500,
+        "surgeCurrentKA": 20,
+        "surgeProtectorType": "Type 2",
+        "maximumContinuousVoltageV": 275,
+        "maximumSurgeCurrentKA": 40,
+        "poleCount": 2,
+        "ipRating": "IP20"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Lecture du témoin et remplacement des cartouches"
+        }
+      ]
+    },
+    {
+      "id": "generic-production-meter",
+      "familyId": "PRODUCTION_METER",
+      "name": "Compteur de production",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 65,
+        "heightMm": 130
+      },
+      "ports": [
+        {
+          "id": "ac-in",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 65
+          }
+        },
+        {
+          "id": "ac-out",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -65
+          }
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 36,
+            "y": 0,
+            "z": -65
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230,
+        "ratedCurrentA": 63
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Lecture de l’index et accès au bornier"
+        }
+      ]
+    },
+    {
+      "id": "generic-export-limiter",
+      "familyId": "EXPORT_LIMITER",
+      "name": "Limiteur d’injection",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 90,
+        "depthMm": 65,
+        "heightMm": 120
+      },
+      "ports": [
+        {
+          "id": "ac",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -60
+          }
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 60
+          }
+        }
+      ],
+      "properties": {
+        "nominalVoltageV": 230
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.equipment"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Pose du tore de mesure sur le départ et accès au bornier"
+        }
+      ]
+    },
+    {
+      "id": "generic-ground-mount",
+      "familyId": "GROUND_MOUNT",
+      "name": "Structure photovoltaïque au sol",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 2300,
+        "depthMm": 3000,
+        "heightMm": 2200
+      },
+      "ports": [
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 1500,
+            "z": -1100
+          }
+        }
+      ],
+      "properties": {
+        "material": "Aluminium",
+        "loadCapacityKg": 250,
+        "ipRating": "IP68"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "solar.modules"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "backMm": 800,
+          "frontMm": 800,
+          "reason": "Circulation devant et derrière la structure pour la pose et le nettoyage des modules"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-rail",
+      "familyId": "ROOF_RAIL",
+      "name": "Rail de fixation en toiture",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 3300,
+        "depthMm": 40,
+        "heightMm": 45
+      },
+      "ports": [],
+      "properties": {
+        "lengthMm": 3300,
+        "loadCapacityKgM": 100
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "solar.modules"
+      }
+    },
+    {
+      "id": "generic-roof-hook",
+      "familyId": "ROOF_HOOK",
+      "name": "Crochet de toiture",
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "dimensions": {
+        "widthMm": 180,
+        "depthMm": 45,
+        "heightMm": 130
+      },
+      "ports": [],
+      "properties": {
+        "loadCapacityKg": 200,
+        "material": "Acier inoxydable",
+        "ipRating": "IP68"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "solar.modules"
+      }
+    }
+  ]
+}

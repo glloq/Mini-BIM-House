@@ -103,7 +103,9 @@
         "moduleAreaM2": 1.95,
         "moduleEfficiency": 0.205,
         "temperatureCoefficientPerK": -0.0035,
-        "nominalVoltageV": 41
+        "nominalVoltageV": 41,
+        "openCircuitVoltageV": 49.5,
+        "shortCircuitCurrentA": 10.4
       },
       "rendering": {
         "symbols": [
@@ -115,7 +117,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "solar.modules"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

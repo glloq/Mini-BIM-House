@@ -1,0 +1,907 @@
+{
+  "definitions": [
+    {
+      "id": "generic-borehole-head",
+      "familyId": "BOREHOLE",
+      "name": "Tête de forage équipée",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 300,
+        "heightMm": 1000
+      },
+      "ports": [
+        {
+          "id": "water",
+          "portTypeId": "WATER_NON_POTABLE",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 500
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 150,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {},
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 2000,
+          "reason": "Extraction de la pompe immergée à la verticale"
+        }
+      ]
+    },
+    {
+      "id": "generic-well",
+      "familyId": "WELL",
+      "name": "Puits busé Ø 1 000",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 1000,
+        "depthMm": 1000,
+        "heightMm": 1500
+      },
+      "ports": [
+        {
+          "id": "water",
+          "portTypeId": "WATER_NON_POTABLE",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 750
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 500,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "buriedDepthMm": 8000
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 2000,
+          "reason": "Descente du matériel et relevage de la pompe"
+        }
+      ]
+    },
+    {
+      "id": "generic-service-connection-box",
+      "familyId": "ELECTRICAL_SERVICE_BOX",
+      "name": "Coffret de branchement en limite de propriété",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 500,
+        "depthMm": 250,
+        "heightMm": 700
+      },
+      "ports": [
+        {
+          "id": "incoming",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -350
+          }
+        },
+        {
+          "id": "outgoing",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 125,
+            "z": -200
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -350
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 60,
+        "nominalVoltageV": 230,
+        "ipRating": "IP44"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "SERVICE",
+          "frontMm": 800,
+          "reason": "Accès du distributeur au coffret depuis le domaine public"
+        }
+      ]
+    },
+    {
+      "id": "generic-utility-meter",
+      "familyId": "UTILITY_METER",
+      "name": "Compteur de concession",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 120,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "incoming",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -200
+          }
+        },
+        {
+          "id": "outgoing",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 200
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 60,
+        "nominalVoltageV": 230,
+        "ipRating": "IP44"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "SERVICE",
+          "frontMm": 700,
+          "reason": "Relève et intervention du distributeur"
+        }
+      ]
+    },
+    {
+      "id": "generic-earth-rod-2m",
+      "familyId": "SITE_EARTH_ROD",
+      "name": "Piquet de terre 2 m",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 25,
+        "depthMm": 25,
+        "heightMm": 2000
+      },
+      "ports": [
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 1000
+          }
+        }
+      ],
+      "properties": {
+        "buriedDepthMm": 2000
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-ev-charging-station-7kw",
+      "familyId": "SITE_EV_CHARGER",
+      "name": "Borne de recharge sur pied 7,4 kW",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 200,
+        "heightMm": 1300
+      },
+      "ports": [
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -650
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -650
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 7400,
+        "powerFactor": 1
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Manœuvre du câble et accès à la prise"
+        }
+      ]
+    },
+    {
+      "id": "generic-exterior-wall-luminaire",
+      "familyId": "SITE_EXTERIOR_LIGHT",
+      "name": "Applique extérieure",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 150,
+        "depthMm": 200,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 100,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "luminousFluxLm": 1200,
+        "electricalPowerW": 12,
+        "colorTemperatureK": 3000,
+        "ipRating": "IP65"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-luminaire"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-exterior-socket-ip55",
+      "familyId": "SITE_EXTERIOR_SOCKET",
+      "name": "Prise extérieure étanche IP 55",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 100,
+        "depthMm": 80,
+        "heightMm": 100
+      },
+      "ports": [
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 40,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "ratedCurrentA": 16,
+        "nominalVoltageV": 230,
+        "ipRating": "IP55",
+        "poleCount": 2
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-socket"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-outdoor-monobloc-heat-pump",
+      "familyId": "OUTDOOR_HEAT_PUMP",
+      "name": "Unité extérieure monobloc air/eau",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 1100,
+        "depthMm": 450,
+        "heightMm": 900
+      },
+      "ports": [
+        {
+          "id": "heating-flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 0,
+            "y": 225,
+            "z": -200
+          }
+        },
+        {
+          "id": "heating-return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 0,
+            "y": 225,
+            "z": -300
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 225,
+            "z": -400
+          }
+        }
+      ],
+      "properties": {
+        "nominalHeatingCapacityW": 8000,
+        "nominalCop": 4.2,
+        "minimumOutdoorTemperatureC": -20,
+        "maximumFlowTemperatureC": 60,
+        "supplyVoltageV": 230,
+        "soundPowerOutdoor": 58
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-heat-pump"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 1000,
+          "backMm": 300,
+          "leftMm": 300,
+          "rightMm": 500,
+          "reason": "Dégagement du flux d’air soufflé et accès aux raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-ground-mounted-pv-array",
+      "familyId": "GROUND_PV_ARRAY",
+      "name": "Champ photovoltaïque au sol",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 6000,
+        "depthMm": 3000,
+        "heightMm": 1500
+      },
+      "ports": [
+        {
+          "id": "dc",
+          "portTypeId": "PV_DC",
+          "position": {
+            "x": 0,
+            "y": 1500,
+            "z": 0
+          }
+        },
+        {
+          "id": "earth",
+          "portTypeId": "EARTH",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -750
+          }
+        }
+      ],
+      "properties": {
+        "peakPowerWp": 6000,
+        "moduleAreaM2": 29.3,
+        "moduleEfficiency": 0.205,
+        "nominalVoltageV": 246,
+        "openCircuitVoltageV": 297,
+        "shortCircuitCurrentA": 20.8,
+        "material": "Acier galvanisé"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "PV",
+            "symbolId": "symbol-pv-module"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "backMm": 800,
+          "reason": "Circulation derrière les modules pour l’entretien"
+        }
+      ]
+    },
+    {
+      "id": "generic-sewer-chamber-400",
+      "familyId": "SEWER_CHAMBER",
+      "name": "Regard d’assainissement 400 × 400",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 400,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "SOILWATER_INLET",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "SOILWATER",
+          "position": {
+            "x": 200,
+            "y": 0,
+            "z": -50
+          }
+        }
+      ],
+      "properties": {
+        "buriedDepthMm": 800
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 600,
+          "reason": "Ouverture du tampon et curage de la canalisation"
+        }
+      ]
+    },
+    {
+      "id": "generic-septic-tank-3000l",
+      "familyId": "SITE_SEPTIC_TANK",
+      "name": "Fosse toutes eaux de parcelle 3 000 L",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 2000,
+        "depthMm": 1300,
+        "heightMm": 1600
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "SOILWATER_INLET",
+          "position": {
+            "x": -1000,
+            "y": 0,
+            "z": 500
+          }
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 1000,
+            "y": 0,
+            "z": 450
+          }
+        }
+      ],
+      "properties": {
+        "capacityL": 3000,
+        "buriedDepthMm": 1200
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "SERVICE",
+          "frontMm": 3000,
+          "reason": "Approche du camion de vidange"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 800,
+          "reason": "Ouverture des tampons de visite"
+        }
+      ]
+    },
+    {
+      "id": "generic-micro-treatment-plant-5eh",
+      "familyId": "SITE_MICRO_TREATMENT_PLANT",
+      "name": "Micro-station d’épuration 5 EH",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 1800,
+        "depthMm": 1500,
+        "heightMm": 2000
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "SOILWATER_INLET",
+          "position": {
+            "x": -900,
+            "y": 0,
+            "z": 600
+          }
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 900,
+            "y": 0,
+            "z": 500
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 1000
+          }
+        }
+      ],
+      "properties": {
+        "capacityL": 3000,
+        "buriedDepthMm": 1800
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "SERVICE",
+          "frontMm": 3000,
+          "reason": "Approche du camion de vidange"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 1000,
+          "reason": "Ouverture des tampons et entretien du surpresseur"
+        }
+      ]
+    },
+    {
+      "id": "generic-perimeter-drain-100",
+      "familyId": "SITE_DRAIN",
+      "name": "Drain périphérique Ø 100",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 100,
+        "depthMm": 100,
+        "heightMm": 1000
+      },
+      "ports": [
+        {
+          "id": "outlet",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 50,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "buriedDepthMm": 800
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      }
+    },
+    {
+      "id": "generic-rainwater-chamber-400",
+      "familyId": "SITE_RAINWATER_CHAMBER",
+      "name": "Regard pluvial 400 × 400",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 400,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 200,
+            "y": 0,
+            "z": -50
+          }
+        }
+      ],
+      "properties": {
+        "buriedDepthMm": 600
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 600,
+          "reason": "Ouverture du tampon et curage"
+        }
+      ]
+    },
+    {
+      "id": "generic-buried-rainwater-tank-5000l",
+      "familyId": "SITE_RAINWATER_TANK",
+      "name": "Cuve de récupération enterrée 5 000 L",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 2200,
+        "depthMm": 1600,
+        "heightMm": 1800
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "RAINWATER_IN",
+          "position": {
+            "x": -1100,
+            "y": 0,
+            "z": 700
+          }
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "RAINWATER_OUT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 900
+          }
+        },
+        {
+          "id": "overflow",
+          "portTypeId": "RAINWATER_OVERFLOW",
+          "position": {
+            "x": 1100,
+            "y": 0,
+            "z": 650
+          }
+        }
+      ],
+      "properties": {
+        "capacityL": 5000,
+        "buriedDepthMm": 1000
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "OTHER",
+            "symbolId": "symbol-rainwater-tank"
+          }
+        ],
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 1000,
+          "reason": "Ouverture du tampon et descente dans la cuve"
+        }
+      ]
+    },
+    {
+      "id": "generic-outdoor-water-meter",
+      "familyId": "SITE_WATER_METER",
+      "name": "Compteur d’eau en regard",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 110,
+        "heightMm": 110
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -125,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 125,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 25000
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 400,
+          "reason": "Relève et remplacement du compteur"
+        }
+      ]
+    },
+    {
+      "id": "generic-water-chamber-400",
+      "familyId": "WATER_CHAMBER",
+      "name": "Regard d’eau 400 × 400",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 400,
+        "heightMm": 500
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 200,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "buriedDepthMm": 600
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 600,
+          "reason": "Ouverture du tampon et manœuvre de la vanne"
+        }
+      ]
+    }
+  ]
+}

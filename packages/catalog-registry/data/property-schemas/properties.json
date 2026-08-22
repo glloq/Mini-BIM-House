@@ -1,237 +1,19 @@
 {
   "properties": [
     {
-      "id": "widthMm",
-      "label": "Largeur",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "depthMm",
-      "label": "Profondeur",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "heightMm",
-      "label": "Hauteur",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "cost",
-      "label": "Coût",
-      "type": "number",
-      "unit": "€",
-      "quantity": "COST"
-    },
-    {
-      "id": "serviceLife",
-      "label": "Durée de vie",
-      "type": "integer",
-      "unit": "an",
-      "quantity": "TIME"
-    },
-    {
-      "id": "embodiedCarbon",
-      "label": "Carbone incorporé",
-      "type": "number",
-      "unit": "kgCO2e",
-      "quantity": "CARBON"
-    },
-    {
-      "id": "cycleLife",
-      "label": "Nombre de cycles",
-      "type": "integer",
+      "id": "acousticAbsorption",
+      "label": "Absorption acoustique",
+      "type": "spectrum",
       "unit": "-",
-      "quantity": "RATIO"
+      "quantity": "RATIO",
+      "hint": "Un coefficient par bande d'octave ; une seule valeur serait une moyenne intraçable."
     },
     {
-      "id": "usableCapacityKWh",
-      "label": "Capacité utile",
+      "id": "acousticRating",
+      "label": "Affaiblissement acoustique",
       "type": "number",
-      "unit": "kWh",
-      "quantity": "ENERGY"
-    },
-    {
-      "id": "minimumSoc",
-      "label": "État de charge minimal",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "maximumSoc",
-      "label": "État de charge maximal",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "initialSoc",
-      "label": "État de charge initial",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "maxChargePowerKW",
-      "label": "Puissance de charge maximale",
-      "type": "number",
-      "unit": "kW",
-      "quantity": "POWER"
-    },
-    {
-      "id": "maxDischargePowerKW",
-      "label": "Puissance de décharge maximale",
-      "type": "number",
-      "unit": "kW",
-      "quantity": "POWER"
-    },
-    {
-      "id": "chargeEfficiency",
-      "label": "Rendement de charge",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "dischargeEfficiency",
-      "label": "Rendement de décharge",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "conductor",
-      "label": "Conducteur",
-      "type": "enum"
-    },
-    {
-      "id": "conductorSectionMm2",
-      "label": "Section",
-      "type": "number",
-      "unit": "mm²",
-      "quantity": "AREA"
-    },
-    {
-      "id": "coreCount",
-      "label": "Nombre de conducteurs",
-      "type": "integer",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "insulation",
-      "label": "Isolation",
-      "type": "string"
-    },
-    {
-      "id": "ratedVoltageV",
-      "label": "Tension assignée",
-      "type": "number",
-      "unit": "V",
-      "quantity": "VOLTAGE"
-    },
-    {
-      "id": "currentCapacityA",
-      "label": "Courant admissible",
-      "type": "number",
-      "unit": "A",
-      "quantity": "CURRENT"
-    },
-    {
-      "id": "resistivityOhmKm",
-      "label": "Résistance linéique",
-      "type": "number",
-      "unit": "Ω/km",
-      "quantity": "LINEAR_RESISTANCE"
-    },
-    {
-      "id": "outerDiameterMm",
-      "label": "Diamètre extérieur",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "costPerM",
-      "label": "Coût au mètre",
-      "type": "number",
-      "unit": "€/m",
-      "quantity": "LINEAR_COST"
-    },
-    {
-      "id": "nominalOutputW",
-      "label": "Puissance nominale",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "efficiency",
-      "label": "Rendement",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "fuel",
-      "label": "Combustible",
-      "type": "string"
-    },
-    {
-      "id": "flueDiameterMm",
-      "label": "Diamètre de buse",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "combustionAirFlowM3h",
-      "label": "Débit d’air comburant",
-      "type": "number",
-      "unit": "m³/h",
-      "quantity": "VOLUME_FLOW"
-    },
-    {
-      "id": "particulateEmission",
-      "label": "Émissions de particules",
-      "type": "number",
-      "unit": "mg/m³",
-      "quantity": "CONCENTRATION"
-    },
-    {
-      "id": "material",
-      "label": "Matériau",
-      "type": "string"
-    },
-    {
-      "id": "innerDiameterMm",
-      "label": "Diamètre intérieur",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "fillRatio",
-      "label": "Taux de remplissage admissible",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "protocol",
-      "label": "Protocole",
-      "type": "string"
-    },
-    {
-      "id": "powerOverEthernet",
-      "label": "Alimentation par Ethernet",
-      "type": "boolean"
+      "unit": "dB",
+      "quantity": "SOUND_LEVEL"
     },
     {
       "id": "activePowerW",
@@ -241,205 +23,28 @@
       "quantity": "POWER"
     },
     {
-      "id": "standbyLossW",
-      "label": "Pertes statiques",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "exchangerAreaM2",
-      "label": "Surface d’échange",
-      "type": "number",
-      "unit": "m²",
-      "quantity": "AREA"
-    },
-    {
-      "id": "tankVolumeL",
-      "label": "Volume du ballon",
-      "type": "number",
-      "unit": "L",
-      "quantity": "VOLUME"
-    },
-    {
-      "id": "usefulHeatingPowerW",
-      "label": "Puissance de chauffe utile",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "storageTemperatureC",
-      "label": "Température de stockage",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
-      "id": "width",
-      "label": "Largeur",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "height",
-      "label": "Hauteur",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "leafCount",
-      "label": "Nombre de vantaux",
-      "type": "integer",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "openingDirection",
-      "label": "Sens d’ouverture",
-      "type": "enum"
-    },
-    {
-      "id": "openingAngle",
-      "label": "Angle d’ouverture",
-      "type": "number",
-      "unit": "°",
-      "quantity": "ANGLE"
-    },
-    {
-      "id": "frame",
-      "label": "Dormant",
-      "type": "string"
-    },
-    {
-      "id": "threshold",
-      "label": "Seuil",
-      "type": "string"
-    },
-    {
-      "id": "uw",
-      "label": "Coefficient Uw",
-      "type": "number",
-      "unit": "W/(m²·K)",
-      "quantity": "THERMAL_TRANSMITTANCE"
-    },
-    {
       "id": "airPermeability",
       "label": "Perméabilité à l’air",
       "type": "string"
     },
     {
-      "id": "rw",
-      "label": "Affaiblissement acoustique",
-      "type": "number",
-      "unit": "dB",
-      "quantity": "SOUND_LEVEL"
-    },
-    {
-      "id": "fireRating",
-      "label": "Résistance au feu",
+      "id": "airRole",
+      "label": "Rôle aéraulique",
       "type": "string"
     },
     {
-      "id": "securityClass",
-      "label": "Classe de sécurité",
-      "type": "string"
-    },
-    {
-      "id": "shape",
-      "label": "Section",
-      "type": "enum"
-    },
-    {
-      "id": "diameterMm",
-      "label": "Diamètre",
+      "id": "airTightness",
+      "label": "Perméabilité à l’air",
       "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
+      "unit": "m³/(h·m²)",
+      "quantity": "SPECIFIC_FLOW"
     },
     {
-      "id": "roughnessMm",
-      "label": "Rugosité",
+      "id": "annualElectricity",
+      "label": "Consommation annuelle",
       "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "insulationThicknessMm",
-      "label": "Épaisseur d’isolant",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "resistanceOhm",
-      "label": "Résistance de terre",
-      "type": "number",
-      "unit": "Ω",
-      "quantity": "RESISTANCE"
-    },
-    {
-      "id": "ipRating",
-      "label": "Indice de protection",
-      "type": "string"
-    },
-    {
-      "id": "nominalVoltageV",
-      "label": "Tension nominale",
-      "type": "number",
-      "unit": "V",
-      "quantity": "VOLTAGE"
-    },
-    {
-      "id": "rowCount",
-      "label": "Nombre de rangées",
-      "type": "integer",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "moduleCapacity",
-      "label": "Nombre de modules",
-      "type": "integer",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "ratedCurrentA",
-      "label": "Courant assigné",
-      "type": "number",
-      "unit": "A",
-      "quantity": "CURRENT"
-    },
-    {
-      "id": "mountingHeightMm",
-      "label": "Hauteur de pose",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "poleCount",
-      "label": "Nombre de pôles",
-      "type": "integer",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "powerFactor",
-      "label": "Facteur de puissance",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "dutyCycle",
-      "label": "Facteur d’utilisation",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
+      "unit": "kWh",
+      "quantity": "ENERGY"
     },
     {
       "id": "annualEnergy",
@@ -454,28 +59,56 @@
       "type": "string"
     },
     {
-      "id": "structuralRole",
-      "label": "Rôle structurel",
-      "type": "string"
+      "id": "auxiliaryHeaterPower",
+      "label": "Appoint électrique",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
     },
     {
-      "id": "thermalBoundary",
-      "label": "Enveloppe thermique",
+      "id": "batteryBackupHours",
+      "label": "Autonomie",
+      "type": "number",
+      "unit": "h",
+      "quantity": "TIME"
+    },
+    {
+      "id": "beamAngle",
+      "label": "Angle d’ouverture",
+      "type": "number",
+      "unit": "°",
+      "quantity": "ANGLE"
+    },
+    {
+      "id": "breakingCapacityKA",
+      "label": "Pouvoir de coupure",
+      "type": "number",
+      "unit": "kA",
+      "quantity": "CURRENT"
+    },
+    {
+      "id": "buried",
+      "label": "Enterrée",
       "type": "boolean"
     },
     {
-      "id": "acousticRating",
-      "label": "Affaiblissement acoustique",
+      "id": "buriedDepthMm",
+      "label": "Profondeur d’enfouissement",
       "type": "number",
-      "unit": "dB",
-      "quantity": "SOUND_LEVEL"
+      "unit": "mm",
+      "quantity": "LENGTH"
     },
     {
-      "id": "costPerM2",
-      "label": "Coût au mètre carré",
+      "id": "bypassAvailable",
+      "label": "Bipasse",
+      "type": "boolean"
+    },
+    {
+      "id": "capacityL",
+      "label": "Capacité",
       "type": "number",
-      "unit": "€/m²",
-      "quantity": "AREA_COST"
+      "unit": "L",
+      "quantity": "VOLUME"
     },
     {
       "id": "carbon",
@@ -485,24 +118,229 @@
       "quantity": "AREA_CARBON"
     },
     {
-      "id": "finishTop",
-      "label": "Finition supérieure",
-      "type": "string"
+      "id": "catchmentArea",
+      "label": "Surface de collecte",
+      "type": "number",
+      "unit": "m²",
+      "quantity": "AREA"
     },
     {
-      "id": "finishBottom",
-      "label": "Finition inférieure",
-      "type": "string"
-    },
-    {
-      "id": "loadCategory",
-      "label": "Catégorie de charge",
-      "type": "string"
-    },
-    {
-      "id": "moistureClass",
-      "label": "Classe d’humidité",
+      "id": "cavityGas",
+      "label": "Gaz de remplissage",
       "type": "enum"
+    },
+    {
+      "id": "chargeEfficiency",
+      "label": "Rendement de charge",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "circuitCount",
+      "label": "Nombre de circuits",
+      "type": "integer",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "colorTemperatureK",
+      "label": "Température de couleur",
+      "type": "number",
+      "unit": "K",
+      "quantity": "TEMPERATURE_DIFFERENCE"
+    },
+    {
+      "id": "combustionAirFlowM3h",
+      "label": "Débit d’air comburant",
+      "type": "number",
+      "unit": "m³/h",
+      "quantity": "VOLUME_FLOW"
+    },
+    {
+      "id": "compressiveStrength",
+      "label": "Résistance en compression",
+      "type": "number",
+      "unit": "MPa",
+      "quantity": "PRESSURE"
+    },
+    {
+      "id": "conductor",
+      "label": "Conducteur",
+      "type": "enum"
+    },
+    {
+      "id": "conductorSectionMm2",
+      "label": "Section",
+      "type": "number",
+      "unit": "mm²",
+      "quantity": "AREA"
+    },
+    {
+      "id": "controlMode",
+      "label": "Commande",
+      "type": "enum"
+    },
+    {
+      "id": "cop",
+      "label": "COP",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO",
+      "hint": "Sortie d’une carte de performance ; le COP nominal est nominalCop."
+    },
+    {
+      "id": "coreCount",
+      "label": "Nombre de conducteurs",
+      "type": "integer",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "cost",
+      "label": "Coût",
+      "type": "number",
+      "unit": "€",
+      "quantity": "COST"
+    },
+    {
+      "id": "costPerM",
+      "label": "Coût au mètre",
+      "type": "number",
+      "unit": "€/m",
+      "quantity": "LINEAR_COST"
+    },
+    {
+      "id": "costPerM2",
+      "label": "Coût au mètre carré",
+      "type": "number",
+      "unit": "€/m²",
+      "quantity": "AREA_COST"
+    },
+    {
+      "id": "costPerM3",
+      "label": "Coût au mètre cube",
+      "type": "number",
+      "unit": "€/m³",
+      "quantity": "VOLUME_COST"
+    },
+    {
+      "id": "coverageM2",
+      "label": "Surface couverte",
+      "type": "number",
+      "unit": "m²",
+      "quantity": "AREA"
+    },
+    {
+      "id": "cri",
+      "label": "Indice de rendu des couleurs",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "currentCapacityA",
+      "label": "Courant admissible",
+      "type": "number",
+      "unit": "A",
+      "quantity": "CURRENT"
+    },
+    {
+      "id": "curve",
+      "label": "Courbe",
+      "type": "enum"
+    },
+    {
+      "id": "cycleLife",
+      "label": "Nombre de cycles",
+      "type": "integer",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "defrostStrategy",
+      "label": "Dégivrage",
+      "type": "string"
+    },
+    {
+      "id": "density",
+      "label": "Masse volumique",
+      "type": "number",
+      "unit": "kg/m³",
+      "quantity": "DENSITY"
+    },
+    {
+      "id": "depthMm",
+      "label": "Profondeur",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "designFlow",
+      "label": "Débit de dimensionnement",
+      "type": "number",
+      "unit": "m³/h",
+      "quantity": "VOLUME_FLOW"
+    },
+    {
+      "id": "designFlowLps",
+      "label": "Débit de calcul",
+      "type": "number",
+      "unit": "L/s",
+      "quantity": "VOLUME_FLOW"
+    },
+    {
+      "id": "designFlowM3h",
+      "label": "Débit de conception",
+      "type": "number",
+      "unit": "m³/h",
+      "quantity": "VOLUME_FLOW"
+    },
+    {
+      "id": "designThermalConductivity",
+      "label": "Conductivité utile",
+      "type": "number",
+      "unit": "W/(m·K)",
+      "quantity": "THERMAL_CONDUCTIVITY"
+    },
+    {
+      "id": "detectionAngleDeg",
+      "label": "Angle de détection",
+      "type": "number",
+      "unit": "°",
+      "quantity": "ANGLE"
+    },
+    {
+      "id": "detectionType",
+      "label": "Type de détection",
+      "type": "string"
+    },
+    {
+      "id": "diameterMm",
+      "label": "Diamètre",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "dimmable",
+      "label": "Gradable",
+      "type": "boolean"
+    },
+    {
+      "id": "dischargeEfficiency",
+      "label": "Rendement de décharge",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "dischargeUnits",
+      "label": "Unités de vidange",
+      "type": "number",
+      "unit": "UV",
+      "quantity": "UNIT_VALUE"
     },
     {
       "id": "distanceToCombustibleMm",
@@ -512,142 +350,20 @@
       "quantity": "LENGTH"
     },
     {
-      "id": "temperatureClass",
-      "label": "Classe de température",
-      "type": "string"
+      "id": "drainageType",
+      "label": "Évacuation",
+      "type": "enum"
     },
     {
-      "id": "sootFireResistant",
-      "label": "Résistant au feu de cheminée",
-      "type": "boolean"
-    },
-    {
-      "id": "usageDepthMm",
-      "label": "Dégagement d’usage",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "movable",
-      "label": "Déplaçable",
-      "type": "boolean"
-    },
-    {
-      "id": "nominalPowerW",
-      "label": "Puissance électrique",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "maximumHeadM",
-      "label": "Hauteur manométrique maximale",
-      "type": "number",
-      "unit": "m",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "maximumFlowM3h",
-      "label": "Débit maximal",
-      "type": "number",
-      "unit": "m³/h",
-      "quantity": "VOLUME_FLOW"
-    },
-    {
-      "id": "kvs",
-      "label": "Coefficient de débit",
-      "type": "number",
-      "unit": "m³/h",
-      "quantity": "VOLUME_FLOW"
-    },
-    {
-      "id": "supplyVoltageV",
-      "label": "Tension d’alimentation",
-      "type": "number",
-      "unit": "V",
-      "quantity": "VOLTAGE"
-    },
-    {
-      "id": "exponent",
-      "label": "Exposant caractéristique",
+      "id": "driverEfficiency",
+      "label": "Rendement du driver",
       "type": "number",
       "unit": "-",
       "quantity": "RATIO"
     },
     {
-      "id": "waterContentL",
-      "label": "Contenance en eau",
-      "type": "number",
-      "unit": "L",
-      "quantity": "VOLUME"
-    },
-    {
-      "id": "nominalFlowTemperatureC",
-      "label": "Température de départ nominale",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
-      "id": "nominalReturnTemperatureC",
-      "label": "Température de retour nominale",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
-      "id": "nominalRoomTemperatureC",
-      "label": "Température ambiante nominale",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
-      "id": "ratedHeatingPower",
-      "label": "Puissance calorifique nominale",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "minSupplyTemperature",
-      "label": "Température de départ minimale",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
-      "id": "maxSupplyTemperature",
-      "label": "Température de départ maximale",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
-      "id": "ratedCoolingPower",
-      "label": "Puissance frigorifique nominale",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "minHeatingPower",
-      "label": "Puissance calorifique minimale",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "maxHeatingPower",
-      "label": "Puissance calorifique maximale",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "scop",
-      "label": "SCOP",
+      "id": "dutyCycle",
+      "label": "Facteur d’utilisation",
       "type": "number",
       "unit": "-",
       "quantity": "RATIO"
@@ -660,126 +376,6 @@
       "quantity": "RATIO"
     },
     {
-      "id": "seer",
-      "label": "SEER",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "pressureDrop",
-      "label": "Perte de charge",
-      "type": "number",
-      "unit": "Pa",
-      "quantity": "PRESSURE"
-    },
-    {
-      "id": "refrigerant",
-      "label": "Fluide frigorigène",
-      "type": "string"
-    },
-    {
-      "id": "refrigerantCharge",
-      "label": "Charge de fluide",
-      "type": "number",
-      "unit": "kg",
-      "quantity": "MASS"
-    },
-    {
-      "id": "gwp",
-      "label": "Pouvoir de réchauffement global",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "auxiliaryHeaterPower",
-      "label": "Appoint électrique",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "defrostStrategy",
-      "label": "Dégivrage",
-      "type": "string"
-    },
-    {
-      "id": "soundPowerIndoor",
-      "label": "Puissance acoustique intérieure",
-      "type": "number",
-      "unit": "dB(A)",
-      "quantity": "SOUND_LEVEL"
-    },
-    {
-      "id": "soundPowerOutdoor",
-      "label": "Puissance acoustique extérieure",
-      "type": "number",
-      "unit": "dB(A)",
-      "quantity": "SOUND_LEVEL"
-    },
-    {
-      "id": "maximumElectricalPower",
-      "label": "Puissance électrique maximale",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "maximumCurrent",
-      "label": "Courant maximal",
-      "type": "number",
-      "unit": "A",
-      "quantity": "CURRENT"
-    },
-    {
-      "id": "designFlow",
-      "label": "Débit de dimensionnement",
-      "type": "number",
-      "unit": "m³/h",
-      "quantity": "VOLUME_FLOW"
-    },
-    {
-      "id": "annualElectricity",
-      "label": "Consommation annuelle",
-      "type": "number",
-      "unit": "kWh",
-      "quantity": "ENERGY"
-    },
-    {
-      "id": "operatingPoint",
-      "label": "Point de fonctionnement",
-      "type": "string"
-    },
-    {
-      "id": "nominalHeatingCapacityW",
-      "label": "Puissance calorifique nominale",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "nominalCop",
-      "label": "COP nominal",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "minimumOutdoorTemperatureC",
-      "label": "Température extérieure minimale",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
-      "id": "maximumFlowTemperatureC",
-      "label": "Température de départ maximale",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
       "id": "efficacy",
       "label": "Efficacité lumineuse",
       "type": "number",
@@ -787,69 +383,11 @@
       "quantity": "LUMINOUS_EFFICACY"
     },
     {
-      "id": "cri",
-      "label": "Indice de rendu des couleurs",
+      "id": "efficiency",
+      "label": "Rendement",
       "type": "number",
       "unit": "-",
       "quantity": "RATIO"
-    },
-    {
-      "id": "beamAngle",
-      "label": "Angle d’ouverture",
-      "type": "number",
-      "unit": "°",
-      "quantity": "ANGLE"
-    },
-    {
-      "id": "photometricDistribution",
-      "label": "Distribution photométrique",
-      "type": "string"
-    },
-    {
-      "id": "ies",
-      "label": "Fichier IES",
-      "type": "string"
-    },
-    {
-      "id": "ldt",
-      "label": "Fichier LDT",
-      "type": "string"
-    },
-    {
-      "id": "ip",
-      "label": "Indice de protection",
-      "type": "string"
-    },
-    {
-      "id": "ik",
-      "label": "Résistance aux chocs",
-      "type": "string"
-    },
-    {
-      "id": "dimmable",
-      "label": "Gradable",
-      "type": "boolean"
-    },
-    {
-      "id": "driverEfficiency",
-      "label": "Rendement du driver",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "lifetimeHours",
-      "label": "Durée de vie",
-      "type": "integer",
-      "unit": "h",
-      "quantity": "TIME"
-    },
-    {
-      "id": "luminousFluxLm",
-      "label": "Flux lumineux",
-      "type": "number",
-      "unit": "lm",
-      "quantity": "LUMINOUS_FLUX"
     },
     {
       "id": "electricalPowerW",
@@ -859,94 +397,11 @@
       "quantity": "POWER"
     },
     {
-      "id": "colorTemperatureK",
-      "label": "Température de couleur",
+      "id": "embodiedCarbon",
+      "label": "Carbone incorporé",
       "type": "number",
-      "unit": "K",
-      "quantity": "TEMPERATURE_DIFFERENCE"
-    },
-    {
-      "id": "thermalConductivity",
-      "label": "Conductivité thermique",
-      "type": "number",
-      "unit": "W/(m·K)",
-      "quantity": "THERMAL_CONDUCTIVITY"
-    },
-    {
-      "id": "designThermalConductivity",
-      "label": "Conductivité utile",
-      "type": "number",
-      "unit": "W/(m·K)",
-      "quantity": "THERMAL_CONDUCTIVITY"
-    },
-    {
-      "id": "density",
-      "label": "Masse volumique",
-      "type": "number",
-      "unit": "kg/m³",
-      "quantity": "DENSITY"
-    },
-    {
-      "id": "specificHeat",
-      "label": "Chaleur massique",
-      "type": "number",
-      "unit": "J/(kg·K)",
-      "quantity": "SPECIFIC_HEAT"
-    },
-    {
-      "id": "vaporResistanceFactor",
-      "label": "Facteur de résistance à la vapeur",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "emissivity",
-      "label": "Émissivité",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "waterAbsorption",
-      "label": "Absorption d’eau",
-      "type": "number",
-      "unit": "kg/(m²·s^0,5)",
-      "quantity": "WATER_ABSORPTION"
-    },
-    {
-      "id": "acousticAbsorption",
-      "label": "Absorption acoustique",
-      "type": "spectrum",
-      "unit": "-",
-      "quantity": "RATIO",
-      "hint": "Un coefficient par bande d'octave ; une seule valeur serait une moyenne intraçable."
-    },
-    {
-      "id": "reactionToFire",
-      "label": "Réaction au feu",
-      "type": "string"
-    },
-    {
-      "id": "compressiveStrength",
-      "label": "Résistance en compression",
-      "type": "number",
-      "unit": "MPa",
-      "quantity": "PRESSURE"
-    },
-    {
-      "id": "tensileStrength",
-      "label": "Résistance en traction",
-      "type": "number",
-      "unit": "MPa",
-      "quantity": "PRESSURE"
-    },
-    {
-      "id": "serviceTemperature",
-      "label": "Température de service",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
+      "unit": "kgCO2e",
+      "quantity": "CARBON"
     },
     {
       "id": "embodiedCarbonPerKg",
@@ -956,23 +411,23 @@
       "quantity": "SPECIFIC_CARBON"
     },
     {
-      "id": "primaryEnergy",
-      "label": "Énergie primaire",
+      "id": "embodiedCarbonPerM",
+      "label": "Carbone incorporé au mètre",
       "type": "number",
-      "unit": "MJ/kg",
-      "quantity": "CALORIFIC_VALUE"
+      "unit": "kgCO2e/m",
+      "quantity": "LINEAR_CARBON"
     },
     {
-      "id": "recycledContent",
-      "label": "Contenu recyclé",
+      "id": "emissivity",
+      "label": "Émissivité",
       "type": "number",
       "unit": "-",
       "quantity": "RATIO"
     },
     {
-      "id": "recyclability",
-      "label": "Recyclabilité",
-      "type": "number",
+      "id": "entryCount",
+      "label": "Nombre d’entrées",
+      "type": "integer",
       "unit": "-",
       "quantity": "RATIO"
     },
@@ -982,79 +437,6 @@
       "type": "string"
     },
     {
-      "id": "costPerM3",
-      "label": "Coût au mètre cube",
-      "type": "number",
-      "unit": "€/m³",
-      "quantity": "VOLUME_COST"
-    },
-    {
-      "id": "nominalDiameter",
-      "label": "Diamètre nominal",
-      "type": "string"
-    },
-    {
-      "id": "wallThicknessMm",
-      "label": "Épaisseur de paroi",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "maxPressureBar",
-      "label": "Pression maximale",
-      "type": "number",
-      "unit": "bar",
-      "quantity": "PRESSURE"
-    },
-    {
-      "id": "maxTemperatureC",
-      "label": "Température maximale",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
-      "id": "linearMassKgM",
-      "label": "Masse linéique",
-      "type": "number",
-      "unit": "kg/m",
-      "quantity": "LINEAR_MASS"
-    },
-    {
-      "id": "embodiedCarbonPerM",
-      "label": "Carbone incorporé au mètre",
-      "type": "number",
-      "unit": "kgCO2e/m",
-      "quantity": "LINEAR_CARBON"
-    },
-    {
-      "id": "curve",
-      "label": "Courbe",
-      "type": "enum"
-    },
-    {
-      "id": "residualCurrentMa",
-      "label": "Sensibilité différentielle",
-      "type": "number",
-      "unit": "mA",
-      "quantity": "CURRENT"
-    },
-    {
-      "id": "breakingCapacityKA",
-      "label": "Pouvoir de coupure",
-      "type": "number",
-      "unit": "kA",
-      "quantity": "CURRENT"
-    },
-    {
-      "id": "moduleEfficiency",
-      "label": "Rendement",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
       "id": "europeanEfficiency",
       "label": "Rendement européen",
       "type": "number",
@@ -1062,309 +444,35 @@
       "quantity": "RATIO"
     },
     {
-      "id": "peakPowerWp",
-      "label": "Puissance crête",
-      "type": "number",
-      "unit": "Wc",
-      "quantity": "POWER"
-    },
-    {
-      "id": "moduleAreaM2",
-      "label": "Surface du module",
+      "id": "exchangerAreaM2",
+      "label": "Surface d’échange",
       "type": "number",
       "unit": "m²",
       "quantity": "AREA"
     },
     {
-      "id": "temperatureCoefficientPerK",
-      "label": "Coefficient de température",
+      "id": "exponent",
+      "label": "Exposant caractéristique",
       "type": "number",
-      "unit": "1/K",
-      "quantity": "THERMAL_EXPANSION"
-    },
-    {
-      "id": "nominalAcPowerW",
-      "label": "Puissance alternative nominale",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "maximumDcPowerW",
-      "label": "Puissance continue maximale",
-      "type": "number",
-      "unit": "W",
-      "quantity": "POWER"
-    },
-    {
-      "id": "mpptInputCount",
-      "label": "Nombre d’entrées MPPT",
-      "type": "integer",
       "unit": "-",
       "quantity": "RATIO"
     },
     {
-      "id": "nominalDiameterMm",
-      "label": "Diamètre nominal",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "catchmentArea",
-      "label": "Surface de collecte",
-      "type": "number",
-      "unit": "m²",
-      "quantity": "AREA"
-    },
-    {
-      "id": "nominalVolumeL",
-      "label": "Volume nominal",
-      "type": "number",
-      "unit": "L",
-      "quantity": "VOLUME"
-    },
-    {
-      "id": "initialVolumeL",
-      "label": "Volume initial",
-      "type": "number",
-      "unit": "L",
-      "quantity": "VOLUME"
-    },
-    {
-      "id": "buried",
-      "label": "Enterrée",
+      "id": "external",
+      "label": "Extérieur",
       "type": "boolean"
     },
     {
-      "id": "soundPower",
-      "label": "Puissance acoustique",
-      "type": "number",
-      "unit": "dB(A)",
-      "quantity": "SOUND_LEVEL"
-    },
-    {
-      "id": "slope",
-      "label": "Pente",
-      "type": "number",
-      "unit": "°",
-      "quantity": "ANGLE"
-    },
-    {
-      "id": "overhang",
-      "label": "Débord",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "waterproofing",
-      "label": "Étanchéité",
-      "type": "string"
-    },
-    {
-      "id": "roofCovering",
-      "label": "Couverture",
-      "type": "string"
-    },
-    {
-      "id": "ventilatedGap",
-      "label": "Lame d’air ventilée",
-      "type": "boolean"
-    },
-    {
-      "id": "snowRetention",
-      "label": "Arrêt de neige",
-      "type": "boolean"
-    },
-    {
-      "id": "drainageType",
-      "label": "Évacuation",
-      "type": "enum"
-    },
-    {
-      "id": "lengthMm",
-      "label": "Longueur",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "detectionType",
-      "label": "Type de détection",
-      "type": "string"
-    },
-    {
-      "id": "coverageM2",
-      "label": "Surface couverte",
-      "type": "number",
-      "unit": "m²",
-      "quantity": "AREA"
-    },
-    {
-      "id": "batteryBackupHours",
-      "label": "Autonomie",
-      "type": "number",
-      "unit": "h",
-      "quantity": "TIME"
-    },
-    {
-      "id": "designFlowLps",
-      "label": "Débit de calcul",
-      "type": "number",
-      "unit": "L/s",
-      "quantity": "VOLUME_FLOW"
-    },
-    {
-      "id": "dischargeUnits",
-      "label": "Unités de vidange",
-      "type": "number",
-      "unit": "UV",
-      "quantity": "UNIT_VALUE"
-    },
-    {
-      "id": "minimumPressurePa",
-      "label": "Pression minimale",
-      "type": "number",
-      "unit": "Pa",
-      "quantity": "PRESSURE"
-    },
-    {
-      "id": "trapDiameterMm",
-      "label": "Diamètre de siphon",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "hotWaterFraction",
-      "label": "Part d’eau chaude",
+      "id": "fillRatio",
+      "label": "Taux de remplissage admissible",
       "type": "number",
       "unit": "-",
       "quantity": "RATIO"
     },
     {
-      "id": "flushVolumeL",
-      "label": "Volume de chasse",
-      "type": "number",
-      "unit": "L",
-      "quantity": "VOLUME"
-    },
-    {
-      "id": "buriedDepthMm",
-      "label": "Profondeur d’enfouissement",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "capacityL",
-      "label": "Capacité",
-      "type": "number",
-      "unit": "L",
-      "quantity": "VOLUME"
-    },
-    {
-      "id": "solarReductionFactor",
-      "label": "Facteur de réduction solaire",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "visibleReductionFactor",
-      "label": "Facteur de réduction lumineuse",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "position",
-      "label": "Position",
-      "type": "enum"
-    },
-    {
-      "id": "openingRatio",
-      "label": "Taux d’ouverture",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "controlMode",
-      "label": "Commande",
-      "type": "enum"
-    },
-    {
-      "id": "windLimit",
-      "label": "Limite de vent",
-      "type": "number",
-      "unit": "m/s",
-      "quantity": "VELOCITY"
-    },
-    {
-      "id": "motorized",
-      "label": "Motorisé",
-      "type": "boolean"
-    },
-    {
-      "id": "section",
-      "label": "Section",
+      "id": "finishBottom",
+      "label": "Finition inférieure",
       "type": "string"
-    },
-    {
-      "id": "orientation",
-      "label": "Orientation",
-      "type": "number",
-      "unit": "°",
-      "quantity": "ANGLE"
-    },
-    {
-      "id": "pipeMaterial",
-      "label": "Matériau du tube",
-      "type": "string"
-    },
-    {
-      "id": "pipeDiameterMm",
-      "label": "Diamètre du tube",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "spacingMm",
-      "label": "Pas de pose",
-      "type": "number",
-      "unit": "mm",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "supplyTemperatureC",
-      "label": "Température de départ",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
-      "id": "returnTemperatureC",
-      "label": "Température de retour",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
-      "id": "maxLoopLengthM",
-      "label": "Longueur de boucle maximale",
-      "type": "number",
-      "unit": "m",
-      "quantity": "LENGTH"
-    },
-    {
-      "id": "floorResistance",
-      "label": "Résistance du plancher",
-      "type": "number",
-      "unit": "m²·K/W",
-      "quantity": "THERMAL_RESISTANCE"
     },
     {
       "id": "finishResistance",
@@ -1374,111 +482,48 @@
       "quantity": "THERMAL_RESISTANCE"
     },
     {
-      "id": "loopLength",
-      "label": "Longueur de boucle",
+      "id": "finishTop",
+      "label": "Finition supérieure",
+      "type": "string"
+    },
+    {
+      "id": "fireRating",
+      "label": "Résistance au feu",
+      "type": "string"
+    },
+    {
+      "id": "floorResistance",
+      "label": "Résistance du plancher",
       "type": "number",
-      "unit": "m",
+      "unit": "m²·K/W",
+      "quantity": "THERMAL_RESISTANCE"
+    },
+    {
+      "id": "flowM3h",
+      "label": "Débit",
+      "type": "number",
+      "unit": "m³/h",
+      "quantity": "VOLUME_FLOW",
+      "hint": "Axe d’une carte de performance : le débit au point considéré."
+    },
+    {
+      "id": "flueDiameterMm",
+      "label": "Diamètre de buse",
+      "type": "number",
+      "unit": "mm",
       "quantity": "LENGTH"
     },
     {
-      "id": "heatFlux",
-      "label": "Flux surfacique",
+      "id": "flushVolumeL",
+      "label": "Volume de chasse",
       "type": "number",
-      "unit": "W/m²",
-      "quantity": "IRRADIANCE"
+      "unit": "L",
+      "quantity": "VOLUME"
     },
     {
-      "id": "surfaceTemperature",
-      "label": "Température de surface",
-      "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE"
-    },
-    {
-      "id": "heatRecoveryEfficiency",
-      "label": "Rendement d’échange",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO"
-    },
-    {
-      "id": "pressureDropPa",
-      "label": "Perte de charge",
-      "type": "number",
-      "unit": "Pa",
-      "quantity": "PRESSURE"
-    },
-    {
-      "id": "designFlowM3h",
-      "label": "Débit de conception",
-      "type": "number",
-      "unit": "m³/h",
-      "quantity": "VOLUME_FLOW"
-    },
-    {
-      "id": "maximumStaticPressurePa",
-      "label": "Pression statique maximale",
-      "type": "number",
-      "unit": "Pa",
-      "quantity": "PRESSURE"
-    },
-    {
-      "id": "systemType",
-      "label": "Type de système",
+      "id": "frame",
+      "label": "Dormant",
       "type": "string"
-    },
-    {
-      "id": "bypassAvailable",
-      "label": "Bipasse",
-      "type": "boolean"
-    },
-    {
-      "id": "targetFlowM3h",
-      "label": "Débit visé",
-      "type": "number",
-      "unit": "m³/h",
-      "quantity": "VOLUME_FLOW"
-    },
-    {
-      "id": "airRole",
-      "label": "Rôle aéraulique",
-      "type": "string"
-    },
-    {
-      "id": "external",
-      "label": "Extérieur",
-      "type": "boolean"
-    },
-    {
-      "id": "airTightness",
-      "label": "Perméabilité à l’air",
-      "type": "number",
-      "unit": "m³/(h·m²)",
-      "quantity": "SPECIFIC_FLOW"
-    },
-    {
-      "id": "waterResistance",
-      "label": "Résistance à l’eau",
-      "type": "string"
-    },
-    {
-      "id": "moistureExposure",
-      "label": "Exposition à l’humidité",
-      "type": "enum"
-    },
-    {
-      "id": "minimumSlope",
-      "label": "Pente minimale",
-      "type": "number",
-      "unit": "m/m",
-      "quantity": "SLOPE"
-    },
-    {
-      "id": "pressureLossPa",
-      "label": "Perte de charge",
-      "type": "number",
-      "unit": "Pa",
-      "quantity": "PRESSURE"
     },
     {
       "id": "frameDepth",
@@ -1495,15 +540,599 @@
       "quantity": "LENGTH"
     },
     {
-      "id": "sillHeight",
-      "label": "Allège",
+      "id": "fuel",
+      "label": "Combustible",
+      "type": "string"
+    },
+    {
+      "id": "gValue",
+      "label": "Facteur solaire",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "glazedArea",
+      "label": "Surface vitrée",
+      "type": "number",
+      "unit": "m²",
+      "quantity": "AREA"
+    },
+    {
+      "id": "glazing",
+      "label": "Vitrage",
+      "type": "enum"
+    },
+    {
+      "id": "gwp",
+      "label": "Pouvoir de réchauffement global",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "headM",
+      "label": "Hauteur manométrique",
+      "type": "number",
+      "unit": "m",
+      "quantity": "LENGTH",
+      "hint": "Sortie d’une carte de performance ; la hauteur maximale est maximumHeadM."
+    },
+    {
+      "id": "heatFlux",
+      "label": "Flux surfacique",
+      "type": "number",
+      "unit": "W/m²",
+      "quantity": "IRRADIANCE"
+    },
+    {
+      "id": "heatRecoveryEfficiency",
+      "label": "Rendement d’échange",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "height",
+      "label": "Hauteur",
       "type": "number",
       "unit": "mm",
       "quantity": "LENGTH"
     },
     {
-      "id": "wallReveal",
-      "label": "Tableau",
+      "id": "heightMm",
+      "label": "Hauteur",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "hotWaterFraction",
+      "label": "Part d’eau chaude",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "ies",
+      "label": "Fichier IES",
+      "type": "string"
+    },
+    {
+      "id": "ik",
+      "label": "Résistance aux chocs",
+      "type": "string"
+    },
+    {
+      "id": "initialSoc",
+      "label": "État de charge initial",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "initialVolumeL",
+      "label": "Volume initial",
+      "type": "number",
+      "unit": "L",
+      "quantity": "VOLUME"
+    },
+    {
+      "id": "innerDiameterMm",
+      "label": "Diamètre intérieur",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "insulation",
+      "label": "Isolation",
+      "type": "string"
+    },
+    {
+      "id": "insulationThicknessMm",
+      "label": "Épaisseur d’isolant",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "ipRating",
+      "label": "Indice de protection",
+      "type": "string"
+    },
+    {
+      "id": "kvs",
+      "label": "Coefficient de débit",
+      "type": "number",
+      "unit": "m³/h",
+      "quantity": "VOLUME_FLOW"
+    },
+    {
+      "id": "ldt",
+      "label": "Fichier LDT",
+      "type": "string"
+    },
+    {
+      "id": "leafCount",
+      "label": "Nombre de vantaux",
+      "type": "integer",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "lengthMm",
+      "label": "Longueur",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "lifetimeHours",
+      "label": "Durée de vie",
+      "type": "integer",
+      "unit": "h",
+      "quantity": "TIME"
+    },
+    {
+      "id": "linearMassKgM",
+      "label": "Masse linéique",
+      "type": "number",
+      "unit": "kg/m",
+      "quantity": "LINEAR_MASS"
+    },
+    {
+      "id": "loadCapacityKg",
+      "label": "Charge ponctuelle admissible",
+      "type": "number",
+      "unit": "kg",
+      "quantity": "MASS"
+    },
+    {
+      "id": "loadCapacityKgM",
+      "label": "Charge admissible",
+      "type": "number",
+      "unit": "kg/m",
+      "quantity": "LINEAR_MASS"
+    },
+    {
+      "id": "loadCategory",
+      "label": "Catégorie de charge",
+      "type": "string"
+    },
+    {
+      "id": "loopLength",
+      "label": "Longueur de boucle",
+      "type": "number",
+      "unit": "m",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "luminousFluxLm",
+      "label": "Flux lumineux",
+      "type": "number",
+      "unit": "lm",
+      "quantity": "LUMINOUS_FLUX"
+    },
+    {
+      "id": "material",
+      "label": "Matériau",
+      "type": "string"
+    },
+    {
+      "id": "maxChargePowerKW",
+      "label": "Puissance de charge maximale",
+      "type": "number",
+      "unit": "kW",
+      "quantity": "POWER"
+    },
+    {
+      "id": "maxDischargePowerKW",
+      "label": "Puissance de décharge maximale",
+      "type": "number",
+      "unit": "kW",
+      "quantity": "POWER"
+    },
+    {
+      "id": "maxHeatingPower",
+      "label": "Puissance calorifique maximale",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "maxLoopLengthM",
+      "label": "Longueur de boucle maximale",
+      "type": "number",
+      "unit": "m",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "maxPressureBar",
+      "label": "Pression maximale",
+      "type": "number",
+      "unit": "bar",
+      "quantity": "PRESSURE"
+    },
+    {
+      "id": "maxSupplyTemperature",
+      "label": "Température de départ maximale",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "maxTemperatureC",
+      "label": "Température maximale",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "maximumContinuousVoltageV",
+      "label": "Tension de régime permanent Uc",
+      "type": "number",
+      "unit": "V",
+      "quantity": "VOLTAGE"
+    },
+    {
+      "id": "maximumCurrent",
+      "label": "Courant maximal",
+      "type": "number",
+      "unit": "A",
+      "quantity": "CURRENT"
+    },
+    {
+      "id": "maximumDcPowerW",
+      "label": "Puissance continue maximale",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "maximumElectricalPower",
+      "label": "Puissance électrique maximale",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "maximumFlowM3h",
+      "label": "Débit maximal",
+      "type": "number",
+      "unit": "m³/h",
+      "quantity": "VOLUME_FLOW"
+    },
+    {
+      "id": "maximumFlowTemperatureC",
+      "label": "Température de départ maximale",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "maximumHeadM",
+      "label": "Hauteur manométrique maximale",
+      "type": "number",
+      "unit": "m",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "maximumSetPointC",
+      "label": "Consigne maximale",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "maximumSoc",
+      "label": "État de charge maximal",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "maximumStaticPressurePa",
+      "label": "Pression statique maximale",
+      "type": "number",
+      "unit": "Pa",
+      "quantity": "PRESSURE"
+    },
+    {
+      "id": "maximumSurgeCurrentKA",
+      "label": "Courant de décharge maximal Imax",
+      "type": "number",
+      "unit": "kA",
+      "quantity": "CURRENT"
+    },
+    {
+      "id": "minHeatingPower",
+      "label": "Puissance calorifique minimale",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "minSupplyTemperature",
+      "label": "Température de départ minimale",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "minimumOutdoorTemperatureC",
+      "label": "Température extérieure minimale",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "minimumPressurePa",
+      "label": "Pression minimale",
+      "type": "number",
+      "unit": "Pa",
+      "quantity": "PRESSURE"
+    },
+    {
+      "id": "minimumSetPointC",
+      "label": "Consigne minimale",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "minimumSlope",
+      "label": "Pente minimale",
+      "type": "number",
+      "unit": "m/m",
+      "quantity": "SLOPE"
+    },
+    {
+      "id": "minimumSoc",
+      "label": "État de charge minimal",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "moduleAreaM2",
+      "label": "Surface du module",
+      "type": "number",
+      "unit": "m²",
+      "quantity": "AREA"
+    },
+    {
+      "id": "moduleCapacity",
+      "label": "Nombre de modules",
+      "type": "integer",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "moduleEfficiency",
+      "label": "Rendement",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "moistureClass",
+      "label": "Classe d’humidité",
+      "type": "enum"
+    },
+    {
+      "id": "moistureExposure",
+      "label": "Exposition à l’humidité",
+      "type": "enum"
+    },
+    {
+      "id": "motorized",
+      "label": "Motorisé",
+      "type": "boolean"
+    },
+    {
+      "id": "mountingHeightM",
+      "label": "Hauteur de pose de référence",
+      "type": "number",
+      "unit": "m",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "mountingHeightMm",
+      "label": "Hauteur de pose",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "movable",
+      "label": "Déplaçable",
+      "type": "boolean"
+    },
+    {
+      "id": "mpptInputCount",
+      "label": "Nombre d’entrées MPPT",
+      "type": "integer",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "mullions",
+      "label": "Meneaux",
+      "type": "integer",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "nominalAcPowerW",
+      "label": "Puissance alternative nominale",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "nominalCapacityAh",
+      "label": "Capacité nominale",
+      "type": "number",
+      "unit": "Ah",
+      "quantity": "CHARGE"
+    },
+    {
+      "id": "nominalCop",
+      "label": "COP nominal",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "nominalDiameter",
+      "label": "Diamètre nominal",
+      "type": "string"
+    },
+    {
+      "id": "nominalDiameterMm",
+      "label": "Diamètre nominal",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "nominalFlowTemperatureC",
+      "label": "Température de départ nominale",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "nominalHeatingCapacityW",
+      "label": "Puissance calorifique nominale",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "nominalOutputW",
+      "label": "Puissance nominale",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "nominalPowerW",
+      "label": "Puissance électrique",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "nominalReturnTemperatureC",
+      "label": "Température de retour nominale",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "nominalRoomTemperatureC",
+      "label": "Température ambiante nominale",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "nominalVoltageV",
+      "label": "Tension nominale",
+      "type": "number",
+      "unit": "V",
+      "quantity": "VOLTAGE"
+    },
+    {
+      "id": "nominalVolumeL",
+      "label": "Volume nominal",
+      "type": "number",
+      "unit": "L",
+      "quantity": "VOLUME"
+    },
+    {
+      "id": "openCircuitVoltageV",
+      "label": "Tension à vide",
+      "type": "number",
+      "unit": "V",
+      "quantity": "VOLTAGE"
+    },
+    {
+      "id": "openingAngle",
+      "label": "Angle d’ouverture",
+      "type": "number",
+      "unit": "°",
+      "quantity": "ANGLE"
+    },
+    {
+      "id": "openingDirection",
+      "label": "Sens d’ouverture",
+      "type": "enum"
+    },
+    {
+      "id": "openingRatio",
+      "label": "Taux d’ouverture",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "openingSide",
+      "label": "Sens d’ouverture",
+      "type": "enum"
+    },
+    {
+      "id": "operatingPoint",
+      "label": "Point de fonctionnement",
+      "type": "string"
+    },
+    {
+      "id": "orientation",
+      "label": "Orientation",
+      "type": "number",
+      "unit": "°",
+      "quantity": "ANGLE"
+    },
+    {
+      "id": "outdoorTemperatureC",
+      "label": "Température extérieure",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE",
+      "hint": "Axe d’une carte de performance : la condition, pas une caractéristique de la machine."
+    },
+    {
+      "id": "outerDiameterMm",
+      "label": "Diamètre extérieur",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "overhang",
+      "label": "Débord",
       "type": "number",
       "unit": "mm",
       "quantity": "LENGTH"
@@ -1516,37 +1145,99 @@
       "quantity": "RATIO"
     },
     {
-      "id": "openingSide",
-      "label": "Sens d’ouverture",
+      "id": "particulateEmission",
+      "label": "Émissions de particules",
+      "type": "number",
+      "unit": "mg/m³",
+      "quantity": "CONCENTRATION"
+    },
+    {
+      "id": "peakPowerWp",
+      "label": "Puissance crête",
+      "type": "number",
+      "unit": "Wc",
+      "quantity": "POWER"
+    },
+    {
+      "id": "photometricDistribution",
+      "label": "Distribution photométrique",
+      "type": "string"
+    },
+    {
+      "id": "pipeDiameterMm",
+      "label": "Diamètre du tube",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "pipeMaterial",
+      "label": "Matériau du tube",
+      "type": "string"
+    },
+    {
+      "id": "poleCount",
+      "label": "Nombre de pôles",
+      "type": "integer",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "position",
+      "label": "Position",
       "type": "enum"
     },
     {
-      "id": "mullions",
-      "label": "Meneaux",
-      "type": "integer",
+      "id": "powerFactor",
+      "label": "Facteur de puissance",
+      "type": "number",
       "unit": "-",
       "quantity": "RATIO"
     },
     {
-      "id": "transoms",
-      "label": "Traverses",
-      "type": "integer",
-      "unit": "-",
-      "quantity": "RATIO"
+      "id": "powerOverEthernet",
+      "label": "Alimentation par Ethernet",
+      "type": "boolean"
     },
     {
-      "id": "ug",
-      "label": "Coefficient Ug",
+      "id": "pressureDrop",
+      "label": "Perte de charge",
       "type": "number",
-      "unit": "W/(m²·K)",
-      "quantity": "THERMAL_TRANSMITTANCE"
+      "unit": "Pa",
+      "quantity": "PRESSURE"
     },
     {
-      "id": "uf",
-      "label": "Coefficient Uf",
+      "id": "pressureDropPa",
+      "label": "Perte de charge",
       "type": "number",
-      "unit": "W/(m²·K)",
-      "quantity": "THERMAL_TRANSMITTANCE"
+      "unit": "Pa",
+      "quantity": "PRESSURE"
+    },
+    {
+      "id": "pressureLossPa",
+      "label": "Perte de charge",
+      "type": "number",
+      "unit": "Pa",
+      "quantity": "PRESSURE"
+    },
+    {
+      "id": "primaryEnergy",
+      "label": "Énergie primaire",
+      "type": "number",
+      "unit": "MJ/kg",
+      "quantity": "CALORIFIC_VALUE"
+    },
+    {
+      "id": "protectionLevelUpV",
+      "label": "Niveau de protection Up",
+      "type": "number",
+      "unit": "V",
+      "quantity": "VOLTAGE"
+    },
+    {
+      "id": "protocol",
+      "label": "Protocole",
+      "type": "string"
     },
     {
       "id": "psiSpacer",
@@ -1556,8 +1247,441 @@
       "quantity": "THERMAL_CONDUCTIVITY"
     },
     {
-      "id": "gValue",
-      "label": "Facteur solaire",
+      "id": "ratedCoolingPower",
+      "label": "Puissance frigorifique nominale",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "ratedCurrentA",
+      "label": "Courant assigné",
+      "type": "number",
+      "unit": "A",
+      "quantity": "CURRENT"
+    },
+    {
+      "id": "ratedHeatingPower",
+      "label": "Puissance calorifique nominale",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "ratedVoltageV",
+      "label": "Tension assignée",
+      "type": "number",
+      "unit": "V",
+      "quantity": "VOLTAGE"
+    },
+    {
+      "id": "reactionToFire",
+      "label": "Réaction au feu",
+      "type": "string"
+    },
+    {
+      "id": "recyclability",
+      "label": "Recyclabilité",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "recycledContent",
+      "label": "Contenu recyclé",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "refrigerant",
+      "label": "Fluide frigorigène",
+      "type": "string"
+    },
+    {
+      "id": "refrigerantCharge",
+      "label": "Charge de fluide",
+      "type": "number",
+      "unit": "kg",
+      "quantity": "MASS"
+    },
+    {
+      "id": "residualCurrentMa",
+      "label": "Sensibilité différentielle",
+      "type": "number",
+      "unit": "mA",
+      "quantity": "CURRENT"
+    },
+    {
+      "id": "resistanceOhm",
+      "label": "Résistance de terre",
+      "type": "number",
+      "unit": "Ω",
+      "quantity": "RESISTANCE"
+    },
+    {
+      "id": "resistivityOhmKm",
+      "label": "Résistance linéique",
+      "type": "number",
+      "unit": "Ω/km",
+      "quantity": "LINEAR_RESISTANCE"
+    },
+    {
+      "id": "returnTemperatureC",
+      "label": "Température de retour",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "roofCovering",
+      "label": "Couverture",
+      "type": "string"
+    },
+    {
+      "id": "roughnessMm",
+      "label": "Rugosité",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "rowCount",
+      "label": "Nombre de rangées",
+      "type": "integer",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "rw",
+      "label": "Affaiblissement acoustique",
+      "type": "number",
+      "unit": "dB",
+      "quantity": "SOUND_LEVEL"
+    },
+    {
+      "id": "scop",
+      "label": "SCOP",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "section",
+      "label": "Section",
+      "type": "string"
+    },
+    {
+      "id": "securityClass",
+      "label": "Classe de sécurité",
+      "type": "string"
+    },
+    {
+      "id": "seer",
+      "label": "SEER",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "serviceLife",
+      "label": "Durée de vie",
+      "type": "integer",
+      "unit": "an",
+      "quantity": "TIME"
+    },
+    {
+      "id": "serviceTemperature",
+      "label": "Température de service",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "setPointC",
+      "label": "Consigne",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "shape",
+      "label": "Section",
+      "type": "enum"
+    },
+    {
+      "id": "shortCircuitCurrentA",
+      "label": "Courant de court-circuit",
+      "type": "number",
+      "unit": "A",
+      "quantity": "CURRENT"
+    },
+    {
+      "id": "sillHeight",
+      "label": "Allège",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "slope",
+      "label": "Pente",
+      "type": "number",
+      "unit": "°",
+      "quantity": "ANGLE"
+    },
+    {
+      "id": "snowRetention",
+      "label": "Arrêt de neige",
+      "type": "boolean"
+    },
+    {
+      "id": "solarGain",
+      "label": "Apports solaires",
+      "type": "number",
+      "unit": "kWh",
+      "quantity": "ENERGY"
+    },
+    {
+      "id": "solarReductionFactor",
+      "label": "Facteur de réduction solaire",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "sootFireResistant",
+      "label": "Résistant au feu de cheminée",
+      "type": "boolean"
+    },
+    {
+      "id": "soundPower",
+      "label": "Puissance acoustique",
+      "type": "number",
+      "unit": "dB(A)",
+      "quantity": "SOUND_LEVEL"
+    },
+    {
+      "id": "soundPowerIndoor",
+      "label": "Puissance acoustique intérieure",
+      "type": "number",
+      "unit": "dB(A)",
+      "quantity": "SOUND_LEVEL"
+    },
+    {
+      "id": "soundPowerLevel",
+      "label": "Niveau de puissance acoustique",
+      "type": "number",
+      "unit": "dB(A)",
+      "quantity": "SOUND_LEVEL"
+    },
+    {
+      "id": "soundPowerOutdoor",
+      "label": "Puissance acoustique extérieure",
+      "type": "number",
+      "unit": "dB(A)",
+      "quantity": "SOUND_LEVEL"
+    },
+    {
+      "id": "spacingMm",
+      "label": "Pas de pose",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "specificHeat",
+      "label": "Chaleur massique",
+      "type": "number",
+      "unit": "J/(kg·K)",
+      "quantity": "SPECIFIC_HEAT"
+    },
+    {
+      "id": "standbyLossW",
+      "label": "Pertes statiques",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "staticPressurePa",
+      "label": "Pression statique",
+      "type": "number",
+      "unit": "Pa",
+      "quantity": "PRESSURE",
+      "hint": "Sortie d’une carte de performance ; la pression maximale est maximumStaticPressurePa."
+    },
+    {
+      "id": "storageTemperatureC",
+      "label": "Température de stockage",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "structuralRole",
+      "label": "Rôle structurel",
+      "type": "string"
+    },
+    {
+      "id": "supplyTemperatureC",
+      "label": "Température de départ",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "supplyVoltageV",
+      "label": "Tension d’alimentation",
+      "type": "number",
+      "unit": "V",
+      "quantity": "VOLTAGE"
+    },
+    {
+      "id": "surfaceTemperature",
+      "label": "Température de surface",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
+      "id": "surgeCurrentKA",
+      "label": "Courant de décharge",
+      "type": "number",
+      "unit": "kA",
+      "quantity": "CURRENT"
+    },
+    {
+      "id": "surgeProtectorType",
+      "label": "Type de parafoudre",
+      "type": "string"
+    },
+    {
+      "id": "systemType",
+      "label": "Type de système",
+      "type": "string"
+    },
+    {
+      "id": "tankVolumeL",
+      "label": "Volume du ballon",
+      "type": "number",
+      "unit": "L",
+      "quantity": "VOLUME"
+    },
+    {
+      "id": "targetFlowM3h",
+      "label": "Débit visé",
+      "type": "number",
+      "unit": "m³/h",
+      "quantity": "VOLUME_FLOW"
+    },
+    {
+      "id": "temperatureClass",
+      "label": "Classe de température",
+      "type": "string"
+    },
+    {
+      "id": "temperatureCoefficientPerK",
+      "label": "Coefficient de température",
+      "type": "number",
+      "unit": "1/K",
+      "quantity": "THERMAL_EXPANSION"
+    },
+    {
+      "id": "tensileStrength",
+      "label": "Résistance en traction",
+      "type": "number",
+      "unit": "MPa",
+      "quantity": "PRESSURE"
+    },
+    {
+      "id": "thermalBoundary",
+      "label": "Enveloppe thermique",
+      "type": "boolean"
+    },
+    {
+      "id": "thermalConductivity",
+      "label": "Conductivité thermique",
+      "type": "number",
+      "unit": "W/(m·K)",
+      "quantity": "THERMAL_CONDUCTIVITY"
+    },
+    {
+      "id": "threshold",
+      "label": "Seuil",
+      "type": "string"
+    },
+    {
+      "id": "transoms",
+      "label": "Traverses",
+      "type": "integer",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "trapDiameterMm",
+      "label": "Diamètre de siphon",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "uf",
+      "label": "Coefficient Uf",
+      "type": "number",
+      "unit": "W/(m²·K)",
+      "quantity": "THERMAL_TRANSMITTANCE"
+    },
+    {
+      "id": "ug",
+      "label": "Coefficient Ug",
+      "type": "number",
+      "unit": "W/(m²·K)",
+      "quantity": "THERMAL_TRANSMITTANCE"
+    },
+    {
+      "id": "usableCapacityKWh",
+      "label": "Capacité utile",
+      "type": "number",
+      "unit": "kWh",
+      "quantity": "ENERGY"
+    },
+    {
+      "id": "usageDepthMm",
+      "label": "Dégagement d’usage",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "usefulHeatingPowerW",
+      "label": "Puissance de chauffe utile",
+      "type": "number",
+      "unit": "W",
+      "quantity": "POWER"
+    },
+    {
+      "id": "uw",
+      "label": "Coefficient Uw",
+      "type": "number",
+      "unit": "W/(m²·K)",
+      "quantity": "THERMAL_TRANSMITTANCE"
+    },
+    {
+      "id": "vaporResistanceFactor",
+      "label": "Facteur de résistance à la vapeur",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO"
+    },
+    {
+      "id": "ventilatedGap",
+      "label": "Lame d’air ventilée",
+      "type": "boolean"
+    },
+    {
+      "id": "visibleReductionFactor",
+      "label": "Facteur de réduction lumineuse",
       "type": "number",
       "unit": "-",
       "quantity": "RATIO"
@@ -1570,78 +1694,80 @@
       "quantity": "RATIO"
     },
     {
+      "id": "wallReveal",
+      "label": "Tableau",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "wallThicknessMm",
+      "label": "Épaisseur de paroi",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
+      "id": "waterAbsorption",
+      "label": "Absorption d’eau",
+      "type": "number",
+      "unit": "kg/(m²·s^0,5)",
+      "quantity": "WATER_ABSORPTION"
+    },
+    {
+      "id": "waterContentL",
+      "label": "Contenance en eau",
+      "type": "number",
+      "unit": "L",
+      "quantity": "VOLUME"
+    },
+    {
+      "id": "waterResistance",
+      "label": "Résistance à l’eau",
+      "type": "string"
+    },
+    {
+      "id": "waterSealHeightMm",
+      "label": "Hauteur de garde d’eau",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
+    },
+    {
       "id": "waterTightness",
       "label": "Étanchéité à l’eau",
       "type": "string"
     },
     {
-      "id": "windResistance",
-      "label": "Résistance au vent",
+      "id": "waterproofing",
+      "label": "Étanchéité",
       "type": "string"
     },
     {
-      "id": "glazing",
-      "label": "Vitrage",
-      "type": "enum"
-    },
-    {
-      "id": "cavityGas",
-      "label": "Gaz de remplissage",
-      "type": "enum"
-    },
-    {
-      "id": "glazedArea",
-      "label": "Surface vitrée",
+      "id": "width",
+      "label": "Largeur",
       "type": "number",
-      "unit": "m²",
-      "quantity": "AREA"
+      "unit": "mm",
+      "quantity": "LENGTH"
     },
     {
-      "id": "solarGain",
-      "label": "Apports solaires",
+      "id": "widthMm",
+      "label": "Largeur",
       "type": "number",
-      "unit": "kWh",
-      "quantity": "ENERGY"
+      "unit": "mm",
+      "quantity": "LENGTH"
     },
     {
-      "id": "outdoorTemperatureC",
-      "label": "Température extérieure",
+      "id": "windLimit",
+      "label": "Limite de vent",
       "type": "number",
-      "unit": "°C",
-      "quantity": "TEMPERATURE",
-      "hint": "Axe d’une carte de performance : la condition, pas une caractéristique de la machine."
+      "unit": "m/s",
+      "quantity": "VELOCITY"
     },
     {
-      "id": "flowM3h",
-      "label": "Débit",
-      "type": "number",
-      "unit": "m³/h",
-      "quantity": "VOLUME_FLOW",
-      "hint": "Axe d’une carte de performance : le débit au point considéré."
-    },
-    {
-      "id": "cop",
-      "label": "COP",
-      "type": "number",
-      "unit": "-",
-      "quantity": "RATIO",
-      "hint": "Sortie d’une carte de performance ; le COP nominal est nominalCop."
-    },
-    {
-      "id": "headM",
-      "label": "Hauteur manométrique",
-      "type": "number",
-      "unit": "m",
-      "quantity": "LENGTH",
-      "hint": "Sortie d’une carte de performance ; la hauteur maximale est maximumHeadM."
-    },
-    {
-      "id": "staticPressurePa",
-      "label": "Pression statique",
-      "type": "number",
-      "unit": "Pa",
-      "quantity": "PRESSURE",
-      "hint": "Sortie d’une carte de performance ; la pression maximale est maximumStaticPressurePa."
+      "id": "windResistance",
+      "label": "Résistance au vent",
+      "type": "string"
     }
   ]
 }

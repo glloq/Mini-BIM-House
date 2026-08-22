@@ -97,8 +97,15 @@ export const BUDGETS = {
    * ninety-three familles of water and drainage. Most of that weight is in the
    * catalogue browser's chunk, which is where it belongs; what it buys is that
    * a family offered to somebody has something behind it.
+   *
+   * Raised by twenty-four kio for waves three to six: two hundred and forty
+   * fiches more — heating, ventilation, electricity, lighting, solar, storage,
+   * flues, data, safety, the site — and seventeen network products. Every kio
+   * of it landed on demand: the initial payload moved by less than one, which
+   * is the whole point of the split and the reason this budget is counted in
+   * two numbers rather than one.
    */
-  totalGzipBytes: 392 * 1024,
+  totalGzipBytes: 416 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

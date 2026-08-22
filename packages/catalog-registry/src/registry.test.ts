@@ -455,6 +455,33 @@ describe('the generic catalogue, checked against its own families', () => {
     ).toContain('is measured from the registries and must not be written down');
   });
 
+  it('refuses a family that announces the volume it occupies', () => {
+    // Three hundred and ninety-six of them did. `PHYSICAL` is never declared
+    // and always produced — `clearanceZones` adds it to every placed object
+    // from its dimensions — and the gate has always refused it on a fiche for
+    // that reason. So the families were announcing a zone nothing could fill.
+    const [entry] = FAMILY_REGISTRY;
+    expect(
+      validateFamily(
+        { ...entry!, clearances: ['PHYSICAL'] },
+        {
+          symbols: KNOWN.symbols,
+          propertySchemas: new Set(
+            PROPERTY_SCHEMA_REGISTRY.map(({ family: id }) => id),
+          ),
+          calculators: KNOWN.calculators,
+        },
+      ).map(({ message }) => message),
+    ).toContain(
+      'the volume a thing occupies is produced from its dimensions and is not declared',
+    );
+  });
+
+  it('leaves the occupied volume undeclared everywhere in the data', () => {
+    for (const entry of FAMILY_REGISTRY)
+      expect(entry.clearances ?? [], entry.id).not.toContain('PHYSICAL');
+  });
+
   it('leaves no measured axis declared anywhere in the data', () => {
     for (const entry of FAMILY_REGISTRY)
       for (const axis of MEASURED_AXES)

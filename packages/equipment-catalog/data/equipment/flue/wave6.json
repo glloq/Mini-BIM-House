@@ -1,0 +1,1114 @@
+{
+  "definitions": [
+    {
+      "id": "generic-wood-stove-8kw",
+      "familyId": "WOOD_STOVE",
+      "name": "Poêle à bûches 8 kW",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 500,
+        "heightMm": 1000
+      },
+      "ports": [
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 500
+          }
+        },
+        {
+          "id": "air-inlet",
+          "portTypeId": "COMBUSTION_AIR",
+          "position": {
+            "x": 0,
+            "y": 250,
+            "z": -400
+          }
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 8000,
+        "efficiency": 0.78,
+        "fuel": "WOOD_LOG",
+        "flueDiameterMm": 150,
+        "combustionAirFlowM3h": 25
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "COMBUSTIBLE_CLEARANCE",
+          "backMm": 200,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Distance aux parois combustibles autour d’un foyer fermé"
+        },
+        {
+          "zone": "FIRE",
+          "frontMm": 500,
+          "reason": "Plaque de sol devant la porte, contre les projections de braises"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 800,
+          "reason": "Chargement du foyer et décendrage par l’avant"
+        }
+      ]
+    },
+    {
+      "id": "generic-pellet-stove-8kw",
+      "familyId": "PELLET_STOVE",
+      "name": "Poêle à granulés 8 kW",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 550,
+        "depthMm": 550,
+        "heightMm": 1100
+      },
+      "ports": [
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 275,
+            "z": 400
+          }
+        },
+        {
+          "id": "air-inlet",
+          "portTypeId": "COMBUSTION_AIR",
+          "position": {
+            "x": 0,
+            "y": 275,
+            "z": -450
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 275,
+            "z": -500
+          }
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 8000,
+        "efficiency": 0.9,
+        "fuel": "WOOD_PELLET",
+        "flueDiameterMm": 80,
+        "combustionAirFlowM3h": 20
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "COMBUSTIBLE_CLEARANCE",
+          "backMm": 100,
+          "leftMm": 200,
+          "rightMm": 200,
+          "reason": "Distance aux parois combustibles autour d’un appareil étanche"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "aboveMm": 300,
+          "reason": "Remplissage de la trémie et nettoyage du creuset"
+        }
+      ]
+    },
+    {
+      "id": "generic-pellet-insert-10kw",
+      "familyId": "PELLET_INSERT",
+      "name": "Insert à granulés 10 kW",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 800,
+        "depthMm": 550,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 300
+          }
+        },
+        {
+          "id": "air-inlet",
+          "portTypeId": "COMBUSTION_AIR",
+          "position": {
+            "x": 0,
+            "y": 275,
+            "z": -200
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 275,
+            "z": -250
+          }
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 10000,
+        "efficiency": 0.9,
+        "fuel": "WOOD_PELLET",
+        "flueDiameterMm": 80,
+        "combustionAirFlowM3h": 25
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "COMBUSTIBLE_CLEARANCE",
+          "backMm": 100,
+          "leftMm": 100,
+          "rightMm": 100,
+          "aboveMm": 200,
+          "reason": "Habillage : distance de l’âtre aux matériaux combustibles"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 800,
+          "reason": "Extraction de l’appareil sur glissières pour l’entretien"
+        }
+      ]
+    },
+    {
+      "id": "generic-wood-insert-10kw",
+      "familyId": "WOOD_INSERT",
+      "name": "Insert bois 10 kW",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 800,
+        "depthMm": 500,
+        "heightMm": 650
+      },
+      "ports": [
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 325
+          }
+        },
+        {
+          "id": "air-inlet",
+          "portTypeId": "COMBUSTION_AIR",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -325
+          }
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 10000,
+        "efficiency": 0.75,
+        "fuel": "WOOD_LOG",
+        "flueDiameterMm": 180,
+        "combustionAirFlowM3h": 35
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "COMBUSTIBLE_CLEARANCE",
+          "backMm": 100,
+          "leftMm": 100,
+          "rightMm": 100,
+          "aboveMm": 200,
+          "reason": "Habillage : distance de l’âtre aux matériaux combustibles"
+        },
+        {
+          "zone": "FIRE",
+          "frontMm": 500,
+          "reason": "Plaque de sol devant la porte, contre les projections de braises"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 800,
+          "reason": "Chargement et décendrage par l’avant"
+        }
+      ]
+    },
+    {
+      "id": "generic-open-fireplace",
+      "familyId": "FIREPLACE",
+      "name": "Cheminée à foyer ouvert",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 1200,
+        "depthMm": 600,
+        "heightMm": 1200
+      },
+      "ports": [
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 600
+          }
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 6000,
+        "efficiency": 0.15,
+        "fuel": "WOOD_LOG",
+        "flueDiameterMm": 250,
+        "combustionAirFlowM3h": 300
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "COMBUSTIBLE_CLEARANCE",
+          "backMm": 200,
+          "leftMm": 300,
+          "rightMm": 300,
+          "reason": "Distance aux matériaux combustibles autour d’un foyer ouvert"
+        },
+        {
+          "zone": "FIRE",
+          "frontMm": 600,
+          "reason": "Aire de protection du sol devant l’âtre"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 1000,
+          "reason": "Chargement et décendrage par l’avant"
+        }
+      ]
+    },
+    {
+      "id": "generic-boiler-stove-14kw",
+      "familyId": "BOILER_STOVE",
+      "name": "Poêle bouilleur à granulés 14 kW",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 650,
+        "depthMm": 600,
+        "heightMm": 1200
+      },
+      "ports": [
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 300,
+            "z": 450
+          }
+        },
+        {
+          "id": "air-inlet",
+          "portTypeId": "COMBUSTION_AIR",
+          "position": {
+            "x": 0,
+            "y": 300,
+            "z": -500
+          }
+        },
+        {
+          "id": "heating-flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 0,
+            "y": 300,
+            "z": 200
+          }
+        },
+        {
+          "id": "heating-return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 0,
+            "y": 300,
+            "z": 100
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 300,
+            "z": -550
+          }
+        }
+      ],
+      "properties": {
+        "nominalOutputW": 14000,
+        "efficiency": 0.88,
+        "fuel": "WOOD_PELLET",
+        "flueDiameterMm": 80,
+        "combustionAirFlowM3h": 35
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "COMBUSTIBLE_CLEARANCE",
+          "backMm": 100,
+          "leftMm": 200,
+          "rightMm": 200,
+          "reason": "Distance aux parois combustibles autour d’un appareil étanche"
+        },
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 800,
+          "rightMm": 400,
+          "reason": "Remplissage de la trémie, nettoyage du creuset et accès aux raccords hydrauliques"
+        }
+      ]
+    },
+    {
+      "id": "generic-single-wall-flue-150",
+      "familyId": "SINGLE_WALL_FLUE",
+      "name": "Conduit simple paroi Ø 150",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 150,
+        "depthMm": 150,
+        "heightMm": 1000
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -500
+          }
+        },
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 500
+          }
+        }
+      ],
+      "properties": {
+        "lengthMm": 1000,
+        "innerDiameterMm": 150,
+        "distanceToCombustibleMm": 450
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      },
+      "clearances": [
+        {
+          "zone": "COMBUSTIBLE_CLEARANCE",
+          "frontMm": 450,
+          "backMm": 450,
+          "leftMm": 450,
+          "rightMm": 450,
+          "reason": "Trois fois le diamètre autour d’un conduit simple paroi"
+        }
+      ]
+    },
+    {
+      "id": "generic-insulated-flue-150",
+      "familyId": "INSULATED_FLUE",
+      "name": "Conduit isolé double paroi Ø 150",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 250,
+        "heightMm": 1000
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -500
+          }
+        },
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 500
+          }
+        }
+      ],
+      "properties": {
+        "lengthMm": 1000,
+        "innerDiameterMm": 150,
+        "distanceToCombustibleMm": 80
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      },
+      "clearances": [
+        {
+          "zone": "COMBUSTIBLE_CLEARANCE",
+          "frontMm": 80,
+          "backMm": 80,
+          "leftMm": 80,
+          "rightMm": 80,
+          "reason": "Distance de sécurité déclarée d’un conduit isolé"
+        }
+      ]
+    },
+    {
+      "id": "generic-flexible-liner-150",
+      "familyId": "FLEXIBLE_LINER",
+      "name": "Tubage flexible Ø 150",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 160,
+        "depthMm": 160,
+        "heightMm": 1000
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -500
+          }
+        },
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 500
+          }
+        }
+      ],
+      "properties": {
+        "lengthMm": 1000,
+        "innerDiameterMm": 150
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      }
+    },
+    {
+      "id": "generic-stove-collar-150",
+      "familyId": "STOVE_COLLAR",
+      "name": "Buse de raccordement Ø 150",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 150,
+        "depthMm": 150,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -125
+          }
+        },
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 125
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 150
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      }
+    },
+    {
+      "id": "generic-flue-cleanout-150",
+      "familyId": "FLUE_CLEANOUT",
+      "name": "Trappe de ramonage Ø 150",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 200,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -200
+          }
+        },
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 200
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 150
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      }
+    },
+    {
+      "id": "generic-flue-adapter-150",
+      "familyId": "FLUE_ADAPTER",
+      "name": "Adaptateur simple vers double paroi Ø 150",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 250,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -100
+          }
+        },
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 100
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 150
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      }
+    },
+    {
+      "id": "generic-floor-passage-150",
+      "familyId": "FLOOR_PASSAGE",
+      "name": "Traversée de plancher Ø 150",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 400,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -150
+          }
+        },
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 150
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 150
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      },
+      "clearances": [
+        {
+          "zone": "FIRE",
+          "frontMm": 100,
+          "backMm": 100,
+          "leftMm": 100,
+          "rightMm": 100,
+          "reason": "Fourreau ventilé et écart au feu dans l’épaisseur du plancher"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-passage-150",
+      "familyId": "ROOF_PASSAGE",
+      "name": "Traversée de toiture Ø 150",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 500,
+        "depthMm": 500,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -200
+          }
+        },
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 200
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 150
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      },
+      "clearances": [
+        {
+          "zone": "FIRE",
+          "frontMm": 100,
+          "backMm": 100,
+          "leftMm": 100,
+          "rightMm": 100,
+          "reason": "Écart au feu à la traversée de la charpente"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-passage-150",
+      "familyId": "WALL_PASSAGE",
+      "name": "Traversée de mur Ø 150",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 400,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 200,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 150
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "FIRE",
+          "frontMm": 100,
+          "backMm": 100,
+          "leftMm": 100,
+          "rightMm": 100,
+          "reason": "Fourreau ventilé et écart au feu dans l’épaisseur du mur"
+        }
+      ]
+    },
+    {
+      "id": "generic-flue-elbow-90-150",
+      "familyId": "FLUE_ELBOW",
+      "name": "Coude 90° Ø 150",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 150,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -150
+          }
+        },
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 150,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 150
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-flue-tee-150",
+      "familyId": "FLUE_TEE",
+      "name": "Té de raccordement Ø 150",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 150,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": -150,
+            "y": 0,
+            "z": -100
+          }
+        },
+        {
+          "id": "flue-outlet",
+          "portTypeId": "FLUE_GAS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 200
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 150
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-chimney-terminal-150",
+      "familyId": "CHIMNEY_TERMINAL",
+      "name": "Sortie de toit Ø 150",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 400,
+        "heightMm": 900
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -450
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 150
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "FIRE",
+          "aboveMm": 400,
+          "reason": "Débouché au-dessus du faîtage et des matériaux combustibles voisins"
+        }
+      ]
+    },
+    {
+      "id": "generic-chimney-cap-150",
+      "familyId": "CHIMNEY_CAP",
+      "name": "Chapeau pare-pluie Ø 150",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 300,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -125
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 150
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      }
+    },
+    {
+      "id": "generic-combustion-air-duct-80",
+      "familyId": "COMBUSTION_AIR_DUCT",
+      "name": "Conduit d’air de combustion Ø 80",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 80,
+        "heightMm": 1000
+      },
+      "ports": [
+        {
+          "id": "air-inlet",
+          "portTypeId": "COMBUSTION_AIR",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -500
+          }
+        },
+        {
+          "id": "air-outlet",
+          "portTypeId": "COMBUSTION_AIR_SOURCE",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 500
+          }
+        }
+      ],
+      "properties": {
+        "lengthMm": 1000,
+        "innerDiameterMm": 80
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE"
+      }
+    },
+    {
+      "id": "generic-combustion-air-intake-80",
+      "familyId": "COMBUSTION_AIR_INTAKE",
+      "name": "Prise d’air de combustion en façade",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 200,
+        "depthMm": 100,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "air-outlet",
+          "portTypeId": "COMBUSTION_AIR_SOURCE",
+          "position": {
+            "x": 0,
+            "y": 50,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 80
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-external-air-terminal-80-125",
+      "familyId": "EXTERNAL_AIR_TERMINAL",
+      "name": "Terminal ventouse concentrique 80/125",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 300,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "air-outlet",
+          "portTypeId": "COMBUSTION_AIR_SOURCE",
+          "position": {
+            "x": 0,
+            "y": 150,
+            "z": -50
+          }
+        },
+        {
+          "id": "flue-inlet",
+          "portTypeId": "FLUE_GAS_INLET",
+          "position": {
+            "x": 0,
+            "y": 150,
+            "z": 50
+          }
+        }
+      ],
+      "properties": {
+        "innerDiameterMm": 80
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "FIRE",
+          "leftMm": 400,
+          "rightMm": 400,
+          "aboveMm": 400,
+          "reason": "Écart du débouché aux matériaux combustibles de la façade"
+        }
+      ]
+    }
+  ]
+}

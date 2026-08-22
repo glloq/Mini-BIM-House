@@ -1,0 +1,1373 @@
+{
+  "definitions": [
+    {
+      "id": "generic-self-regulating-air-inlet",
+      "familyId": "AIR_INLET",
+      "name": "Entrée d’air autoréglable",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 350,
+        "depthMm": 30,
+        "heightMm": 40
+      },
+      "ports": [],
+      "properties": {
+        "targetFlowM3h": 30,
+        "pressureDropPa": 20,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "VENTILATION",
+            "symbolId": "symbol-air-terminal"
+          }
+        ],
+        "planFootprint": "CIRCLE",
+        "layer": "ventilation.terminals"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 150,
+          "reason": "Dépose du module en traverse haute pour nettoyage"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "frontMm": 300,
+          "reason": "Veine d’air neuf en façade, sans obstacle devant le module"
+        }
+      ]
+    },
+    {
+      "id": "generic-outdoor-air-intake",
+      "familyId": "OUTDOOR_AIR_INTAKE",
+      "name": "Prise d’air neuf",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 300,
+        "heightMm": 150
+      },
+      "ports": [
+        {
+          "id": "outlet",
+          "portTypeId": "AIR_OUTSIDE_SOURCE",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -75
+          },
+          "nominalSize": 0.16
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 250,
+        "pressureDropPa": 25,
+        "airRole": "OUTSIDE"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "VENTILATION",
+            "symbolId": "symbol-air-terminal"
+          }
+        ],
+        "planFootprint": "CIRCLE",
+        "layer": "ventilation.terminals"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "reason": "Dépose de la grille et nettoyage du grillage anti-volatiles"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "frontMm": 1000,
+          "reason": "Veine d’air neuf, à l’écart de tout rejet d’air ou de fumées"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-exhaust-terminal",
+      "familyId": "EXHAUST_TERMINAL",
+      "name": "Rejet en toiture",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 300,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_EXHAUST_OUTLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -200
+          },
+          "nominalSize": 0.16
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 250,
+        "pressureDropPa": 30,
+        "airRole": "EXHAUST"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "VENTILATION",
+            "symbolId": "symbol-air-terminal"
+          }
+        ],
+        "planFootprint": "CIRCLE",
+        "layer": "ventilation.terminals"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "reason": "Dépose du chapeau et contrôle de l’étanchéité de la costière"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "aboveMm": 1000,
+          "reason": "Rejet vertical dégagé, à l’écart de toute prise d’air"
+        }
+      ]
+    },
+    {
+      "id": "generic-supply-terminal",
+      "familyId": "SUPPLY_TERMINAL",
+      "name": "Bouche de soufflage",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 125,
+        "depthMm": 125,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "duct",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -30
+          },
+          "nominalSize": 0.08
+        }
+      ],
+      "properties": {
+        "targetFlowM3h": 30,
+        "pressureDropPa": 40,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "VENTILATION",
+            "symbolId": "symbol-air-terminal"
+          }
+        ],
+        "planFootprint": "CIRCLE",
+        "layer": "ventilation.terminals"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 200,
+          "reason": "Dépose et nettoyage de la bouche"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "frontMm": 300,
+          "reason": "Veine de soufflage vers la pièce, sans meuble devant"
+        }
+      ]
+    },
+    {
+      "id": "generic-decentralized-hrv",
+      "familyId": "DECENTRALIZED_HRV",
+      "name": "VMC double flux décentralisée",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 500,
+        "depthMm": 500,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "outside",
+          "portTypeId": "AIR_OUTSIDE",
+          "position": {
+            "x": 0,
+            "y": 250,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "exhaust",
+          "portTypeId": "AIR_EXHAUST",
+          "position": {
+            "x": 100,
+            "y": 250,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -200,
+            "y": 250,
+            "z": -100
+          }
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 60,
+        "nominalPowerW": 8,
+        "heatRecoveryEfficiency": 0.82,
+        "maximumStaticPressurePa": 40,
+        "systemType": "BALANCED",
+        "bypassAvailable": true
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "VENTILATION",
+            "symbolId": "symbol-ventilation-unit"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.equipment"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "reason": "Dépose de la façade, des filtres et de l’accumulateur céramique"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "frontMm": 600,
+          "reason": "Prise d’air neuf en façade, à l’écart du rejet"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "frontMm": 600,
+          "reason": "Rejet d’air vicié en façade"
+        }
+      ]
+    },
+    {
+      "id": "generic-duct-fan",
+      "familyId": "FAN",
+      "name": "Ventilateur de conduit",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 250,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_EXTRACT",
+          "position": {
+            "x": -125,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "AIR_EXTRACT_OUTLET",
+          "position": {
+            "x": 125,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 125,
+            "z": 100
+          }
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 300,
+        "nominalPowerW": 60,
+        "maximumStaticPressurePa": 320,
+        "airRole": "EXTRACT"
+      },
+      "performanceCurves": [
+        {
+          "id": "static-pressure-vs-flow",
+          "inputAxes": [
+            {
+              "id": "flowM3h",
+              "unit": "m³/h"
+            }
+          ],
+          "output": "staticPressurePa",
+          "outputUnit": "Pa",
+          "interpolation": "LINEAR",
+          "points": [
+            {
+              "inputs": [0],
+              "output": 320
+            },
+            {
+              "inputs": [100],
+              "output": 300
+            },
+            {
+              "inputs": [200],
+              "output": 250
+            },
+            {
+              "inputs": [300],
+              "output": 180
+            },
+            {
+              "inputs": [400],
+              "output": 90
+            },
+            {
+              "inputs": [450],
+              "output": 0
+            }
+          ]
+        }
+      ],
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.equipment"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "aboveMm": 300,
+          "reason": "Dépose du moteur et de la turbine par le carter"
+        },
+        {
+          "zone": "AIR_INTAKE",
+          "backMm": 500,
+          "reason": "Longueur droite d’aspiration en amont du ventilateur"
+        },
+        {
+          "zone": "AIR_EXHAUST",
+          "frontMm": 500,
+          "reason": "Longueur droite de refoulement en aval du ventilateur"
+        }
+      ]
+    },
+    {
+      "id": "generic-hot-water-coil",
+      "familyId": "HEATING_COIL",
+      "name": "Batterie chaude à eau",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 300,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "air-inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.2
+        },
+        {
+          "id": "air-outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 200,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.2
+        },
+        {
+          "id": "flow",
+          "portTypeId": "HEATING_FLOW",
+          "position": {
+            "x": 0,
+            "y": 150,
+            "z": 100
+          },
+          "nominalSize": 0.015
+        },
+        {
+          "id": "return",
+          "portTypeId": "HEATING_RETURN",
+          "position": {
+            "x": 0,
+            "y": 150,
+            "z": -100
+          },
+          "nominalSize": 0.015
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 300,
+        "pressureDropPa": 40,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "reason": "Accès aux raccords hydrauliques et purge de la batterie"
+        }
+      ]
+    },
+    {
+      "id": "generic-dx-cooling-coil",
+      "familyId": "COOLING_COIL",
+      "name": "Batterie froide à détente directe",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 350,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "air-inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.2
+        },
+        {
+          "id": "air-outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 200,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.2
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -150
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "refrigerant-liquid",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": -200.0,
+            "y": 175.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "refrigerant-gas",
+          "portTypeId": "REFRIGERANT_GAS",
+          "position": {
+            "x": 200.0,
+            "y": 175.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 300,
+        "pressureDropPa": 60,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "belowMm": 300,
+          "reason": "Accès au bac à condensats et aux raccords frigorifiques"
+        }
+      ]
+    },
+    {
+      "id": "generic-chilled-water-cooling-coil",
+      "familyId": "COOLING_COIL",
+      "name": "Batterie froide à eau glacée",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 350,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "air-inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.2
+        },
+        {
+          "id": "air-outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 200,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.2
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -150
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "chilled-return",
+          "portTypeId": "CHILLED_RETURN",
+          "position": {
+            "x": -200.0,
+            "y": 175.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "chilled-flow",
+          "portTypeId": "CHILLED_FLOW",
+          "position": {
+            "x": 200.0,
+            "y": 175.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 300,
+        "pressureDropPa": 60,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "belowMm": 300,
+          "reason": "Accès au bac à condensats et aux raccords frigorifiques"
+        }
+      ]
+    },
+    {
+      "id": "generic-motorised-damper",
+      "familyId": "DAMPER",
+      "name": "Registre motorisé",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 200,
+        "depthMm": 120,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -100,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 100,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 60,
+            "z": 100
+          }
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": 60,
+            "z": 60
+          }
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 300,
+        "pressureDropPa": 15,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Accès au servomoteur et à l’indicateur de position"
+        }
+      ]
+    },
+    {
+      "id": "generic-balancing-damper",
+      "familyId": "BALANCING_DAMPER",
+      "name": "Registre d’équilibrage",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 160,
+        "depthMm": 100,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_EXTRACT",
+          "position": {
+            "x": -80.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "AIR_EXTRACT_OUTLET",
+          "position": {
+            "x": 80.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 150,
+        "pressureDropPa": 30,
+        "airRole": "EXTRACT"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Accès à la molette de réglage et à son repère"
+        }
+      ]
+    },
+    {
+      "id": "generic-backdraft-damper",
+      "familyId": "BACKDRAFT_DAMPER",
+      "name": "Clapet anti-retour de conduit",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 160,
+        "depthMm": 80,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_EXTRACT",
+          "position": {
+            "x": -80.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "AIR_EXTRACT_OUTLET",
+          "position": {
+            "x": 80.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 150,
+        "pressureDropPa": 20,
+        "airRole": "EXTRACT"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Contrôle du libre battement des volets"
+        }
+      ]
+    },
+    {
+      "id": "generic-fire-damper",
+      "familyId": "FIRE_DAMPER",
+      "name": "Clapet coupe-feu",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 300,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -125,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.2
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 125,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.2
+        },
+        {
+          "id": "control",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": 150,
+            "z": 80
+          }
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 300,
+        "pressureDropPa": 25,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 500,
+          "belowMm": 400,
+          "reason": "Trappe de visite pour le réarmement de la lame et l’essai annuel"
+        }
+      ]
+    },
+    {
+      "id": "generic-duct-silencer",
+      "familyId": "SILENCER",
+      "name": "Silencieux de conduit",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 900,
+        "depthMm": 250,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -450.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 450.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 250,
+        "pressureDropPa": 20,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Contrôle de l’état du matelas absorbant"
+        }
+      ]
+    },
+    {
+      "id": "generic-duct-filter",
+      "familyId": "VENTILATION_FILTER",
+      "name": "Filtre de conduit",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 250,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -150.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 150.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 250,
+        "pressureDropPa": 60,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "rightMm": 400,
+          "reason": "Extraction latérale et remplacement de la cellule filtrante"
+        }
+      ]
+    },
+    {
+      "id": "generic-duct-elbow-90",
+      "familyId": "VENTILATION_ELBOW",
+      "name": "Coude de conduit 90°",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 160,
+        "depthMm": 160,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -80.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 80.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 200,
+        "pressureDropPa": 10,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-duct-reducer",
+      "familyId": "VENTILATION_REDUCER",
+      "name": "Réduction de conduit",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 200,
+        "depthMm": 160,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -100.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 100.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 200,
+        "pressureDropPa": 6,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-duct-transition",
+      "familyId": "TRANSITION",
+      "name": "Transformation rectangulaire/circulaire",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 250,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -150.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 150.0,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 250,
+        "pressureDropPa": 8,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-duct-tee",
+      "familyId": "VENTILATION_TEE",
+      "name": "Té de conduit",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 200,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -150,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet-straight",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 150,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet-branch",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 0,
+            "y": 100,
+            "z": 0
+          },
+          "nominalSize": 0.125
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 250,
+        "pressureDropPa": 12,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-duct-y-branch",
+      "familyId": "Y_BRANCH",
+      "name": "Culotte de conduit",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 250,
+        "heightMm": 160
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -150,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet-1",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 150,
+            "y": -80,
+            "z": 0
+          },
+          "nominalSize": 0.125
+        },
+        {
+          "id": "outlet-2",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 150,
+            "y": 80,
+            "z": 0
+          },
+          "nominalSize": 0.125
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 250,
+        "pressureDropPa": 9,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "generic-supply-plenum",
+      "familyId": "PLENUM",
+      "name": "Plénum de distribution",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 300,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -300,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.16
+        },
+        {
+          "id": "outlet-1",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 300,
+            "y": -100,
+            "z": 0
+          },
+          "nominalSize": 0.08
+        },
+        {
+          "id": "outlet-2",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 300,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.08
+        },
+        {
+          "id": "outlet-3",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 300,
+            "y": 100,
+            "z": 0
+          },
+          "nominalSize": 0.08
+        },
+        {
+          "id": "outlet-4",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 0,
+            "y": 150,
+            "z": 0
+          },
+          "nominalSize": 0.08
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 250,
+        "pressureDropPa": 15,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "belowMm": 400,
+          "reason": "Trappe d’accès aux piquages et à l’isolation du plénum"
+        }
+      ]
+    },
+    {
+      "id": "generic-ventilation-condensate-trap",
+      "familyId": "VENTILATION_CONDENSATE_TRAP",
+      "name": "Siphon de condensats",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 80,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "inlet",
+          "portTypeId": "CONDENSATE_INLET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 100
+          },
+          "nominalSize": 0.02
+        },
+        {
+          "id": "outlet",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -100
+          },
+          "nominalSize": 0.032
+        }
+      ],
+      "properties": {
+        "waterSealHeightMm": 80
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.equipment"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 250,
+          "belowMm": 200,
+          "reason": "Dépose de la garde d’eau pour nettoyage et amorçage"
+        }
+      ]
+    }
+  ]
+}

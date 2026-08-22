@@ -1,0 +1,1011 @@
+{
+  "definitions": [
+    {
+      "id": "generic-room-temperature-sensor",
+      "familyId": "DATA_TEMPERATURE_SENSOR",
+      "name": "Sonde de température d’ambiance",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 85,
+        "depthMm": 25,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "link",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "minimumSetPointC": -10,
+        "maximumSetPointC": 50,
+        "ipRating": "IP20"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-room-humidity-sensor",
+      "familyId": "HUMIDITY_SENSOR",
+      "name": "Sonde d’humidité d’ambiance",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 85,
+        "depthMm": 25,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "link",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "ipRating": "IP20"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-water-leak-sensor",
+      "familyId": "LEAK_SENSOR",
+      "name": "Détecteur de fuite d’eau",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 60,
+        "depthMm": 20,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "link",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "ipRating": "IP67"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-window-contact",
+      "familyId": "WINDOW_SENSOR",
+      "name": "Contact d’ouvrant",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 70,
+        "depthMm": 20,
+        "heightMm": 20
+      },
+      "ports": [
+        {
+          "id": "link",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "ipRating": "IP20"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-motion-sensor",
+      "familyId": "MOTION_SENSOR",
+      "name": "Détecteur de mouvement",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 60,
+        "depthMm": 50,
+        "heightMm": 100
+      },
+      "ports": [
+        {
+          "id": "link",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "coverageM2": 40,
+        "detectionAngleDeg": 110,
+        "mountingHeightM": 2.2,
+        "ipRating": "IP20"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-data-presence-sensor",
+      "familyId": "DATA_PRESENCE_SENSOR",
+      "name": "Détecteur de présence de plafond",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 100,
+        "depthMm": 40,
+        "heightMm": 100
+      },
+      "ports": [
+        {
+          "id": "link",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "coverageM2": 50,
+        "detectionAngleDeg": 360,
+        "mountingHeightM": 2.5,
+        "ipRating": "IP20"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-co2-sensor",
+      "familyId": "CO2_SENSOR",
+      "name": "Sonde de CO₂ d’ambiance",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 85,
+        "depthMm": 30,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "bus",
+          "portTypeId": "BUS",
+          "position": {
+            "x": 0,
+            "y": 15,
+            "z": 0
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 15,
+            "z": -20
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 1.5
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-modular-actuator",
+      "familyId": "ACTUATOR",
+      "name": "Actionneur modulaire",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 90,
+        "depthMm": 60,
+        "heightMm": 45
+      },
+      "ports": [
+        {
+          "id": "command",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": -30,
+            "z": 0
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 22.5
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 1
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-roller-shutter-motor",
+      "familyId": "ROLLER_SHUTTER_ACTUATOR",
+      "name": "Motorisation tubulaire de volet roulant",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 500,
+        "depthMm": 45,
+        "heightMm": 45
+      },
+      "ports": [
+        {
+          "id": "command",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": -250,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": -250,
+            "y": 0,
+            "z": -10
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 120
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-command-relay",
+      "familyId": "DATA_RELAY",
+      "name": "Relais de commande",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 90,
+        "depthMm": 60,
+        "heightMm": 45
+      },
+      "ports": [
+        {
+          "id": "contact",
+          "portTypeId": "DRY_CONTACT",
+          "position": {
+            "x": 0,
+            "y": -30,
+            "z": 0
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 22.5
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 1
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-ip-camera",
+      "familyId": "CAMERA",
+      "name": "Caméra IP sur PoE",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 120,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "network",
+          "portTypeId": "ETHERNET",
+          "position": {
+            "x": 0,
+            "y": 60,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "powerOverEthernet": true,
+        "activePowerW": 6
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-coax-socket",
+      "familyId": "COAX_SOCKET",
+      "name": "Prise coaxiale TV",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 45,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "coax",
+          "portTypeId": "COAX",
+          "position": {
+            "x": 0,
+            "y": 22.5,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "protocol": "Coaxial 75 Ω",
+        "entryCount": 1
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-rj45-socket",
+      "familyId": "RJ45_SOCKET",
+      "name": "Prise RJ45 catégorie 6",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 45,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "network",
+          "portTypeId": "ETHERNET",
+          "position": {
+            "x": 0,
+            "y": 22.5,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "protocol": "Cat 6",
+        "entryCount": 1
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-optical-termination",
+      "familyId": "FIBER_TERMINATION",
+      "name": "Point de terminaison optique",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 150,
+        "depthMm": 35,
+        "heightMm": 100
+      },
+      "ports": [
+        {
+          "id": "fiber-in",
+          "portTypeId": "FIBER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -50
+          }
+        },
+        {
+          "id": "fiber-out",
+          "portTypeId": "FIBER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 50
+          }
+        }
+      ],
+      "properties": {
+        "protocol": "Fibre monomode",
+        "entryCount": 2
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-network-switch-8",
+      "familyId": "NETWORK_SWITCH",
+      "name": "Commutateur 8 ports",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 220,
+        "depthMm": 130,
+        "heightMm": 45
+      },
+      "ports": [
+        {
+          "id": "uplink",
+          "portTypeId": "ETHERNET",
+          "position": {
+            "x": 0,
+            "y": -65,
+            "z": 10
+          }
+        },
+        {
+          "id": "downlink",
+          "portTypeId": "ETHERNET",
+          "position": {
+            "x": 0,
+            "y": -65,
+            "z": -10
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 65,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "powerOverEthernet": false,
+        "activePowerW": 8
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès aux cordons de brassage en façade"
+        }
+      ]
+    },
+    {
+      "id": "generic-patch-panel-12",
+      "familyId": "PATCH_PANEL",
+      "name": "Panneau de brassage 12 ports",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 483,
+        "depthMm": 110,
+        "heightMm": 44
+      },
+      "ports": [
+        {
+          "id": "incoming",
+          "portTypeId": "ETHERNET",
+          "position": {
+            "x": 0,
+            "y": 55,
+            "z": 0
+          }
+        },
+        {
+          "id": "outgoing",
+          "portTypeId": "ETHERNET",
+          "position": {
+            "x": 0,
+            "y": -55,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "entryCount": 12,
+        "material": "Acier"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès aux cordons de brassage en façade"
+        }
+      ]
+    },
+    {
+      "id": "generic-communication-enclosure",
+      "familyId": "NETWORK_RACK",
+      "name": "Coffret de communication",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 450,
+        "depthMm": 200,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "incoming",
+          "portTypeId": "ETHERNET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -300
+          }
+        },
+        {
+          "id": "outgoing",
+          "portTypeId": "ETHERNET",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 300
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 100,
+            "z": -250
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 0
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 700,
+          "reason": "Ouverture de la porte et brassage des cordons"
+        }
+      ]
+    },
+    {
+      "id": "generic-access-router",
+      "familyId": "ROUTER",
+      "name": "Routeur d’accès fibre",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 230,
+        "depthMm": 230,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "fiber",
+          "portTypeId": "FIBER",
+          "position": {
+            "x": 0,
+            "y": 115,
+            "z": 10
+          }
+        },
+        {
+          "id": "lan",
+          "portTypeId": "ETHERNET",
+          "position": {
+            "x": 0,
+            "y": 115,
+            "z": -10
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 115,
+            "z": -20
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 12
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-wifi-access-point",
+      "familyId": "WIFI_ACCESS_POINT",
+      "name": "Point d’accès Wi-Fi de plafond",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 180,
+        "depthMm": 180,
+        "heightMm": 40
+      },
+      "ports": [
+        {
+          "id": "network",
+          "portTypeId": "ETHERNET",
+          "position": {
+            "x": 0,
+            "y": 90,
+            "z": 0
+          }
+        },
+        {
+          "id": "radio",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "protocol": "WIFI",
+        "powerOverEthernet": true,
+        "activePowerW": 12
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-intercom-handset",
+      "familyId": "INTERCOM",
+      "name": "Combiné d’interphone",
+      "version": "1.1.0",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 40,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "bus",
+          "portTypeId": "BUS",
+          "position": {
+            "x": 0,
+            "y": 20,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "activePowerW": 2
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-video-door-station",
+      "familyId": "VIDEO_DOORBELL",
+      "name": "Platine de rue vidéo IP",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 130,
+        "depthMm": 40,
+        "heightMm": 220
+      },
+      "ports": [
+        {
+          "id": "network",
+          "portTypeId": "ETHERNET",
+          "position": {
+            "x": 0,
+            "y": 20,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "powerOverEthernet": true,
+        "activePowerW": 7
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-knx-module",
+      "familyId": "KNX_DEVICE",
+      "name": "Module KNX modulaire",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 60,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "bus",
+          "portTypeId": "BUS",
+          "position": {
+            "x": 0,
+            "y": -30,
+            "z": 0
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 45
+          }
+        }
+      ],
+      "properties": {
+        "protocol": "KNX",
+        "activePowerW": 1
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-modbus-module",
+      "familyId": "MODBUS_DEVICE",
+      "name": "Module Modbus RTU",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 60,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "bus",
+          "portTypeId": "BUS",
+          "position": {
+            "x": 0,
+            "y": -30,
+            "z": 0
+          }
+        },
+        {
+          "id": "supply",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 45
+          }
+        }
+      ],
+      "properties": {
+        "protocol": "MODBUS_RTU",
+        "activePowerW": 1
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-zigbee-device",
+      "familyId": "ZIGBEE_DEVICE",
+      "name": "Équipement Zigbee",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 30,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "radio",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "protocol": "ZIGBEE"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-thread-device",
+      "familyId": "THREAD_DEVICE",
+      "name": "Équipement Thread",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 30,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "radio",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "protocol": "THREAD"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    },
+    {
+      "id": "generic-matter-device",
+      "familyId": "MATTER_DEVICE",
+      "name": "Équipement Matter",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 30,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "radio",
+          "portTypeId": "WIRELESS",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "protocol": "MATTER"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      }
+    }
+  ]
+}

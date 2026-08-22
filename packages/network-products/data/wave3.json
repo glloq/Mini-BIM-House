@@ -1,0 +1,335 @@
+{
+  "products": [
+    {
+      "id": "wire-cu-1-5",
+      "family": "ELECTRICAL_WIRE",
+      "domain": "ELECTRICAL",
+      "label": "Conducteur H07V-U 1,5 mm²",
+      "version": "1.0.0",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 1.5,
+        "coreCount": 1,
+        "insulation": "PVC",
+        "ratedVoltageV": 750,
+        "currentCapacityA": 16,
+        "resistivityOhmKm": 12.1,
+        "outerDiameterMm": 2.8
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "wire-cu-2-5",
+      "family": "ELECTRICAL_WIRE",
+      "domain": "ELECTRICAL",
+      "label": "Conducteur H07V-U 2,5 mm²",
+      "version": "1.0.0",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 2.5,
+        "coreCount": 1,
+        "insulation": "PVC",
+        "ratedVoltageV": 750,
+        "currentCapacityA": 20,
+        "resistivityOhmKm": 7.41,
+        "outerDiameterMm": 3.4
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "wire-cu-6",
+      "family": "ELECTRICAL_WIRE",
+      "domain": "ELECTRICAL",
+      "label": "Conducteur H07V-U 6 mm²",
+      "version": "1.0.0",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 6,
+        "coreCount": 1,
+        "insulation": "PVC",
+        "ratedVoltageV": 750,
+        "currentCapacityA": 34,
+        "resistivityOhmKm": 3.08,
+        "outerDiameterMm": 4.8
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "conduit-irl-16",
+      "family": "CONDUIT",
+      "domain": "ELECTRICAL",
+      "label": "Conduit IRL Ø16",
+      "version": "1.0.0",
+      "properties": {
+        "material": "PVC rigide",
+        "outerDiameterMm": 16,
+        "innerDiameterMm": 12.6,
+        "fillRatio": 0.33
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "conduit-irl-20",
+      "family": "CONDUIT",
+      "domain": "ELECTRICAL",
+      "label": "Conduit IRL Ø20",
+      "version": "1.0.0",
+      "properties": {
+        "material": "PVC rigide",
+        "outerDiameterMm": 20,
+        "innerDiameterMm": 16.4,
+        "fillRatio": 0.33
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "conduit-irl-25",
+      "family": "CONDUIT",
+      "domain": "ELECTRICAL",
+      "label": "Conduit IRL Ø25",
+      "version": "1.0.0",
+      "properties": {
+        "material": "PVC rigide",
+        "outerDiameterMm": 25,
+        "innerDiameterMm": 21.2,
+        "fillRatio": 0.33
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-data-cat6-utp",
+      "family": "DATA_CABLE",
+      "domain": "DATA",
+      "label": "Câble de données U/UTP catégorie 6",
+      "version": "1.0.0",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 0.2,
+        "coreCount": 8,
+        "insulation": "PE",
+        "ratedVoltageV": 300,
+        "outerDiameterMm": 6
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-pv-dc-4",
+      "family": "PV_DC_CABLE",
+      "domain": "SOLAR",
+      "label": "Câble photovoltaïque 4 mm²",
+      "version": "1.0.0",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 4,
+        "coreCount": 1,
+        "insulation": "Polyoléfine réticulée",
+        "ratedVoltageV": 1500,
+        "currentCapacityA": 55,
+        "resistivityOhmKm": 4.61,
+        "outerDiameterMm": 5.8
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-pv-dc-6",
+      "family": "PV_DC_CABLE",
+      "domain": "SOLAR",
+      "label": "Câble photovoltaïque 6 mm²",
+      "version": "1.0.0",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 6,
+        "coreCount": 1,
+        "insulation": "Polyoléfine réticulée",
+        "ratedVoltageV": 1500,
+        "currentCapacityA": 70,
+        "resistivityOhmKm": 3.08,
+        "outerDiameterMm": 6.4
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-pv-ac-3g4",
+      "family": "PV_AC_CABLE",
+      "domain": "SOLAR",
+      "label": "Câble alternatif photovoltaïque 3G4",
+      "version": "1.0.0",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 4,
+        "coreCount": 3,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 27,
+        "resistivityOhmKm": 4.61,
+        "outerDiameterMm": 12
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "cable-pv-ac-5g6",
+      "family": "PV_AC_CABLE",
+      "domain": "SOLAR",
+      "label": "Câble alternatif photovoltaïque 5G6",
+      "version": "1.0.0",
+      "properties": {
+        "conductor": "COPPER",
+        "conductorSectionMm2": 6,
+        "coreCount": 5,
+        "insulation": "PVC",
+        "ratedVoltageV": 1000,
+        "currentCapacityA": 34,
+        "resistivityOhmKm": 3.08,
+        "outerDiameterMm": 16
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-refrigerant-cu-6-35",
+      "family": "REFRIGERANT_PIPE",
+      "domain": "HEATING",
+      "label": "Tube cuivre frigorifique 1/4″",
+      "version": "1.0.0",
+      "properties": {
+        "material": "COPPER",
+        "nominalDiameter": "1/4″",
+        "outerDiameterMm": 6.35,
+        "wallThicknessMm": 0.8,
+        "innerDiameterMm": 4.75,
+        "maxPressureBar": 48,
+        "roughnessMm": 0.0015
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-refrigerant-cu-9-52",
+      "family": "REFRIGERANT_PIPE",
+      "domain": "HEATING",
+      "label": "Tube cuivre frigorifique 3/8″",
+      "version": "1.0.0",
+      "properties": {
+        "material": "COPPER",
+        "nominalDiameter": "3/8″",
+        "outerDiameterMm": 9.52,
+        "wallThicknessMm": 0.8,
+        "innerDiameterMm": 7.92,
+        "maxPressureBar": 48,
+        "roughnessMm": 0.0015
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "pipe-refrigerant-cu-12-7",
+      "family": "REFRIGERANT_PIPE",
+      "domain": "HEATING",
+      "label": "Tube cuivre frigorifique 1/2″",
+      "version": "1.0.0",
+      "properties": {
+        "material": "COPPER",
+        "nominalDiameter": "1/2″",
+        "outerDiameterMm": 12.7,
+        "wallThicknessMm": 0.8,
+        "innerDiameterMm": 11.1,
+        "maxPressureBar": 48,
+        "roughnessMm": 0.0015
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-rect-200x100",
+      "family": "RECTANGULAR_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine rectangulaire 200 × 100",
+      "version": "1.0.0",
+      "properties": {
+        "shape": "RECTANGULAR",
+        "widthMm": 200,
+        "heightMm": 100,
+        "material": "Acier galvanisé",
+        "roughnessMm": 0.09
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-rect-300x150",
+      "family": "RECTANGULAR_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine rectangulaire 300 × 150",
+      "version": "1.0.0",
+      "properties": {
+        "shape": "RECTANGULAR",
+        "widthMm": 300,
+        "heightMm": 150,
+        "material": "Acier galvanisé",
+        "roughnessMm": 0.09
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "duct-rect-400x200",
+      "family": "RECTANGULAR_DUCT",
+      "domain": "VENTILATION",
+      "label": "Gaine rectangulaire 400 × 200",
+      "version": "1.0.0",
+      "properties": {
+        "shape": "RECTANGULAR",
+        "widthMm": 400,
+        "heightMm": 200,
+        "material": "Acier galvanisé",
+        "roughnessMm": 0.09
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    }
+  ]
+}

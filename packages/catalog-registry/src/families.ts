@@ -279,6 +279,18 @@ export function validateFamily(
   for (const [index, zone] of (family.clearances ?? []).entries())
     if (!isClearanceZone(zone))
       at(`clearances/${index}`, `unknown clearance zone ${zone}`);
+    // `PHYSICAL` is never declared and always produced: an object occupies its
+    // own dimensions, and `clearanceZones` adds that volume to every placed
+    // object whether anybody asked or not. The gate has always refused it on a
+    // fiche for that reason — but three hundred and ninety-six families
+    // announced it, so a family said « this thing has a clearance zone » and
+    // nothing could ever fill it. A declaration nothing can honour is worse
+    // than a missing one: it reads as information.
+    else if (zone === 'PHYSICAL')
+      at(
+        `clearances/${index}`,
+        'the volume a thing occupies is produced from its dimensions and is not declared',
+      );
   for (const [index, calculator] of (family.calculators ?? []).entries())
     if (!known.calculators.has(calculator))
       at(`calculators/${index}`, `unknown calculation module ${calculator}`);

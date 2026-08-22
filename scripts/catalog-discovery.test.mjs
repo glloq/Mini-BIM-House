@@ -97,6 +97,11 @@ describe('a file of fiches added without touching any TypeScript', () => {
           ),
           manifestCount: equipment?.entryCount ?? 0,
           manifestSources: equipment?.sources.length ?? 0,
+          // What the loader itself holds, so the manifest can be compared to
+          // it rather than to a number written here — which a filling wave
+          // moves, and moving it is the one thing this test exists to forbid.
+          loadedCount: rawGenericEquipmentEntries().length,
+          loadedSources: equipmentCatalogSources().length,
           summarised: catalogSummaries().some(
             (entry) => entry.id === 'discovery-probe-radiator',
           ),
@@ -128,8 +133,11 @@ describe('a file of fiches added without touching any TypeScript', () => {
 
     expect(output.sources).toEqual([FIXTURE]);
     expect(output.loaded).toBe(true);
-    expect(output.manifestCount).toBe(20);
-    expect(output.manifestSources).toBe(9);
+    // The manifest says what is installed: every fiche the loader holds, from
+    // every file it found, the new one included.
+    expect(output.manifestCount).toBe(output.loadedCount);
+    expect(output.manifestSources).toBe(output.loadedSources);
+    expect(output.manifestSources).toBeGreaterThan(1);
     expect(output.summarised).toBe(true);
     expect(output.body).toBe(true);
     expect(output.found).toContain('discovery-probe-radiator');

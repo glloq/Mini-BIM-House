@@ -144,7 +144,17 @@ describe('the catalogue as rows, before it is the catalogue as entries', () => {
       rawGenericMaterialEntries().filter(({ category }) => category === 'METAL')
         .length,
     );
-    expect(index.find({ capabilities: ['PERFORMANCE_MAPPED'] }).length).toBe(3);
+    // The fiches whose family declares a tabulated performance — counted, not
+    // listed: every heat pump a wave brings is one more, and the gate already
+    // refuses a curve in a family that declares none.
+    expect(index.find({ capabilities: ['PERFORMANCE_MAPPED'] }).length).toBe(
+      catalogSummaries().filter(({ capabilities }) =>
+        capabilities?.includes('PERFORMANCE_MAPPED'),
+      ).length,
+    );
+    expect(
+      index.find({ capabilities: ['PERFORMANCE_MAPPED'] }).length,
+    ).toBeGreaterThan(3);
   });
 
   it('offers what is in service and can be asked for the rest', () => {

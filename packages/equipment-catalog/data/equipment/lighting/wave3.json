@@ -1,0 +1,556 @@
+{
+  "definitions": [
+    {
+      "id": "generic-downlight",
+      "familyId": "DOWNLIGHT",
+      "name": "Spot encastré LED",
+      "dimensions": {
+        "widthMm": 85,
+        "depthMm": 85,
+        "heightMm": 55
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 27.5
+          }
+        }
+      ],
+      "properties": {
+        "luminousFluxLm": 800,
+        "electricalPowerW": 8,
+        "colorTemperatureK": 3000,
+        "cri": 80,
+        "beamAngle": 60,
+        "powerFactor": 0.9,
+        "ipRating": "IP20"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-luminaire"
+          }
+        ],
+        "planFootprint": "CIRCLE",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 150,
+          "reason": "Volume libre au-dessus de l’encastrement pour le driver et sa dissipation"
+        }
+      ]
+    },
+    {
+      "id": "generic-pendant",
+      "familyId": "PENDANT",
+      "name": "Suspension",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 300,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 200.0
+          }
+        }
+      ],
+      "properties": {
+        "luminousFluxLm": 1000,
+        "electricalPowerW": 10,
+        "colorTemperatureK": 2700,
+        "cri": 80
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-luminaire"
+          }
+        ],
+        "planFootprint": "CIRCLE",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "belowMm": 300,
+          "reason": "Dépose du luminaire depuis le dessous"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-light",
+      "familyId": "WALL_LIGHT",
+      "name": "Applique murale LED",
+      "dimensions": {
+        "widthMm": 200,
+        "depthMm": 100,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 125.0
+          }
+        }
+      ],
+      "properties": {
+        "luminousFluxLm": 600,
+        "electricalPowerW": 7,
+        "colorTemperatureK": 3000,
+        "cri": 80,
+        "ipRating": "IP20"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-luminaire"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Dépose de la vasque et de la platine"
+        }
+      ]
+    },
+    {
+      "id": "generic-spotlight",
+      "familyId": "SPOTLIGHT",
+      "name": "Projecteur LED orientable",
+      "dimensions": {
+        "widthMm": 150,
+        "depthMm": 120,
+        "heightMm": 180
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 90.0
+          }
+        }
+      ],
+      "properties": {
+        "luminousFluxLm": 2000,
+        "electricalPowerW": 20,
+        "colorTemperatureK": 4000,
+        "cri": 80,
+        "beamAngle": 30,
+        "ipRating": "IP65"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-luminaire"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Orientation et resserrage de la lyre"
+        }
+      ]
+    },
+    {
+      "id": "generic-exterior-light",
+      "familyId": "EXTERIOR_LIGHT",
+      "name": "Applique extérieure LED",
+      "dimensions": {
+        "widthMm": 200,
+        "depthMm": 120,
+        "heightMm": 250
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 125.0
+          }
+        }
+      ],
+      "properties": {
+        "luminousFluxLm": 900,
+        "electricalPowerW": 10,
+        "colorTemperatureK": 3000,
+        "cri": 80,
+        "ik": "IK08",
+        "ipRating": "IP65"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-luminaire"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Ouverture du boîtier et remplacement du joint"
+        }
+      ]
+    },
+    {
+      "id": "generic-floor-light",
+      "familyId": "FLOOR_LIGHT",
+      "name": "Lampadaire sur pied",
+      "dimensions": {
+        "widthMm": 350,
+        "depthMm": 350,
+        "heightMm": 1700
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -850
+          }
+        }
+      ],
+      "properties": {
+        "luminousFluxLm": 2000,
+        "electricalPowerW": 20,
+        "colorTemperatureK": 3000,
+        "cri": 80
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-luminaire"
+          }
+        ],
+        "planFootprint": "CIRCLE",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "aboveMm": 300,
+          "reason": "Accès à la source depuis le dessus"
+        }
+      ]
+    },
+    {
+      "id": "generic-led-strip",
+      "familyId": "LED_STRIP",
+      "name": "Ruban LED",
+      "dimensions": {
+        "widthMm": 10,
+        "depthMm": 1000,
+        "heightMm": 3
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -500,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "luminousFluxLm": 900,
+        "electricalPowerW": 10,
+        "colorTemperatureK": 3000,
+        "cri": 90,
+        "dimmable": true,
+        "ipRating": "IP20"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 100,
+          "reason": "Dépose du profilé et du diffuseur"
+        }
+      ]
+    },
+    {
+      "id": "generic-emergency-light",
+      "familyId": "EMERGENCY_LIGHT",
+      "name": "Bloc autonome d’éclairage de sécurité",
+      "dimensions": {
+        "widthMm": 265,
+        "depthMm": 95,
+        "heightMm": 100
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 50.0
+          }
+        }
+      ],
+      "properties": {
+        "luminousFluxLm": 45,
+        "electricalPowerW": 2,
+        "ik": "IK07",
+        "lifetimeHours": 50000,
+        "ipRating": "IP42"
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "ELECTRICAL",
+            "symbolId": "symbol-luminaire"
+          }
+        ],
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.1.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Essai périodique et remplacement de la batterie"
+        }
+      ]
+    },
+    {
+      "id": "generic-lighting-presence-sensor",
+      "familyId": "PRESENCE_SENSOR",
+      "name": "Détecteur de présence",
+      "dimensions": {
+        "widthMm": 100,
+        "depthMm": 100,
+        "heightMm": 40
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 20
+          }
+        },
+        {
+          "id": "load",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 20
+          }
+        }
+      ],
+      "properties": {
+        "electricalPowerW": 0.5,
+        "ipRating": "IP20",
+        "supplyVoltageV": 230,
+        "coverageM2": 50,
+        "detectionAngleDeg": 360
+      },
+      "rendering": {
+        "planFootprint": "CIRCLE",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.2.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "belowMm": 300,
+          "reason": "Réglage de la sensibilité et de la temporisation"
+        }
+      ]
+    },
+    {
+      "id": "generic-light-sensor",
+      "familyId": "LIGHT_SENSOR",
+      "name": "Capteur de luminosité",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 40,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": -20,
+            "z": 0
+          }
+        },
+        {
+          "id": "signal",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": -20,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "electricalPowerW": 0.5,
+        "ipRating": "IP20",
+        "supplyVoltageV": 230
+      },
+      "rendering": {
+        "planFootprint": "SYMBOL_ONLY",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.2.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 200,
+          "reason": "Nettoyage de la cellule et réglage du seuil"
+        }
+      ]
+    },
+    {
+      "id": "generic-lighting-controller",
+      "familyId": "LIGHTING_CONTROLLER",
+      "name": "Contrôleur d’éclairage",
+      "dimensions": {
+        "widthMm": 72,
+        "depthMm": 70,
+        "heightMm": 85
+      },
+      "ports": [
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 42
+          }
+        },
+        {
+          "id": "bus",
+          "portTypeId": "CONTROL",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -42
+          }
+        }
+      ],
+      "properties": {
+        "electricalPowerW": 5,
+        "supplyVoltageV": 230,
+        "ipRating": "IP20"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "electrical.lighting"
+      },
+      "version": "1.2.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 300,
+          "reason": "Adressage des circuits et câblage du bus"
+        }
+      ]
+    }
+  ]
+}

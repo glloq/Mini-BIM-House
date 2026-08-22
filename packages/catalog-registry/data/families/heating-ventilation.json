@@ -22,13 +22,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "READY",
@@ -48,9 +42,9 @@
       "ports": [
         "HEATING_FLOW",
         "HEATING_RETURN",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
+        "REFRIGERANT_LIQUID",
+        "REFRIGERANT_GAS",
+        "ELECTRICAL_AC"
       ],
       "calculators": [
         "heating",
@@ -65,18 +59,15 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "HEAT_PUMP",
+      "optionalPorts": ["CONDENSATE", "CONTROL"],
+      "capabilities": ["PERFORMANCE_MAPPED"]
     },
     {
       "id": "HEAT_PUMP_AIR_AIR",
@@ -84,13 +75,7 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": [
-        "HEATING_FLOW",
-        "HEATING_RETURN",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
-      ],
+      "ports": ["REFRIGERANT_LIQUID", "REFRIGERANT_GAS", "ELECTRICAL_AC"],
       "calculators": [
         "heating",
         "electrical",
@@ -104,18 +89,15 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "HEAT_PUMP",
+      "optionalPorts": ["CONDENSATE", "CONTROL"],
+      "capabilities": ["PERFORMANCE_MAPPED"]
     },
     {
       "id": "HEAT_PUMP_GROUND_WATER",
@@ -124,11 +106,11 @@
       "registry": "EQUIPMENT",
       "priority": 4,
       "ports": [
+        "PRIMARY_FLOW",
+        "PRIMARY_RETURN",
         "HEATING_FLOW",
         "HEATING_RETURN",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
+        "ELECTRICAL_AC"
       ],
       "calculators": [
         "heating",
@@ -143,18 +125,15 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "HEAT_PUMP",
+      "optionalPorts": ["CONTROL"],
+      "capabilities": ["PERFORMANCE_MAPPED"]
     },
     {
       "id": "HEAT_PUMP_WATER_WATER",
@@ -163,11 +142,11 @@
       "registry": "EQUIPMENT",
       "priority": 4,
       "ports": [
+        "PRIMARY_FLOW",
+        "PRIMARY_RETURN",
         "HEATING_FLOW",
         "HEATING_RETURN",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
+        "ELECTRICAL_AC"
       ],
       "calculators": [
         "heating",
@@ -182,18 +161,15 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "HEAT_PUMP",
+      "optionalPorts": ["CONTROL"],
+      "capabilities": ["PERFORMANCE_MAPPED"]
     },
     {
       "id": "EXHAUST_AIR_HEAT_PUMP",
@@ -202,11 +178,12 @@
       "registry": "EQUIPMENT",
       "priority": 4,
       "ports": [
+        "AIR_EXTRACT",
+        "AIR_EXHAUST",
         "HEATING_FLOW",
         "HEATING_RETURN",
         "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
+        "CONDENSATE"
       ],
       "calculators": [
         "heating",
@@ -221,18 +198,15 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "HEAT_PUMP",
+      "optionalPorts": ["CONTROL"],
+      "capabilities": ["PERFORMANCE_MAPPED"]
     },
     {
       "id": "REVERSIBLE_HEAT_PUMP",
@@ -240,13 +214,7 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": [
-        "HEATING_FLOW",
-        "HEATING_RETURN",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
-      ],
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC"],
       "calculators": [
         "heating",
         "electrical",
@@ -260,18 +228,15 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "HEAT_PUMP",
+      "optionalPorts": ["CONDENSATE", "CONTROL"],
+      "capabilities": ["PERFORMANCE_MAPPED"]
     },
     {
       "id": "BOILER_GAS",
@@ -279,7 +244,13 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "FLUE_GAS",
+        "FUEL_GAS"
+      ],
       "calculators": [
         "heating",
         "electrical",
@@ -293,12 +264,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "BOILER",
+      "optionalPorts": ["COMBUSTION_AIR", "CONDENSATE", "CONTROL"]
     },
     {
       "id": "BOILER_OIL",
@@ -306,7 +279,13 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "FLUE_GAS",
+        "FUEL_OIL"
+      ],
       "calculators": [
         "heating",
         "electrical",
@@ -320,12 +299,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "BOILER",
+      "optionalPorts": ["COMBUSTION_AIR", "CONDENSATE", "CONTROL"]
     },
     {
       "id": "BOILER_BIOMASS",
@@ -333,7 +314,7 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "FLUE_GAS"],
       "calculators": [
         "heating",
         "electrical",
@@ -347,12 +328,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "BOILER",
+      "optionalPorts": ["COMBUSTION_AIR", "CONTROL", "FUEL_PELLET"]
     },
     {
       "id": "ELECTRIC_BOILER",
@@ -360,7 +343,7 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC"],
       "calculators": [
         "heating",
         "electrical",
@@ -374,12 +357,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "BOILER",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "ELECTRIC_HEATER",
@@ -387,7 +372,7 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "ports": ["ELECTRICAL_AC"],
       "calculators": [
         "heating",
         "electrical",
@@ -401,12 +386,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "RADIATOR",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "SOLAR_THERMAL",
@@ -414,7 +401,7 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "ports": ["PRIMARY_FLOW", "PRIMARY_RETURN"],
       "calculators": [
         "heating",
         "electrical",
@@ -428,12 +415,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "DISTRICT_HEATING_INTERFACE",
@@ -441,7 +430,12 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "CONTROL"],
+      "ports": [
+        "PRIMARY_FLOW",
+        "PRIMARY_RETURN",
+        "HEATING_FLOW",
+        "HEATING_RETURN"
+      ],
       "calculators": [
         "heating",
         "electrical",
@@ -455,12 +449,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
       "id": "CIRCULATOR",
@@ -477,7 +473,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -493,19 +489,29 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "ports": [
+        {
+          "anyOf": ["HEATING_FLOW"],
+          "minCount": 2
+        },
+        {
+          "anyOf": ["HEATING_RETURN"],
+          "minCount": 2
+        }
+      ],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "BUFFER_TANK",
@@ -520,12 +526,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["PRIMARY_FLOW", "PRIMARY_RETURN"]
     },
     {
       "id": "HYDRAULIC_SEPARATOR",
@@ -533,19 +541,25 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "ports": [
+        "PRIMARY_FLOW",
+        "PRIMARY_RETURN",
+        "HEATING_FLOW",
+        "HEATING_RETURN"
+      ],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "HEATING_EXPANSION_VESSEL",
@@ -553,19 +567,26 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "ports": [
+        {
+          "anyOf": ["HEATING_FLOW", "HEATING_RETURN"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "SAFETY_VALVE",
@@ -573,19 +594,27 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "ports": [
+        {
+          "anyOf": ["HEATING_FLOW", "HEATING_RETURN"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["WASTEWATER"]
     },
     {
       "id": "AIR_SEPARATOR",
@@ -600,12 +629,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "HEATING_AIR_VENT",
@@ -613,19 +643,26 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "ports": [
+        {
+          "anyOf": ["HEATING_FLOW", "HEATING_RETURN"],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "DIRT_SEPARATOR",
@@ -640,12 +677,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "MAGNETIC_FILTER",
@@ -660,12 +698,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "HEATING_ISOLATION_VALVE",
@@ -680,12 +719,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "HEATING_CHECK_VALVE",
@@ -700,12 +740,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "HEATING_BALANCING_VALVE",
@@ -720,12 +761,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "THREE_WAY_VALVE",
@@ -733,19 +775,27 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "ports": [
+        {
+          "anyOf": ["HEATING_FLOW", "HEATING_RETURN"],
+          "maxCount": 3,
+          "minCount": 3
+        }
+      ],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
       "id": "MIXING_VALVE",
@@ -753,19 +803,28 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "ports": [
+        {
+          "anyOf": ["HEATING_RETURN"],
+          "maxCount": 2,
+          "minCount": 2
+        },
+        "HEATING_FLOW"
+      ],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
       "id": "RADIATOR",
@@ -781,7 +840,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "READY",
@@ -804,12 +863,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "RADIATOR",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "FAN_COIL",
@@ -817,19 +878,21 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
+      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC"],
       "calculators": ["heating", "acoustics", "cost", "environmental"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "RADIATOR",
+      "optionalPorts": ["CONDENSATE", "CONTROL"]
     },
     {
       "id": "UNDERFLOOR_HEATING",
@@ -844,12 +907,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "UNDERFLOOR_HEATING"
     },
     {
       "id": "WALL_HEATING",
@@ -864,12 +928,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "UNDERFLOOR_HEATING"
     },
     {
       "id": "CEILING_HEATING",
@@ -884,12 +949,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "UNDERFLOOR_HEATING"
     },
     {
       "id": "HEATING_ZONE",
@@ -897,19 +963,21 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "CONTROL"],
+      "ports": [],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["SLAB", "WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
-      "propertySchema": "UNDERFLOOR_HEATING",
+      "clearances": ["MAINTENANCE"],
+      "propertySchema": "HEATING_CONTROL",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
+      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies.",
+      "category": "UNDERFLOOR_HEATING",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "UFH_MANIFOLD",
@@ -917,19 +985,30 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "CONTROL"],
+      "ports": [
+        {
+          "anyOf": ["HEATING_FLOW"],
+          "minCount": 2
+        },
+        {
+          "anyOf": ["HEATING_RETURN"],
+          "minCount": 2
+        }
+      ],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["SLAB", "WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
+      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies.",
+      "category": "UNDERFLOOR_HEATING",
+      "optionalPorts": ["CONTROL", "ELECTRICAL_AC"]
     },
     {
       "id": "UFH_LOOP",
@@ -937,19 +1016,20 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "CONTROL"],
+      "ports": ["HEATING_FLOW", "HEATING_RETURN"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["SLAB", "WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
+      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies.",
+      "category": "UNDERFLOOR_HEATING"
     },
     {
       "id": "UFH_ACTUATOR",
@@ -957,19 +1037,21 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "CONTROL"],
+      "ports": ["CONTROL"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["SLAB", "WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
-      "propertySchema": "UNDERFLOOR_HEATING",
+      "clearances": ["MAINTENANCE"],
+      "propertySchema": "HEATING_CONTROL",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
+      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies.",
+      "category": "UNDERFLOOR_HEATING",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "ROOM_THERMOSTAT",
@@ -977,19 +1059,21 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "CONTROL"],
+      "ports": ["CONTROL"],
       "calculators": ["heating", "cost"],
       "placement": {
         "allowedHosts": ["SLAB", "WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
-      "propertySchema": "UNDERFLOOR_HEATING",
+      "clearances": ["MAINTENANCE"],
+      "propertySchema": "HEATING_CONTROL",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies."
+      "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies.",
+      "category": "SENSOR",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "OUTDOOR_UNIT",
@@ -997,25 +1081,21 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": [
-        "REFRIGERANT_LIQUID",
-        "REFRIGERANT_GAS",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
-      ],
+      "ports": ["REFRIGERANT_LIQUID", "REFRIGERANT_GAS", "ELECTRICAL_AC"],
       "calculators": ["heating", "electrical", "acoustics", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
+      "category": "HEAT_PUMP",
+      "optionalPorts": ["CONDENSATE", "CONTROL"]
     },
     {
       "id": "INDOOR_UNIT",
@@ -1023,25 +1103,21 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": [
-        "REFRIGERANT_LIQUID",
-        "REFRIGERANT_GAS",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
-      ],
+      "ports": ["REFRIGERANT_LIQUID", "REFRIGERANT_GAS", "CONDENSATE"],
       "calculators": ["heating", "electrical", "acoustics", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
+      "category": "HEAT_PUMP",
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
       "id": "CASSETTE",
@@ -1049,25 +1125,21 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": [
-        "REFRIGERANT_LIQUID",
-        "REFRIGERANT_GAS",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
-      ],
+      "ports": ["REFRIGERANT_LIQUID", "REFRIGERANT_GAS", "CONDENSATE"],
       "calculators": ["heating", "electrical", "acoustics", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
+      "category": "HEAT_PUMP",
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
       "id": "WALL_SPLIT_UNIT",
@@ -1075,25 +1147,21 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": [
-        "REFRIGERANT_LIQUID",
-        "REFRIGERANT_GAS",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
-      ],
+      "ports": ["REFRIGERANT_LIQUID", "REFRIGERANT_GAS", "CONDENSATE"],
       "calculators": ["heating", "electrical", "acoustics", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
+      "category": "HEAT_PUMP",
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
       "id": "DUCTED_UNIT",
@@ -1101,25 +1169,26 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": [
-        "REFRIGERANT_LIQUID",
-        "REFRIGERANT_GAS",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
-      ],
+      "ports": ["REFRIGERANT_LIQUID", "REFRIGERANT_GAS", "CONDENSATE"],
       "calculators": ["heating", "electrical", "acoustics", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
+      "category": "HEAT_PUMP",
+      "optionalPorts": [
+        "ELECTRICAL_AC",
+        "CONTROL",
+        "AIR_SUPPLY_INLET",
+        "AIR_SUPPLY"
+      ]
     },
     {
       "id": "BRANCH_JOINT",
@@ -1128,11 +1197,14 @@
       "registry": "EQUIPMENT",
       "priority": 4,
       "ports": [
-        "REFRIGERANT_LIQUID",
-        "REFRIGERANT_GAS",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
+        {
+          "anyOf": ["REFRIGERANT_LIQUID"],
+          "minCount": 2
+        },
+        {
+          "anyOf": ["REFRIGERANT_GAS"],
+          "minCount": 2
+        }
       ],
       "calculators": ["heating", "electrical", "acoustics", "cost"],
       "placement": {
@@ -1140,12 +1212,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC", "CONDENSATE", "CONTROL"]
     },
     {
       "id": "REFNET",
@@ -1154,11 +1228,14 @@
       "registry": "EQUIPMENT",
       "priority": 4,
       "ports": [
-        "REFRIGERANT_LIQUID",
-        "REFRIGERANT_GAS",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
+        {
+          "anyOf": ["REFRIGERANT_LIQUID"],
+          "minCount": 2
+        },
+        {
+          "anyOf": ["REFRIGERANT_GAS"],
+          "minCount": 2
+        }
       ],
       "calculators": ["heating", "electrical", "acoustics", "cost"],
       "placement": {
@@ -1166,12 +1243,13 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
+      "category": "OTHER"
     },
     {
       "id": "CONDENSATE_DRAIN",
@@ -1179,25 +1257,21 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": [
-        "REFRIGERANT_LIQUID",
-        "REFRIGERANT_GAS",
-        "ELECTRICAL_AC",
-        "CONDENSATE",
-        "CONTROL"
-      ],
+      "ports": ["CONDENSATE_INLET", "CONDENSATE"],
       "calculators": ["heating", "electrical", "acoustics", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "CEILING", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme."
+      "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "EXTRACT_VENTILATION_UNIT",
@@ -1214,7 +1288,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -1245,7 +1319,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -1262,19 +1336,21 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": ["AIR_OUTSIDE", "AIR_EXHAUST", "ELECTRICAL_AC"],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "VENTILATION_UNIT",
+      "optionalPorts": ["CONTROL"]
     },
     {
       "id": "FAN",
@@ -1283,12 +1359,27 @@
       "registry": "EQUIPMENT",
       "priority": 4,
       "ports": [
-        "AIR_SUPPLY",
-        "AIR_EXTRACT",
-        "AIR_OUTSIDE",
-        "AIR_EXHAUST",
-        "ELECTRICAL_AC",
-        "CONTROL"
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        "ELECTRICAL_AC"
       ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
@@ -1296,12 +1387,15 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "FAN",
+      "optionalPorts": ["CONTROL"],
+      "capabilities": ["PERFORMANCE_MAPPED"]
     },
     {
       "id": "AIR_INLET",
@@ -1309,19 +1403,21 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "AIR_TERMINAL",
+      "optionalPorts": ["AIR_OUTSIDE_SOURCE"]
     },
     {
       "id": "EXTRACT_TERMINAL",
@@ -1330,14 +1426,14 @@
       "registry": "EQUIPMENT",
       "category": "AIR_TERMINAL",
       "priority": 4,
-      "ports": ["AIR_EXTRACT"],
+      "ports": ["AIR_EXTRACT_OUTLET"],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -1353,19 +1449,20 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": ["AIR_SUPPLY_INLET"],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "AIR_TERMINAL"
     },
     {
       "id": "EXHAUST_TERMINAL",
@@ -1373,19 +1470,20 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": ["AIR_EXHAUST_OUTLET"],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "AIR_TERMINAL"
     },
     {
       "id": "OUTDOOR_AIR_INTAKE",
@@ -1393,19 +1491,20 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": ["AIR_OUTSIDE_SOURCE"],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "AIR_TERMINAL"
     },
     {
       "id": "VENTILATION_ELBOW",
@@ -1413,19 +1512,41 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "VENTILATION_TEE",
@@ -1433,19 +1554,39 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "Y_BRANCH",
@@ -1453,19 +1594,39 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "VENTILATION_REDUCER",
@@ -1473,19 +1634,41 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "TRANSITION",
@@ -1493,19 +1676,41 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "PLENUM",
@@ -1513,19 +1718,39 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "DAMPER",
@@ -1533,19 +1758,42 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
       "id": "BALANCING_DAMPER",
@@ -1553,19 +1801,41 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "BACKDRAFT_DAMPER",
@@ -1573,19 +1843,41 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "FIRE_DAMPER",
@@ -1593,19 +1885,42 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
       "id": "SILENCER",
@@ -1613,19 +1928,41 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "VENTILATION_FILTER",
@@ -1633,19 +1970,41 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "HEATING_COIL",
@@ -1653,19 +2012,44 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        "HEATING_FLOW",
+        "HEATING_RETURN"
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
       "id": "COOLING_COIL",
@@ -1673,19 +2057,53 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": [
+        {
+          "anyOf": [
+            "AIR_SUPPLY_INLET",
+            "AIR_EXTRACT",
+            "AIR_OUTSIDE",
+            "AIR_EXHAUST_OUTLET"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        {
+          "anyOf": [
+            "AIR_SUPPLY",
+            "AIR_EXTRACT_OUTLET",
+            "AIR_OUTSIDE_SOURCE",
+            "AIR_EXHAUST"
+          ],
+          "maxCount": 1,
+          "minCount": 1
+        },
+        "CONDENSATE",
+        {
+          "anyOf": ["CHILLED_RETURN", "REFRIGERANT_LIQUID"],
+          "minCount": 1,
+          "maxCount": 1
+        },
+        {
+          "anyOf": ["CHILLED_FLOW", "REFRIGERANT_GAS"],
+          "minCount": 1,
+          "maxCount": 1
+        }
+      ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER",
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
       "id": "VENTILATION_CONDENSATE_TRAP",
@@ -1693,19 +2111,20 @@
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["AIR_SUPPLY", "AIR_EXTRACT", "AIR_OUTSIDE", "AIR_EXHAUST"],
+      "ports": ["CONDENSATE_INLET", "CONDENSATE"],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
         "allowedHosts": ["CEILING", "WALL", "SLAB", "ROOF"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     }
   ]
 }
