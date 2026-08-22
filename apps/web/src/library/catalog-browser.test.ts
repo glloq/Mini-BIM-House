@@ -20,8 +20,8 @@ const known = {
 describe('browsing the nomenclature', () => {
   it('offers the whole of it, not the nineteen entries somebody wrote', () => {
     // The panel listed nineteen while the rest of the application had been
-    // checking five hundred and eighteen for weeks.
-    expect(catalogRows(entriesByFamily, known).length).toBe(518);
+    // checking five hundred and twenty for weeks.
+    expect(catalogRows(entriesByFamily, known).length).toBe(520);
   });
 
   it('narrows by trade, by wave and by word', () => {

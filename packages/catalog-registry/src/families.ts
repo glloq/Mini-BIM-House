@@ -29,6 +29,8 @@ import {
   type CatalogWave,
 } from './catalog-identity.js';
 import { isEquipmentCategory } from '@house-technical-designer/equipment-catalog';
+import { isMaterialCategory } from '@house-technical-designer/materials';
+import { isAssemblyCategory } from '@house-technical-designer/assemblies';
 
 /** Where an object of this family may be put. */
 export interface FamilyPlacement {
@@ -156,6 +158,19 @@ export interface FamilyCandidate extends Omit<
   readonly status?: Readonly<Record<string, string>>;
 }
 
+/** Whether the coarse grouping belongs to the list its registry groups by. */
+function categoryFits(family: FamilyCandidate): boolean {
+  const category = family.category ?? '';
+  switch (family.registry) {
+    case 'MATERIAL':
+      return isMaterialCategory(category);
+    case 'ASSEMBLY':
+      return isAssemblyCategory(category);
+    default:
+      return isEquipmentCategory(category);
+  }
+}
+
 export interface FamilyIssue {
   readonly path: string;
   readonly message: string;
@@ -220,10 +235,15 @@ export function validateFamily(
   )
     at('replacedBy', `unknown family ${family.replacedBy}`);
   for (const issue of validateCapabilities(family)) issues.push(issue);
-  // The one place the coarse grouping is stated. A value outside the closed
-  // list would sort and filter into a bucket no screen offers.
-  if (family.category !== undefined && !isEquipmentCategory(family.category))
-    at('category', `unknown category ${family.category}`);
+  // The one place the coarse grouping is stated, and each registry groups by
+  // its own closed list: a material is INSULATION or MASONRY, an equipment is
+  // a HEAT_PUMP, and a value outside the list its registry uses would sort and
+  // filter into a bucket no screen offers.
+  if (family.category !== undefined && !categoryFits(family))
+    at(
+      'category',
+      `${family.category} is not a category of the ${family.registry} registry`,
+    );
   const required = (family.ports ?? []).map(portRequirement);
   for (const [index, requirement] of required.entries()) {
     for (const kind of unknownPortKinds(requirement))

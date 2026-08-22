@@ -71,7 +71,7 @@ Le parcours complet est décrit dans
 Pour travailler sur les données plutôt que sur l'application :
 
 ```bash
-npm run catalog:status        # où en est chacune des 518 familles
+npm run catalog:status        # où en est chacune des 520 familles
 npm run catalog:status 2      # la vague 2 seulement
 npm run validate:catalog      # toute la couche de données, en une seconde
 ```

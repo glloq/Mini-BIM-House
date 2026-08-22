@@ -1,0 +1,228 @@
+{
+  "formatVersion": "1.0.0",
+  "assemblies": [
+    {
+      "id": "generic-wall-block-external-insulation",
+      "familyId": "WALL_EXTERNAL",
+      "category": "WALL",
+      "name": "Mur en blocs béton isolé par l’extérieur",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "finish",
+          "materialId": "generic-eps",
+          "thicknessM": 0.14,
+          "role": "INSULATION"
+        },
+        {
+          "id": "structure",
+          "materialId": "generic-concrete-block",
+          "thicknessM": 0.2,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "lining",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-timber-frame",
+      "familyId": "WALL_EXTERNAL",
+      "category": "WALL",
+      "name": "Mur à ossature bois",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "sheathing",
+          "materialId": "generic-osb",
+          "thicknessM": 0.012,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-glass-wool",
+          "thicknessM": 0.145,
+          "role": "INSULATION"
+        },
+        {
+          "id": "board",
+          "materialId": "generic-osb",
+          "thicknessM": 0.012,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "lining",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-brick-internal-insulation",
+      "familyId": "WALL_EXTERNAL",
+      "category": "WALL",
+      "name": "Mur en briques isolé par l’intérieur",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "masonry",
+          "materialId": "generic-brick",
+          "thicknessM": 0.22,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-rock-wool",
+          "thicknessM": 0.1,
+          "role": "INSULATION"
+        },
+        {
+          "id": "lining",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-timber-insulated",
+      "familyId": "ROOF_SLAB",
+      "category": "ROOF",
+      "name": "Toiture bois isolée entre chevrons",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "sarking",
+          "materialId": "generic-wood-fibre",
+          "thicknessM": 0.06,
+          "role": "INSULATION"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-glass-wool",
+          "thicknessM": 0.3,
+          "role": "INSULATION"
+        },
+        {
+          "id": "lining",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-floor-slab-on-ground",
+      "familyId": "GROUND_SLAB",
+      "category": "FLOOR",
+      "name": "Dallage sur terre-plein isolé sous dalle",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "insulation",
+          "materialId": "generic-xps",
+          "thicknessM": 0.1,
+          "role": "INSULATION"
+        },
+        {
+          "id": "slab",
+          "materialId": "generic-concrete",
+          "thicknessM": 0.15,
+          "role": "STRUCTURAL"
+        }
+      ]
+    },
+    {
+      "id": "generic-partition-stud",
+      "familyId": "PARTITION",
+      "category": "PARTITION",
+      "name": "Cloison sur ossature métallique",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "board-a",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-rock-wool",
+          "thicknessM": 0.045,
+          "role": "INSULATION"
+        },
+        {
+          "id": "board-b",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-floor-intermediate-timber",
+      "familyId": "INTERMEDIATE_FLOOR",
+      "category": "FLOOR",
+      "name": "Plancher intermédiaire bois",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "deck",
+          "materialId": "generic-osb",
+          "thicknessM": 0.022,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "joists",
+          "materialId": "generic-softwood",
+          "thicknessM": 0.22,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "cavity",
+          "materialId": "generic-air-cavity",
+          "thicknessM": 0.05,
+          "role": "AIR_GAP"
+        },
+        {
+          "id": "ceiling",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    }
+  ]
+}

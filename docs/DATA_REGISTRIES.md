@@ -38,7 +38,7 @@ chose est faite, par quoi elle se raccorde, comment elle se dessine, quels
 modules la lisent et où en est le travail. Une **entrée de catalogue** dit
 ensuite que celle-ci fait 8 kW.
 
-La nomenclature vit dans `packages/catalog-registry/data/families/*.json` : 518
+La nomenclature vit dans `packages/catalog-registry/data/families/*.json` : 520
 familles, une par ligne de la liste des métiers. Elle n'est pas du code parce
 qu'elle n'en est pas : elle change sans que le code change, et plusieurs
 personnes doivent pouvoir travailler sur des parties différentes sans se
@@ -84,8 +84,8 @@ veut dire qu'une fiche de cette famille passe le contrôle, donc que la suite
 de tests l'exécute.
 
 Les dix autres axes — est-ce modélisé, chiffré, porté par une règle — sont des
-jugements que rien ne sait encore mesurer, et restent déclarés. La repasse des
-518 familles les a remis à leur place : trois cent dix-sept familles
+jugements que rien ne sait encore mesurer, et restent déclarés. La repasse de
+toutes les familles les a remis à leur place : trois cent dix-sept familles
 d'équipement annonçaient `MODEL: READY` alors que le modèle contient un
 composant posé, ce qui est vrai de toutes et ne dit rien d'aucune.
 
@@ -390,6 +390,46 @@ n'est pas l'utilisateur qui les saisit, c'est l'application qui note quelle
 version il a choisie. `resolvePlacedEquipment()` compare les deux et signale
 l'écart au lieu de l'absorber.
 
+## Les matériaux et les assemblages
+
+Le catalogue de matériaux était le dernier des sept registres écrit en
+TypeScript : un `const ENTRIES = [...]` de seize entrées, avec un vocabulaire de
+propriétés à lui que rien ne comparait au registre. Aucune porte ne l'avait
+jamais lu — un coefficient d'absorption de 1,4 là où l'absorption s'arrête à 1,
+une masse volumique dans la mauvaise unité, une famille inexistante : rien de
+tout cela n'était signalable.
+
+Il vit dans `packages/materials/data/generic.json`, chaque fiche disant sa
+famille, sa version et sa provenance. Le fichier parle la langue du **registre
+de propriétés** — `thermalConductivity`, `density`, `vaporResistanceFactor` — et
+une seule table, dans le chargeur, dit comment chacune s'appelle dans le modèle
+(`lambdaWmK`, `densityKgM3`, `mu`). Le modèle garde ses noms parce qu'ils sont
+déjà dans tous les fichiers de projet écrits ; les réunir demande une migration
+de format, qui est une décision en soi.
+
+`GENERIC` manquait à la liste des provenances de matériau, si bien que le
+catalogue générique devait appeler ses propres ordres de grandeur `STANDARD` —
+une valeur de dimensionnement portant l'autorité d'une norme, ce que la règle de
+traçabilité existe précisément pour empêcher.
+
+Il n'y avait **aucun** catalogue d'assemblages : les sept registres en
+annonçaient un, la nomenclature déclarait cinquante-six familles, et rien
+n'était livré — les compositions de départ étaient écrites couche par couche
+dans l'application, à côté du code qui les dessine. Elles sont dans
+`packages/assemblies/data/generic.json`, et la porte vérifie que chaque couche
+nomme un matériau qui existe et une épaisseur en mètres : une couche de 140
+serait cent quarante mètres de polystyrène, et se lirait comme parfaitement
+valide.
+
+### L'absorption acoustique
+
+Ce n'est pas un nombre. Une moquette avale 0,60 à 4 kHz et 0,03 à 125 Hz, et une
+valeur unique est soit l'une des huit, soit une moyenne que personne ne peut
+retracer. Le registre a donc un sixième type de propriété, `spectrum` : une
+valeur par bande d'octave, les bandes prises dans une liste fermée — un
+coefficient déposé à 300 Hz est un coefficient qu'aucune norme, aucun calcul et
+aucune autre fiche ne pourra jamais aligner.
+
 ## Les cartes de performance
 
 Une machine n'est pas un nombre. Le COP d'une pompe à chaleur vaut 2,0 à
@@ -497,6 +537,9 @@ sur un tube dont l'alésage est faux de quatre millimètres.
 - une capability lue de ce que la famille déclare et réécrite à la main ;
 - une vague hors des six, un cycle de vie inconnu, un remplaçant qui n'existe
   pas ou une famille qui se remplace elle-même ;
+- un matériau dont la catégorie contredit celle de sa famille, ou une couche
+  d'assemblage nommant un matériau qui n'existe pas, ou une épaisseur écrite en
+  millimètres ;
 - une courbe de performance dans une famille qui n'en déclare aucune, sur plus
   de deux axes, à la grille trouée, ou dont un axe nomme une propriété
   inconnue ou en donne une autre unité.

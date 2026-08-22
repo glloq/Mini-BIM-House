@@ -4,16 +4,12 @@ import { CURRENT_PROJECT_SCHEMA_VERSION } from '@house-technical-designer/projec
 import { entityId, type Wall } from '@house-technical-designer/core-domain';
 import {
   AddWallCommand,
-  draftAssembly,
-  draftAssemblyLayer,
   ProjectCommandDispatcher,
   ProjectEditorCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
-import {
-  genericMaterialCatalog,
-  materialId,
-} from '@house-technical-designer/materials';
+import { genericMaterialCatalog } from '@house-technical-designer/materials';
+import { genericAssemblyCatalog } from '@house-technical-designer/assemblies';
 import {
   exportSemanticSceneToSvg,
   GENERIC_TECHNICAL_PRINT,
@@ -190,83 +186,17 @@ function dispatchResult(
  * project data: they use the generic material catalogue and can be edited,
  * duplicated or deleted like any other assembly.
  */
+/**
+ * The build-ups a new project starts with.
+ *
+ * They were written out here, layer by layer, in the application — three walls
+ * and a roof composed in TypeScript beside the code that draws them. A
+ * build-up is data: it belongs in the assembly catalogue, where a gate reads
+ * it, where its layers are checked to name materials that exist, and where
+ * somebody can add a fifth without touching the application at all.
+ */
 export function starterAssemblies() {
-  return [
-    draftAssembly('assembly-exterior-wall', 'Mur extérieur isolé', 'WALL', [
-      draftAssemblyLayer(
-        'exterior-wall-masonry',
-        materialId('generic-concrete-block'),
-        200,
-        'STRUCTURAL',
-      ),
-      draftAssemblyLayer(
-        'exterior-wall-insulation',
-        materialId('generic-rock-wool'),
-        160,
-        'INSULATION',
-      ),
-      draftAssemblyLayer(
-        'exterior-wall-board',
-        materialId('generic-gypsum-board'),
-        13,
-        'FINISH',
-      ),
-    ]),
-    draftAssembly('assembly-partition', 'Cloison intérieure', 'PARTITION', [
-      draftAssemblyLayer(
-        'partition-board-inner',
-        materialId('generic-gypsum-board'),
-        13,
-        'FINISH',
-      ),
-      draftAssemblyLayer(
-        'partition-insulation',
-        materialId('generic-glass-wool'),
-        70,
-        'INSULATION',
-      ),
-      draftAssemblyLayer(
-        'partition-board-outer',
-        materialId('generic-gypsum-board'),
-        13,
-        'FINISH',
-      ),
-    ]),
-    draftAssembly('assembly-floor', 'Plancher sur terre-plein', 'FLOOR', [
-      draftAssemblyLayer(
-        'floor-concrete',
-        materialId('generic-concrete'),
-        150,
-        'STRUCTURAL',
-      ),
-      draftAssemblyLayer(
-        'floor-insulation',
-        materialId('generic-xps'),
-        100,
-        'INSULATION',
-      ),
-    ]),
-    draftAssembly('assembly-roof', 'Toiture isolée', 'ROOF', [
-      draftAssemblyLayer(
-        'roof-structure',
-        materialId('generic-softwood'),
-        200,
-        'STRUCTURAL',
-      ),
-      draftAssemblyLayer(
-        'roof-insulation',
-        materialId('generic-wood-fibre'),
-        300,
-        'INSULATION',
-      ),
-      draftAssemblyLayer(
-        'roof-board',
-        materialId('generic-gypsum-board'),
-        13,
-        'FINISH',
-      ),
-    ]),
-  ];
+  return genericAssemblyCatalog();
 }
 
 export function createBlankProject(now: string): ProjectFile {

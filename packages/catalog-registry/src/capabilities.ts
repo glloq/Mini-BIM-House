@@ -75,6 +75,8 @@ export const DERIVED_CAPABILITIES = [
   'PLAN_DRAWN',
   'SCHEMATIC_DRAWN',
   'RUN_MATERIAL',
+  'LAYERED',
+  'PIERCING',
   'CALCULATED',
 ] as const satisfies readonly CatalogCapability[];
 export type DerivedCapability = (typeof DERIVED_CAPABILITIES)[number];
@@ -86,10 +88,10 @@ export function isDerivedCapability(value: string): value is DerivedCapability {
 /**
  * What a family declares that nothing else can tell.
  *
- * Four of eleven. Whether a thing is a layer of an assembly, whether it
- * pierces a wall, whether its performance is tabulated rather than constant,
- * whether it is counted in the quantities: each is a decision about the
- * family, not a consequence of another field, and each has to be said.
+ * Two of eleven. Whether a family's performance is tabulated rather than
+ * constant, and whether it is counted in the quantities: each is a decision
+ * about the family, not a consequence of another field, and each has to be
+ * said. Everything else the family already implies.
  */
 export const DECLARED_CAPABILITIES = CATALOG_CAPABILITIES.filter(
   (capability) => !isDerivedCapability(capability),
@@ -126,6 +128,11 @@ export function derivedCapabilities(
   if (family.graphics?.schematicSymbol !== undefined)
     found.push('SCHEMATIC_DRAWN');
   if (family.registry === 'NETWORK_PRODUCT') found.push('RUN_MATERIAL');
+  // A material is a layer of a build-up by being a material, and an opening
+  // pierces a wall by being an opening. Writing either down would be the
+  // second version of a sentence the registry already says.
+  if (family.registry === 'MATERIAL') found.push('LAYERED');
+  if (family.registry === 'OPENING') found.push('PIERCING');
   if (has(family.calculators)) found.push('CALCULATED');
   return found;
 }

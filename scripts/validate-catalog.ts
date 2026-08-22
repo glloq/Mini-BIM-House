@@ -21,11 +21,15 @@ import {
   FAMILY_REGISTRY,
   NETWORK_PRODUCT_REGISTRY,
   PROPERTY_SCHEMA_REGISTRY,
+  validateAssemblyCatalog,
   validateCatalog,
+  validateMaterialCatalog,
   validateNetworkProducts,
   validateRegistry,
   validateSchemas,
 } from '@house-technical-designer/catalog-registry';
+import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
+import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies';
 
 const symbols = new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions));
 const calculators = new Set<string>(PROJECT_CALCULATION_MODULE_IDS);
@@ -72,6 +76,28 @@ const sections: readonly Section[] = [
     issues: validateCatalog(rawGenericEquipmentEntries(), symbols).map(
       ({ entryId, path, message }) => ({ subject: entryId, path, message }),
     ),
+  },
+  {
+    // The last of the seven registries to have lived in TypeScript, and the
+    // last no gate had ever read.
+    title: 'Matériaux',
+    counted: rawGenericMaterialEntries().length,
+    noun: 'matériaux',
+    issues: validateMaterialCatalog().map(({ entryId, path, message }) => ({
+      subject: entryId,
+      path,
+      message,
+    })),
+  },
+  {
+    title: 'Assemblages',
+    counted: rawGenericAssemblyEntries().length,
+    noun: 'compositions',
+    issues: validateAssemblyCatalog().map(({ entryId, path, message }) => ({
+      subject: entryId,
+      path,
+      message,
+    })),
   },
   {
     title: 'Produits réseau',

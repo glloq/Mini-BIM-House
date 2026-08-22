@@ -917,9 +917,10 @@
     {
       "id": "acousticAbsorption",
       "label": "Absorption acoustique",
-      "type": "number",
+      "type": "spectrum",
       "unit": "-",
-      "quantity": "RATIO"
+      "quantity": "RATIO",
+      "hint": "Un coefficient par bande d'octave ; une seule valeur serait une moyenne intraçable."
     },
     {
       "id": "reactionToFire",

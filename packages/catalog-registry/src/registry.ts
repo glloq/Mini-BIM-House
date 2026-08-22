@@ -47,6 +47,17 @@ import {
   type EquipmentCategory,
   type EquipmentDefinition,
 } from '@house-technical-designer/equipment-catalog';
+import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
+import {
+  genericAssemblyCatalog,
+  rawGenericAssemblyEntries,
+  type Assembly,
+} from '@house-technical-designer/assemblies';
+import {
+  validateAssemblyEntry,
+  validateMaterialEntry,
+  type MaterialIssue,
+} from './material-catalog.js';
 import { invalidBore } from './network-products.js';
 import {
   NETWORK_PRODUCT_REGISTRY,
@@ -191,10 +202,15 @@ export function propertySchema(id: string): PropertySchema | undefined {
  * entry no longer says either, so this is where a screen sorting nineteen — or
  * ten thousand — entries gets its buckets.
  */
-export function categoryOfFamily(
+export function categoryOfFamily(familyId: string): string | undefined {
+  return BY_ID.get(familyId)?.category;
+}
+
+/** The same, narrowed to the equipment list, for what the catalogue types. */
+export function equipmentCategoryOfFamily(
   familyId: string,
 ): EquipmentCategory | undefined {
-  const found = BY_ID.get(familyId)?.category;
+  const found = categoryOfFamily(familyId);
   return found === undefined || !isEquipmentCategory(found) ? undefined : found;
 }
 
@@ -253,9 +269,61 @@ export function equipmentRef(entry: {
  */
 export function genericCatalog(): readonly EquipmentDefinition[] {
   return genericEquipmentCatalog().map((entry) => {
-    const category = categoryOfFamily(entry.familyId);
+    const category = equipmentCategoryOfFamily(entry.familyId);
     return category === undefined ? entry : { ...entry, category };
   });
+}
+
+/** The generic build-ups, grouped as their families say. */
+export function genericAssemblies(): readonly Assembly[] {
+  return genericAssemblyCatalog();
+}
+
+/**
+ * Everything wrong with the material catalogue, in one pass.
+ *
+ * It was the last of the seven registries no gate had ever read.
+ */
+export function validateMaterialCatalog(): readonly MaterialIssue[] {
+  const issues: MaterialIssue[] = [];
+  const seen = new Set<string>();
+  for (const entry of rawGenericMaterialEntries()) {
+    if (seen.has(entry.id))
+      issues.push({
+        entryId: entry.id,
+        path: 'id',
+        message: 'is declared more than once',
+      });
+    seen.add(entry.id);
+    issues.push(
+      ...validateMaterialEntry(entry, { family, schema: propertySchema }),
+    );
+  }
+  return issues;
+}
+
+/** Everything wrong with the build-ups, including what they are made of. */
+export function validateAssemblyCatalog(): readonly MaterialIssue[] {
+  const materials = new Set(rawGenericMaterialEntries().map(({ id }) => id));
+  const issues: MaterialIssue[] = [];
+  const seen = new Set<string>();
+  for (const entry of rawGenericAssemblyEntries()) {
+    if (seen.has(entry.id))
+      issues.push({
+        entryId: entry.id,
+        path: 'id',
+        message: 'is declared more than once',
+      });
+    seen.add(entry.id);
+    issues.push(
+      ...validateAssemblyEntry(entry, {
+        family,
+        schema: propertySchema,
+        materials,
+      }),
+    );
+  }
+  return issues;
 }
 
 /** The property schema a family's entries are checked against, if it names one. */

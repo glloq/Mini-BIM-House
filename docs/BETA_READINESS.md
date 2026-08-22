@@ -23,7 +23,7 @@ Quatre passes d'audit ont suivi. Les trois premières ont porté sur ce que
 l'utilisateur fait — un poste de travail, les primitives de CAO, la maison
 plutôt que ses segments, les réseaux, les surcouches, le dossier de plans, les
 variantes, le terrain — et la quatrième sur la couche de données qui va
-remplir tout cela : sept registres, 518 familles, les catalogues, et surtout
+remplir tout cela : sept registres, 520 familles, les catalogues, et surtout
 les contrôles qui empêchent de la remplir de travers. C'est ce qui sépare la
 `0.2.0-beta.2` de la `0.3.0-beta.1`.
 

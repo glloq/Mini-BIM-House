@@ -8,6 +8,7 @@ export * from './capabilities.js';
 export * from './catalog-identity.js';
 export * from './catalog-validation.js';
 export * from './families.js';
+export * from './material-catalog.js';
 export * from './network-products.js';
 export * from './performance-vocabulary.js';
 export * from './property-schemas.js';

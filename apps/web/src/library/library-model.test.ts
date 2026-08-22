@@ -28,9 +28,11 @@ describe('material library view', () => {
     const insulation = rows.find(
       ({ material }) => material.id === 'generic-rock-wool',
     )!;
-    // The starter exterior wall uses it, so deleting it is blocked.
+    // Two starter build-ups use it, so deleting it is blocked.
     expect(insulation.deletable).toBe(false);
-    expect(insulation.usedBy.map(({ kind }) => kind)).toEqual(['ASSEMBLY']);
+    expect(new Set(insulation.usedBy.map(({ kind }) => kind))).toEqual(
+      new Set(['ASSEMBLY']),
+    );
     const unused = rows.find(
       ({ material }) => material.id === 'generic-steel',
     )!;
@@ -60,10 +62,11 @@ describe('assembly library view', () => {
   it('derives thickness, R and U from the project library', () => {
     const views = assemblyViews(project());
     const wall = views.find(
-      ({ assembly }) => assembly.id === 'assembly-exterior-wall',
+      ({ assembly }) =>
+        assembly.id === 'generic-wall-brick-internal-insulation',
     )!;
-    expect(wall.totalThicknessMm).toBe(373);
-    expect(wall.thermalResistanceM2KW).toBeGreaterThan(4);
+    expect(wall.totalThicknessMm).toBe(333);
+    expect(wall.thermalResistanceM2KW).toBeGreaterThan(2.5);
     expect(wall.uValueWm2K).toBeCloseTo(1 / wall.thermalResistanceM2KW!, 9);
     expect(wall.missingConductivityLayerIds).toEqual([]);
     expect(
@@ -85,7 +88,7 @@ describe('assembly library view', () => {
         materials: [...base.materialLibrary!.materials, opaque],
       },
       assemblies: base.assemblies!.map((assembly) =>
-        assembly.id === 'assembly-partition'
+        assembly.id === 'generic-partition-stud'
           ? {
               ...assembly,
               layers: assembly.layers.map((layer, index) =>
@@ -97,7 +100,9 @@ describe('assembly library view', () => {
     };
     const view = assemblyView(
       withUnknown,
-      withUnknown.assemblies!.find(({ id }) => id === 'assembly-partition')!,
+      withUnknown.assemblies!.find(
+        ({ id }) => id === 'generic-partition-stud',
+      )!,
     );
     expect(view.thermalResistanceM2KW).toBeUndefined();
     expect(view.uValueWm2K).toBeUndefined();

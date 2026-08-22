@@ -5,8 +5,25 @@ declare const layerIdBrand: unique symbol;
 
 export type AssemblyId = string & { readonly [assemblyIdBrand]: true };
 export type AssemblyLayerId = string & { readonly [layerIdBrand]: true };
-export type AssemblyCategory =
-  'WALL' | 'ROOF' | 'FLOOR' | 'CEILING' | 'PARTITION' | 'OTHER';
+/**
+ * The coarse grouping a build-up falls into, as its family states it.
+ *
+ * A closed list, and stated once: the family says it, the entry does not
+ * repeat it, and the interface groups by what the nomenclature says.
+ */
+export const ASSEMBLY_CATEGORIES = [
+  'WALL',
+  'ROOF',
+  'FLOOR',
+  'CEILING',
+  'PARTITION',
+  'OTHER',
+] as const;
+export type AssemblyCategory = (typeof ASSEMBLY_CATEGORIES)[number];
+
+export function isAssemblyCategory(value: string): value is AssemblyCategory {
+  return (ASSEMBLY_CATEGORIES as readonly string[]).includes(value);
+}
 export type LayerRole =
   | 'FINISH'
   | 'STRUCTURAL'

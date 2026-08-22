@@ -51,9 +51,15 @@ export const BUDGETS = {
    * runs. It is the price of a project that opens the same way with the
    * catalogue uninstalled.
    *
+   * Raised by one more for the material and assembly catalogues: the sixteen
+   * materials and the seven build-ups a new project starts with are data now
+   * rather than two lists written out in the application, and a new project is
+   * created before anything is drawn. The data is the same size as the code it
+   * replaces; what grew is the loader and the gate around it.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 255 * 1024,
+  initialGzipBytes: 256 * 1024,
   /** Everything the build produces, gzipped. */
   totalGzipBytes: 374 * 1024,
 };
