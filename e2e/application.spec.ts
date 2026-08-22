@@ -1465,6 +1465,33 @@ test('creates a project on a page, storey by storey', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('narrows the design scope without losing anything', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await openDestination(page, 'Projet');
+  const scope = page.getByRole('region', { name: 'Périmètre de conception' });
+
+  // The demonstration house carries electrical runs; the trade cannot be set
+  // aside even when the boxes say so.
+  await scope.getByRole('button', { name: 'Architecture seule' }).click();
+  await expect(page.getByRole('status')).toContainText('périmètre');
+  await expect(scope).toContainText('ce projet en contient déjà');
+
+  // Nothing was deleted: the networks are where they were.
+  await openDestination(page, 'Réseaux');
+  await expect(page.locator('.network-layout')).toBeVisible();
+  await expect(
+    page.locator('.network-layout').getByRole('option').first(),
+  ).toBeAttached();
+
+  // The settings screen sorts the modules rather than hiding them.
+  await openDestination(page, 'Projet');
+  await expect(
+    page.locator('#settings-module optgroup[label="Hors périmètre"]'),
+  ).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
 test('draws the starting footprint with ordinary walls', async ({ page }) => {
   const errors = watchConsole(page);
   await page.goto('/');

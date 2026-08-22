@@ -1,8 +1,13 @@
 import { useMemo, useState } from 'react';
 import type { Project } from '@house-technical-designer/core-domain';
+import {
+  domainsPresentIn,
+  projectScopeOf,
+} from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import { validateClimateDataset } from '@house-technical-designer/climate';
 import {
+  SetProjectScopeCommand,
   UpdateModuleSettingsCommand,
   UpdateProjectMetadataCommand,
   UpdateRegulatoryContextCommand,
@@ -10,6 +15,8 @@ import {
   UpdateSiteCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
+import { DomainPicker } from '../project-creation/DomainPicker.js';
+import { partitionModules } from '../ux/scope-filter.js';
 import {
   MODULE_SETTINGS,
   fieldValue,
@@ -157,8 +164,17 @@ export function ProjectPanel({
       name: entry.name ?? entry.id,
     })),
   };
+  /**
+   * The modules this project's scope is asking about.
+   *
+   * The ones set aside stay in the list, in their own group: hiding them
+   * outright would leave someone looking for a screen that exists. A module
+   * the project already holds objects for is never set aside.
+   */
+  const { offered, setAside } = partitionModules(project, MODULE_SETTINGS);
   const descriptor =
     MODULE_SETTINGS.find((entry) => entry.moduleId === moduleId) ??
+    offered[0] ??
     MODULE_SETTINGS[0]!;
   const settings = moduleSettings(project, descriptor.moduleId);
   // Where and when the project is assessed; undefined until it says both.
@@ -288,6 +304,19 @@ export function ProjectPanel({
               }
             />
           </div>
+        </section>
+
+        <section aria-labelledby="scope-heading">
+          <h3 id="scope-heading">Périmètre de conception</h3>
+          <p className="hint">
+            Ce que vous concevez sur ce projet. Décocher un domaine n’enlève
+            rien au fichier : l’interface cesse seulement d’en proposer.
+          </p>
+          <DomainPicker
+            scope={projectScopeOf(project)}
+            present={domainsPresentIn(project)}
+            onChange={(scope) => onCommand(new SetProjectScopeCommand(scope))}
+          />
         </section>
 
         <section>
@@ -575,11 +604,22 @@ export function ProjectPanel({
                 value={descriptor.moduleId}
                 onChange={(event) => setModuleId(event.target.value)}
               >
-                {MODULE_SETTINGS.map((entry) => (
-                  <option key={entry.moduleId} value={entry.moduleId}>
-                    {entry.label}
-                  </option>
-                ))}
+                <optgroup label="Dans le périmètre">
+                  {offered.map((entry) => (
+                    <option key={entry.moduleId} value={entry.moduleId}>
+                      {entry.label}
+                    </option>
+                  ))}
+                </optgroup>
+                {setAside.length > 0 && (
+                  <optgroup label="Hors périmètre">
+                    {setAside.map((entry) => (
+                      <option key={entry.moduleId} value={entry.moduleId}>
+                        {entry.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
               </select>
             </div>
             <p className="hint">
