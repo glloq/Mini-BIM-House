@@ -9,9 +9,11 @@ import {
 import type { FamilyDefinition } from './families.js';
 import {
   validateProperties,
+  type PropertyDefinition,
   type PropertySchema,
   type PropertyValue,
 } from './property-schemas.js';
+import { validatePerformanceVocabulary } from './performance-vocabulary.js';
 import { validateProvenance, type ProvenanceCandidate } from './provenance.js';
 import { hasCapability } from './capabilities.js';
 
@@ -39,7 +41,15 @@ export interface CatalogEntryCandidate {
   readonly rendering?: {
     readonly symbols?: readonly { readonly symbolId: string }[];
   };
-  readonly performanceCurves?: readonly { readonly id: string }[];
+  readonly performanceCurves?: readonly {
+    readonly id: string;
+    readonly inputAxes: readonly {
+      readonly id: string;
+      readonly unit: string;
+    }[];
+    readonly output: string;
+    readonly outputUnit: string;
+  }[];
   /**
    * The bucket the entry claims for itself.
    *
@@ -108,6 +118,15 @@ export interface CatalogKnowledge {
   readonly family: (id: string) => FamilyDefinition | undefined;
   readonly schema: (id: string) => PropertySchema | undefined;
   readonly symbols: ReadonlySet<string>;
+  /**
+   * What a property key means, so that a performance axis can be checked to
+   * name one — and to state its unit.
+   *
+   * Not optional. A gate that can be called without half of what it checks is
+   * a gate that will be, and the half nobody passed is the half nothing
+   * verifies.
+   */
+  readonly property: (key: string) => PropertyDefinition | undefined;
 }
 
 /**
@@ -209,6 +228,16 @@ export function validateCatalogEntry(
       'performanceCurves',
       `${family.id} does not declare a tabulated performance`,
     );
+  // An axis called `outdoorTemperatureC` in one fiche and `tempExtC` in the
+  // next are two different axes to everything that reads them, and no amount
+  // of well-formed tabulation makes a calculation find the second.
+  for (const [index, curve] of (entry.performanceCurves ?? []).entries())
+    for (const issue of validatePerformanceVocabulary(
+      curve,
+      `performanceCurves/${index}`,
+      known.property,
+    ))
+      at(issue.path, issue.message);
 
   // The room around it: the family says which zones such a thing has, the
   // entry says how far each one reaches. An entry claiming a zone its family

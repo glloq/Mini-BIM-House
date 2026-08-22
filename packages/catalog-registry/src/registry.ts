@@ -33,6 +33,10 @@ import {
   type CatalogCapability,
 } from './capabilities.js';
 import {
+  performanceVocabulary,
+  type PerformanceMapCandidate,
+} from './performance-vocabulary.js';
+import {
   isOfferable,
   DEFAULT_LIFECYCLE,
   type CatalogRef,
@@ -345,6 +349,7 @@ export function validateCatalog(
         family,
         schema: propertySchema,
         symbols,
+        property: propertyDefinition,
       }),
     );
     // A version is a promise: `generic-battery@1.0.0` has to mean the same
@@ -419,6 +424,7 @@ export function measuredStatus(
         family,
         schema: propertySchema,
         symbols: known.symbols,
+        property: propertyDefinition,
       }).length === 0,
   );
 
@@ -546,10 +552,21 @@ export function validateSchemas(): readonly SchemaIssue[] {
       issues.push({ schemaId: schema.family, ...issue });
   }
   // A property nobody uses is a property nobody maintains, and it will be
-  // wrong by the time a family finally names it.
-  const used = new Set(
-    SCHEMA_FILES.flatMap(({ properties }) => properties.map(({ key }) => key)),
-  );
+  // wrong by the time a family finally names it. A schema is not the only way
+  // to use one: a performance map names a property on each of its axes and on
+  // its output, and those are the same vocabulary — an axis that named
+  // something nothing had defined is exactly what the gate below refuses.
+  const used = new Set([
+    ...SCHEMA_FILES.flatMap(({ properties }) =>
+      properties.map(({ key }) => key),
+    ),
+    ...performanceVocabulary(
+      genericEquipmentCatalog().flatMap(
+        ({ performanceCurves }) =>
+          (performanceCurves ?? []) as readonly PerformanceMapCandidate[],
+      ),
+    ),
+  ]);
   for (const definition of PROPERTY_DEFINITION_REGISTRY)
     if (!used.has(definition.id))
       issues.push({

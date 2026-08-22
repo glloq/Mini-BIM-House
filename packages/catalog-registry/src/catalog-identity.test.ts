@@ -21,6 +21,11 @@ import {
   type CatalogIdentityCandidate,
 } from './index.js';
 import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
+import {
+  PROPERTY_DEFINITION_REGISTRY,
+  propertyDefinition,
+  validatePerformanceVocabulary,
+} from './index.js';
 
 const identity = (
   patch: Partial<CatalogIdentityCandidate> = {},
@@ -205,5 +210,52 @@ describe('one taxonomy, projected rather than restated', () => {
     expect(
       resolved.find(({ id }) => id === 'generic-pv-module')?.category,
     ).toBe('PV_MODULE');
+  });
+});
+
+describe('a performance map speaks the application’s own vocabulary', () => {
+  const map = {
+    id: 'cop-vs-outdoor-temperature',
+    inputAxes: [{ id: 'outdoorTemperatureC', unit: '°C' }],
+    output: 'cop',
+    outputUnit: '-',
+  };
+  const messages = (patch: Partial<typeof map>) =>
+    validatePerformanceVocabulary(
+      { ...map, ...patch },
+      'performanceCurves/0',
+      propertyDefinition,
+    ).map(({ message }) => message);
+
+  it('accepts an axis and an output the registry defines', () => {
+    expect(messages({})).toEqual([]);
+  });
+
+  it('refuses an axis nothing has defined', () => {
+    // `outdoorTemperatureC` in one fiche and `tempExtC` in the next are two
+    // different axes to everything that reads them, and no amount of
+    // well-formed tabulation makes a calculation find the second.
+    expect(messages({ inputAxes: [{ id: 'tempExtC', unit: '°C' }] })).toEqual([
+      'axis tempExtC is not a property this application defines',
+    ]);
+  });
+
+  it('refuses a unit written a second way', () => {
+    // Two curves said `m3/h` where the registry says `m³/h`: the same quantity
+    // written twice, and therefore two units to anything comparing strings.
+    expect(
+      messages({
+        inputAxes: [{ id: 'flowM3h', unit: 'm3/h' }],
+      }),
+    ).toEqual(['flowM3h is measured in m³/h and this map states m3/h']);
+  });
+
+  it('defines every axis and output the shipped catalogue names', () => {
+    const defined = new Set(PROPERTY_DEFINITION_REGISTRY.map(({ id }) => id));
+    for (const entry of rawGenericEquipmentEntries())
+      for (const curve of entry.performanceCurves ?? []) {
+        for (const axis of curve.inputAxes) expect(defined).toContain(axis.id);
+        expect(defined).toContain(curve.output);
+      }
   });
 });

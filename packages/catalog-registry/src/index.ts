@@ -9,6 +9,7 @@ export * from './catalog-identity.js';
 export * from './catalog-validation.js';
 export * from './families.js';
 export * from './network-products.js';
+export * from './performance-vocabulary.js';
 export * from './property-schemas.js';
 export * from './provenance.js';
 export * from './registry.js';

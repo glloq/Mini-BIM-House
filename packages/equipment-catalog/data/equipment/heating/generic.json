@@ -176,7 +176,7 @@
           "inputAxes": [
             {
               "id": "flowM3h",
-              "unit": "m3/h"
+              "unit": "m³/h"
             }
           ],
           "output": "headM",
@@ -216,7 +216,7 @@
         "planFootprint": "SYMBOL_ONLY",
         "layer": "heating.equipment"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

@@ -390,6 +390,42 @@ n'est pas l'utilisateur qui les saisit, c'est l'application qui note quelle
 version il a choisie. `resolvePlacedEquipment()` compare les deux et signale
 l'écart au lieu de l'absorber.
 
+## Les cartes de performance
+
+Une machine n'est pas un nombre. Le COP d'une pompe à chaleur vaut 2,0 à
+−15 °C et 5,0 à +15 °C, la pression d'un ventilateur dépend du débit qu'on lui
+demande, et la puissance d'un compresseur dépend de deux choses à la fois : la
+température extérieure et celle du départ.
+
+Une carte v1 tabule cela sur **un ou deux axes**, pas plus. Trois était accepté,
+stocké, puis répondu « hors plage » pour toujours, parce que le seul lecteur
+refusait tout ce qui n'avait pas exactement un axe : accepter des données que
+rien ne sait lire est la façon dont un catalogue se remplit de fiches qui ont
+l'air complètes. `CUSTOM` a disparu pour la même raison — rien ne
+l'implémentait.
+
+Ce que la porte refuse :
+
+- deux points au même endroit — ce ne sont pas des doublons à tolérer, ce sont
+  deux réponses à une question, et celle qui gagne dépend de l'ordre du
+  fichier ;
+- une grille à deux axes incomplète. Elle se lit comme un rectangle jusqu'au
+  trou, puis répond avec un coin qui n'existe pas ;
+- une interpolation que les axes ne portent pas — `BILINEAR` sur un seul axe ;
+- un axe nommé deux fois, un point non fini, un seul point à interpoler.
+
+Et rien n'est **extrapolé**, sur aucun des deux axes. Un compresseur interrogé
+en dessous du dernier point mesuré par le fabricant n'a pas une droite là-bas :
+il a une coupure. La réponse est alors `OUT_OF_RANGE`, avec la plage, pour que
+l'interface montre la limite au lieu d'un nombre confiant et faux.
+
+Enfin, un axe **nomme une propriété du registre et en porte l'unité**.
+`outdoorTemperatureC` dans une fiche et `tempExtC` dans la suivante sont deux
+axes différents pour tout ce qui les lit, et aucune tabulation bien formée ne
+fera trouver le second à un calcul. Deux courbes écrivaient déjà `m3/h` là où le
+registre dit `m³/h` : la même grandeur écrite deux fois, donc deux unités pour
+qui compare des chaînes.
+
 ## La copie est une copie
 
 Un projet ne pointe pas vers le catalogue : il en emporte une copie. Sinon il
@@ -461,7 +497,9 @@ sur un tube dont l'alésage est faux de quatre millimètres.
 - une capability lue de ce que la famille déclare et réécrite à la main ;
 - une vague hors des six, un cycle de vie inconnu, un remplaçant qui n'existe
   pas ou une famille qui se remplace elle-même ;
-- une courbe de performance dans une famille qui n'en déclare aucune.
+- une courbe de performance dans une famille qui n'en déclare aucune, sur plus
+  de deux axes, à la grille trouée, ou dont un axe nomme une propriété
+  inconnue ou en donne une autre unité.
 
 Tout cela est vérifié par les tests, donc à chaque intégration continue.
 

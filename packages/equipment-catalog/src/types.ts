@@ -114,8 +114,24 @@ export interface EquipmentPortDefinition {
   readonly nominalSize?: number;
 }
 
+/**
+ * How a value between the tabulated points is found.
+ *
+ * `TABLE` means it is not: only the points themselves answer, and anything
+ * between them is out of range. That is the honest option for a stepped
+ * quantity — a fan with three speeds does not have a speed and a half.
+ *
+ * `CUSTOM` was a fourth value and nothing implemented it. A curve declaring it
+ * was accepted, stored, and then answered nothing for ever; the catalogue
+ * would have filled up with fiches that look complete.
+ */
+export const PERFORMANCE_INTERPOLATIONS = [
+  'LINEAR',
+  'BILINEAR',
+  'TABLE',
+] as const;
 export type PerformanceInterpolation =
-  'LINEAR' | 'BILINEAR' | 'TABLE' | 'CUSTOM';
+  (typeof PERFORMANCE_INTERPOLATIONS)[number];
 
 export interface PerformanceAxis {
   readonly id: string;
@@ -135,6 +151,15 @@ export interface PerformanceCurve {
   readonly outputUnit: string;
   readonly points: readonly PerformancePoint[];
   readonly interpolation: PerformanceInterpolation;
+  /**
+   * Where this table comes from, when it does not come from the entry's own
+   * provenance.
+   *
+   * A manufacturer sheet often carries one map measured to a standard and
+   * another interpolated by the maker's own software, and the difference is
+   * the difference between a figure that can be defended and one that cannot.
+   */
+  readonly provenance?: EquipmentProvenance;
 }
 
 export interface EquipmentSymbolBinding {
