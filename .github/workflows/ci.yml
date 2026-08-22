@@ -30,6 +30,13 @@ jobs:
       # is wrong in a way no type-check and no unit test of the engine sees.
       - run: npm run validate:catalog
       - run: npm run validate:docs
+      # The manifest says what is installed; a manifest nobody checks is a
+      # manifest that describes a previous release.
+      - run: npm run catalog:manifest -- --check
+      # The catalogue measured at the size it is meant to reach. Not a
+      # threshold — machines differ — but a run that fails loudly the day
+      # indexing ten thousand entries stops finishing at all.
+      - run: npm run benchmark
       - run: npm run test:coverage
       - run: npm run audit:licenses
       - run: npm test

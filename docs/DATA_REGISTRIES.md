@@ -652,6 +652,27 @@ c'est la raison pour laquelle le panneau met quatre secondes à s'ouvrir, à
 chaque frappe dans la recherche. Cinq tables et un champ replié — accents
 ôtés, casse tombée, pour que « fenêtre » trouve `Fenetre`.
 
+## L'échelle, et la maison de qualification
+
+Deux pièces à conviction, parce qu'elles prouvent deux choses différentes.
+
+La **maison de référence** est une maison : elle porte quatre familles, parce
+que c'est ce qu'une maison porte, et ce qu'elle prouve c'est qu'elles
+fonctionnent ensemble.
+
+La **maison de qualification** est une de chaque. Ce qu'elle prouve est plus
+étroit et mérite de l'être : que chaque fiche livrée peut être portée par un
+projet que l'importateur accepte. Une fiche qui ne le peut pas est une fiche
+dont le seul mode de défaillance se découvre chez un utilisateur, au rouvrir,
+des mois plus tard. Elle fait aussi apparaître ce que rien ne montrait :
+« personne n'a jamais posé cela dans un projet ».
+
+Enfin, un **catalogue de mesure** — `syntheticSummaries`, `syntheticEntries` —
+fabrique mille ou dix mille fiches réparties sur les vraies familles, avec les
+propriétés que ces familles déclarent et les ports qu'elles exigent : un
+générateur dont la porte ignorerait les fiches mesurerait la vitesse de ne rien
+faire. Les chiffres sont dans `docs/PERFORMANCE_BASELINE.md`.
+
 ## Comment ajouter une famille
 
 1. l'écrire dans `data/families/<domaine>.json` avec ses ports, ses modules, son

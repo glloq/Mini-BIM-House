@@ -29,6 +29,7 @@ import {
   familiesExercisedBy,
   familyReviews,
   pendingOfWave,
+  qualificationHouse,
 } from '@house-technical-designer/catalog-registry';
 
 /**
@@ -44,10 +45,24 @@ const reference = JSON.parse(
   readFileSync('examples/reference-house/reference.houseproj.json', 'utf8'),
 ) as { readonly project: Parameters<typeof familiesExercisedBy>[0] };
 
+/**
+ * Two fixtures, because they prove two different things.
+ *
+ * The reference house is a house: it holds four families, because that is what
+ * a house holds, and what it proves is that they work together. The
+ * qualification house is one of each, and what it proves is narrower and worth
+ * proving too — that every entry the application ships can be carried by a
+ * project the importer accepts.
+ */
+const exercised = new Set([
+  ...familiesExercisedBy(reference.project),
+  ...familiesExercisedBy(qualificationHouse()),
+]);
+
 const reviews = familyReviews({
   symbols: new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions)),
   entries: genericEquipmentCatalog(),
-  exercised: familiesExercisedBy(reference.project),
+  exercised,
 });
 
 const wave = Number(process.argv[2]);
