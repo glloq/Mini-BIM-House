@@ -23,6 +23,55 @@ const wasteIn = port('waste', 'drain', 'IN', {
 const silentOut = port('silent-out', 'a', 'OUT');
 const silentIn = port('silent-in', 'b', 'IN');
 
+describe('the media the registry could not name', () => {
+  // A boiler could not say where what it burns arrives from, a cooling coil
+  // fed by water was inexpressible, and an in-line device on the alternating
+  // side could only be described as two ports of the same kind. Declaring the
+  // vocabulary is half the fix; this is the other half — that a run made of it
+  // actually joins.
+  it('joins a meter to a gas boiler', () => {
+    expect(
+      portsConnectable(
+        port('supply', 'meter', 'OUT', { portTypeId: 'FUEL_GAS_SUPPLY' }),
+        port('fuel', 'boiler', 'IN', { portTypeId: 'FUEL_GAS' }),
+      ),
+    ).toBe(true);
+  });
+
+  it('refuses fuel oil where gas is expected', () => {
+    expect(
+      portsConnectable(
+        port('supply', 'tank', 'OUT', { portTypeId: 'FUEL_OIL_SUPPLY' }),
+        port('fuel', 'boiler', 'IN', { portTypeId: 'FUEL_GAS' }),
+      ),
+    ).toBe(false);
+  });
+
+  it('joins a chilled circuit to a coil', () => {
+    expect(
+      portsConnectable(
+        port('flow', 'chiller', 'OUT', { portTypeId: 'CHILLED_FLOW' }),
+        port('return', 'coil', 'IN', { portTypeId: 'CHILLED_RETURN' }),
+      ),
+    ).toBe(true);
+  });
+
+  it('joins the downstream of one breaker to the upstream of the next', () => {
+    expect(
+      portsConnectable(
+        port('load', 'first', 'OUT', { portTypeId: 'ELECTRICAL_AC' }),
+        port('line', 'second', 'IN', { portTypeId: 'ELECTRICAL_AC_INPUT' }),
+      ),
+    ).toBe(true);
+    expect(
+      portsConnectable(
+        port('out', 'rack', 'OUT', { portTypeId: 'BATTERY_DC' }),
+        port('dc-in', 'fuse', 'IN', { portTypeId: 'BATTERY_DC_INPUT' }),
+      ),
+    ).toBe(true);
+  });
+});
+
 describe('whether two ports may be joined', () => {
   it('says yes when both name the same kind', () => {
     expect(portCompatibility(coldOut, coldIn)).toEqual({

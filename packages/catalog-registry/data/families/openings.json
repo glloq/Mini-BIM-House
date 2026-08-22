@@ -20,7 +20,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -49,7 +49,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -78,7 +78,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -107,7 +107,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -136,7 +136,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -165,7 +165,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -194,7 +194,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -223,7 +223,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -252,7 +252,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -281,7 +281,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -310,7 +310,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -339,7 +339,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -368,7 +368,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -397,7 +397,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -426,7 +426,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "WINDOW",
       "status": {
         "MODEL": "PARTIAL",
@@ -448,7 +448,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "clearances": ["OPENING", "ACCESSIBILITY"],
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -469,7 +469,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "clearances": ["OPENING", "ACCESSIBILITY"],
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -490,7 +490,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "clearances": ["OPENING", "ACCESSIBILITY"],
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -511,7 +511,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "clearances": ["OPENING", "ACCESSIBILITY"],
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -532,7 +532,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "clearances": ["OPENING", "ACCESSIBILITY"],
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -553,7 +553,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "clearances": ["OPENING", "ACCESSIBILITY"],
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -574,7 +574,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "clearances": ["OPENING", "ACCESSIBILITY"],
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -595,7 +595,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "clearances": ["OPENING", "ACCESSIBILITY"],
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -616,7 +616,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "clearances": ["OPENING", "ACCESSIBILITY"],
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -637,7 +637,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING", "ACCESSIBILITY"],
+      "clearances": ["OPENING", "ACCESSIBILITY"],
       "propertySchema": "DOOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -659,7 +659,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
         "MODEL": "NONE"
@@ -679,7 +679,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
         "MODEL": "NONE"
@@ -700,7 +700,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
         "MODEL": "NONE"
@@ -721,7 +721,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
         "MODEL": "NONE"
@@ -741,7 +741,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
         "MODEL": "NONE"
@@ -762,7 +762,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
         "MODEL": "NONE"
@@ -782,7 +782,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
         "MODEL": "NONE"
@@ -802,7 +802,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
         "MODEL": "NONE"
@@ -822,7 +822,7 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["PHYSICAL", "OPENING"],
+      "clearances": ["OPENING"],
       "propertySchema": "SOLAR_PROTECTION",
       "status": {
         "MODEL": "NONE"

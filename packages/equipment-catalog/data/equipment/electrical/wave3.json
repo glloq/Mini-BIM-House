@@ -12,7 +12,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -149,7 +149,7 @@
       "ports": [
         {
           "id": "network",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 90,
@@ -221,7 +221,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -283,7 +283,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -345,7 +345,7 @@
       "ports": [
         {
           "id": "network",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 32,
@@ -411,7 +411,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -476,7 +476,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -603,7 +603,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -651,7 +651,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -700,7 +700,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -751,7 +751,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -800,7 +800,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -848,7 +848,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -896,7 +896,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -944,7 +944,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -992,7 +992,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -1981,7 +1981,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": -20.0,
@@ -2043,7 +2043,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": -20.0,
@@ -2114,7 +2114,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": -20.0,
@@ -2123,7 +2123,7 @@
         },
         {
           "id": "load",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": -20.0,
@@ -2194,7 +2194,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": -20.0,
@@ -2265,7 +2265,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": -20.0,
@@ -2327,7 +2327,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": -22.5,
@@ -2387,7 +2387,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": -22.5,

@@ -20,7 +20,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -49,7 +49,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -76,7 +76,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -103,7 +103,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -131,7 +131,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -158,7 +158,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -185,7 +185,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -220,7 +220,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -256,7 +256,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -295,7 +295,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -330,7 +330,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -357,7 +357,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -385,7 +385,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -412,7 +412,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -426,14 +426,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        },
-        "EARTH"
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC", "EARTH"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -446,7 +439,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -460,14 +453,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        },
-        "EARTH"
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC", "EARTH"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -480,7 +466,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -507,7 +493,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -521,13 +507,7 @@
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": [
         "photovoltaic",
         "electrical",
@@ -540,7 +520,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -568,7 +548,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -596,7 +576,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "clearances": ["MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -623,7 +603,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "clearances": ["MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -651,7 +631,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "clearances": ["MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -681,7 +661,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "clearances": ["MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -708,7 +688,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "clearances": ["MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -723,13 +703,7 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": [
-        {
-          "anyOf": ["BATTERY_DC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["BATTERY_DC_INPUT", "BATTERY_DC"],
       "calculators": [
         "battery",
         "electrical",
@@ -742,7 +716,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "clearances": ["MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -756,13 +730,7 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": [
-        {
-          "anyOf": ["BATTERY_DC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["BATTERY_DC_INPUT", "BATTERY_DC"],
       "calculators": [
         "battery",
         "electrical",
@@ -775,7 +743,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "clearances": ["MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -790,13 +758,7 @@
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
-      "ports": [
-        {
-          "anyOf": ["BATTERY_DC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["BATTERY_DC_INPUT", "BATTERY_DC"],
       "calculators": [
         "battery",
         "electrical",
@@ -809,7 +771,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "clearances": ["MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -837,7 +799,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "clearances": ["MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -872,7 +834,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "clearances": ["MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -888,10 +850,11 @@
       "priority": 5,
       "ports": [
         {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 3,
-          "maxCount": 3
+          "anyOf": ["ELECTRICAL_AC_INPUT"],
+          "minCount": 2,
+          "maxCount": 2
         },
+        "ELECTRICAL_AC",
         "EARTH"
       ],
       "calculators": [
@@ -906,7 +869,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "THERMAL", "FIRE"],
+      "clearances": ["MAINTENANCE", "THERMAL", "FIRE"],
       "propertySchema": "BATTERY_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -928,13 +891,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "COMBUSTIBLE_CLEARANCE",
-        "FIRE",
-        "THERMAL"
-      ],
+      "clearances": ["MAINTENANCE", "COMBUSTIBLE_CLEARANCE", "FIRE", "THERMAL"],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
         "MODEL": "NONE"
@@ -956,20 +913,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "COMBUSTIBLE_CLEARANCE",
-        "FIRE",
-        "THERMAL"
-      ],
+      "clearances": ["MAINTENANCE", "COMBUSTIBLE_CLEARANCE", "FIRE", "THERMAL"],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
       "category": "OTHER",
-      "optionalPorts": ["COMBUSTION_AIR"]
+      "optionalPorts": ["COMBUSTION_AIR", "FUEL_PELLET"]
     },
     {
       "id": "WOOD_INSERT",
@@ -984,13 +935,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "COMBUSTIBLE_CLEARANCE",
-        "FIRE",
-        "THERMAL"
-      ],
+      "clearances": ["MAINTENANCE", "COMBUSTIBLE_CLEARANCE", "FIRE", "THERMAL"],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
         "MODEL": "NONE"
@@ -1012,20 +957,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "COMBUSTIBLE_CLEARANCE",
-        "FIRE",
-        "THERMAL"
-      ],
+      "clearances": ["MAINTENANCE", "COMBUSTIBLE_CLEARANCE", "FIRE", "THERMAL"],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
       "category": "OTHER",
-      "optionalPorts": ["COMBUSTION_AIR"]
+      "optionalPorts": ["COMBUSTION_AIR", "FUEL_PELLET"]
     },
     {
       "id": "FIREPLACE",
@@ -1040,13 +979,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "COMBUSTIBLE_CLEARANCE",
-        "FIRE",
-        "THERMAL"
-      ],
+      "clearances": ["MAINTENANCE", "COMBUSTIBLE_CLEARANCE", "FIRE", "THERMAL"],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
         "MODEL": "NONE"
@@ -1068,13 +1001,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "COMBUSTIBLE_CLEARANCE",
-        "FIRE",
-        "THERMAL"
-      ],
+      "clearances": ["MAINTENANCE", "COMBUSTIBLE_CLEARANCE", "FIRE", "THERMAL"],
       "propertySchema": "COMBUSTION_APPLIANCE",
       "status": {
         "MODEL": "NONE"
@@ -1096,7 +1023,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1117,7 +1044,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1138,7 +1065,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1159,7 +1086,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1180,7 +1107,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1201,7 +1128,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1222,7 +1149,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1243,7 +1170,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1264,7 +1191,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1285,7 +1212,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1306,7 +1233,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1327,7 +1254,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1348,7 +1275,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1369,7 +1296,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1389,7 +1316,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"
@@ -1409,7 +1336,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "COMBUSTIBLE_CLEARANCE", "FIRE"],
+      "clearances": ["COMBUSTIBLE_CLEARANCE", "FIRE"],
       "propertySchema": "FLUE_COMPONENT",
       "status": {
         "MODEL": "NONE"

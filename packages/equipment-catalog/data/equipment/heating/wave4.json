@@ -69,6 +69,15 @@
             "z": -375
           },
           "nominalSize": 0.032
+        },
+        {
+          "id": "fuel",
+          "portTypeId": "FUEL_GAS",
+          "position": {
+            "x": -225.0,
+            "y": 0,
+            "z": -375.0
+          }
         }
       ],
       "properties": {
@@ -160,6 +169,15 @@
             "z": -600
           },
           "nominalSize": 0.032
+        },
+        {
+          "id": "fuel",
+          "portTypeId": "FUEL_OIL",
+          "position": {
+            "x": -300.0,
+            "y": 0,
+            "z": -600.0
+          }
         }
       ],
       "properties": {

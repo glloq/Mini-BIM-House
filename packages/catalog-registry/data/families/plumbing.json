@@ -14,7 +14,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "READY",
@@ -37,7 +37,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -58,7 +58,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -80,7 +80,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "READY",
@@ -103,7 +103,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -125,7 +125,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "READY",
@@ -148,7 +148,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -170,7 +170,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -191,7 +191,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -213,7 +213,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "READY",
@@ -236,7 +236,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -257,7 +257,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -278,7 +278,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -299,7 +299,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -320,7 +320,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -341,7 +341,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -362,7 +362,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "SANITARY_FIXTURE",
       "status": {
         "MODEL": "PARTIAL",
@@ -389,7 +389,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -415,7 +415,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -441,7 +441,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -467,7 +467,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -493,7 +493,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -519,7 +519,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -545,7 +545,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -571,7 +571,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -598,7 +598,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -625,7 +625,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -652,7 +652,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -672,7 +672,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -698,7 +698,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -724,7 +724,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -750,7 +750,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -776,7 +776,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -802,7 +802,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -828,7 +828,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -854,7 +854,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -880,7 +880,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -906,7 +906,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -930,7 +930,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -956,7 +956,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -982,7 +982,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -1002,7 +1002,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -1022,7 +1022,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -1043,7 +1043,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "DHW_TANK",
       "status": {
         "MODEL": "READY",
@@ -1066,7 +1066,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "DHW_TANK",
       "status": {
         "MODEL": "PARTIAL",
@@ -1088,7 +1088,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "DHW_TANK",
       "status": {
         "MODEL": "PARTIAL",
@@ -1109,7 +1109,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "DHW_TANK",
       "status": {
         "MODEL": "PARTIAL",
@@ -1130,7 +1130,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "DHW_TANK",
       "status": {
         "MODEL": "PARTIAL",
@@ -1151,7 +1151,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "DHW_TANK",
       "status": {
         "MODEL": "PARTIAL",
@@ -1172,7 +1172,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "DHW_TANK",
       "status": {
         "MODEL": "PARTIAL",
@@ -1193,7 +1193,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -1214,7 +1214,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -1234,7 +1234,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -1259,7 +1259,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
@@ -1283,7 +1283,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"

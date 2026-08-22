@@ -374,7 +374,7 @@
       "ports": [
         {
           "id": "line",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,

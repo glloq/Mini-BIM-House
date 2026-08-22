@@ -505,24 +505,86 @@
           "nominalSize": 0.2
         },
         {
-          "id": "liquid",
-          "portTypeId": "REFRIGERANT_LIQUID",
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
           "position": {
             "x": 0,
-            "y": 175,
-            "z": 100
+            "y": 0,
+            "z": -150
           },
-          "nominalSize": 0.0064
+          "nominalSize": 0.02
         },
         {
-          "id": "gas",
+          "id": "refrigerant-liquid",
+          "portTypeId": "REFRIGERANT_LIQUID",
+          "position": {
+            "x": -200.0,
+            "y": 175.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "refrigerant-gas",
           "portTypeId": "REFRIGERANT_GAS",
           "position": {
-            "x": 0,
-            "y": 175,
-            "z": -100
+            "x": 200.0,
+            "y": 175.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowM3h": 300,
+        "pressureDropPa": 60,
+        "airRole": "SUPPLY"
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE",
+        "layer": "ventilation.distribution"
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 400,
+          "belowMm": 300,
+          "reason": "Accès au bac à condensats et aux raccords frigorifiques"
+        }
+      ]
+    },
+    {
+      "id": "generic-chilled-water-cooling-coil",
+      "familyId": "COOLING_COIL",
+      "name": "Batterie froide à eau glacée",
+      "version": "1.0.0",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 350,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "air-inlet",
+          "portTypeId": "AIR_SUPPLY_INLET",
+          "position": {
+            "x": -200,
+            "y": 0,
+            "z": 0
           },
-          "nominalSize": 0.0127
+          "nominalSize": 0.2
+        },
+        {
+          "id": "air-outlet",
+          "portTypeId": "AIR_SUPPLY",
+          "position": {
+            "x": 200,
+            "y": 0,
+            "z": 0
+          },
+          "nominalSize": 0.2
         },
         {
           "id": "condensate",
@@ -533,6 +595,24 @@
             "z": -150
           },
           "nominalSize": 0.02
+        },
+        {
+          "id": "chilled-return",
+          "portTypeId": "CHILLED_RETURN",
+          "position": {
+            "x": -200.0,
+            "y": 175.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "chilled-flow",
+          "portTypeId": "CHILLED_FLOW",
+          "position": {
+            "x": 200.0,
+            "y": 175.0,
+            "z": 0
+          }
         }
       ],
       "properties": {

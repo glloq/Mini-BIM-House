@@ -6,21 +6,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        },
-        "EARTH"
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC", "EARTH"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
@@ -34,20 +27,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
@@ -62,20 +49,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
@@ -90,20 +71,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
@@ -123,7 +98,7 @@
         {
           "anyOf": ["ELECTRICAL_AC"],
           "minCount": 2,
-          "maxCount": 64
+          "maxCount": 2
         },
         "EARTH"
       ],
@@ -133,7 +108,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "READY",
@@ -153,7 +128,7 @@
         {
           "anyOf": ["ELECTRICAL_AC"],
           "minCount": 2,
-          "maxCount": 64
+          "maxCount": 2
         },
         "EARTH"
       ],
@@ -163,7 +138,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
@@ -184,7 +159,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
@@ -198,20 +173,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
@@ -226,20 +195,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
@@ -254,20 +217,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "ELECTRICAL_WORKING", "MAINTENANCE"],
+      "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
       "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL",
@@ -283,20 +240,13 @@
       "registry": "EQUIPMENT",
       "category": "PROTECTION_DEVICE",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -312,20 +262,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -339,20 +282,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -366,20 +302,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -393,20 +322,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -420,20 +342,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -448,20 +363,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -476,20 +384,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -504,20 +405,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -539,7 +433,6 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -553,20 +446,13 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["DISTRIBUTION_BOARD"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "PROTECTION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -584,7 +470,7 @@
         {
           "anyOf": ["ELECTRICAL_AC"],
           "minCount": 2,
-          "maxCount": 8
+          "maxCount": 2
         }
       ],
       "calculators": ["electrical", "cost"],
@@ -593,7 +479,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
@@ -615,7 +501,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
@@ -637,7 +523,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
@@ -656,7 +542,7 @@
         {
           "anyOf": ["ELECTRICAL_AC"],
           "minCount": 2,
-          "maxCount": 12
+          "maxCount": 2
         }
       ],
       "calculators": ["electrical", "cost"],
@@ -665,7 +551,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
@@ -687,7 +573,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
@@ -709,7 +595,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "ELECTRICAL_ACCESSORY",
       "status": {
         "MODEL": "PARTIAL",
@@ -732,7 +618,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -755,7 +641,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -776,7 +662,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -797,7 +683,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -818,7 +704,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -839,7 +725,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -860,7 +746,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -874,20 +760,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -902,10 +782,11 @@
       "registry": "EQUIPMENT",
       "priority": 3,
       "ports": [
+        "ELECTRICAL_AC_INPUT",
         {
           "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 3,
-          "maxCount": 3
+          "minCount": 2,
+          "maxCount": 2
         }
       ],
       "calculators": ["electrical", "cost"],
@@ -914,7 +795,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -929,10 +810,11 @@
       "registry": "EQUIPMENT",
       "priority": 3,
       "ports": [
+        "ELECTRICAL_AC_INPUT",
         {
           "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 3,
-          "maxCount": 3
+          "minCount": 2,
+          "maxCount": 2
         }
       ],
       "calculators": ["electrical", "cost"],
@@ -941,7 +823,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -957,9 +839,14 @@
       "priority": 3,
       "ports": [
         {
+          "anyOf": ["ELECTRICAL_AC_INPUT"],
+          "minCount": 2,
+          "maxCount": 2
+        },
+        {
           "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 4,
-          "maxCount": 4
+          "minCount": 2,
+          "maxCount": 2
         }
       ],
       "calculators": ["electrical", "cost"],
@@ -968,7 +855,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -982,20 +869,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1009,20 +890,14 @@
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
-      "ports": [
-        {
-          "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 2,
-          "maxCount": 2
-        }
-      ],
+      "ports": ["ELECTRICAL_AC_INPUT", "ELECTRICAL_AC"],
       "calculators": ["electrical", "cost"],
       "placement": {
         "allowedHosts": ["WALL"],
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1038,10 +913,11 @@
       "registry": "EQUIPMENT",
       "priority": 3,
       "ports": [
+        "ELECTRICAL_AC_INPUT",
         {
           "anyOf": ["ELECTRICAL_AC"],
-          "minCount": 3,
-          "maxCount": 3
+          "minCount": 2,
+          "maxCount": 2
         }
       ],
       "calculators": ["electrical", "cost"],
@@ -1050,7 +926,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "USAGE", "ACCESSIBILITY"],
+      "clearances": ["USAGE", "ACCESSIBILITY"],
       "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1072,7 +948,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
@@ -1094,7 +970,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
@@ -1116,7 +992,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
@@ -1138,7 +1014,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
@@ -1160,7 +1036,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
@@ -1182,7 +1058,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
@@ -1204,7 +1080,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
@@ -1226,7 +1102,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
@@ -1248,7 +1124,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
@@ -1270,7 +1146,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL",
@@ -1292,7 +1168,6 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1313,7 +1188,6 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1334,7 +1208,6 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1361,7 +1234,6 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1388,7 +1260,6 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1415,7 +1286,6 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1442,7 +1312,6 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1469,7 +1338,6 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1496,7 +1364,6 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL"],
       "propertySchema": "EARTHING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1518,7 +1385,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "READY",
@@ -1542,7 +1409,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1564,7 +1431,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1586,7 +1453,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1608,7 +1475,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1630,7 +1497,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1652,7 +1519,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1674,7 +1541,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1696,7 +1563,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1724,7 +1591,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1746,7 +1613,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1768,7 +1635,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL",

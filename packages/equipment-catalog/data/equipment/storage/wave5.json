@@ -357,7 +357,7 @@
       "ports": [
         {
           "id": "dc-in",
-          "portTypeId": "BATTERY_DC",
+          "portTypeId": "BATTERY_DC_INPUT",
           "position": {
             "x": -55,
             "y": 0,
@@ -404,7 +404,7 @@
       "ports": [
         {
           "id": "dc-in",
-          "portTypeId": "BATTERY_DC",
+          "portTypeId": "BATTERY_DC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -451,7 +451,7 @@
       "ports": [
         {
           "id": "dc-in",
-          "portTypeId": "BATTERY_DC",
+          "portTypeId": "BATTERY_DC_INPUT",
           "position": {
             "x": 0,
             "y": 0,
@@ -569,7 +569,7 @@
       "ports": [
         {
           "id": "ac-source-1",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": -90,
             "y": 0,
@@ -578,7 +578,7 @@
         },
         {
           "id": "ac-source-2",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 90,
             "y": 0,

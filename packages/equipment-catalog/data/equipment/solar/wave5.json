@@ -569,7 +569,7 @@
       "ports": [
         {
           "id": "ac-in",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": -55,
             "y": 0,
@@ -627,7 +627,7 @@
       "ports": [
         {
           "id": "ac-in",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": -100,
             "y": 0,
@@ -740,7 +740,7 @@
       "ports": [
         {
           "id": "ac-in",
-          "portTypeId": "ELECTRICAL_AC",
+          "portTypeId": "ELECTRICAL_AC_INPUT",
           "position": {
             "x": 0,
             "y": 0,

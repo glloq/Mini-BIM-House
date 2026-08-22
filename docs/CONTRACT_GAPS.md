@@ -103,11 +103,11 @@ Le mobilier n'a pas non plus de symbole de plan, et cela n'est pas un écart de
 contrat : l'axe `PLAN_SYMBOL` le mesure déjà à `NONE`, ce qui est la bonne
 réponse tant que personne n'a dessiné de symbole de lit.
 
-## CG-05 — le vocabulaire des ports ignore trois médias entiers
+## CG-05 — le vocabulaire des ports ignorait trois médias entiers
 
-**Registres** `EQUIPMENT` · vagues 4 et 5
+**Registre** `EQUIPMENT` · vagues 4 et 5 · **résolu**
 
-Trois choses qu'une maison contient ne peuvent pas être dites :
+Trois choses qu'une maison contient ne pouvaient pas être dites :
 
 - **un combustible.** Ni gaz, ni fioul, ni granulés : les trois chaudières
   génériques ne peuvent pas déclarer par où arrive ce qu'elles brûlent. Elles
@@ -116,12 +116,26 @@ Trois choses qu'une maison contient ne peuvent pas être dites :
 - **l'eau glacée.** Une batterie froide à eau est inexprimable ; celle du
   catalogue est en détente directe, ce qui est un choix de produit imposé par
   le format et non par le concepteur ;
-- **le sens du courant, hors photovoltaïque.** `PV_DC` a son `PV_DC_INPUT` ;
-  `ELECTRICAL_AC` et `BATTERY_DC` n'ont pas d'équivalent et sont
-  `BIDIRECTIONAL`. Un appareil en ligne côté alternatif ou batterie — un
-  sectionneur, un compteur, une coupure d'urgence — ne peut donc se décrire
+- **le sens du courant, hors photovoltaïque.** `PV_DC` avait son
+  `PV_DC_INPUT` ; `ELECTRICAL_AC` et `BATTERY_DC` n'avaient pas d'équivalent et
+  étaient `BIDIRECTIONAL`. Un appareil en ligne côté alternatif ou batterie —
+  un sectionneur, un compteur, une coupure d'urgence — ne pouvait se décrire
   que par « deux fois le même port », avec un compte, là où l'évacuation et la
   ventilation disent proprement une entrée et une sortie.
+
+Le registre a gagné deux médias (`FUEL`, `CHILLED_WATER`), quatre services,
+deux classes de raccordement (`PIPE_FUEL`, `BULK_CONVEYOR`) et dix types de
+port : `FUEL_GAS`, `FUEL_OIL`, `FUEL_PELLET` et leurs départs côté réseau,
+`CHILLED_FLOW` / `CHILLED_RETURN`, `ELECTRICAL_AC_INPUT`, `BATTERY_DC_INPUT`.
+Une chaudière à bûches n'a toujours pas de port de combustible, et c'est juste :
+elle se charge à la main.
+
+Trente-neuf familles d'appareils en ligne disent maintenant leur amont et leur
+aval au lieu de compter deux fois le même port. La batterie froide est livrée en
+deux fiches, une par branche, pour que les deux soient exercées. Et quatre tests
+vérifient que la nouvelle grammaire _raccorde_ — qu'un compteur gaz joigne une
+chaudière gaz, qu'un départ fioul ne la joigne pas, qu'un aval de disjoncteur
+joigne l'amont du suivant : déclarer un vocabulaire est la moitié du travail.
 
 ## CG-06 — des schémas de propriétés qui ne décrivent pas leurs familles
 
@@ -163,9 +177,9 @@ Le remède n'est pas d'élargir un schéma pour y faire entrer ce qui n'en relè
 pas : c'est d'en déclarer d'autres. Un schéma est une donnée, l'opération est
 donc data-only — mais elle demande d'être décidée, pas faite en passant.
 
-## CG-07 — `PHYSICAL` est une déclaration morte
+## CG-07 — `PHYSICAL` était une déclaration morte
 
-**Nomenclature** · **396 familles sur 527**
+**Nomenclature** · **396 familles sur 527** · **résolu**
 
 396 familles déclarent la zone de dégagement `PHYSICAL`, et la porte refuse
 systématiquement qu'une fiche la renseigne : « le volume qu'une chose occupe,
@@ -173,10 +187,16 @@ ce sont ses dimensions, et elle les a déjà dites ». Les deux règles sont
 défendables ; ensemble, elles font que 396 familles annoncent une zone que rien
 ne peut remplir. Trois agents sur quatre l'ont signalée indépendamment.
 
-Il faut trancher dans un sens ou dans l'autre : soit la nomenclature cesse de
-nommer `PHYSICAL`, soit la porte l'accepte comme la déclaration explicite d'un
-encombrement distinct des dimensions hors-tout. Tant que les deux coexistent,
-un lecteur de la nomenclature croit lire une information.
+Tranché dans le sens que le moteur affirmait déjà : « `PHYSICAL` n'est jamais
+déclaré et toujours produit », dit `clearanceZones`, qui ajoute ce volume à tout
+objet posé à partir de ses dimensions. La zone a été retirée des 396 familles,
+et `validateFamily` la refuse désormais — une déclaration que rien ne peut
+honorer est pire qu'une absence : elle se lit comme une information.
+
+Vingt familles n'avaient que celle-là et perdent donc la capability
+`CLEARANCE_ZONED` : les disjoncteurs modulaires, les fusibles, les organes de
+mise à la terre. C'est exact — un disjoncteur n'a pas de dégagement propre, il
+vit dans un tableau qui, lui, déclare le sien.
 
 Corollaire relevé au passage : plusieurs familles n'ont **que** `PHYSICAL` et
 ne peuvent donc déclarer aucun dégagement. Une trappe de ramonage, dont la

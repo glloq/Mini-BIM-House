@@ -22,13 +22,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "READY",
@@ -65,13 +59,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
@@ -101,13 +89,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
@@ -143,13 +125,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
@@ -185,13 +161,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
@@ -228,13 +198,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
@@ -264,13 +228,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": [
-        "PHYSICAL",
-        "MAINTENANCE",
-        "SERVICE",
-        "AIR_INTAKE",
-        "AIR_EXHAUST"
-      ],
+      "clearances": ["MAINTENANCE", "SERVICE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL",
@@ -286,7 +244,13 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "FLUE_GAS"],
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "FLUE_GAS",
+        "FUEL_GAS"
+      ],
       "calculators": [
         "heating",
         "electrical",
@@ -300,7 +264,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -315,7 +279,13 @@
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
-      "ports": ["HEATING_FLOW", "HEATING_RETURN", "ELECTRICAL_AC", "FLUE_GAS"],
+      "ports": [
+        "HEATING_FLOW",
+        "HEATING_RETURN",
+        "ELECTRICAL_AC",
+        "FLUE_GAS",
+        "FUEL_OIL"
+      ],
       "calculators": [
         "heating",
         "electrical",
@@ -329,7 +299,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -358,14 +328,14 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
       "category": "BOILER",
-      "optionalPorts": ["COMBUSTION_AIR", "CONTROL"]
+      "optionalPorts": ["COMBUSTION_AIR", "CONTROL", "FUEL_PELLET"]
     },
     {
       "id": "ELECTRIC_BOILER",
@@ -387,7 +357,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -416,7 +386,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -445,7 +415,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -479,7 +449,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "SERVICE"],
+      "clearances": ["MAINTENANCE", "SERVICE"],
       "propertySchema": "HEAT_GENERATOR",
       "status": {
         "MODEL": "PARTIAL",
@@ -503,7 +473,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -535,7 +505,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -556,7 +526,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -583,7 +553,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -610,7 +580,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -637,7 +607,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -659,7 +629,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -686,7 +656,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -707,7 +677,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -728,7 +698,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -749,7 +719,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -770,7 +740,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -791,7 +761,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -818,7 +788,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -847,7 +817,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "HEATING_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -870,7 +840,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "READY",
@@ -893,7 +863,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "PARTIAL",
@@ -915,7 +885,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "PARTIAL",
@@ -937,7 +907,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "PARTIAL",
@@ -958,7 +928,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "PARTIAL",
@@ -979,7 +949,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "USAGE"],
+      "clearances": ["MAINTENANCE", "USAGE"],
       "propertySchema": "HEAT_EMITTER",
       "status": {
         "MODEL": "PARTIAL",
@@ -1000,7 +970,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
         "MODEL": "PARTIAL"
@@ -1031,7 +1001,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
         "MODEL": "PARTIAL"
@@ -1053,7 +1023,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
         "MODEL": "PARTIAL"
@@ -1074,7 +1044,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
         "MODEL": "PARTIAL"
@@ -1096,7 +1066,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE"],
+      "clearances": ["MAINTENANCE"],
       "propertySchema": "UNDERFLOOR_HEATING",
       "status": {
         "MODEL": "PARTIAL"
@@ -1118,7 +1088,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
@@ -1140,7 +1110,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
@@ -1162,7 +1132,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
@@ -1184,7 +1154,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
@@ -1206,7 +1176,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
@@ -1242,7 +1212,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
@@ -1273,7 +1243,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
@@ -1294,7 +1264,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "REFRIGERANT_UNIT",
       "status": {
         "MODEL": "PARTIAL"
@@ -1318,7 +1288,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -1349,7 +1319,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -1373,7 +1343,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1417,7 +1387,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1440,7 +1410,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1463,7 +1433,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "READY",
@@ -1486,7 +1456,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1507,7 +1477,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1528,7 +1498,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1570,7 +1540,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1610,7 +1580,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1650,7 +1620,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1692,7 +1662,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1734,7 +1704,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1774,7 +1744,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1816,7 +1786,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1859,7 +1829,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1901,7 +1871,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1943,7 +1913,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -1986,7 +1956,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -2028,7 +1998,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -2072,7 +2042,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -2108,9 +2078,17 @@
           "maxCount": 1,
           "minCount": 1
         },
-        "REFRIGERANT_LIQUID",
-        "REFRIGERANT_GAS",
-        "CONDENSATE"
+        "CONDENSATE",
+        {
+          "anyOf": ["CHILLED_RETURN", "REFRIGERANT_LIQUID"],
+          "minCount": 1,
+          "maxCount": 1
+        },
+        {
+          "anyOf": ["CHILLED_FLOW", "REFRIGERANT_GAS"],
+          "minCount": 1,
+          "maxCount": 1
+        }
       ],
       "calculators": ["ventilation", "iaq", "acoustics", "electrical", "cost"],
       "placement": {
@@ -2118,7 +2096,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
@@ -2140,7 +2118,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "clearances": ["PHYSICAL", "MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
+      "clearances": ["MAINTENANCE", "AIR_INTAKE", "AIR_EXHAUST"],
       "propertySchema": "VENTILATION_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
