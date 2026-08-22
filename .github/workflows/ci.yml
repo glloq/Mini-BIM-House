@@ -29,6 +29,8 @@ jobs:
       # catalogue entry whose properties are not the ones its schema declares,
       # is wrong in a way no type-check and no unit test of the engine sees.
       - run: npm run validate:catalog
+      - run: npm run validate:docs
+      - run: npm run test:coverage
       - run: npm run audit:licenses
       - run: npm test
       - run: npm run build

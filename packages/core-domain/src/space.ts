@@ -22,7 +22,23 @@ interface SpaceBase {
 
 export type Space = SpaceBase &
   (
-    | { readonly boundaryMode: 'AUTO' }
+    | {
+        readonly boundaryMode: 'AUTO';
+        /**
+         * A point inside the enclosure this room stands for.
+         *
+         * A room drawn by the walls around it is still a decision about which
+         * enclosure it is, and the walls alone cannot say: a storey of six
+         * rooms detects six faces and nothing pairs them. The anchor is that
+         * pairing, and it is the only thing an automatic room carries — the
+         * outline itself is derived and never stored.
+         *
+         * Optional so a file written before it reads: such a room has no
+         * geometry anybody can resolve, and the application says so rather
+         * than picking a face for it.
+         */
+        readonly anchor?: Point2D;
+      }
     | { readonly boundaryMode: 'MANUAL'; readonly manualPolygon: Polygon2D }
   );
 
@@ -167,6 +183,11 @@ export function validateSpace(space: Space): readonly string[] {
   if (space.name.trim() === '') return ['name must not be empty'];
   if (space.boundaryMode === 'MANUAL')
     return validatePolygon(space.manualPolygon).map(({ message }) => message);
+  if (
+    space.anchor !== undefined &&
+    (!Number.isFinite(space.anchor.x) || !Number.isFinite(space.anchor.y))
+  )
+    return ['anchor must be a finite point'];
   return [];
 }
 

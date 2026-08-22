@@ -133,43 +133,103 @@ export function portDisagreements(port: NetworkPort): readonly string[] {
  * fluid joined to an unknown fluid is a drawing nobody has checked, and
  * calling it valid is how it stays unchecked.
  */
-export function connectionRefusalBetween(
+export type PortCompatibility =
+  /** The two kinds are known and they join. */
+  | { readonly status: 'COMPATIBLE' }
+  /** They are known and they do not. */
+  | { readonly status: 'INCOMPATIBLE'; readonly reason: string }
+  /**
+   * Nothing here settles it.
+   *
+   * Not a refusal and not an agreement. This used to be answered « rien ne
+   * s'y oppose », which the editor read as « compatible » : two ports saying
+   * nothing were joined, and a run whose fluid nobody had checked went into
+   * the file looking exactly like a checked one.
+   */
+  | { readonly status: 'UNKNOWN'; readonly reason: string };
+
+export function portCompatibility(
   first: NetworkPort,
   second: NetworkPort,
-): string | undefined {
+): PortCompatibility {
+  const no = (reason: string): PortCompatibility => ({
+    status: 'INCOMPATIBLE',
+    reason,
+  });
   if (first.nodeId === second.nodeId)
-    return 'Un tronçon relie deux nœuds différents.';
+    return no('Un tronçon relie deux nœuds différents.');
   // Which way each end faces. A kind settles this when it is definite; the
   // port says so otherwise.
   if (portFacing(first) === 'IN' && portFacing(second) === 'IN')
-    return `${first.id} et ${second.id} sont deux arrivées : rien ne part de l’une vers l’autre.`;
+    return no(
+      `${first.id} et ${second.id} sont deux arrivées : rien ne part de l’une vers l’autre.`,
+    );
   if (portFacing(first) === 'OUT' && portFacing(second) === 'OUT')
-    return `${first.id} et ${second.id} sont deux départs.`;
-  if (first.portTypeId !== undefined && second.portTypeId !== undefined)
-    return connectionRefusal(first.portTypeId, second.portTypeId);
+    return no(`${first.id} et ${second.id} sont deux départs.`);
+  if (first.portTypeId !== undefined && second.portTypeId !== undefined) {
+    const refusal = connectionRefusal(first.portTypeId, second.portTypeId);
+    return refusal === undefined ? { status: 'COMPATIBLE' } : no(refusal);
+  }
+  // One end names its kind and the other does not. The registry cannot judge
+  // half a question, and the half that answers is not the answer.
+  if (first.portTypeId !== undefined || second.portTypeId !== undefined) {
+    const named = first.portTypeId ?? second.portTypeId!;
+    const silent = first.portTypeId === undefined ? first.id : second.id;
+    return {
+      status: 'UNKNOWN',
+      reason: `Un raccordement déclare ${named} et ${silent} ne déclare pas de genre : rien ne dit si les deux se raccordent.`,
+    };
+  }
   // What the older files say instead of a kind. Same shape, and no more
-  // authority than it ever had.
+  // authority than it ever had: it can refuse, it cannot certify.
   if (
     first.connectionType !== undefined &&
     second.connectionType !== undefined &&
     first.connectionType !== second.connectionType
   )
-    return `${first.connectionType} et ${second.connectionType} ne se raccordent pas.`;
+    return no(
+      `${first.connectionType} et ${second.connectionType} ne se raccordent pas.`,
+    );
   if (
     first.nominalSize !== undefined &&
     second.nominalSize !== undefined &&
     first.nominalSize !== second.nominalSize
   )
-    return `${first.nominalSize} et ${second.nominalSize} ne sont pas le même calibre.`;
-  return undefined;
+    return no(
+      `${first.nominalSize} et ${second.nominalSize} ne sont pas le même calibre.`,
+    );
+  return {
+    status: 'UNKNOWN',
+    reason: `Ni ${first.id} ni ${second.id} ne déclare le genre de ce qu’il transporte : rien ne dit si les deux se raccordent.`,
+  };
 }
 
-/** Whether two ports may be joined, which is the same question said shortly. */
+/**
+ * Why two ports may not be joined, when something says they may not.
+ *
+ * What a file already holds is judged by this: a run drawn before the kinds
+ * existed is not refused for being old. What is *drawn now* is judged by
+ * `portsConnectable`, which requires an actual agreement.
+ */
+export function connectionRefusalBetween(
+  first: NetworkPort,
+  second: NetworkPort,
+): string | undefined {
+  const verdict = portCompatibility(first, second);
+  return verdict.status === 'INCOMPATIBLE' ? verdict.reason : undefined;
+}
+
+/**
+ * Whether two ports may be joined without anybody having to decide.
+ *
+ * Only a real agreement counts. An undetermined pair is offered to the user to
+ * force deliberately, never joined on its behalf.
+ */
 export function portsConnectable(
   first: NetworkPort,
   second: NetworkPort,
 ): boolean {
-  return connectionRefusalBetween(first, second) === undefined;
+  return portCompatibility(first, second).status === 'COMPATIBLE';
 }
 
 export interface NetworkEdge {

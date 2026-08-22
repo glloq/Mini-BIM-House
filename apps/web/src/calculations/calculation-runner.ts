@@ -1,3 +1,4 @@
+import { resolvedSpaces } from '@house-technical-designer/core-domain';
 import type { Project } from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import { climateFingerprint } from '@house-technical-designer/climate';
@@ -11,25 +12,12 @@ import type {
 } from '@house-technical-designer/calculation-adapters';
 
 /** Human labels for the modules, in the order the dashboard shows them. */
-export const MODULE_LABELS: Readonly<Record<string, string>> = {
-  thermal: 'Enveloppe thermique',
-  heating: 'Chauffage',
-  dhw: 'Eau chaude sanitaire',
-  lighting: 'Éclairage',
-  electrical: 'Électricité',
-  ventilation: 'Ventilation',
-  iaq: 'Qualité de l’air',
-  water: 'Eau froide',
-  wastewater: 'Évacuations',
-  rainwater: 'Eau de pluie',
-  photovoltaic: 'Photovoltaïque',
-  battery: 'Stockage',
-  'energy-balance': 'Bilan énergétique',
-  hygrothermal: 'Hygrothermie',
-  acoustics: 'Acoustique',
-  cost: 'Coût',
-  environmental: 'Environnement',
-};
+// What each module is called used to be a second copy of the seventeen names,
+// kept here. Two lists of the same seventeen things drift: a module runs with
+// no name, or a name sits with nothing behind it. The one list lives in the
+// registry the adapters keep, and it is read from there — after the adapters
+// are loaded, so that seventeen calculation engines do not come with the
+// application just to spell « Chauffage ».
 
 export type ModuleRunStatus =
   'OK' | 'PARTIAL' | 'FAILED' | 'MISSING_INPUT' | 'ERROR';
@@ -143,6 +131,7 @@ export async function runProjectCalculations(
     PROJECT_CALCULATION_MODULES,
     PROJECT_CALCULATION_MODULE_IDS,
     buildProjectCalculationInputs,
+    calculationModuleLabel,
     createProjectCalculationContext,
   } = adapters;
   const context = createProjectCalculationContext(project, { climate });
@@ -154,7 +143,7 @@ export async function runProjectCalculations(
     const missing = built.missing.filter(
       (entry) => entry.moduleId === moduleId,
     );
-    const label = MODULE_LABELS[moduleId] ?? moduleId;
+    const label = calculationModuleLabel(moduleId);
     const inputs = built.inputs[moduleId] ?? null;
     const outcome = await engine.calculateModule(moduleId, built.inputs, {});
     if (outcome.status === 'ERROR') {
@@ -247,20 +236,13 @@ export function dashboardCards(
   project: Project,
   runs: readonly ModuleRun[],
 ): readonly DashboardCard[] {
-  const spaces = project.building.levels.flatMap(
-    ({ spaces: entries }) => entries,
+  // The project's one answer about a room's surface. The dashboard used to
+  // carry a shoelace formula of its own, over the rooms drawn by hand only, so
+  // a house could show one floor area here and another in the takeoff.
+  const floorAreaM2 = resolvedSpaces(project).reduce(
+    (total, { floorAreaM2: area }) => total + (area ?? 0),
+    0,
   );
-  const floorAreaM2 = spaces.reduce((total, space) => {
-    if (space.boundaryMode !== 'MANUAL') return total;
-    const points = space.manualPolygon.outer;
-    let twice = 0;
-    for (let index = 0; index < points.length; index += 1) {
-      const current = points[index]!;
-      const next = points[(index + 1) % points.length]!;
-      twice += current.x * next.y - next.x * current.y;
-    }
-    return total + Math.abs(twice) / 2 / 1_000_000;
-  }, 0);
   return [
     {
       id: 'floor-area',

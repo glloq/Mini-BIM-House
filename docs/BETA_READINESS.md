@@ -1,7 +1,7 @@
 # État de préparation à la bêta
 
 Ce fichier ne raconte pas l'histoire du projet : il dit où en est la version
-`0.3.0-beta.4` aujourd'hui. L'historique des passes d'audit et de leurs
+`0.3.0-beta.5` aujourd'hui. L'historique des passes d'audit et de leurs
 correctifs reste dans `IMPLEMENTATION_STATUS.md`, et ce qui a changé d'une
 version à l'autre dans `../CHANGELOG.md`.
 
@@ -128,11 +128,13 @@ Les deux points qui figuraient ici sont faits.
   échelle, avec format, orientation et indice ; les pages sont tramées une par
   une sous un budget de mémoire, et la densité obtenue est annoncée avant
   l'export.
-- Projection sur le plan des résultats des réseaux, de la ventilation et de
-  l'électricité : les dix analyses sont branchées sur le dessin, et un test
-  vérifie pour chacune qu'elle nomme des objets que le plan dessine et qu'elle
-  en colore au moins un — une analyse dont les identifiants ne correspondent à
-  rien se lit exactement comme « rien à signaler ».
+- Projection sur le plan des résultats des réseaux, de la ventilation, de
+  l'électricité, puis de ce qu'une pièce demande, reçoit et respire : chaque
+  analyse offerte est branchée sur le dessin, et un test vérifie pour chacune
+  qu'elle nomme des objets que le plan dessine et qu'elle en colore au moins un
+  — une analyse dont les identifiants ne correspondent à rien se lit exactement
+  comme « rien à signaler ». Leur nombre n'est pas écrit ici : il est compté
+  par `scripts/documented-metrics.test.mjs`.
 
 ## Recommandé
 
@@ -142,8 +144,29 @@ Les deux points qui figuraient ici sont faits.
   `ChangeSet` dit ce qui a bougé ;
 - orchestrateur de calcul persistant, plutôt que recréé à chaque exécution ;
 - régression visuelle pixel par pixel sur les trois moteurs ;
-- réglages encore invisibles alors que les moteurs les lisent
-  (`heatRecoveryEfficiency`, températures extérieures de repli).
+- **durcissement des JSON Schema.** `additionalProperties: true` court encore
+  sur `Project`, `Building`, `Level`, `ComponentInstance` et le schéma réseau :
+  une faute de frappe — `definitonId` — passe donc sans qu'aucune couche ne dise
+  « ce champ n'existe pas ». Le contrat central doit passer en
+  `additionalProperties: false`, avec une zone d'extensions explicitement libre
+  et versionnée à côté.
+
+  Ce n'est volontairement pas fait ici. Fermer le contrat rejette des fichiers
+  que l'application accepte aujourd'hui : cela demande un changement de version
+  de format et une migration qui dise ce qu'elle écarte, et cela doit se faire
+  une seule fois, proprement, plutôt qu'un champ à la fois. Ce qui est fait,
+  c'est le premier morceau qui ne coûtait pas de migration : le contexte
+  réglementaire est typé — pays, juridiction, type de projet, date de référence
+  et référentiels activés avec leur version — et l'importeur le vérifie ;
+
+- toitures sur contour quelconque : le squelette droit reste à écrire, et un
+  contour non résolu doit continuer de se dire non résolu.
+
+La couverture des paquets qui décident de ce qu'_est_ un projet — géométrie,
+modèle, entrées/sorties, commandes, adaptateurs de calcul, registres, types
+techniques, climat — est mesurée et plancherisée dans l'intégration continue.
+Le plancher est réglé juste sous ce que la suite atteint aujourd'hui : un seuil
+au-dessus de la vérité est un seuil que quelqu'un finit par désactiver.
 
 Le banc d'essai d'un projet réaliste est fait : `largeHouse(3, 40)` — trois
 niveaux, quarante pièces, 240 murs — sert de charge de mesure et de test, et
@@ -153,9 +176,23 @@ les chiffres sont consignés dans [`PERFORMANCE_BASELINE.md`](./PERFORMANCE_BASE
 
 - constater qu'un déploiement réel de `main` passe avec le workflow Pages : le
   dernier a échoué faute de Pages activé sur le dépôt ;
-- protéger `main` : intégration continue obligatoire et passage par une
-  demande de fusion. C'est un réglage du dépôt, pas du code, et il reste à la
-  main du propriétaire.
+- **protéger `main`.** C'est un réglage du dépôt, pas du code : il reste à la
+  main du propriétaire, et c'est aujourd'hui le seul point de l'audit qu'aucune
+  ligne de code ne peut fermer. La PR #28 a été fusionnée à 00:32 alors que son
+  intégration continue s'est terminée à 00:37 — elle est passée, mais rien
+  n'empêchait de fusionner du rouge.
+
+  Dans _Settings → Branches → Add branch protection rule_, sur `main` :
+
+  - _Require a pull request before merging_ ;
+  - _Require status checks to pass before merging_, puis cocher les deux
+    contrôles que ce dépôt exécute — `validate` et `browser` ;
+  - _Require branches to be up to date before merging_ ;
+  - _Do not allow bypassing the above settings_ ;
+  - décocher _Allow force pushes_ et _Allow deletions_.
+
+  Rapport bénéfice/effort maximal : cinq minutes de réglage, et plus aucune
+  fusion ne peut devancer ses tests.
 
 ## Ce que la bêta ne fait pas
 

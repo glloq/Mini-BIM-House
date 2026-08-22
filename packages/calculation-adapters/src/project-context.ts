@@ -4,6 +4,7 @@ import type {
   Level,
   NetworkProductSnapshot,
   Project,
+  EnvelopeElement,
   ResolvedPlacedEquipment,
   Space,
   TechnicalNetwork,
@@ -15,18 +16,24 @@ import {
   placedEquipmentByFamily,
   placedEquipmentByKind,
   placedEquipmentBySpace,
+  resolveEnvelope,
+  resolveRoofGeometry,
+  resolveSpaceGeometry,
+  resolveWallGeometry,
 } from '@house-technical-designer/core-domain';
 import type {
   Assembly,
   AssemblyLayer,
 } from '@house-technical-designer/assemblies';
 import type { Material } from '@house-technical-designer/materials';
-import type { ClimateDataset } from '@house-technical-designer/climate';
+import type {
+  ClimateDataset,
+  ClimateSelection,
+} from '@house-technical-designer/climate';
 import {
-  numericValue,
-  squareMillimetres,
-  squareMillimetresToSquareMetres,
-} from '@house-technical-designer/units';
+  primarySeries,
+  selectClimate,
+} from '@house-technical-designer/climate';
 import {
   calculateWallQuantities,
   networkRunQuantities,
@@ -74,6 +81,13 @@ export interface ProjectSpaceCalculationElement {
   readonly perimeterM?: number;
   readonly heightM?: number;
   readonly volumeM3?: number;
+  /**
+   * Why this room has no geometry, when it has none.
+   *
+   * A room that cannot be measured is not a room of zero square metres: the
+   * modules report it as a missing input and this says what to fix.
+   */
+  readonly unresolvedGeometry?: string;
 }
 
 /** Design and time-series conditions read from an identified climate dataset. */
@@ -108,6 +122,14 @@ export interface ProjectCalculationContext {
   readonly projectId: string;
   readonly scenarioId?: string;
   readonly climateProfileId?: string;
+  /**
+   * Which climate was chosen, and why none was when none was.
+   *
+   * A project asking for a climate that is not loaded gets no weather at all;
+   * the modules that need one then report it as a missing input, naming the
+   * dataset that is missing.
+   */
+  readonly climateSelection: ClimateSelection;
   readonly climate?: ProjectClimateContext;
   /**
    * Finest uniform sub-daily dataset available, used by the modules that need a
@@ -117,6 +139,12 @@ export interface ProjectCalculationContext {
   readonly materials: readonly Material[];
   readonly assemblies: readonly Assembly[];
   readonly exteriorWalls: readonly ProjectWallCalculationElement[];
+  /**
+   * Everything that separates the heated house from the outside, the ground
+   * and the unheated: walls, the windows and doors cut through them, roofs
+   * and the slabs that actually close the house.
+   */
+  readonly envelope: readonly EnvelopeElement[];
   readonly spaces: readonly ProjectSpaceCalculationElement[];
   readonly rawSpaces: readonly Space[];
   readonly zones: readonly Zone[];
@@ -173,36 +201,6 @@ export interface ProjectCalculationContextOptions {
   readonly scenarioId?: string;
 }
 
-function polygonAreaMm2(
-  points: readonly { readonly x: number; readonly y: number }[],
-): number {
-  let twiceArea = 0;
-  for (let index = 0; index < points.length; index += 1) {
-    const current = points[index]!;
-    const next = points[(index + 1) % points.length]!;
-    twiceArea += current.x * next.y - next.x * current.y;
-  }
-  return Math.abs(twiceArea) / 2;
-}
-
-function polygonPerimeterMm(
-  points: readonly { readonly x: number; readonly y: number }[],
-): number {
-  let total = 0;
-  for (let index = 0; index < points.length; index += 1) {
-    const current = points[index]!;
-    const next = points[(index + 1) % points.length]!;
-    total += Math.hypot(next.x - current.x, next.y - current.y);
-  }
-  return total;
-}
-
-function squareMetres(areaMm2: number): number {
-  return numericValue(
-    squareMillimetresToSquareMetres(squareMillimetres(areaMm2)),
-  );
-}
-
 function materialLayers(
   assembly: Assembly,
   materials: ReadonlyMap<string, Material>,
@@ -221,21 +219,19 @@ function materialLayers(
   });
 }
 
+/**
+ * A room, as the one answer the project has about its geometry.
+ *
+ * It used to read `manualPolygon` and nothing else, so a room drawn by the
+ * walls around it reached every calculation with no surface, no perimeter and
+ * no volume — visible on the plan, absent from the heating, the air quality,
+ * the lighting and the acoustics.
+ */
 function spaceElement(
   space: Space,
   level: Level,
 ): ProjectSpaceCalculationElement {
-  const polygon =
-    space.boundaryMode === 'MANUAL' ? space.manualPolygon : undefined;
-  const floorAreaM2 =
-    polygon === undefined
-      ? undefined
-      : squareMetres(polygonAreaMm2(polygon.outer));
-  const perimeterM =
-    polygon === undefined
-      ? undefined
-      : polygonPerimeterMm(polygon.outer) / 1000;
-  const heightM = level.defaultStoreyHeightMm / 1000;
+  const resolved = resolveSpaceGeometry(space, level);
   return {
     spaceId: space.id,
     levelId: level.id,
@@ -247,12 +243,17 @@ function spaceElement(
     ...(space.thermalZoneId === undefined
       ? {}
       : { thermalZoneId: space.thermalZoneId }),
-    ...(floorAreaM2 === undefined ? {} : { floorAreaM2 }),
-    ...(perimeterM === undefined ? {} : { perimeterM }),
-    ...(Number.isFinite(heightM) && heightM > 0 ? { heightM } : {}),
-    ...(floorAreaM2 === undefined || !Number.isFinite(heightM) || heightM <= 0
+    ...(resolved.floorAreaM2 === undefined
       ? {}
-      : { volumeM3: floorAreaM2 * heightM }),
+      : { floorAreaM2: resolved.floorAreaM2 }),
+    ...(resolved.perimeterM === undefined
+      ? {}
+      : { perimeterM: resolved.perimeterM }),
+    ...(resolved.heightM === undefined ? {} : { heightM: resolved.heightM }),
+    ...(resolved.volumeM3 === undefined ? {} : { volumeM3: resolved.volumeM3 }),
+    ...(resolved.unresolved === undefined
+      ? {}
+      : { unresolvedGeometry: resolved.unresolved }),
   };
 }
 
@@ -335,46 +336,35 @@ export function createProjectCalculationContext(
       if (wall.role !== 'EXTERIOR') continue;
       const assembly = assemblyById.get(wall.assemblyId);
       if (assembly === undefined) continue;
-      const heightMm =
-        wall.heightMode === 'EXPLICIT' ? wall.heightMm : undefined;
-      if (heightMm === undefined) continue;
-      let lengthMm = 0;
-      for (let index = 1; index < wall.path.points.length; index += 1) {
-        const previous = wall.path.points[index - 1]!;
-        const current = wall.path.points[index]!;
-        lengthMm += Math.hypot(current.x - previous.x, current.y - previous.y);
-      }
-      const grossAreaM2 = squareMetres(lengthMm * heightMm);
-      const openingAreaMm2 = level.openings
-        .filter((opening) => opening.hostElementId === wall.id)
-        .reduce(
-          (area, opening) => area + opening.widthMm * opening.heightMm,
-          0,
-        );
-      const openingAreaM2 = squareMetres(openingAreaMm2);
+      // The one answer about how high a wall stands. Reading only `heightMm`
+      // left every wall built up to a storey out of the envelope: the house
+      // computed had fewer walls than the house on the screen.
+      const resolved = resolveWallGeometry(project, wall, level);
+      if (
+        resolved.grossAreaM2 === undefined ||
+        resolved.netAreaM2 === undefined
+      )
+        continue;
       exteriorWalls.push({
         wallId: wall.id,
         assemblyId: assembly.id,
         levelId: level.id,
-        grossAreaM2,
-        openingAreaM2,
-        netAreaM2: grossAreaM2 - openingAreaM2,
+        grossAreaM2: resolved.grossAreaM2,
+        openingAreaM2: resolved.openingAreaM2,
+        netAreaM2: resolved.netAreaM2,
         layers: materialLayers(assembly, materialById),
       });
     }
     for (const roof of allRoofPlanes(level)) {
-      const projectedAreaM2 = squareMetres(
-        polygonAreaMm2(roof.footprint.outer),
-      );
+      const resolved = resolveRoofGeometry(roof, level);
       roofs.push({
         roofId: roof.id,
         assemblyId: roof.assemblyId,
         levelId: level.id,
-        projectedAreaM2,
-        surfaceAreaM2:
-          projectedAreaM2 / Math.cos((roof.slopeDeg * Math.PI) / 180),
-        slopeDeg: roof.slopeDeg,
-        azimuthDeg: roof.azimuthDeg,
+        projectedAreaM2: resolved.projectedAreaM2,
+        surfaceAreaM2: resolved.surfaceAreaM2,
+        slopeDeg: resolved.slopeDeg,
+        azimuthDeg: resolved.azimuthDeg,
       });
     }
   }
@@ -394,13 +384,13 @@ export function createProjectCalculationContext(
       : Array.isArray(options.climate)
         ? [...(options.climate as readonly ClimateDataset[])]
         : [options.climate as ClimateDataset];
+  // The weather of the place the project named, and of no other. Falling back
+  // to whatever was loaded computed a house with a climate nobody asked for.
+  const selection = selectClimate(datasets, project.site.climateProfileId);
+  const bundle = selection.status === 'OK' ? selection.bundle : undefined;
   const primaryDataset =
-    datasets.find(({ id }) => id === project.site.climateProfileId) ??
-    datasets.find(({ resolution }) => resolution !== 'HOURLY') ??
-    datasets[0];
-  const subDailyDataset = datasets.find(
-    ({ resolution }) => resolution === 'HOURLY',
-  );
+    bundle === undefined ? undefined : primarySeries(bundle);
+  const subDailyDataset = bundle?.hourly;
   const climate =
     primaryDataset === undefined ? undefined : climateContext(primaryDataset);
   const subDailyClimate =
@@ -419,6 +409,8 @@ export function createProjectCalculationContext(
     materials,
     assemblies,
     exteriorWalls,
+    envelope: resolveEnvelope(project),
+    climateSelection: selection,
     spaces,
     rawSpaces,
     zones: project.building.zones,

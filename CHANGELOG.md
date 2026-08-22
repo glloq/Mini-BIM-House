@@ -5,6 +5,58 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.5 — non publiée
+
+La passe de consolidation du **modèle dérivé** : la façon dont le BIM devient de
+la géométrie physique, puis des données de calcul.
+
+### Corrigé
+
+- **une maison avait plusieurs réponses aux mêmes questions de géométrie, et
+  pour l'une d'elles aucune.** « Quelle est la surface de cette pièce ? » était
+  répondue trois fois — le plan lisait le contour saisi, le contexte de calcul
+  avait sa formule de Gauss, le tableau de bord une troisième écrite à la main —
+  et une pièce décrite par les murs qui l'entourent, ce que le modèle autorise
+  depuis le début, arrivait au calcul sans surface, sans périmètre et sans
+  volume. « Jusqu'où monte ce mur ? » ne connaissait que la hauteur explicite :
+  un mur bâti jusqu'au niveau du dessus était purement sauté, et la maison
+  calculée avait moins de murs que la maison à l'écran. `resolved-geometry`
+  répond une fois pour toutes, et les trois formules locales ont disparu ;
+- **l'enveloppe thermique n'était pas l'enveloppe.** Une fenêtre était retirée
+  de son mur et jamais remise en tant que fenêtre : vingt-cinq mètres carrés de
+  mur portant quatre mètres carrés de vitrage arrivaient au moteur comme vingt
+  et un mètres carrés de maçonnerie et quatre mètres carrés de rien. La toiture
+  et les planchers n'y entraient pas du tout. Toute déperdition d'enveloppe
+  calculée jusqu'ici était donc fausse, et silencieusement. `resolveEnvelope()`
+  énumère chaque paroi avec son genre et sa condition de bord, et le moteur
+  accepte une transmission déclarée — une fenêtre s'achète entière ;
+- **le climat pouvait être choisi à la place du projet.** Le jeu demandé, sinon
+  n'importe lequel non horaire, sinon le premier : un projet demandant Bordeaux
+  et recevant Paris et Nantes était calculé avec l'un des deux. Le jeu demandé
+  ou aucun, désormais, et les six modules qui en dépendent nomment celui qui
+  manque ;
+- **deux ports ne déclarant rien étaient jugés compatibles.** Le commentaire
+  disait le contraire de ce que le code faisait. La réponse est à trois états :
+  ce qu'un fichier contient déjà est jugé par le refus seul, ce qu'on dessine
+  maintenant exige un accord réel, et l'indéterminé remonte comme indéterminé ;
+- l'écran des réglages appelait un module « Thermique » là où le tableau de bord
+  l'appelait « Enveloppe thermique » : quatre listes des mêmes dix-sept modules
+  avaient commencé à diverger.
+
+### Ajouté
+
+- un **registre unique des dix-sept modules**, sans code ni dépendance, et une
+  table de constructeurs d'entrées que le compilateur refuse si elle en oublie
+  un ;
+- un **contexte réglementaire typé**, dont les référentiels activés portent leur
+  version : un projet rouvert après qu'un texte a bougé le dit, au lieu de
+  changer d'avis en silence ;
+- un test qui **compte dans le code les nombres que la documentation affirme** —
+  modules, familles, analyses, sortes de vue, paquets — et nomme chaque document
+  qui porte encore l'ancien chiffre ; un rapport de validation **engendré** à
+  partir des contrôles réels du dépôt ; une couverture plancherisée sur les huit
+  paquets qui décident de ce qu'est un projet.
+
 ## 0.3.0-beta.4 — non publiée
 
 Le dossier de plans, la maison de référence, et la mise côte à côte de ce qu'il

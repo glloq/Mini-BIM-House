@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
 import {
+  PROJECT_CALCULATION_MODULE_IDS,
   buildProjectCalculationInputs,
+  calculationModuleLabel,
   createProjectCalculationContext,
 } from '@house-technical-designer/calculation-adapters';
 import { demoClimateDatasets, loadDemoProject } from '../demo-project.js';
@@ -131,5 +133,19 @@ describe('every setting a module can ask for', () => {
       true,
     );
     expect(keys.some((key) => key.endsWith('/occupants'))).toBe(false);
+  });
+
+  it('covers exactly the modules the registry declares', () => {
+    // Three lists of the same seventeen things drift, and the drift shows as a
+    // settings screen offering a module that no longer runs, or a module that
+    // runs with nowhere to set it up.
+    expect(MODULE_SETTINGS.map(({ moduleId }) => moduleId).sort()).toEqual(
+      [...PROJECT_CALCULATION_MODULE_IDS].sort(),
+    );
+  });
+
+  it('calls each module what the registry calls it', () => {
+    for (const { moduleId, label } of MODULE_SETTINGS)
+      expect(label, moduleId).toBe(calculationModuleLabel(moduleId));
   });
 });

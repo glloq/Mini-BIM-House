@@ -189,11 +189,15 @@ export const thermalAdapter: CalculationModule = {
             ...(lambdaWmK === undefined ? {} : { lambdaWmK }),
           };
         });
+        // Built of layers, or bought whole with a stated Uw. A window forced
+        // through the layer method would be a build-up nobody chose.
+        const declaredUValueWm2K = number(element.uValueWm2K);
         return calculateElementTransmission(
           string(element.id)!,
           number(element.areaM2)!,
           layers,
           method,
+          declaredUValueWm2K === undefined ? {} : { declaredUValueWm2K },
         );
       },
     );

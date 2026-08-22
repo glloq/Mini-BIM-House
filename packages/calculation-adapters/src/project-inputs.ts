@@ -19,30 +19,46 @@ import type {
 } from './project-context.js';
 import { equipmentNumber } from './project-context.js';
 import type { MissingCalculationInput } from './calculation-settings.js';
+import type { ProjectCalculationModuleId } from './module-registry.js';
+import { PROJECT_CALCULATION_MODULE_IDS } from './module-registry.js';
 
-/** Modules the project integration can feed from persisted facts. */
-export const PROJECT_CALCULATION_MODULE_IDS = [
-  'thermal',
-  'heating',
-  'dhw',
-  'lighting',
-  'electrical',
-  'ventilation',
-  'iaq',
-  'water',
-  'wastewater',
-  'rainwater',
-  'photovoltaic',
-  'battery',
-  'energy-balance',
-  'hygrothermal',
-  'acoustics',
-  'cost',
-  'environmental',
-] as const;
+// Kept reachable from here so that every consumer of the module list can go on
+// importing it from where it always was.
+export {
+  PROJECT_CALCULATION_MODULE_IDS,
+  type ProjectCalculationModuleId,
+} from './module-registry.js';
 
-export type ProjectCalculationModuleId =
-  (typeof PROJECT_CALCULATION_MODULE_IDS)[number];
+/**
+ * What each module needs the project to say.
+ *
+ * `satisfies` is the point: the compiler refuses this map if it misses one of
+ * the seventeen identifiers, so the set of modules is stated once — in
+ * `module-registry` — and everything else is checked against it rather than
+ * repeated beside it.
+ */
+const MODULE_INPUT_BUILDERS = {
+  thermal: thermalInput,
+  heating: heatingInput,
+  dhw: dhwInput,
+  lighting: lightingInput,
+  electrical: electricalInput,
+  ventilation: ventilationInput,
+  iaq: iaqInput,
+  water: waterInput,
+  wastewater: wastewaterInput,
+  rainwater: rainwaterInput,
+  photovoltaic: photovoltaicInput,
+  battery: batteryInput,
+  'energy-balance': energyBalanceInput,
+  hygrothermal: hygrothermalInput,
+  acoustics: acousticsInput,
+  cost: costInput,
+  environmental: environmentalInput,
+} satisfies Record<
+  ProjectCalculationModuleId,
+  (context: ProjectCalculationContext) => CalculationJson
+>;
 
 export interface ProjectCalculationInputs {
   readonly inputs: Readonly<Record<string, CalculationJson>>;
@@ -255,6 +271,45 @@ function spaceOccupancy(
   return typeof value === 'number' ? value : undefined;
 }
 
+/**
+ * The transmittance a bought element states, out of the catalogue entry it is.
+ *
+ * A window is not assembled from layers: its datasheet gives one Uw covering
+ * the glass, the frame and the spacer, and no stack of layers reproduces it.
+ */
+function declaredUValue(
+  context: ProjectCalculationContext,
+  definitionId: string | undefined,
+): number | undefined {
+  if (definitionId === undefined) return undefined;
+  const definition = context.equipment.find(({ id }) => id === definitionId);
+  for (const key of ['uw', 'uValueWm2K', 'thermalTransmittanceWm2K']) {
+    const value = definition?.properties?.[key];
+    if (typeof value === 'number' && Number.isFinite(value) && value > 0)
+      return value;
+  }
+  return undefined;
+}
+
+const ENVELOPE_LABELS: Readonly<Record<string, string>> = {
+  WALL_OPAQUE: 'le mur',
+  WINDOW: 'la fenêtre',
+  DOOR: 'la porte',
+  ROOF: 'le pan de toiture',
+  FLOOR_GROUND: 'le plancher bas',
+  CEILING: 'le plafond',
+  OTHER: "l'élément",
+};
+
+/**
+ * The whole envelope, given to the engine element by element.
+ *
+ * It used to be the exterior walls and nothing else. A window was taken out of
+ * its wall and never put back as a window — twenty square metres of wall with
+ * four of glass reached the calculation as sixteen square metres of masonry
+ * and four square metres of nothing. The roof was resolved in the context and
+ * never reached the envelope; neither did the floors.
+ */
 function thermalInput(context: ProjectCalculationContext): CalculationJson {
   const settings = context.settings;
   const insideSurfaceResistanceM2KW = settings.methodConstant(
@@ -265,34 +320,97 @@ function thermalInput(context: ProjectCalculationContext): CalculationJson {
     'thermal',
     'outsideSurfaceResistanceM2KW',
   );
-  if (context.exteriorWalls.length === 0)
+  const assemblies = new Map(
+    context.assemblies.map((assembly) => [assembly.id as string, assembly]),
+  );
+  const materials = new Map(
+    context.materials.map((material) => [material.id as string, material]),
+  );
+  const elements: CalculationJson[] = [];
+
+  for (const element of context.envelope) {
+    const what = `${ENVELOPE_LABELS[element.kind] ?? "l'élément"} ${element.sourceEntityId}`;
+    if (element.netAreaM2 === undefined) {
+      settings.reportMissing(
+        'thermal',
+        `elements/${element.sourceEntityId}/areaM2`,
+        'PROJECT',
+        element.unresolved ?? `La surface de ${what} est inconnue.`,
+      );
+      continue;
+    }
+    settings.note(
+      'thermal',
+      `elements/${element.sourceEntityId}`,
+      'PROJECT',
+      element.sourceEntityId,
+    );
+    const shared = {
+      id: element.sourceEntityId,
+      areaM2: element.netAreaM2,
+      levelId: element.levelId,
+      kind: element.kind,
+      boundaryCondition: element.boundaryCondition,
+    };
+    // Built of layers, or bought whole. Those are the two ways an element of
+    // the envelope knows its transmittance, and neither is guessed.
+    if (element.assemblyId !== undefined) {
+      const assembly = assemblies.get(element.assemblyId);
+      if (assembly === undefined) {
+        settings.reportMissing(
+          'thermal',
+          `elements/${element.sourceEntityId}/assemblyId`,
+          'PROJECT',
+          `${what} nomme la composition ${element.assemblyId}, que le projet ne tient pas.`,
+        );
+        continue;
+      }
+      const layers = assembly.layers.map((layer) => {
+        const lambdaWmK = materials.get(layer.materialId)?.properties
+          ?.lambdaWmK;
+        if (typeof lambdaWmK !== 'number')
+          settings.reportMissing(
+            'thermal',
+            `elements/${element.sourceEntityId}/layers/${layer.id}/lambdaWmK`,
+            'PROJECT',
+            `Material ${layer.materialId} declares no thermal conductivity.`,
+          );
+        return {
+          layerId: layer.id,
+          materialId: layer.materialId,
+          thicknessM: layer.thicknessM,
+          ...(typeof lambdaWmK === 'number' ? { lambdaWmK } : {}),
+        };
+      });
+      elements.push({ ...shared, assemblyId: assembly.id, layers });
+      continue;
+    }
+    const uValueWm2K = declaredUValue(context, element.definitionId);
+    if (uValueWm2K === undefined) {
+      settings.reportMissing(
+        'thermal',
+        `elements/${element.sourceEntityId}/uValueWm2K`,
+        'PROJECT',
+        element.definitionId === undefined
+          ? `${what} ne dit pas de quel modèle elle est : sa transmission reste inconnue.`
+          : `Le modèle ${element.definitionId} ne déclare pas de coefficient Uw.`,
+      );
+      continue;
+    }
+    elements.push({ ...shared, uValueWm2K, layers: [] });
+  }
+
+  if (elements.length === 0)
     settings.reportMissing(
       'thermal',
       'elements',
       'PROJECT',
-      'The project has no exterior wall with a resolved assembly and explicit height.',
+      "Le projet ne décrit aucune paroi d'enveloppe dont la surface et la composition soient connues.",
     );
-  for (const wall of context.exteriorWalls) {
-    settings.note('thermal', `elements/${wall.wallId}`, 'PROJECT', wall.wallId);
-    for (const layer of wall.layers)
-      if (layer.lambdaWmK === undefined)
-        settings.reportMissing(
-          'thermal',
-          `elements/${wall.wallId}/layers/${layer.layerId}/lambdaWmK`,
-          'PROJECT',
-          `Material ${layer.materialId} declares no thermal conductivity.`,
-        );
-  }
   return {
     insideSurfaceResistanceM2KW,
     outsideSurfaceResistanceM2KW,
-    elements: context.exteriorWalls.map((wall) => ({
-      id: wall.wallId,
-      areaM2: wall.netAreaM2,
-      levelId: wall.levelId,
-      assemblyId: wall.assemblyId,
-      layers: wall.layers.map((layer) => ({ ...layer })),
-    })),
+    elements,
   };
 }
 
@@ -354,6 +472,14 @@ function heatingInput(context: ProjectCalculationContext): CalculationJson {
         `rooms/${space.spaceId}/ventilationFlowM3h`,
         'PROJECT',
         `No ventilation terminal serves ${space.name}; its ventilation loss is unknown.`,
+      );
+    if (space.floorAreaM2 === undefined)
+      settings.reportMissing(
+        'heating',
+        `rooms/${space.spaceId}/floorAreaM2`,
+        'PROJECT',
+        space.unresolvedGeometry ??
+          `Space ${space.name} has no derivable floor area.`,
       );
     return {
       roomId: space.spaceId,
@@ -475,13 +601,27 @@ function lightingInput(context: ProjectCalculationContext): CalculationJson {
     ...(operatingHoursByPeriod === undefined
       ? {}
       : { operatingHoursPerDay: operatingHoursByPeriod }),
-    rooms: context.spaces.map((space) => ({
-      roomId: space.spaceId,
-      name: space.name,
-      ...(space.floorAreaM2 === undefined
-        ? {}
-        : { roomAreaM2: space.floorAreaM2 }),
-    })),
+    rooms: context.spaces.map((space) => {
+      // A room the project cannot measure is not a room of nought square
+      // metres: the lumen method has nothing to divide by, and saying so is
+      // what keeps an illuminance from being reported for a room whose size
+      // nobody knows.
+      if (space.floorAreaM2 === undefined)
+        settings.reportMissing(
+          'lighting',
+          `rooms/${space.spaceId}/roomAreaM2`,
+          'PROJECT',
+          space.unresolvedGeometry ??
+            `Space ${space.name} has no derivable floor area.`,
+        );
+      return {
+        roomId: space.spaceId,
+        name: space.name,
+        ...(space.floorAreaM2 === undefined
+          ? {}
+          : { roomAreaM2: space.floorAreaM2 }),
+      };
+    }),
     luminaires: luminaires.map((luminaire) => ({
       ...luminaire,
       luminousFluxLm: luminaire.luminousFluxLm ?? null,
@@ -1266,7 +1406,8 @@ function iaqInput(context: ProjectCalculationContext): CalculationJson {
         'iaq',
         `rooms/${space.spaceId}/volumeM3`,
         'PROJECT',
-        `Space ${space.name} has no boundary or storey height to derive a volume from.`,
+        space.unresolvedGeometry ??
+          `Space ${space.name} has no boundary or storey height to derive a volume from.`,
       );
     return {
       roomId: space.spaceId,
@@ -1636,7 +1777,8 @@ function acousticsInput(context: ProjectCalculationContext): CalculationJson {
         'acoustics',
         `rooms/${space.spaceId}/volumeM3`,
         'PROJECT',
-        `Space ${space.name} has no derivable volume.`,
+        space.unresolvedGeometry ??
+          `Space ${space.name} has no derivable volume.`,
       );
     const wallAreaM2 =
       space.perimeterM === undefined || space.heightM === undefined
@@ -1969,28 +2111,48 @@ function environmentalInput(
  * and listed in {@link ProjectCalculationInputs.missing}, so a module reports a
  * missing input instead of computing on a placeholder.
  */
+/** The modules whose answer depends on the weather of a real place. */
+const CLIMATE_DEPENDENT = [
+  'heating',
+  'iaq',
+  'rainwater',
+  'photovoltaic',
+  'energy-balance',
+  'hygrothermal',
+] as const;
+
+/**
+ * What a project asked for and did not get, said once per module that needed
+ * it.
+ *
+ * A climate the project names and nobody supplied is not a reason to compute
+ * with another one. Saying which dataset is missing, in the modules that would
+ * have read it, is what turns a wrong answer into no answer.
+ */
+function reportClimateSelection(context: ProjectCalculationContext): void {
+  const selection = context.climateSelection;
+  if (selection.status === 'OK' || selection.status === 'NONE') return;
+  for (const moduleId of CLIMATE_DEPENDENT)
+    context.settings.reportMissing(
+      moduleId,
+      'climateProfileId',
+      'CLIMATE_DATASET',
+      selection.message,
+    );
+}
+
 export function buildProjectCalculationInputs(
   context: ProjectCalculationContext,
 ): ProjectCalculationInputs {
-  const inputs: Record<string, CalculationJson> = {
-    thermal: thermalInput(context),
-    heating: heatingInput(context),
-    dhw: dhwInput(context),
-    lighting: lightingInput(context),
-    electrical: electricalInput(context),
-    ventilation: ventilationInput(context),
-    iaq: iaqInput(context),
-    water: waterInput(context),
-    wastewater: wastewaterInput(context),
-    rainwater: rainwaterInput(context),
-    photovoltaic: photovoltaicInput(context),
-    battery: batteryInput(context),
-    'energy-balance': energyBalanceInput(context),
-    hygrothermal: hygrothermalInput(context),
-    acoustics: acousticsInput(context),
-    cost: costInput(context),
-    environmental: environmentalInput(context),
-  };
+  reportClimateSelection(context);
+  // Built from the registry, so adding a module is describing it once rather
+  // than in four places.
+  const inputs: Record<string, CalculationJson> = Object.fromEntries(
+    PROJECT_CALCULATION_MODULE_IDS.map((id) => [
+      id,
+      MODULE_INPUT_BUILDERS[id](context),
+    ]),
+  );
   return {
     inputs,
     missing: context.settings.missing,

@@ -3,6 +3,8 @@ import {
   clearanceReport,
   stairDimensions,
   unresolvedRoofs,
+  portCompatibility,
+  resolvedSpaces,
   validateTechnicalNetwork,
 } from '@house-technical-designer/core-domain';
 import {
@@ -11,6 +13,7 @@ import {
 } from '@house-technical-designer/view-query';
 import { buildBom } from '../quantities/bom-model.js';
 import { canEditSetting } from '../project/settings-catalog.js';
+import { rulePackDrift } from './rule-packs.js';
 import type { CalculationRun } from '../calculations/calculation-runner.js';
 import { systemChecks } from './system-checks.js';
 
@@ -204,6 +207,24 @@ export function projectChecks(
     }
   }
 
+  // A room the project cannot measure. It is drawn — or meant to be — and no
+  // surface, no perimeter and no volume reach anything downstream: the
+  // heating, the air, the light and the acoustics all fall silent about it.
+  for (const room of resolvedSpaces(project))
+    if (room.unresolved !== undefined)
+      checks.push({
+        id: `model:space-geometry:${room.spaceId}`,
+        status: 'UNKNOWN',
+        source: 'MODEL',
+        title: `${room.name} — surface non résolue`,
+        detail: room.unresolved,
+        fix: {
+          label: 'Voir sur le plan',
+          tab: 'plan',
+          objectIds: [room.spaceId],
+        },
+      });
+
   // The room the machines need around them. A geometric statement and nothing
   // more — these volumes overlap, and these two kinds may not — because
   // whether that breaks a rule of a particular country is a question for a
@@ -235,6 +256,33 @@ export function projectChecks(
         objectIds: [missing.objectId],
       },
     });
+
+  // A run whose two ends never said what they carry. Not a refusal — the file
+  // holds it and an old file keeps its runs — but not a checked run either,
+  // and a drawing set that does not distinguish the two is a drawing set
+  // nobody can trust.
+  for (const network of project.systems ?? []) {
+    const ports = new Map(network.ports.map((port) => [port.id, port]));
+    for (const edge of network.edges) {
+      const from = ports.get(edge.fromPortId);
+      const to = ports.get(edge.toPortId);
+      if (from === undefined || to === undefined) continue;
+      const verdict = portCompatibility(from, to);
+      if (verdict.status !== 'UNKNOWN') continue;
+      checks.push({
+        id: `network:${network.id}:undetermined:${edge.id}`,
+        status: 'UNKNOWN',
+        source: 'NETWORK',
+        title: `${network.systemType} — raccordement indéterminé`,
+        detail: verdict.reason,
+        fix: {
+          label: 'Ouvrir les réseaux',
+          tab: 'networks',
+          objectIds: [edge.id],
+        },
+      });
+    }
+  }
 
   for (const network of project.systems ?? [])
     for (const issue of validateTechnicalNetwork(network))
@@ -314,6 +362,21 @@ export function projectChecks(
             ? { label: 'Ouvrir les matériaux', tab: 'materials' }
             : { label: 'Ouvrir les réglages de calcul', tab: 'project' },
       });
+
+  // A pack the project was checked against, at a version this repository no
+  // longer ships. The report would otherwise change its mind without saying so.
+  for (const drift of rulePackDrift(project))
+    checks.push({
+      id: `rule-pack:version:${drift.id}`,
+      status: 'UNKNOWN',
+      source: 'RULE_PACK',
+      title: `${drift.id} — le référentiel a bougé`,
+      detail:
+        drift.installed === undefined
+          ? `Ce projet a été vérifié avec la version ${drift.checkedAt} de ${drift.id}, que cette version de l’application ne livre plus.`
+          : `Ce projet a été vérifié avec la version ${drift.checkedAt} de ${drift.id} ; celle qui est livrée est la ${drift.installed}. Les constats peuvent avoir changé.`,
+      fix: { label: 'Ouvrir les référentiels', tab: 'project' },
+    });
 
   if ((project.regulatoryContext?.enabledRulePacks ?? []).length === 0)
     checks.push({

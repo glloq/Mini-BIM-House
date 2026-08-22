@@ -21,6 +21,7 @@ import { PROJECT_CALCULATION_MODULE_IDS } from './project-inputs.js';
 import { createProjectCalculationContext } from './project-context.js';
 import { buildProjectCalculationInputs } from './project-inputs.js';
 import type { Project } from '@house-technical-designer/core-domain';
+import { entityId } from '@house-technical-designer/core-domain';
 
 const fixturePath = fileURLToPath(
   new URL(
@@ -317,6 +318,247 @@ describe('PR-069 reference house', () => {
     );
     expect(changedLedger.selfSufficiencyRatio as number).toBeGreaterThanOrEqual(
       baseLedger.selfSufficiencyRatio as number,
+    );
+  });
+});
+
+describe('the whole envelope, checked by hand', () => {
+  /**
+   * A cube whose heat loss anybody can work out on paper.
+   *
+   * Four walls of ten by three, one window of two by two cut through one of
+   * them, a flat roof and a floor, all ten metres square. Every layer is one
+   * metre of a material conducting one watt per metre-kelvin, so a bare
+   * assembly is exactly 1 m²K/W plus the two surface resistances.
+   */
+  const SIDE_MM = 10_000;
+  const HEIGHT_MM = 3000;
+  const U_WINDOW = 1.4;
+
+  function cube(): Project {
+    const ground = entityId<'Level'>('ground');
+    const square = {
+      outer: [
+        { x: 0, y: 0 },
+        { x: SIDE_MM, y: 0 },
+        { x: SIDE_MM, y: SIDE_MM },
+        { x: 0, y: SIDE_MM },
+      ],
+    };
+    const wall = (
+      id: string,
+      from: { x: number; y: number },
+      to: typeof from,
+    ) =>
+      ({
+        id: entityId<'Wall'>(id),
+        type: 'WALL',
+        levelId: ground,
+        path: { points: [from, to] },
+        referenceSide: 'CENTER',
+        assemblyId: 'unit-assembly',
+        baseOffsetMm: 0,
+        heightMode: 'EXPLICIT',
+        heightMm: HEIGHT_MM,
+        role: 'EXTERIOR',
+      }) as unknown as Project['building']['levels'][number]['walls'][number];
+    return {
+      id: entityId<'Project'>('cube'),
+      metadata: {
+        name: 'Cube',
+        createdAt: '2026-08-22T00:00:00Z',
+        updatedAt: '2026-08-22T00:00:00Z',
+      },
+      site: { northAngleDeg: 0 },
+      materialLibrary: {
+        materials: [
+          {
+            id: 'unit-material',
+            name: 'Matériau unité',
+            kind: 'GENERIC',
+            properties: { lambdaWmK: 1 },
+          },
+        ],
+      },
+      assemblies: [
+        {
+          id: 'unit-assembly',
+          name: 'Composition unité',
+          category: 'WALL',
+          layers: [
+            {
+              id: 'unit-layer',
+              materialId: 'unit-material',
+              thicknessM: 1,
+              role: 'STRUCTURAL',
+            },
+          ],
+        },
+      ],
+      equipment: [
+        {
+          id: 'unit-window',
+          kind: 'WINDOW',
+          catalogKind: 'GENERIC',
+          properties: { uw: U_WINDOW },
+        },
+      ],
+      building: {
+        levels: [
+          {
+            id: ground,
+            name: 'RDC',
+            elevationMm: 0,
+            defaultStoreyHeightMm: HEIGHT_MM,
+            walls: [
+              wall('w-s', { x: 0, y: 0 }, { x: SIDE_MM, y: 0 }),
+              wall('w-e', { x: SIDE_MM, y: 0 }, { x: SIDE_MM, y: SIDE_MM }),
+              wall('w-n', { x: SIDE_MM, y: SIDE_MM }, { x: 0, y: SIDE_MM }),
+              wall('w-w', { x: 0, y: SIDE_MM }, { x: 0, y: 0 }),
+            ],
+            openings: [
+              {
+                id: entityId<'Opening'>('glazing'),
+                type: 'OPENING',
+                openingType: 'WINDOW',
+                hostElementId: entityId<'Wall'>('w-s'),
+                offsetAlongHostMm: 1000,
+                sillHeightMm: 500,
+                widthMm: 2000,
+                heightMm: 2000,
+                definitionId: 'unit-window',
+              },
+            ],
+            slabs: [
+              {
+                id: entityId<'Slab'>('floor'),
+                type: 'SLAB',
+                levelId: ground,
+                polygon: square,
+                assemblyId: 'unit-assembly',
+                elevationOffsetMm: 0,
+                role: 'FLOOR',
+              },
+            ],
+            roofs: [
+              {
+                id: entityId<'RoofPlane'>('roof'),
+                type: 'ROOF_PLANE',
+                levelId: ground,
+                footprint: square,
+                assemblyId: 'unit-assembly',
+                slopeDeg: 0,
+                azimuthDeg: 180,
+                baseElevationMm: HEIGHT_MM,
+              },
+            ],
+            spaces: [],
+            stairs: [],
+            annotations: [],
+          },
+        ],
+        zones: [],
+      },
+      calculationSettings: {
+        thermal: {
+          moduleId: 'thermal',
+          moduleVersion: '2.0.0',
+          methodId: 'assembly-u-value-v1',
+          precisionTarget: 'ENGINEERING',
+          settings: {},
+        },
+      },
+    } as unknown as Project;
+  }
+
+  it('adds the window, the roof and the floor to the walls', async () => {
+    const context = createProjectCalculationContext(cube(), {});
+    const built = buildProjectCalculationInputs(context);
+    const result = await orchestrator().calculateModule(
+      'thermal',
+      built.inputs,
+      {},
+    );
+    expect(result.status, JSON.stringify(result)).toBe('OK');
+    if (result.status !== 'OK') return;
+
+    // The surface resistances the method declares, whatever they are.
+    const input = built.inputs.thermal as Readonly<Record<string, number>>;
+    const opaqueU =
+      1 /
+      ((input.insideSurfaceResistanceM2KW ?? 0) +
+        1 +
+        (input.outsideSurfaceResistanceM2KW ?? 0));
+    // 4 × 10 × 3 = 120 m² of wall, less 4 m² of window.
+    const expected =
+      opaqueU * (120 - 4) + U_WINDOW * 4 + opaqueU * 100 + opaqueU * 100;
+    expect(
+      result.result.outputs.heatTransferCoefficientWK as number,
+    ).toBeCloseTo(expected, 6);
+  });
+
+  it('used to lose the window, the roof and the floor entirely', async () => {
+    // The same house, counted the way the envelope used to be: opaque walls
+    // net of their openings and nothing else. The difference is what was
+    // silently missing from every heating load this application computed.
+    const context = createProjectCalculationContext(cube(), {});
+    const built = buildProjectCalculationInputs(context);
+    const input = built.inputs.thermal as Readonly<Record<string, number>>;
+    const opaqueU =
+      1 /
+      ((input.insideSurfaceResistanceM2KW ?? 0) +
+        1 +
+        (input.outsideSurfaceResistanceM2KW ?? 0));
+    const result = await orchestrator().calculateModule(
+      'thermal',
+      built.inputs,
+      {},
+    );
+    if (result.status !== 'OK') return;
+    const now = result.result.outputs.heatTransferCoefficientWK as number;
+    expect(now).toBeGreaterThan(opaqueU * 116 * 2);
+  });
+});
+
+describe('the weather a project is computed with', () => {
+  it('refuses a climate the project asked for and nobody supplied', async () => {
+    // Falling back to whichever dataset happened to be loaded computed a
+    // house with a climate nobody chose, and said nothing.
+    const loaded = loadProjectJson(await readFile(fixturePath, 'utf8'));
+    if (loaded.status !== 'OK') throw new Error(loaded.status);
+    const elsewhere: Project = {
+      ...loaded.file.project,
+      site: { ...loaded.file.project.site, climateProfileId: 'bordeaux' },
+    };
+    const context = createProjectCalculationContext(elsewhere, {
+      climate: await climateDatasets(),
+    });
+    expect(context.climate).toBeUndefined();
+    expect(context.subDailyClimate).toBeUndefined();
+    const built = buildProjectCalculationInputs(context);
+    const said = built.missing.filter(({ key }) => key === 'climateProfileId');
+    // Every module whose answer depends on the weather says which dataset it
+    // wanted, rather than one of them quietly using Rennes.
+    expect(said.map(({ moduleId }) => moduleId).sort()).toEqual([
+      'energy-balance',
+      'heating',
+      'hygrothermal',
+      'iaq',
+      'photovoltaic',
+      'rainwater',
+    ]);
+    expect(said[0]?.message).toContain('bordeaux');
+  });
+
+  it('pairs the design day and the year of the same place', async () => {
+    const loaded = loadProjectJson(await readFile(fixturePath, 'utf8'));
+    if (loaded.status !== 'OK') throw new Error(loaded.status);
+    const context = createProjectCalculationContext(loaded.file.project, {
+      climate: await climateDatasets(),
+    });
+    expect(context.climate?.datasetId).toBe('reference-temperate');
+    expect(context.subDailyClimate?.datasetId).toBe(
+      'reference-temperate-design-day',
     );
   });
 });
