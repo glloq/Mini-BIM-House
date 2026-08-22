@@ -2400,3 +2400,68 @@ button.ghost:disabled {
     overflow-x: auto;
   }
 }
+
+/* Le sélecteur de catalogue : la seule porte d'entrée d'une fiche vers un
+   projet. Une liste de lignes, jamais de fiches, et un compte qui dit ce
+   qu'elle ne montre pas plutôt que de laisser croire qu'elle montre tout. */
+.catalog-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: min(28rem, 100%);
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.catalog-picker-head {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.catalog-picker-head label {
+  flex: 1;
+}
+
+.catalog-picker-head input {
+  width: 100%;
+}
+
+.catalog-picker-count {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.catalog-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 18rem;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.catalog-picker-list button {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.catalog-picker-list button:hover:not(:disabled) {
+  background: var(--surface-sunken);
+}
+
+.catalog-picker-meta {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}

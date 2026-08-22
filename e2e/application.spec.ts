@@ -58,6 +58,44 @@ test('a new project ships a library a wall can be drawn with', async ({
   expect(buildUps).toBeLessThan(15);
 });
 
+test('takes a build-up out of the catalogue, with what it is made of', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+
+  await openDestination(page, 'Matériaux');
+  await expect(page.locator('.library-table tbody tr').first()).toBeVisible();
+  const before = await page.locator('.library-table tbody tr').count();
+
+  await openDestination(page, 'Assemblages');
+  await expect(page.locator('.assembly-card').first()).toBeVisible();
+  const buildUps = await page.locator('.assembly-card').count();
+
+  // The picker asks the question a user has — which one — instead of offering
+  // « import the whole generic catalogue », which is how a project with
+  // nothing drawn in it came to carry a hundred and twenty-eight fiches.
+  await page
+    .getByRole('button', { name: 'Ajouter depuis le catalogue' })
+    .click();
+  const picker = page.getByRole('group', {
+    name: 'Ajouter depuis le catalogue',
+  });
+  await picker.getByRole('searchbox').fill('bardage');
+  const choice = picker.getByRole('button').filter({ hasText: 'Bardage' });
+  await expect(choice.first()).toBeVisible();
+  await choice.first().click();
+
+  await expect(page.locator('.assembly-card')).toHaveCount(buildUps + 1);
+
+  // And the materials came with it: a layer pointing at a material the project
+  // does not hold is a wall that draws, costs nothing and insulates nothing.
+  await openDestination(page, 'Matériaux');
+  const after = await page.locator('.library-table tbody tr').count();
+  expect(after).toBeGreaterThan(before);
+  expect(errors).toEqual([]);
+});
+
 test('draws the reference house with real walls, openings and rooms', async ({
   page,
 }) => {

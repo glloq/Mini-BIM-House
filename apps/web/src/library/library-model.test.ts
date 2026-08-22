@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
 import { materialId } from '@house-technical-designer/materials';
+import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies/catalog';
 import { createBlankProject } from '../project-workspace.js';
 import { genericCatalog } from '@house-technical-designer/catalog-registry';
 import { genericEquipment } from '@house-technical-designer/equipment-catalog';
@@ -9,6 +10,7 @@ import {
   assemblyViews,
   duplicateMaterialDraft,
   materialCategories,
+  materialsAnAssemblyNeeds,
   materialRows,
   nextLibraryId,
   projectEquipmentFromCatalog,
@@ -20,6 +22,43 @@ import {
 function project(): Project {
   return createBlankProject('2026-08-19T00:00:00Z').project;
 }
+
+describe('taking a build-up out of the catalogue', () => {
+  it('names the materials the project would be missing', () => {
+    // A composition is made of materials. Taking it without them leaves layers
+    // pointing at nothing — a wall that draws, costs nothing and insulates
+    // nothing. The panel used to work only because the project had been handed
+    // every material there is.
+    const held = new Set(
+      (project().materialLibrary?.materials ?? []).map(({ id }) => String(id)),
+    );
+    const wall = rawGenericAssemblyEntries().find(
+      ({ id }) => id === 'generic-wall-double-brick-veneer',
+    )!;
+    const wanted = materialsAnAssemblyNeeds(wall.layers, held);
+    expect(wanted.length).toBeGreaterThan(0);
+    for (const id of wanted) expect(held.has(id)).toBe(false);
+    // And what the project already holds is not asked for twice, however many
+    // layers name it.
+    expect(new Set(wanted).size).toBe(wanted.length);
+    expect(
+      materialsAnAssemblyNeeds(
+        wall.layers,
+        new Set(wall.layers.map((l) => l.materialId)),
+      ),
+    ).toEqual([]);
+  });
+
+  it('asks for nothing when the project already holds every layer', () => {
+    const starter = rawGenericAssemblyEntries().find(
+      ({ id }) => id === 'generic-partition-stud',
+    )!;
+    const held = new Set(
+      (project().materialLibrary?.materials ?? []).map(({ id }) => String(id)),
+    );
+    expect(materialsAnAssemblyNeeds(starter.layers, held)).toEqual([]);
+  });
+});
 
 describe('material library view', () => {
   it('lists the project library with its deletion safety', () => {

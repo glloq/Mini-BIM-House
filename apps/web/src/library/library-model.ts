@@ -219,6 +219,26 @@ export function assemblyViews(project: Project): readonly AssemblyView[] {
   );
 }
 
+/**
+ * The materials a build-up needs and the project does not hold.
+ *
+ * Taking a composition from the catalogue is not one addition: a build-up is
+ * made of materials, and taking it without them leaves layers pointing at
+ * nothing — a wall that draws, costs nothing and insulates nothing, which is
+ * exactly what the starter basket is built to avoid. Stated here, and not
+ * inside the panel that asks, because it is the rule and not the button.
+ */
+export function materialsAnAssemblyNeeds(
+  layers: readonly { readonly materialId: string }[],
+  held: ReadonlySet<string>,
+): readonly string[] {
+  return [
+    ...new Set(
+      layers.map(({ materialId }) => materialId).filter((id) => !held.has(id)),
+    ),
+  ];
+}
+
 /** A free identifier derived from a name, so the user never types one. */
 export function nextLibraryId(
   prefix: string,
