@@ -1,0 +1,463 @@
+{
+  "definitions": [
+    {
+      "id": "generic-thermodynamic-dhw",
+      "familyId": "THERMODYNAMIC_DHW",
+      "name": "Chauffe-eau thermodynamique 200 l",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 700,
+        "heightMm": 1800
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -900.0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 900.0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 350.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "extract",
+          "portTypeId": "AIR_EXTRACT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 900.0
+          }
+        },
+        {
+          "id": "condensate",
+          "portTypeId": "CONDENSATE",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -900.0
+          }
+        }
+      ],
+      "properties": {
+        "tankVolumeL": 200,
+        "usefulHeatingPowerW": 1800,
+        "standbyLossW": 40,
+        "storageTemperatureC": 55
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-dhw-tank"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 600,
+          "reason": "Dépose et remplacement"
+        }
+      ]
+    },
+    {
+      "id": "generic-heat-pump-dhw",
+      "familyId": "HEAT_PUMP_DHW",
+      "name": "Ballon sur pompe à chaleur 300 l",
+      "dimensions": {
+        "widthMm": 650,
+        "depthMm": 650,
+        "heightMm": 1900
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -950.0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 950.0
+          }
+        },
+        {
+          "id": "primary-flow",
+          "portTypeId": "PRIMARY_FLOW",
+          "position": {
+            "x": -325.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "primary-return",
+          "portTypeId": "PRIMARY_RETURN",
+          "position": {
+            "x": -325.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "tankVolumeL": 300,
+        "exchangerAreaM2": 3.2,
+        "standbyLossW": 55,
+        "storageTemperatureC": 55
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-dhw-tank"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 600,
+          "reason": "Dépose et remplacement"
+        }
+      ]
+    },
+    {
+      "id": "generic-indirect-tank",
+      "familyId": "INDIRECT_TANK",
+      "name": "Ballon à échangeur 200 l",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 1500
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -750.0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 750.0
+          }
+        },
+        {
+          "id": "primary-flow",
+          "portTypeId": "PRIMARY_FLOW",
+          "position": {
+            "x": -300.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "primary-return",
+          "portTypeId": "PRIMARY_RETURN",
+          "position": {
+            "x": -300.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "tankVolumeL": 200,
+        "exchangerAreaM2": 1.4,
+        "standbyLossW": 50,
+        "storageTemperatureC": 60
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-dhw-tank"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 600,
+          "reason": "Dépose et remplacement"
+        }
+      ]
+    },
+    {
+      "id": "generic-buffer-dhw",
+      "familyId": "BUFFER_DHW",
+      "name": "Ballon tampon ECS 100 l",
+      "dimensions": {
+        "widthMm": 500,
+        "depthMm": 500,
+        "heightMm": 1100
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -550.0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 550.0
+          }
+        }
+      ],
+      "properties": {
+        "tankVolumeL": 100,
+        "standbyLossW": 35,
+        "storageTemperatureC": 60
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-dhw-tank"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 600,
+          "reason": "Dépose et remplacement"
+        }
+      ]
+    },
+    {
+      "id": "generic-instant-heater",
+      "familyId": "INSTANT_HEATER",
+      "name": "Chauffe-eau instantané",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 120,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -200.0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 200.0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 60.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "usefulHeatingPowerW": 21000,
+        "storageTemperatureC": 50
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-dhw-tank"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 600,
+          "reason": "Dépose et remplacement"
+        }
+      ]
+    },
+    {
+      "id": "generic-solar-dhw-tank",
+      "familyId": "SOLAR_DHW_TANK",
+      "name": "Ballon solaire 300 l",
+      "dimensions": {
+        "widthMm": 650,
+        "depthMm": 650,
+        "heightMm": 1800
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -900.0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 900.0
+          }
+        },
+        {
+          "id": "primary-flow",
+          "portTypeId": "PRIMARY_FLOW",
+          "position": {
+            "x": -325.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "primary-return",
+          "portTypeId": "PRIMARY_RETURN",
+          "position": {
+            "x": -325.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "tankVolumeL": 300,
+        "exchangerAreaM2": 2.6,
+        "standbyLossW": 55,
+        "storageTemperatureC": 60
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-dhw-tank"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        },
+        {
+          "zone": "SERVICE",
+          "frontMm": 600,
+          "reason": "Dépose et remplacement"
+        }
+      ]
+    }
+  ]
+}

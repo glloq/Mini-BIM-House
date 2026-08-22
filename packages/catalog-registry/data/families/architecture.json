@@ -39,7 +39,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "WALL_LOAD_BEARING",
@@ -59,7 +60,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "PARTITION",
@@ -100,7 +102,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "DOUBLE_WALL",
@@ -120,7 +123,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "BASEMENT_WALL",
@@ -140,7 +144,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "PARTY_WALL",
@@ -160,7 +165,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "CURTAIN_WALL",
@@ -180,7 +186,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "FOUNDATION_WALL",
@@ -200,7 +207,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "PARAPET",
@@ -220,7 +228,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "LOW_WALL",
@@ -240,7 +249,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "CLADDING",
@@ -260,7 +270,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "FACADE_PANEL",
@@ -280,7 +291,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "WALL"
     },
     {
       "id": "GROUND_SLAB",
@@ -343,7 +355,8 @@
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
-      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard.",
+      "category": "FLOOR"
     },
     {
       "id": "ROOF_SLAB",
@@ -385,7 +398,8 @@
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
-      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard.",
+      "category": "FLOOR"
     },
     {
       "id": "TERRACE",
@@ -406,7 +420,8 @@
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
-      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard.",
+      "category": "FLOOR"
     },
     {
       "id": "GARAGE_SLAB",
@@ -427,7 +442,8 @@
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
-      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard.",
+      "category": "FLOOR"
     },
     {
       "id": "CEILING",
@@ -448,7 +464,8 @@
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
-      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard.",
+      "category": "CEILING"
     },
     {
       "id": "SUSPENDED_CEILING",
@@ -469,7 +486,8 @@
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
-      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard.",
+      "category": "CEILING"
     },
     {
       "id": "ACOUSTIC_CEILING",
@@ -490,7 +508,8 @@
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
-      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard.",
+      "category": "CEILING"
     },
     {
       "id": "TECHNICAL_CEILING",
@@ -511,7 +530,8 @@
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
       },
-      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard."
+      "hint": "Décrit aujourd’hui par une dalle ; une entité propre viendra plus tard.",
+      "category": "CEILING"
     },
     {
       "id": "ROOF_SLOPED",
@@ -532,7 +552,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "ROOF"
     },
     {
       "id": "ROOF_GABLE",
@@ -553,7 +574,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "ROOF"
     },
     {
       "id": "ROOF_HIPPED",
@@ -574,7 +596,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "ROOF"
     },
     {
       "id": "ROOF_SHED",
@@ -595,7 +618,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "ROOF"
     },
     {
       "id": "ROOF_FLAT",
@@ -616,7 +640,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "ROOF"
     },
     {
       "id": "ROOF_TERRACE",
@@ -637,7 +662,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "ROOF"
     },
     {
       "id": "GREEN_ROOF",
@@ -658,7 +684,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "ROOF"
     },
     {
       "id": "ROOF_PANEL",
@@ -679,7 +706,8 @@
         "MODEL": "READY",
         "QUANTITIES": "PARTIAL",
         "CALCULATION": "PARTIAL"
-      }
+      },
+      "category": "ROOF"
     },
     {
       "id": "RIDGE",

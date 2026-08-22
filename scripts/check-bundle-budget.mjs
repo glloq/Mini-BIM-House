@@ -66,9 +66,20 @@ export const BUDGETS = {
    * instead of importing eight of them by name, which is what makes adding
    * fiches a `git add` rather than an edit to two TypeScript files.
    *
+   * And six kio for the first two filling waves. Not the fiches — those are in
+   * the catalogue browser, which is loaded on demand and stays there; this is
+   * the nomenclature, which the editor holds because the inspector, the
+   * workflows and the checks all ask it what a family is. It grew because
+   * ninety-three families of water and drainage now state what they are
+   * connected by rather than repeating one list per schema, because a hundred
+   * and thirty families gained the coarse grouping the interface sorts on, and
+   * because seven families of roof covering were declared. The nomenclature is
+   * complete at five hundred and twenty-seven; the waves still to come add
+   * fiches, and fiches are not loaded here.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 259 * 1024,
+  initialGzipBytes: 266 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -80,8 +91,14 @@ export const BUDGETS = {
    * Raised again for the mass-fill gate: discovery in place of eight
    * hand-written imports, and every material and build-up carrying the
    * catalogue reference it came from.
+   *
+   * Raised by twelve kio for the first two filling waves: two hundred and
+   * three new fiches — matériaux, compositions, menuiseries, mobilier, and the
+   * ninety-three familles of water and drainage. Most of that weight is in the
+   * catalogue browser's chunk, which is where it belongs; what it buys is that
+   * a family offered to somebody has something behind it.
    */
-  totalGzipBytes: 380 * 1024,
+  totalGzipBytes: 392 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

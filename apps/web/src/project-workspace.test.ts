@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { genericAssemblyCatalog } from '@house-technical-designer/assemblies';
 import { defaultVisibility } from '@house-technical-designer/view-query';
 import type { ProjectFile } from '@house-technical-designer/core-domain';
 import { loadProjectJson } from '@house-technical-designer/project-io';
@@ -35,10 +36,13 @@ describe('web project workspace', () => {
     const assemblies = file.project.assemblies!;
     expect(materials.length).toBeGreaterThan(0);
     // The build-ups come from the assembly catalogue now, not from a list
-    // written out in the application beside the code that draws them.
+    // written out in the application beside the code that draws them — so
+    // what a new project starts with is « everything the catalogue ships »,
+    // and a wave that adds ceilings adds them here without a code change.
     expect(new Set(assemblies.map(({ category }) => category))).toEqual(
-      new Set(['WALL', 'PARTITION', 'FLOOR', 'ROOF']),
+      new Set(genericAssemblyCatalog().map(({ category }) => category)),
     );
+    expect(assemblies).toHaveLength(genericAssemblyCatalog().length);
     // Every starter layer points at a material the project actually carries.
     const known = new Set(materials.map(({ id }) => id));
     for (const assembly of assemblies)
@@ -52,7 +56,7 @@ describe('web project workspace', () => {
         startYmm: 0,
         endXmm: 5000,
         endYmm: 0,
-        assemblyId: assemblies[0]!.id,
+        assemblyId: assemblies.find(({ category }) => category === 'WALL')!.id,
       },
       'wall-1',
     );
@@ -83,7 +87,12 @@ describe('web project workspace', () => {
                     ],
                   },
                   referenceSide: 'CENTER' as const,
-                  assemblyId: file.project.assemblies![0]!.id,
+                  // A wall takes a wall's build-up. It used to take whichever
+                  // one came first, which was a wall only because the
+                  // catalogue happened to start with one.
+                  assemblyId: file.project.assemblies!.find(
+                    ({ category }) => category === 'WALL',
+                  )!.id,
                   baseOffsetMm: 0,
                   heightMode: 'EXPLICIT' as const,
                   heightMm: 2500,

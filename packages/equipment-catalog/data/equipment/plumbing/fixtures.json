@@ -1,0 +1,849 @@
+{
+  "definitions": [
+    {
+      "id": "generic-double-washbasin",
+      "familyId": "DOUBLE_WASHBASIN",
+      "name": "Lavabo double",
+      "dimensions": {
+        "widthMm": 1200,
+        "depthMm": 500,
+        "heightMm": 850
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 250.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 250.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "drain",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -425.0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.4,
+        "hotWaterFraction": 0.5,
+        "dischargeUnits": 2,
+        "minimumPressurePa": 100000,
+        "trapDiameterMm": 40
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-washbasin"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-basin",
+      "familyId": "BASIN",
+      "name": "Vasque à poser",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 450,
+        "heightMm": 150
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 225.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 225.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "drain",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -75.0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.2,
+        "hotWaterFraction": 0.5,
+        "dischargeUnits": 1,
+        "minimumPressurePa": 100000,
+        "trapDiameterMm": 40
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-washbasin"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-double-sink",
+      "familyId": "DOUBLE_SINK",
+      "name": "Évier deux bacs",
+      "dimensions": {
+        "widthMm": 1200,
+        "depthMm": 600,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "drain",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -100.0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.4,
+        "hotWaterFraction": 0.5,
+        "dischargeUnits": 2,
+        "minimumPressurePa": 100000,
+        "trapDiameterMm": 50
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-kitchen-sink"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-shower-tray",
+      "familyId": "SHOWER_TRAY",
+      "name": "Receveur de douche 900 × 900",
+      "dimensions": {
+        "widthMm": 900,
+        "depthMm": 900,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "drain",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -30.0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.2,
+        "dischargeUnits": 2,
+        "trapDiameterMm": 50
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-shower"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-walk-in-shower",
+      "familyId": "WALK_IN_SHOWER",
+      "name": "Douche à l’italienne",
+      "dimensions": {
+        "widthMm": 1200,
+        "depthMm": 900,
+        "heightMm": 2100
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 450.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 450.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "drain",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -1050.0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.2,
+        "hotWaterFraction": 0.6,
+        "dischargeUnits": 2,
+        "minimumPressurePa": 100000,
+        "trapDiameterMm": 50
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-shower"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-bathtub",
+      "familyId": "BATHTUB",
+      "name": "Baignoire 170 × 75",
+      "dimensions": {
+        "widthMm": 1700,
+        "depthMm": 750,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 375.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 375.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "drain",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -300.0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.3,
+        "hotWaterFraction": 0.6,
+        "dischargeUnits": 3,
+        "minimumPressurePa": 100000,
+        "trapDiameterMm": 40
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-hung-wc",
+      "familyId": "WALL_HUNG_WC",
+      "name": "WC suspendu",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 550,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 275.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "soil",
+          "portTypeId": "SOILWATER",
+          "position": {
+            "x": 0,
+            "y": 275.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.1,
+        "dischargeUnits": 4,
+        "minimumPressurePa": 100000,
+        "flushVolumeL": 4.5,
+        "trapDiameterMm": 100
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-wc"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-bidet",
+      "familyId": "BIDET",
+      "name": "Bidet",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 550,
+        "heightMm": 400
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 275.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 275.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "drain",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -200.0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.1,
+        "hotWaterFraction": 0.5,
+        "dischargeUnits": 1,
+        "minimumPressurePa": 100000,
+        "trapDiameterMm": 40
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-urinal",
+      "familyId": "URINAL",
+      "name": "Urinoir",
+      "dimensions": {
+        "widthMm": 400,
+        "depthMm": 350,
+        "heightMm": 600
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 175.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "soil",
+          "portTypeId": "SOILWATER",
+          "position": {
+            "x": 0,
+            "y": 175.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.1,
+        "dischargeUnits": 2,
+        "minimumPressurePa": 100000,
+        "flushVolumeL": 2,
+        "trapDiameterMm": 50
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-wc"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-washing-machine-outlet",
+      "familyId": "WASHING_MACHINE_OUTLET",
+      "name": "Alimentation lave-linge",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 850
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "drain",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.2,
+        "dischargeUnits": 3,
+        "minimumPressurePa": 100000,
+        "trapDiameterMm": 40
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-dishwasher-outlet",
+      "familyId": "DISHWASHER_OUTLET",
+      "name": "Alimentation lave-vaisselle",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 850
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "drain",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.2,
+        "dischargeUnits": 2,
+        "minimumPressurePa": 100000,
+        "trapDiameterMm": 40
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-outdoor-tap",
+      "familyId": "OUTDOOR_TAP",
+      "name": "Robinet extérieur",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 100,
+        "heightMm": 150
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 50.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.33,
+        "minimumPressurePa": 100000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-utility-sink",
+      "familyId": "UTILITY_SINK",
+      "name": "Bac de service",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 850
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 0,
+            "y": 300.0,
+            "z": 0
+          }
+        },
+        {
+          "id": "drain",
+          "portTypeId": "WASTEWATER",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -425.0
+          }
+        }
+      ],
+      "properties": {
+        "designFlowLps": 0.3,
+        "hotWaterFraction": 0.4,
+        "dischargeUnits": 2,
+        "minimumPressurePa": 100000,
+        "trapDiameterMm": 50
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "symbol-washbasin"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Dégagement d’usage devant l’appareil"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    }
+  ]
+}

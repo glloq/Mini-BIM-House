@@ -6,7 +6,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -17,7 +17,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
+      "category": "OTHER"
     },
     {
       "id": "APPLIANCE_BRANCH",
@@ -25,7 +27,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -36,7 +38,8 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "WASTE_BRANCH",
@@ -44,7 +47,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -55,7 +58,8 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "SOIL_BRANCH",
@@ -63,7 +67,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["SOILWATER_INLET", "SOILWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -74,7 +78,8 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "WASTE_STACK",
@@ -82,7 +87,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -93,7 +98,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["DRAIN_VENT"],
+      "category": "OTHER"
     },
     {
       "id": "SOIL_STACK",
@@ -101,7 +108,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["SOILWATER_INLET", "SOILWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -112,7 +119,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["DRAIN_VENT"],
+      "category": "OTHER"
     },
     {
       "id": "VENT_STACK",
@@ -120,7 +129,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["DRAIN_VENT"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -131,7 +140,8 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "SECONDARY_VENT",
@@ -139,7 +149,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["DRAIN_VENT"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -150,7 +160,8 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "SANITARY_TEE",
@@ -158,7 +169,14 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": [
+        {
+          "anyOf": ["WASTEWATER_INLET"],
+          "minCount": 2,
+          "maxCount": 2
+        },
+        "WASTEWATER"
+      ],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -169,7 +187,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
+      "category": "OTHER"
     },
     {
       "id": "WYE",
@@ -177,7 +197,14 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": [
+        {
+          "anyOf": ["WASTEWATER_INLET"],
+          "minCount": 2,
+          "maxCount": 2
+        },
+        "WASTEWATER"
+      ],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -188,7 +215,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
+      "category": "OTHER"
     },
     {
       "id": "LONG_RADIUS_BEND",
@@ -196,7 +225,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -207,7 +236,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
+      "category": "OTHER"
     },
     {
       "id": "WASTE_REDUCER",
@@ -215,7 +246,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -226,7 +257,8 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "CLEANOUT",
@@ -234,7 +266,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -245,7 +277,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
+      "category": "OTHER"
     },
     {
       "id": "ACCESS_CAP",
@@ -253,7 +287,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -264,7 +298,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["SOILWATER_INLET"],
+      "category": "OTHER"
     },
     {
       "id": "INSPECTION_CHAMBER",
@@ -272,7 +308,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -283,7 +319,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
+      "category": "OTHER"
     },
     {
       "id": "BACKWATER_VALVE",
@@ -291,7 +329,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -302,7 +340,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
+      "category": "OTHER"
     },
     {
       "id": "LIFTING_STATION",
@@ -310,7 +350,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER", "ELECTRICAL_AC"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -321,7 +361,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["DRAIN_VENT", "SOILWATER_INLET"],
+      "category": "PUMP"
     },
     {
       "id": "SEWAGE_PUMP",
@@ -329,7 +371,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER", "ELECTRICAL_AC"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -340,7 +382,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["SOILWATER_INLET"],
+      "category": "PUMP"
     },
     {
       "id": "PUBLIC_SEWER_CONNECTION",
@@ -348,7 +392,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -359,7 +403,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["SOILWATER_INLET"],
+      "category": "OTHER"
     },
     {
       "id": "SEPTIC_TANK",
@@ -367,7 +413,12 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": [
+        {
+          "anyOf": ["WASTEWATER_INLET", "SOILWATER_INLET"]
+        },
+        "WASTEWATER"
+      ],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -378,7 +429,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["DRAIN_VENT"],
+      "category": "OTHER"
     },
     {
       "id": "GREASE_TRAP",
@@ -386,7 +439,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET", "WASTEWATER"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -397,7 +450,8 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "MICRO_TREATMENT_PLANT",
@@ -405,7 +459,13 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": [
+        {
+          "anyOf": ["WASTEWATER_INLET", "SOILWATER_INLET"]
+        },
+        "WASTEWATER",
+        "ELECTRICAL_AC"
+      ],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -416,7 +476,9 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "optionalPorts": ["DRAIN_VENT"],
+      "category": "OTHER"
     },
     {
       "id": "DRAIN_FIELD",
@@ -424,7 +486,7 @@
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["WASTEWATER", "SOILWATER", "DRAIN_VENT"],
+      "ports": ["WASTEWATER_INLET"],
       "calculators": ["wastewater", "cost"],
       "placement": {
         "allowedHosts": ["WALL", "SLAB", "SITE"],
@@ -435,7 +497,8 @@
       "propertySchema": "WASTEWATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "ROOF_CATCHMENT",
@@ -443,7 +506,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -456,7 +519,8 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "hint": "La surface de collecte, la pente et l’orientation viennent de la toiture ; elles ne se ressaisissent pas."
+      "hint": "La surface de collecte, la pente et l’orientation viennent de la toiture ; elles ne se ressaisissent pas.",
+      "category": "OTHER"
     },
     {
       "id": "VALLEY_GUTTER",
@@ -464,7 +528,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -476,7 +540,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "GUTTER",
@@ -484,7 +549,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -496,7 +561,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "optionalPorts": ["RAINWATER_OVERFLOW"],
+      "category": "OTHER"
     },
     {
       "id": "BOX_GUTTER",
@@ -504,7 +571,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -516,7 +583,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "optionalPorts": ["RAINWATER_OVERFLOW"],
+      "category": "OTHER"
     },
     {
       "id": "ROOF_DRAIN",
@@ -524,7 +593,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -536,7 +605,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "LEAF_GUARD",
@@ -544,7 +614,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -556,7 +626,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "DOWNPIPE",
@@ -564,7 +635,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -576,7 +647,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "RAINWATER_CHAMBER",
@@ -584,7 +656,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -596,7 +668,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "FIRST_FLUSH",
@@ -604,7 +677,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -616,7 +689,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "optionalPorts": ["RAINWATER_OVERFLOW"],
+      "category": "OTHER"
     },
     {
       "id": "RAIN_FILTER",
@@ -624,7 +699,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -636,7 +711,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "optionalPorts": ["RAINWATER_OVERFLOW"],
+      "category": "OTHER"
     },
     {
       "id": "RAINWATER_TANK",
@@ -680,7 +757,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "RAINWATER_TANK"
     },
     {
       "id": "RAINWATER_PUMP",
@@ -688,7 +766,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "ELECTRICAL_AC"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -700,7 +778,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PUMP"
     },
     {
       "id": "RAINWATER_BOOSTER",
@@ -708,7 +787,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "ELECTRICAL_AC"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -720,7 +799,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "PUMP"
     },
     {
       "id": "OVERFLOW",
@@ -728,7 +808,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_OVERFLOW_INLET", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -740,7 +820,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     },
     {
       "id": "SOAKAWAY",
@@ -748,7 +829,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -760,7 +841,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "optionalPorts": ["RAINWATER_OVERFLOW"],
+      "category": "OTHER"
     },
     {
       "id": "INFILTRATION_TRENCH",
@@ -768,7 +851,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -780,7 +863,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "optionalPorts": ["RAINWATER_OVERFLOW"],
+      "category": "OTHER"
     },
     {
       "id": "SWALE",
@@ -788,7 +873,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -800,7 +885,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "optionalPorts": ["RAINWATER_OUT"],
+      "category": "OTHER"
     },
     {
       "id": "RETENTION_BASIN",
@@ -808,7 +895,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -820,7 +907,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "optionalPorts": ["RAINWATER_OVERFLOW"],
+      "category": "OTHER"
     },
     {
       "id": "DETENTION_BASIN",
@@ -828,7 +917,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN", "RAINWATER_OUT"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -840,7 +929,9 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "optionalPorts": ["RAINWATER_OVERFLOW"],
+      "category": "OTHER"
     },
     {
       "id": "PUBLIC_STORM_CONNECTION",
@@ -848,7 +939,7 @@
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
-      "ports": ["RAINWATER_IN", "RAINWATER_OUT", "RAINWATER_OVERFLOW"],
+      "ports": ["RAINWATER_IN"],
       "calculators": ["rainwater", "cost"],
       "placement": {
         "allowedHosts": ["ROOF", "WALL", "SITE"],
@@ -860,7 +951,8 @@
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
-      }
+      },
+      "category": "OTHER"
     }
   ]
 }

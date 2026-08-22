@@ -1,0 +1,107 @@
+{
+  "formatVersion": "1.0.0",
+  "materials": [
+    {
+      "id": "generic-rammed-earth",
+      "familyId": "RAMMED_EARTH",
+      "category": "MASONRY",
+      "name": "Pisé",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 1.1,
+        "density": 2000,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 10,
+        "reactionToFire": "A1"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-limestone",
+      "familyId": "STONE",
+      "category": "MASONRY",
+      "name": "Pierre calcaire",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 1.4,
+        "density": 2000,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 30,
+        "reactionToFire": "A1"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-aerated-concrete",
+      "familyId": "AAC",
+      "category": "MASONRY",
+      "name": "Béton cellulaire",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.11,
+        "density": 450,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 6,
+        "reactionToFire": "A1",
+        "compressiveStrength": 3.5
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-solid-block",
+      "familyId": "SOLID_BLOCK",
+      "category": "MASONRY",
+      "name": "Bloc béton plein",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 1.05,
+        "density": 1900,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 90,
+        "reactionToFire": "A1",
+        "compressiveStrength": 6
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    }
+  ]
+}

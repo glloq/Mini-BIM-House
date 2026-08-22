@@ -6,6 +6,7 @@ import {
   genericMaterialCatalog,
   genericMaterialCategories,
   genericMaterialFamily,
+  materialCatalogSources,
   rawGenericMaterialEntries,
 } from './generic-catalog.js';
 import { validateMaterial } from './materials.js';
@@ -80,14 +81,30 @@ describe('generic material catalogue', () => {
 
   it('is searchable and filterable through the material editor query', () => {
     const catalog = genericMaterialCatalog();
+    // What the query has to find is read from the catalogue rather than
+    // written down here: a filling wave adds wools, and a literal list would
+    // make « the search still works » a TypeScript change every time data
+    // arrives — which is the thing the format freeze exists to refuse.
+    const wools = new Set(
+      catalog
+        .filter(({ name }) => name.toLowerCase().includes('laine'))
+        .map(({ id }) => id),
+    );
+    expect(wools.size).toBeGreaterThan(1);
     expect(
-      queryMaterials(catalog, { search: 'laine' }).map(
-        ({ material }) => material.id,
+      new Set(
+        queryMaterials(catalog, { search: 'laine' }).map(
+          ({ material }) => material.id,
+        ),
       ),
-    ).toEqual(['generic-rock-wool', 'generic-glass-wool']);
+    ).toEqual(wools);
+    const insulation = rawGenericMaterialEntries().filter(
+      ({ category }) => category === 'INSULATION',
+    );
+    expect(insulation.length).toBeGreaterThan(5);
     expect(
       queryMaterials(catalog, { categories: ['INSULATION'] }),
-    ).toHaveLength(6);
+    ).toHaveLength(insulation.length);
     // Nothing declares an equivalent air layer thickness, and the query says so
     // rather than treating the absence as a zero.
     expect(
@@ -109,7 +126,12 @@ describe('generic material catalogue', () => {
     // file nobody reads, that two people cannot edit at once, and that no gate
     // could check.
     expect(GENERIC_MATERIAL_FORMAT_VERSION).toBe('1.0.0');
-    expect(rawGenericMaterialEntries()).toHaveLength(16);
+    // Several files, every one of them carrying entries: the shape of « the
+    // tree is the list », stated without a total that a filling wave moves.
+    expect(materialCatalogSources().length).toBeGreaterThan(1);
+    expect(rawGenericMaterialEntries().length).toBeGreaterThanOrEqual(
+      materialCatalogSources().length,
+    );
     for (const entry of rawGenericMaterialEntries()) {
       expect(entry.familyId).toMatch(/^[A-Z][A-Z0-9_]*$/u);
       expect(entry.version).toMatch(/^\d+\.\d+\.\d+$/u);

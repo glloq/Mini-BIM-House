@@ -114,6 +114,25 @@ function summary(
  * seventh registry by ignoring it.
  */
 export function catalogSummaries(): readonly CatalogSummary[] {
+  // The gate reads a fiche as its file states it, and one of the things it
+  // refuses is a fiche restating its family's category. A resolved entry
+  // carries that category — the resolver stamps it — so asking the gate about
+  // the resolved form made every equipment fiche in the application report
+  // itself invalid, and every equipment family read « PARTIAL » in the
+  // browser. It is the raw entry that has to be asked.
+  const clean = new Set(
+    rawGenericEquipmentEntries()
+      .filter(
+        (entry) =>
+          validateCatalogEntry(entry, {
+            family,
+            schema: propertySchema,
+            symbols: shippedSymbols(),
+            property: propertyDefinition,
+          }).length === 0,
+      )
+      .map(({ id }) => id),
+  );
   return [
     ...genericCatalog().map((entry) =>
       summary('EQUIPMENT', {
@@ -121,13 +140,7 @@ export function catalogSummaries(): readonly CatalogSummary[] {
         version: entry.version,
         label: entry.name,
         familyId: entry.familyId,
-        valid:
-          validateCatalogEntry(entry, {
-            family,
-            schema: propertySchema,
-            symbols: shippedSymbols(),
-            property: propertyDefinition,
-          }).length === 0,
+        valid: clean.has(entry.id),
         ...(entry.category === undefined ? {} : { category: entry.category }),
         ...(entry.manufacturer === undefined
           ? {}

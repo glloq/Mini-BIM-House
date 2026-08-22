@@ -1,0 +1,80 @@
+{
+  "formatVersion": "1.0.0",
+  "materials": [
+    {
+      "id": "generic-glulam",
+      "familyId": "GLULAM",
+      "category": "WOOD",
+      "name": "Lamellé-collé",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.13,
+        "density": 450,
+        "specificHeat": 1600,
+        "vaporResistanceFactor": 50,
+        "reactionToFire": "D-s2,d0"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-hardwood",
+      "familyId": "WOOD_HARDWOOD",
+      "category": "WOOD",
+      "name": "Bois feuillu",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.18,
+        "density": 700,
+        "specificHeat": 1600,
+        "vaporResistanceFactor": 100,
+        "reactionToFire": "D-s2,d0"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-clt",
+      "familyId": "CLT",
+      "category": "WOOD",
+      "name": "Bois lamellé-croisé",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.13,
+        "density": 480,
+        "specificHeat": 1600,
+        "vaporResistanceFactor": 50,
+        "reactionToFire": "D-s2,d0"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    }
+  ]
+}

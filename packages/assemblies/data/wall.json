@@ -1,0 +1,409 @@
+{
+  "formatVersion": "1.0.0",
+  "assemblies": [
+    {
+      "id": "generic-wall-internal-masonry",
+      "familyId": "WALL_INTERNAL",
+      "category": "WALL",
+      "name": "Mur intérieur en béton cellulaire",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "finish",
+          "materialId": "generic-plaster",
+          "thicknessM": 0.012,
+          "role": "FINISH"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-aerated-concrete",
+          "thicknessM": 0.1,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "finish-2",
+          "materialId": "generic-plaster",
+          "thicknessM": 0.012,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-load-bearing-block",
+      "familyId": "WALL_LOAD_BEARING",
+      "category": "WALL",
+      "name": "Mur porteur en blocs béton",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "finish",
+          "materialId": "generic-plaster",
+          "thicknessM": 0.012,
+          "role": "FINISH"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-concrete-block",
+          "thicknessM": 0.2,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "finish-2",
+          "materialId": "generic-plaster",
+          "thicknessM": 0.012,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-lining-insulated",
+      "familyId": "LINING",
+      "category": "WALL",
+      "name": "Doublage isolant sur ossature",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "insulation",
+          "materialId": "generic-rock-wool",
+          "thicknessM": 0.1,
+          "role": "INSULATION"
+        },
+        {
+          "id": "membrane",
+          "materialId": "generic-vapour-retarder",
+          "thicknessM": 0.0002,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-double-brick-veneer",
+      "familyId": "DOUBLE_WALL",
+      "category": "WALL",
+      "name": "Mur double avec parement brique",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "cladding",
+          "materialId": "generic-brick",
+          "thicknessM": 0.11,
+          "role": "CLADDING"
+        },
+        {
+          "id": "air-gap",
+          "materialId": "generic-air-cavity",
+          "thicknessM": 0.03,
+          "role": "AIR_GAP",
+          "ventilated": true
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-eps",
+          "thicknessM": 0.1,
+          "role": "INSULATION"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-concrete-block",
+          "thicknessM": 0.2,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-basement-drained",
+      "familyId": "BASEMENT_WALL",
+      "category": "WALL",
+      "name": "Mur enterré drainé et isolé par l’extérieur",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "membrane",
+          "materialId": "generic-drainage-membrane",
+          "thicknessM": 0.008,
+          "role": "MEMBRANE"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-xps",
+          "thicknessM": 0.08,
+          "role": "INSULATION"
+        },
+        {
+          "id": "waterproofing",
+          "materialId": "generic-bitumen-membrane",
+          "thicknessM": 0.004,
+          "role": "WATERPROOFING"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-concrete",
+          "thicknessM": 0.25,
+          "role": "STRUCTURAL"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-party-twin-leaf",
+      "familyId": "PARTY_WALL",
+      "category": "WALL",
+      "name": "Mur mitoyen à deux parois désolidarisées",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "finish",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-concrete-block",
+          "thicknessM": 0.2,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-rock-wool",
+          "thicknessM": 0.04,
+          "role": "INSULATION"
+        },
+        {
+          "id": "structural-2",
+          "materialId": "generic-concrete-block",
+          "thicknessM": 0.2,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "finish-2",
+          "materialId": "generic-gypsum-board",
+          "thicknessM": 0.013,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-curtain-wall-aluminium",
+      "familyId": "CURTAIN_WALL",
+      "category": "WALL",
+      "name": "Mur-rideau aluminium à double vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "cladding",
+          "materialId": "generic-glass",
+          "thicknessM": 0.006,
+          "role": "CLADDING"
+        },
+        {
+          "id": "air-gap",
+          "materialId": "generic-air-cavity",
+          "thicknessM": 0.016,
+          "role": "AIR_GAP"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-glass",
+          "thicknessM": 0.006,
+          "role": "FINISH"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-aluminium",
+          "thicknessM": 0.003,
+          "role": "STRUCTURAL"
+        }
+      ]
+    },
+    {
+      "id": "generic-wall-foundation-concrete",
+      "familyId": "FOUNDATION_WALL",
+      "category": "WALL",
+      "name": "Mur de fondation en béton armé",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "waterproofing",
+          "materialId": "generic-bitumen-membrane",
+          "thicknessM": 0.004,
+          "role": "WATERPROOFING"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-concrete",
+          "thicknessM": 0.3,
+          "role": "STRUCTURAL"
+        }
+      ]
+    },
+    {
+      "id": "generic-parapet-concrete",
+      "familyId": "PARAPET",
+      "category": "WALL",
+      "name": "Acrotère béton relevé d’étanchéité",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "waterproofing",
+          "materialId": "generic-roof-membrane",
+          "thicknessM": 0.0015,
+          "role": "WATERPROOFING"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-concrete",
+          "thicknessM": 0.16,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-cement-render",
+          "thicknessM": 0.015,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-low-wall-block",
+      "familyId": "LOW_WALL",
+      "category": "WALL",
+      "name": "Muret en blocs pleins enduits",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "finish",
+          "materialId": "generic-cement-render",
+          "thicknessM": 0.015,
+          "role": "FINISH"
+        },
+        {
+          "id": "structural",
+          "materialId": "generic-solid-block",
+          "thicknessM": 0.2,
+          "role": "STRUCTURAL"
+        },
+        {
+          "id": "finish-2",
+          "materialId": "generic-cement-render",
+          "thicknessM": 0.015,
+          "role": "FINISH"
+        }
+      ]
+    },
+    {
+      "id": "generic-cladding-timber-ventilated",
+      "familyId": "CLADDING",
+      "category": "WALL",
+      "name": "Bardage bois sur lame d’air ventilée",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "cladding",
+          "materialId": "generic-softwood",
+          "thicknessM": 0.021,
+          "role": "CLADDING"
+        },
+        {
+          "id": "air-gap",
+          "materialId": "generic-air-cavity",
+          "thicknessM": 0.027,
+          "role": "AIR_GAP",
+          "ventilated": true
+        },
+        {
+          "id": "membrane",
+          "materialId": "generic-breather-membrane",
+          "thicknessM": 0.0005,
+          "role": "MEMBRANE"
+        }
+      ]
+    },
+    {
+      "id": "generic-facade-panel-insulated",
+      "familyId": "FACADE_PANEL",
+      "category": "WALL",
+      "name": "Panneau de façade isolant",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Compositions courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "layers": [
+        {
+          "id": "cladding",
+          "materialId": "generic-cement-board",
+          "thicknessM": 0.012,
+          "role": "CLADDING"
+        },
+        {
+          "id": "insulation",
+          "materialId": "generic-pir",
+          "thicknessM": 0.08,
+          "role": "INSULATION"
+        },
+        {
+          "id": "finish",
+          "materialId": "generic-cement-board",
+          "thicknessM": 0.012,
+          "role": "FINISH"
+        }
+      ]
+    }
+  ]
+}

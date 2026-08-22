@@ -10,8 +10,15 @@ import {
   type AssemblyEntryCandidate,
   type MaterialEntryCandidate,
 } from './index.js';
-import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
-import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies';
+import {
+  materialCatalogSources,
+  rawGenericMaterialEntries,
+} from '@house-technical-designer/materials';
+import {
+  ASSEMBLY_CATEGORIES,
+  assemblyCatalogSources,
+  rawGenericAssemblyEntries,
+} from '@house-technical-designer/assemblies';
 
 const known = { family, schema: propertySchema };
 const materials = new Set(rawGenericMaterialEntries().map(({ id }) => id));
@@ -47,7 +54,12 @@ const assembly = (
 describe('the material catalogue goes through a gate like everything else', () => {
   it('passes on everything the application ships', () => {
     expect(validateMaterialCatalog()).toEqual([]);
-    expect(rawGenericMaterialEntries()).toHaveLength(16);
+    // « On everything » is measured from the files, so that adding a file is
+    // covered by this gate without editing it.
+    expect(materialCatalogSources().length).toBeGreaterThan(1);
+    expect(rawGenericMaterialEntries().length).toBeGreaterThanOrEqual(
+      materialCatalogSources().length,
+    );
   });
 
   it('refuses a family that is not a material family', () => {
@@ -122,7 +134,10 @@ describe('the material catalogue goes through a gate like everything else', () =
 describe('the build-ups, and what they are made of', () => {
   it('passes on everything the application ships', () => {
     expect(validateAssemblyCatalog()).toEqual([]);
-    expect(rawGenericAssemblyEntries()).toHaveLength(7);
+    expect(assemblyCatalogSources().length).toBeGreaterThan(1);
+    expect(rawGenericAssemblyEntries().length).toBeGreaterThanOrEqual(
+      assemblyCatalogSources().length,
+    );
   });
 
   it('refuses a layer of a material nothing ships', () => {
@@ -173,14 +188,17 @@ describe('the build-ups, and what they are made of', () => {
 
   it('gives the application its starting build-ups, from data', () => {
     const built = genericAssemblies();
-    expect(built).toHaveLength(7);
+    expect(built).toHaveLength(rawGenericAssemblyEntries().length);
     for (const entry of built) {
       expect(entry.layers.length).toBeGreaterThan(0);
       for (const layer of entry.layers)
         expect(materials.has(layer.materialId)).toBe(true);
     }
+    // Every coarse grouping a build-up can fall into is shipped: a category
+    // the catalogue declares and nothing fills is a filter that answers
+    // nothing.
     expect(new Set(built.map(({ category }) => category))).toEqual(
-      new Set(['WALL', 'ROOF', 'FLOOR', 'PARTITION']),
+      new Set(ASSEMBLY_CATEGORIES.filter((name) => name !== 'OTHER')),
     );
   });
 });

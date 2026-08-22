@@ -1,0 +1,31 @@
+{
+  "formatVersion": "1.0.0",
+  "materials": [
+    {
+      "id": "generic-plain-concrete",
+      "familyId": "CONCRETE",
+      "category": "STRUCTURE",
+      "name": "Béton non armé",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 1.65,
+        "density": 2200,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 100,
+        "reactionToFire": "A1",
+        "compressiveStrength": 25
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    }
+  ]
+}

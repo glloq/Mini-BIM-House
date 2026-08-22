@@ -1357,7 +1357,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
+      "category": "OTHER"
     },
     {
       "id": "SOFA",
@@ -1376,7 +1377,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
+      "category": "OTHER"
     },
     {
       "id": "CHAIR",
@@ -1395,7 +1397,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
+      "category": "OTHER"
     },
     {
       "id": "TABLE",
@@ -1414,7 +1417,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
+      "category": "OTHER"
     },
     {
       "id": "DESK",
@@ -1433,7 +1437,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
+      "category": "OTHER"
     },
     {
       "id": "WARDROBE",
@@ -1452,7 +1457,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
+      "category": "OTHER"
     },
     {
       "id": "CABINET",
@@ -1471,7 +1477,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
+      "category": "OTHER"
     },
     {
       "id": "KITCHEN_CABINET",
@@ -1490,7 +1497,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
+      "category": "OTHER"
     },
     {
       "id": "WORKTOP",
@@ -1509,7 +1517,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
+      "category": "OTHER"
     },
     {
       "id": "SHELF",
@@ -1528,7 +1537,8 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions."
+      "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
+      "category": "OTHER"
     }
   ]
 }

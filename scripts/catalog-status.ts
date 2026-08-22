@@ -20,9 +20,11 @@ import { readFileSync } from 'node:fs';
 import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
 import { genericEquipmentCatalog } from '@house-technical-designer/equipment-catalog';
 import {
+  FAMILY_REGISTRY,
   NETWORK_PRODUCT_REGISTRY,
   STATUS_AXES,
   axisCounts,
+  catalogEvidence,
   completeness,
   currentCatalogManifest,
   domainProgress,
@@ -59,9 +61,21 @@ const exercised = new Set([
   ...familiesExercisedBy(qualificationHouse()),
 ]);
 
+/**
+ * What every registry ships, not what one of them ships.
+ *
+ * `entries` is the equipment catalogue, so `GENERIC_DATA` was measured from
+ * equipment alone: fifty-nine materials, thirty-four menuiseries and
+ * thirty-five build-ups existed and every one of their families still read
+ * « personne n'a écrit de fiche ». The evidence the interface already builds
+ * counts all six.
+ */
+const evidence = catalogEvidence();
+
 const reviews = familyReviews({
   symbols: new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions)),
   entries: genericEquipmentCatalog(),
+  evidence,
   exercised,
 });
 
@@ -118,6 +132,25 @@ if (!Number.isFinite(wave)) {
   );
   for (const [family, count] of [...byFamily].sort())
     console.log(`  ${family.padEnd(24)} ${String(count).padStart(4)}`);
+}
+
+if (!Number.isFinite(wave)) {
+  // A wave is the unit the filling is organised in, so « où en est la vague 3 »
+  // has to have an answer without running the script six times.
+  console.log('');
+  console.log('Vague   Familles   Avec fiche   Sans fiche');
+  const waves = [
+    ...new Set(FAMILY_REGISTRY.map(({ priority }) => priority)),
+  ].sort();
+  for (const priority of waves) {
+    const held = FAMILY_REGISTRY.filter((entry) => entry.priority === priority);
+    const filled = held.filter(
+      (entry) => (evidence.get(entry.id)?.entryCount ?? 0) > 0,
+    ).length;
+    console.log(
+      `${String(priority).padEnd(7)} ${String(held.length).padStart(8)} ${String(filled).padStart(12)} ${String(held.length - filled).padStart(12)}`,
+    );
+  }
 }
 
 const pending = Number.isFinite(wave)

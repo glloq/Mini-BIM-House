@@ -1,49 +1,69 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "378110d2d09f8f9e",
+  "releaseId": "8939b318bfd28f24",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
       "sources": [
         "packages/equipment-catalog/data/equipment/electrical/generic.json",
+        "packages/equipment-catalog/data/equipment/furniture/generic.json",
         "packages/equipment-catalog/data/equipment/heating/generic.json",
         "packages/equipment-catalog/data/equipment/lighting/generic.json",
+        "packages/equipment-catalog/data/equipment/plumbing/dhw.json",
+        "packages/equipment-catalog/data/equipment/plumbing/fixtures.json",
         "packages/equipment-catalog/data/equipment/plumbing/generic.json",
+        "packages/equipment-catalog/data/equipment/plumbing/water-devices.json",
         "packages/equipment-catalog/data/equipment/rainwater/generic.json",
+        "packages/equipment-catalog/data/equipment/rainwater/network.json",
         "packages/equipment-catalog/data/equipment/solar/generic.json",
         "packages/equipment-catalog/data/equipment/storage/generic.json",
-        "packages/equipment-catalog/data/equipment/ventilation/generic.json"
+        "packages/equipment-catalog/data/equipment/ventilation/generic.json",
+        "packages/equipment-catalog/data/equipment/wastewater/generic.json"
       ],
-      "entryCount": 19,
+      "entryCount": 122,
       "formatVersion": "1.0.0",
-      "fingerprint": "3639f09470ff41c2"
+      "fingerprint": "0f1ed5d02d3d752c"
     },
     {
       "registry": "MATERIAL",
       "sources": [
-        "packages/materials/data/generic.json"
+        "packages/materials/data/covering.json",
+        "packages/materials/data/finish.json",
+        "packages/materials/data/generic.json",
+        "packages/materials/data/insulation.json",
+        "packages/materials/data/masonry.json",
+        "packages/materials/data/membrane.json",
+        "packages/materials/data/structure.json",
+        "packages/materials/data/wood.json"
       ],
-      "entryCount": 16,
+      "entryCount": 59,
       "formatVersion": "1.0.0",
-      "fingerprint": "f7aeb6177d7edc0f"
+      "fingerprint": "54ea491c006aa9c2"
     },
     {
       "registry": "OPENING",
       "sources": [
-        "packages/opening-catalog/data/generic.json"
+        "packages/opening-catalog/data/door.json",
+        "packages/opening-catalog/data/generic.json",
+        "packages/opening-catalog/data/solar-protection.json",
+        "packages/opening-catalog/data/window.json"
       ],
-      "entryCount": 12,
+      "entryCount": 34,
       "formatVersion": "1.0.0",
-      "fingerprint": "1bb0b2c75aebc930"
+      "fingerprint": "e2d3de032f02e081"
     },
     {
       "registry": "ASSEMBLY",
       "sources": [
-        "packages/assemblies/data/generic.json"
+        "packages/assemblies/data/ceiling.json",
+        "packages/assemblies/data/floor.json",
+        "packages/assemblies/data/generic.json",
+        "packages/assemblies/data/roof.json",
+        "packages/assemblies/data/wall.json"
       ],
-      "entryCount": 7,
+      "entryCount": 35,
       "formatVersion": "1.0.0",
-      "fingerprint": "6af40080177b82d5"
+      "fingerprint": "c09d61d7a461cbb2"
     },
     {
       "registry": "NETWORK_PRODUCT",

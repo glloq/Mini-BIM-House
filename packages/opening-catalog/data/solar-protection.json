@@ -1,0 +1,110 @@
+{
+  "formatVersion": "1.0.0",
+  "openings": [
+    {
+      "id": "generic-hinged-shutter",
+      "familyId": "HINGED_SHUTTER",
+      "category": "SOLAR_PROTECTION",
+      "name": "Volet battant en bois",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "position": "EXTERNAL",
+        "solarReductionFactor": 0.12,
+        "visibleReductionFactor": 0.06,
+        "motorized": false
+      }
+    },
+    {
+      "id": "generic-external-blind",
+      "familyId": "EXTERNAL_BLIND",
+      "category": "SOLAR_PROTECTION",
+      "name": "Store extérieur à toile",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "position": "EXTERNAL",
+        "solarReductionFactor": 0.2,
+        "visibleReductionFactor": 0.15,
+        "motorized": true,
+        "windLimit": 12
+      }
+    },
+    {
+      "id": "generic-awning",
+      "familyId": "AWNING",
+      "category": "SOLAR_PROTECTION",
+      "name": "Store banne",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "position": "EXTERNAL",
+        "solarReductionFactor": 0.25,
+        "visibleReductionFactor": 0.2,
+        "motorized": true,
+        "windLimit": 10
+      }
+    },
+    {
+      "id": "generic-overhang",
+      "familyId": "OVERHANG",
+      "category": "SOLAR_PROTECTION",
+      "name": "Casquette maçonnée",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "position": "EXTERNAL",
+        "solarReductionFactor": 0.4,
+        "visibleReductionFactor": 0.9,
+        "motorized": false
+      }
+    },
+    {
+      "id": "generic-brise-soleil-fixed",
+      "familyId": "BRISE_SOLEIL",
+      "category": "SOLAR_PROTECTION",
+      "name": "Brise-soleil fixe à lames horizontales",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "position": "EXTERNAL",
+        "solarReductionFactor": 0.3,
+        "visibleReductionFactor": 0.45,
+        "motorized": false
+      }
+    },
+    {
+      "id": "generic-screen",
+      "familyId": "SCREEN",
+      "category": "SOLAR_PROTECTION",
+      "name": "Toile de protection micro-perforée",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "position": "EXTERNAL",
+        "solarReductionFactor": 0.35,
+        "visibleReductionFactor": 0.3,
+        "motorized": false,
+        "windLimit": 8
+      }
+    }
+  ]
+}

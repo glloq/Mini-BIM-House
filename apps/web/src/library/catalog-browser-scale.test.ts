@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
 import {
   buildCatalogIndex,
+  FAMILY_REGISTRY,
   catalogEvidence,
   syntheticSummaries,
   type CatalogSummary,
@@ -45,7 +46,7 @@ const known = {
 describe('the catalogue panel with ten thousand entries behind it', () => {
   it('draws every row of the nomenclature without holding a fiche', () => {
     const rows = catalogRows(byFamily, known);
-    expect(rows.length).toBe(520);
+    expect(rows.length).toBe(FAMILY_REGISTRY.length);
     const counted = rows.reduce((total, row) => total + row.entryCount, 0);
     expect(counted).toBe(10_000);
     for (const row of rows.slice(0, 20)) {

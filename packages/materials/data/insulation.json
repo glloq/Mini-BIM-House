@@ -1,0 +1,283 @@
+{
+  "formatVersion": "1.0.0",
+  "materials": [
+    {
+      "id": "generic-cork",
+      "familyId": "CORK",
+      "category": "INSULATION",
+      "name": "Liège expansé",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.04,
+        "density": 120,
+        "specificHeat": 1560,
+        "vaporResistanceFactor": 10,
+        "reactionToFire": "E",
+        "acousticAbsorption": {
+          "125": 0.05,
+          "250": 0.11,
+          "500": 0.25,
+          "1000": 0.55,
+          "2000": 0.6,
+          "4000": 0.55
+        }
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        },
+        {
+          "property": "acousticAbsorption",
+          "sourceType": "GENERIC",
+          "reference": "Typical published absorption coefficients for this family of surfaces"
+        }
+      ]
+    },
+    {
+      "id": "generic-straw-bale",
+      "familyId": "STRAW",
+      "category": "INSULATION",
+      "name": "Botte de paille",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.052,
+        "density": 100,
+        "specificHeat": 1500,
+        "vaporResistanceFactor": 2,
+        "reactionToFire": "E",
+        "acousticAbsorption": {
+          "125": 0.15,
+          "250": 0.35,
+          "500": 0.6,
+          "1000": 0.7,
+          "2000": 0.7,
+          "4000": 0.65
+        }
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        },
+        {
+          "property": "acousticAbsorption",
+          "sourceType": "GENERIC",
+          "reference": "Typical published absorption coefficients for this family of surfaces"
+        }
+      ]
+    },
+    {
+      "id": "generic-aerogel",
+      "familyId": "AEROGEL",
+      "category": "INSULATION",
+      "name": "Aérogel de silice",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.015,
+        "density": 150,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 5,
+        "reactionToFire": "A2-s1,d0"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-hemp-wool",
+      "familyId": "HEMP",
+      "category": "INSULATION",
+      "name": "Laine de chanvre",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.04,
+        "density": 40,
+        "specificHeat": 1600,
+        "vaporResistanceFactor": 2,
+        "reactionToFire": "E",
+        "acousticAbsorption": {
+          "125": 0.1,
+          "250": 0.3,
+          "500": 0.65,
+          "1000": 0.9,
+          "2000": 0.95,
+          "4000": 0.95
+        }
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        },
+        {
+          "property": "acousticAbsorption",
+          "sourceType": "GENERIC",
+          "reference": "Typical published absorption coefficients for this family of surfaces"
+        }
+      ]
+    },
+    {
+      "id": "generic-pur",
+      "familyId": "PUR",
+      "category": "INSULATION",
+      "name": "Mousse de polyuréthane",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.025,
+        "density": 35,
+        "specificHeat": 1400,
+        "vaporResistanceFactor": 60,
+        "reactionToFire": "E"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-foam-glass",
+      "familyId": "FOAM_GLASS",
+      "category": "INSULATION",
+      "name": "Verre cellulaire",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.042,
+        "density": 120,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 100000,
+        "reactionToFire": "A1",
+        "compressiveStrength": 0.7
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-cellulose",
+      "familyId": "CELLULOSE",
+      "category": "INSULATION",
+      "name": "Ouate de cellulose",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.039,
+        "density": 50,
+        "specificHeat": 1600,
+        "vaporResistanceFactor": 2,
+        "reactionToFire": "B-s2,d0",
+        "acousticAbsorption": {
+          "125": 0.1,
+          "250": 0.3,
+          "500": 0.7,
+          "1000": 0.9,
+          "2000": 0.95,
+          "4000": 0.95
+        }
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        },
+        {
+          "property": "acousticAbsorption",
+          "sourceType": "GENERIC",
+          "reference": "Typical published absorption coefficients for this family of surfaces"
+        }
+      ]
+    },
+    {
+      "id": "generic-vacuum-panel",
+      "familyId": "VACUUM_PANEL",
+      "category": "INSULATION",
+      "name": "Panneau isolant sous vide",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.007,
+        "density": 190,
+        "specificHeat": 800,
+        "vaporResistanceFactor": 100000,
+        "reactionToFire": "B-s1,d0"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-phenolic-foam",
+      "familyId": "PHENOLIC",
+      "category": "INSULATION",
+      "name": "Mousse phénolique",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.021,
+        "density": 40,
+        "specificHeat": 1400,
+        "vaporResistanceFactor": 50,
+        "reactionToFire": "B-s1,d0"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    }
+  ]
+}

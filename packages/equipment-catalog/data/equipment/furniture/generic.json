@@ -1,0 +1,354 @@
+{
+  "definitions": [
+    {
+      "id": "generic-bed-double",
+      "familyId": "BED",
+      "name": "Lit deux places 140 × 190",
+      "dimensions": {
+        "widthMm": 1400,
+        "depthMm": 2000,
+        "heightMm": 550
+      },
+      "ports": [],
+      "properties": {
+        "usageDepthMm": 600,
+        "movable": true
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 600,
+          "reason": "Passage latéral pour faire le lit et se coucher"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-sofa-three-seat",
+      "familyId": "SOFA",
+      "name": "Canapé trois places",
+      "dimensions": {
+        "widthMm": 2100,
+        "depthMm": 900,
+        "heightMm": 850
+      },
+      "ports": [],
+      "properties": {
+        "usageDepthMm": 700,
+        "movable": true
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Circulation devant l’assise"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-chair",
+      "familyId": "CHAIR",
+      "name": "Chaise",
+      "dimensions": {
+        "widthMm": 450,
+        "depthMm": 500,
+        "heightMm": 850
+      },
+      "ports": [],
+      "properties": {
+        "usageDepthMm": 600,
+        "movable": true
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 600,
+          "reason": "Recul de la chaise pour s’asseoir"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-dining-table",
+      "familyId": "TABLE",
+      "name": "Table de repas six places",
+      "dimensions": {
+        "widthMm": 1600,
+        "depthMm": 900,
+        "heightMm": 750
+      },
+      "ports": [],
+      "properties": {
+        "usageDepthMm": 750,
+        "movable": true
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 750,
+          "reason": "Recul des chaises et service autour de la table"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-desk",
+      "familyId": "DESK",
+      "name": "Bureau",
+      "dimensions": {
+        "widthMm": 1400,
+        "depthMm": 700,
+        "heightMm": 750
+      },
+      "ports": [],
+      "properties": {
+        "usageDepthMm": 750,
+        "movable": true
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 750,
+          "reason": "Recul du siège de travail"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-wardrobe",
+      "familyId": "WARDROBE",
+      "name": "Armoire deux portes",
+      "dimensions": {
+        "widthMm": 1200,
+        "depthMm": 600,
+        "heightMm": 2100
+      },
+      "ports": [],
+      "properties": {
+        "usageDepthMm": 900,
+        "movable": false
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 900,
+          "reason": "Ouverture des battants et accès aux rayonnages"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 1200,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-cabinet",
+      "familyId": "CABINET",
+      "name": "Meuble bas",
+      "dimensions": {
+        "widthMm": 800,
+        "depthMm": 450,
+        "heightMm": 850
+      },
+      "ports": [],
+      "properties": {
+        "usageDepthMm": 700,
+        "movable": false
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 700,
+          "reason": "Ouverture des portes et des tiroirs"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-kitchen-base-unit",
+      "familyId": "KITCHEN_CABINET",
+      "name": "Meuble de cuisine bas 60",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 600,
+        "heightMm": 850
+      },
+      "ports": [],
+      "properties": {
+        "usageDepthMm": 900,
+        "movable": false
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 900,
+          "reason": "Ouverture des tiroirs et travail devant le meuble"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 1200,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-worktop",
+      "familyId": "WORKTOP",
+      "name": "Plan de travail",
+      "dimensions": {
+        "widthMm": 2400,
+        "depthMm": 650,
+        "heightMm": 40
+      },
+      "ports": [],
+      "properties": {
+        "usageDepthMm": 900,
+        "movable": false
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 900,
+          "reason": "Poste de travail devant le plan"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 1200,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    },
+    {
+      "id": "generic-shelf",
+      "familyId": "SHELF",
+      "name": "Étagère",
+      "dimensions": {
+        "widthMm": 800,
+        "depthMm": 300,
+        "heightMm": 1800
+      },
+      "ports": [],
+      "properties": {
+        "usageDepthMm": 600,
+        "movable": false
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "USAGE",
+          "frontMm": 600,
+          "reason": "Accès aux tablettes"
+        },
+        {
+          "zone": "ACCESSIBILITY",
+          "frontMm": 900,
+          "reason": "Approche en fauteuil roulant"
+        }
+      ]
+    }
+  ]
+}

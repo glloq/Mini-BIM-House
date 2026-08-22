@@ -1,0 +1,205 @@
+{
+  "formatVersion": "1.0.0",
+  "materials": [
+    {
+      "id": "generic-epdm",
+      "familyId": "EPDM",
+      "category": "MEMBRANE",
+      "name": "Membrane EPDM",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.25,
+        "density": 1150,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 60000,
+        "reactionToFire": "E"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-breather-membrane",
+      "familyId": "BREATHER_MEMBRANE",
+      "category": "MEMBRANE",
+      "name": "Pare-pluie HPV",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.23,
+        "density": 900,
+        "specificHeat": 1800,
+        "vaporResistanceFactor": 100,
+        "reactionToFire": "E"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-vapour-barrier",
+      "familyId": "VAPOUR_BARRIER",
+      "category": "MEMBRANE",
+      "name": "Pare-vapeur",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.23,
+        "density": 980,
+        "specificHeat": 1800,
+        "vaporResistanceFactor": 100000,
+        "reactionToFire": "E"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-vapour-retarder",
+      "familyId": "VAPOUR_RETARDER",
+      "category": "MEMBRANE",
+      "name": "Frein-vapeur",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.23,
+        "density": 900,
+        "specificHeat": 1800,
+        "vaporResistanceFactor": 10000,
+        "reactionToFire": "E"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-bitumen-membrane",
+      "familyId": "BITUMEN_MEMBRANE",
+      "category": "MEMBRANE",
+      "name": "Membrane bitumineuse",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.23,
+        "density": 1100,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 50000,
+        "reactionToFire": "E"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-roof-membrane",
+      "familyId": "ROOF_MEMBRANE",
+      "category": "MEMBRANE",
+      "name": "Membrane de toiture PVC",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.2,
+        "density": 1300,
+        "specificHeat": 1000,
+        "vaporResistanceFactor": 20000,
+        "reactionToFire": "E"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-drainage-membrane",
+      "familyId": "DRAINAGE_MEMBRANE",
+      "category": "MEMBRANE",
+      "name": "Nappe drainante",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.4,
+        "density": 950,
+        "specificHeat": 1800,
+        "vaporResistanceFactor": 100000,
+        "reactionToFire": "E"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    },
+    {
+      "id": "generic-air-barrier",
+      "familyId": "AIR_BARRIER",
+      "category": "MEMBRANE",
+      "name": "Membrane d’étanchéité à l’air",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "STANDARD",
+        "reference": "ISO 10456 typical design values for building materials"
+      },
+      "properties": {
+        "thermalConductivity": 0.23,
+        "density": 900,
+        "specificHeat": 1800,
+        "vaporResistanceFactor": 5000,
+        "reactionToFire": "E"
+      },
+      "sources": [
+        {
+          "property": "reactionToFire",
+          "sourceType": "GENERIC",
+          "reference": "Common European reaction-to-fire classes for this family of products"
+        }
+      ]
+    }
+  ]
+}

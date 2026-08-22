@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
+import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
 import {
+  FAMILY_REGISTRY,
   catalogEvidence,
   installedCatalog,
   type CatalogSummary,
@@ -27,8 +29,13 @@ const known = {
 describe('browsing the nomenclature', () => {
   it('offers the whole of it, not the nineteen entries somebody wrote', () => {
     // The panel listed nineteen while the rest of the application had been
-    // checking five hundred and twenty for weeks.
-    expect(catalogRows(entriesByFamily, known).length).toBe(520);
+    // checking the whole nomenclature for weeks. « The whole of it » is asked
+    // of the nomenclature rather than written down, so that declaring a family
+    // stays a data change.
+    expect(FAMILY_REGISTRY.length).toBeGreaterThan(500);
+    expect(catalogRows(entriesByFamily, known).length).toBe(
+      FAMILY_REGISTRY.length,
+    );
   });
 
   it('narrows by trade, by wave and by word', () => {
@@ -51,7 +58,12 @@ describe('browsing the nomenclature', () => {
     const placeable = catalogRows(entriesByFamily, known, {
       withGenericData: true,
     });
-    expect(placeable.length).toBe(19);
+    // The families somebody has written a fiche for — counted from the fiches,
+    // so a filling wave answers this question differently without editing it.
+    expect(placeable.length).toBe(
+      new Set(rawGenericEquipmentEntries().map(({ familyId }) => familyId))
+        .size,
+    );
     expect(placeable.every(({ entryCount }) => entryCount > 0)).toBe(true);
   });
 

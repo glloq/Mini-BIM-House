@@ -48,13 +48,20 @@ describe('a project carries the whole entry, not a summary of it', () => {
   it('leaves no field of the catalogue behind', () => {
     const lost = new Set<string>();
     for (const entry of genericCatalog()) {
+      const held = entry as unknown as Record<string, unknown>;
       const copy = copyOf(entry) as unknown as Record<string, unknown>;
-      for (const key of Object.keys(entry))
+      for (const key of Object.keys(entry)) {
+        // An empty list is not something to lose. A collection surface has no
+        // property nobody has stated, so it carries no source either, and
+        // « the copy dropped `sources` » would be a report about nothing.
+        const value = held[key];
+        if (Array.isArray(value) && value.length === 0) continue;
         if (
           DELIBERATELY_NOT_COPIED[key] === undefined &&
           copy[key] === undefined
         )
           lost.add(key);
+      }
     }
     expect([...lost]).toEqual([]);
   });
@@ -104,7 +111,10 @@ describe('a project carries the whole entry, not a summary of it', () => {
       expect(copy.version).toBeDefined();
       expect(copy.provenance?.type).toBeDefined();
       expect(copy.allowedHosts?.length).toBeGreaterThan(0);
-      expect(copy.ports?.length ?? 0).toBeGreaterThan(0);
+      // The ports as the fiche states them, empty included: a bed connects to
+      // nothing, and the copy has to carry that rather than leave the field
+      // out, or « unstated » and « none » become the same answer.
+      expect(copy.ports, copy.id).toBeDefined();
       expect(copy.capabilities).toContain('PLACEABLE');
     }
   });

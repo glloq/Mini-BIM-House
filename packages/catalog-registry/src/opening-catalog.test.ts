@@ -12,6 +12,7 @@ import {
   declaredTransmittance,
   genericOpening,
   genericOpeningsOfCategory,
+  openingCatalogSources,
   projectOpeningFromCatalog,
   rawGenericOpeningEntries,
 } from '@house-technical-designer/opening-catalog';
@@ -34,14 +35,19 @@ const opening = (
 describe('the openings a project can be given', () => {
   it('ships a catalogue where there was a pointer and nothing to point at', () => {
     expect(GENERIC_OPENING_FORMAT_VERSION).toBe('1.0.0');
-    expect(rawGenericOpeningEntries()).toHaveLength(12);
+    expect(openingCatalogSources().length).toBeGreaterThan(1);
+    expect(rawGenericOpeningEntries().length).toBeGreaterThanOrEqual(
+      openingCatalogSources().length,
+    );
     expect(validateOpeningCatalog()).toEqual([]);
   });
 
   it('covers the three kinds a house is made of', () => {
     expect(genericOpeningsOfCategory('WINDOW').length).toBeGreaterThan(3);
     expect(genericOpeningsOfCategory('DOOR').length).toBeGreaterThan(2);
-    expect(genericOpeningsOfCategory('SOLAR_PROTECTION').length).toBe(3);
+    expect(
+      genericOpeningsOfCategory('SOLAR_PROTECTION').length,
+    ).toBeGreaterThan(2);
   });
 
   it('states the one figure no stack of layers reproduces', () => {

@@ -1,0 +1,1602 @@
+{
+  "definitions": [
+    {
+      "id": "generic-water-public-connection",
+      "familyId": "WATER_PUBLIC_CONNECTION",
+      "name": "Branchement public DN 25",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 200,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -300.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 300.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 25
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-water-meter",
+      "familyId": "WATER_METER",
+      "name": "Compteur d’eau DN 20",
+      "dimensions": {
+        "widthMm": 190,
+        "depthMm": 90,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -95.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 95.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 25000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.flow"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-main-valve",
+      "familyId": "MAIN_VALVE",
+      "name": "Robinet d’arrêt général DN 25",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 80,
+        "heightMm": 100
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -60.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 60.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 25,
+        "kvs": 12
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-backflow-preventer",
+      "familyId": "BACKFLOW_PREVENTER",
+      "name": "Disconnecteur DN 20",
+      "dimensions": {
+        "widthMm": 300,
+        "depthMm": 120,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -150.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 150.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 50000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-pressure-reducer",
+      "familyId": "PRESSURE_REDUCER",
+      "name": "Réducteur de pression DN 20",
+      "dimensions": {
+        "widthMm": 140,
+        "depthMm": 100,
+        "heightMm": 180
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -70.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 70.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 20000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-water-filter",
+      "familyId": "FILTER",
+      "name": "Filtre DN 20",
+      "dimensions": {
+        "widthMm": 140,
+        "depthMm": 100,
+        "heightMm": 220
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -70.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 70.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 15000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-sediment-filter",
+      "familyId": "SEDIMENT_FILTER",
+      "name": "Filtre à sédiments 90 µm",
+      "dimensions": {
+        "widthMm": 140,
+        "depthMm": 120,
+        "heightMm": 300
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -70.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 70.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 15000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-carbon-filter",
+      "familyId": "CARBON_FILTER",
+      "name": "Filtre à charbon",
+      "dimensions": {
+        "widthMm": 180,
+        "depthMm": 180,
+        "heightMm": 450
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -90.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 90.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 30000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-uv-treatment",
+      "familyId": "UV_TREATMENT",
+      "name": "Traitement UV",
+      "dimensions": {
+        "widthMm": 600,
+        "depthMm": 120,
+        "heightMm": 120
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -300.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 300.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 60.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 10000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-water-softener",
+      "familyId": "WATER_SOFTENER",
+      "name": "Adoucisseur 20 l",
+      "dimensions": {
+        "widthMm": 350,
+        "depthMm": 500,
+        "heightMm": 1100
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -175.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 175.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 250.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 60000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-booster-pump",
+      "familyId": "BOOSTER_PUMP",
+      "name": "Surpresseur",
+      "dimensions": {
+        "widthMm": 450,
+        "depthMm": 350,
+        "heightMm": 700
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -225.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 225.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 175.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 25
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-pump"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-pressure-vessel",
+      "familyId": "PRESSURE_VESSEL",
+      "name": "Vase sous pression 24 l",
+      "dimensions": {
+        "widthMm": 320,
+        "depthMm": 320,
+        "heightMm": 500
+      },
+      "ports": [
+        {
+          "id": "water",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -250.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 25
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-manifold",
+      "familyId": "MANIFOLD",
+      "name": "Nourrice 6 départs",
+      "dimensions": {
+        "widthMm": 500,
+        "depthMm": 80,
+        "heightMm": 120
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -250.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 250.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 26,
+        "pressureLossPa": 5000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-tee-dn20",
+      "familyId": "TEE",
+      "name": "Té DN 20",
+      "dimensions": {
+        "widthMm": 60,
+        "depthMm": 60,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -30.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 30.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "branch",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 30.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 3000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-elbow-dn20",
+      "familyId": "ELBOW",
+      "name": "Coude DN 20",
+      "dimensions": {
+        "widthMm": 50,
+        "depthMm": 50,
+        "heightMm": 50
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -25.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 25.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 2000
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-coupling-dn20",
+      "familyId": "COUPLING",
+      "name": "Manchon DN 20",
+      "dimensions": {
+        "widthMm": 60,
+        "depthMm": 30,
+        "heightMm": 30
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -30.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 30.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 500
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-reducer-dn20-16",
+      "familyId": "REDUCER",
+      "name": "Réduction DN 20 / 16",
+      "dimensions": {
+        "widthMm": 60,
+        "depthMm": 30,
+        "heightMm": 30
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -30.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 30.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 1500
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-isolation-valve",
+      "familyId": "ISOLATION_VALVE",
+      "name": "Vanne d’isolement DN 20",
+      "dimensions": {
+        "widthMm": 100,
+        "depthMm": 70,
+        "heightMm": 90
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -50.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 50.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "kvs": 8
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-check-valve",
+      "familyId": "CHECK_VALVE",
+      "name": "Clapet anti-retour DN 20",
+      "dimensions": {
+        "widthMm": 90,
+        "depthMm": 60,
+        "heightMm": 60
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -45.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 45.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 8000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-balancing-valve",
+      "familyId": "BALANCING_VALVE",
+      "name": "Vanne d’équilibrage DN 20",
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 80,
+        "heightMm": 130
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -55.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 55.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "kvs": 4
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-drain-valve",
+      "familyId": "DRAIN_VALVE",
+      "name": "Vanne de vidange DN 15",
+      "dimensions": {
+        "widthMm": 80,
+        "depthMm": 60,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -40.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 40.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 15,
+        "kvs": 3
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-air-vent",
+      "familyId": "AIR_VENT",
+      "name": "Purgeur automatique",
+      "dimensions": {
+        "widthMm": 60,
+        "depthMm": 60,
+        "heightMm": 120
+      },
+      "ports": [
+        {
+          "id": "water",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -60.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 15
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-flow-meter",
+      "familyId": "FLOW_METER",
+      "name": "Débitmètre DN 20",
+      "dimensions": {
+        "widthMm": 150,
+        "depthMm": 80,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -75.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 75.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 12000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.flow"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-sub-meter",
+      "familyId": "SUB_METER",
+      "name": "Sous-compteur DN 15",
+      "dimensions": {
+        "widthMm": 110,
+        "depthMm": 80,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "in",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -55.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "out",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 55.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 15,
+        "pressureLossPa": 20000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.flow"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-thermostatic-mixing-valve",
+      "familyId": "THERMOSTATIC_MIXING_VALVE",
+      "name": "Mitigeur thermostatique DN 20",
+      "dimensions": {
+        "widthMm": 120,
+        "depthMm": 100,
+        "heightMm": 120
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -60.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 60.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "kvs": 2
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-dhw-recirculation-pump",
+      "familyId": "DHW_RECIRCULATION_PUMP",
+      "name": "Pompe de bouclage ECS",
+      "dimensions": {
+        "widthMm": 180,
+        "depthMm": 120,
+        "heightMm": 180
+      },
+      "ports": [
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": -90.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 60.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-pump"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-safety-group",
+      "familyId": "SAFETY_GROUP",
+      "name": "Groupe de sécurité DN 20",
+      "dimensions": {
+        "widthMm": 150,
+        "depthMm": 100,
+        "heightMm": 150
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -75.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 15000
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-dhw-expansion-vessel",
+      "familyId": "EXPANSION_VESSEL",
+      "name": "Vase d’expansion sanitaire 8 l",
+      "dimensions": {
+        "widthMm": 250,
+        "depthMm": 250,
+        "heightMm": 350
+      },
+      "ports": [
+        {
+          "id": "water",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -175.0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-thermostatic-mixer",
+      "familyId": "THERMOSTATIC_MIXER",
+      "name": "Mitigeur",
+      "dimensions": {
+        "widthMm": 180,
+        "depthMm": 120,
+        "heightMm": 200
+      },
+      "ports": [
+        {
+          "id": "cold",
+          "portTypeId": "WATER_COLD",
+          "position": {
+            "x": -90.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "hot",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": 90.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 15,
+        "kvs": 1.5
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "WATER",
+            "symbolId": "water.valve"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-recirculation-pump",
+      "familyId": "RECIRCULATION_PUMP",
+      "name": "Pompe de bouclage",
+      "dimensions": {
+        "widthMm": 180,
+        "depthMm": 120,
+        "heightMm": 180
+      },
+      "ports": [
+        {
+          "id": "water",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": -90.0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "power",
+          "portTypeId": "ELECTRICAL_AC",
+          "position": {
+            "x": 0,
+            "y": 60.0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 20
+      },
+      "rendering": {
+        "symbols": [
+          {
+            "discipline": "HEATING",
+            "symbolId": "symbol-pump"
+          }
+        ],
+        "planFootprint": "SYMBOL_ONLY"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    },
+    {
+      "id": "generic-water-temperature-sensor",
+      "familyId": "TEMPERATURE_SENSOR",
+      "name": "Sonde de température",
+      "dimensions": {
+        "widthMm": 50,
+        "depthMm": 30,
+        "heightMm": 80
+      },
+      "ports": [
+        {
+          "id": "water",
+          "portTypeId": "WATER_HOT",
+          "position": {
+            "x": -25.0,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "properties": {
+        "nominalDiameterMm": 15
+      },
+      "rendering": {
+        "planFootprint": "RECTANGLE"
+      },
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "clearances": [
+        {
+          "zone": "MAINTENANCE",
+          "frontMm": 600,
+          "reason": "Accès à l’appareil et à ses raccordements"
+        }
+      ]
+    }
+  ]
+}
