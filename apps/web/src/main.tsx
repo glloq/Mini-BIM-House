@@ -2194,26 +2194,11 @@ function App() {
                   aria-labelledby="scenario-mode-heading"
                 >
                   <h3 id="scenario-mode-heading">Scénario</h3>
-                  <label>
-                    Dessiner la variante
-                    <select
-                      value={scenarioMode ?? ''}
-                      onChange={(event) =>
-                        setScenarioMode(
-                          event.target.value === ''
-                            ? undefined
-                            : event.target.value,
-                        )
-                      }
-                    >
-                      <option value="">Le projet lui-même</option>
-                      {(file.project.scenarios ?? []).map((scenario) => (
-                        <option key={scenario.id} value={scenario.id}>
-                          {scenario.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  {/*
+                    The variant is chosen on the drawing, in « Variante » above
+                    the plan: it is a mode of the plan, not a destination. What
+                    stays here is what the mode means.
+                  */}
                   {scenarioMode !== undefined && (
                     <p className="hint">
                       Le plan montre cette variante. Modifier une propriété ne
@@ -2290,6 +2275,28 @@ function App() {
                       ` · ${designDomainLabel(activeDomain)}`}
                   </h2>
                 </div>
+                {(file.project.scenarios ?? []).length > 0 && (
+                  <label className="canvas-mode">
+                    Variante
+                    <select
+                      value={scenarioMode ?? ''}
+                      onChange={(event) =>
+                        setScenarioMode(
+                          event.target.value === ''
+                            ? undefined
+                            : event.target.value,
+                        )
+                      }
+                    >
+                      <option value="">Le projet lui-même</option>
+                      {(file.project.scenarios ?? []).map((scenario) => (
+                        <option key={scenario.id} value={scenario.id}>
+                          {scenario.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
                 <div className="visibility-anchor">
                   <button
                     type="button"

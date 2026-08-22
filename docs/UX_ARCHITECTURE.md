@@ -207,6 +207,25 @@ nombre que personne ne pourrait étayer.
 Il ne bloque rien : un compteur rouge est une information sur le modèle, pas un
 refus de laisser le modèle être ce qu'il est.
 
+## 8 quater. Les catalogues et Analyser
+
+Matériaux, assemblages, équipements et les cinq cents familles avaient chacun
+leur champ de recherche, leurs filtres et leur idée de ce qu'une recherche
+trouve. Quatre dialectes de la même question, c'est quatre choses à apprendre,
+et trois d'entre elles se tromperont le jour où l'on en corrige une.
+
+`CatalogQuery` et `CatalogSearch` posent la question une fois : recherche libre
+sans accents ni casse, mots dans n'importe quel ordre, filtre par métier, filtre
+par famille, et « il manque quelque chose » quand le catalogue sait le dire.
+
+**Analyser** ouvre sur le plan, comme Systèmes. Un résultat se lit contre le
+bâtiment dont il parle ; un espace qui vous sortirait du modèle pour vous
+montrer un nombre rendrait le nombre plus difficile à croire, pas plus facile.
+
+Une **variante** est un mode du dessin, choisi au-dessus du plan, et non une
+destination : elle change ce que le plan montre et ce qu'une modification veut
+dire, et rien n'en est jamais écrit dans le bâtiment.
+
 ## 9. Règles de présentation
 
 - La couleur vient des variables CSS et des jetons, jamais des composants

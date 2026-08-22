@@ -17,9 +17,10 @@ test('keeps the five spaces visible and reaches every destination', async ({
   await expect(rail).toBeInViewport();
   await expect(rail.getByRole('button')).toHaveCount(5);
 
-  // A space is one tap, and it opens on what that space is for.
+  // A space is one tap, and it opens on what that space is for — for
+  // Analyser, the plan the results are about.
   await rail.getByRole('button', { name: 'Analyser', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Recalculer' })).toBeVisible();
+  await expect(page.locator('.plan-canvas')).toBeVisible();
 
   // A destination inside a space is the space, then the drawer.
   await openDestination(page, 'Matériaux');

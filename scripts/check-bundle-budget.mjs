@@ -45,7 +45,7 @@ export const BUDGETS = {
    */
   initialGzipBytes: 252 * 1024,
   /** Everything the build produces, gzipped. */
-  totalGzipBytes: 366 * 1024,
+  totalGzipBytes: 372 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

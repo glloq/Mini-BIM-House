@@ -2328,3 +2328,26 @@ button.ghost:disabled {
   padding: 0.7rem 0.9rem 0.9rem;
   box-shadow: 0 1rem 2rem var(--shadow);
 }
+
+/*
+ * The variant, above the plan.
+ *
+ * A variant is a mode of the drawing, not a destination: choosing one changes
+ * what the plan shows and what an edit means, and nothing of it is ever
+ * written into the building.
+ */
+.canvas-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.canvas-mode select {
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.45rem;
+  background: var(--surface);
+  font-weight: 500;
+}

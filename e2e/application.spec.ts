@@ -2883,8 +2883,9 @@ test('builds a variant by pointing at the plan', async ({ page }) => {
   await page.getByRole('button', { name: 'Créer', exact: true }).click();
   await openDestination(page, 'Plan');
 
+  // The variant is a mode of the plan, chosen above the drawing.
+  await page.getByLabel('Variante').selectOption({ index: 1 });
   const mode = page.getByRole('region', { name: 'Scénario', exact: true });
-  await mode.getByLabel('Dessiner la variante').selectOption({ index: 1 });
   await expect(mode).toContainText('ne change pas le projet');
 
   const canvas = page.locator('.plan-canvas');

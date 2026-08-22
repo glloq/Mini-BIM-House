@@ -1,4 +1,7 @@
 import { useMemo, useState } from 'react';
+
+import { CatalogSearch } from '../catalog/CatalogSearch.js';
+import type { CatalogQuery } from '../catalog/catalog-filter.js';
 import type { Project } from '@house-technical-designer/core-domain';
 import type {
   Material,
@@ -50,10 +53,12 @@ export function MaterialsPanel({
   selectedId,
   onSelect,
 }: MaterialsPanelProps) {
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('');
-  const [kind, setKind] = useState('');
-  const [incompleteOnly, setIncompleteOnly] = useState(false);
+  // One query, the same shape as every other catalogue's.
+  const [query, setQuery] = useState<CatalogQuery>({});
+  const search = query.search ?? '';
+  const category = query.family ?? '';
+  const kind = query.domain ?? '';
+  const incompleteOnly = query.incompleteOnly === true;
 
   const rows = useMemo(
     () =>
@@ -120,53 +125,19 @@ export function MaterialsPanel({
         </div>
       </header>
 
-      <div className="filters" role="search">
-        <label>
-          Rechercher
-          <input
-            type="search"
-            value={search}
-            placeholder="Nom, identifiant, fabricant"
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </label>
-        <label>
-          Catégorie
-          <select
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-          >
-            <option value="">Toutes</option>
-            {categories.map((entry) => (
-              <option key={entry} value={entry}>
-                {entry}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Type
-          <select
-            value={kind}
-            onChange={(event) => setKind(event.target.value)}
-          >
-            <option value="">Tous</option>
-            {KINDS.map((entry) => (
-              <option key={entry} value={entry}>
-                {KIND_LABELS[entry]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="checkbox">
-          <input
-            type="checkbox"
-            checked={incompleteOnly}
-            onChange={(event) => setIncompleteOnly(event.target.checked)}
-          />
-          Données manquantes uniquement
-        </label>
-      </div>
+      <CatalogSearch
+        query={query}
+        onChange={setQuery}
+        placeholder="Nom, identifiant, fabricant"
+        family={{ label: 'Catégorie', all: 'Toutes', values: categories }}
+        domain={{
+          label: 'Type',
+          all: 'Tous',
+          values: [...KINDS],
+          labelOf: (value) => KIND_LABELS[value as MaterialKind] ?? value,
+        }}
+        incompleteLabel="Données manquantes uniquement"
+      />
 
       <div className="library-split">
         <table className="library-table">

@@ -203,7 +203,10 @@ export const WORKSPACE_DESTINATIONS = {
   PROJECT: ['project'],
   BUILD: ['plan', 'building', 'materials', 'assemblies', 'equipment'],
   SYSTEMS: ['plan', 'networks'],
-  ANALYZE: ['calculations', 'quantities', 'scenarios', 'checks'],
+  // Analyser opens on the plan too: a result is read against the building it
+  // is about. A space that took you out of the model to show you a number
+  // would make the number harder to believe, not easier.
+  ANALYZE: ['plan', 'calculations', 'quantities', 'scenarios', 'checks'],
   DOCUMENTS: ['documents'],
 } as const satisfies Record<
   PrimaryWorkspace,

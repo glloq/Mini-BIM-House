@@ -1,4 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+
+import { CatalogSearch } from '../catalog/CatalogSearch.js';
+import { matchesQuery, type CatalogQuery } from '../catalog/catalog-filter.js';
 import type { Project } from '@house-technical-designer/core-domain';
 import type { EquipmentDefinition } from '@house-technical-designer/equipment-catalog';
 import { genericEquipmentCatalog } from '@house-technical-designer/equipment-catalog';
@@ -72,8 +75,36 @@ export function EquipmentPanel({
     }),
     [catalog],
   );
-  const equipment = project.equipment ?? [];
+  // Memoised because the families are derived from it: `?? []` builds a new
+  // array on every render, and a dependency that is always new is no
+  // dependency at all.
+  const equipment = useMemo(() => project.equipment ?? [], [project.equipment]);
   const takenIds = equipment.map(({ id }) => id);
+  const [query, setQuery] = useState<CatalogQuery>({});
+  const families = useMemo(() => {
+    const seen: string[] = [];
+    for (const item of equipment) {
+      const id = item.familyId;
+      if (id !== undefined && !seen.includes(id)) seen.push(id);
+    }
+    return seen;
+  }, [equipment]);
+  const shown = equipment.filter((item) =>
+    matchesQuery(
+      {
+        text: [
+          item.id,
+          item.familyId,
+          item.kind,
+          typeof item.properties.name === 'string'
+            ? item.properties.name
+            : undefined,
+        ],
+        ...(item.familyId === undefined ? {} : { family: item.familyId }),
+      },
+      query,
+    ),
+  );
   const selected = equipment.find(({ id }) => id === selectedId);
 
   return (
@@ -110,8 +141,22 @@ export function EquipmentPanel({
 
         <div>
           <h3>Équipements du projet</h3>
+          {/*
+            The project's own equipment had no search: a house with sixty
+            placed models meant reading sixty lines to find one.
+          */}
+          <CatalogSearch
+            query={query}
+            onChange={setQuery}
+            placeholder="Nom, identifiant, famille"
+            family={{
+              label: 'Famille',
+              all: 'Toutes',
+              values: families,
+            }}
+          />
           <ul className="catalog-list">
-            {equipment.map((item) => {
+            {shown.map((item) => {
               const usedBy = nodesUsingEquipment(project, item.id);
               return (
                 <li key={item.id}>
