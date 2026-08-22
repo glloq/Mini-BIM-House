@@ -33,11 +33,19 @@ export const BUDGETS = {
    * with it; what could wait — the nomenclature of five hundred families, the
    * catalogue browser, the checks — is still on demand.
    *
+   * Raised again from 248 kio for the interface of the twelfth audit: the five
+   * spaces and the navigation that remembers what is open in each, the design
+   * scope and what it sets aside, the tools moved into the context panel, the
+   * contextual bar and the discipline picker. All of it is the shell — it is
+   * on screen before anything is drawn, so it cannot be loaded later. What
+   * could wait went the other way in the same pass: the creation page, the
+   * visibility popover and everything they pull are now on demand.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 248 * 1024,
+  initialGzipBytes: 252 * 1024,
   /** Everything the build produces, gzipped. */
-  totalGzipBytes: 360 * 1024,
+  totalGzipBytes: 366 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

@@ -26,8 +26,10 @@ import type {
 } from '@house-technical-designer/core-domain';
 import { GENERIC_TECHNICAL_SCREEN } from '@house-technical-designer/drawing-engine';
 import {
+  designDomainLabel,
   domainOfDiscipline,
   projectEntities,
+  type DesignDomainId,
 } from '@house-technical-designer/core-domain';
 import {
   applyProjectScenario,
@@ -154,6 +156,7 @@ import {
   saveLayout,
   type WorkspaceLayout,
 } from './shell/workspace-layout.js';
+import { DisciplinePicker } from './systems/DisciplinePicker.js';
 import { AppShell } from './shell/AppShell.js';
 import { TopBar } from './shell/TopBar.js';
 import { PrimaryRail } from './shell/PrimaryRail.js';
@@ -234,6 +237,10 @@ const DocumentsPanel = lazy(async () => ({
 }));
 const ChecksPanel = lazy(async () => ({
   default: (await import('./checks/ChecksPanel.js')).ChecksPanel,
+}));
+const VisibilityPopover = lazy(async () => ({
+  default: (await import('./visibility/VisibilityPopover.js'))
+    .VisibilityPopover,
 }));
 const ProjectCreationPage = lazy(async () => ({
   default: (await import('./project-creation/ProjectCreationPage.js'))
@@ -362,6 +369,12 @@ function App() {
     useState<string>();
   /** The property someone was sent to look at, when they were sent to one. */
   const [inspectedProperty, setInspectedProperty] = useState<string>();
+  /** Whether what is drawn is being chosen right now. */
+  const [visibilityOpen, setVisibilityOpen] = useState(false);
+  /** Whether the model tree is open; it is secondary, behind « ☰ Modèle ». */
+  const [navigatorOpen, setNavigatorOpen] = useState(false);
+  /** The trade the plan is being read through, in Systèmes. */
+  const [activeDomain, setActiveDomain] = useState<DesignDomainId>();
 
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
@@ -1745,6 +1758,7 @@ function App() {
       const levelId = target.levelId ?? entity?.levelId;
       if (levelId !== undefined) dispatchEditor({ type: 'SET_LEVEL', levelId });
       if (target.domain !== undefined) {
+        setActiveDomain(target.domain);
         // The discipline a target names is read on the plan by showing its
         // layer: a network the layers hide is a network nobody was taken to.
         const network = (project.systems ?? []).find(
@@ -2105,6 +2119,13 @@ function App() {
               ))}
             </select>
           </label>
+          {navigation.workspace === 'SYSTEMS' && (
+            <DisciplinePicker
+              project={file.project}
+              {...(activeDomain === undefined ? {} : { activeDomain })}
+              onSelect={(domain) => navigateTo({ domain })}
+            />
+          )}
           {tab === 'plan' && (
             <>
               <ToolsPanel
@@ -2116,24 +2137,44 @@ function App() {
                   setToolDrafts((current) => ({ ...current, [key]: value }))
                 }
               />
-              <ProjectTree
-                project={file.project}
-                {...(activeLevelId === undefined
-                  ? {}
-                  : { levelId: activeLevelId })}
-                selection={editor.selection}
-                onSelectLevel={(levelId) =>
-                  dispatchEditor({ type: 'SET_LEVEL', levelId })
-                }
-                onSelectObject={(objectId) =>
-                  dispatchEditor({ type: 'SELECT', objectId })
-                }
-                onFrameObject={(objectId) => {
-                  dispatchEditor({ type: 'SELECT', objectId });
-                  zoomSelection();
-                }}
-              />
-              <LayersPanel editor={editor} dispatch={dispatchEditor} />
+              {/*
+                The model tree is a way of finding an object, not a way of
+                working: it is opened when the plan is not enough, and folded
+                away the rest of the time so the tools have the panel.
+              */}
+              <details
+                className="model-navigator"
+                open={navigatorOpen}
+                onToggle={(event) => setNavigatorOpen(event.currentTarget.open)}
+              >
+                <summary>☰ Modèle</summary>
+                <ProjectTree
+                  project={file.project}
+                  {...(activeLevelId === undefined
+                    ? {}
+                    : { levelId: activeLevelId })}
+                  selection={editor.selection}
+                  onSelectLevel={(levelId) =>
+                    dispatchEditor({ type: 'SET_LEVEL', levelId })
+                  }
+                  onSelectObject={(objectId) =>
+                    dispatchEditor({ type: 'SELECT', objectId })
+                  }
+                  onFrameObject={(objectId) => {
+                    dispatchEditor({ type: 'SELECT', objectId });
+                    zoomSelection();
+                  }}
+                />
+              </details>
+              {/*
+                Twenty checkboxes were the normal way of choosing what is
+                drawn. They are the engine; the presets are the interface, and
+                the engine stays reachable for the tenth time in ten.
+              */}
+              <details className="layers-advanced">
+                <summary>Calques (avancé)</summary>
+                <LayersPanel editor={editor} dispatch={dispatchEditor} />
+              </details>
               {(file.project.scenarios ?? []).length > 0 && (
                 <section
                   className="overlay-control"
@@ -2231,7 +2272,30 @@ function App() {
                     Plan ·{' '}
                     {levels.find(({ id }) => id === activeLevelId)?.name ??
                       'aucun niveau'}
+                    {activeDomain !== undefined &&
+                      navigation.workspace === 'SYSTEMS' &&
+                      ` · ${designDomainLabel(activeDomain)}`}
                   </h2>
+                </div>
+                <div className="visibility-anchor">
+                  <button
+                    type="button"
+                    className="secondary"
+                    aria-expanded={visibilityOpen}
+                    aria-haspopup="dialog"
+                    onClick={() => setVisibilityOpen((open) => !open)}
+                  >
+                    Visibilité
+                  </button>
+                  {visibilityOpen && (
+                    <Suspense fallback={null}>
+                      <VisibilityPopover
+                        editor={editor}
+                        dispatch={dispatchEditor}
+                        onClose={() => setVisibilityOpen(false)}
+                      />
+                    </Suspense>
+                  )}
                 </div>
               </header>
               <ContextToolBar

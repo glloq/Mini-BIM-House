@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
 import { openDestination } from './support/navigation.js';
+import { openLayerEditor, openModelTree } from './support/panels.js';
 import { chooseTool } from './support/tools.js';
 
 /**
@@ -205,10 +206,12 @@ test('switches level and discipline view without losing the model', async ({
   page,
 }) => {
   await loadDemo(page);
+  await openLayerEditor(page);
   await page.getByLabel('Vue disciplinaire').selectOption('plumbing');
   await expect(
     page.locator('[data-layer="water.pipes"]').first(),
   ).toBeVisible();
+  await openLayerEditor(page);
   await page.getByLabel('Vue disciplinaire').selectOption('architecture');
   await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
     6,
@@ -587,6 +590,8 @@ test('exports the plan it draws, not a simplified redrawing of it', async ({
   // The architecture view does not draw the plumbing, and neither does its
   // export: the sheet is what the user is looking at.
   expect(architecture).not.toContain('water.pipes');
+
+  await openLayerEditor(page);
 
   await page.getByLabel('Vue disciplinaire').selectOption('plumbing');
   const plumbing = await exportSvg();
@@ -1198,6 +1203,7 @@ test('edits a measurement written on the drawing itself', async ({ page }) => {
 test('reaches an object through the project tree', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  await openModelTree(page);
   const tree = page.getByRole('navigation', {
     name: 'Arborescence du projet',
   });
@@ -1245,6 +1251,8 @@ test('reaches a column and a component through the project tree', async ({
     position: { x: box.width * 0.3, y: box.height * 0.35 },
   });
   await expect(page.getByRole('status')).toContainText('composant');
+
+  await openModelTree(page);
 
   const tree = page.getByRole('navigation', {
     name: 'Arborescence du projet',
@@ -1829,6 +1837,72 @@ test('gathers what the project does not resolve and offers to fix it', async ({
   await expect(
     page.getByRole('heading', { name: 'Informations, site et réglages' }),
   ).toBeVisible();
+});
+
+test('reads the same plan through one discipline at a time', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  await expect(walls).toHaveCount(6);
+
+  await page
+    .getByRole('navigation', { name: 'Espaces de travail' })
+    .getByRole('button', { name: 'Systèmes', exact: true })
+    .click();
+  const disciplines = page.getByRole('region', { name: 'Disciplines' });
+  await expect(disciplines).toBeVisible();
+  // The count is the difference between « rien à voir » and « rien de tracé ».
+  await expect(disciplines).toContainText('réseau(x)');
+
+  await disciplines.getByRole('button', { name: /^Électricité/ }).click();
+  // The same drawing, under the same walls: Systèmes is a context, not a way
+  // out of the model.
+  await expect(canvas).toBeVisible();
+  await expect(walls).toHaveCount(6);
+  await expect(page.locator('.canvas-panel h2')).toContainText('Électricité');
+  expect(errors).toEqual([]);
+});
+
+test('chooses what is drawn from a preset before a checkbox', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const popover = page.getByRole('dialog', { name: 'Visibilité' });
+  await expect(popover).toHaveCount(0);
+  await page.getByRole('button', { name: 'Visibilité', exact: true }).click();
+  await expect(popover).toBeVisible();
+
+  // A preset answers the usual question in one click.
+  await popover.getByRole('button', { name: 'Électricité' }).click();
+  await expect(
+    popover.getByRole('button', { name: 'Électricité' }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  // And the popover says how much is hidden, so nobody prints a plan missing
+  // half its objects without being told.
+  await expect(popover).toContainText('masqué(s)');
+
+  // The twenty layers are still there, one disclosure down.
+  await popover.getByText('Calque par calque').click();
+  await expect(popover.locator('.layer-list li').first()).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(popover).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('keeps the model tree behind a disclosure', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
+  // Finding an object is not a way of working: the tree is opened when the
+  // plan is not enough, and folded away the rest of the time.
+  await expect(tree).toBeHidden();
+  await page.getByText('☰ Modèle').click();
+  await expect(tree).toBeVisible();
+  expect(errors).toEqual([]);
 });
 
 test('takes seven steps to show what a finding is about', async ({ page }) => {
@@ -2498,6 +2572,7 @@ test('shows a network as a system browser in the project tree', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  await openModelTree(page);
   const tree = page.getByRole('navigation', {
     name: 'Arborescence du projet',
   });
@@ -2716,6 +2791,7 @@ test('reopens a saved view exactly as it was saved', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
 
+  await openLayerEditor(page);
   // A view saved with a family of objects hidden.
   const stairs = page.getByRole('checkbox', { name: 'Escaliers' });
   await expect(stairs).toBeChecked();
@@ -2729,6 +2805,7 @@ test('reopens a saved view exactly as it was saved', async ({ page }) => {
   // layers on and never off, so the view came back showing what it had been
   // saved without.
   await openDestination(page, 'Plan');
+  await openLayerEditor(page);
   await stairs.check();
   await expect(stairs).toBeChecked();
   await openDestination(page, 'Vues et feuilles');
@@ -2738,6 +2815,8 @@ test('reopens a saved view exactly as it was saved', async ({ page }) => {
     .getByRole('button', { name: 'Ouvrir' })
     .click();
   await expect(page.getByRole('status')).toContainText('rétablie');
+  await openDestination(page, 'Plan');
+  await openLayerEditor(page);
   await expect(stairs).not.toBeChecked();
   expect(errors).toEqual([]);
 });

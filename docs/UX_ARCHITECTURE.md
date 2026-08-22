@@ -171,6 +171,28 @@ Ce qu'un outil laisse décider avant de dessiner se trouve **sous l'outil**,
 dans le panneau contextuel : choisir un assemblage fait partie du choix de
 l'outil mur, ce n'est pas une course séparée en haut de la fenêtre.
 
+## 8 bis. Systèmes, la visibilité et le navigateur
+
+**Systèmes** n'est pas une autre application : c'est le même dessin, le même
+inspecteur et les mêmes outils, avec une discipline activée. Le plan y est donc
+la destination par défaut, et le navigateur de réseaux une seconde destination
+du même espace. Un espace qui vous sortirait du modèle pour vous montrer ses
+réseaux serait la disposition à onze destinations, sous cinq noms.
+
+Une discipline hors périmètre n'est pas proposée — sauf si le projet en tient
+déjà des objets. Le compte de réseaux est affiché à côté de chaque discipline :
+c'est la différence entre « rien à voir » et « rien de tracé ».
+
+**La visibilité** se choisit dans un popover sur le plan, par préréglage. Neuf
+fois sur dix la question est « montre-moi l'électricité », et un préréglage y
+répond en un clic ; les vingt calques restent un dépliage plus bas — ils sont le
+moteur, et le moteur n'a pas à être l'interface. Le popover dit combien de
+calques sont masqués, pour que personne n'imprime un plan amputé sans l'avoir su.
+
+**Le navigateur de modèle** passe derrière `☰ Modèle`. Trouver un objet n'est
+pas une façon de travailler : on l'ouvre quand le plan ne suffit pas, et il se
+replie le reste du temps pour laisser le panneau aux outils.
+
 ## 9. Règles de présentation
 
 - La couleur vient des variables CSS et des jetons, jamais des composants

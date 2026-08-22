@@ -32,6 +32,15 @@ describe('the rail and the eleven destinations', () => {
     }
   });
 
+  it('offers the plan in Systèmes as well, which is what that space is', () => {
+    // Systèmes is the same drawing with one discipline switched on. A space
+    // that took you away from the model to show its networks would be the
+    // eleven destinations again, wearing five names.
+    expect(destinationsOf('SYSTEMS')).toContain('plan');
+    expect(destinationsOf('SYSTEMS')).toContain('networks');
+    expect(defaultTabOfWorkspace('SYSTEMS')).toBe('plan');
+  });
+
   it('gives every space at least one destination and a default', () => {
     for (const workspace of PRIMARY_WORKSPACES) {
       const destinations = destinationsOf(workspace);

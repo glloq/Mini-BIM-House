@@ -186,30 +186,45 @@ export const CONTEXT_GROUP_LABELS = {
   DOCUMENTS: 'Sortir',
 } as const satisfies Record<PrimaryWorkspace, string>;
 
+/**
+ * What each space offers, in the order the panel lists them.
+ *
+ * The plan appears twice on purpose. Systèmes is not another application: it
+ * is the same drawing, the same inspector and the same tools with one
+ * discipline switched on, and a space that took you away from the model to
+ * show you its networks would be exactly the eleven-destination arrangement
+ * again, wearing five names.
+ *
+ * `LEGACY_WORKSPACE_HOME` still says where a destination *belongs*, which is
+ * what a command palette entry or a check needs; this says what a space
+ * *offers*, which is what the panel needs.
+ */
+export const WORKSPACE_DESTINATIONS = {
+  PROJECT: ['project'],
+  BUILD: ['plan', 'building', 'materials', 'assemblies', 'equipment'],
+  SYSTEMS: ['plan', 'networks'],
+  ANALYZE: ['calculations', 'quantities', 'scenarios', 'checks'],
+  DOCUMENTS: ['documents'],
+} as const satisfies Record<
+  PrimaryWorkspace,
+  readonly [LegacyWorkspaceTab, ...LegacyWorkspaceTab[]]
+>;
+
 /** The destinations a space holds, in the order the panel lists them. */
 export function legacyTabsOfWorkspace(
   workspace: PrimaryWorkspace,
 ): readonly LegacyWorkspaceTab[] {
-  return LEGACY_WORKSPACE_TABS.filter(
-    (tab) => LEGACY_WORKSPACE_HOME[tab] === workspace,
-  );
+  return WORKSPACE_DESTINATIONS[workspace];
 }
 
 /**
  * What a space opens on when it is entered for the first time.
  *
- * The plan for Construire, because that is what the space is; the first
- * destination otherwise. Never nothing: a space that opens on an empty canvas
- * is a space that has to be explained.
+ * The first destination it offers. Never nothing: a space that opens on an
+ * empty canvas is a space that has to be explained.
  */
 export function defaultTabOfWorkspace(
   workspace: PrimaryWorkspace,
 ): LegacyWorkspaceTab {
-  if (workspace === 'BUILD') return 'plan';
-  const [first] = legacyTabsOfWorkspace(workspace);
-  // The table above is exhaustive over the twelve destinations, so every space
-  // holds at least one. This is a narrowing, not a fallback.
-  if (first === undefined)
-    throw new Error(`L’espace ${workspace} n’a aucune destination.`);
-  return first;
+  return WORKSPACE_DESTINATIONS[workspace][0];
 }

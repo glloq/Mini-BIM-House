@@ -2161,3 +2161,63 @@ button.ghost:disabled {
 .inspector-subject details[open] > summary {
   color: var(--ink-strong);
 }
+
+/*
+ * Choosing what is drawn: a popover on the plan, not a panel beside it.
+ *
+ * A preset answers the question nine times out of ten, and the twenty layers
+ * are one disclosure down for the tenth.
+ */
+.visibility-anchor {
+  position: relative;
+}
+.visibility-popover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  width: min(20rem, 80vw);
+  padding: 0.7rem 0.9rem 0.9rem;
+  box-shadow: 0 1rem 2rem var(--shadow);
+}
+.visibility-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.4rem;
+}
+.visibility-presets button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.visibility-presets button.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--ink-strong);
+}
+.visibility-layers summary,
+.model-navigator > summary,
+.layers-advanced > summary {
+  padding: 0.35rem 0.6rem;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+.model-navigator[open] > summary,
+.layers-advanced[open] > summary,
+.visibility-layers[open] summary {
+  color: var(--ink-strong);
+}
+/* The discipline being read, in Systèmes. */
+.discipline-count {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
