@@ -80,9 +80,16 @@ export function rawGenericAssemblyEntries(): readonly RawAssemblyEntry[] {
 export const GENERIC_ASSEMBLY_FORMAT_VERSION =
   FILES[0]?.formatVersion ?? '1.0.0';
 
-/** The catalogue as the model holds it. */
-export function genericAssemblyCatalog(): readonly Assembly[] {
-  return rawGenericAssemblyEntries().map((entry) => ({
+/**
+ * One build-up, as a project holds it.
+ *
+ * The single path from a fiche to a project, for the same reason a material
+ * has one: a project takes the build-ups somebody picks rather than being
+ * handed all of them, and « picked » and « started with » must not be two
+ * different copies of one idea.
+ */
+export function assemblySnapshot(entry: RawAssemblyEntry): Assembly {
+  return {
     id: assemblyId(entry.id),
     // Where this build-up came from, so a project can still say it.
     catalogRef: {
@@ -101,7 +108,12 @@ export function genericAssemblyCatalog(): readonly Assembly[] {
         ? {}
         : { ventilated: layer.ventilated }),
     })),
-  }));
+  };
+}
+
+/** The catalogue as the model holds it. */
+export function genericAssemblyCatalog(): readonly Assembly[] {
+  return rawGenericAssemblyEntries().map(assemblySnapshot);
 }
 
 /** The family of the master nomenclature one generic build-up belongs to. */

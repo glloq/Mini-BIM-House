@@ -11,3 +11,4 @@ packages/project-io/src/generated-project-validator.js
 packages/catalog-registry/data/manifest.json
 packages/catalog-registry/data/fingerprints.json
 LICENSE
+packages/catalog-registry/data/starter-library.json

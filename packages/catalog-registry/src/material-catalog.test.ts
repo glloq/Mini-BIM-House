@@ -13,12 +13,12 @@ import {
 import {
   materialCatalogSources,
   rawGenericMaterialEntries,
-} from '@house-technical-designer/materials';
+} from '@house-technical-designer/materials/catalog';
+import { ASSEMBLY_CATEGORIES } from '@house-technical-designer/assemblies';
 import {
-  ASSEMBLY_CATEGORIES,
   assemblyCatalogSources,
   rawGenericAssemblyEntries,
-} from '@house-technical-designer/assemblies';
+} from '@house-technical-designer/assemblies/catalog';
 
 const known = { family, schema: propertySchema };
 const materials = new Set(rawGenericMaterialEntries().map(({ id }) => id));

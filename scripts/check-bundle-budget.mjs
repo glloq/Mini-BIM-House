@@ -77,9 +77,22 @@ export const BUDGETS = {
    * complete at five hundred and twenty-seven; the waves still to come add
    * fiches, and fiches are not loaded here.
    *
+   * And back down to 260 once a new project stopped being handed the shelf.
+   * The three catalogues were in this payload for one reason: creating a blank
+   * project copied all of them into it, and creating a project is something
+   * the application must be able to do before anything is loaded. A basket of
+   * twenty-two entries replaced them, and taking the catalogue off the barrels
+   * of `materials` and `assemblies` took the rest — importing a package for
+   * `materialId` used to pull every fiche its tree holds, because the eager
+   * glob runs on import and nothing tree-shakes a hundred JSON files away.
+   *
+   * What this number now protects is worth more than the kilobytes: six waves
+   * of filling cost the first payload four hundred bytes, and the seventh will
+   * cost none.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 266 * 1024,
+  initialGzipBytes: 260 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -104,8 +117,13 @@ export const BUDGETS = {
    * of it landed on demand: the initial payload moved by less than one, which
    * is the whole point of the split and the reason this budget is counted in
    * two numbers rather than one.
+   *
+   * And two more when the catalogues left the first payload: what leaves it
+   * has to land somewhere, and it landed on demand. That is the trade this
+   * budget exists to make visible — the total went up by two kilobytes, the
+   * download a first visit pays for went down by seven.
    */
-  totalGzipBytes: 416 * 1024,
+  totalGzipBytes: 418 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

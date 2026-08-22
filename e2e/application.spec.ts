@@ -46,15 +46,16 @@ test('a new project ships a library a wall can be drawn with', async ({
   await openDestination(page, 'Matériaux');
   await expect(page.locator('.library-table tbody tr').first()).toBeVisible();
   const materials = await page.locator('.library-table tbody tr').count();
-  expect(materials).toBeGreaterThan(10);
+  expect(materials).toBeGreaterThan(5);
 
   await openDestination(page, 'Assemblages');
-  // The starter build-ups come from the assembly catalogue now, not from a
-  // list written out in the application — so a filling wave adds cards here
-  // and this stays true without being edited.
+  // A basket, not a shelf: one build-up per kind of surface a house shell is
+  // made of. It used to be every build-up the catalogue ships, which is how a
+  // project with nothing drawn in it came to weigh ninety-two kilobytes.
   await expect(page.locator('.assembly-card').first()).toBeVisible();
   const buildUps = await page.locator('.assembly-card').count();
-  expect(buildUps).toBeGreaterThan(7);
+  expect(buildUps).toBeGreaterThan(3);
+  expect(buildUps).toBeLessThan(15);
 });
 
 test('draws the reference house with real walls, openings and rooms', async ({

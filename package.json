@@ -33,7 +33,8 @@
     "catalog:manifest": "vite-node scripts/catalog-manifest.ts",
     "test:discovery": "vitest run --config vitest.discovery.config.ts",
     "validate:docs": "node scripts/validation-report.mjs --check",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "catalog:starter": "vite-node scripts/starter-library.ts"
   },
   "engines": {
     "node": ">=22.0.0"

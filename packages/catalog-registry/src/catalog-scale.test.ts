@@ -14,8 +14,8 @@ import {
 import { formatCatalogRef } from '@house-technical-designer/technical-types';
 import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
 import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
-import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
-import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies';
+import { rawGenericMaterialEntries } from '@house-technical-designer/materials/catalog';
+import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies/catalog';
 import { NETWORK_PRODUCT_REGISTRY } from '@house-technical-designer/network-products';
 import {
   CURRENT_PROJECT_SCHEMA_VERSION,

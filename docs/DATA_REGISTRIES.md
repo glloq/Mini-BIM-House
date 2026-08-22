@@ -685,6 +685,30 @@ L'architecture est figée. À partir d'ici, la règle est courte :
 L'état de chaque vague et la manière d'en remplir une sont dans
 [`docs/CATALOG_WAVES.md`](CATALOG_WAVES.md).
 
+## Un panier, pas une étagère
+
+Un projet neuf ne reçoit pas le catalogue. Il reçoit un **panier de départ** —
+une composition par sorte de surface dont une enveloppe est faite, les
+matériaux que ces compositions nomment, et les deux menuiseries qu'un premier
+mur reçoit. Vingt-deux fiches au lieu de cent vingt-huit.
+
+Ce panier est **généré** depuis le catalogue, comme les empreintes et le
+manifeste : `npm run catalog:starter` l'écrit dans
+`packages/catalog-registry/data/starter-library.json`, et `validate:catalog` le
+reconstruit pour refuser un fichier qui ne dit plus ce que le catalogue dit.
+
+Ce que cela évite est plus grand que le poids d'un fichier : créer un projet
+est une chose que l'application doit savoir faire avant que quoi que ce soit
+soit chargé, donc copier le catalogue dans un projet neuf mettait les trois
+catalogues dans le **premier chargement**. Ils n'y sont plus — et pour la même
+raison, `materials` et `assemblies` ne portent plus leur catalogue dans leur
+baril : importer un paquet pour `materialId` tirait toutes ses fiches, parce
+que la découverte s'exécute à l'import et que rien n'élague cent fichiers JSON.
+Le catalogue est un sous-chemin : `@house-technical-designer/materials/catalog`.
+
+Tout le reste se choisit dans le catalogue, ce qui est ce à quoi sert un
+catalogue.
+
 Si une fiche ne peut pas être représentée avec les contrats existants, on
 n'étend pas le format en passant : on ouvre un **`CONTRACT_GAP`** — un écart
 écrit dans [`docs/CONTRACT_GAPS.md`](CONTRACT_GAPS.md), qui dit quelle fiche,

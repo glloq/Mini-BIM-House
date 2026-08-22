@@ -40,12 +40,12 @@ import {
   type EquipmentCategory,
   type EquipmentDefinition,
 } from '@house-technical-designer/equipment-catalog';
-import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
+import { rawGenericMaterialEntries } from '@house-technical-designer/materials/catalog';
+import { type Assembly } from '@house-technical-designer/assemblies';
 import {
   genericAssemblyCatalog,
   rawGenericAssemblyEntries,
-  type Assembly,
-} from '@house-technical-designer/assemblies';
+} from '@house-technical-designer/assemblies/catalog';
 import {
   validateAssemblyEntry,
   validateMaterialEntry,

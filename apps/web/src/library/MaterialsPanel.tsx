@@ -10,9 +10,9 @@ import type {
 } from '@house-technical-designer/materials';
 import {
   createCustomMaterialFromDraft,
-  genericMaterialCatalog,
   materialId as toMaterialId,
 } from '@house-technical-designer/materials';
+import { genericMaterialCatalog } from '@house-technical-designer/materials/catalog';
 import {
   AddMaterialCommand,
   ImportMaterialsCommand,

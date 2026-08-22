@@ -28,15 +28,26 @@ describe('material library view', () => {
     const insulation = rows.find(
       ({ material }) => material.id === 'generic-rock-wool',
     )!;
-    // Two starter build-ups use it, so deleting it is blocked.
+    // A starter build-up uses it, so deleting it is blocked.
     expect(insulation.deletable).toBe(false);
     expect(new Set(insulation.usedBy.map(({ kind }) => kind))).toEqual(
       new Set(['ASSEMBLY']),
     );
-    const unused = rows.find(
-      ({ material }) => material.id === 'generic-steel',
-    )!;
-    expect(unused.deletable).toBe(true);
+    // Every material a new project holds is used by one of its build-ups: the
+    // basket is what the build-ups are made of, not a shelf somebody might
+    // pick from one day. So the deletable case has to be a material the user
+    // added, which is the only kind there is.
+    expect(rows.every(({ deletable }) => !deletable)).toBe(true);
+    const added = materialRows({
+      ...project(),
+      materialLibrary: {
+        materials: [
+          ...(project().materialLibrary?.materials ?? []),
+          { ...insulation.material, id: materialId('mine'), name: 'Le mien' },
+        ],
+      },
+    }).find(({ material }) => material.id === 'mine')!;
+    expect(added.deletable).toBe(true);
   });
 
   it('reports the properties a material does not declare', () => {
@@ -63,9 +74,9 @@ describe('assembly library view', () => {
     const views = assemblyViews(project());
     const wall = views.find(
       ({ assembly }) =>
-        assembly.id === 'generic-wall-brick-internal-insulation',
+        assembly.id === 'generic-wall-block-external-insulation',
     )!;
-    expect(wall.totalThicknessMm).toBe(333);
+    expect(wall.totalThicknessMm).toBe(353);
     expect(wall.thermalResistanceM2KW).toBeGreaterThan(2.5);
     expect(wall.uValueWm2K).toBeCloseTo(1 / wall.thermalResistanceM2KW!, 9);
     expect(wall.missingConductivityLayerIds).toEqual([]);
