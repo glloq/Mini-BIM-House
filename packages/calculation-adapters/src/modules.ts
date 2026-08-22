@@ -16,6 +16,7 @@ import {
 import {
   aggregateThermalEnvelope,
   calculateElementTransmission,
+  surfaceResistances,
   type ThermalElementResult,
 } from '@house-technical-designer/thermal';
 import { calculateHeatingLoads } from '@house-technical-designer/heating';
@@ -178,11 +179,38 @@ export const thermalAdapter: CalculationModule = {
   },
   calculate(input) {
     const data = record(input)!;
-    const method = {
-      id: 'assembly-u-value-v1',
-      version: '2',
-      insideSurfaceResistanceM2KW: number(data.insideSurfaceResistanceM2KW)!,
-      outsideSurfaceResistanceM2KW: number(data.outsideSurfaceResistanceM2KW)!,
+    /*
+     * The declared films, which are the horizontal case.
+     *
+     * They were applied to every element — a floor, a ceiling and a façade all
+     * got Rsi 0,13 — and heat does not leave a house the same way through the
+     * floor as through the walls. Each element now takes the films its own
+     * direction of flow and its own far side call for, and the declared pair
+     * stays the horizontal reference the settings can override.
+     */
+    const declared = {
+      inside: number(data.insideSurfaceResistanceM2KW)!,
+      outside: number(data.outsideSurfaceResistanceM2KW)!,
+    };
+    const filmsFor = (kind: string, boundary: string) => {
+      const resolved = surfaceResistances(
+        kind,
+        boundary === 'GROUND' || boundary === 'UNHEATED'
+          ? boundary
+          : 'EXTERIOR',
+      );
+      // A horizontal element facing the outside is the case the settings
+      // describe, so a value chosen there still wins for it.
+      return resolved.direction === 'HORIZONTAL' &&
+        resolved.boundary === 'EXTERIOR'
+        ? {
+            insideSurfaceResistanceM2KW: declared.inside,
+            outsideSurfaceResistanceM2KW: declared.outside,
+          }
+        : {
+            insideSurfaceResistanceM2KW: resolved.insideSurfaceResistanceM2KW,
+            outsideSurfaceResistanceM2KW: resolved.outsideSurfaceResistanceM2KW,
+          };
     };
     const results: ThermalElementResult[] = rows(data.elements).map(
       (element) => {
@@ -202,7 +230,14 @@ export const thermalAdapter: CalculationModule = {
           string(element.id)!,
           number(element.areaM2)!,
           layers,
-          method,
+          {
+            id: 'assembly-u-value-v1',
+            version: '3',
+            ...filmsFor(
+              string(element.kind) ?? 'WALL_OPAQUE',
+              string(element.boundaryCondition) ?? 'EXTERIOR',
+            ),
+          },
           declaredUValueWm2K === undefined ? {} : { declaredUValueWm2K },
         );
       },
@@ -298,10 +333,26 @@ export const heatingAdapter: CalculationModule = {
     const indoorC = number(data.designIndoorTemperatureC)!;
     const outdoorC = number(data.designOutdoorTemperatureC)!;
     const deltaK = indoorC - outdoorC;
-    const envelopeH = number(
-      dependency(dependencies, 'thermal').heatTransferCoefficientWK,
+    const thermal = dependency(dependencies, 'thermal');
+    const envelopeH = number(thermal.heatTransferCoefficientWK);
+    /*
+     * What each element of the envelope loses, by identity.
+     *
+     * With it, a room's transmission is the sum of its own walls, its own
+     * windows and its share of what is above and below — not the building's
+     * total shared out by floor area. Two rooms of 15 m², one with three
+     * façades and a large north window, the other with one façade and a small
+     * south one, no longer receive the same load.
+     */
+    const elementH = new Map(
+      rows(thermal.elements).map((element) => [
+        string(element.id) ?? '',
+        number(element.heatTransferCoefficientWK),
+      ]),
     );
     const roomRows = rows(data.rooms);
+    /** The rooms whose walls could not be attributed, named in the ledger. */
+    const estimated: string[] = [];
     // The denominator of the prorata, over the rooms whose area is known. A
     // room with no derivable area contributes nothing here and receives no
     // share below — it is reported as missing rather than given a slice of a
@@ -329,12 +380,43 @@ export const heatingAdapter: CalculationModule = {
     const rooms = roomRows.map((room) => {
       const roomId = string(room.roomId)!;
       const floorAreaM2 = number(room.floorAreaM2);
-      const share =
+      const own = strings(room.envelopeElementIds);
+      // A room with no share of the storey — no derivable floor area — takes
+      // none of the roof and none of the ground floor. Its own walls are still
+      // charged to it in full; a zero share is « rien de ce qui est partagé »,
+      // not a missing measurement.
+      const horizontalShare = number(room.horizontalShare) ?? 0;
+      /*
+       * The room's own transmission, when the model could attribute one.
+       *
+       * A wall or a window belongs to the room whose walls enclose it, whole.
+       * A roof, a ceiling or a ground floor is genuinely shared, so it enters
+       * at the room's share of the storey's floor area — a room does not own a
+       * piece of roof the way it owns a façade.
+       */
+      const attributed =
+        own.length === 0
+          ? undefined
+          : own.reduce<number | undefined>((total, elementId) => {
+              const value = elementH.get(elementId);
+              if (total === undefined || value === undefined) return undefined;
+              const horizontal =
+                elementId.startsWith('envelope:roof:') ||
+                elementId.startsWith('envelope:slab:');
+              return total + value * (horizontal ? horizontalShare : 1);
+            }, 0);
+      // The old prorata, kept for a room whose walls do not enclose it. It was
+      // recorded as an assumption and it still is; what changes is that it is
+      // no longer the nominal method.
+      const prorata =
         envelopeH === undefined ||
         floorAreaM2 === undefined ||
         totalFloorAreaM2 <= 0
           ? undefined
           : (envelopeH * floorAreaM2) / totalFloorAreaM2;
+      const share = attributed ?? prorata;
+      if (attributed === undefined && prorata !== undefined)
+        estimated.push(roomId);
       const flowM3h = number(room.ventilationFlowM3h);
       return {
         roomId,
@@ -409,8 +491,12 @@ export const heatingAdapter: CalculationModule = {
       assumptions: [
         assumption(
           'transmissionAllocation',
-          'floor-area-prorata',
-          'Envelope transmission is allocated to rooms in proportion to their floor area.',
+          estimated.length === 0
+            ? 'per-room-envelope'
+            : `per-room-envelope; floor-area-prorata for ${estimated.join(', ')}`,
+          estimated.length === 0
+            ? 'Each room is charged its own walls and openings, and its share of what is above and below.'
+            : 'Each room is charged its own walls and openings; the rooms named fell back to a share of the building total, because the walls of their storey do not enclose them.',
         ),
         assumption(
           'designIndoorTemperatureC',

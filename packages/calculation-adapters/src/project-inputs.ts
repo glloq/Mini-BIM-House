@@ -531,6 +531,26 @@ function heatingInput(context: ProjectCalculationContext): CalculationJson {
       0,
       'Aucune charge additionnelle déclarée pour les pièces',
     );
+  /*
+   * Which parts of the envelope belong to which room.
+   *
+   * The room load used to be the building's transmission shared out by floor
+   * area — an honest fallback, recorded as one, that could not tell a room
+   * with three façades from a room with one. It stays as the fallback for a
+   * room whose walls do not enclose it, and the note below says which rooms
+   * fell back.
+   */
+  const attribution = new Map(
+    context.roomEnvelopes.map((room) => [room.spaceId, room]),
+  );
+  for (const room of attribution.values())
+    if (room.unresolved !== undefined)
+      settings.note(
+        'heating',
+        `rooms/${room.spaceId}/envelope`,
+        'PROJECT',
+        room.unresolved,
+      );
   const rooms = context.spaces.map((space) => {
     const resolved = ventilationFlows.get(space.spaceId);
     const flowM3h = resolved === undefined ? undefined : valueOf(resolved);
@@ -563,6 +583,12 @@ function heatingInput(context: ProjectCalculationContext): CalculationJson {
         : { floorAreaM2: space.floorAreaM2 }),
       ...(flowM3h === undefined ? {} : { ventilationFlowM3h: flowM3h }),
       otherW,
+      // What this room actually loses heat through. Its walls and their
+      // openings are its own; the roof and the floor are shared by area.
+      envelopeElementIds: [
+        ...(attribution.get(space.spaceId)?.elementIds ?? []),
+      ],
+      horizontalShare: attribution.get(space.spaceId)?.horizontalShare ?? 0,
     };
   });
   return {

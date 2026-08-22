@@ -166,3 +166,49 @@ describe('the additional design load of a room', () => {
     );
   });
 });
+
+describe('what a room actually loses heat through', () => {
+  it('charges each room its own walls rather than a share of the total', async () => {
+    const project = await referenceProject();
+    const inputs = inputsOf(project);
+    const heating = inputs.inputs['heating'] as
+      | {
+          readonly rooms?: readonly {
+            readonly roomId: string;
+            readonly envelopeElementIds?: readonly string[];
+            readonly horizontalShare?: number;
+          }[];
+        }
+      | undefined;
+    const rooms = heating?.rooms ?? [];
+    expect(rooms.length).toBeGreaterThan(0);
+
+    // Two rooms of the same floor area no longer carry the same envelope: the
+    // one with more façade carries more of it.
+    const owned = new Map(
+      rooms.map((room) => [
+        room.roomId,
+        (room.envelopeElementIds ?? []).filter((id) =>
+          id.startsWith('envelope:wall:'),
+        ).length,
+      ]),
+    );
+    expect([...owned.values()].some((count) => count > 0)).toBe(true);
+    expect(new Set(owned.values()).size).toBeGreaterThan(1);
+  });
+
+  it('shares what is above and below, and only that, by area', async () => {
+    const project = await referenceProject();
+    const inputs = inputsOf(project);
+    const heating = inputs.inputs['heating'] as {
+      readonly rooms?: readonly { readonly horizontalShare?: number }[];
+    };
+    const shares = (heating.rooms ?? []).map(
+      ({ horizontalShare }) => horizontalShare ?? 0,
+    );
+    for (const share of shares) {
+      expect(share).toBeGreaterThanOrEqual(0);
+      expect(share).toBeLessThanOrEqual(1);
+    }
+  });
+});

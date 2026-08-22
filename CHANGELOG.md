@@ -5,6 +5,42 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.8 — non publiée
+
+La passe sur les **limites thermiques** : où la maison chauffée s'arrête, et
+ce que chaque pièce perd réellement.
+
+### Corrigé
+
+- **une maison à toiture moderne et plafond perdait sa chaleur deux fois.** La
+  règle du plafond regardait `level.roofs` pendant que la boucle des toitures
+  lisait `allRoofPlanes()`, qui tient aussi les toitures décrites par leur
+  contour. Le modèle dit maintenant lequel des deux est la limite : un plafond
+  sous une toiture donne sur des combles que personne ne chauffe — le plafond
+  est la limite, la toiture est dehors ; sans plafond, ce sont les pans qui
+  ferment la maison.
+- **un plafond sous combles n'était pas exposé au vent** et recevait pourtant
+  la résistance superficielle extérieure. Il donne sur un local non chauffé, ce
+  que `boundaryCondition` disait déjà sans que le calcul s'en serve.
+- **un plancher, un plafond et une façade avaient les mêmes films d'air.**
+  Rsi 0,13 et Rse 0,04 sont le cas horizontal ; ISO 6946 en donne trois selon
+  le sens du flux, et une dalle sur terre-plein n'a pas de film extérieur du
+  tout — la terre n'est pas une brise.
+- **deux pièces de 15 m², l'une à trois façades et grande baie nord, l'autre à
+  une façade et petite fenêtre sud, recevaient presque la même charge.** Les
+  murs qui entourent une pièce et les ouvertures qui les percent lui sont
+  maintenant attribués en propre ; la toiture et le plancher, qui sont
+  réellement partagés, entrent au prorata de sa surface. Le prorata global
+  reste pour une pièce dont les murs ne l'enferment pas, et la pièce est
+  nommée dans le journal des hypothèses.
+
+### Ajouté
+
+- `envelopeByRoom()` dans `core-domain` : quelle part de l'enveloppe appartient
+  à quelle pièce.
+- `surfaceResistances()` dans le module thermique : les films d'air selon le
+  sens du flux et selon ce qu'il y a de l'autre côté, avec leur référence.
+
 ## 0.3.0-beta.7 — non publiée
 
 La passe sur la **propagation des inconnues** dans les calculs. Le projet
