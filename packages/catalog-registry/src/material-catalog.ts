@@ -31,6 +31,18 @@ export interface MaterialEntryCandidate {
   }[];
 }
 
+/** An opening as its data file states it, before anything has been checked. */
+export interface OpeningEntryCandidate {
+  readonly id: string;
+  readonly familyId: string;
+  readonly category?: string;
+  readonly name: string;
+  readonly version?: string;
+  readonly properties: Readonly<Record<string, PropertyValue>>;
+  readonly provenance?: ProvenanceCandidate;
+  readonly manufacturer?: string;
+}
+
 /** A build-up as its data file states it, before anything has been checked. */
 export interface AssemblyEntryCandidate {
   readonly id: string;
@@ -197,6 +209,77 @@ export function validateAssemblyEntry(
         `${layer.thicknessM} m is thicker than any layer of a building; thicknesses are in metres`,
       );
   }
+  for (const issue of validateProvenance(entry.provenance))
+    at(issue.path, issue.message);
+  return issues;
+}
+
+/**
+ * Everything wrong with one opening, measured against the family it claims.
+ *
+ * The pointer was there and the catalogue was not: `Opening.definitionId`
+ * named an entry, thirty-four families of opening were declared, and nothing
+ * shipped one — so every window in every project had its Uw typed in by hand
+ * or was counted as an unknown.
+ */
+export function validateOpeningEntry(
+  entry: OpeningEntryCandidate,
+  known: MaterialKnowledge,
+): readonly MaterialIssue[] {
+  const issues: MaterialIssue[] = [];
+  const at = (path: string, message: string) =>
+    issues.push({ entryId: entry.id, path, message });
+  if (entry.id.trim() === '') at('id', 'must not be empty');
+  if (entry.name.trim() === '') at('name', 'must not be empty');
+  if (entry.version === undefined) at('version', 'must state a version');
+  else if (!SEMVER.test(entry.version))
+    at('version', `${entry.version} is not a version of the form 1.0.0`);
+
+  const family = known.family(entry.familyId);
+  if (family === undefined) {
+    at('familyId', `unknown family ${entry.familyId}`);
+    return issues;
+  }
+  if (family.registry !== 'OPENING')
+    at('familyId', `${family.id} is not an opening family`);
+  if (family.category === undefined)
+    at('familyId', `${family.id} has entries and states no category`);
+  else if (entry.category === undefined)
+    at('category', `must carry ${family.id}'s category, ${family.category}`);
+  else if (entry.category !== family.category)
+    at(
+      'category',
+      `says ${entry.category} where ${family.id} says ${family.category}`,
+    );
+
+  const schema =
+    family.propertySchema === undefined
+      ? undefined
+      : known.schema(family.propertySchema);
+  if (family.propertySchema !== undefined && schema === undefined)
+    at(
+      'familyId',
+      `${family.id} names an unknown schema ${family.propertySchema}`,
+    );
+  if (schema !== undefined)
+    for (const issue of validateProperties(
+      schema,
+      entry.properties,
+      'DEFINITION',
+    ))
+      at(`properties/${issue.path}`, issue.message);
+
+  // A window that pierces a wall has to say how big the hole is; a shutter
+  // fitted over one does not, and asking it would be asking the wrong object.
+  if (hasCapability(family, 'PIERCING')) {
+    const uw = entry.properties.uw;
+    if (typeof uw !== 'number')
+      at(
+        'properties/uw',
+        'an opening in the envelope states the transmittance its datasheet gives, which no stack of layers reproduces',
+      );
+  }
+
   for (const issue of validateProvenance(entry.provenance))
     at(issue.path, issue.message);
   return issues;

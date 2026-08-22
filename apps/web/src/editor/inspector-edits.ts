@@ -394,6 +394,28 @@ export function openingEditsFor(
     if (opening !== undefined)
       return [
         {
+          // The model is what carries the transmittance the envelope needs.
+          // The field existed on the opening and nothing could write it, so
+          // every window in every project was an unknown.
+          id: 'definitionId',
+          semanticId: 'opening.definitionId',
+          label: 'Menuiserie',
+          control: {
+            kind: 'SELECT',
+            value: opening.definitionId ?? '',
+            options: [
+              { value: '', label: 'Aucune' },
+              ...(project.openingTypes ?? [])
+                .filter(({ category }) => category !== 'SOLAR_PROTECTION')
+                .map(({ id, name }) => ({ value: id, label: name })),
+            ],
+          },
+          apply: (value) =>
+            new UpdateOpeningCommand(level.id, opening.id, {
+              definitionId: value === '' ? null : value,
+            }),
+        },
+        {
           id: 'openingType',
           semanticId: 'opening.openingType',
           label: 'Type',

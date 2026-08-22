@@ -31,6 +31,7 @@ import {
 import { isEquipmentCategory } from '@house-technical-designer/equipment-catalog';
 import { isMaterialCategory } from '@house-technical-designer/materials';
 import { isAssemblyCategory } from '@house-technical-designer/assemblies';
+import { isOpeningCategory } from '@house-technical-designer/opening-catalog';
 
 /** Where an object of this family may be put. */
 export interface FamilyPlacement {
@@ -166,6 +167,8 @@ function categoryFits(family: FamilyCandidate): boolean {
       return isMaterialCategory(category);
     case 'ASSEMBLY':
       return isAssemblyCategory(category);
+    case 'OPENING':
+      return isOpeningCategory(category);
     default:
       return isEquipmentCategory(category);
   }

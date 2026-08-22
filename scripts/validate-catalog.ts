@@ -24,12 +24,14 @@ import {
   validateAssemblyCatalog,
   validateCatalog,
   validateMaterialCatalog,
+  validateOpeningCatalog,
   validateNetworkProducts,
   validateRegistry,
   validateSchemas,
 } from '@house-technical-designer/catalog-registry';
 import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
 import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies';
+import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
 
 const symbols = new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions));
 const calculators = new Set<string>(PROJECT_CALCULATION_MODULE_IDS);
@@ -84,6 +86,18 @@ const sections: readonly Section[] = [
     counted: rawGenericMaterialEntries().length,
     noun: 'matériaux',
     issues: validateMaterialCatalog().map(({ entryId, path, message }) => ({
+      subject: entryId,
+      path,
+      message,
+    })),
+  },
+  {
+    // The pointer existed and the catalogue did not: every window in every
+    // project had its Uw typed in by hand, or was counted as an unknown.
+    title: 'Ouvertures',
+    counted: rawGenericOpeningEntries().length,
+    noun: 'ouvertures',
+    issues: validateOpeningCatalog().map(({ entryId, path, message }) => ({
       subject: entryId,
       path,
       message,

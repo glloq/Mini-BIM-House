@@ -57,11 +57,23 @@ export const BUDGETS = {
    * created before anything is drawn. The data is the same size as the code it
    * replaces; what grew is the loader and the gate around it.
    *
+   * And one more for the opening catalogue: twelve models of window, door and
+   * shutter, which a new project carries because `Opening.definitionId` named
+   * an entry and nothing shipped one — so every window was drawn with a
+   * transmittance nobody had stated.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 256 * 1024,
-  /** Everything the build produces, gzipped. */
-  totalGzipBytes: 374 * 1024,
+  initialGzipBytes: 258 * 1024,
+  /**
+   * Everything the build produces, gzipped.
+   *
+   * Raised with the catalogues of the thirteenth audit: the materials, the
+   * build-ups and the menuiseries are data now rather than three lists written
+   * out in code, and data that a gate reads costs a little more than code
+   * nobody checked.
+   */
+  totalGzipBytes: 378 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

@@ -10,6 +10,7 @@ import {
 } from '@house-technical-designer/editor-core';
 import { genericMaterialCatalog } from '@house-technical-designer/materials';
 import { genericAssemblyCatalog } from '@house-technical-designer/assemblies';
+import { genericOpeningTypes } from '@house-technical-designer/opening-catalog';
 import {
   exportSemanticSceneToSvg,
   GENERIC_TECHNICAL_PRINT,
@@ -233,6 +234,10 @@ export function createBlankProject(now: string): ProjectFile {
       },
       materialLibrary: { materials: genericMaterialCatalog() },
       assemblies: starterAssemblies(),
+      // The models a window can be. The pointer existed and the catalogue did
+      // not, so every opening was drawn with a transmittance nobody had
+      // stated.
+      openingTypes: genericOpeningTypes(),
       equipment: [],
       systems: [],
       scenarios: [],

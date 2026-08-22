@@ -109,6 +109,7 @@ export interface CapabilitySubject {
     readonly schematicSymbol?: string;
   };
   readonly registry?: string;
+  readonly category?: string;
   readonly capabilities?: readonly string[];
 }
 
@@ -132,7 +133,10 @@ export function derivedCapabilities(
   // pierces a wall by being an opening. Writing either down would be the
   // second version of a sentence the registry already says.
   if (family.registry === 'MATERIAL') found.push('LAYERED');
-  if (family.registry === 'OPENING') found.push('PIERCING');
+  // A shutter is fitted to an opening; it is not one, and placing it as a hole
+  // in a wall is what deriving this from the registry alone would allow.
+  if (family.registry === 'OPENING' && family.category !== 'SOLAR_PROTECTION')
+    found.push('PIERCING');
   if (has(family.calculators)) found.push('CALCULATED');
   return found;
 }

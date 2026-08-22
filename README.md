@@ -507,9 +507,10 @@ soit activé sur le dépôt.
 │   ├── units/                   conversions marquées SI ↔ édition
 │   ├── geometry/                primitives et opérations en millimètres
 │   ├── core-domain/             modèle canonique du projet
-│   ├── materials/               catalogue et provenance des matériaux
-│   ├── assemblies/              parois multicouches
+│   ├── materials/               catalogue et provenance des matériaux, en JSON
+│   ├── assemblies/              parois multicouches, catalogue en JSON
 │   ├── equipment-catalog/       fiches d'équipement, en JSON par métier
+│   ├── opening-catalog/         menuiseries et protections solaires
 │   ├── catalog-registry/        nomenclature, ports, dégagements, schémas
 │   ├── editor-core/             commandes, caméra, accrochage, outils
 │   ├── drawing-engine/          scène sémantique et rendu SVG

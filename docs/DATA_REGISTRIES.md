@@ -430,6 +430,29 @@ valeur par bande d'octave, les bandes prises dans une liste fermée — un
 coefficient déposé à 300 Hz est un coefficient qu'aucune norme, aucun calcul et
 aucune autre fiche ne pourra jamais aligner.
 
+## Les ouvertures
+
+Le modèle portait `Opening.definitionId`, la nomenclature déclarait trente-quatre
+familles d'ouverture, les sept registres en annonçaient un — et rien n'était
+livré. Le pointeur ne pointait sur rien : le Uw de chaque fenêtre devait être
+saisi à la main, ou l'ouverture était comptée comme une inconnue. Pire, il était
+résolu contre la bibliothèque d'équipements, où une fenêtre n'est pas un
+équipement.
+
+`packages/opening-catalog/data/generic.json` en livre douze : fenêtres, portes,
+volets et stores. Une ouverture n'est pas un assemblage et n'en sera jamais un :
+sa fiche donne **un** Uw qui couvre le vitrage, le dormant et l'intercalaire
+ensemble, et aucune pile de couches ne le reproduit. C'est précisément ce qui
+lui vaut un registre à elle.
+
+La porte demande ce Uw à toute famille qui **perce** une paroi, et ne le demande
+pas à un volet — un volet est posé sur une ouverture, il n'en est pas une, et
+c'est la capability `PIERCING` qui fait la différence plutôt que le nom du
+registre.
+
+Le projet porte `openingTypes`, copie des fiches choisies, comme il porte ses
+fiches d'équipement et pour la même raison.
+
 ## Les cartes de performance
 
 Une machine n'est pas un nombre. Le COP d'une pompe à chaleur vaut 2,0 à
@@ -537,6 +560,7 @@ sur un tube dont l'alésage est faux de quatre millimètres.
 - une capability lue de ce que la famille déclare et réécrite à la main ;
 - une vague hors des six, un cycle de vie inconnu, un remplaçant qui n'existe
   pas ou une famille qui se remplace elle-même ;
+- une ouverture qui perce une paroi et ne dit pas sa transmittance ;
 - un matériau dont la catégorie contredit celle de sa famille, ou une couche
   d'assemblage nommant un matériau qui n'existe pas, ou une épaisseur écrite en
   millimètres ;

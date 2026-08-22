@@ -1,0 +1,258 @@
+{
+  "formatVersion": "1.0.0",
+  "openings": [
+    {
+      "id": "generic-window-casement-double",
+      "familyId": "WINDOW_CASEMENT",
+      "category": "WINDOW",
+      "name": "Fenêtre à la française, double vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 1200,
+        "height": 1200,
+        "panelCount": 1,
+        "uw": 1.4,
+        "ug": 1.1,
+        "uf": 1.8,
+        "psiSpacer": 0.06,
+        "gValue": 0.6,
+        "visibleTransmittance": 0.78,
+        "rw": 32,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON",
+        "frameDepth": 70,
+        "frameWidth": 60
+      }
+    },
+    {
+      "id": "generic-window-tilt-turn-triple",
+      "familyId": "WINDOW_TILT_TURN",
+      "category": "WINDOW",
+      "name": "Fenêtre oscillo-battante, triple vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 1200,
+        "height": 1400,
+        "panelCount": 1,
+        "uw": 0.9,
+        "ug": 0.6,
+        "uf": 1.3,
+        "psiSpacer": 0.04,
+        "gValue": 0.5,
+        "visibleTransmittance": 0.7,
+        "rw": 35,
+        "glazing": "TRIPLE",
+        "cavityGas": "ARGON",
+        "frameDepth": 90,
+        "frameWidth": 65
+      }
+    },
+    {
+      "id": "generic-window-fixed-double",
+      "familyId": "WINDOW_FIXED",
+      "category": "WINDOW",
+      "name": "Châssis fixe, double vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 1000,
+        "height": 1000,
+        "panelCount": 1,
+        "uw": 1.2,
+        "ug": 1.1,
+        "uf": 1.6,
+        "gValue": 0.62,
+        "visibleTransmittance": 0.8,
+        "rw": 33,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON"
+      }
+    },
+    {
+      "id": "generic-window-roof-double",
+      "familyId": "WINDOW_ROOF",
+      "category": "WINDOW",
+      "name": "Fenêtre de toit, double vitrage",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 780,
+        "height": 1180,
+        "panelCount": 1,
+        "uw": 1.3,
+        "ug": 1.0,
+        "gValue": 0.55,
+        "visibleTransmittance": 0.72,
+        "rw": 32,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON"
+      }
+    },
+    {
+      "id": "generic-french-door-double",
+      "familyId": "FRENCH_DOOR",
+      "category": "WINDOW",
+      "name": "Porte-fenêtre à deux vantaux",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 1400,
+        "height": 2150,
+        "panelCount": 2,
+        "uw": 1.5,
+        "ug": 1.1,
+        "uf": 1.9,
+        "gValue": 0.58,
+        "visibleTransmittance": 0.75,
+        "rw": 32,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON"
+      }
+    },
+    {
+      "id": "generic-sliding-patio-door",
+      "familyId": "SLIDING_PATIO_DOOR",
+      "category": "WINDOW",
+      "name": "Baie coulissante à deux vantaux",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 2400,
+        "height": 2150,
+        "panelCount": 2,
+        "uw": 1.6,
+        "ug": 1.1,
+        "uf": 2.2,
+        "gValue": 0.6,
+        "visibleTransmittance": 0.77,
+        "rw": 31,
+        "glazing": "DOUBLE",
+        "cavityGas": "ARGON"
+      }
+    },
+    {
+      "id": "generic-entrance-door",
+      "familyId": "DOOR_EXTERNAL",
+      "category": "DOOR",
+      "name": "Porte d’entrée isolée",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 900,
+        "height": 2150,
+        "leafCount": 1,
+        "uw": 1.4,
+        "rw": 32
+      }
+    },
+    {
+      "id": "generic-internal-door",
+      "familyId": "DOOR_INTERNAL",
+      "category": "DOOR",
+      "name": "Porte intérieure à âme alvéolaire",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 830,
+        "height": 2040,
+        "leafCount": 1,
+        "uw": 2.4,
+        "rw": 22
+      }
+    },
+    {
+      "id": "generic-garage-door-sectional",
+      "familyId": "DOOR_GARAGE",
+      "category": "DOOR",
+      "name": "Porte de garage sectionnelle",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "width": 2400,
+        "height": 2000,
+        "leafCount": 1,
+        "uw": 1.8
+      }
+    },
+    {
+      "id": "generic-roller-shutter",
+      "familyId": "ROLLER_SHUTTER",
+      "category": "SOLAR_PROTECTION",
+      "name": "Volet roulant extérieur",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "position": "EXTERNAL",
+        "solarReductionFactor": 0.1,
+        "visibleReductionFactor": 0.05,
+        "motorized": true
+      }
+    },
+    {
+      "id": "generic-external-venetian-blind",
+      "familyId": "VENETIAN_EXTERNAL",
+      "category": "SOLAR_PROTECTION",
+      "name": "Brise-soleil orientable",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "position": "EXTERNAL",
+        "solarReductionFactor": 0.15,
+        "visibleReductionFactor": 0.2,
+        "motorized": true
+      }
+    },
+    {
+      "id": "generic-internal-blind",
+      "familyId": "INTERNAL_BLIND",
+      "category": "SOLAR_PROTECTION",
+      "name": "Store intérieur",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "position": "INTERNAL",
+        "solarReductionFactor": 0.45,
+        "visibleReductionFactor": 0.35,
+        "motorized": false
+      }
+    }
+  ]
+}

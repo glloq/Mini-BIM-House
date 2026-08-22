@@ -69,6 +69,7 @@ Ce que cela veut dire, concrètement :
 | `materials`, `assemblies`               | matériaux et compositions multicouches                                          |
 | `catalog-registry`                      | nomenclature des familles, schémas de propriétés, empreintes                    |
 | `equipment-catalog`, `network-products` | fiches génériques et produits de réseau                                         |
+| `opening-catalog`                       | menuiseries et protections solaires, en JSON                                    |
 | `project-io`                            | lecture, écriture, validation, migrations                                       |
 | `editor-core`                           | commandes, annulation, outils de dessin                                         |
 | `view-query`                            | plans, coupes, façades, toiture, masse, calques, désignation                    |

@@ -184,6 +184,12 @@
             "$ref": "https://house-technical-designer.local/schemas/equipment.schema.json"
           }
         },
+        "openingTypes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OpeningDefinition"
+          }
+        },
         "networkProducts": {
           "type": "array",
           "items": {
@@ -938,6 +944,99 @@
         "materialId": {
           "type": "string",
           "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "OpeningDefinition": {
+      "type": "object",
+      "required": [
+        "id",
+        "category",
+        "name",
+        "properties"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "familyId": {
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "WINDOW",
+            "DOOR",
+            "SOLAR_PROTECTION"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "object"
+        },
+        "provenance": {
+          "type": "object",
+          "required": [
+            "type",
+            "reference"
+          ],
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "reference": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "validAt": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "property",
+              "sourceType",
+              "reference"
+            ],
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "sourceType": {
+                "type": "string"
+              },
+              "reference": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "validAt": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
         }
       },
       "additionalProperties": true

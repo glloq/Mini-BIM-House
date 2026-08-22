@@ -56,8 +56,10 @@ import {
 import {
   validateAssemblyEntry,
   validateMaterialEntry,
+  validateOpeningEntry,
   type MaterialIssue,
 } from './material-catalog.js';
+import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
 import { invalidBore } from './network-products.js';
 import {
   NETWORK_PRODUCT_REGISTRY,
@@ -297,6 +299,25 @@ export function validateMaterialCatalog(): readonly MaterialIssue[] {
     seen.add(entry.id);
     issues.push(
       ...validateMaterialEntry(entry, { family, schema: propertySchema }),
+    );
+  }
+  return issues;
+}
+
+/** Everything wrong with the opening catalogue, in one pass. */
+export function validateOpeningCatalog(): readonly MaterialIssue[] {
+  const issues: MaterialIssue[] = [];
+  const seen = new Set<string>();
+  for (const entry of rawGenericOpeningEntries()) {
+    if (seen.has(entry.id))
+      issues.push({
+        entryId: entry.id,
+        path: 'id',
+        message: 'is declared more than once',
+      });
+    seen.add(entry.id);
+    issues.push(
+      ...validateOpeningEntry(entry, { family, schema: propertySchema }),
     );
   }
   return issues;

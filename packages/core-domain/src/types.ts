@@ -437,6 +437,45 @@ export interface NetworkProductSnapshot {
   };
 }
 
+/**
+ * A model of window, door or shutter as this project holds it.
+ *
+ * A copy of what the catalogue said the day it was chosen, exactly like an
+ * equipment definition and for the same reason: a file has to open the same
+ * way in two years, with a catalogue that has moved or that is not installed
+ * at all.
+ *
+ * It is a catalogue entry rather than an assembly because a window is not
+ * assembled from layers: its datasheet gives one Uw covering the glass, the
+ * frame and the spacer together, and no stack of layers reproduces it.
+ */
+export interface OpeningDefinition {
+  readonly id: string;
+  /** The family of the master nomenclature, when the entry came from one. */
+  readonly familyId?: string;
+  /** WINDOW, DOOR or SOLAR_PROTECTION — the kind it is an entry of. */
+  readonly category: string;
+  readonly name: string;
+  /** The version of the catalogue entry this copy was taken from. */
+  readonly version?: string;
+  readonly manufacturer?: string;
+  readonly model?: string;
+  readonly properties: Readonly<Record<string, JsonValue>>;
+  readonly provenance?: {
+    readonly type: string;
+    readonly reference: string;
+    readonly url?: string;
+    readonly validAt?: string;
+  };
+  readonly sources?: readonly {
+    readonly property: string;
+    readonly sourceType: string;
+    readonly reference: string;
+    readonly url?: string;
+    readonly validAt?: string;
+  }[];
+}
+
 export interface ScenarioOverride {
   readonly path: string;
   readonly operation: 'SET' | 'ADD' | 'REMOVE' | 'REPLACE_REFERENCE';
@@ -466,6 +505,15 @@ export interface Project extends BaseEntity<ProjectId> {
   readonly materialLibrary?: { readonly materials: readonly Material[] };
   readonly assemblies?: readonly Assembly[];
   readonly equipment?: readonly EquipmentDefinition[];
+  /**
+   * The models of window, door and shutter this project's openings are.
+   *
+   * `Opening.definitionId` pointed at an entry and nothing shipped one, so it
+   * was resolved against the equipment library — where a window is not an
+   * equipment — or, more often, resolved against nothing at all, and every
+   * window was counted as an unknown transmittance.
+   */
+  readonly openingTypes?: readonly OpeningDefinition[];
   /**
    * The products this project's runs are made of, as this project holds them.
    *

@@ -318,7 +318,12 @@ function declaredUValue(
   definitionId: string | undefined,
 ): number | undefined {
   if (definitionId === undefined) return undefined;
-  const definition = context.equipment.find(({ id }) => id === definitionId);
+  // The opening catalogue first, because that is where a window's model now
+  // lives; the equipment library second, for the files written while it was
+  // the only place a window could be filed.
+  const definition =
+    context.openingTypes.find(({ id }) => id === definitionId) ??
+    context.equipment.find(({ id }) => id === definitionId);
   for (const key of ['uw', 'uValueWm2K', 'thermalTransmittanceWm2K']) {
     const value = definition?.properties?.[key];
     if (typeof value === 'number' && Number.isFinite(value) && value > 0)

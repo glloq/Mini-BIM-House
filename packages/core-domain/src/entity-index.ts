@@ -29,6 +29,7 @@ export const ENTITY_FAMILIES = [
   'ASSEMBLY',
   'ASSEMBLY_LAYER',
   'EQUIPMENT_DEFINITION',
+  'OPENING_DEFINITION',
   'NETWORK',
   'NETWORK_NODE',
   'NETWORK_PORT',
@@ -215,6 +216,11 @@ export function projectEntities(project: Project): readonly ProjectEntity[] {
     add(definition.id, 'EQUIPMENT_DEFINITION', `equipment/${definition.id}`, {
       value: definition,
     });
+  for (const definition of project.openingTypes ?? [])
+    add(definition.id, 'OPENING_DEFINITION', `openingTypes/${definition.id}`, {
+      value: definition,
+      label: definition.name,
+    });
   for (const network of project.systems ?? []) {
     add(network.id, 'NETWORK', `systems/${network.id}`, { value: network });
     for (const node of network.nodes)
@@ -332,6 +338,7 @@ export const SCENARIO_DIFFABLE: Readonly<Record<EntityFamily, boolean>> = {
   // Addressed through its assembly, which is already compared as a whole.
   ASSEMBLY_LAYER: false,
   EQUIPMENT_DEFINITION: true,
+  OPENING_DEFINITION: true,
   NETWORK: false,
   NETWORK_NODE: true,
   NETWORK_PORT: true,
