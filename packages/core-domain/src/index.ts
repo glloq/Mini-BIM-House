@@ -23,3 +23,4 @@ export * from './documents.js';
 export * from './structure.js';
 export * from './revision.js';
 export * from './project-path.js';
+export * from './design-scope.js';

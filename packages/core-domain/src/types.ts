@@ -17,6 +17,8 @@ import type { StructuralMember } from './structure.js';
 import type { HostType } from './host-types.js';
 import type { ClearanceZone } from '@house-technical-designer/technical-types';
 
+import type { ProjectScope } from './design-scope.js';
+
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
   JsonPrimitive | readonly JsonValue[] | { readonly [key: string]: JsonValue };
@@ -413,6 +415,18 @@ export interface Project extends BaseEntity<ProjectId> {
   readonly sheets?: readonly ProjectSheet[];
   readonly calculationSettings?: Readonly<Record<string, ModuleSettings>>;
   readonly regulatoryContext?: RegulatoryContext;
+  /**
+   * What the person has decided to design on this project.
+   *
+   * Optional, and it stays optional: a file written before scopes existed made
+   * no such decision, and reading one into it would narrow somebody's project
+   * on their behalf. Absent means « tout est offert » — see `projectScopeOf`.
+   *
+   * It lives in the file rather than in the browser because it is a decision
+   * about the project: the same file opened on another machine has to find the
+   * same scope. Panel widths go the other way and never enter the file.
+   */
+  readonly scope?: ProjectScope;
 }
 
 export interface ProjectFile {
