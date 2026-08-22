@@ -1,10 +1,91 @@
-# Architecture logicielle — House Technical Designer
+# Architecture logicielle — Mini-BIM-House
 
-> **Statut :** document d’architecture initiale  
-> **Cible :** application web locale-first, modulaire, orientée conception et étude technique d’une habitation  
-> **Langue de référence :** français  
-> **Unités internes :** SI pour les calculs ; millimètre recommandé pour l’édition géométrique 2D  
-> **Principe fondamental :** un modèle unique du bâtiment alimente toutes les vues graphiques, tous les métrés et tous les modules de calcul.
+> **Unités internes :** SI pour les calculs ; millimètre pour l'édition
+> géométrique 2D.
+> **Principe fondamental :** un modèle unique du bâtiment alimente toutes les
+> vues graphiques, tous les métrés et tous les modules de calcul.
+
+## L'architecture d'aujourd'hui
+
+Ce que le dépôt fait réellement, en une page. Ce qui suit cette section est le
+**document de conception initiale**, gardé pour ce qu'il explique des
+intentions ; il ne décrit pas l'état du code.
+
+Le projet est la source de vérité, et rien d'autre. Il est validé et migré à
+l'ouverture. À partir de lui, et jamais en le réinterprétant chacun de son
+côté, les moteurs reçoivent un **modèle résolu** :
+
+```text
+              Project 1.2.0  (le fichier, seule vérité)
+                     │
+        validation / migration (project-io)
+                     │
+              Modèle résolu  (core-domain)
+     resolveWallGeometry · resolveSpaceGeometry · resolveOpeningGeometry
+     resolveRoofGeometry · placedEquipment · resolveEnvelope
+                     │
+   ┌─────────────────┼──────────────────┐
+   │                 │                  │
+Dessin            Métrés            Calculs
+(view-query)     (quantities)   (calculation-adapters
+   │                 │            → dix-sept moteurs)
+   │                 ▼                  │
+   │            Coût / Carbone          │
+   └─────────────────┬──────────────────┘
+                     ▼
+            Vérifications / Rule Packs
+                     │
+                     ▼
+              Interface / Documents
+```
+
+Ce que cela veut dire, concrètement :
+
+- **une seule réponse par question de géométrie.** « Jusqu'où monte ce mur ? »,
+  « quelle est la surface de cette pièce ? », « quelle est la surface nette de
+  cette paroi ? » sont répondues une fois, dans `core-domain`, et le plan, les
+  métrés et les calculs lisent la même réponse ;
+- **l'enveloppe est un objet.** `resolveEnvelope()` énumère ce qui sépare la
+  maison chauffée de l'extérieur, du sol et du non chauffé, avec pour chaque
+  paroi son genre et sa condition de bord. Le moteur thermique reçoit cette
+  liste, pas une liste de murs ;
+- **rien de dérivé n'est enregistré.** Le fichier ne contient ni surface, ni
+  hauteur résolue, ni résultat de calcul ;
+- **une inconnue reste une inconnue.** Aucune valeur n'est inventée pour
+  combler un trou : le module déclare l'entrée manquante et l'interface conduit
+  au champ qui la remplit ;
+- **une commande ne produit jamais un projet que l'importeur refuserait.** Un
+  test l'exige après chaque commande publique et après son annulation.
+
+### Les paquets
+
+| Paquet                                  | Ce qu'il tient                                                                  |
+| --------------------------------------- | ------------------------------------------------------------------------------- |
+| `geometry`                              | primitives 2D : polygones, segments, tolérances                                 |
+| `units`                                 | grandeurs typées et conversions                                                 |
+| `climate`                               | jeux climatiques, regroupement par lieu et empreintes                           |
+| `technical-types`                       | genres de raccordement, dégagements, registres, sans dépendance                 |
+| `core-domain`                           | le modèle, ses identités, ses références, sa géométrie résolue et son enveloppe |
+| `materials`, `assemblies`               | matériaux et compositions multicouches                                          |
+| `catalog-registry`                      | nomenclature des familles, schémas de propriétés, empreintes                    |
+| `equipment-catalog`, `network-products` | fiches génériques et produits de réseau                                         |
+| `project-io`                            | lecture, écriture, validation, migrations                                       |
+| `editor-core`                           | commandes, annulation, outils de dessin                                         |
+| `view-query`                            | plans, coupes, façades, toiture, masse, calques, désignation                    |
+| `drawing-engine`                        | scène sémantique, chartes graphiques, SVG, feuilles, PDF                        |
+| `quantities`                            | métrés depuis le modèle résolu                                                  |
+| `calculation-core`                      | orchestrateur, provenance, superpositions                                       |
+| `calculation-adapters`                  | le pont BIM → moteurs, et le registre des modules                               |
+| `rule-engine`                           | moteur de règles et Rule Packs                                                  |
+| `modules/*`                             | les dix-sept moteurs physiques, sans dépendance au projet                       |
+
+---
+
+# Document de conception initiale
+
+> Ce qui suit est le document d'architecture rédigé au départ du projet. Il est
+> conservé pour les intentions qu'il explique et **ne décrit pas l'état actuel
+> du code** : pour cela, voir la section ci-dessus.
 
 ---
 
