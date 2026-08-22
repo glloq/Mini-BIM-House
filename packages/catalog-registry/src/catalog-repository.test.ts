@@ -90,6 +90,18 @@ describe('the catalogue as rows, before it is the catalogue as entries', () => {
     }
   });
 
+  it('says every shipped fiche is clean, because every shipped fiche is', () => {
+    // `valid` is the gate's answer, carried on the row so that a browser
+    // holding ten thousand rows never has to hold a fiche to count one. It was
+    // asking the gate about the resolved entry, which carries the family's
+    // category — and a fiche restating its family's category is exactly what
+    // the gate refuses. Every equipment fiche in the application reported
+    // itself invalid, and every equipment family read « PARTIAL » in the
+    // browser while `validate:catalog` said the catalogue was clean.
+    const dirty = catalogSummaries().filter(({ valid }) => !valid);
+    expect(dirty.map(({ registry, id }) => `${registry}:${id}`)).toEqual([]);
+  });
+
   it('carries what a row shows and not what an entry holds', () => {
     const pump = catalogSummaries().find(
       ({ id }) => id === 'generic-air-water-heat-pump',

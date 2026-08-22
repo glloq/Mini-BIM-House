@@ -682,6 +682,9 @@ L'architecture est figée. À partir d'ici, la règle est courte :
 > `npm run catalog:fingerprints`, elle relance `npm run catalog:manifest`, et
 > c'est tout.
 
+L'état de chaque vague et la manière d'en remplir une sont dans
+[`docs/CATALOG_WAVES.md`](CATALOG_WAVES.md).
+
 Si une fiche ne peut pas être représentée avec les contrats existants, on
 n'étend pas le format en passant : on ouvre un **`CONTRACT_GAP`** — un écart
 écrit dans [`docs/CONTRACT_GAPS.md`](CONTRACT_GAPS.md), qui dit quelle fiche,
