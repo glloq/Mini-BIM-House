@@ -2221,3 +2221,66 @@ button.ghost:disabled {
   font-size: 0.7rem;
   font-weight: 500;
 }
+
+/*
+ * The guide: what is left to do, as a suggestion.
+ *
+ * The ten construction phases live here and nowhere else. They are not ten
+ * more destinations.
+ */
+.workflow-guide {
+  display: grid;
+  gap: 0.3rem;
+  margin-bottom: 0.75rem;
+}
+.workflow-current {
+  margin: 0.1rem 0 0.35rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.55rem;
+  background: var(--accent-soft);
+  color: var(--ink-strong);
+  font-size: 0.8rem;
+}
+.workflow-group > summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.5rem;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+.workflow-group > summary small {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.workflow-steps {
+  display: grid;
+  gap: 0.1rem;
+  margin: 0.1rem 0 0.4rem;
+  padding: 0 0 0 0.6rem;
+  list-style: none;
+}
+.workflow-steps li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+.workflow-state {
+  flex: 0 0 auto;
+  min-width: 5.2rem;
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.workflow-done .workflow-state {
+  color: var(--accent);
+}
+.workflow-blocked {
+  opacity: 0.75;
+}

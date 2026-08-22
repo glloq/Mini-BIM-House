@@ -1839,6 +1839,35 @@ test('gathers what the project does not resolve and offers to fix it', async ({
   ).toBeVisible();
 });
 
+test('suggests what is left without ever standing in the way', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await openDestination(page, 'Projet');
+  const guide = page.getByRole('region', { name: 'Progression' });
+  await expect(guide).toBeVisible();
+  await expect(guide).toContainText('une suggestion, jamais une condition');
+
+  // The ten phases are here and nowhere else: they never became ten tabs.
+  const rail = page.getByRole('navigation', { name: 'Espaces de travail' });
+  await expect(rail.getByRole('button')).toHaveCount(5);
+  await expect(guide).toContainText('Architecture');
+  await expect(guide).toContainText('Technique');
+
+  // What the house actually holds reads as done; nothing was ticked by hand.
+  const architecture = guide.locator('details').filter({ hasText: 'Murs' });
+  await architecture.getByText('Architecture').click();
+  await expect(architecture.locator('.workflow-done').first()).toBeVisible();
+
+  // A step is a way in, not a gate: clicking one takes you to its space.
+  await architecture
+    .getByRole('button', { name: 'Dessiner les murs extérieurs' })
+    .click();
+  await expect(page.locator('.plan-canvas')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test('reads the same plan through one discipline at a time', async ({
   page,
 }) => {

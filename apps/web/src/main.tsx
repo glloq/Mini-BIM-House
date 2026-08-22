@@ -157,6 +157,7 @@ import {
   type WorkspaceLayout,
 } from './shell/workspace-layout.js';
 import { DisciplinePicker } from './systems/DisciplinePicker.js';
+import { WorkflowGuide } from './workflow/WorkflowGuide.js';
 import { AppShell } from './shell/AppShell.js';
 import { TopBar } from './shell/TopBar.js';
 import { PrimaryRail } from './shell/PrimaryRail.js';
@@ -2119,6 +2120,9 @@ function App() {
               ))}
             </select>
           </label>
+          {navigation.workspace === 'PROJECT' && (
+            <WorkflowGuide project={file.project} onNavigate={navigateTo} />
+          )}
           {navigation.workspace === 'SYSTEMS' && (
             <DisciplinePicker
               project={file.project}
