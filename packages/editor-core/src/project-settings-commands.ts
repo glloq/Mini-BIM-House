@@ -312,7 +312,17 @@ export class UpdateRegulatoryContextCommand extends SettingsCommand {
  * interface says so rather than implying a default jurisdiction.
  */
 export class SetEnabledRulePacksCommand extends SettingsCommand {
-  constructor(readonly packIds: readonly string[]) {
+  /**
+   * @param packIds the packs to activate
+   * @param versions the version each pack is at, so the project records what
+   *   it was actually checked against. A pack activated without one pins
+   *   nothing, which is what a file written before versions were recorded
+   *   already says.
+   */
+  constructor(
+    readonly packIds: readonly string[],
+    private readonly versions: Readonly<Record<string, string>> = {},
+  ) {
     super('project:rule-packs', 'Modifier les référentiels activés');
   }
   validate(): CommandValidation {
@@ -329,7 +339,13 @@ export class SetEnabledRulePacksCommand extends SettingsCommand {
     };
     return {
       ...project,
-      regulatoryContext: { ...current, enabledRulePacks: [...this.packIds] },
+      regulatoryContext: {
+        ...current,
+        enabledRulePacks: this.packIds.map((id) => {
+          const version = this.versions[id];
+          return version === undefined ? { id } : { id, version };
+        }),
+      },
     };
   }
 }

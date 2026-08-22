@@ -144,9 +144,21 @@ Les deux points qui figuraient ici sont faits.
   `ChangeSet` dit ce qui a bougé ;
 - orchestrateur de calcul persistant, plutôt que recréé à chaque exécution ;
 - régression visuelle pixel par pixel sur les trois moteurs ;
-- durcissement progressif des JSON Schema (`additionalProperties: false` sur le
-  contrat central, extensions isolées dans une zone versionnée) : cela demande
-  un changement de format et doit être fait une seule fois, proprement ;
+- **durcissement des JSON Schema.** `additionalProperties: true` court encore
+  sur `Project`, `Building`, `Level`, `ComponentInstance` et le schéma réseau :
+  une faute de frappe — `definitonId` — passe donc sans qu'aucune couche ne dise
+  « ce champ n'existe pas ». Le contrat central doit passer en
+  `additionalProperties: false`, avec une zone d'extensions explicitement libre
+  et versionnée à côté.
+
+  Ce n'est volontairement pas fait ici. Fermer le contrat rejette des fichiers
+  que l'application accepte aujourd'hui : cela demande un changement de version
+  de format et une migration qui dise ce qu'elle écarte, et cela doit se faire
+  une seule fois, proprement, plutôt qu'un champ à la fois. Ce qui est fait,
+  c'est le premier morceau qui ne coûtait pas de migration : le contexte
+  réglementaire est typé — pays, juridiction, type de projet, date de référence
+  et référentiels activés avec leur version — et l'importeur le vérifie ;
+
 - toitures sur contour quelconque : le squelette droit reste à écrire, et un
   contour non résolu doit continuer de se dire non résolu.
 

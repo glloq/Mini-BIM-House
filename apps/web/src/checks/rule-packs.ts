@@ -1,3 +1,4 @@
+import { rulePackSelections } from '@house-technical-designer/core-domain';
 import type {
   Project,
   TechnicalNetwork,
@@ -36,9 +37,36 @@ export function findRulePack(packId: string): RulePack | undefined {
 
 /** Pack identifiers the project has activated. */
 export function enabledRulePackIds(project: Project): readonly string[] {
-  return (project.regulatoryContext?.enabledRulePacks ?? []).filter(
-    (entry): entry is string => typeof entry === 'string',
-  );
+  return rulePackSelections(project.regulatoryContext).map(({ id }) => id);
+}
+
+/**
+ * A pack the project pinned at a version the repository no longer ships.
+ *
+ * A project checked against a text, then reopened once the text has moved on,
+ * is checked against something else. Saying so is what keeps a report from
+ * quietly changing its mind.
+ */
+export interface RulePackDrift {
+  readonly id: string;
+  readonly checkedAt: string;
+  readonly installed?: string;
+}
+
+export function rulePackDrift(project: Project): readonly RulePackDrift[] {
+  return rulePackSelections(project.regulatoryContext).flatMap((selection) => {
+    if (selection.version === undefined) return [];
+    const installed = findRulePack(selection.id)?.version;
+    return installed === selection.version
+      ? []
+      : [
+          {
+            id: selection.id,
+            checkedAt: selection.version,
+            ...(installed === undefined ? {} : { installed }),
+          },
+        ];
+  });
 }
 
 function packRegistry(): RulePackRegistry {

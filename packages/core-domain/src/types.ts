@@ -175,12 +175,84 @@ export interface Building extends CommonMetadata {
   readonly zones: readonly Zone[];
 }
 
+/**
+ * A rule pack this project is checked against, and at which version.
+ *
+ * The version is the point. A project checked against a pack, then reopened
+ * once the pack has moved on, is checked against something else — and the
+ * report would say « conforme » about a text nobody read. It is the same rule
+ * the catalogue already follows for a placed thing: record what was used, so
+ * the application can say « le référentiel a bougé depuis » instead of quietly
+ * checking against different rules.
+ */
+export interface RulePackSelection {
+  readonly id: string;
+  /** The version the project was last checked against. */
+  readonly version?: string;
+  /** Why this pack applies here, in the words the user reads. */
+  readonly applicability?: string;
+  /** Where the text comes from. A pack with no source claims nothing. */
+  readonly sourceReference?: string;
+}
+
+/**
+ * Where and when this project is judged.
+ *
+ * No pack chosen is **not** a default pack. An empty list means nothing is
+ * checked against any text, and the application says so rather than applying
+ * a national reference nobody asked for.
+ */
 export interface RegulatoryContext {
   readonly country: string;
   readonly region?: string;
   readonly projectType?: string;
   readonly referenceDate?: string;
-  readonly enabledRulePacks: readonly JsonValue[];
+  /**
+   * The packs the project activates.
+   *
+   * A bare string is what a file written before selections carried a version
+   * holds; it is read as a selection pinning no version.
+   */
+  readonly enabledRulePacks: readonly (string | RulePackSelection)[];
+}
+
+/** Every activated pack, whichever way the file states it. */
+export function rulePackSelections(
+  context: RegulatoryContext | undefined,
+): readonly RulePackSelection[] {
+  return (context?.enabledRulePacks ?? []).flatMap((entry) => {
+    if (typeof entry === 'string') return entry === '' ? [] : [{ id: entry }];
+    if (typeof entry !== 'object' || entry === null) return [];
+    const { id } = entry as { readonly id?: unknown };
+    return typeof id === 'string' && id !== '' ? [entry] : [];
+  });
+}
+
+export function validateRegulatoryContext(
+  context: RegulatoryContext,
+): readonly string[] {
+  const issues: string[] = [];
+  if (context.country.trim() === '') issues.push('country must not be empty');
+  if (
+    context.referenceDate !== undefined &&
+    Number.isNaN(Date.parse(context.referenceDate))
+  )
+    issues.push('referenceDate must be a date');
+  for (const [index, entry] of (context.enabledRulePacks ?? []).entries()) {
+    if (typeof entry === 'string') {
+      if (entry.trim() === '')
+        issues.push(`enabledRulePacks/${index} must name a pack`);
+      continue;
+    }
+    if (typeof entry !== 'object' || entry === null) {
+      issues.push(`enabledRulePacks/${index} must name a pack`);
+      continue;
+    }
+    const selection = entry;
+    if (typeof selection.id !== 'string' || selection.id.trim() === '')
+      issues.push(`enabledRulePacks/${index}/id must not be empty`);
+  }
+  return issues;
 }
 
 /**

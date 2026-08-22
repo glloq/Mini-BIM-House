@@ -16,6 +16,7 @@ import {
   projectEntities,
   validateTextNote,
   validateDrawingView,
+  validateRegulatoryContext,
 } from '@house-technical-designer/core-domain';
 import validateProjectSchema from './generated-project-validator.js';
 import {
@@ -641,6 +642,14 @@ export function validateProjectReferences(
   });
   // A view names the storey it draws; a sheet names the views it lays out.
   // Either naming something absent is a drawing set nothing can print.
+  // Where and when this project is judged. Nothing here is required for a
+  // project to exist, and an empty list of packs is not a default pack: it
+  // means nothing is checked against any text.
+  if (file.project.regulatoryContext !== undefined)
+    for (const message of validateRegulatoryContext(
+      file.project.regulatoryContext,
+    ))
+      issues.push({ path: '/project/regulatoryContext', message });
   file.project.drawingViews?.forEach((view, index) => {
     if (view.levelId !== undefined && !levels.has(view.levelId))
       issues.push({

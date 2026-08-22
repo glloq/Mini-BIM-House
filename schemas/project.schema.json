@@ -259,7 +259,60 @@
           }
         },
         "regulatoryContext": {
-          "type": "object"
+          "type": "object",
+          "required": [
+            "country",
+            "enabledRulePacks"
+          ],
+          "properties": {
+            "country": {
+              "type": "string",
+              "minLength": 1
+            },
+            "region": {
+              "type": "string"
+            },
+            "projectType": {
+              "type": "string"
+            },
+            "referenceDate": {
+              "type": "string"
+            },
+            "enabledRulePacks": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "id"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "version": {
+                        "type": "string"
+                      },
+                      "applicability": {
+                        "type": "string"
+                      },
+                      "sourceReference": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": true
         },
         "sheets": {
           "type": "array",

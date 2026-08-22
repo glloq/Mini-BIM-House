@@ -527,6 +527,16 @@ export function ProjectPanel({
                                   (id) => id !== pack.id,
                                 )
                               : [...enabledRulePackIds(project), pack.id],
+                            // The version each pack is at, recorded with the
+                            // choice: a project reopened once a text has moved
+                            // on is checked against something else, and it has
+                            // to be able to say so.
+                            Object.fromEntries(
+                              AVAILABLE_RULE_PACKS.map((entry) => [
+                                entry.id,
+                                entry.version,
+                              ]),
+                            ),
                           ),
                         )
                       }

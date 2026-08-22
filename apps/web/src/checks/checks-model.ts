@@ -13,6 +13,7 @@ import {
 } from '@house-technical-designer/view-query';
 import { buildBom } from '../quantities/bom-model.js';
 import { canEditSetting } from '../project/settings-catalog.js';
+import { rulePackDrift } from './rule-packs.js';
 import type { CalculationRun } from '../calculations/calculation-runner.js';
 import { systemChecks } from './system-checks.js';
 
@@ -361,6 +362,21 @@ export function projectChecks(
             ? { label: 'Ouvrir les matériaux', tab: 'materials' }
             : { label: 'Ouvrir les réglages de calcul', tab: 'project' },
       });
+
+  // A pack the project was checked against, at a version this repository no
+  // longer ships. The report would otherwise change its mind without saying so.
+  for (const drift of rulePackDrift(project))
+    checks.push({
+      id: `rule-pack:version:${drift.id}`,
+      status: 'UNKNOWN',
+      source: 'RULE_PACK',
+      title: `${drift.id} — le référentiel a bougé`,
+      detail:
+        drift.installed === undefined
+          ? `Ce projet a été vérifié avec la version ${drift.checkedAt} de ${drift.id}, que cette version de l’application ne livre plus.`
+          : `Ce projet a été vérifié avec la version ${drift.checkedAt} de ${drift.id} ; celle qui est livrée est la ${drift.installed}. Les constats peuvent avoir changé.`,
+      fix: { label: 'Ouvrir les référentiels', tab: 'project' },
+    });
 
   if ((project.regulatoryContext?.enabledRulePacks ?? []).length === 0)
     checks.push({
