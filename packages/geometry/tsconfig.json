@@ -3,7 +3,8 @@
   "compilerOptions": {
     "declaration": true,
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "types": ["vite/client"]
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

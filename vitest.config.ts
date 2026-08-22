@@ -50,5 +50,15 @@ export default defineConfig({
       '{apps,packages,modules}/**/*.{test,spec}.{ts,tsx}',
       'scripts/**/*.test.mjs',
     ],
+    /**
+     * The discovery test writes a real catalogue file into the repository and
+     * removes it again, because that is the only way to ask whether the
+     * pipeline finds a file it was never told about. It therefore cannot run
+     * beside suites that count the entries of that same catalogue: they would
+     * see nineteen or twenty depending on the scheduler.
+     *
+     * `npm run test:discovery` runs it alone, and the integration runs that.
+     */
+    exclude: ['**/node_modules/**', 'scripts/catalog-discovery.test.mjs'],
   },
 });

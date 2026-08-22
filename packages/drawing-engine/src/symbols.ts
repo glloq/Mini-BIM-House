@@ -2,7 +2,6 @@ import type {
   BoundingBox2D,
   Point2D,
 } from '@house-technical-designer/geometry';
-import generic from '../data/symbols/generic.json' with { type: 'json' };
 
 import type {
   Discipline,
@@ -385,18 +384,47 @@ interface SymbolFile {
   readonly symbols: readonly SymbolDefinition[];
 }
 
-/** Every symbol as the file states it, unchecked and unrepaired. */
-export function rawGenericSymbolEntries(): readonly SymbolDefinition[] {
-  return (generic as SymbolFile).symbols;
+/**
+ * Every symbol file under `data/symbols`, found rather than listed.
+ *
+ * The tree is the list: adding a file is `git add`, and nothing else. Sorted by
+ * path so that two machines, and two runs, read the glyphs in the same order.
+ */
+const DISCOVERED = import.meta.glob('../data/symbols/**/*.json', {
+  eager: true,
+  import: 'default',
+}) as Readonly<Record<string, SymbolFile>>;
+
+const SYMBOL_FILES: readonly SymbolFile[] = Object.keys(DISCOVERED)
+  .sort()
+  .map((path) => DISCOVERED[path]!);
+
+/** The files this library is made of, in a stable order. */
+export function symbolCatalogSources(): readonly string[] {
+  return Object.keys(DISCOVERED)
+    .map((path) => path.replace('../', 'packages/drawing-engine/'))
+    .sort();
 }
 
-/** What the symbol file itself is: its own shape has a version too. */
-export const GENERIC_SYMBOL_FORMAT_VERSION = (generic as SymbolFile)
-  .formatVersion;
+/** Every symbol as the files state them, unchecked and unrepaired. */
+export function rawGenericSymbolEntries(): readonly SymbolDefinition[] {
+  return SYMBOL_FILES.flatMap(({ symbols }) => symbols);
+}
 
+/** What the symbol files themselves are: their shape has a version too. */
+export const GENERIC_SYMBOL_FORMAT_VERSION =
+  SYMBOL_FILES[0]?.formatVersion ?? '1.0.0';
+
+/**
+ * The library, identified by the first file found.
+ *
+ * A second file adds glyphs to the same library rather than declaring another:
+ * a drawing names a symbol, not a library, and two libraries would make the
+ * same name mean two things.
+ */
 export const SYMBOL_LIBRARY_V1 = createSymbolLibrary(
-  (generic as SymbolFile).id,
-  (generic as SymbolFile).version,
+  SYMBOL_FILES[0]?.id ?? 'generic-technical-symbols',
+  SYMBOL_FILES[0]?.version ?? '1.0.0',
   rawGenericSymbolEntries(),
-  (generic as SymbolFile).licence,
+  SYMBOL_FILES[0]?.licence,
 );

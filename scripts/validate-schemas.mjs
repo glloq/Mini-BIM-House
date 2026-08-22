@@ -38,54 +38,46 @@ const additionalFixtures = [
   ['project.schema.json', 'examples/reference-house/reference.houseproj.json'],
   ['climate.schema.json', 'examples/reference-house/climate-monthly.json'],
   ['climate.schema.json', 'examples/reference-house/climate-design-day.json'],
-  // The catalogue files themselves. Their entries are checked against their
-  // families by `validate:catalog`; this checks the shape they are written in,
-  // which nothing did — a misspelt field name was silently ignored, and the
-  // fiche looked complete while carrying nothing under that name.
-  ['catalog-material.schema.json', 'packages/materials/data/generic.json'],
-  ['catalog-opening.schema.json', 'packages/opening-catalog/data/generic.json'],
-  ['catalog-assembly.schema.json', 'packages/assemblies/data/generic.json'],
-  [
-    'catalog-network-product.schema.json',
-    'packages/network-products/data/generic.json',
-  ],
-  [
-    'catalog-symbol.schema.json',
-    'packages/drawing-engine/data/symbols/generic.json',
-  ],
-  [
-    'catalog-equipment.schema.json',
-    'packages/equipment-catalog/data/equipment/electrical/generic.json',
-  ],
-  [
-    'catalog-equipment.schema.json',
-    'packages/equipment-catalog/data/equipment/heating/generic.json',
-  ],
-  [
-    'catalog-equipment.schema.json',
-    'packages/equipment-catalog/data/equipment/lighting/generic.json',
-  ],
-  [
-    'catalog-equipment.schema.json',
-    'packages/equipment-catalog/data/equipment/plumbing/generic.json',
-  ],
-  [
-    'catalog-equipment.schema.json',
-    'packages/equipment-catalog/data/equipment/rainwater/generic.json',
-  ],
-  [
-    'catalog-equipment.schema.json',
-    'packages/equipment-catalog/data/equipment/solar/generic.json',
-  ],
-  [
-    'catalog-equipment.schema.json',
-    'packages/equipment-catalog/data/equipment/storage/generic.json',
-  ],
-  [
-    'catalog-equipment.schema.json',
-    'packages/equipment-catalog/data/equipment/ventilation/generic.json',
-  ],
 ];
+
+/**
+ * Where each registry keeps its files, and which shape they must have.
+ *
+ * A folder, not a list of files. Eight equipment files were named here one by
+ * one, which meant an agent could drop two hundred excellent fiches into
+ * `data/equipment/heating/heat-pumps-02.json` and have nothing check them —
+ * and nothing load them either. The tree is the list, here and in the loaders,
+ * so that adding a file is `git add` and nothing else.
+ */
+const catalogTrees = [
+  [
+    'catalog-equipment.schema.json',
+    'packages/equipment-catalog/data/equipment',
+  ],
+  ['catalog-material.schema.json', 'packages/materials/data'],
+  ['catalog-opening.schema.json', 'packages/opening-catalog/data'],
+  ['catalog-assembly.schema.json', 'packages/assemblies/data'],
+  ['catalog-network-product.schema.json', 'packages/network-products/data'],
+  ['catalog-symbol.schema.json', 'packages/drawing-engine/data/symbols'],
+];
+
+/** Every JSON file under a folder, at any depth, in a stable order. */
+async function jsonFilesUnder(directory) {
+  const entries = await readdir(path.join(root, directory), {
+    withFileTypes: true,
+  });
+  const found = [];
+  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+    const child = `${directory}/${entry.name}`;
+    if (entry.isDirectory()) found.push(...(await jsonFilesUnder(child)));
+    else if (entry.name.endsWith('.json')) found.push(child);
+  }
+  return found;
+}
+
+for (const [schemaFile, directory] of catalogTrees)
+  for (const file of await jsonFilesUnder(directory))
+    additionalFixtures.push([schemaFile, file]);
 
 let failed = false;
 for (const [schemaFile, fixtureFile] of fixtures) {

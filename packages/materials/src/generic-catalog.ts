@@ -1,5 +1,4 @@
 import { createMaterial, materialId } from './materials.js';
-import generic from '../data/generic.json' with { type: 'json' };
 import type {
   Material,
   MaterialProperties,
@@ -112,14 +111,38 @@ function sourceTypeOf(declared: string): MaterialSourceType {
     : 'OTHER';
 }
 
-/** Every entry as the file states it, unchecked and unrepaired. */
-export function rawGenericMaterialEntries(): readonly RawMaterialEntry[] {
-  return (generic as CatalogFile).materials;
+/**
+ * Every material file under `data`, found rather than listed.
+ *
+ * The tree is the list: adding a file is `git add`, and nothing else. Sorted by
+ * path so that two machines, and two runs, read the entries in the same order
+ * — a fingerprint over an arbitrary order is one that moves when the
+ * filesystem does.
+ */
+const DISCOVERED = import.meta.glob('../data/**/*.json', {
+  eager: true,
+  import: 'default',
+}) as Readonly<Record<string, CatalogFile>>;
+
+const FILES: readonly CatalogFile[] = Object.keys(DISCOVERED)
+  .sort()
+  .map((path) => DISCOVERED[path]!);
+
+/** The files this catalogue is made of, in a stable order. */
+export function materialCatalogSources(): readonly string[] {
+  return Object.keys(DISCOVERED)
+    .map((path) => path.replace('../', 'packages/materials/'))
+    .sort();
 }
 
-/** What the catalogue file itself is: its own shape has a version too. */
-export const GENERIC_MATERIAL_FORMAT_VERSION = (generic as CatalogFile)
-  .formatVersion;
+/** Every entry as the files state them, unchecked and unrepaired. */
+export function rawGenericMaterialEntries(): readonly RawMaterialEntry[] {
+  return FILES.flatMap(({ materials }) => materials);
+}
+
+/** What the catalogue files themselves are: their shape has a version too. */
+export const GENERIC_MATERIAL_FORMAT_VERSION =
+  FILES[0]?.formatVersion ?? '1.0.0';
 
 function propertiesOf(entry: RawMaterialEntry): MaterialProperties {
   const properties: Record<string, unknown> = {};

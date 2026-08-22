@@ -16,6 +16,7 @@ branche et sur chaque demande de fusion.
 - `npm run validate:catalog` — `vite-node scripts/validate-catalog.ts`
 - `npm run validate:docs` — `node scripts/validation-report.mjs --check`
 - `npm run catalog:manifest` — `vite-node scripts/catalog-manifest.ts`
+- `npm run test:discovery` — `vitest run --config vitest.discovery.config.ts`
 - `npm run benchmark` — `vitest bench --run`
 - `npm run test:coverage` — `vitest run --coverage`
 - `npm run audit:licenses` — `node scripts/audit-licenses.mjs`

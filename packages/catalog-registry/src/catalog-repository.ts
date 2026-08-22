@@ -15,8 +15,14 @@ import { buildCatalogIndex } from './catalog-index.js';
  */
 export interface CatalogManifestEntry {
   readonly registry: DataRegistry;
-  /** Where the file lives, relative to the repository root. */
-  readonly path: string;
+  /**
+   * The files this registry is made of, relative to the repository root.
+   *
+   * A list rather than one path, and a discovered list rather than a typed
+   * one: the day a trade has twenty files, a manifest naming one of them
+   * describes a previous release.
+   */
+  readonly sources: readonly string[];
   readonly entryCount: number;
   /** The shape the file is written in, which changes far less than its content. */
   readonly formatVersion: string;

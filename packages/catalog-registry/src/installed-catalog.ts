@@ -1,22 +1,32 @@
 import type { DataRegistry } from '@house-technical-designer/technical-types';
-import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
+import {
+  equipmentCatalogSources,
+  rawGenericEquipmentEntries,
+} from '@house-technical-designer/equipment-catalog';
 import {
   GENERIC_MATERIAL_FORMAT_VERSION,
+  materialCatalogSources,
   rawGenericMaterialEntries,
 } from '@house-technical-designer/materials';
 import {
   GENERIC_ASSEMBLY_FORMAT_VERSION,
+  assemblyCatalogSources,
   rawGenericAssemblyEntries,
 } from '@house-technical-designer/assemblies';
 import {
   GENERIC_OPENING_FORMAT_VERSION,
+  openingCatalogSources,
   rawGenericOpeningEntries,
 } from '@house-technical-designer/opening-catalog';
 import {
   GENERIC_SYMBOL_FORMAT_VERSION,
   rawGenericSymbolEntries,
+  symbolCatalogSources,
 } from '@house-technical-designer/drawing-engine';
-import { NETWORK_PRODUCT_REGISTRY } from '@house-technical-designer/network-products';
+import {
+  NETWORK_PRODUCT_REGISTRY,
+  networkProductCatalogSources,
+} from '@house-technical-designer/network-products';
 import { contentFingerprint } from './catalog-validation.js';
 import {
   DEFAULT_LIFECYCLE,
@@ -149,43 +159,43 @@ export function catalogSummaries(): readonly CatalogSummary[] {
 
 const FILES: readonly {
   readonly registry: DataRegistry;
-  readonly path: string;
+  readonly sources: readonly string[];
   readonly formatVersion: string;
   readonly entries: readonly unknown[];
 }[] = [
   {
     registry: 'EQUIPMENT',
-    path: 'packages/equipment-catalog/data/equipment',
+    sources: equipmentCatalogSources(),
     formatVersion: CATALOG_FORMAT_VERSION,
     entries: rawGenericEquipmentEntries(),
   },
   {
     registry: 'MATERIAL',
-    path: 'packages/materials/data/generic.json',
+    sources: materialCatalogSources(),
     formatVersion: GENERIC_MATERIAL_FORMAT_VERSION,
     entries: rawGenericMaterialEntries(),
   },
   {
     registry: 'OPENING',
-    path: 'packages/opening-catalog/data/generic.json',
+    sources: openingCatalogSources(),
     formatVersion: GENERIC_OPENING_FORMAT_VERSION,
     entries: rawGenericOpeningEntries(),
   },
   {
     registry: 'ASSEMBLY',
-    path: 'packages/assemblies/data/generic.json',
+    sources: assemblyCatalogSources(),
     formatVersion: GENERIC_ASSEMBLY_FORMAT_VERSION,
     entries: rawGenericAssemblyEntries(),
   },
   {
     registry: 'NETWORK_PRODUCT',
-    path: 'packages/network-products/data/generic.json',
+    sources: networkProductCatalogSources(),
     formatVersion: CATALOG_FORMAT_VERSION,
     entries: NETWORK_PRODUCT_REGISTRY,
   },
   {
     registry: 'SYMBOL',
-    path: 'packages/drawing-engine/data/symbols/generic.json',
+    sources: symbolCatalogSources(),
     formatVersion: GENERIC_SYMBOL_FORMAT_VERSION,
     entries: rawGenericSymbolEntries(),
   },
@@ -193,9 +203,11 @@ const FILES: readonly {
 
 /** What each installed catalogue file says about itself, right now. */
 export function catalogManifestEntries(): readonly CatalogManifestEntry[] {
-  return FILES.map(({ registry, path, formatVersion, entries }) => ({
+  return FILES.map(({ registry, sources, formatVersion, entries }) => ({
     registry,
-    path,
+    // Every file found, not a path somebody typed: a manifest naming one file
+    // of a folder that now holds twenty describes a previous release.
+    sources,
     entryCount: entries.length,
     formatVersion,
     fingerprint: contentFingerprint(entries),

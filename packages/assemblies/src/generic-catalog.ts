@@ -1,4 +1,3 @@
-import generic from '../data/generic.json' with { type: 'json' };
 import { assemblyId, assemblyLayerId } from './assemblies.js';
 import { materialId } from '@house-technical-designer/materials';
 import type { Assembly, AssemblyCategory, LayerRole } from './types.js';
@@ -48,14 +47,38 @@ interface CatalogFile {
   readonly assemblies: readonly RawAssemblyEntry[];
 }
 
-/** Every entry as the file states it, unchecked and unrepaired. */
-export function rawGenericAssemblyEntries(): readonly RawAssemblyEntry[] {
-  return (generic as CatalogFile).assemblies;
+/**
+ * Every build-up file under `data`, found rather than listed.
+ *
+ * The tree is the list: adding a file is `git add`, and nothing else. Sorted by
+ * path so that two machines, and two runs, read the entries in the same order
+ * — a fingerprint over an arbitrary order is one that moves when the
+ * filesystem does.
+ */
+const DISCOVERED = import.meta.glob('../data/**/*.json', {
+  eager: true,
+  import: 'default',
+}) as Readonly<Record<string, CatalogFile>>;
+
+const FILES: readonly CatalogFile[] = Object.keys(DISCOVERED)
+  .sort()
+  .map((path) => DISCOVERED[path]!);
+
+/** The files this catalogue is made of, in a stable order. */
+export function assemblyCatalogSources(): readonly string[] {
+  return Object.keys(DISCOVERED)
+    .map((path) => path.replace('../', 'packages/assemblies/'))
+    .sort();
 }
 
-/** What the catalogue file itself is: its own shape has a version too. */
-export const GENERIC_ASSEMBLY_FORMAT_VERSION = (generic as CatalogFile)
-  .formatVersion;
+/** Every entry as the files state them, unchecked and unrepaired. */
+export function rawGenericAssemblyEntries(): readonly RawAssemblyEntry[] {
+  return FILES.flatMap(({ assemblies }) => assemblies);
+}
+
+/** What the catalogue files themselves are: their shape has a version too. */
+export const GENERIC_ASSEMBLY_FORMAT_VERSION =
+  FILES[0]?.formatVersion ?? '1.0.0';
 
 /** The catalogue as the model holds it. */
 export function genericAssemblyCatalog(): readonly Assembly[] {

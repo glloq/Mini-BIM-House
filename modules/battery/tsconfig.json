@@ -1,5 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "types": ["vitest/globals"] },
+  "compilerOptions": {
+    "types": ["vitest/globals", "vite/client"]
+  },
   "include": ["src"]
 }
