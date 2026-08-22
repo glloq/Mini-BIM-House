@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml/badge.svg)](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml)
 [![Licence AGPL-3.0-only](https://img.shields.io/badge/licence-AGPL--3.0--only-blue)](LICENSE)
-![Version 0.3.0-beta.4](https://img.shields.io/badge/version-0.3.0--beta.4-yellow)
+![Version 0.3.0-beta.5](https://img.shields.io/badge/version-0.3.0--beta.5-yellow)
 ![Statut bêta](https://img.shields.io/badge/statut-b%C3%AAta-yellow)
 
-> **Version 0.3.0-beta.4 — bêta.** L'application couvre le parcours complet et
+> **Version 0.3.0-beta.5 — bêta.** L'application couvre le parcours complet et
 > ses formats sont stabilisés ; l'interface peut encore bouger et plusieurs
 > sujets restent hors périmètre. Voir
 > [Ce que l'application ne fait pas](#ce-que-lapplication-ne-fait-pas), le
@@ -628,7 +628,7 @@ sans casser le noyau.
 
 # État du projet
 
-**Version 0.3.0-beta.4, bêta.** L'application couvre le parcours complet :
+**Version 0.3.0-beta.5, bêta.** L'application couvre le parcours complet :
 dessiner, composer, calculer, superposer, métrer, comparer, exporter. Ce qu'un
 fichier de projet promet d'une version à l'autre est écrit dans
 [`CHANGELOG.md`](CHANGELOG.md).
@@ -664,7 +664,10 @@ fichier de projet promet d'une version à l'autre est écrit dans
   ports, longueurs développées et diagnostics.
 - **Calculs** — dix-sept modules exécutés depuis l'interface, chacun affichant sa
   méthode, sa précision, ses hypothèses, ses références et ses entrées
-  manquantes.
+  manquantes. Ils lisent un **modèle résolu** — hauteurs de murs, contours de
+  pièces, enveloppe complète — et non le fichier brut : le plan, les métrés et
+  les calculs ont ainsi une seule et même réponse à chaque question de
+  géométrie.
 - **Analyse** — dix-huit résultats se projettent sur le plan en bandes
   légendées : transmission et déperditions des parois, risque de condensation,
   vitesse et pertes de charge de l'eau et des gaines, pente et unités de
@@ -699,7 +702,7 @@ fichier de projet promet d'une version à l'autre est écrit dans
 
 ## Ce que l'application ne fait pas
 
-Cette liste décrit la `0.3.0-beta.4` telle qu'elle est aujourd'hui, et rien
+Cette liste décrit la `0.3.0-beta.5` telle qu'elle est aujourd'hui, et rien
 d'autre : ce qui y figure n'existe pas encore dans l'application.
 
 - **Toitures sur contour quelconque** : une toiture est décrite par son

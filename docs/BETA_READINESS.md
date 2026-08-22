@@ -1,7 +1,7 @@
 # État de préparation à la bêta
 
 Ce fichier ne raconte pas l'histoire du projet : il dit où en est la version
-`0.3.0-beta.4` aujourd'hui. L'historique des passes d'audit et de leurs
+`0.3.0-beta.5` aujourd'hui. L'historique des passes d'audit et de leurs
 correctifs reste dans `IMPLEMENTATION_STATUS.md`, et ce qui a changé d'une
 version à l'autre dans `../CHANGELOG.md`.
 
