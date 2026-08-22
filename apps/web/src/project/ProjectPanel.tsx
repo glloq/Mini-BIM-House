@@ -323,6 +323,20 @@ export function ProjectPanel({
           <h3>Site</h3>
           <div className="tool-group">
             <TextField
+              id="site-address"
+              label="Adresse"
+              value={project.site.locationLabel ?? ''}
+              hint="Ce que vous savez du lieu. Ne remplace pas les coordonnées."
+              onCommit={(locationLabel) =>
+                onCommand(
+                  new UpdateSiteCommand({
+                    locationLabel:
+                      locationLabel.trim() === '' ? null : locationLabel,
+                  }),
+                )
+              }
+            />
+            <TextField
               id="site-north"
               label="Orientation du nord"
               unit="°"

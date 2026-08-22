@@ -155,6 +155,8 @@ export class UpdateProjectMetadataCommand extends SettingsCommand {
 
 export interface SitePatch {
   readonly northAngleDeg?: number;
+  /** Where the house is, in words. `null` clears it. */
+  readonly locationLabel?: string | null;
   readonly altitudeM?: number | null;
   readonly latitudeDeg?: number | null;
   readonly longitudeDeg?: number | null;
@@ -220,10 +222,18 @@ export class UpdateSiteCommand extends SettingsCommand {
       location: _previousLocation,
       altitudeM: _previousAltitude,
       climateProfileId: _previousClimate,
+      locationLabel: _previousLabel,
       ...rest
     } = project.site;
+    const label =
+      this.patch.locationLabel === undefined
+        ? project.site.locationLabel
+        : (this.patch.locationLabel ?? undefined);
     const site: Site = {
       ...rest,
+      ...(label === undefined || label.trim() === ''
+        ? {}
+        : { locationLabel: label }),
       ...(this.patch.northAngleDeg === undefined
         ? {}
         : { northAngleDeg: this.patch.northAngleDeg }),

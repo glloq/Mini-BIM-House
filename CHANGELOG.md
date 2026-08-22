@@ -5,6 +5,35 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.9 — non publiée
+
+La passe sur l'**intégrité de la création de projet** : cinq endroits où la
+page demandait quelque chose et n'en faisait rien, ou faisait autre chose.
+
+### Corrigé
+
+- **l'adresse saisie était perdue.** La page la demandait, le constructeur ne
+  gardait que latitude, longitude, altitude et pays. `Site.locationLabel` la
+  conserve — « Quimper, France » est ce qu'une personne sait de son terrain, et
+  aucun géocodeur n'est nécessaire pour que ce soit utile. Elle ne remplace
+  jamais des coordonnées : un projet avec une adresse et sans position reste un
+  projet dont le soleil ne se calcule pas, et les modules le disent toujours.
+- **le champ pays affichait « FR » en filigrane et appliquait FR quand même**,
+  donc un champ visuellement vide produisait un projet français. Le brouillon
+  énonce maintenant le pays qu'il va écrire.
+- **une emprise en U pouvait se croiser avec elle-même.** Seul le signe de
+  l'aile était vérifié ; deux bras de 6 m dans 10 m de largeur passaient l'un
+  à travers l'autre et produisaient un contour que personne n'aurait dessiné à
+  la main. Les relations entre l'aile et la boîte sont vérifiées avant que quoi
+  que ce soit ne soit tracé.
+- **l'emprise arrivait mur par mur.** Six murs et une dalle arrivent maintenant
+  ensemble ou pas du tout, et « annuler l'emprise » est une seule pression au
+  lieu de sept.
+- **`startMode` ne servait à rien.** « Être guidé » arrive dans Projet avec le
+  guide ouvert, « page blanche » arrive sur le plan sans rien devant. Le projet
+  BIM est le même dans les deux cas — un mode qui changerait le modèle serait
+  une deuxième sorte de projet.
+
 ## 0.3.0-beta.8 — non publiée
 
 La passe sur les **limites thermiques** : où la maison chauffée s'arrête, et

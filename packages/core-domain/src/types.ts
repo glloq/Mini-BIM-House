@@ -85,6 +85,19 @@ export interface SiteObstacle extends BaseEntity {
 
 export interface Site extends CommonMetadata {
   readonly id?: SiteId;
+  /**
+   * Where the house is, in words.
+   *
+   * « Quimper, France » is what a person knows about their site, and it is not
+   * a latitude: no geocoder turns it into one here, and none is needed for it
+   * to be worth keeping. The creation page asked for it and threw it away,
+   * which is worse than not asking.
+   *
+   * It never stands in for coordinates. A project with an address and no
+   * `location` is a project whose sun cannot be computed, and the modules that
+   * need one still say so.
+   */
+  readonly locationLabel?: string;
   readonly location?: GeoLocation;
   readonly altitudeM?: number;
   readonly northAngleDeg: number;

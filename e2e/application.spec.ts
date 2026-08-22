@@ -1544,6 +1544,12 @@ test('draws the starting footprint with ordinary walls', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Nouveau projet' }).click();
   const creation = page.getByRole('main', { name: 'De quoi s’agit-il ?' });
+  // « Page blanche » lands on the plan with nothing in the way; « être
+  // guidé » lands in Projet with the guide open. The mode decides what
+  // happens next, not what the file holds.
+  await creation
+    .getByRole('radio', { name: 'Partir d’une page blanche' })
+    .check();
   await creation.getByRole('button', { name: 'Le bâtiment' }).click();
   // The default is to draw it oneself; a shape is a choice, not a starting
   // point imposed on everyone.
@@ -1554,13 +1560,17 @@ test('draws the starting footprint with ordinary walls', async ({ page }) => {
   await creation.getByRole('button', { name: 'Créer le projet' }).click();
 
   await expect(page.getByRole('status')).toContainText('emprise de départ');
-  // Six sides, six walls — and they are walls like any other: undo takes them
-  // back one command at a time.
+  // Six sides, six walls — and they are walls like any other.
   await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
     6,
   );
+  // One press takes the whole footprint back: the walls and the slab arrived
+  // together, so they leave together.
   await page.getByRole('button', { name: 'Annuler', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('annulée');
+  await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
+    0,
+  );
   expect(errors).toEqual([]);
 });
 
