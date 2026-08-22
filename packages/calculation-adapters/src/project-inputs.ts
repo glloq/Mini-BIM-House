@@ -355,6 +355,14 @@ function heatingInput(context: ProjectCalculationContext): CalculationJson {
         'PROJECT',
         `No ventilation terminal serves ${space.name}; its ventilation loss is unknown.`,
       );
+    if (space.floorAreaM2 === undefined)
+      settings.reportMissing(
+        'heating',
+        `rooms/${space.spaceId}/floorAreaM2`,
+        'PROJECT',
+        space.unresolvedGeometry ??
+          `Space ${space.name} has no derivable floor area.`,
+      );
     return {
       roomId: space.spaceId,
       ...(space.floorAreaM2 === undefined
@@ -475,13 +483,27 @@ function lightingInput(context: ProjectCalculationContext): CalculationJson {
     ...(operatingHoursByPeriod === undefined
       ? {}
       : { operatingHoursPerDay: operatingHoursByPeriod }),
-    rooms: context.spaces.map((space) => ({
-      roomId: space.spaceId,
-      name: space.name,
-      ...(space.floorAreaM2 === undefined
-        ? {}
-        : { roomAreaM2: space.floorAreaM2 }),
-    })),
+    rooms: context.spaces.map((space) => {
+      // A room the project cannot measure is not a room of nought square
+      // metres: the lumen method has nothing to divide by, and saying so is
+      // what keeps an illuminance from being reported for a room whose size
+      // nobody knows.
+      if (space.floorAreaM2 === undefined)
+        settings.reportMissing(
+          'lighting',
+          `rooms/${space.spaceId}/roomAreaM2`,
+          'PROJECT',
+          space.unresolvedGeometry ??
+            `Space ${space.name} has no derivable floor area.`,
+        );
+      return {
+        roomId: space.spaceId,
+        name: space.name,
+        ...(space.floorAreaM2 === undefined
+          ? {}
+          : { roomAreaM2: space.floorAreaM2 }),
+      };
+    }),
     luminaires: luminaires.map((luminaire) => ({
       ...luminaire,
       luminousFluxLm: luminaire.luminousFluxLm ?? null,
@@ -1266,7 +1288,8 @@ function iaqInput(context: ProjectCalculationContext): CalculationJson {
         'iaq',
         `rooms/${space.spaceId}/volumeM3`,
         'PROJECT',
-        `Space ${space.name} has no boundary or storey height to derive a volume from.`,
+        space.unresolvedGeometry ??
+          `Space ${space.name} has no boundary or storey height to derive a volume from.`,
       );
     return {
       roomId: space.spaceId,
@@ -1636,7 +1659,8 @@ function acousticsInput(context: ProjectCalculationContext): CalculationJson {
         'acoustics',
         `rooms/${space.spaceId}/volumeM3`,
         'PROJECT',
-        `Space ${space.name} has no derivable volume.`,
+        space.unresolvedGeometry ??
+          `Space ${space.name} has no derivable volume.`,
       );
     const wallAreaM2 =
       space.perimeterM === undefined || space.heightM === undefined

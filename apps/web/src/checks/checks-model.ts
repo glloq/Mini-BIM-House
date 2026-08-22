@@ -3,6 +3,7 @@ import {
   clearanceReport,
   stairDimensions,
   unresolvedRoofs,
+  resolvedSpaces,
   validateTechnicalNetwork,
 } from '@house-technical-designer/core-domain';
 import {
@@ -203,6 +204,24 @@ export function projectChecks(
       });
     }
   }
+
+  // A room the project cannot measure. It is drawn — or meant to be — and no
+  // surface, no perimeter and no volume reach anything downstream: the
+  // heating, the air, the light and the acoustics all fall silent about it.
+  for (const room of resolvedSpaces(project))
+    if (room.unresolved !== undefined)
+      checks.push({
+        id: `model:space-geometry:${room.spaceId}`,
+        status: 'UNKNOWN',
+        source: 'MODEL',
+        title: `${room.name} — surface non résolue`,
+        detail: room.unresolved,
+        fix: {
+          label: 'Voir sur le plan',
+          tab: 'plan',
+          objectIds: [room.spaceId],
+        },
+      });
 
   // The room the machines need around them. A geometric statement and nothing
   // more — these volumes overlap, and these two kinds may not — because

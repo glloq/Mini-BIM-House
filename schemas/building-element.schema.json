@@ -252,6 +252,9 @@
         },
         "thermalZoneId": {
           "type": "string"
+        },
+        "anchor": {
+          "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point2D"
         }
       },
       "additionalProperties": true

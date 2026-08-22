@@ -20,6 +20,7 @@ import {
   roofEaveOutline,
   structuralFootprint,
   validateWall,
+  resolveSpaceGeometry,
 } from '@house-technical-designer/core-domain';
 import type { Assembly } from '@house-technical-designer/assemblies';
 import type {
@@ -40,10 +41,7 @@ import type {
   Point2D,
   Polygon2D,
 } from '@house-technical-designer/geometry';
-import {
-  offsetPolyline,
-  polygonArea,
-} from '@house-technical-designer/geometry';
+import { offsetPolyline } from '@house-technical-designer/geometry';
 import {
   defaultVisibility,
   visibleDisciplines,
@@ -449,10 +447,6 @@ function openingPrimitives(
   return drafts;
 }
 
-function spacePolygon(space: Space): Polygon2D | undefined {
-  return space.boundaryMode === 'MANUAL' ? space.manualPolygon : undefined;
-}
-
 function centroid(polygon: Polygon2D): Point2D {
   const points = polygon.outer;
   const sum = points.reduce(
@@ -583,9 +577,13 @@ function spacePrimitives(
   space: Space,
   level: Level,
 ): readonly PrimitiveDraft[] {
-  const polygon = spacePolygon(space);
-  if (polygon === undefined) return [];
-  const areaM2 = Math.abs(polygonArea(polygon)) / 1_000_000;
+  // The project's one answer about a room's outline: stated, or worked out
+  // from the walls that enclose it. The plan used to read `manualPolygon` and
+  // draw nothing for a room described by its walls.
+  const resolved = resolveSpaceGeometry(space, level);
+  const polygon = resolved.polygon;
+  if (polygon === undefined || resolved.floorAreaM2 === undefined) return [];
+  const areaM2 = resolved.floorAreaM2;
   const heightM = level.defaultStoreyHeightMm / 1000;
   const anchor = centroid(polygon);
   return [

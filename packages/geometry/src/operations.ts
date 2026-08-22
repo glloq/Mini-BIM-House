@@ -56,6 +56,54 @@ export function polygonArea(polygon: Polygon2D): number {
   return Math.max(0, Math.abs(signedArea(polygon.outer)) - holesArea);
 }
 
+/** Perimeter of a closed ring, in mm. The ring is not repeated at the end. */
+export function ringPerimeter(points: readonly Point2D[]): number {
+  let total = 0;
+  for (const [index, current] of points.entries()) {
+    const next = points[(index + 1) % points.length]!;
+    total += Math.hypot(next.x - current.x, next.y - current.y);
+  }
+  return total;
+}
+
+/** Perimeter in mm, holes included: a room's skirting runs round them too. */
+export function polygonPerimeter(polygon: Polygon2D): number {
+  return (
+    ringPerimeter(polygon.outer) +
+    (polygon.holes ?? []).reduce((sum, hole) => sum + ringPerimeter(hole), 0)
+  );
+}
+
+/**
+ * Whether a point is inside a polygon, holes counting as outside.
+ *
+ * The even-odd rule, walked as a ray to the east. A point exactly on an edge
+ * is on the boundary and this says nothing useful about it — which is why the
+ * only caller that matters passes a point somebody placed inside a room.
+ */
+export function polygonContains(polygon: Polygon2D, point: Point2D): boolean {
+  if (!ringContains(polygon.outer, point)) return false;
+  return !(polygon.holes ?? []).some((hole) => ringContains(hole, point));
+}
+
+function ringContains(points: readonly Point2D[], point: Point2D): boolean {
+  let inside = false;
+  for (
+    let index = 0, previous = points.length - 1;
+    index < points.length;
+    previous = index, index += 1
+  ) {
+    const current = points[index]!;
+    const last = points[previous]!;
+    if (current.y > point.y === last.y > point.y) continue;
+    const crossingX =
+      ((last.x - current.x) * (point.y - current.y)) / (last.y - current.y) +
+      current.x;
+    if (point.x < crossingX) inside = !inside;
+  }
+  return inside;
+}
+
 export function boundingBox2D(
   points: readonly Point2D[],
 ): BoundingBox2D | undefined {
