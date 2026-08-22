@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml/badge.svg)](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml)
 [![Licence AGPL-3.0-only](https://img.shields.io/badge/licence-AGPL--3.0--only-blue)](LICENSE)
-![Version 0.3.0-beta.10](https://img.shields.io/badge/version-0.3.0--beta.10-yellow)
+![Version 0.3.0-beta.11](https://img.shields.io/badge/version-0.3.0--beta.11-yellow)
 ![Statut bêta](https://img.shields.io/badge/statut-b%C3%AAta-yellow)
 
-> **Version 0.3.0-beta.10 — bêta.** L'application couvre le parcours complet et
+> **Version 0.3.0-beta.11 — bêta.** L'application couvre le parcours complet et
 > ses formats sont stabilisés ; l'interface peut encore bouger et plusieurs
 > sujets restent hors périmètre. Voir
 > [Ce que l'application ne fait pas](#ce-que-lapplication-ne-fait-pas), le
@@ -71,9 +71,10 @@ Le parcours complet est décrit dans
 Pour travailler sur les données plutôt que sur l'application :
 
 ```bash
-npm run catalog:status        # où en est chacune des 518 familles
+npm run catalog:status        # où en est chacune des 520 familles
 npm run catalog:status 2      # la vague 2 seulement
 npm run validate:catalog      # toute la couche de données, en une seconde
+npm run catalog:manifest      # ce qui est installé, et quelle publication
 ```
 
 Ce que ces registres sont et pourquoi ils sont en données est écrit dans
@@ -507,9 +508,10 @@ soit activé sur le dépôt.
 │   ├── units/                   conversions marquées SI ↔ édition
 │   ├── geometry/                primitives et opérations en millimètres
 │   ├── core-domain/             modèle canonique du projet
-│   ├── materials/               catalogue et provenance des matériaux
-│   ├── assemblies/              parois multicouches
+│   ├── materials/               catalogue et provenance des matériaux, en JSON
+│   ├── assemblies/              parois multicouches, catalogue en JSON
 │   ├── equipment-catalog/       fiches d'équipement, en JSON par métier
+│   ├── opening-catalog/         menuiseries et protections solaires
 │   ├── catalog-registry/        nomenclature, ports, dégagements, schémas
 │   ├── editor-core/             commandes, caméra, accrochage, outils
 │   ├── drawing-engine/          scène sémantique et rendu SVG
@@ -628,7 +630,7 @@ sans casser le noyau.
 
 # État du projet
 
-**Version 0.3.0-beta.10, bêta.** L'application couvre le parcours complet :
+**Version 0.3.0-beta.11, bêta.** L'application couvre le parcours complet :
 dessiner, composer, calculer, superposer, métrer, comparer, exporter. Ce qu'un
 fichier de projet promet d'une version à l'autre est écrit dans
 [`CHANGELOG.md`](CHANGELOG.md).
@@ -702,7 +704,7 @@ fichier de projet promet d'une version à l'autre est écrit dans
 
 ## Ce que l'application ne fait pas
 
-Cette liste décrit la `0.3.0-beta.10` telle qu'elle est aujourd'hui, et rien
+Cette liste décrit la `0.3.0-beta.11` telle qu'elle est aujourd'hui, et rien
 d'autre : ce qui y figure n'existe pas encore dans l'application.
 
 - **Toitures sur contour quelconque** : une toiture est décrite par son

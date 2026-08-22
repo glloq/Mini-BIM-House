@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 /**
  * The numbers the documentation states, against the code that decides them.
  *
- * `17 modules`, `518 familles`, `18 analyses`, `26 familles d'entités`, `5
+ * `17 modules`, `520 familles`, `18 analyses`, `26 familles d'entités`, `5
  * sortes de vue` are all written by hand in several documents. A number
  * retyped in three places is a number wrong in two of them the day it changes,
  * and a reader has no way of telling which one is the house's.

@@ -27,6 +27,39 @@ import {
 import fingerprints from '../data/fingerprints.json' with { type: 'json' };
 import type { FamilyDefinition, FamilyIssue } from './families.js';
 import { validateFamily } from './families.js';
+import {
+  capabilitiesOf,
+  hasCapability,
+  type CatalogCapability,
+} from './capabilities.js';
+import {
+  performanceVocabulary,
+  type PerformanceMapCandidate,
+} from './performance-vocabulary.js';
+import {
+  isOfferable,
+  DEFAULT_LIFECYCLE,
+  type CatalogRef,
+} from './catalog-identity.js';
+import {
+  genericEquipmentCatalog,
+  isEquipmentCategory,
+  type EquipmentCategory,
+  type EquipmentDefinition,
+} from '@house-technical-designer/equipment-catalog';
+import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
+import {
+  genericAssemblyCatalog,
+  rawGenericAssemblyEntries,
+  type Assembly,
+} from '@house-technical-designer/assemblies';
+import {
+  validateAssemblyEntry,
+  validateMaterialEntry,
+  validateOpeningEntry,
+  type MaterialIssue,
+} from './material-catalog.js';
+import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
 import { invalidBore } from './network-products.js';
 import {
   NETWORK_PRODUCT_REGISTRY,
@@ -164,6 +197,156 @@ export function propertySchema(id: string): PropertySchema | undefined {
   return SCHEMA_BY_FAMILY.get(id);
 }
 
+/**
+ * The coarse grouping one family's entries fall into.
+ *
+ * The single statement the catalogue projects `kind` and `category` from. An
+ * entry no longer says either, so this is where a screen sorting nineteen — or
+ * ten thousand — entries gets its buckets.
+ */
+export function categoryOfFamily(familyId: string): string | undefined {
+  return BY_ID.get(familyId)?.category;
+}
+
+/** The same, narrowed to the equipment list, for what the catalogue types. */
+export function equipmentCategoryOfFamily(
+  familyId: string,
+): EquipmentCategory | undefined {
+  const found = categoryOfFamily(familyId);
+  return found === undefined || !isEquipmentCategory(found) ? undefined : found;
+}
+
+/** Everything a thing of this family can have done to it. */
+export function familyCapabilities(
+  familyId: string,
+): readonly CatalogCapability[] {
+  const found = BY_ID.get(familyId);
+  return found === undefined ? [] : capabilitiesOf(found);
+}
+
+export function familyHasCapability(
+  familyId: string,
+  capability: CatalogCapability,
+): boolean {
+  const found = BY_ID.get(familyId);
+  return found !== undefined && hasCapability(found, capability);
+}
+
+/**
+ * Every family something may be done to, whatever it is.
+ *
+ * The replacement for `registry === 'EQUIPMENT' || registry === 'OPENING'` and
+ * its dozen cousins. A new family gets its behaviour by declaring what it can
+ * do; nothing here has to learn its name.
+ */
+export function familiesWithCapability(
+  capability: CatalogCapability,
+): readonly FamilyDefinition[] {
+  return FAMILY_REGISTRY.filter((entry) => hasCapability(entry, capability));
+}
+
+/** Whether this family may still be offered to somebody starting a design. */
+export function familyIsOfferable(familyId: string): boolean {
+  const found = BY_ID.get(familyId);
+  return (
+    found !== undefined && isOfferable(found.lifecycle ?? DEFAULT_LIFECYCLE)
+  );
+}
+
+/** What one catalogue entry is, said the one way every registry says it. */
+export function equipmentRef(entry: {
+  readonly id: string;
+  readonly version?: string;
+}): CatalogRef {
+  return { registry: 'EQUIPMENT', id: entry.id, version: entry.version ?? '' };
+}
+
+/**
+ * The generic catalogue with its families' projections stamped on.
+ *
+ * What the interface reads. `genericEquipmentCatalog()` gives the entries as
+ * their files state them, and their files no longer state a category — the
+ * family does. Anything grouping, filtering or sorting entries has to come
+ * through here, or it will group by a field that is empty in every entry.
+ */
+export function genericCatalog(): readonly EquipmentDefinition[] {
+  return genericEquipmentCatalog().map((entry) => {
+    const category = equipmentCategoryOfFamily(entry.familyId);
+    return category === undefined ? entry : { ...entry, category };
+  });
+}
+
+/** The generic build-ups, grouped as their families say. */
+export function genericAssemblies(): readonly Assembly[] {
+  return genericAssemblyCatalog();
+}
+
+/**
+ * Everything wrong with the material catalogue, in one pass.
+ *
+ * It was the last of the seven registries no gate had ever read.
+ */
+export function validateMaterialCatalog(): readonly MaterialIssue[] {
+  const issues: MaterialIssue[] = [];
+  const seen = new Set<string>();
+  for (const entry of rawGenericMaterialEntries()) {
+    if (seen.has(entry.id))
+      issues.push({
+        entryId: entry.id,
+        path: 'id',
+        message: 'is declared more than once',
+      });
+    seen.add(entry.id);
+    issues.push(
+      ...validateMaterialEntry(entry, { family, schema: propertySchema }),
+    );
+  }
+  return issues;
+}
+
+/** Everything wrong with the opening catalogue, in one pass. */
+export function validateOpeningCatalog(): readonly MaterialIssue[] {
+  const issues: MaterialIssue[] = [];
+  const seen = new Set<string>();
+  for (const entry of rawGenericOpeningEntries()) {
+    if (seen.has(entry.id))
+      issues.push({
+        entryId: entry.id,
+        path: 'id',
+        message: 'is declared more than once',
+      });
+    seen.add(entry.id);
+    issues.push(
+      ...validateOpeningEntry(entry, { family, schema: propertySchema }),
+    );
+  }
+  return issues;
+}
+
+/** Everything wrong with the build-ups, including what they are made of. */
+export function validateAssemblyCatalog(): readonly MaterialIssue[] {
+  const materials = new Set(rawGenericMaterialEntries().map(({ id }) => id));
+  const issues: MaterialIssue[] = [];
+  const seen = new Set<string>();
+  for (const entry of rawGenericAssemblyEntries()) {
+    if (seen.has(entry.id))
+      issues.push({
+        entryId: entry.id,
+        path: 'id',
+        message: 'is declared more than once',
+      });
+    seen.add(entry.id);
+    issues.push(
+      ...validateAssemblyEntry(entry, {
+        family,
+        schema: propertySchema,
+        materials,
+      }),
+    );
+  }
+  return issues;
+}
+
 /** The property schema a family's entries are checked against, if it names one. */
 export function schemaOfFamily(id: string): PropertySchema | undefined {
   const found = BY_ID.get(id);
@@ -255,20 +438,55 @@ export function validateCatalog(
         family,
         schema: propertySchema,
         symbols,
+        property: propertyDefinition,
       }),
     );
     // A version is a promise: `generic-battery@1.0.0` has to mean the same
     // figures today as when a project pinned it. Correcting a fiche in place
     // would leave every project holding the old pin designing with the new
     // numbers while claiming the old ones.
+    // A family that somebody has actually modelled an entry of has to say what
+    // bucket it belongs to: the entry no longer does, and a screen sorting ten
+    // thousand references by a field nobody stated sorts them into one heap.
+    const owner = BY_ID.get(entry.familyId);
+    if (owner !== undefined && owner.category === undefined)
+      issues.push({
+        entryId: entry.id,
+        path: 'familyId',
+        message: `${owner.id} has catalogue entries and states no category`,
+      });
     const stamp = recorded[`${entry.id}@${entry.version ?? ''}`];
-    if (stamp !== undefined && stamp !== catalogFingerprint(entry))
+    // A fiche nobody has recorded is a fiche the promise does not cover. It
+    // used to pass in silence, which meant the whole mechanism protected only
+    // the entries somebody had remembered to stamp — and a catalogue filled
+    // with ten thousand new entries would have been ten thousand entries
+    // outside it.
+    if (stamp === undefined)
+      issues.push({
+        entryId: entry.id,
+        path: 'version',
+        message: `is not recorded: ${entry.id}@${entry.version ?? ''} has no fingerprint. Run npm run catalog:fingerprints.`,
+      });
+    else if (stamp !== catalogFingerprint(entry))
       issues.push({
         entryId: entry.id,
         path: 'version',
         message: `has changed without its version changing: ${entry.id}@${entry.version} no longer says what it said. Raise the version, then run npm run catalog:fingerprints.`,
       });
   }
+  // A stamp for an entry nothing ships is a record of something that no longer
+  // exists, and the next entry to take that identifier would inherit it.
+  const shipped = new Set(
+    entries.map((entry) => `${entry.id}@${entry.version ?? ''}`),
+  );
+  for (const key of Object.keys(recorded))
+    if (!shipped.has(key))
+      issues.push({
+        entryId: key,
+        path: 'version',
+        message:
+          'is recorded and no entry claims it. Run npm run catalog:fingerprints.',
+      });
   return issues;
 }
 
@@ -300,6 +518,20 @@ export function measuredStatus(
   known: {
     readonly symbols: ReadonlySet<string>;
     readonly entries: readonly CatalogEntryCandidate[];
+    /**
+     * The families a fixture actually holds an object of.
+     *
+     * `TESTS` used to be set from « a catalogue entry of this family passes
+     * the gate », which is what `GENERIC_DATA` already says — the same
+     * measurement wearing a stronger word. Three hundred families were
+     * therefore reported as tested because somebody had written a fiche for
+     * them, and nothing anywhere exercised one.
+     *
+     * A family is tested when something in the repository is made of it. That
+     * cannot be read from the registries, so it is handed in; absent, the
+     * answer is `NONE`, which is the truth rather than a compliment.
+     */
+    readonly exercised?: ReadonlySet<string>;
   },
 ): Readonly<Record<MeasuredAxis, StatusValue>> {
   const owner = BY_ID.get(familyId);
@@ -319,6 +551,7 @@ export function measuredStatus(
         family,
         schema: propertySchema,
         symbols: known.symbols,
+        property: propertyDefinition,
       }).length === 0,
   );
 
@@ -373,9 +606,10 @@ export function measuredStatus(
         : clean.length === mine.length
           ? 'READY'
           : 'PARTIAL',
-    // A family with an entry the gate passes is a family the suite exercises;
-    // one nothing has an entry for is one nothing runs against.
-    TESTS: clean.length > 0 ? 'VALIDATED' : 'NONE',
+    // Not « somebody wrote a fiche », which is what GENERIC_DATA says: a
+    // family is tested when a fixture in this repository is actually made of
+    // it, and nothing else counts.
+    TESTS: known.exercised?.has(familyId) === true ? 'VALIDATED' : 'NONE',
   };
 }
 
@@ -389,6 +623,7 @@ export function familyStatus(
   known: {
     readonly symbols: ReadonlySet<string>;
     readonly entries: readonly CatalogEntryCandidate[];
+    readonly exercised?: ReadonlySet<string>;
   },
 ): FamilyStatus {
   return {
@@ -407,11 +642,36 @@ export function familyStatus(
 export function familyReviews(known: {
   readonly symbols: ReadonlySet<string>;
   readonly entries: readonly CatalogEntryCandidate[];
+  readonly exercised?: ReadonlySet<string>;
 }): readonly FamilyReview[] {
   return FAMILY_REGISTRY.map((entry) => ({
     family: entry,
     status: familyStatus(entry.id, known),
   }));
+}
+
+/**
+ * The families a project is actually made of.
+ *
+ * What `TESTS` is measured from: a fixture in this repository holding one of
+ * these is the only evidence that anything exercises the family. It reads what
+ * a project carries, which is why materials and build-ups are absent — a
+ * project's copy of a material states no family, and counting them by name
+ * would be counting a resemblance.
+ */
+export function familiesExercisedBy(project: {
+  readonly equipment?: readonly { readonly familyId?: string }[];
+  readonly openingTypes?: readonly { readonly familyId?: string }[];
+  readonly networkProducts?: readonly { readonly family?: string }[];
+}): ReadonlySet<string> {
+  const found = new Set<string>();
+  for (const definition of project.equipment ?? [])
+    if (definition.familyId !== undefined) found.add(definition.familyId);
+  for (const definition of project.openingTypes ?? [])
+    if (definition.familyId !== undefined) found.add(definition.familyId);
+  for (const product of project.networkProducts ?? [])
+    if (product.family !== undefined) found.add(product.family);
+  return found;
 }
 
 export interface SchemaIssue extends PropertyIssue {
@@ -446,10 +706,21 @@ export function validateSchemas(): readonly SchemaIssue[] {
       issues.push({ schemaId: schema.family, ...issue });
   }
   // A property nobody uses is a property nobody maintains, and it will be
-  // wrong by the time a family finally names it.
-  const used = new Set(
-    SCHEMA_FILES.flatMap(({ properties }) => properties.map(({ key }) => key)),
-  );
+  // wrong by the time a family finally names it. A schema is not the only way
+  // to use one: a performance map names a property on each of its axes and on
+  // its output, and those are the same vocabulary — an axis that named
+  // something nothing had defined is exactly what the gate below refuses.
+  const used = new Set([
+    ...SCHEMA_FILES.flatMap(({ properties }) =>
+      properties.map(({ key }) => key),
+    ),
+    ...performanceVocabulary(
+      genericEquipmentCatalog().flatMap(
+        ({ performanceCurves }) =>
+          (performanceCurves ?? []) as readonly PerformanceMapCandidate[],
+      ),
+    ),
+  ]);
   for (const definition of PROPERTY_DEFINITION_REGISTRY)
     if (!used.has(definition.id))
       issues.push({
@@ -507,6 +778,7 @@ export function validateRegistry(known: {
       symbols: known.symbols,
       propertySchemas: schemas,
       calculators: known.calculators,
+      families: new Set(BY_ID.keys()),
     }))
       issues.push({ familyId: entry.id, ...issue });
   }

@@ -9,10 +9,13 @@ import {
 import type { FamilyDefinition } from './families.js';
 import {
   validateProperties,
+  type PropertyDefinition,
   type PropertySchema,
   type PropertyValue,
 } from './property-schemas.js';
+import { validatePerformanceVocabulary } from './performance-vocabulary.js';
 import { validateProvenance, type ProvenanceCandidate } from './provenance.js';
+import { hasCapability } from './capabilities.js';
 
 /**
  * A catalogue entry as anything that produces one states it.
@@ -38,6 +41,23 @@ export interface CatalogEntryCandidate {
   readonly rendering?: {
     readonly symbols?: readonly { readonly symbolId: string }[];
   };
+  readonly performanceCurves?: readonly {
+    readonly id: string;
+    readonly inputAxes: readonly {
+      readonly id: string;
+      readonly unit: string;
+    }[];
+    readonly output: string;
+    readonly outputUnit: string;
+  }[];
+  /**
+   * The bucket the entry claims for itself.
+   *
+   * It must not claim one. Kept in the shape only so that the gate can say so:
+   * a field silently ignored is a field somebody will go on filling in.
+   */
+  readonly category?: string;
+  readonly kind?: string;
 }
 
 /**
@@ -63,19 +83,31 @@ const SEMVER =
  * the content, sorted, not the file.
  */
 export function catalogFingerprint(entry: CatalogEntryCandidate): string {
-  const canonical = (value: unknown): unknown => {
-    if (Array.isArray(value)) return value.map(canonical);
-    if (value !== null && typeof value === 'object')
-      return Object.fromEntries(
-        Object.entries(value as Record<string, unknown>)
-          .filter(([, held]) => held !== undefined)
-          .sort(([first], [second]) => first.localeCompare(second))
-          .map(([key, held]) => [key, canonical(held)]),
-      );
-    return value;
-  };
   const { id: _id, version: _version, ...rest } = entry;
-  const text = JSON.stringify(canonical(rest));
+  return contentFingerprint(rest);
+}
+
+/**
+ * What any value says, reduced to one short string.
+ *
+ * Order does not matter and formatting does not either: what is compared is
+ * the content, sorted, not the file. Used for one entry and for a whole
+ * catalogue alike — a manifest has to notice that a file changed, which is the
+ * same question asked of more of it.
+ */
+export function contentFingerprint(value: unknown): string {
+  const canonical = (held: unknown): unknown => {
+    if (Array.isArray(held)) return held.map(canonical);
+    if (held !== null && typeof held === 'object')
+      return Object.fromEntries(
+        Object.entries(held as Record<string, unknown>)
+          .filter(([, inner]) => inner !== undefined)
+          .sort(([first], [second]) => first.localeCompare(second))
+          .map(([key, inner]) => [key, canonical(inner)]),
+      );
+    return held;
+  };
+  const text = JSON.stringify(canonical(value));
   // A short, stable digest: the point is to notice a change, not to resist an
   // attacker, and a hash nobody can read is a hash nobody checks.
   let low = 0x811c9dc5;
@@ -98,6 +130,15 @@ export interface CatalogKnowledge {
   readonly family: (id: string) => FamilyDefinition | undefined;
   readonly schema: (id: string) => PropertySchema | undefined;
   readonly symbols: ReadonlySet<string>;
+  /**
+   * What a property key means, so that a performance axis can be checked to
+   * name one — and to state its unit.
+   *
+   * Not optional. A gate that can be called without half of what it checks is
+   * a gate that will be, and the half nobody passed is the half nothing
+   * verifies.
+   */
+  readonly property: (key: string) => PropertyDefinition | undefined;
 }
 
 /**
@@ -177,6 +218,38 @@ export function validateCatalogEntry(
     declared,
   ))
     at('ports', `${family.id} ${issue.message}`);
+
+  // Three taxonomies for one thing is how they drift. The family says what
+  // this is; an entry repeating it in its own words is the second version of a
+  // sentence that already existed, and `generic-pv-module` proved it — `kind:
+  // PHOTOVOLTAIC` beside `category: PV_MODULE`, both files valid, at nineteen
+  // entries.
+  if (entry.category !== undefined)
+    at('category', 'the category is the family’s and is not restated here');
+  if (entry.kind !== undefined)
+    at('kind', 'the kind is the family’s category and is not restated here');
+
+  // What an entry is allowed to carry is what its family can do. An entry with
+  // a performance map in a family nothing tabulates is a map no calculation
+  // will ever open, and it will sit there looking complete.
+  if (
+    (entry.performanceCurves ?? []).length > 0 &&
+    !hasCapability(family, 'PERFORMANCE_MAPPED')
+  )
+    at(
+      'performanceCurves',
+      `${family.id} does not declare a tabulated performance`,
+    );
+  // An axis called `outdoorTemperatureC` in one fiche and `tempExtC` in the
+  // next are two different axes to everything that reads them, and no amount
+  // of well-formed tabulation makes a calculation find the second.
+  for (const [index, curve] of (entry.performanceCurves ?? []).entries())
+    for (const issue of validatePerformanceVocabulary(
+      curve,
+      `performanceCurves/${index}`,
+      known.property,
+    ))
+      at(issue.path, issue.message);
 
   // The room around it: the family says which zones such a thing has, the
   // entry says how far each one reaches. An entry claiming a zone its family

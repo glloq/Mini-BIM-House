@@ -1,5 +1,6 @@
 import type {
   EquipmentDefinition,
+  OpeningDefinition,
   Project,
 } from '@house-technical-designer/core-domain';
 import type {
@@ -61,6 +62,10 @@ function assemblies(project: Project): readonly Assembly[] {
 
 function equipment(project: Project): readonly EquipmentDefinition[] {
   return project.equipment ?? [];
+}
+
+function openingTypes(project: Project): readonly OpeningDefinition[] {
+  return project.openingTypes ?? [];
 }
 
 function withMaterials(project: Project, next: readonly Material[]): Project {
@@ -535,6 +540,66 @@ export class RemoveEquipmentCommand extends LibraryCommand {
     return {
       ...project,
       equipment: equipment(project).filter(({ id }) => id !== this.equipmentId),
+    };
+  }
+}
+
+/**
+ * Puts a model of window, door or shutter into the project.
+ *
+ * `Opening.definitionId` named an entry and nothing could put one there: a
+ * window's transmittance had to be typed in by hand, or the opening was
+ * counted as an unknown for ever.
+ */
+export class AddOpeningTypeCommand extends LibraryCommand {
+  constructor(readonly opening: OpeningDefinition) {
+    super(
+      `opening-type:add:${opening.id}`,
+      `Ajouter la menuiserie ${opening.id}`,
+    );
+  }
+  validate(project: Project): CommandValidation {
+    if (this.opening.id.trim() === '')
+      return rejected('L’identifiant de la menuiserie ne peut pas être vide.');
+    if (this.opening.name.trim() === '')
+      return rejected('Une menuiserie doit porter un nom.');
+    return openingTypes(project).some(({ id }) => id === this.opening.id)
+      ? rejected(`La menuiserie ${this.opening.id} existe déjà.`)
+      : ok();
+  }
+  protected apply(project: Project): Project {
+    return {
+      ...project,
+      openingTypes: [...openingTypes(project), this.opening],
+    };
+  }
+}
+
+/**
+ * Takes a model of menuiserie out of the project.
+ *
+ * Refused while an opening still points at it: a hole in a wall whose model
+ * has gone is a hole nothing can size.
+ */
+export class RemoveOpeningTypeCommand extends LibraryCommand {
+  constructor(readonly openingTypeId: string) {
+    super(
+      `opening-type:remove:${openingTypeId}`,
+      `Supprimer la menuiserie ${openingTypeId}`,
+    );
+  }
+  validate(project: Project): CommandValidation {
+    if (!openingTypes(project).some(({ id }) => id === this.openingTypeId))
+      return rejected(`La menuiserie ${this.openingTypeId} est introuvable.`);
+    const referenced = removalRefusal(project, this.openingTypeId, 'Ce modèle');
+    return referenced === undefined ? ok() : rejected(referenced);
+  }
+  protected apply(project: Project): Project {
+    return {
+      ...project,
+      openingTypes: openingTypes(project).filter(
+        ({ id }) => id !== this.openingTypeId,
+      ),
     };
   }
 }

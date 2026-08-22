@@ -34,12 +34,11 @@ describe('web project workspace', () => {
     const materials = file.project.materialLibrary!.materials;
     const assemblies = file.project.assemblies!;
     expect(materials.length).toBeGreaterThan(0);
-    expect(assemblies.map(({ category }) => category)).toEqual([
-      'WALL',
-      'PARTITION',
-      'FLOOR',
-      'ROOF',
-    ]);
+    // The build-ups come from the assembly catalogue now, not from a list
+    // written out in the application beside the code that draws them.
+    expect(new Set(assemblies.map(({ category }) => category))).toEqual(
+      new Set(['WALL', 'PARTITION', 'FLOOR', 'ROOF']),
+    );
     // Every starter layer points at a material the project actually carries.
     const known = new Set(materials.map(({ id }) => id));
     for (const assembly of assemblies)

@@ -3,8 +3,6 @@
     {
       "id": "generic-led-luminaire",
       "familyId": "CEILING_LIGHT",
-      "kind": "LUMINAIRE",
-      "category": "LUMINAIRE",
       "name": "Plafonnier LED",
       "dimensions": {
         "widthMm": 300,
@@ -15,8 +13,6 @@
         {
           "id": "power",
           "portTypeId": "ELECTRICAL_AC",
-          "discipline": "ELECTRICAL",
-          "role": "SUPPLY",
           "position": {
             "x": 0,
             "y": 0,
@@ -41,7 +37,7 @@
         "planFootprint": "CIRCLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

@@ -3,8 +3,6 @@
     {
       "id": "generic-dhw-tank",
       "familyId": "ELECTRIC_DHW_TANK",
-      "kind": "DHW_TANK",
-      "category": "DHW_TANK",
       "name": "Ballon d’eau chaude sanitaire",
       "dimensions": {
         "widthMm": 570,
@@ -15,8 +13,6 @@
         {
           "id": "cold",
           "portTypeId": "WATER_COLD",
-          "discipline": "WATER",
-          "role": "COLD_INLET",
           "position": {
             "x": 0,
             "y": 0,
@@ -27,8 +23,6 @@
         {
           "id": "hot",
           "portTypeId": "WATER_HOT",
-          "discipline": "WATER",
-          "role": "HOT_OUTLET",
           "position": {
             "x": 0,
             "y": 0,
@@ -39,8 +33,6 @@
         {
           "id": "power",
           "portTypeId": "ELECTRICAL_AC",
-          "discipline": "ELECTRICAL",
-          "role": "SUPPLY",
           "position": {
             "x": 280,
             "y": 0,
@@ -64,7 +56,7 @@
         "planFootprint": "CIRCLE",
         "layer": "water.equipment"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -86,8 +78,6 @@
     {
       "id": "generic-kitchen-sink",
       "familyId": "KITCHEN_SINK",
-      "kind": "SANITARY_FIXTURE",
-      "category": "SANITARY_FIXTURE",
       "name": "Évier de cuisine",
       "dimensions": {
         "widthMm": 800,
@@ -98,8 +88,6 @@
         {
           "id": "cold",
           "portTypeId": "WATER_COLD",
-          "discipline": "WATER",
-          "role": "COLD",
           "position": {
             "x": -100,
             "y": 0,
@@ -110,8 +98,6 @@
         {
           "id": "hot",
           "portTypeId": "WATER_HOT",
-          "discipline": "WATER",
-          "role": "HOT",
           "position": {
             "x": 100,
             "y": 0,
@@ -122,8 +108,6 @@
         {
           "id": "drain",
           "portTypeId": "WASTEWATER",
-          "discipline": "WASTEWATER",
-          "role": "DRAIN",
           "position": {
             "x": 0,
             "y": 0,
@@ -148,7 +132,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "water.fixtures"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -169,8 +153,6 @@
     {
       "id": "generic-shower",
       "familyId": "SHOWER",
-      "kind": "SANITARY_FIXTURE",
-      "category": "SANITARY_FIXTURE",
       "name": "Douche",
       "dimensions": {
         "widthMm": 900,
@@ -181,8 +163,6 @@
         {
           "id": "cold",
           "portTypeId": "WATER_COLD",
-          "discipline": "WATER",
-          "role": "COLD",
           "position": {
             "x": -100,
             "y": 0,
@@ -193,8 +173,6 @@
         {
           "id": "hot",
           "portTypeId": "WATER_HOT",
-          "discipline": "WATER",
-          "role": "HOT",
           "position": {
             "x": 100,
             "y": 0,
@@ -205,8 +183,6 @@
         {
           "id": "drain",
           "portTypeId": "WASTEWATER",
-          "discipline": "WASTEWATER",
-          "role": "DRAIN",
           "position": {
             "x": 0,
             "y": 0,
@@ -231,7 +207,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "water.fixtures"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -252,8 +228,6 @@
     {
       "id": "generic-washbasin",
       "familyId": "WASHBASIN",
-      "kind": "SANITARY_FIXTURE",
-      "category": "SANITARY_FIXTURE",
       "name": "Lavabo",
       "dimensions": {
         "widthMm": 600,
@@ -264,8 +238,6 @@
         {
           "id": "cold",
           "portTypeId": "WATER_COLD",
-          "discipline": "WATER",
-          "role": "COLD",
           "position": {
             "x": -100,
             "y": 0,
@@ -276,8 +248,6 @@
         {
           "id": "hot",
           "portTypeId": "WATER_HOT",
-          "discipline": "WATER",
-          "role": "HOT",
           "position": {
             "x": 100,
             "y": 0,
@@ -288,8 +258,6 @@
         {
           "id": "drain",
           "portTypeId": "WASTEWATER",
-          "discipline": "WASTEWATER",
-          "role": "DRAIN",
           "position": {
             "x": 0,
             "y": 0,
@@ -314,7 +282,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "water.fixtures"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -335,8 +303,6 @@
     {
       "id": "generic-wc",
       "familyId": "WC",
-      "kind": "SANITARY_FIXTURE",
-      "category": "SANITARY_FIXTURE",
       "name": "WC à réservoir",
       "dimensions": {
         "widthMm": 380,
@@ -347,8 +313,6 @@
         {
           "id": "cold",
           "portTypeId": "WATER_COLD",
-          "discipline": "WATER",
-          "role": "COLD",
           "position": {
             "x": 0,
             "y": 300,
@@ -359,8 +323,6 @@
         {
           "id": "drain",
           "portTypeId": "SOILWATER",
-          "discipline": "WASTEWATER",
-          "role": "DRAIN",
           "position": {
             "x": 0,
             "y": 250,
@@ -385,7 +347,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "water.fixtures"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

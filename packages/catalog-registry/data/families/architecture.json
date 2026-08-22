@@ -5,6 +5,7 @@
       "label": "Mur extérieur",
       "domain": "ARCHITECTURE",
       "registry": "ASSEMBLY",
+      "category": "WALL",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -65,6 +66,7 @@
       "label": "Cloison",
       "domain": "ARCHITECTURE",
       "registry": "ASSEMBLY",
+      "category": "PARTITION",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -285,6 +287,7 @@
       "label": "Dallage sur terre-plein",
       "domain": "ARCHITECTURE",
       "registry": "ASSEMBLY",
+      "category": "FLOOR",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -305,6 +308,7 @@
       "label": "Plancher intermédiaire",
       "domain": "ARCHITECTURE",
       "registry": "ASSEMBLY",
+      "category": "FLOOR",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -346,6 +350,7 @@
       "label": "Dalle de toiture",
       "domain": "ARCHITECTURE",
       "registry": "ASSEMBLY",
+      "category": "ROOF",
       "priority": 1,
       "calculators": [
         "thermal",

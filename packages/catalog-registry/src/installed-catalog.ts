@@ -1,0 +1,247 @@
+import type { DataRegistry } from '@house-technical-designer/technical-types';
+import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
+import {
+  GENERIC_MATERIAL_FORMAT_VERSION,
+  rawGenericMaterialEntries,
+} from '@house-technical-designer/materials';
+import {
+  GENERIC_ASSEMBLY_FORMAT_VERSION,
+  rawGenericAssemblyEntries,
+} from '@house-technical-designer/assemblies';
+import {
+  GENERIC_OPENING_FORMAT_VERSION,
+  rawGenericOpeningEntries,
+} from '@house-technical-designer/opening-catalog';
+import {
+  GENERIC_SYMBOL_FORMAT_VERSION,
+  rawGenericSymbolEntries,
+} from '@house-technical-designer/drawing-engine';
+import { NETWORK_PRODUCT_REGISTRY } from '@house-technical-designer/network-products';
+import { contentFingerprint } from './catalog-validation.js';
+import {
+  DEFAULT_LIFECYCLE,
+  isCatalogLifecycle,
+  type CatalogLifecycle,
+} from './catalog-identity.js';
+import type { CatalogSummary } from './catalog-index.js';
+import type {
+  CatalogManifest,
+  CatalogManifestEntry,
+  CatalogRepository,
+} from './catalog-repository.js';
+import { bundledCatalogRepository } from './catalog-repository.js';
+import { capabilitiesOf } from './capabilities.js';
+import { family, genericCatalog } from './registry.js';
+
+/**
+ * The shape every catalogue file is written in.
+ *
+ * Not the data's version: this changes when the *shape* changes, which is rare
+ * and breaking, and it is what tells an application whether it can read a
+ * folder of catalogues at all.
+ */
+export const CATALOG_FORMAT_VERSION = '1.0.0';
+
+function lifecycleOf(familyId: string | undefined): CatalogLifecycle {
+  const declared =
+    familyId === undefined ? undefined : family(familyId)?.lifecycle;
+  return declared !== undefined && isCatalogLifecycle(declared)
+    ? declared
+    : DEFAULT_LIFECYCLE;
+}
+
+function summary(
+  registry: DataRegistry,
+  entry: {
+    readonly id: string;
+    readonly version?: string;
+    readonly label: string;
+    readonly familyId?: string;
+    readonly category?: string;
+    readonly manufacturer?: string;
+  },
+): CatalogSummary {
+  const owner =
+    entry.familyId === undefined ? undefined : family(entry.familyId);
+  return {
+    ref: { registry, id: entry.id, version: entry.version ?? '' },
+    registry,
+    id: entry.id,
+    version: entry.version ?? '',
+    label: entry.label,
+    ...(entry.familyId === undefined ? {} : { familyId: entry.familyId }),
+    ...(entry.category === undefined ? {} : { category: entry.category }),
+    ...(owner === undefined ? {} : { domain: owner.domain }),
+    lifecycle: lifecycleOf(entry.familyId),
+    capabilities: owner === undefined ? [] : capabilitiesOf(owner),
+    ...(entry.manufacturer === undefined
+      ? {}
+      : { manufacturer: entry.manufacturer }),
+  };
+}
+
+/**
+ * Every entry the application ships, reduced to a row.
+ *
+ * Six registries in one list, which is the whole point: a browser that has to
+ * ask six packages six different questions is a browser that will answer a
+ * seventh registry by ignoring it.
+ */
+export function catalogSummaries(): readonly CatalogSummary[] {
+  return [
+    ...genericCatalog().map((entry) =>
+      summary('EQUIPMENT', {
+        id: entry.id,
+        version: entry.version,
+        label: entry.name,
+        familyId: entry.familyId,
+        ...(entry.category === undefined ? {} : { category: entry.category }),
+        ...(entry.manufacturer === undefined
+          ? {}
+          : { manufacturer: entry.manufacturer }),
+      }),
+    ),
+    ...rawGenericMaterialEntries().map((entry) =>
+      summary('MATERIAL', {
+        id: entry.id,
+        version: entry.version,
+        label: entry.name,
+        familyId: entry.familyId,
+        category: entry.category,
+      }),
+    ),
+    ...rawGenericOpeningEntries().map((entry) =>
+      summary('OPENING', {
+        id: entry.id,
+        version: entry.version,
+        label: entry.name,
+        familyId: entry.familyId,
+        category: entry.category,
+      }),
+    ),
+    ...rawGenericAssemblyEntries().map((entry) =>
+      summary('ASSEMBLY', {
+        id: entry.id,
+        version: entry.version,
+        label: entry.name,
+        familyId: entry.familyId,
+        category: entry.category,
+      }),
+    ),
+    ...NETWORK_PRODUCT_REGISTRY.map((product) =>
+      summary('NETWORK_PRODUCT', {
+        id: product.id,
+        ...(product.version === undefined ? {} : { version: product.version }),
+        label: product.label,
+        familyId: product.family,
+      }),
+    ),
+    ...rawGenericSymbolEntries().map((entry) =>
+      summary('SYMBOL', {
+        id: entry.id,
+        ...(entry.version === undefined ? {} : { version: entry.version }),
+        label: entry.name,
+        category: entry.semanticType,
+      }),
+    ),
+  ];
+}
+
+const FILES: readonly {
+  readonly registry: DataRegistry;
+  readonly path: string;
+  readonly formatVersion: string;
+  readonly entries: readonly unknown[];
+}[] = [
+  {
+    registry: 'EQUIPMENT',
+    path: 'packages/equipment-catalog/data/equipment',
+    formatVersion: CATALOG_FORMAT_VERSION,
+    entries: rawGenericEquipmentEntries(),
+  },
+  {
+    registry: 'MATERIAL',
+    path: 'packages/materials/data/generic.json',
+    formatVersion: GENERIC_MATERIAL_FORMAT_VERSION,
+    entries: rawGenericMaterialEntries(),
+  },
+  {
+    registry: 'OPENING',
+    path: 'packages/opening-catalog/data/generic.json',
+    formatVersion: GENERIC_OPENING_FORMAT_VERSION,
+    entries: rawGenericOpeningEntries(),
+  },
+  {
+    registry: 'ASSEMBLY',
+    path: 'packages/assemblies/data/generic.json',
+    formatVersion: GENERIC_ASSEMBLY_FORMAT_VERSION,
+    entries: rawGenericAssemblyEntries(),
+  },
+  {
+    registry: 'NETWORK_PRODUCT',
+    path: 'packages/network-products/data/generic.json',
+    formatVersion: CATALOG_FORMAT_VERSION,
+    entries: NETWORK_PRODUCT_REGISTRY,
+  },
+  {
+    registry: 'SYMBOL',
+    path: 'packages/drawing-engine/data/symbols/generic.json',
+    formatVersion: GENERIC_SYMBOL_FORMAT_VERSION,
+    entries: rawGenericSymbolEntries(),
+  },
+];
+
+/** What each installed catalogue file says about itself, right now. */
+export function catalogManifestEntries(): readonly CatalogManifestEntry[] {
+  return FILES.map(({ registry, path, formatVersion, entries }) => ({
+    registry,
+    path,
+    entryCount: entries.length,
+    formatVersion,
+    fingerprint: contentFingerprint(entries),
+  }));
+}
+
+/**
+ * The manifest as the shipped data actually is.
+ *
+ * The release identifier is derived from the files rather than typed: a number
+ * somebody has to remember to raise is a number that will disagree with the
+ * data it names, and the whole point of a release is to be able to say « this
+ * is what you have ».
+ */
+export function currentCatalogManifest(): CatalogManifest {
+  const generatedFrom = catalogManifestEntries();
+  return {
+    catalogFormatVersion: CATALOG_FORMAT_VERSION,
+    releaseId: contentFingerprint(
+      generatedFrom.map(
+        ({ registry, fingerprint }) => `${registry}:${fingerprint}`,
+      ),
+    ),
+    generatedFrom,
+  };
+}
+
+/** The catalogues this application ships, as one thing to ask. */
+export function installedCatalog(): CatalogRepository {
+  const bodies = new Map<string, unknown>();
+  const put = (
+    registry: DataRegistry,
+    entries: readonly { readonly id: string; readonly version?: string }[],
+  ) => {
+    for (const entry of entries)
+      bodies.set(`${registry}:${entry.id}@${entry.version ?? ''}`, entry);
+  };
+  put('EQUIPMENT', genericCatalog());
+  put('MATERIAL', rawGenericMaterialEntries());
+  put('OPENING', rawGenericOpeningEntries());
+  put('ASSEMBLY', rawGenericAssemblyEntries());
+  put('NETWORK_PRODUCT', NETWORK_PRODUCT_REGISTRY);
+  put('SYMBOL', rawGenericSymbolEntries());
+  return bundledCatalogRepository(
+    currentCatalogManifest(),
+    catalogSummaries(),
+    bodies,
+  );
+}

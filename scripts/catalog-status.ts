@@ -16,6 +16,7 @@
  * asks the registry, which measures five of the sixteen axes rather than
  * believing them.
  */
+import { readFileSync } from 'node:fs';
 import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
 import { genericEquipmentCatalog } from '@house-technical-designer/equipment-catalog';
 import {
@@ -23,14 +24,45 @@ import {
   STATUS_AXES,
   axisCounts,
   completeness,
+  currentCatalogManifest,
   domainProgress,
+  familiesExercisedBy,
   familyReviews,
   pendingOfWave,
+  qualificationHouse,
 } from '@house-technical-designer/catalog-registry';
+
+/**
+ * What the reference house is actually made of.
+ *
+ * The `TESTS` axis used to be set from « a catalogue entry of this family
+ * passes the gate », which is what `GENERIC_DATA` already says: three hundred
+ * families were reported as tested because somebody had written a fiche, and
+ * nothing anywhere exercised one. A family is tested when a fixture in this
+ * repository holds an object of it — and the reference house is that fixture.
+ */
+const reference = JSON.parse(
+  readFileSync('examples/reference-house/reference.houseproj.json', 'utf8'),
+) as { readonly project: Parameters<typeof familiesExercisedBy>[0] };
+
+/**
+ * Two fixtures, because they prove two different things.
+ *
+ * The reference house is a house: it holds four families, because that is what
+ * a house holds, and what it proves is that they work together. The
+ * qualification house is one of each, and what it proves is narrower and worth
+ * proving too — that every entry the application ships can be carried by a
+ * project the importer accepts.
+ */
+const exercised = new Set([
+  ...familiesExercisedBy(reference.project),
+  ...familiesExercisedBy(qualificationHouse()),
+]);
 
 const reviews = familyReviews({
   symbols: new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions)),
   entries: genericEquipmentCatalog(),
+  exercised,
 });
 
 const wave = Number(process.argv[2]);
@@ -65,6 +97,18 @@ for (const axis of STATUS_AXES) {
 }
 
 if (!Number.isFinite(wave)) {
+  // Every registry, not one of them. This counted the network products and
+  // said nothing of the five other catalogues, so « où en est le catalogue »
+  // had an answer about tubes and silence about everything else.
+  const manifest = currentCatalogManifest();
+  console.log('');
+  console.log(`Catalogues installés — publication ${manifest.releaseId}`);
+  console.log('Registre                Fiches   Empreinte');
+  for (const entry of manifest.generatedFrom)
+    console.log(
+      `${entry.registry.padEnd(22)} ${String(entry.entryCount).padStart(7)}   ${entry.fingerprint}`,
+    );
+
   const byFamily = new Map<string, number>();
   for (const product of NETWORK_PRODUCT_REGISTRY)
     byFamily.set(product.family, (byFamily.get(product.family) ?? 0) + 1);

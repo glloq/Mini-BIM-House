@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
 import { materialId } from '@house-technical-designer/materials';
 import { createBlankProject } from '../project-workspace.js';
+import { genericCatalog } from '@house-technical-designer/catalog-registry';
 import { genericEquipment } from '@house-technical-designer/equipment-catalog';
 import {
   assemblyView,
@@ -27,9 +28,11 @@ describe('material library view', () => {
     const insulation = rows.find(
       ({ material }) => material.id === 'generic-rock-wool',
     )!;
-    // The starter exterior wall uses it, so deleting it is blocked.
+    // Two starter build-ups use it, so deleting it is blocked.
     expect(insulation.deletable).toBe(false);
-    expect(insulation.usedBy.map(({ kind }) => kind)).toEqual(['ASSEMBLY']);
+    expect(new Set(insulation.usedBy.map(({ kind }) => kind))).toEqual(
+      new Set(['ASSEMBLY']),
+    );
     const unused = rows.find(
       ({ material }) => material.id === 'generic-steel',
     )!;
@@ -59,10 +62,11 @@ describe('assembly library view', () => {
   it('derives thickness, R and U from the project library', () => {
     const views = assemblyViews(project());
     const wall = views.find(
-      ({ assembly }) => assembly.id === 'assembly-exterior-wall',
+      ({ assembly }) =>
+        assembly.id === 'generic-wall-brick-internal-insulation',
     )!;
-    expect(wall.totalThicknessMm).toBe(373);
-    expect(wall.thermalResistanceM2KW).toBeGreaterThan(4);
+    expect(wall.totalThicknessMm).toBe(333);
+    expect(wall.thermalResistanceM2KW).toBeGreaterThan(2.5);
     expect(wall.uValueWm2K).toBeCloseTo(1 / wall.thermalResistanceM2KW!, 9);
     expect(wall.missingConductivityLayerIds).toEqual([]);
     expect(
@@ -84,7 +88,7 @@ describe('assembly library view', () => {
         materials: [...base.materialLibrary!.materials, opaque],
       },
       assemblies: base.assemblies!.map((assembly) =>
-        assembly.id === 'assembly-partition'
+        assembly.id === 'generic-partition-stud'
           ? {
               ...assembly,
               layers: assembly.layers.map((layer, index) =>
@@ -96,7 +100,9 @@ describe('assembly library view', () => {
     };
     const view = assemblyView(
       withUnknown,
-      withUnknown.assemblies!.find(({ id }) => id === 'assembly-partition')!,
+      withUnknown.assemblies!.find(
+        ({ id }) => id === 'generic-partition-stud',
+      )!,
     );
     expect(view.thermalResistanceM2KW).toBeUndefined();
     expect(view.uValueWm2K).toBeUndefined();
@@ -142,13 +148,27 @@ describe('equipment placed from the catalogue', () => {
     // between two panels.
     const definition = genericEquipment('generic-dhw-tank')!;
     const placed = projectEquipmentFromCatalog(definition, []);
-    expect(placed.kind).toBe(definition.kind);
     expect(placed.catalogKind).toBe('GENERIC');
     expect(placed.version).toBe(definition.version);
     expect(placed.familyId).toBe(definition.familyId);
     expect(placed.properties.tankVolumeL).toBe(
       definition.properties.tankVolumeL,
     );
+  });
+
+  it('takes its bucket from the family, and says the family when nothing resolved it', () => {
+    // The entry states no category of its own any more. What the interface
+    // hands over has been through `genericCatalog`, which stamps the family's;
+    // an entry read straight from its file has not, and the copy then names
+    // the family rather than inventing a bucket for it.
+    const resolved = genericCatalog().find(
+      ({ id }) => id === 'generic-dhw-tank',
+    )!;
+    expect(projectEquipmentFromCatalog(resolved, []).kind).toBe('DHW_TANK');
+    expect(
+      projectEquipmentFromCatalog(genericEquipment('generic-dhw-tank')!, [])
+        .kind,
+    ).toBe('ELECTRIC_DHW_TANK');
   });
 
   it('copies what makes the entry more than a bag of numbers', () => {

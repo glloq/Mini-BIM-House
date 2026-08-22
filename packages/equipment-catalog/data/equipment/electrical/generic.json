@@ -3,8 +3,6 @@
     {
       "id": "generic-distribution-board",
       "familyId": "MAIN_DISTRIBUTION_BOARD",
-      "kind": "DISTRIBUTION_BOARD",
-      "category": "DISTRIBUTION_BOARD",
       "name": "Tableau de répartition",
       "dimensions": {
         "widthMm": 350,
@@ -15,8 +13,6 @@
         {
           "id": "incoming",
           "portTypeId": "ELECTRICAL_AC",
-          "discipline": "ELECTRICAL",
-          "role": "INCOMING",
           "position": {
             "x": 0,
             "y": 0,
@@ -26,8 +22,6 @@
         {
           "id": "outgoing",
           "portTypeId": "ELECTRICAL_AC",
-          "discipline": "ELECTRICAL",
-          "role": "OUTGOING",
           "position": {
             "x": 0,
             "y": 0,
@@ -37,8 +31,6 @@
         {
           "id": "earth",
           "portTypeId": "EARTH",
-          "discipline": "ELECTRICAL",
-          "role": "EARTH",
           "position": {
             "x": 0,
             "y": 0,
@@ -61,7 +53,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -84,8 +76,6 @@
     {
       "id": "generic-miniature-circuit-breaker",
       "familyId": "MCB",
-      "kind": "PROTECTION_DEVICE",
-      "category": "PROTECTION_DEVICE",
       "name": "Disjoncteur divisionnaire",
       "dimensions": {
         "widthMm": 18,
@@ -96,8 +86,6 @@
         {
           "id": "line",
           "portTypeId": "ELECTRICAL_AC",
-          "discipline": "ELECTRICAL",
-          "role": "INCOMING",
           "position": {
             "x": 0,
             "y": 0,
@@ -107,8 +95,6 @@
         {
           "id": "load",
           "portTypeId": "ELECTRICAL_AC",
-          "discipline": "ELECTRICAL",
-          "role": "OUTGOING",
           "position": {
             "x": 0,
             "y": 0,
@@ -131,7 +117,7 @@
         "planFootprint": "SYMBOL_ONLY",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -140,8 +126,6 @@
     {
       "id": "generic-socket",
       "familyId": "SOCKET_16A",
-      "kind": "SOCKET",
-      "category": "SOCKET",
       "name": "Prise de courant 16 A",
       "dimensions": {
         "widthMm": 80,
@@ -152,8 +136,6 @@
         {
           "id": "power",
           "portTypeId": "ELECTRICAL_AC",
-          "discipline": "ELECTRICAL",
-          "role": "SUPPLY",
           "position": {
             "x": 0,
             "y": -20,
@@ -163,8 +145,6 @@
         {
           "id": "earth",
           "portTypeId": "EARTH",
-          "discipline": "ELECTRICAL",
-          "role": "EARTH",
           "position": {
             "x": 0,
             "y": -20,
@@ -187,7 +167,7 @@
         "planFootprint": "SYMBOL_ONLY",
         "layer": "electrical.outlets"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

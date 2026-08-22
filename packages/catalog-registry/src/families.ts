@@ -16,6 +16,22 @@ import {
   isStatusValue,
   type FamilyStatus,
 } from './status.js';
+import {
+  validateCapabilities,
+  type CatalogCapability,
+} from './capabilities.js';
+import {
+  CATALOG_WAVES,
+  DEFAULT_LIFECYCLE,
+  isCatalogLifecycle,
+  isCatalogWave,
+  type CatalogLifecycle,
+  type CatalogWave,
+} from './catalog-identity.js';
+import { isEquipmentCategory } from '@house-technical-designer/equipment-catalog';
+import { isMaterialCategory } from '@house-technical-designer/materials';
+import { isAssemblyCategory } from '@house-technical-designer/assemblies';
+import { isOpeningCategory } from '@house-technical-designer/opening-catalog';
 
 /** Where an object of this family may be put. */
 export interface FamilyPlacement {
@@ -58,7 +74,37 @@ export interface FamilyDefinition {
    * One to six, from the architectural house to the systems around it. A
    * priority is an order of work, not an importance: nothing here is optional.
    */
-  readonly priority: number;
+  readonly priority: CatalogWave;
+  /**
+   * Where this family stands in its own life.
+   *
+   * Absent means in service. A nomenclature that can only grow is one nobody
+   * can correct: the day a family turns out to be wrong, the choice is between
+   * changing it underneath every project that used it and leaving it there for
+   * ever.
+   */
+  readonly lifecycle?: CatalogLifecycle;
+  /** Which family to use instead, once this one is leaving service. */
+  readonly replacedBy?: string;
+  readonly retiredReason?: string;
+  /**
+   * What may be done with a thing of this family that nothing else implies.
+   *
+   * Only the capabilities that are genuine decisions: whether it is a layer of
+   * an assembly, whether it pierces a wall, whether it is counted. The rest —
+   * placeable, connectable, drawn, calculated — are read from what the family
+   * already declares and must not be written down. `capabilitiesOf` gives the
+   * whole answer; this field alone gives the half somebody typed.
+   */
+  readonly capabilities?: readonly CatalogCapability[];
+  /**
+   * The coarse grouping the interface sorts and filters by.
+   *
+   * Said here and nowhere else. It used to be stated on every catalogue entry,
+   * beside a `kind` that said almost the same thing, and at nineteen entries
+   * the two had already parted company.
+   */
+  readonly category?: string;
   /**
    * What an object of this family is always connected by.
    *
@@ -92,14 +138,40 @@ export interface FamilyDefinition {
  */
 export interface FamilyCandidate extends Omit<
   FamilyDefinition,
-  'domain' | 'registry' | 'ports' | 'optionalPorts' | 'clearances' | 'status'
+  | 'domain'
+  | 'registry'
+  | 'ports'
+  | 'optionalPorts'
+  | 'clearances'
+  | 'status'
+  | 'priority'
+  | 'lifecycle'
+  | 'capabilities'
 > {
   readonly domain: string;
   readonly registry: string;
+  readonly priority: number;
+  readonly lifecycle?: string;
+  readonly capabilities?: readonly string[];
   readonly ports?: readonly PortRequirementCandidate[];
   readonly optionalPorts?: readonly PortRequirementCandidate[];
   readonly clearances?: readonly string[];
   readonly status?: Readonly<Record<string, string>>;
+}
+
+/** Whether the coarse grouping belongs to the list its registry groups by. */
+function categoryFits(family: FamilyCandidate): boolean {
+  const category = family.category ?? '';
+  switch (family.registry) {
+    case 'MATERIAL':
+      return isMaterialCategory(category);
+    case 'ASSEMBLY':
+      return isAssemblyCategory(category);
+    case 'OPENING':
+      return isOpeningCategory(category);
+    default:
+      return isEquipmentCategory(category);
+  }
 }
 
 export interface FamilyIssue {
@@ -121,6 +193,8 @@ export function validateFamily(
     readonly symbols: ReadonlySet<string>;
     readonly propertySchemas: ReadonlySet<string>;
     readonly calculators: ReadonlySet<string>;
+    /** Every family identifier, so a replacement can be checked to exist. */
+    readonly families?: ReadonlySet<string>;
   },
 ): readonly FamilyIssue[] {
   const issues: FamilyIssue[] = [];
@@ -132,8 +206,47 @@ export function validateFamily(
   if (!isDataDomain(family.domain)) at('domain', `unknown ${family.domain}`);
   if (!isDataRegistry(family.registry))
     at('registry', `unknown ${family.registry}`);
-  if (!Number.isInteger(family.priority) || family.priority < 1)
-    at('priority', 'must be a wave number of at least one');
+  // A wave is one of six batches of work, not a free integer: a family written
+  // into wave 9 would simply never appear in any plan of work, silently,
+  // because nothing would be looking for a wave 9.
+  if (!Number.isInteger(family.priority) || !isCatalogWave(family.priority))
+    at(
+      'priority',
+      `must be one of the ${CATALOG_WAVES.length} waves of work, from 1 to ${CATALOG_WAVES.length}`,
+    );
+  const lifecycle = family.lifecycle ?? DEFAULT_LIFECYCLE;
+  if (!isCatalogLifecycle(lifecycle))
+    at('lifecycle', `unknown lifecycle ${lifecycle}`);
+  const retired = lifecycle === 'DEPRECATED' || lifecycle === 'WITHDRAWN';
+  if (
+    retired &&
+    family.replacedBy === undefined &&
+    family.retiredReason === undefined
+  )
+    at(
+      'lifecycle',
+      'a family leaving service must name its replacement or say why it has none',
+    );
+  if (!retired && family.replacedBy !== undefined)
+    at('replacedBy', 'a family in service is not replaced by another');
+  if (family.replacedBy === family.id)
+    at('replacedBy', 'a family cannot replace itself');
+  else if (
+    family.replacedBy !== undefined &&
+    known.families !== undefined &&
+    !known.families.has(family.replacedBy)
+  )
+    at('replacedBy', `unknown family ${family.replacedBy}`);
+  for (const issue of validateCapabilities(family)) issues.push(issue);
+  // The one place the coarse grouping is stated, and each registry groups by
+  // its own closed list: a material is INSULATION or MASONRY, an equipment is
+  // a HEAT_PUMP, and a value outside the list its registry uses would sort and
+  // filter into a bucket no screen offers.
+  if (family.category !== undefined && !categoryFits(family))
+    at(
+      'category',
+      `${family.category} is not a category of the ${family.registry} registry`,
+    );
   const required = (family.ports ?? []).map(portRequirement);
   for (const [index, requirement] of required.entries()) {
     for (const kind of unknownPortKinds(requirement))

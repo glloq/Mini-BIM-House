@@ -1,0 +1,48 @@
+{
+  "catalogFormatVersion": "1.0.0",
+  "releaseId": "1891903beeca9b58",
+  "generatedFrom": [
+    {
+      "registry": "EQUIPMENT",
+      "path": "packages/equipment-catalog/data/equipment",
+      "entryCount": 19,
+      "formatVersion": "1.0.0",
+      "fingerprint": "ca3731908d7aee78"
+    },
+    {
+      "registry": "MATERIAL",
+      "path": "packages/materials/data/generic.json",
+      "entryCount": 16,
+      "formatVersion": "1.0.0",
+      "fingerprint": "f7aeb6177d7edc0f"
+    },
+    {
+      "registry": "OPENING",
+      "path": "packages/opening-catalog/data/generic.json",
+      "entryCount": 12,
+      "formatVersion": "1.0.0",
+      "fingerprint": "1bb0b2c75aebc930"
+    },
+    {
+      "registry": "ASSEMBLY",
+      "path": "packages/assemblies/data/generic.json",
+      "entryCount": 7,
+      "formatVersion": "1.0.0",
+      "fingerprint": "6af40080177b82d5"
+    },
+    {
+      "registry": "NETWORK_PRODUCT",
+      "path": "packages/network-products/data/generic.json",
+      "entryCount": 66,
+      "formatVersion": "1.0.0",
+      "fingerprint": "8335a702e5e19742"
+    },
+    {
+      "registry": "SYMBOL",
+      "path": "packages/drawing-engine/data/symbols/generic.json",
+      "entryCount": 27,
+      "formatVersion": "1.0.0",
+      "fingerprint": "80b252f98d2dc228"
+    }
+  ]
+}

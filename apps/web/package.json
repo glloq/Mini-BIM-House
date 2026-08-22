@@ -1,6 +1,6 @@
 {
   "name": "@house-technical-designer/web",
-  "version": "0.3.0-beta.10",
+  "version": "0.3.0-beta.11",
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
@@ -22,6 +22,7 @@
     "@house-technical-designer/equipment-catalog": "0.1.0",
     "@house-technical-designer/geometry": "0.1.0",
     "@house-technical-designer/materials": "0.1.0",
+    "@house-technical-designer/opening-catalog": "0.1.0",
     "@house-technical-designer/project-io": "0.1.0",
     "@house-technical-designer/quantities": "0.1.0",
     "@house-technical-designer/rainwater": "0.1.0",

@@ -45,11 +45,35 @@ export const BUDGETS = {
    * says when one of its terms is unknown. It is a hundred lines and it is in
    * the initial chunk because the calculation adapters are.
    *
+   * Raised by one more kio for the complete catalogue snapshot: the equipment
+   * shape now describes the performance curves, the rendering and the source
+   * of each figure, and that shape is compiled into the validator every import
+   * runs. It is the price of a project that opens the same way with the
+   * catalogue uninstalled.
+   *
+   * Raised by one more for the material and assembly catalogues: the sixteen
+   * materials and the seven build-ups a new project starts with are data now
+   * rather than two lists written out in the application, and a new project is
+   * created before anything is drawn. The data is the same size as the code it
+   * replaces; what grew is the loader and the gate around it.
+   *
+   * And one more for the opening catalogue: twelve models of window, door and
+   * shutter, which a new project carries because `Opening.definitionId` named
+   * an entry and nothing shipped one — so every window was drawn with a
+   * transmittance nobody had stated.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 254 * 1024,
-  /** Everything the build produces, gzipped. */
-  totalGzipBytes: 374 * 1024,
+  initialGzipBytes: 258 * 1024,
+  /**
+   * Everything the build produces, gzipped.
+   *
+   * Raised with the catalogues of the thirteenth audit: the materials, the
+   * build-ups and the menuiseries are data now rather than three lists written
+   * out in code, and data that a gate reads costs a little more than code
+   * nobody checked.
+   */
+  totalGzipBytes: 378 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

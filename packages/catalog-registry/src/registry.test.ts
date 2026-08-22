@@ -410,7 +410,10 @@ describe('the generic catalogue, checked against its own families', () => {
       const status = familyStatus(definition.familyId, known);
       expect(status.GENERIC_DATA, definition.familyId).toBe('READY');
       expect(status.PORTS, definition.familyId).toBe('VALIDATED');
-      expect(status.TESTS, definition.familyId).toBe('VALIDATED');
+      // Not TESTS: a fiche that passes the gate is what GENERIC_DATA says,
+      // and calling it « tested » was the same measurement wearing a stronger
+      // word. A family is tested when a fixture is made of it.
+      expect(status.TESTS, definition.familyId).toBe('NONE');
       expect(status.PLAN_SYMBOL, definition.familyId).toBe('READY');
     }
     const untouched = familyStatus('FLUE_PIPE', known);

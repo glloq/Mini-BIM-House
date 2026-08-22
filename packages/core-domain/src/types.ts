@@ -342,6 +342,67 @@ export interface EquipmentDefinition {
   readonly costEntryId?: string;
   readonly environmentalDeclarationId?: string;
   /**
+   * Where each figure of this copy comes from, one by one.
+   *
+   * `provenance` answers for the entry as a whole, which is right for a fiche
+   * whose twenty numbers all come from the same page. A manufacturer sheet is
+   * not that: half its figures are declared and half are computed, and the
+   * difference is the whole point. The catalogue held this and the copy did
+   * not, so a project claiming to be self-contained could no longer say which
+   * of its numbers had been measured.
+   */
+  readonly sources?: readonly {
+    readonly property: string;
+    readonly sourceType: string;
+    readonly reference: string;
+    readonly url?: string;
+    readonly validAt?: string;
+  }[];
+  /**
+   * How this thing performs as conditions change, as the catalogue tabulated
+   * it.
+   *
+   * A heat pump is not a number: its coefficient of performance at −7 °C is
+   * not the one at 7 °C, and a project that kept only the nominal figure kept
+   * the one value the machine almost never delivers. The curves were in the
+   * catalogue and stopped at the project's edge, which meant reopening a file
+   * two years later gave a different answer as soon as the catalogue had
+   * moved — or no answer at all, if it was no longer installed.
+   */
+  readonly performanceCurves?: readonly {
+    readonly id: string;
+    readonly inputAxes: readonly {
+      readonly id: string;
+      readonly unit: string;
+    }[];
+    readonly output: string;
+    readonly outputUnit: string;
+    readonly interpolation: string;
+    readonly points: readonly {
+      readonly inputs: readonly number[];
+      readonly output: number;
+    }[];
+  }[];
+  /** Which symbol draws it, on which drawing, and on which layer. */
+  readonly rendering?: {
+    readonly symbols?: readonly {
+      readonly discipline: string;
+      readonly symbolId: string;
+      readonly viewType?: string;
+    }[];
+    readonly planFootprint?: string;
+    readonly layer?: string;
+  };
+  /**
+   * What may be done with a thing of this kind, copied from its family.
+   *
+   * The same argument as `allowedHosts`: the editor, the drawings and the
+   * quantities all branch on these, and a file that has to open the same way
+   * in two years cannot go and ask a nomenclature that has moved — or that is
+   * not installed at all.
+   */
+  readonly capabilities?: readonly string[];
+  /**
    * What a thing of this kind may be fixed to.
    *
    * The rule travels with the copy rather than being looked up in a catalogue.
@@ -376,6 +437,45 @@ export interface NetworkProductSnapshot {
   };
 }
 
+/**
+ * A model of window, door or shutter as this project holds it.
+ *
+ * A copy of what the catalogue said the day it was chosen, exactly like an
+ * equipment definition and for the same reason: a file has to open the same
+ * way in two years, with a catalogue that has moved or that is not installed
+ * at all.
+ *
+ * It is a catalogue entry rather than an assembly because a window is not
+ * assembled from layers: its datasheet gives one Uw covering the glass, the
+ * frame and the spacer together, and no stack of layers reproduces it.
+ */
+export interface OpeningDefinition {
+  readonly id: string;
+  /** The family of the master nomenclature, when the entry came from one. */
+  readonly familyId?: string;
+  /** WINDOW, DOOR or SOLAR_PROTECTION — the kind it is an entry of. */
+  readonly category: string;
+  readonly name: string;
+  /** The version of the catalogue entry this copy was taken from. */
+  readonly version?: string;
+  readonly manufacturer?: string;
+  readonly model?: string;
+  readonly properties: Readonly<Record<string, JsonValue>>;
+  readonly provenance?: {
+    readonly type: string;
+    readonly reference: string;
+    readonly url?: string;
+    readonly validAt?: string;
+  };
+  readonly sources?: readonly {
+    readonly property: string;
+    readonly sourceType: string;
+    readonly reference: string;
+    readonly url?: string;
+    readonly validAt?: string;
+  }[];
+}
+
 export interface ScenarioOverride {
   readonly path: string;
   readonly operation: 'SET' | 'ADD' | 'REMOVE' | 'REPLACE_REFERENCE';
@@ -405,6 +505,15 @@ export interface Project extends BaseEntity<ProjectId> {
   readonly materialLibrary?: { readonly materials: readonly Material[] };
   readonly assemblies?: readonly Assembly[];
   readonly equipment?: readonly EquipmentDefinition[];
+  /**
+   * The models of window, door and shutter this project's openings are.
+   *
+   * `Opening.definitionId` pointed at an entry and nothing shipped one, so it
+   * was resolved against the equipment library — where a window is not an
+   * equipment — or, more often, resolved against nothing at all, and every
+   * window was counted as an unknown transmittance.
+   */
+  readonly openingTypes?: readonly OpeningDefinition[];
   /**
    * The products this project's runs are made of, as this project holds them.
    *

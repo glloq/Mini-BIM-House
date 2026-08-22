@@ -917,9 +917,10 @@
     {
       "id": "acousticAbsorption",
       "label": "Absorption acoustique",
-      "type": "number",
+      "type": "spectrum",
       "unit": "-",
-      "quantity": "RATIO"
+      "quantity": "RATIO",
+      "hint": "Un coefficient par bande d'octave ; une seule valeur serait une moyenne intraçable."
     },
     {
       "id": "reactionToFire",
@@ -1601,6 +1602,46 @@
       "type": "number",
       "unit": "kWh",
       "quantity": "ENERGY"
+    },
+    {
+      "id": "outdoorTemperatureC",
+      "label": "Température extérieure",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE",
+      "hint": "Axe d’une carte de performance : la condition, pas une caractéristique de la machine."
+    },
+    {
+      "id": "flowM3h",
+      "label": "Débit",
+      "type": "number",
+      "unit": "m³/h",
+      "quantity": "VOLUME_FLOW",
+      "hint": "Axe d’une carte de performance : le débit au point considéré."
+    },
+    {
+      "id": "cop",
+      "label": "COP",
+      "type": "number",
+      "unit": "-",
+      "quantity": "RATIO",
+      "hint": "Sortie d’une carte de performance ; le COP nominal est nominalCop."
+    },
+    {
+      "id": "headM",
+      "label": "Hauteur manométrique",
+      "type": "number",
+      "unit": "m",
+      "quantity": "LENGTH",
+      "hint": "Sortie d’une carte de performance ; la hauteur maximale est maximumHeadM."
+    },
+    {
+      "id": "staticPressurePa",
+      "label": "Pression statique",
+      "type": "number",
+      "unit": "Pa",
+      "quantity": "PRESSURE",
+      "hint": "Sortie d’une carte de performance ; la pression maximale est maximumStaticPressurePa."
     }
   ]
 }

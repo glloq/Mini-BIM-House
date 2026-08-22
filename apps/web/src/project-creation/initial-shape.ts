@@ -19,8 +19,13 @@ import { addWallRunCommand } from '../editor/editing-commands.js';
 import type { InitialBuildingShape } from '../ux/new-project-draft.js';
 import { shapeIssues, shapeOutline } from './new-project.js';
 
-export const EXTERIOR_WALL_ASSEMBLY = 'assembly-exterior-wall';
-export const GROUND_SLAB_ASSEMBLY = 'assembly-floor';
+// The build-ups the starting footprint is drawn with, named as the assembly
+// catalogue names them. They were `assembly-exterior-wall` and
+// `assembly-floor`, which were the identifiers of a list written out in the
+// application; the list is data now, and these have to follow it or the
+// footprint would reference build-ups the project does not carry.
+export const EXTERIOR_WALL_ASSEMBLY = 'generic-wall-block-external-insulation';
+export const GROUND_SLAB_ASSEMBLY = 'generic-floor-slab-on-ground';
 
 export type InitialShapeResult =
   | { readonly status: 'NONE' }

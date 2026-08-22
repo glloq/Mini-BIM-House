@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  GENERIC_MATERIAL_FORMAT_VERSION,
   GENERIC_MATERIAL_REFERENCE,
   genericMaterial,
   genericMaterialCatalog,
   genericMaterialCategories,
+  genericMaterialFamily,
+  rawGenericMaterialEntries,
 } from './generic-catalog.js';
 import { validateMaterial } from './materials.js';
 import { queryMaterials } from './material-editor.js';
@@ -48,10 +51,15 @@ describe('generic material catalogue', () => {
       );
       for (const property of Object.keys(material.properties))
         expect(sourced.has(property)).toBe(true);
+      // The acoustic coefficients do not come from the same page as the
+      // thermal ones, and the catalogue no longer says they do: `GENERIC` was
+      // missing from the list, so a design figure had to wear a standard's
+      // authority to be stated at all.
       expect(
         (material.sources ?? []).every(
           ({ sourceType, reference }) =>
-            sourceType === 'STANDARD' && (reference ?? '') !== '',
+            (sourceType === 'STANDARD' || sourceType === 'GENERIC') &&
+            (reference ?? '') !== '',
         ),
       ).toBe(true);
     }
@@ -94,5 +102,23 @@ describe('generic material catalogue', () => {
     expect(genericMaterialCatalog()[0]).not.toBe(genericMaterialCatalog()[0]);
     expect(genericMaterialCategories()).toContain('INSULATION');
     expect(genericMaterial('nope')).toBeUndefined();
+  });
+
+  it('lives in data, and says which family each entry belongs to', () => {
+    // It was the last of the seven registries still written in TypeScript: a
+    // file nobody reads, that two people cannot edit at once, and that no gate
+    // could check.
+    expect(GENERIC_MATERIAL_FORMAT_VERSION).toBe('1.0.0');
+    expect(rawGenericMaterialEntries()).toHaveLength(16);
+    for (const entry of rawGenericMaterialEntries()) {
+      expect(entry.familyId).toMatch(/^[A-Z][A-Z0-9_]*$/u);
+      expect(entry.version).toMatch(/^\d+\.\d+\.\d+$/u);
+      expect(entry.provenance.reference).not.toBe('');
+      // The data file speaks the property registry's language, not the
+      // model's: two vocabularies for one quantity is what this closes.
+      expect(entry.properties).not.toHaveProperty('lambdaWmK');
+    }
+    expect(genericMaterialFamily('generic-glass-wool')).toBe('GLASS_WOOL');
+    expect(genericMaterialFamily('nope')).toBeUndefined();
   });
 });

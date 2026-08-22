@@ -1,5 +1,6 @@
 import type {
   EquipmentDefinition,
+  OpeningDefinition,
   JsonValue,
   Level,
   NetworkProductSnapshot,
@@ -168,6 +169,14 @@ export interface ProjectCalculationContext {
   readonly equipmentByKind: Readonly<
     Record<string, readonly EquipmentDefinition[]>
   >;
+  /**
+   * The models of window, door and shutter this project's openings are.
+   *
+   * They used to be looked for in the equipment library, where a window is not
+   * an equipment, so an opening's transmittance was found only when somebody
+   * had filed a window as a piece of plant.
+   */
+  readonly openingTypes: readonly OpeningDefinition[];
   /**
    * The things actually standing in the building, model and placement
    * together.
@@ -431,6 +440,7 @@ export function createProjectCalculationContext(
     networksByDiscipline: groupBy(systems, ({ discipline }) => discipline),
     equipment,
     equipmentByKind: groupBy(equipment, ({ kind }) => kind),
+    openingTypes: project.openingTypes ?? [],
     networkProducts: project.networkProducts ?? [],
     placedEquipment: placed,
     placedEquipmentByFamily: placedEquipmentByFamily(placed),

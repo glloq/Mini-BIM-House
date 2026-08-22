@@ -14,19 +14,32 @@
  * which entry, which property. Contributors get it in a second without running
  * thirteen hundred tests; the integration gets it as a gate.
  */
-import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
+import { existsSync, readFileSync } from 'node:fs';
+import {
+  SYMBOL_LIBRARY_V1,
+  rawGenericSymbolEntries,
+  symbolCatalogIssues,
+} from '@house-technical-designer/drawing-engine';
 import { PROJECT_CALCULATION_MODULE_IDS } from '@house-technical-designer/calculation-adapters';
 import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
 import {
   FAMILY_REGISTRY,
   NETWORK_PRODUCT_REGISTRY,
   PROPERTY_SCHEMA_REGISTRY,
+  currentCatalogManifest,
+  validateAssemblyCatalog,
   validateCatalog,
+  validateMaterialCatalog,
+  validateOpeningCatalog,
   validateNetworkProducts,
   validateRegistry,
   validateSchemas,
 } from '@house-technical-designer/catalog-registry';
+import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
+import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies';
+import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
 
+const MANIFEST_PATH = 'packages/catalog-registry/data/manifest.json';
 const symbols = new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions));
 const calculators = new Set<string>(PROJECT_CALCULATION_MODULE_IDS);
 
@@ -74,6 +87,52 @@ const sections: readonly Section[] = [
     ),
   },
   {
+    // The last of the seven registries to have lived in TypeScript, and the
+    // last no gate had ever read.
+    title: 'Matériaux',
+    counted: rawGenericMaterialEntries().length,
+    noun: 'matériaux',
+    issues: validateMaterialCatalog().map(({ entryId, path, message }) => ({
+      subject: entryId,
+      path,
+      message,
+    })),
+  },
+  {
+    // The pointer existed and the catalogue did not: every window in every
+    // project had its Uw typed in by hand, or was counted as an unknown.
+    title: 'Ouvertures',
+    counted: rawGenericOpeningEntries().length,
+    noun: 'ouvertures',
+    issues: validateOpeningCatalog().map(({ entryId, path, message }) => ({
+      subject: entryId,
+      path,
+      message,
+    })),
+  },
+  {
+    title: 'Assemblages',
+    counted: rawGenericAssemblyEntries().length,
+    noun: 'compositions',
+    issues: validateAssemblyCatalog().map(({ entryId, path, message }) => ({
+      subject: entryId,
+      path,
+      message,
+    })),
+  },
+  {
+    // The last of the seven registries to live in TypeScript, and the only one
+    // whose defects used to stop the application rather than be reported.
+    title: 'Symboles',
+    counted: rawGenericSymbolEntries().length,
+    noun: 'symboles',
+    issues: symbolCatalogIssues().map(({ symbolId, path, message }) => ({
+      subject: symbolId,
+      path,
+      message,
+    })),
+  },
+  {
     title: 'Produits réseau',
     counted: NETWORK_PRODUCT_REGISTRY.length,
     noun: 'produits',
@@ -84,6 +143,20 @@ const sections: readonly Section[] = [
     })),
   },
 ];
+
+/**
+ * The manifest, compared to what is actually installed.
+ *
+ * A manifest nobody checks is a manifest that describes a previous release,
+ * which is worse than none: it is a promise about what a project was designed
+ * with.
+ */
+const manifest = currentCatalogManifest();
+const recorded = existsSync(MANIFEST_PATH)
+  ? (JSON.parse(readFileSync(MANIFEST_PATH, 'utf8')) as {
+      readonly releaseId?: string;
+    })
+  : undefined;
 
 let failed = false;
 for (const { title, counted, noun, issues } of sections) {
@@ -96,7 +169,18 @@ for (const { title, counted, noun, issues } of sections) {
   for (const { subject, path, message } of issues)
     console.log(`    ${subject} · ${path} : ${message}`);
 }
-console.log(`  ${symbols.size} symboles disponibles.`);
+
+if (recorded === undefined)
+  console.log('✗ Manifeste — absent ; lancer npm run catalog:manifest.');
+else if (recorded.releaseId !== manifest.releaseId) {
+  console.log(
+    `✗ Manifeste — publication ${recorded.releaseId} enregistrée, ${manifest.releaseId} installée.`,
+  );
+} else
+  console.log(
+    `✓ Manifeste — publication ${manifest.releaseId}, format ${manifest.catalogFormatVersion}`,
+  );
+if (recorded?.releaseId !== manifest.releaseId) failed = true;
 
 if (failed) {
   console.error(

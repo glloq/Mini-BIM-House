@@ -3,8 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { graphicProfileId } from './scene.js';
 import {
   createSymbolLibrary,
+  GENERIC_SYMBOL_FORMAT_VERSION,
   placeSymbol,
+  rawGenericSymbolEntries,
   resolveSymbol,
+  symbolCatalogIssues,
   SYMBOL_LIBRARY_V1,
   type SymbolDefinition,
 } from './symbols.js';
@@ -170,5 +173,38 @@ describe('symbol library v1', () => {
         },
       ),
     ).toThrow('nominal size');
+  });
+});
+
+describe('the symbols as data', () => {
+  it('lives in a file rather than in the code that draws it', () => {
+    // Twenty-seven definitions written out in TypeScript with four helpers to
+    // keep them short: it works at twenty-seven and stops at three hundred.
+    expect(GENERIC_SYMBOL_FORMAT_VERSION).toBe('1.0.0');
+    expect(rawGenericSymbolEntries()).toHaveLength(27);
+    expect(Object.keys(SYMBOL_LIBRARY_V1.definitions)).toHaveLength(27);
+    expect(SYMBOL_LIBRARY_V1.licence).toBe('AGPL-3.0-only');
+  });
+
+  it('versions every glyph and says where it comes from', () => {
+    for (const symbol of rawGenericSymbolEntries()) {
+      expect(symbol.version).toMatch(/^\d+\.\d+\.\d+$/u);
+      expect(symbol.provenance?.reference).not.toBe('');
+    }
+    expect(symbolCatalogIssues()).toEqual([]);
+  });
+
+  it('reports a broken glyph instead of bringing the application down', () => {
+    const [first] = rawGenericSymbolEntries();
+    const broken = {
+      ...first!,
+      id: 'symbol-broken',
+      viewBox: { min: { x: 3, y: 3 }, max: { x: -3, y: -3 } },
+    };
+    const { version: _dropped, ...unversioned } = broken;
+    expect(symbolCatalogIssues([unversioned]).map(({ path }) => path)).toEqual([
+      '',
+      'version',
+    ]);
   });
 });

@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/catalog-material.schema.json",
+  "title": "Material catalogue file",
+  "type": "object",
+  "required": [
+    "formatVersion",
+    "materials"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "formatVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "familyId",
+          "category",
+          "name",
+          "version",
+          "provenance",
+          "properties"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:[-.][a-z0-9]+)*$"
+          },
+          "familyId": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
+          "category": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "provenance": {
+            "type": "object",
+            "required": [
+              "type",
+              "reference"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "url": {
+                "type": "string"
+              },
+              "validAt": {
+                "type": "string"
+              }
+            }
+          },
+          "properties": {
+            "type": "object"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "property",
+                "sourceType",
+                "reference"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "property": {
+                  "type": "string"
+                },
+                "sourceType": {
+                  "type": "string"
+                },
+                "reference": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "url": {
+                  "type": "string"
+                },
+                "validAt": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

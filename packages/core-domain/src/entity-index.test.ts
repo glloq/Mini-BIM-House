@@ -269,6 +269,14 @@ export function populated(): Project {
         properties: {},
       },
     ],
+    openingTypes: [
+      {
+        id: 'window-model',
+        category: 'WINDOW',
+        name: 'Fenêtre générique',
+        properties: { uw: 1.4 },
+      },
+    ],
     systems: [
       {
         id: entityId('water'),

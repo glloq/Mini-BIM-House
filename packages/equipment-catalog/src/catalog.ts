@@ -5,6 +5,11 @@ import type {
   EquipmentPropertyValue,
   PerformanceCurve,
 } from './types.js';
+import {
+  lookupPerformance,
+  validatePerformanceMap,
+  type PerformanceLookup,
+} from './performance-map.js';
 
 function issue(
   code: EquipmentIssue['code'],
@@ -13,47 +18,6 @@ function issue(
   message: string,
 ): EquipmentIssue {
   return { code, path, severity, message };
-}
-
-function validateCurve(
-  curve: PerformanceCurve,
-  path: string,
-  issues: EquipmentIssue[],
-): void {
-  if (curve.inputAxes.length === 0 || curve.points.length === 0) {
-    issues.push(
-      issue(
-        'EQUIPMENT_INVALID_CURVE',
-        path,
-        'ERROR',
-        `Curve ${curve.id} needs at least one axis and one point.`,
-      ),
-    );
-    return;
-  }
-  for (const [index, point] of curve.points.entries()) {
-    if (point.inputs.length !== curve.inputAxes.length)
-      issues.push(
-        issue(
-          'EQUIPMENT_INVALID_CURVE',
-          `${path}/points/${index}`,
-          'ERROR',
-          `Point ${index} of curve ${curve.id} does not provide one value per axis.`,
-        ),
-      );
-    if (
-      !Number.isFinite(point.output) ||
-      point.inputs.some((value) => !Number.isFinite(value))
-    )
-      issues.push(
-        issue(
-          'EQUIPMENT_INVALID_CURVE',
-          `${path}/points/${index}`,
-          'ERROR',
-          `Point ${index} of curve ${curve.id} holds a non-finite value.`,
-        ),
-      );
-  }
 }
 
 /**
@@ -152,7 +116,9 @@ export function validateEquipmentDefinition(
       ),
     );
   for (const [index, curve] of (definition.performanceCurves ?? []).entries())
-    validateCurve(curve, `/performanceCurves/${index}`, issues);
+    issues.push(
+      ...validatePerformanceMap(curve, `/performanceCurves/${index}`),
+    );
   return issues;
 }
 
@@ -214,7 +180,7 @@ export function queryEquipment(
           [
             definition.name,
             definition.id,
-            definition.kind,
+            definition.familyId,
             definition.manufacturer ?? '',
             definition.model ?? '',
           ].join(' '),
@@ -223,7 +189,8 @@ export function queryEquipment(
     .filter(
       (definition) =>
         query.categories === undefined ||
-        query.categories.includes(definition.category),
+        (definition.category !== undefined &&
+          query.categories.includes(definition.category)),
     )
     .filter(
       (definition) =>
@@ -239,7 +206,7 @@ export function queryEquipment(
     .slice()
     .sort(
       (first, second) =>
-        first.category.localeCompare(second.category) ||
+        (first.category ?? '').localeCompare(second.category ?? '') ||
         first.name.localeCompare(second.name, 'fr') ||
         first.id.localeCompare(second.id),
     );
@@ -329,59 +296,15 @@ export function resolvePlacedEquipment(
   return { status: 'OK', definition, issues };
 }
 
-export type PerformanceLookup =
-  | { readonly status: 'OK'; readonly value: number }
-  | {
-      readonly status: 'OUT_OF_RANGE';
-      readonly issue: EquipmentIssue;
-    };
-
 /**
  * Interpolates a single-axis performance curve.
  *
- * Nothing is extrapolated: a request outside the tabulated domain is reported so
- * the caller can show the limit rather than a confidently wrong number.
+ * Kept as the one-input spelling of `lookupPerformance`, which reads one and
+ * two axes alike and extrapolates neither.
  */
 export function interpolatePerformance(
   curve: PerformanceCurve,
   input: number,
 ): PerformanceLookup {
-  if (curve.inputAxes.length !== 1)
-    return {
-      status: 'OUT_OF_RANGE',
-      issue: issue(
-        'EQUIPMENT_INVALID_CURVE',
-        `/${curve.id}`,
-        'ERROR',
-        `Curve ${curve.id} is not a single-axis curve.`,
-      ),
-    };
-  const points = [...curve.points].sort(
-    (first, second) => first.inputs[0]! - second.inputs[0]!,
-  );
-  const first = points[0]!;
-  const last = points.at(-1)!;
-  if (input < first.inputs[0]! || input > last.inputs[0]!)
-    return {
-      status: 'OUT_OF_RANGE',
-      issue: issue(
-        'EQUIPMENT_PERFORMANCE_OUT_OF_RANGE',
-        `/${curve.id}`,
-        'WARNING',
-        `${input} ${curve.inputAxes[0]!.unit} lies outside the tabulated range ${first.inputs[0]!}–${last.inputs[0]!}.`,
-      ),
-    };
-  for (let index = 1; index < points.length; index += 1) {
-    const previous = points[index - 1]!;
-    const current = points[index]!;
-    if (input > current.inputs[0]!) continue;
-    const span = current.inputs[0]! - previous.inputs[0]!;
-    if (span === 0) return { status: 'OK', value: current.output };
-    const ratio = (input - previous.inputs[0]!) / span;
-    return {
-      status: 'OK',
-      value: previous.output + ratio * (current.output - previous.output),
-    };
-  }
-  return { status: 'OK', value: last.output };
+  return lookupPerformance(curve, [input]);
 }

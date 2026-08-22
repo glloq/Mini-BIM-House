@@ -5,6 +5,7 @@
       "label": "Châssis fixe",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -33,6 +34,7 @@
       "label": "Fenêtre à la française",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -61,6 +63,7 @@
       "label": "Fenêtre oscillo-battante",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -89,6 +92,7 @@
       "label": "Fenêtre à projection",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -117,6 +121,7 @@
       "label": "Fenêtre à soufflet",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -145,6 +150,7 @@
       "label": "Fenêtre coulissante",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -173,6 +179,7 @@
       "label": "Fenêtre coulissante à deux vantaux",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -201,6 +208,7 @@
       "label": "Fenêtre de toit",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -229,6 +237,7 @@
       "label": "Baie vitrée",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -257,6 +266,7 @@
       "label": "Fenêtre d’angle",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -285,6 +295,7 @@
       "label": "Ensemble menuisé",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -313,6 +324,7 @@
       "label": "Porte-fenêtre",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -341,6 +353,7 @@
       "label": "Baie coulissante",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -369,6 +382,7 @@
       "label": "Baie levante coulissante",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -397,6 +411,7 @@
       "label": "Baie à galandage",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "WINDOW",
       "priority": 1,
       "calculators": [
         "thermal",
@@ -425,6 +440,7 @@
       "label": "Porte simple",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "DOOR",
       "priority": 1,
       "calculators": ["thermal", "acoustics", "cost", "environmental"],
       "placement": {
@@ -445,6 +461,7 @@
       "label": "Porte double",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "DOOR",
       "priority": 1,
       "calculators": ["thermal", "acoustics", "cost", "environmental"],
       "placement": {
@@ -465,6 +482,7 @@
       "label": "Porte coulissante",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "DOOR",
       "priority": 1,
       "calculators": ["thermal", "acoustics", "cost", "environmental"],
       "placement": {
@@ -485,6 +503,7 @@
       "label": "Porte à galandage",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "DOOR",
       "priority": 1,
       "calculators": ["thermal", "acoustics", "cost", "environmental"],
       "placement": {
@@ -505,6 +524,7 @@
       "label": "Porte pliante",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "DOOR",
       "priority": 1,
       "calculators": ["thermal", "acoustics", "cost", "environmental"],
       "placement": {
@@ -525,6 +545,7 @@
       "label": "Porte coupe-feu",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "DOOR",
       "priority": 1,
       "calculators": ["thermal", "acoustics", "cost", "environmental"],
       "placement": {
@@ -545,6 +566,7 @@
       "label": "Porte blindée",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "DOOR",
       "priority": 1,
       "calculators": ["thermal", "acoustics", "cost", "environmental"],
       "placement": {
@@ -565,6 +587,7 @@
       "label": "Porte de garage",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "DOOR",
       "priority": 1,
       "calculators": ["thermal", "acoustics", "cost", "environmental"],
       "placement": {
@@ -585,6 +608,7 @@
       "label": "Porte extérieure",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "DOOR",
       "priority": 1,
       "calculators": ["thermal", "acoustics", "cost", "environmental"],
       "placement": {
@@ -605,6 +629,7 @@
       "label": "Porte intérieure",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "DOOR",
       "priority": 1,
       "calculators": ["thermal", "acoustics", "cost", "environmental"],
       "placement": {
@@ -625,6 +650,7 @@
       "label": "Volet roulant",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "SOLAR_PROTECTION",
       "priority": 1,
       "ports": ["ELECTRICAL_AC", "CONTROL"],
       "calculators": ["thermal", "lighting", "cost"],
@@ -645,6 +671,7 @@
       "label": "Volet battant",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "SOLAR_PROTECTION",
       "priority": 1,
       "calculators": ["thermal", "lighting", "cost"],
       "placement": {
@@ -664,6 +691,7 @@
       "label": "Store extérieur",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "SOLAR_PROTECTION",
       "priority": 1,
       "ports": ["ELECTRICAL_AC", "CONTROL"],
       "calculators": ["thermal", "lighting", "cost"],
@@ -684,6 +712,7 @@
       "label": "Brise-soleil orientable",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "SOLAR_PROTECTION",
       "priority": 1,
       "ports": ["ELECTRICAL_AC", "CONTROL"],
       "calculators": ["thermal", "lighting", "cost"],
@@ -704,6 +733,7 @@
       "label": "Store intérieur",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "SOLAR_PROTECTION",
       "priority": 1,
       "calculators": ["thermal", "lighting", "cost"],
       "placement": {
@@ -723,6 +753,7 @@
       "label": "Store banne",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "SOLAR_PROTECTION",
       "priority": 1,
       "ports": ["ELECTRICAL_AC", "CONTROL"],
       "calculators": ["thermal", "lighting", "cost"],
@@ -743,6 +774,7 @@
       "label": "Casquette",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "SOLAR_PROTECTION",
       "priority": 1,
       "calculators": ["thermal", "lighting", "cost"],
       "placement": {
@@ -762,6 +794,7 @@
       "label": "Brise-soleil fixe",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "SOLAR_PROTECTION",
       "priority": 1,
       "calculators": ["thermal", "lighting", "cost"],
       "placement": {
@@ -781,6 +814,7 @@
       "label": "Toile de protection",
       "domain": "ARCHITECTURE",
       "registry": "OPENING",
+      "category": "SOLAR_PROTECTION",
       "priority": 1,
       "calculators": ["thermal", "lighting", "cost"],
       "placement": {

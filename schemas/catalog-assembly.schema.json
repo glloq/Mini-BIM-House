@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/catalog-assembly.schema.json",
+  "title": "Assembly catalogue file",
+  "type": "object",
+  "required": [
+    "formatVersion",
+    "assemblies"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "formatVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "assemblies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "familyId",
+          "category",
+          "name",
+          "version",
+          "provenance",
+          "layers"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:[-.][a-z0-9]+)*$"
+          },
+          "familyId": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
+          "category": {
+            "enum": [
+              "WALL",
+              "ROOF",
+              "FLOOR",
+              "CEILING",
+              "PARTITION",
+              "OTHER"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "provenance": {
+            "type": "object",
+            "required": [
+              "type",
+              "reference"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "url": {
+                "type": "string"
+              },
+              "validAt": {
+                "type": "string"
+              }
+            }
+          },
+          "layers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "materialId",
+                "thicknessM"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "materialId": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9]+(?:[-.][a-z0-9]+)*$"
+                },
+                "thicknessM": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 2
+                },
+                "role": {
+                  "type": "string"
+                },
+                "ventilated": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

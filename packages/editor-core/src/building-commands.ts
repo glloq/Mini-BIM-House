@@ -1659,6 +1659,13 @@ export interface OpeningPatch {
   readonly heightMm?: number;
   readonly sillHeightMm?: number;
   readonly offsetAlongHostMm?: number;
+  /**
+   * The model of menuiserie this hole is, or `null` to have none.
+   *
+   * It is what carries the transmittance the envelope needs, and it had no way
+   * of being set: the field existed on the opening and nothing wrote it.
+   */
+  readonly definitionId?: string | null;
 }
 
 /**
@@ -1687,6 +1694,14 @@ export class UpdateOpeningCommand extends BuildingCommand {
     );
     if (openingType !== undefined)
       return rejected(`Type d'ouverture inconnu : ${openingType}.`);
+    // A model the project does not carry is a pointer at nothing, and the
+    // importer would refuse the file it produced.
+    const definitionId = this.patch.definitionId;
+    if (
+      typeof definitionId === 'string' &&
+      !(project.openingTypes ?? []).some(({ id }) => id === definitionId)
+    )
+      return rejected(`La menuiserie ${definitionId} est introuvable.`);
     const errors = [
       ...finitePositive(this.patch.widthMm, "La largeur de l'ouverture"),
       ...finitePositive(this.patch.heightMm, "La hauteur de l'ouverture"),
@@ -1725,9 +1740,17 @@ export class UpdateOpeningCommand extends BuildingCommand {
   protected apply(project: Project): Project {
     return mapLevel(project, this.levelId, (level) => ({
       ...level,
-      openings: level.openings.map((opening) =>
-        opening.id === this.openingId ? { ...opening, ...this.patch } : opening,
-      ),
+      openings: level.openings.map((opening) => {
+        if (opening.id !== this.openingId) return opening;
+        const { definitionId, ...rest } = this.patch;
+        const next = { ...opening, ...rest };
+        if (definitionId === undefined) return next;
+        if (definitionId === null) {
+          const { definitionId: _cleared, ...without } = next;
+          return without;
+        }
+        return { ...next, definitionId };
+      }),
     }));
   }
 }

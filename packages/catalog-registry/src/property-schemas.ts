@@ -21,6 +21,18 @@ export const PROPERTY_TYPES = [
   'string',
   'boolean',
   'enum',
+  /**
+   * A value per octave band, which is how the acoustic trade tabulates
+   * everything it measures.
+   *
+   * Absorption is not a number: a carpet swallows 0,60 at 4 kHz and 0,03 at
+   * 125 Hz, and a single figure is either one of the eight or an average
+   * nobody can trace back. The material catalogue already held it as a record
+   * band by band, outside every schema and therefore checked by nothing — a
+   * band could be missing, a coefficient could be 1,4, and both files stayed
+   * valid on their own.
+   */
+  'spectrum',
 ] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 
@@ -138,7 +150,36 @@ export interface PropertySchemaFile {
   readonly properties: readonly PropertyConstraint[];
 }
 
-export type PropertyValue = string | number | boolean;
+/** A value per octave band, in hertz: `{ '125': 0.03, '250': 0.04, ... }`. */
+export type Spectrum = Readonly<Record<string, number>>;
+
+export type PropertyValue = string | number | boolean | Spectrum;
+
+/**
+ * The bands a spectrum may be given in.
+ *
+ * The eight octave bands the building trades measure and publish. Closed on
+ * purpose: a coefficient filed at 300 Hz is a coefficient no standard, no
+ * calculation and no other fiche will ever line up against.
+ */
+export const OCTAVE_BANDS_HZ = [
+  '63',
+  '125',
+  '250',
+  '500',
+  '1000',
+  '2000',
+  '4000',
+  '8000',
+] as const;
+
+export function isSpectrum(value: PropertyValue): value is Spectrum {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Object.values(value).every((band) => typeof band === 'number')
+  );
+}
 
 export interface PropertyIssue {
   readonly path: string;
@@ -241,6 +282,28 @@ function invalid(
       return property.options === undefined || property.options.includes(value)
         ? []
         : at(`${property.key} must be one of ${property.options.join(', ')}`);
+    case 'spectrum': {
+      if (!isSpectrum(value))
+        return at(`${property.key} must give a number per octave band`);
+      const bands = Object.keys(value);
+      if (bands.length === 0) return at(`${property.key} gives no band at all`);
+      const issues: PropertyIssue[] = [];
+      for (const band of bands) {
+        if (!(OCTAVE_BANDS_HZ as readonly string[]).includes(band))
+          issues.push({
+            path: `${property.key}/${band}`,
+            message: `${band} Hz is not one of the octave bands ${OCTAVE_BANDS_HZ.join(', ')}`,
+          });
+        else
+          issues.push(
+            ...outOfRange(property, value[band]!).map(({ message }) => ({
+              path: `${property.key}/${band}`,
+              message,
+            })),
+          );
+      }
+      return issues;
+    }
   }
 }
 
@@ -304,8 +367,13 @@ export function validatePropertyDefinitions(
     if (definition.label.trim() === '') at(where, 'must have a label');
     if (!(PROPERTY_TYPES as readonly string[]).includes(definition.type))
       at(where, `unknown type ${definition.type}`);
+    // A spectrum is a number per band, so it carries a unit like any other
+    // measured quantity: an absorption coefficient is a ratio, a sound
+    // reduction is in decibels.
     const numeric =
-      definition.type === 'number' || definition.type === 'integer';
+      definition.type === 'number' ||
+      definition.type === 'integer' ||
+      definition.type === 'spectrum';
     if (numeric && (definition.unit ?? '').trim() === '')
       at(where, 'is a number and states no unit');
     if (definition.unit !== undefined && !isWrittenUnit(definition.unit))

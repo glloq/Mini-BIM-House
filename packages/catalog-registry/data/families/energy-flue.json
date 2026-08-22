@@ -5,6 +5,7 @@
       "label": "Module photovoltaïque",
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
+      "category": "PV_MODULE",
       "priority": 5,
       "ports": ["PV_DC", "EARTH"],
       "calculators": [
@@ -216,6 +217,7 @@
       "label": "Onduleur de chaîne",
       "domain": "SOLAR",
       "registry": "EQUIPMENT",
+      "category": "INVERTER",
       "priority": 5,
       "ports": [
         {
@@ -565,6 +567,7 @@
       "label": "Pack",
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
+      "category": "BATTERY",
       "priority": 5,
       "ports": ["BATTERY_DC", "CONTROL", "EARTH"],
       "calculators": [

@@ -50,6 +50,35 @@ donnera d'autres chiffres, et c'est l'ordre de grandeur — et surtout son
 | Batterie, une année au pas horaire        |        8,399 ms |     119 op/s |         ±22,60 % |           12 |
 | Agrégation thermique de 100 éléments      |       0,0494 ms |  20 227 op/s |          ±2,86 % |        2 023 |
 
+### Le catalogue à l'échelle
+
+Tout ce dépôt se mesure contre dix-neuf fiches, seize matériaux et
+soixante-six tubes. Les décisions qui comptent — un résumé plutôt qu'une fiche,
+un index plutôt qu'un parcours, un dépôt capable d'aller chercher plus tard —
+sont des décisions sur dix mille, et une conception défendue seulement à cent
+est une conception dont personne n'a éprouvé l'argument.
+
+`syntheticSummaries` fabrique un catalogue de la taille visée, déterministe :
+le même nombre donne le même catalogue, pour qu'une mesure compare deux
+versions du code et non deux tirages.
+
+| Benchmark                                  | Latence moyenne |           Débit |
+| ------------------------------------------ | --------------: | --------------: |
+| Indexer 1 000 résumés                      |         3,66 ms |        273 op/s |
+| Indexer 10 000 résumés                     |        44,48 ms |       22,5 op/s |
+| Rechercher un mot parmi 10 000             |         1,34 ms |        748 op/s |
+| Filtrer 10 000 par métier et capability    |         0,35 ms |      2 895 op/s |
+| Retrouver une référence parmi 10 000       |      0,00009 ms | 11 649 404 op/s |
+| Valider 1 000 fiches contre leurs familles |         2,57 ms |        389 op/s |
+
+Dix mille fiches s'arrangent en quarante-cinq millisecondes, une fois, au
+chargement ; une frappe dans la recherche coûte ensuite 1,3 ms et un filtre
+0,35 ms. La porte lit mille fiches en 2,6 ms, donc les dix mille du jour où le
+catalogue sera plein en vingt-six. Rien de tout cela n'est un seuil
+d'intégration — les machines diffèrent — mais le banc tourne à chaque
+intégration, et il tombera bruyamment le jour où indexer dix mille fiches
+cessera de finir.
+
 ### Lecture
 
 Les quatre charges liées à une interaction — validation géométrique, rendu,
