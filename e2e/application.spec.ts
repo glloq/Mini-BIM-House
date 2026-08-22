@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
 import { openDestination } from './support/navigation.js';
+import { chooseTool } from './support/tools.js';
 
 /**
  * Console errors are a failure, not noise: a blank page caused by an unhandled
@@ -74,7 +75,7 @@ test('adds a wall, then undoes and redoes it', async ({ page }) => {
   const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
   await expect(walls).toHaveCount(6);
 
-  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await chooseTool(page, 'Mur');
   // Clicking through the locator scrolls the canvas into view first, so the
   // points land on the drawing rather than outside the window.
   const canvas = page.locator('.plan-canvas');
@@ -233,7 +234,7 @@ test('autosaves an edit and offers to restore it after a reload', async ({
   await loadDemo(page);
   await expect(page.locator('.save-state')).toHaveText('Enregistré');
 
-  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await chooseTool(page, 'Mur');
   const canvas = page.locator('.plan-canvas');
   await canvas.click({ position: { x: 120, y: 380 } });
   await canvas.click({ position: { x: 420, y: 380 } });
@@ -256,7 +257,7 @@ test('restores the climate along with the autosaved project', async ({
   page,
 }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await chooseTool(page, 'Mur');
   const canvas = page.locator('.plan-canvas');
   await canvas.click({ position: { x: 120, y: 380 } });
   await canvas.click({ position: { x: 420, y: 380 } });
@@ -282,7 +283,7 @@ test('discards the local snapshot when the user declines it', async ({
   page,
 }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await chooseTool(page, 'Mur');
   const canvas = page.locator('.plan-canvas');
   await canvas.click({ position: { x: 120, y: 380 } });
   await canvas.click({ position: { x: 420, y: 380 } });
@@ -327,7 +328,7 @@ test('creates a technical network, places a node on the plan and routes it', asy
   );
 
   await openDestination(page, 'Plan');
-  await page.getByRole('button', { name: 'Réseau', exact: true }).click();
+  await chooseTool(page, 'Réseau');
   await page
     .getByLabel('Réseau', { exact: true })
     .selectOption('network-heating-radiator-loop');
@@ -438,7 +439,6 @@ test('reshapes a wall after drawing it, instead of redrawing it', async ({
   const canvasBox = (await canvas.boundingBox())!;
   // Scinder, décaler, joindre et ajuster sont des outils de productivité CAO :
   // ils apparaissent au niveau Expert de l'interface.
-  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
   // The east wall carries no opening and no partition crosses it.
   const east = (await page.locator('[id="wall:wall-east"]').boundingBox())!;
   await canvas.click({
@@ -476,7 +476,7 @@ test('reshapes a wall after drawing it, instead of redrawing it', async ({
   const wallsBefore = await page
     .locator('[data-role="WALL_CUT"][id^="wall:"]')
     .count();
-  await page.getByRole('button', { name: 'Scinder', exact: true }).click();
+  await chooseTool(page, 'Scinder');
   await canvas.scrollIntoViewIfNeeded();
   const frame = (await canvas.boundingBox())!;
   const shape = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
@@ -532,7 +532,7 @@ test('measures between two wall corners and keeps the cote in the project', asyn
   const dimensions = page.locator('[data-layer="annotation.dimensions"] > *');
   await expect(dimensions).toHaveCount(0);
 
-  await page.getByRole('button', { name: 'Cotation', exact: true }).click();
+  await chooseTool(page, 'Cotation');
   const canvas = page.locator('.plan-canvas');
   const box = (await canvas.boundingBox())!;
   // The south wall runs the whole width of the house; its two ends are the
@@ -597,7 +597,7 @@ test('creates a partition as a partition, not as an exterior wall', async ({
   page,
 }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await chooseTool(page, 'Mur');
   // Choosing a partition assembly proposes the matching role rather than
   // leaving every drawn wall in the thermal envelope.
   await page.getByLabel('Assemblage').selectOption('assembly-partition');
@@ -608,7 +608,7 @@ test('creates a partition as a partition, not as an exterior wall', async ({
   await canvas.click({ position: { x: 420, y: 380 } });
   await expect(page.getByRole('status')).toContainText('Ajouter un mur');
 
-  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await chooseTool(page, 'Sélection');
   await canvas.click({ position: { x: 270, y: 380 } });
   await expect(page.locator('.inspector-subject')).toContainText('PARTITION');
 });
@@ -810,10 +810,12 @@ test('carries a selection across the plan by dragging it', async ({ page }) => {
     .inputValue();
 
   // Pressing on something already selected carries it rather than starting a
-  // rubber band.
-  await page.mouse.move(frame.x + grip.x, frame.y + grip.y);
+  // rubber band. The frame is read again here: selecting redraws the panels,
+  // and a box measured before that is a box from another layout.
+  const held = (await canvas.boundingBox())!;
+  await page.mouse.move(held.x + grip.x, held.y + grip.y);
   await page.mouse.down();
-  await page.mouse.move(frame.x + grip.x + 60, frame.y + grip.y + 20, {
+  await page.mouse.move(held.x + grip.x + 60, held.y + grip.y + 20, {
     steps: 6,
   });
   // The wall is shown where it would land before it is dropped.
@@ -964,7 +966,6 @@ test('turns and reflects a selection about its own centre', async ({
 test('offsets, joins and aligns walls from the plan', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
@@ -980,7 +981,7 @@ test('offsets, joins and aligns walls from the plan', async ({ page }) => {
   };
 
   // Décaler : le mur, puis le côté et la distance.
-  await page.getByRole('button', { name: 'Décaler', exact: true }).click();
+  await chooseTool(page, 'Décaler');
   // A quarter of the way along, away from the partition that crosses this wall
   // at its middle.
   const source = await onWall('wall-south', 0.25, 0.5);
@@ -993,7 +994,7 @@ test('offsets, joins and aligns walls from the plan', async ({ page }) => {
   await expect(walls).toHaveCount(6);
 
   // Aligner demande au moins deux objets, et le dit.
-  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await chooseTool(page, 'Sélection');
   await canvas.click({ position: await onWall('wall-partition-v', 0.5, 0.2) });
   await expect(
     page.getByRole('button', { name: 'Aligner à gauche' }),
@@ -1023,7 +1024,7 @@ test('draws a wall of a typed length, at the cursor', async ({ page }) => {
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
 
-  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await chooseTool(page, 'Mur');
   await canvas.click({ position: { x: 80, y: 300 } });
   // The fields follow the point being placed rather than sitting at the top of
   // the window.
@@ -1042,7 +1043,7 @@ test('draws a wall of a typed length, at the cursor', async ({ page }) => {
   // The wall measures what was typed. Where to click is read from where the
   // wall was actually drawn: how many pixels a metre takes depends on how wide
   // the canvas is, and that is a layout decision, not a fact of the wall.
-  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await chooseTool(page, 'Sélection');
   const drawnId = (await wallIds()).find((id) => !before.includes(id));
   expect(drawnId).toBeDefined();
   const drawnBox = (await page.locator(`[id="${drawnId!}"]`).boundingBox())!;
@@ -1072,7 +1073,7 @@ test('chains a run of walls entirely from the typed fields', async ({
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
 
-  await page.getByRole('button', { name: 'Mur continu', exact: true }).click();
+  await chooseTool(page, 'Mur continu');
   await canvas.click({ position: { x: 80, y: 320 } });
   const dynamic = page.locator('.dynamic-input');
   await expect(dynamic).toBeVisible();
@@ -1101,47 +1102,28 @@ test('chains a run of walls entirely from the typed fields', async ({
 test('offers only the field the tool actually takes', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
 
   // An axis of symmetry has a direction that matters and a length that does
   // not; the tool has always said so, and both fields were shown all the same.
-  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
-  await canvas.click({ position: { x: 200, y: 300 } });
-  await page.getByRole('button', { name: 'Miroir', exact: true }).click();
+  await chooseTool(page, 'Sélection');
+  // Aimed at a wall the plan actually holds rather than at a pixel: how many
+  // pixels a metre takes depends on how wide the canvas is.
+  const frame = (await canvas.boundingBox())!;
+  const south = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: south.x - frame.x + south.width * 0.4,
+      y: south.y - frame.y + south.height / 2,
+    },
+  });
+  await chooseTool(page, 'Miroir');
   await canvas.click({ position: { x: 120, y: 200 } });
   const dynamic = page.locator('.dynamic-input');
   await expect(dynamic).toBeVisible();
   await expect(page.getByLabel('Angle du tracé')).toBeVisible();
   await expect(page.getByLabel('Longueur du tracé')).toBeHidden();
-  expect(errors).toEqual([]);
-});
-
-test('shows as much of the editor as the user asks for', async ({ page }) => {
-  const errors = watchConsole(page);
-  await loadDemo(page);
-
-  // Forty buttons are a wall for someone drawing their first plan and a
-  // necessary set for someone building a set of documents. Nothing is
-  // disabled: what changes is what is on screen.
-  const wall = page.getByRole('button', { name: 'Mur', exact: true });
-  const mirror = page.getByRole('button', { name: 'Miroir', exact: true });
-  await expect(wall).toBeVisible();
-  await expect(mirror).toBeHidden();
-
-  await page.getByLabel('Niveau d’interface').selectOption('EXPERT');
-  await expect(mirror).toBeVisible();
-  await mirror.click();
-
-  // A tool the narrower level does not offer cannot stay active with no button
-  // to say so.
-  await page.getByLabel('Niveau d’interface').selectOption('QUICK');
-  await expect(mirror).toBeHidden();
-  await expect(wall).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: 'Sélection', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });
 
@@ -1154,7 +1136,7 @@ test('writes on the plan what the model does not say', async ({ page }) => {
   // A drawing carries what the building is and what the person drawing it
   // wants read; only the first had anywhere to live.
   const options = page.getByRole('group', { name: 'Options de l’outil' });
-  await page.getByRole('button', { name: 'Annotation', exact: true }).click();
+  await chooseTool(page, 'Annotation');
   await options.getByLabel('Texte').fill('Existant à démolir');
   await canvas.click({ position: { x: 200, y: 260 } });
   await expect(page.getByRole('status')).toContainText(
@@ -1163,7 +1145,7 @@ test('writes on the plan what the model does not say', async ({ page }) => {
   await expect(page.locator('[id^="note:"]')).toHaveCount(1);
 
   // It is an object of the editor like any other: selected, described, edited.
-  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await chooseTool(page, 'Sélection');
   await canvas.click({ position: { x: 200, y: 260 } });
   await expect(page.locator('.inspector-subject h3')).toContainText(
     'Existant à démolir',
@@ -1171,7 +1153,7 @@ test('writes on the plan what the model does not say', async ({ page }) => {
   await expect(page.locator('.inspector-subject')).toContainText('personne');
 
   // An annotation with nothing written on it is an invisible object.
-  await page.getByRole('button', { name: 'Annotation', exact: true }).click();
+  await chooseTool(page, 'Annotation');
   await options.getByLabel('Texte').fill('');
   await canvas.click({ position: { x: 240, y: 300 } });
   await expect(page.getByRole('status')).toContainText('texte');
@@ -1251,12 +1233,12 @@ test('reaches a column and a component through the project tree', async ({
   // A column, then a radiator: the two families whose tree lines used to send
   // « member-1 Poteau member-1 » where an identifier was expected, so that
   // clicking them selected nothing at all.
-  await page.getByRole('button', { name: 'Poteau', exact: true }).click();
+  await chooseTool(page, 'Poteau');
   await page.getByLabel('Élément').selectOption('COLUMN');
   await canvas.click({ position: { x: box.width * 0.4, y: box.height * 0.4 } });
   await expect(page.locator('[id^="structure:member-"]')).toHaveCount(1);
 
-  await page.getByRole('button', { name: 'Composant', exact: true }).click();
+  await chooseTool(page, 'Composant');
   await page.getByLabel('Catégorie').selectOption('HEATING');
   await page.getByLabel('Nom').fill('Radiateur séjour');
   await canvas.click({
@@ -1308,12 +1290,13 @@ test('offers on an object only what its family can do', async ({ page }) => {
   await expect(
     menu.getByRole('menuitem', { name: 'Cadrer sur cet objet' }),
   ).toBeEnabled();
-  await page.keyboard.press('Escape');
-
-  // The quick transformations of the toolbar follow the same declaration.
+  // The quick transformations of the context bar follow the same declaration.
+  // Asked while the room is still selected: the bar carries what applies to
+  // the selection, so an empty selection carries nothing to ask about.
   await expect(
     page.getByRole('button', { name: /^Pivoter 90°/ }),
   ).toBeDisabled();
+  await page.keyboard.press('Escape');
   expect(errors).toEqual([]);
 });
 
@@ -1367,7 +1350,7 @@ test('asks before replacing a project that has unexported changes', async ({
   page,
 }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await chooseTool(page, 'Mur');
   const canvas = page.locator('.plan-canvas');
   await canvas.click({ position: { x: 120, y: 380 } });
   await canvas.click({ position: { x: 420, y: 380 } });
@@ -1462,6 +1445,54 @@ test('creates a project on a page, storey by storey', async ({ page }) => {
     'Étage',
     'Combles',
   ]);
+  expect(errors).toEqual([]);
+});
+
+test('shows nothing above the plan until something is being done', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const bar = page.locator('.context-tool-bar');
+  // Nothing chosen, nothing selected: the bar shows nothing. It keeps its
+  // place — a strip that comes and goes moves the drawing under the pointer —
+  // but it holds no control at all.
+  await expect(bar).toHaveClass(/is-empty/u);
+  await expect(bar.getByRole('button')).toHaveCount(0);
+
+  // The tools live in the context panel, grouped by trade.
+  const tools = page.locator('.tools-panel');
+  await expect(
+    tools.getByRole('region', { name: 'Outils · Architecture' }),
+  ).toBeVisible();
+  await chooseTool(page, 'Mur');
+  await expect(bar).toContainText('Mur');
+  // What the tool lets one decide before drawing sits under the tool itself,
+  // in the panel: choosing an assembly is part of choosing the wall tool.
+  await expect(tools.getByLabel('Assemblage')).toBeVisible();
+
+  // Finishing empties it again.
+  await bar.getByRole('button', { name: 'Terminer' }).click();
+  await expect(bar).toHaveClass(/is-empty/u);
+
+  // Selecting something brings back what applies to the selection, and only
+  // that.
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  const east = (await page.locator('[id="wall:wall-east"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: east.x - box.x + east.width / 2,
+      y: east.y - box.y + east.height * 0.25,
+    },
+  });
+  await expect(bar.getByRole('group', { name: 'Alignement' })).toBeVisible();
+  await expect(bar).not.toContainText('Terminer');
+
+  // One screen for everyone: the advanced tools are a disclosure away, not a
+  // mode away.
+  await expect(page.getByLabel('Niveau d’interface')).toHaveCount(0);
+  await expect(tools.getByText('Plus d’outils').first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -1865,7 +1896,7 @@ test('restores a local snapshot without claiming it was exported', async ({
   page,
 }) => {
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await chooseTool(page, 'Mur');
   const canvas = page.locator('.plan-canvas');
   await canvas.click({ position: { x: 120, y: 380 } });
   await canvas.click({ position: { x: 420, y: 380 } });
@@ -1978,7 +2009,7 @@ test('never shows calculation results from an earlier revision', async ({
 
   // Edit the model after the results were produced.
   await openDestination(page, 'Plan');
-  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await chooseTool(page, 'Mur');
   const canvas = page.locator('.plan-canvas');
   await canvas.click({ position: { x: 120, y: 380 } });
   await canvas.click({ position: { x: 420, y: 380 } });
@@ -2275,7 +2306,7 @@ test('draws a run of walls corner by corner and encloses by two corners', async 
   const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
   await expect(walls).toHaveCount(6);
 
-  await page.getByRole('button', { name: 'Mur continu', exact: true }).click();
+  await chooseTool(page, 'Mur continu');
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   await canvas.click({ position: { x: 60, y: 60 } });
@@ -2292,9 +2323,7 @@ test('draws a run of walls corner by corner and encloses by two corners', async 
   await page.getByRole('button', { name: 'Annuler', exact: true }).click();
   await expect(walls).toHaveCount(6);
 
-  await page
-    .getByRole('button', { name: 'Murs rectangle', exact: true })
-    .click();
+  await chooseTool(page, 'Murs rectangle');
   const box = (await canvas.boundingBox())!;
   await canvas.click({ position: { x: 60, y: box.height - 140 } });
   await canvas.click({ position: { x: 220, y: box.height - 40 } });
@@ -2307,7 +2336,7 @@ test('makes a room out of the contour the walls already enclose', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Pièce', exact: true }).click();
+  await chooseTool(page, 'Pièce');
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   const box = (await canvas.boundingBox())!;
@@ -2330,7 +2359,7 @@ test('places a thing in the building, as an object of the editor', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page.getByRole('button', { name: 'Composant', exact: true }).click();
+  await chooseTool(page, 'Composant');
   await page.getByLabel('Catégorie').selectOption('HEATING');
   await page.getByLabel('Nom').fill('Radiateur séjour');
 
@@ -2344,7 +2373,7 @@ test('places a thing in the building, as an object of the editor', async ({
 
   // The placed object is an object of the editor like any other: selectable,
   // described, and tied to the room it stands in.
-  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await chooseTool(page, 'Sélection');
   await canvas.click({
     position: { x: box.width * 0.3, y: box.height * 0.35 },
   });
@@ -2363,9 +2392,7 @@ test('places a thing in the building, as an object of the editor', async ({
 test('routes a run of pipe from port to port on the plan', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await page
-    .getByRole('button', { name: 'Tracer un tronçon', exact: true })
-    .click();
+  await chooseTool(page, 'Tracer un tronçon');
   // Choosing a network reveals the layer it draws on; drawing on a hidden
   // layer would place a run the user cannot see.
   const network = page.getByRole('combobox', { name: 'Réseau', exact: true });
@@ -2692,7 +2719,7 @@ test('draws the ground the house sits on and its structure', async ({
 
   // The site has held a parcel since the beginning and no screen could draw
   // one.
-  await page.getByRole('button', { name: 'Terrain', exact: true }).click();
+  await chooseTool(page, 'Terrain');
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   const box = (await canvas.boundingBox())!;
@@ -2705,7 +2732,7 @@ test('draws the ground the house sits on and its structure', async ({
   await expect(page.locator('[id="site:parcel"]')).toHaveCount(1);
 
   // A column stands where it was put, and the plan shows its section.
-  await page.getByRole('button', { name: 'Poteau', exact: true }).click();
+  await chooseTool(page, 'Poteau');
   await page.getByLabel('Élément').selectOption('COLUMN');
   const after = (await canvas.boundingBox())!;
   await canvas.click({
@@ -2713,7 +2740,7 @@ test('draws the ground the house sits on and its structure', async ({
   });
   await expect(page.locator('[id^="structure:member-"]')).toHaveCount(1);
 
-  await page.getByRole('button', { name: 'Sélection', exact: true }).click();
+  await chooseTool(page, 'Sélection');
   const selecting = (await canvas.boundingBox())!;
   const column = (await page
     .locator('[id^="structure:member-"]')

@@ -59,7 +59,8 @@ import { clearanceReport } from '@house-technical-designer/core-domain';
 import type { ClearanceGroupId } from './editor/clearance-overlay.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { LayersPanel } from './editor/LayersPanel.js';
-import { ToolBar } from './editor/ToolBar.js';
+import { ContextToolBar } from './editor/ContextToolBar.js';
+import { ToolsPanel } from './editor/ToolsPanel.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
 import { scenarioOverride } from './scenarios/scenario-changes.js';
@@ -2028,6 +2029,15 @@ function App() {
           </label>
           {tab === 'plan' && (
             <>
+              <ToolsPanel
+                project={file.project}
+                editor={editor}
+                dispatch={dispatchEditor}
+                drafts={toolDrafts}
+                onDraftChange={(key, value) =>
+                  setToolDrafts((current) => ({ ...current, [key]: value }))
+                }
+              />
               <ProjectTree
                 project={file.project}
                 {...(activeLevelId === undefined
@@ -2146,14 +2156,10 @@ function App() {
                   </h2>
                 </div>
               </header>
-              <ToolBar
+              <ContextToolBar
                 project={file.project}
                 editor={editor}
                 dispatch={dispatchEditor}
-                drafts={toolDrafts}
-                onDraftChange={(key, value) =>
-                  setToolDrafts((current) => ({ ...current, [key]: value }))
-                }
                 onTransform={transformSelection}
                 onAlign={alignSelection}
               />

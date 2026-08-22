@@ -163,7 +163,13 @@ une dizaine d'entrées.
 
 **Divulgation progressive obligatoire, et pas de modes « simple / expert »
 distincts** : l'essentiel est visible, l'avancé est dans des accordéons, et
-c'est le même écran pour tout le monde.
+c'est le même écran pour tout le monde. Le sélecteur « Niveau d'interface »
+a disparu pour cette raison : deux modes, ce sont deux produits, et celui qui
+avait choisi le mode simple n'apprenait jamais que l'autre outil existait.
+
+Ce qu'un outil laisse décider avant de dessiner se trouve **sous l'outil**,
+dans le panneau contextuel : choisir un assemblage fait partie du choix de
+l'outil mur, ce n'est pas une course séparée en haut de la fenêtre.
 
 ## 9. Règles de présentation
 
@@ -179,7 +185,10 @@ c'est le même écran pour tout le monde.
   modale pour une décision qui bloque, page pour ce qui précède le projet. La
   création n'est plus une modale.
 - `ContextToolBar` remplace la barre universelle : quand aucun outil n'est
-  actif, elle n'affiche rien.
+  actif et que rien n'est sélectionné, elle n'affiche rien. Elle garde sa
+  place et sa hauteur — une bande qui apparaît et disparaît déplace le dessin
+  sous le pointeur, et un plan qui saute est un plan qu'on ne peut pas viser.
+  Ce qui ne tient pas défile.
 - `ViewModeDescriptor.available(project)` décide de l'affichage d'un mode de
   vue. **Ne pas afficher un bouton 3D non fonctionnel uniquement parce que le
   design futur l'a prévu.**

@@ -2066,3 +2066,74 @@ button.ghost:disabled {
 .domain-entry small.warning {
   color: #7a4a12;
 }
+
+/*
+ * The tools, in a column rather than a row.
+ *
+ * A row of forty buttons is a wall for whoever is drawing their first plan,
+ * and it takes the width the drawing needs. Grouped by trade, in the context
+ * panel, they answer « que puis-je faire ici ».
+ */
+.tools-panel {
+  display: grid;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+.tools-panel button {
+  border: 0;
+  background: none;
+  color: #31443b;
+  font-weight: 650;
+  text-align: left;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.5rem;
+}
+.tools-panel button.active {
+  background: var(--accent-soft);
+  color: var(--ink-strong);
+}
+.tools-advanced summary {
+  padding: 0.3rem 0.6rem;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tools-advanced[open] summary {
+  color: var(--ink-strong);
+}
+/*
+ * The bar above the drawing: what the current tool and the current selection
+ * make possible, and nothing when neither makes anything possible. An empty
+ * bar is information — the plan is waiting.
+ */
+.context-tool-bar {
+  display: flex;
+  /* One line, always the same height, whatever it carries. A strip that grows
+     when something is selected moves the drawing under the pointer, and a plan
+     that jumps is a plan nobody can aim at. What does not fit scrolls. */
+  height: 2.6rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  background: var(--surface-raised);
+}
+.context-tool-bar > * {
+  flex: 0 0 auto;
+}
+.context-tool-bar.is-empty {
+  border-color: transparent;
+  background: none;
+}
+.context-tool-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
