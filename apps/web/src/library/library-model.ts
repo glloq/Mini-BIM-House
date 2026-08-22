@@ -18,11 +18,12 @@ import type {
   HostType,
   Project,
 } from '@house-technical-designer/core-domain';
-import {
-  isClearanceZone,
-  type ClearanceZone,
-} from '@house-technical-designer/technical-types';
+import type { ClearanceZone } from '@house-technical-designer/technical-types';
 import type { EquipmentDefinition } from '@house-technical-designer/equipment-catalog';
+// The copy function on its own: importing the catalogue's barrel here would
+// bring nineteen fiches — and one day ten thousand — into the first screen the
+// user sees, to copy one of them.
+import { equipmentSnapshot } from '@house-technical-designer/equipment-catalog/snapshot';
 import {
   assembliesUsingMaterial,
   elementsUsingAssembly,
@@ -373,17 +374,10 @@ export function withEditedProperty(
 /**
  * Copies a catalogue definition into the project.
  *
- * A copy, and not a summary. It used to keep four fields and hide the rest
- * inside `properties` — `catalogDefinitionId`, `catalogDefinitionVersion` —
- * where nothing could read them: the version pin looked for `version` at the
- * top and found nothing, so a component placed from the interface recorded no
- * pin at all, and the whole point of pinning was lost between two panels.
- *
- * What travels is what makes the entry more than a bag of numbers: the family
- * it belongs to, its version, what it may be fixed to, what it is connected
- * by, the room it needs, and where its figures came from. A project claiming
- * to be self-contained has to carry them, because the catalogue it was copied
- * from will move and this file must not.
+ * The identifier is this project's, and the rest of the copy is the catalogue
+ * registry's `equipmentSnapshot` — one path from a fiche to a project, used by
+ * the interface and by the qualification fixture alike. Two constructors for
+ * one idea drift, and the one nobody looks at is the one that loses a field.
  */
 export function projectEquipmentFromCatalog(
   definition: EquipmentDefinition,
@@ -392,68 +386,10 @@ export function projectEquipmentFromCatalog(
   requiredClearances?: readonly ClearanceZone[],
   capabilities?: readonly string[],
 ): ProjectEquipment {
-  // What bucket this belongs to is the family's word, not the entry's: the
-  // entry used to carry a `kind` and a `category` of its own, and the copy
-  // taken into the project carried whichever of the two it happened to read.
-  // It arrives here already stamped by `genericCatalog`, which is also why
-  // this file does not reach for the nomenclature itself — five hundred
-  // families of JSON would follow it into the first screen the user sees.
-  const category = definition.category;
-  return {
+  return equipmentSnapshot(definition, {
     id: nextLibraryId('equipment', definition.name, takenIds),
-    familyId: definition.familyId,
-    kind: category ?? definition.familyId,
-    catalogKind: definition.catalogKind,
-    version: definition.version,
-    name: definition.name,
-    ...(category === undefined ? {} : { category }),
-    ...(definition.manufacturer === undefined
-      ? {}
-      : { manufacturer: definition.manufacturer }),
-    ...(definition.model === undefined ? {} : { model: definition.model }),
-    ...(definition.dimensions === undefined
-      ? {}
-      : { dimensions: definition.dimensions }),
     ...(allowedHosts === undefined ? {} : { allowedHosts }),
     ...(requiredClearances === undefined ? {} : { requiredClearances }),
     ...(capabilities === undefined ? {} : { capabilities }),
-    ports: definition.ports.map((port) => ({
-      id: port.id,
-      portTypeId: port.portTypeId,
-      position: port.position,
-    })),
-    ...(definition.clearances === undefined
-      ? {}
-      : {
-          clearances: definition.clearances.filter(
-            (
-              clearance,
-            ): clearance is typeof clearance & { zone: ClearanceZone } =>
-              isClearanceZone(clearance.zone),
-          ),
-        }),
-    provenance: definition.provenance,
-    // Where each figure comes from, not just where the fiche as a whole does.
-    // A manufacturer sheet declares half its numbers and computes the other
-    // half, and a copy that kept only the entry-level sentence could no longer
-    // tell which was which.
-    ...(definition.sources.length === 0 ? {} : { sources: definition.sources }),
-    // A heat pump is not a number: its coefficient of performance at −7 °C is
-    // not the one at 7 °C. The curves stopped at the project's edge, so a file
-    // reopened without the catalogue installed had lost the only thing that
-    // said how the machine behaves anywhere but at its nominal point.
-    ...(definition.performanceCurves === undefined
-      ? {}
-      : { performanceCurves: definition.performanceCurves }),
-    ...(definition.rendering === undefined
-      ? {}
-      : { rendering: definition.rendering }),
-    ...(definition.costEntryId === undefined
-      ? {}
-      : { costEntryId: definition.costEntryId }),
-    ...(definition.environmentalDeclarationId === undefined
-      ? {}
-      : { environmentalDeclarationId: definition.environmentalDeclarationId }),
-    properties: { ...definition.properties, name: definition.name },
-  };
+  });
 }

@@ -183,6 +183,12 @@ export function genericMaterialCatalog(): readonly Material[] {
   return rawGenericMaterialEntries().map((entry) =>
     createMaterial({
       id: materialId(entry.id),
+      // Where this copy came from, so a project can still say it.
+      catalogRef: {
+        registry: 'MATERIAL',
+        id: entry.id,
+        version: entry.version,
+      },
       name: entry.name,
       kind: 'GENERIC',
       category: entry.category,

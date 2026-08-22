@@ -84,6 +84,12 @@ export const GENERIC_ASSEMBLY_FORMAT_VERSION =
 export function genericAssemblyCatalog(): readonly Assembly[] {
   return rawGenericAssemblyEntries().map((entry) => ({
     id: assemblyId(entry.id),
+    // Where this build-up came from, so a project can still say it.
+    catalogRef: {
+      registry: 'ASSEMBLY' as const,
+      id: entry.id,
+      version: entry.version,
+    },
     name: entry.name,
     category: entry.category as AssemblyCategory,
     layers: entry.layers.map((layer) => ({

@@ -32,11 +32,8 @@ import {
   performanceVocabulary,
   type PerformanceMapCandidate,
 } from './performance-vocabulary.js';
-import {
-  isOfferable,
-  DEFAULT_LIFECYCLE,
-  type CatalogRef,
-} from './catalog-identity.js';
+import { isOfferable, DEFAULT_LIFECYCLE } from './catalog-identity.js';
+import type { CatalogRef } from '@house-technical-designer/technical-types';
 import {
   genericEquipmentCatalog,
   isEquipmentCategory,

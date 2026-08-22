@@ -7,7 +7,10 @@ import { NETWORK_PRODUCT_REGISTRY } from '@house-technical-designer/network-prod
 import { rawGenericSymbolEntries } from '@house-technical-designer/drawing-engine';
 import recorded from '../data/fingerprints.json' with { type: 'json' };
 import { contentFingerprint } from './catalog-validation.js';
-import { formatCatalogRef, type CatalogRef } from './catalog-identity.js';
+import {
+  formatCatalogRef,
+  type CatalogRef,
+} from '@house-technical-designer/technical-types';
 
 /**
  * One entry of any registry, seen as « a thing with an identity and a body ».

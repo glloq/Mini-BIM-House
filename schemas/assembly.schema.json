@@ -14,6 +14,26 @@
       "type": "string",
       "minLength": 1
     },
+    "catalogRef": {
+      "type": "object",
+      "required": [
+        "registry",
+        "id",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "registry": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
     "name": {
       "type": "string",
       "minLength": 1

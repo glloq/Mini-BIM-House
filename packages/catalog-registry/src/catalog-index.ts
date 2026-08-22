@@ -3,8 +3,11 @@ import type {
   DataRegistry,
 } from '@house-technical-designer/technical-types';
 import type { CatalogCapability } from './capabilities.js';
-import type { CatalogLifecycle, CatalogRef } from './catalog-identity.js';
-import { formatCatalogRef } from './catalog-identity.js';
+import type { CatalogLifecycle } from './catalog-identity.js';
+import {
+  formatCatalogRef,
+  type CatalogRef,
+} from '@house-technical-designer/technical-types';
 
 /**
  * One catalogue entry, reduced to what a list needs to show it.

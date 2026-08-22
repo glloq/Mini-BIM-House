@@ -1,6 +1,8 @@
 import type { DataRegistry } from '@house-technical-designer/technical-types';
-import type { CatalogRef } from './catalog-identity.js';
-import { formatCatalogRef } from './catalog-identity.js';
+import {
+  formatCatalogRef,
+  type CatalogRef,
+} from '@house-technical-designer/technical-types';
 import type { CatalogIndex, CatalogSummary } from './catalog-index.js';
 import { buildCatalogIndex } from './catalog-index.js';
 

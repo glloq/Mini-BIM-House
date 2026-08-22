@@ -5,7 +5,8 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./snapshot": "./src/equipment-snapshot.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
@@ -13,6 +14,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@house-technical-designer/geometry": "0.1.0"
+    "@house-technical-designer/core-domain": "0.1.0",
+    "@house-technical-designer/geometry": "0.1.0",
+    "@house-technical-designer/technical-types": "0.1.0"
   }
 }

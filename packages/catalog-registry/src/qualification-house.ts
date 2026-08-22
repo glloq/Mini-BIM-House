@@ -2,12 +2,13 @@ import type {
   Project,
   ProjectFile,
 } from '@house-technical-designer/core-domain';
-import { entityId } from '@house-technical-designer/core-domain';
+import { entityId, isHostType } from '@house-technical-designer/core-domain';
 import { genericMaterialCatalog } from '@house-technical-designer/materials';
 import { genericAssemblyCatalog } from '@house-technical-designer/assemblies';
 import { genericOpeningTypes } from '@house-technical-designer/opening-catalog';
+import { equipmentSnapshot } from '@house-technical-designer/equipment-catalog';
 import { NETWORK_PRODUCT_REGISTRY } from '@house-technical-designer/network-products';
-import { genericCatalog } from './registry.js';
+import { family, familyCapabilities, genericCatalog } from './registry.js';
 
 /**
  * A project made of one of everything the catalogues ship.
@@ -55,22 +56,20 @@ export function qualificationHouse(): Project {
     },
     materialLibrary: { materials: genericMaterialCatalog() },
     assemblies: genericAssemblyCatalog(),
-    equipment: genericCatalog().map((entry) => ({
-      id: entry.id,
-      familyId: entry.familyId,
-      kind: entry.category ?? entry.familyId,
-      catalogKind: entry.catalogKind,
-      version: entry.version,
-      name: entry.name,
-      ...(entry.category === undefined ? {} : { category: entry.category }),
-      ports: entry.ports.map((port) => ({
-        id: port.id,
-        portTypeId: port.portTypeId,
-        position: port.position,
-      })),
-      provenance: entry.provenance,
-      properties: { ...entry.properties },
-    })),
+    // The same constructor the interface uses, so there is one path from a
+    // fiche to a project rather than two — and this fixture then exercises the
+    // performance curves, the sources, the rendering and the capabilities that
+    // its own hand-written copies used to leave out.
+    equipment: genericCatalog().map((entry) =>
+      equipmentSnapshot(entry, {
+        id: entry.id,
+        allowedHosts: (
+          family(entry.familyId)?.placement?.allowedHosts ?? []
+        ).filter(isHostType),
+        requiredClearances: family(entry.familyId)?.clearances ?? [],
+        capabilities: familyCapabilities(entry.familyId),
+      }),
+    ),
     openingTypes: genericOpeningTypes(),
     networkProducts: NETWORK_PRODUCT_REGISTRY.map((product) => ({
       id: product.id,

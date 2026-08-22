@@ -76,8 +76,12 @@ export const BUDGETS = {
    * build-ups and the menuiseries are data now rather than three lists written
    * out in code, and data that a gate reads costs a little more than code
    * nobody checked.
+   *
+   * Raised again for the mass-fill gate: discovery in place of eight
+   * hand-written imports, and every material and build-up carrying the
+   * catalogue reference it came from.
    */
-  totalGzipBytes: 378 * 1024,
+  totalGzipBytes: 380 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

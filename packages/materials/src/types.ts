@@ -1,3 +1,5 @@
+import type { CatalogRef } from '@house-technical-designer/technical-types';
+
 declare const materialIdBrand: unique symbol;
 
 export type MaterialId = string & { readonly [materialIdBrand]: true };
@@ -81,6 +83,16 @@ export interface MaterialAppearance {
 
 export interface Material {
   readonly id: MaterialId;
+  /**
+   * The catalogue entry this copy was taken from.
+   *
+   * Not a second copy of the fiche: the snapshot below *is* the project's
+   * truth, and stays reproducible on its own. This says where it came from —
+   * `MATERIAL:generic-rock-wool@1.0.0` — which the project could no longer
+   * tell, because the copy dropped the family and the version on the way in.
+   * Optional, because a material typed by hand comes from nowhere.
+   */
+  readonly catalogRef?: CatalogRef;
   readonly name: string;
   readonly kind: MaterialKind;
   readonly category?: string;
