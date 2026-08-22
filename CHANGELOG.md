@@ -5,6 +5,63 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.11 — non publiée
+
+L'**architecture du catalogue**, figée avant que quiconque le remplisse.
+
+Le moteur BIM et les calculs ne bloquaient plus ; les contrats de données, leur
+versionnement, leur chargement et l'uniformité des sept registres, si. Neuf
+passes les ont fermés.
+
+### Ajouté
+
+- **un catalogue d'ouvertures.** Le modèle portait `Opening.definitionId`, la
+  nomenclature déclarait trente-quatre familles, et rien n'était livré : le Uw
+  de chaque fenêtre devait être saisi à la main, ou l'ouverture était comptée
+  comme une inconnue. Douze fiches arrivent, et l'inspecteur laisse enfin
+  choisir la menuiserie d'une ouverture.
+- **un catalogue d'assemblages.** Les sept registres en annonçaient un, la
+  nomenclature déclarait cinquante-six familles, rien n'était livré — les
+  compositions de départ étaient écrites couche par couche dans l'application.
+- **un manifeste, un dépôt et un index.** « Le catalogue » voulait dire « ce
+  qui se trouve importé ». Le manifeste dit ce qui est installé et porte deux
+  niveaux de version, le dépôt pose la question une fois, l'index porte des
+  résumés plutôt que des fiches entières.
+- **une maison de qualification** : une de chaque fiche livrée, portée par un
+  projet que l'importateur accepte — et un catalogue de mesure de dix mille
+  fiches, mesuré à chaque intégration.
+
+### Modifié
+
+- **les matériaux et les symboles quittent le TypeScript.** Les sept registres
+  sont en données ; les deux derniers étaient des listes écrites en code, que
+  personne ne lisait, que deux personnes ne pouvaient pas éditer et qu'aucune
+  porte ne vérifiait.
+- **une fiche ne redit plus ce que sa famille dit.** Elle portait un `kind` et
+  une `category` à côté de son `familyId` : à dix-neuf fiches, deux avaient
+  déjà divergé. La famille est la seule phrase, et les fiches passent en
+  1.1.0.
+- **une carte de performance se lit sur un ou deux axes, et rien n'est
+  extrapolé.** Le type acceptait quatre modes d'interpolation et un nombre
+  d'axes quelconque ; le lecteur n'en acceptait qu'un.
+- **`TESTS` cesse de dire « prouvé » pour dire « écrit ».** L'axe passait à
+  `VALIDATED` dès qu'une fiche franchissait la porte, ce que `GENERIC_DATA` dit
+  déjà. Une famille est testée quand une pièce de ce dépôt est faite d'elle.
+
+### Corrigé
+
+- **la copie du catalogue dans le projet n'était pas une copie.** Elle laissait
+  derrière elle les courbes de performance — le COP d'une pompe à chaleur vaut
+  2,0 à −15 °C et 5,0 à +15 °C —, le rendu, et la source de chaque chiffre.
+- **poser un équipement produisait un projet que l'importateur refusait.** La
+  forme des ports exigeait `discipline` et `role`, que la copie n'écrivait
+  jamais.
+- **les empreintes ne couvraient que ce que quelqu'un avait pensé à
+  enregistrer.** Une fiche sans empreinte passait en silence, donc dix mille
+  nouvelles fiches auraient été dix mille fiches hors du dispositif.
+- **deux courbes écrivaient `m3/h` là où le registre dit `m³/h`** : la même
+  grandeur écrite deux fois, donc deux unités pour qui compare des chaînes.
+
 ## 0.3.0-beta.10 — non publiée
 
 L'**intégrité des références**, demandée une seule fois.

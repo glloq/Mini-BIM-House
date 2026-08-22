@@ -1,7 +1,7 @@
 # État de préparation à la bêta
 
 Ce fichier ne raconte pas l'histoire du projet : il dit où en est la version
-`0.3.0-beta.10` aujourd'hui. L'historique des passes d'audit et de leurs
+`0.3.0-beta.11` aujourd'hui. L'historique des passes d'audit et de leurs
 correctifs reste dans `IMPLEMENTATION_STATUS.md`, et ce qui a changé d'une
 version à l'autre dans `../CHANGELOG.md`.
 
@@ -41,6 +41,24 @@ avant tout remplissage massif : l'index de ce qui désigne quoi, le format
 passage de tous les calculs sur les objets réellement posés. Elle a aussi
 supprimé la dernière liste de familles écrite à la main, dans la comparaison de
 variantes, et ramené à une seule les trois règles de compatibilité de ports.
+
+Une septième passe a fermé la propagation des inconnues dans les calculs, les
+limites thermiques du volume chauffé, l'intégrité de la création de projet et
+la vérification générique des références.
+
+Une huitième a figé l'**architecture du catalogue**, avant que quiconque le
+remplisse. Ce n'étaient plus les fonctions BIM ni les calculs qui bloquaient,
+mais les contrats de données : une fiche redisait en trois champs ce que sa
+famille dit une fois, la copie prise dans le projet perdait les courbes de
+performance et la source de chaque chiffre, deux des sept registres vivaient
+encore en TypeScript, les ouvertures et les assemblages n'avaient aucun
+catalogue, les empreintes ne couvraient que ce qu'on avait pensé à enregistrer,
+et `TESTS` disait « prouvé » pour dire « écrit ». Les sept registres sont
+maintenant en données, chacun derrière une porte qui les lit ; un manifeste dit
+ce qui est installé et distingue la version de forme de la version de lot ; un
+index porte des résumés plutôt que des fiches entières, mesuré à dix mille ; et
+une maison de qualification prouve que chaque fiche livrée peut être portée par
+un projet que l'importateur accepte.
 
 ## Les portes de la bêta
 

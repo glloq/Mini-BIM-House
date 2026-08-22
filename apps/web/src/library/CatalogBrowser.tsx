@@ -6,7 +6,10 @@ import {
   catalogRows,
   type CatalogFilter,
 } from './catalog-browser.js';
-import type { DataDomain } from '@house-technical-designer/catalog-registry';
+import {
+  FAMILY_REGISTRY,
+  type DataDomain,
+} from '@house-technical-designer/catalog-registry';
 
 export interface CatalogBrowserProps {
   readonly entriesByFamily: Readonly<
@@ -136,7 +139,9 @@ export function CatalogBrowser({
       </div>
 
       <p className="hint">
-        {rows.length} famille(s) sur 518.{' '}
+        {/* The total is the nomenclature's, not a number typed here: it was
+            518 for weeks after the registry had moved on. */}
+        {rows.length} famille(s) sur {FAMILY_REGISTRY.length}.{' '}
         {rows.length > SHOWN ? `Les ${SHOWN} premières :` : ''}
       </p>
       <ul className="catalog-list">

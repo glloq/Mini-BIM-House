@@ -49,7 +49,9 @@ test('a new project ships a library a wall can be drawn with', async ({
   expect(materials).toBeGreaterThan(10);
 
   await openDestination(page, 'Assemblages');
-  await expect(page.locator('.assembly-card')).toHaveCount(4);
+  // The starter build-ups come from the assembly catalogue now, not from a
+  // list written out in the application.
+  await expect(page.locator('.assembly-card')).toHaveCount(7);
 });
 
 test('draws the reference house with real walls, openings and rooms', async ({
@@ -2999,9 +3001,9 @@ test('browses the whole nomenclature and places what can be placed', async ({
   await openDestination(page, 'Équipements');
 
   // The panel used to list the nineteen generic entries while the rest of the
-  // application had been checking five hundred and eighteen families.
+  // application had been checking five hundred and twenty families.
   const browser = page.getByRole('region', { name: 'Nomenclature' });
-  await expect(browser).toContainText('518 famille(s) sur 518');
+  await expect(browser).toContainText('520 famille(s) sur 520');
 
   const filters = page.getByRole('group', { name: 'Filtrer la nomenclature' });
   await filters.getByLabel('Métier').selectOption('HEATING');
