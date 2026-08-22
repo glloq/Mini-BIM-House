@@ -1419,33 +1419,74 @@ test('refuses to write a container without the climate the project names', async
   expect(errors).toEqual([]);
 });
 
-test('the assistant asks what a new project cannot be guessed', async ({
-  page,
-}) => {
+test('creates a project on a page, storey by storey', async ({ page }) => {
   const errors = watchConsole(page);
   await page.goto('/');
   await page.getByRole('button', { name: 'Nouveau projet' }).click();
-  const wizard = page.getByRole('dialog', { name: 'Nouveau projet' });
-  await wizard.getByLabel('Nom du projet').fill('Maison des Lilas');
-  await wizard.getByLabel('Niveaux hors sol').fill('2');
-  await wizard.getByLabel('Hauteur d’étage').fill('2700');
-  await wizard.getByLabel('Sous-sol').check();
-  await wizard.getByLabel('Latitude').fill('48.85');
-  await wizard.getByLabel('Longitude').fill('2.35');
-  await page.getByRole('button', { name: 'Créer le projet' }).click();
+  const creation = page.getByRole('main', { name: 'De quoi s’agit-il ?' });
+  await expect(creation).toBeVisible();
+  // A page, not a modal: nothing of the application is left half-usable behind
+  // it.
+  await expect(page.locator('.workspace-grid')).toHaveCount(0);
 
-  await expect(page.getByRole('status')).toContainText('3 niveau(x)');
+  await creation.getByLabel('Nom du projet').fill('Maison des Lilas');
+  await creation.getByLabel('Auteur').fill('A. Martin');
+
+  // The stack says two basements, a floor and converted attics — none of which
+  // « a count plus one height plus a checkbox » can say.
+  await creation.getByRole('button', { name: 'Le bâtiment' }).click();
+  await creation.getByRole('button', { name: '+ Sous-sol' }).click();
+  await creation.getByRole('button', { name: '+ Étage' }).click();
+  await creation.getByRole('button', { name: '+ Combles' }).click();
+  await creation
+    .getByLabel('Hauteur du niveau Sous-sol en millimètres')
+    .fill('2700');
+
+  // The coordinates are folded away, and « à déterminer » is a real answer.
+  await creation.getByRole('button', { name: 'Le lieu' }).click();
+  await creation.getByText('Coordonnées précises').click();
+  await creation.getByLabel('Latitude (°)').fill('48.85');
+  await creation.getByLabel('Longitude (°)').fill('2.35');
+
+  await creation.getByRole('button', { name: 'Créer le projet' }).click();
+
+  await expect(page.getByRole('status')).toContainText('4 niveau(x)');
   await openDestination(page, 'Projet');
   await expect(page.getByLabel('Nom du projet')).toHaveValue(
     'Maison des Lilas',
   );
   await expect(page.getByLabel('Latitude')).toHaveValue('48.85');
-  // The building was stacked as it was described, basement included.
   await expect(page.locator('.level-selector select option')).toHaveText([
     'Sous-sol',
     'Rez-de-chaussée',
-    'Étage 1',
+    'Étage',
+    'Combles',
   ]);
+  expect(errors).toEqual([]);
+});
+
+test('draws the starting footprint with ordinary walls', async ({ page }) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Nouveau projet' }).click();
+  const creation = page.getByRole('main', { name: 'De quoi s’agit-il ?' });
+  await creation.getByRole('button', { name: 'Le bâtiment' }).click();
+  // The default is to draw it oneself; a shape is a choice, not a starting
+  // point imposed on everyone.
+  await expect(
+    creation.getByRole('radio', { name: 'Je dessinerai moi-même' }),
+  ).toBeChecked();
+  await creation.getByRole('radio', { name: 'En L' }).check();
+  await creation.getByRole('button', { name: 'Créer le projet' }).click();
+
+  await expect(page.getByRole('status')).toContainText('emprise de départ');
+  // Six sides, six walls — and they are walls like any other: undo takes them
+  // back one command at a time.
+  await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
+    6,
+  );
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('annulée');
   expect(errors).toEqual([]);
 });
 

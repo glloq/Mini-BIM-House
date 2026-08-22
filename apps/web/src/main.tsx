@@ -44,7 +44,6 @@ import {
 import './styles.css';
 import {
   createBlankProject,
-  projectFromDraft,
   exportProjectPlan,
   ProjectEditingSession,
   safeFileStem,
@@ -229,8 +228,9 @@ const DocumentsPanel = lazy(async () => ({
 const ChecksPanel = lazy(async () => ({
   default: (await import('./checks/ChecksPanel.js')).ChecksPanel,
 }));
-const NewProjectWizard = lazy(async () => ({
-  default: (await import('./project/NewProjectWizard.js')).NewProjectWizard,
+const ProjectCreationPage = lazy(async () => ({
+  default: (await import('./project-creation/ProjectCreationPage.js'))
+    .ProjectCreationPage,
 }));
 
 /** One workspace panel, with what to show while its code is still arriving. */
@@ -1801,6 +1801,63 @@ function App() {
         );
   }, [file.project, toolDrafts, toolOption]);
 
+  /**
+   * Creating a project takes the whole window.
+   *
+   * A modal is for a decision that blocks; starting a project is the first
+   * screen of the work. It replaces the shell rather than sitting on top of
+   * it, so nothing behind it is half-usable and nothing has to be explained
+   * about what is greyed out.
+   */
+  if (creating)
+    return (
+      <Suspense fallback={<p className="notice">Chargement…</p>}>
+        <ProjectCreationPage
+          onCancel={() => setCreating(false)}
+          onCreate={(draft) => {
+            setCreating(false);
+            setClimate([]);
+            // The creation page is already on screen, so its chunk is loaded:
+            // asking for these two by name costs nothing here and keeps them
+            // out of what the application downloads before showing a plan.
+            void (async () => {
+              const [{ projectFromNewDraft }, { initialShapeCommands }] =
+                await Promise.all([
+                  import('./project-creation/new-project.js'),
+                  import('./project-creation/initial-shape.js'),
+                ]);
+              const created = projectFromNewDraft(
+                draft,
+                new Date().toISOString(),
+              );
+              const name = created.project.metadata.name;
+              const levels = created.project.building.levels.length;
+              adopt(
+                created,
+                `Nouveau projet « ${name} » prêt : ${levels} niveau(x), bibliothèque générique incluse.`,
+              );
+              const shape = draft.initialShape;
+              if (shape === undefined || shape.kind === 'NONE') return;
+              const built = initialShapeCommands(
+                created,
+                shape,
+                (prefix) => `${prefix}-${crypto.randomUUID()}`,
+              );
+              if (built.status === 'ERROR') {
+                setMessage(built.message);
+                return;
+              }
+              if (built.status === 'NONE') return;
+              for (const command of built.commands) runCommand(command);
+              setMessage(
+                `Nouveau projet « ${name} » prêt : ${levels} niveau(x) et une emprise de départ.`,
+              );
+            })();
+          }}
+        />
+      </Suspense>
+    );
+
   return (
     <AppShell
       columns={columns}
@@ -2415,28 +2472,6 @@ function App() {
                 </button>
               </div>
             </section>
-          )}
-
-          {creating && (
-            <Suspense
-              fallback={<p className="notice">Chargement de l’assistant…</p>}
-            >
-              <NewProjectWizard
-                onCancel={() => setCreating(false)}
-                onCreate={(draft) => {
-                  setCreating(false);
-                  setClimate([]);
-                  const created = projectFromDraft(
-                    draft,
-                    new Date().toISOString(),
-                  );
-                  adopt(
-                    created,
-                    `Nouveau projet « ${created.project.metadata.name} » prêt : ${created.project.building.levels.length} niveau(x), bibliothèque générique incluse.`,
-                  );
-                }}
-              />
-            </Suspense>
           )}
 
           {objectMenu !== undefined && activeLevelId !== undefined && (
