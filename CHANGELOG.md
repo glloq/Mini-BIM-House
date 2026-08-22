@@ -5,49 +5,13 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
-## 0.3.0-beta.3 — non publiée
+## 0.3.0-beta.4 — non publiée
 
-Les quatre verrous que l'audit jugeait bloquants avant le remplissage massif
-des catalogues, deux dettes qu'ils ont mises à nu, et le dossier de plans
-terminé.
-
-### Compatibilité
-
-- Format de projet : `schemaVersion` **1.2.0**. Un fichier `1.1.0` s'ouvre et
-  est migré : l'identifiant et la version de la fiche catalogue, qu'une version
-  antérieure de l'interface rangeait **dans** `properties` sous des noms que
-  rien ne lisait, reviennent aux champs qui les nomment. Les ports de réseau
-  reçoivent leur genre là où l'ancien fichier le déterminait — et nulle part
-  ailleurs.
-
-### Corrigé
-
-- un niveau **vide** pouvait encore être supprimé alors qu'un mur y montait,
-  qu'un escalier y arrivait, qu'un nœud le déclarait ou qu'une vue le
-  dessinait : quatre références pendantes, et un fichier que l'application
-  écrivait sans savoir le relire ;
-- supprimer un modèle d'équipement vérifiait les nœuds de réseau et pas les
-  composants posés ;
-- les calculs lisaient les fiches du projet et non les objets posés : une
-  maison avec trois radiateurs et une maison avec un seul étaient la même
-  maison ;
-- l'alésage d'un tronçon venait du catalogue installé aujourd'hui : corriger un
-  tube six mois plus tard redimensionnait tous les réseaux déjà dessinés ;
-- trois règles de compatibilité de ports pour une seule question, et deux ports
-  ne disant rien étaient déclarés compatibles ;
-- la comparaison de variantes énumérait neuf familles : déplacer un poteau,
-  planter un arbre ou ajouter une note ne montrait rien.
+Le dossier de plans, la maison de référence, et la mise côte à côte de ce qu'il
+faut avec ce qui est posé.
 
 ### Ajouté
 
-- `projectReferences()` : ce qui désigne quoi, énuméré une fois, avec un test
-  qui parcourt le projet et refuse de laisser un pointeur non revendiqué ;
-- l'invariant écrit noir sur blanc — après chaque commande publique et après
-  son annulation, l'importeur relit le projet sans erreur ;
-- une bibliothèque de produits réseau **dans le projet**, et des mises à jour
-  du catalogue proposées plutôt qu'appliquées ;
-- le métré compte ce que la maison tient et les mètres de chaque produit
-  qu'elle fait courir ; le module de coût dit ce qu'il ne chiffre pas ;
 - **les coupes, les façades, le plan de toiture et le plan de masse sont
   dessinés.** Une coupe est une projection : chaque mur que le trait traverse
   devient une bande à l'endroit du passage, aussi haute que le mur, posée sur
@@ -128,6 +92,49 @@ terminé.
   derrière un bouton étaient chargés avec l'application : ouvrir son propre
   projet passait par une démonstration. Le chargement initial descend de 245,3 à
   239,3 kio.
+
+## 0.3.0-beta.3 — non publiée
+
+Les quatre verrous que l'audit jugeait bloquants avant le remplissage massif
+des catalogues, et deux dettes qu'ils ont mises à nu.
+
+### Compatibilité
+
+- Format de projet : `schemaVersion` **1.2.0**. Un fichier `1.1.0` s'ouvre et
+  est migré : l'identifiant et la version de la fiche catalogue, qu'une version
+  antérieure de l'interface rangeait **dans** `properties` sous des noms que
+  rien ne lisait, reviennent aux champs qui les nomment. Les ports de réseau
+  reçoivent leur genre là où l'ancien fichier le déterminait — et nulle part
+  ailleurs.
+
+### Corrigé
+
+- un niveau **vide** pouvait encore être supprimé alors qu'un mur y montait,
+  qu'un escalier y arrivait, qu'un nœud le déclarait ou qu'une vue le
+  dessinait : quatre références pendantes, et un fichier que l'application
+  écrivait sans savoir le relire ;
+- supprimer un modèle d'équipement vérifiait les nœuds de réseau et pas les
+  composants posés ;
+- les calculs lisaient les fiches du projet et non les objets posés : une
+  maison avec trois radiateurs et une maison avec un seul étaient la même
+  maison ;
+- l'alésage d'un tronçon venait du catalogue installé aujourd'hui : corriger un
+  tube six mois plus tard redimensionnait tous les réseaux déjà dessinés ;
+- trois règles de compatibilité de ports pour une seule question, et deux ports
+  ne disant rien étaient déclarés compatibles ;
+- la comparaison de variantes énumérait neuf familles : déplacer un poteau,
+  planter un arbre ou ajouter une note ne montrait rien.
+
+### Ajouté
+
+- `projectReferences()` : ce qui désigne quoi, énuméré une fois, avec un test
+  qui parcourt le projet et refuse de laisser un pointeur non revendiqué ;
+- l'invariant écrit noir sur blanc — après chaque commande publique et après
+  son annulation, l'importeur relit le projet sans erreur ;
+- une bibliothèque de produits réseau **dans le projet**, et des mises à jour
+  du catalogue proposées plutôt qu'appliquées ;
+- le métré compte ce que la maison tient et les mètres de chaque produit
+  qu'elle fait courir ; le module de coût dit ce qu'il ne chiffre pas.
 
 ## 0.3.0-beta.2 — non publiée
 
