@@ -62,9 +62,13 @@ export const BUDGETS = {
    * an entry and nothing shipped one — so every window was drawn with a
    * transmittance nobody had stated.
    *
+   * And a last kio for catalogue discovery: the six loaders find their files
+   * instead of importing eight of them by name, which is what makes adding
+   * fiches a `git add` rather than an edit to two TypeScript files.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 258 * 1024,
+  initialGzipBytes: 259 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -72,8 +76,12 @@ export const BUDGETS = {
    * build-ups and the menuiseries are data now rather than three lists written
    * out in code, and data that a gate reads costs a little more than code
    * nobody checked.
+   *
+   * Raised again for the mass-fill gate: discovery in place of eight
+   * hand-written imports, and every material and build-up carrying the
+   * catalogue reference it came from.
    */
-  totalGzipBytes: 378 * 1024,
+  totalGzipBytes: 380 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

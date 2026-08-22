@@ -1,7 +1,7 @@
 # État de préparation à la bêta
 
 Ce fichier ne raconte pas l'histoire du projet : il dit où en est la version
-`0.3.0-beta.11` aujourd'hui. L'historique des passes d'audit et de leurs
+`0.3.0-beta.12` aujourd'hui. L'historique des passes d'audit et de leurs
 correctifs reste dans `IMPLEMENTATION_STATUS.md`, et ce qui a changé d'une
 version à l'autre dans `../CHANGELOG.md`.
 
@@ -59,6 +59,16 @@ ce qui est installé et distingue la version de forme de la version de lot ; un
 index porte des résumés plutôt que des fiches entières, mesuré à dix mille ; et
 une maison de qualification prouve que chaque fiche livrée peut être portée par
 un projet que l'importateur accepte.
+
+Une neuvième passe a fermé la dernière porte avant le remplissage : ajouter des
+fiches ne demande plus de toucher au TypeScript — l'arborescence est la liste,
+et un test l'exige en écrivant un fichier que rien n'a jamais annoncé —, le
+chemin réel de l'interface passe par le dépôt et l'index plutôt que de garder
+chaque fiche entière pour dessiner une liste de noms, les empreintes couvrent
+les six registres au lieu d'un seul, et chaque matériau comme chaque
+composition dit de quelle fiche de catalogue il vient. Le format catalogue est
+figé en v1, avec sa règle : une PR de remplissage ne modifie aucun fichier
+moteur.
 
 ## Les portes de la bêta
 

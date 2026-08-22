@@ -6,4 +6,8 @@ schemas
 examples
 
 packages/project-io/src/generated-project-validator.js
+# Engendrés par un script et relus par une porte : les reformater ferait
+# échouer `catalog:manifest --check` après chaque `npm run format`.
+packages/catalog-registry/data/manifest.json
+packages/catalog-registry/data/fingerprints.json
 LICENSE

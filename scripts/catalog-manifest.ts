@@ -34,10 +34,12 @@ if (process.argv.includes('--check')) {
 }
 
 writeFileSync(PATH, text);
-for (const entry of manifest.generatedFrom)
+for (const entry of manifest.generatedFrom) {
   console.log(
-    `  ${entry.registry.padEnd(16)} ${String(entry.entryCount).padStart(5)} entrées  ${entry.fingerprint}  ${entry.path}`,
+    `  ${entry.registry.padEnd(16)} ${String(entry.entryCount).padStart(5)} entrées  ${entry.fingerprint}  ${entry.sources.length} fichier(s)`,
   );
+  for (const source of entry.sources) console.log(`      ${source}`);
+}
 console.log(
   `\nPublication ${manifest.releaseId}, format ${manifest.catalogFormatVersion}, écrite dans ${PATH}.`,
 );

@@ -33,6 +33,11 @@ jobs:
       # The manifest says what is installed; a manifest nobody checks is a
       # manifest that describes a previous release.
       - run: npm run catalog:manifest -- --check
+      # « Ajouter des fiches ne demande aucune modification de TypeScript » :
+      # ce test écrit un fichier que rien n'a jamais annoncé et demande à la
+      # chaîne réelle si elle le trouve. Il tourne seul parce qu'il touche le
+      # dépôt pendant qu'il s'exécute.
+      - run: npm run test:discovery
       # The catalogue measured at the size it is meant to reach. Not a
       # threshold — machines differ — but a run that fails loudly the day
       # indexing ten thousand entries stops finishing at all.

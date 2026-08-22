@@ -79,55 +79,6 @@ export function isOfferable(lifecycle: CatalogLifecycle): boolean {
 }
 
 /**
- * One record of one registry, at one version.
- *
- * Seven registries name their entries seven different ways — `id` alone here,
- * `familyId` plus `id` there, `family` plus `id` for a product — so nothing
- * could say « this thing, this version » across them, and a project pinning an
- * entry pinned it in whichever shape its own writer had chosen. This is that
- * sentence, said once.
- */
-export interface CatalogRef {
-  readonly registry: DataRegistry;
-  readonly id: string;
-  readonly version: string;
-}
-
-/**
- * A reference as one string: `EQUIPMENT:generic-air-water-heat-pump@1.0.0`.
- *
- * Registries, identifiers and versions all end up as map keys, file names and
- * lines in a report. Writing the key by hand in each of those places is how
- * two of them come to disagree.
- */
-export function formatCatalogRef(ref: CatalogRef): string {
-  return `${ref.registry}:${ref.id}@${ref.version}`;
-}
-
-const REF_PATTERN = /^([A-Z_]+):([^@\s]+)@([^@\s]+)$/u;
-
-/** The reference a string names, or nothing when it names none. */
-export function parseCatalogRef(text: string): CatalogRef | undefined {
-  const found = REF_PATTERN.exec(text);
-  if (found === null) return undefined;
-  const registry = found[1]!;
-  return isDataRegistry(registry)
-    ? { registry, id: found[2]!, version: found[3]! }
-    : undefined;
-}
-
-export function catalogRefEquals(
-  first: CatalogRef,
-  second: CatalogRef,
-): boolean {
-  return (
-    first.registry === second.registry &&
-    first.id === second.id &&
-    first.version === second.version
-  );
-}
-
-/**
  * What every record of every registry states about itself.
  *
  * The seven registries had seven different answers to « what is this, where

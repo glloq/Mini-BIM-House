@@ -50,6 +50,7 @@ export function syntheticSummaries(count: number): readonly CatalogSummary[] {
       domain: owner.domain,
       lifecycle: DEFAULT_LIFECYCLE,
       capabilities: capabilitiesOf(owner),
+      valid: true,
       // One entry in eleven states a maker, which is roughly what an imported
       // catalogue looks like beside a generic one.
       ...(index % 11 === 0 ? { manufacturer: `Fabricant ${index % 37}` } : {}),

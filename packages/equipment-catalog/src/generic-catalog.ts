@@ -1,11 +1,3 @@
-import electrical from '../data/equipment/electrical/generic.json' with { type: 'json' };
-import heating from '../data/equipment/heating/generic.json' with { type: 'json' };
-import lighting from '../data/equipment/lighting/generic.json' with { type: 'json' };
-import plumbing from '../data/equipment/plumbing/generic.json' with { type: 'json' };
-import rainwater from '../data/equipment/rainwater/generic.json' with { type: 'json' };
-import solar from '../data/equipment/solar/generic.json' with { type: 'json' };
-import storage from '../data/equipment/storage/generic.json' with { type: 'json' };
-import ventilation from '../data/equipment/ventilation/generic.json' with { type: 'json' };
 import type {
   EquipmentDefinition,
   EquipmentPropertySource,
@@ -58,16 +50,36 @@ export type RawCatalogEntry = Omit<
   };
 };
 
-const FILES = [
-  heating,
-  ventilation,
-  plumbing,
-  electrical,
-  lighting,
-  solar,
-  storage,
-  rainwater,
-] as readonly CatalogFile[];
+/**
+ * Every catalogue file under `data/equipment`, found rather than listed.
+ *
+ * There were eight imports written out by hand and an array repeating them.
+ * That is a list two things have to agree with — this file and the schema
+ * validator — and it means an agent can drop two hundred excellent fiches into
+ * `data/equipment/heating/heat-pumps-02.json` and have none of them reach the
+ * application until somebody remembers to edit TypeScript. Which is precisely
+ * what a data-only catalogue is for.
+ *
+ * The tree is the list. Adding a file is `git add`, and nothing else.
+ */
+const DISCOVERED = import.meta.glob('../data/equipment/**/*.json', {
+  eager: true,
+  import: 'default',
+}) as Readonly<Record<string, CatalogFile>>;
+
+/** The files this catalogue is made of, in a stable order. */
+export function equipmentCatalogSources(): readonly string[] {
+  return Object.keys(DISCOVERED)
+    .map((path) => path.replace('../', 'packages/equipment-catalog/'))
+    .sort();
+}
+
+// Sorted by path so that two machines, and two runs, read the entries in the
+// same order — a fingerprint over an arbitrary order is a fingerprint that
+// moves when the filesystem does.
+const FILES: readonly CatalogFile[] = Object.keys(DISCOVERED)
+  .sort()
+  .map((path) => DISCOVERED[path]!);
 
 const SOURCE_TYPES: readonly PropertySourceType[] = [
   'GENERIC',

@@ -673,6 +673,37 @@ propriétés que ces familles déclarent et les ports qu'elles exigent : un
 générateur dont la porte ignorerait les fiches mesurerait la vitesse de ne rien
 faire. Les chiffres sont dans `docs/PERFORMANCE_BASELINE.md`.
 
+## Catalog Format v1 — la règle de remplissage
+
+L'architecture est figée. À partir d'ici, la règle est courte :
+
+> **Une PR de remplissage de catalogue ne modifie aucun fichier moteur
+> `.ts`/`.tsx`.** Elle ajoute des `.json`, elle relance
+> `npm run catalog:fingerprints`, elle relance `npm run catalog:manifest`, et
+> c'est tout.
+
+Si une fiche ne peut pas être représentée avec les contrats existants, on
+n'étend pas le format en passant : on ouvre un **`CONTRACT_GAP`** — une issue
+qui dit quelle fiche, quel registre, quel champ manque et pourquoi les contrats
+actuels ne suffisent pas. Le format évolue alors délibérément, avec sa version,
+plutôt que par accrétion sous la pression d'une fiche pressée.
+
+Ce qui rend cette règle tenable :
+
+- **l'arborescence est la liste.** Les six registres découvrent leurs fichiers ;
+  ajouter `data/equipment/heating/pac-2026.json` suffit à ce qu'il soit chargé,
+  validé, manifesté, résumé, indexé et cherchable. Un test l'exige, en écrivant
+  un tel fichier et en demandant à la chaîne réelle si elle le trouve ;
+- **chaque fichier passe son schéma JSON strict**, en
+  `additionalProperties: false` : un nom de champ mal orthographié est refusé,
+  pas ignoré ;
+- **chaque fiche passe la porte de sa famille** : propriétés, unités, ports,
+  dégagements, provenance ;
+- **chaque fiche est empreinte**, dans les six registres, sous
+  `REGISTRE:identifiant@version` : rien ne change sans changer de version ;
+- **le manifeste dit ce qui est installé**, et l'intégration refuse un manifeste
+  qui ne décrit plus les données.
+
 ## Comment ajouter une famille
 
 1. l'écrire dans `data/families/<domaine>.json` avec ses ports, ses modules, son
@@ -684,4 +715,7 @@ faire. Les chiffres sont dans `docs/PERFORMANCE_BASELINE.md`.
 5. faire monter les axes de `status` à mesure que le modèle, le symbole, le
    calcul et les tests arrivent.
 
-Rien de ces cinq étapes ne demande de toucher au code de l'application.
+Rien de ces cinq étapes ne demande de toucher au code de l'application, et
+c'est vérifié plutôt qu'espéré : `npm run test:discovery` écrit un fichier de
+fiches que rien n'a jamais annoncé, puis demande au chargeur, aux schémas, au
+manifeste, aux résumés, à l'index et à la recherche s'ils le trouvent.

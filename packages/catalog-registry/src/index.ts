@@ -6,6 +6,7 @@ export * from '@house-technical-designer/technical-types';
 export * from '@house-technical-designer/network-products';
 export * from './capabilities.js';
 export * from './catalog-identity.js';
+export * from './catalog-fingerprints.js';
 export * from './catalog-index.js';
 export * from './catalog-repository.js';
 export * from './catalog-scale.js';

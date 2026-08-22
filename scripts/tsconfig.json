@@ -4,7 +4,7 @@
     "lib": ["ES2022"],
     "noEmit": true,
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["node", "vite/client"]
   },
   "include": ["*.ts"]
 }

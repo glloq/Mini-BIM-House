@@ -11,6 +11,7 @@ import {
   syntheticSummaries,
   validateCatalogEntry,
 } from './index.js';
+import { formatCatalogRef } from '@house-technical-designer/technical-types';
 import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
 import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
 import { NETWORK_PRODUCT_REGISTRY } from '@house-technical-designer/network-products';
@@ -89,6 +90,40 @@ describe('one of everything, carried by a project', () => {
         qualificationHouseFile(CURRENT_PROJECT_SCHEMA_VERSION),
       ),
     ).toEqual([]);
+  });
+
+  it('takes its copies through the same constructor as the interface', () => {
+    // It used to build its equipment copies by hand, which is how a second
+    // constructor for one idea comes to exist — and the one nobody looks at is
+    // the one that quietly stops carrying a field.
+    const pump = qualificationHouse().equipment!.find(
+      ({ id }) => id === 'generic-air-water-heat-pump',
+    )!;
+    expect(pump.performanceCurves?.[0]?.points.length).toBeGreaterThan(1);
+    expect(pump.sources?.length).toBeGreaterThan(0);
+    expect(pump.rendering?.symbols?.[0]?.symbolId).toBe('symbol-heat-pump');
+    expect(pump.capabilities).toContain('PERFORMANCE_MAPPED');
+    expect(pump.allowedHosts?.length).toBeGreaterThan(0);
+    expect(pump.requiredClearances?.length).toBeGreaterThan(0);
+  });
+
+  it('says where each material and each build-up came from', () => {
+    // The snapshot stays the project's truth and stays reproducible on its
+    // own; this is the other half — being able to say `MATERIAL:…@1.0.0`,
+    // which the copy could no longer do because it dropped the family and the
+    // version on the way in.
+    const house = qualificationHouse();
+    for (const material of house.materialLibrary?.materials ?? []) {
+      expect(material.catalogRef?.registry).toBe('MATERIAL');
+      expect(material.catalogRef?.id).toBe(material.id);
+      expect(material.catalogRef?.version).toMatch(/^\d+\.\d+\.\d+$/u);
+    }
+    const partition = (house.assemblies ?? []).find(
+      ({ id }) => id === 'generic-partition-stud',
+    )!;
+    expect(formatCatalogRef(partition.catalogRef!)).toBe(
+      'ASSEMBLY:generic-partition-stud@1.0.0',
+    );
   });
 
   it('makes « nobody has ever put one of these in a project » visible', () => {

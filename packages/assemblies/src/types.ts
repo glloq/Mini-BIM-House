@@ -1,3 +1,4 @@
+import type { CatalogRef } from '@house-technical-designer/technical-types';
 import type { MaterialId } from '@house-technical-designer/materials';
 
 declare const assemblyIdBrand: unique symbol;
@@ -46,6 +47,15 @@ export interface AssemblyLayer {
 
 export interface Assembly {
   readonly id: AssemblyId;
+  /**
+   * The catalogue entry this build-up was taken from.
+   *
+   * Same argument as a material's: the layers are the project's truth and stay
+   * reproducible on their own, and this says where they came from —
+   * `ASSEMBLY:generic-partition-stud@1.0.0`. Optional, because a build-up
+   * composed by hand comes from nowhere.
+   */
+  readonly catalogRef?: CatalogRef;
   readonly name: string;
   readonly category: AssemblyCategory;
   /** Layer order is significant (exterior to interior for vertical assemblies). */

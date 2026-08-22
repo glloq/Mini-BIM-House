@@ -11,5 +11,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@house-technical-designer/technical-types": "0.1.0"
   }
 }

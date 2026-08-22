@@ -1,4 +1,3 @@
-import products from '../data/generic.json' with { type: 'json' };
 import type { DataDomain } from '@house-technical-designer/technical-types';
 
 export type ProductPropertyValue = string | number | boolean;
@@ -29,9 +28,35 @@ export interface NetworkProduct {
   };
 }
 
-export const NETWORK_PRODUCT_REGISTRY: readonly NetworkProduct[] = (
-  products as { readonly products: readonly NetworkProduct[] }
-).products;
+interface ProductFile {
+  readonly products: readonly NetworkProduct[];
+}
+
+/**
+ * Every product file under `data`, found rather than listed.
+ *
+ * The tree is the list: adding a file is `git add`, and nothing else. Sorted by
+ * path so that two machines, and two runs, read the products in the same order
+ * — a fingerprint over an arbitrary order is one that moves when the
+ * filesystem does.
+ */
+const DISCOVERED = import.meta.glob('../data/**/*.json', {
+  eager: true,
+  import: 'default',
+}) as Readonly<Record<string, ProductFile>>;
+
+/** The files this catalogue is made of, in a stable order. */
+export function networkProductCatalogSources(): readonly string[] {
+  return Object.keys(DISCOVERED)
+    .map((path) => path.replace('../', 'packages/network-products/'))
+    .sort();
+}
+
+export const NETWORK_PRODUCT_REGISTRY: readonly NetworkProduct[] = Object.keys(
+  DISCOVERED,
+)
+  .sort()
+  .flatMap((path) => DISCOVERED[path]!.products);
 
 const BY_ID = new Map(
   NETWORK_PRODUCT_REGISTRY.map((product) => [product.id, product]),

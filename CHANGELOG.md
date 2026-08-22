@@ -5,6 +5,39 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.12 — non publiée
+
+La **dernière porte avant le remplissage massif**. Rien de neuf dans le moteur :
+quatre corrections d'industrialisation, et le format catalogue est figé.
+
+### Corrigé
+
+- **ajouter des fiches demandait encore de modifier du TypeScript.** Huit
+  fichiers d'équipement étaient importés à la main dans le chargeur et
+  énumérés un par un dans le validateur de schémas : deux cents excellentes
+  fiches déposées dans un neuvième fichier n'arrivaient nulle part. Les six
+  registres découvrent maintenant leurs fichiers ; l'arborescence est la liste.
+- **le chemin réel de l'utilisateur ne passait pas par l'architecture qui
+  passe à l'échelle.** Le panneau gardait chaque fiche entière — ports,
+  dégagements, cartes de performance — pour dessiner une liste de noms. Il tient
+  des résumés et demande un corps au dépôt quand quelqu'un pose quelque chose.
+- **cinq registres sur six n'étaient pas versionnés.** Corriger la laine de
+  roche aurait changé silencieusement chaque mur déjà dessiné avec elle. Les
+  empreintes couvrent les six, sous `REGISTRE:identifiant@version`.
+- **les matériaux et les assemblages perdaient leur origine dans le projet.**
+  Les chiffres restaient, donc le calcul aussi ; ce qui manquait était de
+  pouvoir dire `MATERIAL:generic-rock-wool@1.0.0`. `catalogRef` le porte.
+
+### Modifié
+
+- **un seul chemin d'une fiche à un projet.** La maison de qualification
+  construisait ses copies à la main ; elle passe par le même constructeur que
+  l'interface, et exerce donc les courbes, les sources, le rendu et les
+  capabilities.
+- **Catalog Format v1 est figé**, avec sa règle : une PR de remplissage ne
+  modifie aucun fichier moteur ; une fiche que les contrats ne savent pas
+  représenter ouvre un `CONTRACT_GAP` au lieu d'étendre le format en passant.
+
 ## 0.3.0-beta.11 — non publiée
 
 L'**architecture du catalogue**, figée avant que quiconque le remplisse.

@@ -3,8 +3,11 @@ import type {
   DataRegistry,
 } from '@house-technical-designer/technical-types';
 import type { CatalogCapability } from './capabilities.js';
-import type { CatalogLifecycle, CatalogRef } from './catalog-identity.js';
-import { formatCatalogRef } from './catalog-identity.js';
+import type { CatalogLifecycle } from './catalog-identity.js';
+import {
+  formatCatalogRef,
+  type CatalogRef,
+} from '@house-technical-designer/technical-types';
 
 /**
  * One catalogue entry, reduced to what a list needs to show it.
@@ -29,6 +32,17 @@ export interface CatalogSummary {
   readonly lifecycle: CatalogLifecycle;
   readonly capabilities: readonly CatalogCapability[];
   readonly manufacturer?: string;
+  /**
+   * Whether this entry passes the gate its family sets.
+   *
+   * Carried on the row rather than recomputed by whoever draws it. The
+   * interface needs to know « can I place one of these today », and answering
+   * it used to mean validating every entry of every family on every render —
+   * invisible at nineteen entries, four seconds at ten thousand. Whoever
+   * builds the summaries knows the answer already: the bundled repository
+   * because it ran the gate, a server because it ran it before shipping them.
+   */
+  readonly valid: boolean;
 }
 
 /**

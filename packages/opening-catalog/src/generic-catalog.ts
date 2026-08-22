@@ -1,4 +1,3 @@
-import generic from '../data/generic.json' with { type: 'json' };
 import type { OpeningCategory, OpeningDefinition } from './types.js';
 import type { OpeningDefinition as ProjectOpeningDefinition } from '@house-technical-designer/core-domain';
 
@@ -17,14 +16,38 @@ interface CatalogFile {
 export const GENERIC_OPENING_REFERENCE =
   'Valeurs de dimensionnement génériques — ne provient d’aucun fabricant';
 
-/** Every entry as the file states it, unchecked and unrepaired. */
-export function rawGenericOpeningEntries(): readonly OpeningDefinition[] {
-  return (generic as CatalogFile).openings;
+/**
+ * Every opening file under `data`, found rather than listed.
+ *
+ * The tree is the list: adding a file is `git add`, and nothing else. Sorted by
+ * path so that two machines, and two runs, read the entries in the same order
+ * — a fingerprint over an arbitrary order is one that moves when the
+ * filesystem does.
+ */
+const DISCOVERED = import.meta.glob('../data/**/*.json', {
+  eager: true,
+  import: 'default',
+}) as Readonly<Record<string, CatalogFile>>;
+
+const FILES: readonly CatalogFile[] = Object.keys(DISCOVERED)
+  .sort()
+  .map((path) => DISCOVERED[path]!);
+
+/** The files this catalogue is made of, in a stable order. */
+export function openingCatalogSources(): readonly string[] {
+  return Object.keys(DISCOVERED)
+    .map((path) => path.replace('../', 'packages/opening-catalog/'))
+    .sort();
 }
 
-/** What the catalogue file itself is: its own shape has a version too. */
-export const GENERIC_OPENING_FORMAT_VERSION = (generic as CatalogFile)
-  .formatVersion;
+/** Every entry as the files state them, unchecked and unrepaired. */
+export function rawGenericOpeningEntries(): readonly OpeningDefinition[] {
+  return FILES.flatMap(({ openings }) => openings);
+}
+
+/** What the catalogue files themselves are: their shape has a version too. */
+export const GENERIC_OPENING_FORMAT_VERSION =
+  FILES[0]?.formatVersion ?? '1.0.0';
 
 /** Looks a generic opening up by identifier. */
 export function genericOpening(id: string): OpeningDefinition | undefined {
