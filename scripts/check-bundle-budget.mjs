@@ -45,9 +45,15 @@ export const BUDGETS = {
    * says when one of its terms is unknown. It is a hundred lines and it is in
    * the initial chunk because the calculation adapters are.
    *
+   * Raised by one more kio for the complete catalogue snapshot: the equipment
+   * shape now describes the performance curves, the rendering and the source
+   * of each figure, and that shape is compiled into the validator every import
+   * runs. It is the price of a project that opens the same way with the
+   * catalogue uninstalled.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 254 * 1024,
+  initialGzipBytes: 255 * 1024,
   /** Everything the build produces, gzipped. */
   totalGzipBytes: 374 * 1024,
 };

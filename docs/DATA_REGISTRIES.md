@@ -390,6 +390,33 @@ n'est pas l'utilisateur qui les saisit, c'est l'application qui note quelle
 version il a choisie. `resolvePlacedEquipment()` compare les deux et signale
 l'écart au lieu de l'absorber.
 
+## La copie est une copie
+
+Un projet ne pointe pas vers le catalogue : il en emporte une copie. Sinon il
+n'ouvrirait pas de la même façon dans deux ans — le catalogue aura bougé, ou ne
+sera pas installé du tout.
+
+Et la copie doit être une copie entière. Elle gardait les dimensions, les ports
+et les dégagements, et laissait derrière elle trois choses :
+
+- les **courbes de performance**. Une pompe à chaleur n'est pas un nombre : son
+  COP vaut 2,0 à −15 °C et 5,0 à +15 °C. Ne garder que la valeur nominale, c'est
+  garder la seule valeur que la machine ne délivre presque jamais ;
+- le **rendu** : quel symbole la dessine, sur quel dessin, sur quel calque ;
+- la **source de chaque chiffre**, une par une. La provenance d'ensemble suffit
+  pour une fiche dont les vingt nombres viennent de la même page ; une fiche
+  fabricant n'est pas cela — la moitié de ses chiffres sont déclarés, l'autre
+  moitié calculés, et c'est toute la différence.
+
+S'y ajoutent les **capabilities** de la famille, pour la même raison que
+`allowedHosts` : l'éditeur, les dessins et le quantitatif s'y branchent, et un
+fichier qui doit s'ouvrir pareil dans deux ans ne peut pas aller le demander à
+une nomenclature qui a bougé.
+
+Un test énumère les champs d'une fiche résolue et échoue sur celui que la copie
+laisse tomber, pour que le prochain champ ajouté au catalogue ne s'arrête pas
+silencieusement au bord du projet.
+
 ## Les catalogues
 
 Le catalogue générique n'est plus une liste TypeScript. Il vit dans

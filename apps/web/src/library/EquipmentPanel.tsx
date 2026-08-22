@@ -14,6 +14,7 @@ import {
 } from '@house-technical-designer/editor-core';
 import {
   family,
+  familyCapabilities,
   genericCatalog,
 } from '@house-technical-designer/catalog-registry';
 import type { HostType } from '@house-technical-designer/core-domain';
@@ -129,6 +130,7 @@ export function EquipmentPanel({
                 takenIds,
                 allowedHostsOfFamily(definition.familyId),
                 family(definition.familyId)?.clearances,
+                familyCapabilities(definition.familyId),
               );
               onCommand(new AddEquipmentCommand(added));
               onSelect(added.id);

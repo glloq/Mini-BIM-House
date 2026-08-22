@@ -390,6 +390,7 @@ export function projectEquipmentFromCatalog(
   takenIds: readonly string[],
   allowedHosts?: readonly HostType[],
   requiredClearances?: readonly ClearanceZone[],
+  capabilities?: readonly string[],
 ): ProjectEquipment {
   // What bucket this belongs to is the family's word, not the entry's: the
   // entry used to carry a `kind` and a `category` of its own, and the copy
@@ -415,6 +416,7 @@ export function projectEquipmentFromCatalog(
       : { dimensions: definition.dimensions }),
     ...(allowedHosts === undefined ? {} : { allowedHosts }),
     ...(requiredClearances === undefined ? {} : { requiredClearances }),
+    ...(capabilities === undefined ? {} : { capabilities }),
     ports: definition.ports.map((port) => ({
       id: port.id,
       portTypeId: port.portTypeId,
@@ -431,6 +433,21 @@ export function projectEquipmentFromCatalog(
           ),
         }),
     provenance: definition.provenance,
+    // Where each figure comes from, not just where the fiche as a whole does.
+    // A manufacturer sheet declares half its numbers and computes the other
+    // half, and a copy that kept only the entry-level sentence could no longer
+    // tell which was which.
+    ...(definition.sources.length === 0 ? {} : { sources: definition.sources }),
+    // A heat pump is not a number: its coefficient of performance at −7 °C is
+    // not the one at 7 °C. The curves stopped at the project's edge, so a file
+    // reopened without the catalogue installed had lost the only thing that
+    // said how the machine behaves anywhere but at its nominal point.
+    ...(definition.performanceCurves === undefined
+      ? {}
+      : { performanceCurves: definition.performanceCurves }),
+    ...(definition.rendering === undefined
+      ? {}
+      : { rendering: definition.rendering }),
     ...(definition.costEntryId === undefined
       ? {}
       : { costEntryId: definition.costEntryId }),
