@@ -3,6 +3,7 @@ import type {
   ModuleSettings,
   Project,
   ProjectMetadata,
+  ProjectScope,
   RegulatoryContext,
   Site,
   SiteObstacle,
@@ -11,6 +12,7 @@ import type {
 import {
   entityId,
   isSiteObstacleKind,
+  validateProjectScope,
 } from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
 import type { ChangeSet, CommandValidation } from './commands.js';
@@ -604,5 +606,26 @@ export class RemoveSiteObstacleCommand extends SettingsCommand {
         ),
       },
     };
+  }
+}
+
+/**
+ * Sets what the person has decided to design on this project.
+ *
+ * A command rather than a preference, because it travels in the file and has
+ * to be undoable like everything else that changes it. It never touches a
+ * single object: narrowing a scope hides nothing and deletes nothing, and the
+ * interface says what is outside it rather than making it disappear.
+ */
+export class SetProjectScopeCommand extends SettingsCommand {
+  constructor(readonly scope: ProjectScope) {
+    super('project:scope', 'Modifier le périmètre de conception');
+  }
+  validate(): CommandValidation {
+    const issues = validateProjectScope(this.scope);
+    return issues.length > 0 ? rejected(...issues) : ok();
+  }
+  protected apply(project: Project): Project {
+    return { ...project, scope: this.scope };
   }
 }

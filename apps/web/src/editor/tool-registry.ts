@@ -1050,7 +1050,7 @@ export const EDITOR_TOOLS = [
     hint: 'Tracer un mur parallèle : le mur, puis le côté et la distance',
     shortcutId: 'tool.offset',
     requiredPoints: 2,
-    level: 'EXPERT',
+    level: 'DESIGN',
     createCommand: (context) => {
       const wallId = context.picks[0];
       const towards = context.points[1];
@@ -1075,7 +1075,7 @@ export const EDITOR_TOOLS = [
     hint: 'Amener deux murs à leur intersection',
     shortcutId: 'tool.join',
     requiredPoints: 2,
-    level: 'EXPERT',
+    level: 'DESIGN',
     createCommand: (context) => {
       const [firstId, secondId] = context.picks;
       const [firstAt, secondAt] = context.points;
@@ -1102,7 +1102,7 @@ export const EDITOR_TOOLS = [
     hint: 'Allonger ou raccourcir un mur jusqu’à un autre',
     shortcutId: 'tool.trim',
     requiredPoints: 2,
-    level: 'EXPERT',
+    level: 'DESIGN',
     createCommand: (context) => {
       const [firstId, secondId] = context.picks;
       const [firstAt, secondAt] = context.points;

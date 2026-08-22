@@ -1,4 +1,7 @@
 import { useMemo, useState } from 'react';
+
+import { CatalogSearch } from '../catalog/CatalogSearch.js';
+import { matchesQuery, type CatalogQuery } from '../catalog/catalog-filter.js';
 import type { Project } from '@house-technical-designer/core-domain';
 import type {
   Assembly,
@@ -95,10 +98,18 @@ export function AssembliesPanel({
   selectedId,
   onSelect,
 }: AssembliesPanelProps) {
-  const [category, setCategory] = useState('');
+  // The assemblies had a category menu and no search at all, so finding one
+  // among forty meant reading forty. One query, the same as everywhere else.
+  const [query, setQuery] = useState<CatalogQuery>({});
   const views = useMemo(() => assemblyViews(project), [project]);
-  const filtered = views.filter(
-    ({ assembly }) => category === '' || assembly.category === category,
+  const filtered = views.filter(({ assembly }) =>
+    matchesQuery(
+      {
+        text: [assembly.name, assembly.id, CATEGORY_LABELS[assembly.category]],
+        family: assembly.category,
+      },
+      query,
+    ),
   );
   const selected = views.find(({ assembly }) => assembly.id === selectedId);
   const takenIds = (project.assemblies ?? []).map(({ id }) => id);
@@ -155,22 +166,18 @@ export function AssembliesPanel({
         </div>
       </header>
 
-      <div className="filters">
-        <label>
-          Catégorie
-          <select
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-          >
-            <option value="">Toutes</option>
-            {CATEGORIES.map((entry) => (
-              <option key={entry} value={entry}>
-                {CATEGORY_LABELS[entry]}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      <CatalogSearch
+        query={query}
+        onChange={setQuery}
+        placeholder="Nom ou identifiant"
+        family={{
+          label: 'Catégorie',
+          all: 'Toutes',
+          values: [...CATEGORIES],
+          labelOf: (value) =>
+            CATEGORY_LABELS[value as keyof typeof CATEGORY_LABELS] ?? value,
+        }}
+      />
 
       <div className="library-split">
         <ul className="assembly-list">

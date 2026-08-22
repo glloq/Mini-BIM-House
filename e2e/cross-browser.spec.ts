@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { openDestination } from './support/navigation.js';
+
 /**
  * The journey every supported engine must complete.
  *
@@ -41,7 +43,7 @@ test('draws, calculates, saves and reopens on this engine', async ({
   await canvas.click({ position: { x: 420, y: 380 } });
   await expect(walls).toHaveCount(7);
 
-  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await openDestination(page, 'Calculs');
   await expect(page.locator('.dashboard-card').first()).toBeVisible();
   await expect(page.locator('.badge.status-error')).toHaveCount(0);
   await expect(page.locator('.badge.status-failed')).toHaveCount(0);

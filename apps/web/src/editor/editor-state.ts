@@ -20,8 +20,6 @@ import {
   constrainsDrafting,
   isOpenEnded,
   requiredPoints,
-  toolAtLevel,
-  toolDefinition,
   type EditorLevel,
   type EditorTool,
 } from './tool-registry.js';
@@ -33,7 +31,6 @@ export {
   constrainsDrafting,
   isOpenEnded,
   requiredPoints,
-  toolDefinition,
 } from './tool-registry.js';
 
 export interface SnapSettings {
@@ -100,7 +97,6 @@ export interface EditorState {
    * them says nothing about the building, and a project opened by someone else
    * must not rearrange their interface.
    */
-  readonly editorLevel: EditorLevel;
   readonly selection: readonly string[];
   readonly hoveredId?: string;
   readonly camera: Camera2D;
@@ -147,7 +143,6 @@ export function createEditorState(viewport: EditorViewport): EditorState {
     activeTool: 'SELECT',
     // What an ordinary project asks for. Someone drawing their first plan
     // narrows it; someone drawing a set of documents widens it.
-    editorLevel: 'DESIGN',
     selection: [],
     camera: createCamera(viewport),
     snap: DEFAULT_SNAP,
@@ -230,8 +225,7 @@ export type EditorAction =
       readonly pixelsPerMm: number;
     }
   | { readonly type: 'APPLY_PRESET'; readonly presetId: string }
-  | { readonly type: 'SET_LEVEL'; readonly levelId: string }
-  | { readonly type: 'SET_EDITOR_LEVEL'; readonly level: EditorLevel };
+  | { readonly type: 'SET_LEVEL'; readonly levelId: string };
 
 export interface Bounds {
   readonly min: Point2D;
@@ -474,17 +468,6 @@ export function editorReducer(
               ...Object.fromEntries(hidden.map((id) => [id, true])),
             },
           };
-    }
-    case 'SET_EDITOR_LEVEL': {
-      if (action.level === state.editorLevel) return state;
-      // A tool that the new level does not offer would stay active with no
-      // button to say so; selection is offered at every level.
-      const keeps = toolAtLevel(toolDefinition(state.activeTool), action.level);
-      return {
-        ...state,
-        editorLevel: action.level,
-        ...(keeps ? {} : { activeTool: 'SELECT' }),
-      };
     }
     case 'SET_LAYERS':
       return { ...state, layers: { ...state.layers, ...action.layers } };

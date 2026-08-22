@@ -3,7 +3,6 @@ import { loadDemoProject } from '../demo-project.js';
 import { SHORTCUTS } from './shortcuts.js';
 import { optionValue } from './tool-options.js';
 import { OBJECT_FAMILIES } from './object-editors.js';
-import { createEditorState, editorReducer } from './editor-state.js';
 import {
   EDITOR_LEVELS,
   EDITOR_TOOLS,
@@ -362,30 +361,5 @@ describe('how much of the editor is shown', () => {
     for (const level of EDITOR_LEVELS)
       for (const group of populatedToolGroupsAtLevel(level))
         expect(toolsInGroupAtLevel(group, level).length).toBeGreaterThan(0);
-  });
-
-  it('puts the tool back to selection when its own level is left', () => {
-    // A tool the new level does not offer would stay active with no button to
-    // say so.
-    const state = editorReducer(
-      {
-        ...createEditorState({ widthPx: 800, heightPx: 600 }),
-        activeTool: 'MIRROR',
-      },
-      { type: 'SET_EDITOR_LEVEL', level: 'QUICK' },
-    );
-    expect(state.editorLevel).toBe('QUICK');
-    expect(state.activeTool).toBe('SELECT');
-  });
-
-  it('keeps a tool the new level still offers', () => {
-    const state = editorReducer(
-      {
-        ...createEditorState({ widthPx: 800, heightPx: 600 }),
-        activeTool: 'WALL',
-      },
-      { type: 'SET_EDITOR_LEVEL', level: 'QUICK' },
-    );
-    expect(state.activeTool).toBe('WALL');
   });
 });

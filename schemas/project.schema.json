@@ -319,6 +319,50 @@
           "items": {
             "$ref": "#/$defs/ProjectSheet"
           }
+        },
+        "scope": {
+          "$ref": "#/$defs/ProjectScope"
+        }
+      },
+      "additionalProperties": true
+    },
+    "ProjectScope": {
+      "type": "object",
+      "required": [
+        "intent",
+        "enabledDomains"
+      ],
+      "properties": {
+        "intent": {
+          "enum": [
+            "NEW_BUILD",
+            "RENOVATION",
+            "EXISTING_SURVEY",
+            "STUDY"
+          ]
+        },
+        "enabledDomains": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "ARCHITECTURE",
+              "STRUCTURE",
+              "SITE",
+              "PLUMBING",
+              "WASTEWATER",
+              "RAINWATER",
+              "HEATING",
+              "VENTILATION",
+              "ELECTRICAL",
+              "LIGHTING",
+              "SOLAR",
+              "STORAGE",
+              "FLUE",
+              "DATA",
+              "SAFETY",
+              "FURNITURE"
+            ]
+          }
         }
       },
       "additionalProperties": true

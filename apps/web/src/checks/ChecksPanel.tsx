@@ -121,9 +121,13 @@ export function ChecksPanel({
               <button
                 type="button"
                 className="link"
+                // The finding already says where it leads — « Voir sur le
+                // plan », « Ouvrir le tronçon ». A button that says
+                // « Corriger » on all of them says nothing about which of the
+                // five spaces it is about to open.
                 onClick={() => onFix(check.fix!)}
               >
-                Corriger
+                {check.fix.label}
               </button>
             )}
           </li>

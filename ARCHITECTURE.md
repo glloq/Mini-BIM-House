@@ -79,6 +79,25 @@ Ce que cela veut dire, concrètement :
 | `rule-engine`                           | moteur de règles et Rule Packs                                                  |
 | `modules/*`                             | les dix-sept moteurs physiques, sans dépendance au projet                       |
 
+### L'interface
+
+L'application web est organisée autour de cinq espaces et non de onze
+destinations. Le contrat que toute PR d'interface respecte — les espaces, le
+périmètre de conception, la navigation transversale, le guide de progression et
+les dix-huit critères d'acceptation — est écrit dans
+[`docs/UX_ARCHITECTURE.md`](docs/UX_ARCHITECTURE.md) et vérifié par
+`apps/web/src/ux/acceptance.test.ts`.
+
+| Dossier             | Ce qu'il tient                                                  |
+| ------------------- | --------------------------------------------------------------- |
+| `ux/`               | les contrats : espaces, périmètre, cible de navigation, étapes  |
+| `shell/`            | l'agencement seul : rail, panneaux, barre d'état                |
+| `project-creation/` | la page `/project/new`, la pile de niveaux, l'emprise de départ |
+| `catalog/`          | une seule façon de demander « lequel » à un catalogue           |
+| `systems/`          | les disciplines par lesquelles le plan se lit                   |
+| `visibility/`       | les préréglages de ce qui est dessiné                           |
+| `workflow/`         | le registre des étapes et le guide qui les lit                  |
+
 ---
 
 # Document de conception initiale
