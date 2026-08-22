@@ -26,7 +26,14 @@ import type {
   AssemblyLayer,
 } from '@house-technical-designer/assemblies';
 import type { Material } from '@house-technical-designer/materials';
-import type { ClimateDataset } from '@house-technical-designer/climate';
+import type {
+  ClimateDataset,
+  ClimateSelection,
+} from '@house-technical-designer/climate';
+import {
+  primarySeries,
+  selectClimate,
+} from '@house-technical-designer/climate';
 import {
   calculateWallQuantities,
   networkRunQuantities,
@@ -115,6 +122,14 @@ export interface ProjectCalculationContext {
   readonly projectId: string;
   readonly scenarioId?: string;
   readonly climateProfileId?: string;
+  /**
+   * Which climate was chosen, and why none was when none was.
+   *
+   * A project asking for a climate that is not loaded gets no weather at all;
+   * the modules that need one then report it as a missing input, naming the
+   * dataset that is missing.
+   */
+  readonly climateSelection: ClimateSelection;
   readonly climate?: ProjectClimateContext;
   /**
    * Finest uniform sub-daily dataset available, used by the modules that need a
@@ -369,13 +384,13 @@ export function createProjectCalculationContext(
       : Array.isArray(options.climate)
         ? [...(options.climate as readonly ClimateDataset[])]
         : [options.climate as ClimateDataset];
+  // The weather of the place the project named, and of no other. Falling back
+  // to whatever was loaded computed a house with a climate nobody asked for.
+  const selection = selectClimate(datasets, project.site.climateProfileId);
+  const bundle = selection.status === 'OK' ? selection.bundle : undefined;
   const primaryDataset =
-    datasets.find(({ id }) => id === project.site.climateProfileId) ??
-    datasets.find(({ resolution }) => resolution !== 'HOURLY') ??
-    datasets[0];
-  const subDailyDataset = datasets.find(
-    ({ resolution }) => resolution === 'HOURLY',
-  );
+    bundle === undefined ? undefined : primarySeries(bundle);
+  const subDailyDataset = bundle?.hourly;
   const climate =
     primaryDataset === undefined ? undefined : climateContext(primaryDataset);
   const subDailyClimate =
@@ -395,6 +410,7 @@ export function createProjectCalculationContext(
     assemblies,
     exteriorWalls,
     envelope: resolveEnvelope(project),
+    climateSelection: selection,
     spaces,
     rawSpaces,
     zones: project.building.zones,

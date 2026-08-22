@@ -519,3 +519,46 @@ describe('the whole envelope, checked by hand', () => {
     expect(now).toBeGreaterThan(opaqueU * 116 * 2);
   });
 });
+
+describe('the weather a project is computed with', () => {
+  it('refuses a climate the project asked for and nobody supplied', async () => {
+    // Falling back to whichever dataset happened to be loaded computed a
+    // house with a climate nobody chose, and said nothing.
+    const loaded = loadProjectJson(await readFile(fixturePath, 'utf8'));
+    if (loaded.status !== 'OK') throw new Error(loaded.status);
+    const elsewhere: Project = {
+      ...loaded.file.project,
+      site: { ...loaded.file.project.site, climateProfileId: 'bordeaux' },
+    };
+    const context = createProjectCalculationContext(elsewhere, {
+      climate: await climateDatasets(),
+    });
+    expect(context.climate).toBeUndefined();
+    expect(context.subDailyClimate).toBeUndefined();
+    const built = buildProjectCalculationInputs(context);
+    const said = built.missing.filter(({ key }) => key === 'climateProfileId');
+    // Every module whose answer depends on the weather says which dataset it
+    // wanted, rather than one of them quietly using Rennes.
+    expect(said.map(({ moduleId }) => moduleId).sort()).toEqual([
+      'energy-balance',
+      'heating',
+      'hygrothermal',
+      'iaq',
+      'photovoltaic',
+      'rainwater',
+    ]);
+    expect(said[0]?.message).toContain('bordeaux');
+  });
+
+  it('pairs the design day and the year of the same place', async () => {
+    const loaded = loadProjectJson(await readFile(fixturePath, 'utf8'));
+    if (loaded.status !== 'OK') throw new Error(loaded.status);
+    const context = createProjectCalculationContext(loaded.file.project, {
+      climate: await climateDatasets(),
+    });
+    expect(context.climate?.datasetId).toBe('reference-temperate');
+    expect(context.subDailyClimate?.datasetId).toBe(
+      'reference-temperate-design-day',
+    );
+  });
+});

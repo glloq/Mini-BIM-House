@@ -2095,9 +2095,40 @@ function environmentalInput(
  * and listed in {@link ProjectCalculationInputs.missing}, so a module reports a
  * missing input instead of computing on a placeholder.
  */
+/** The modules whose answer depends on the weather of a real place. */
+const CLIMATE_DEPENDENT = [
+  'heating',
+  'iaq',
+  'rainwater',
+  'photovoltaic',
+  'energy-balance',
+  'hygrothermal',
+] as const;
+
+/**
+ * What a project asked for and did not get, said once per module that needed
+ * it.
+ *
+ * A climate the project names and nobody supplied is not a reason to compute
+ * with another one. Saying which dataset is missing, in the modules that would
+ * have read it, is what turns a wrong answer into no answer.
+ */
+function reportClimateSelection(context: ProjectCalculationContext): void {
+  const selection = context.climateSelection;
+  if (selection.status === 'OK' || selection.status === 'NONE') return;
+  for (const moduleId of CLIMATE_DEPENDENT)
+    context.settings.reportMissing(
+      moduleId,
+      'climateProfileId',
+      'CLIMATE_DATASET',
+      selection.message,
+    );
+}
+
 export function buildProjectCalculationInputs(
   context: ProjectCalculationContext,
 ): ProjectCalculationInputs {
+  reportClimateSelection(context);
   const inputs: Record<string, CalculationJson> = {
     thermal: thermalInput(context),
     heating: heatingInput(context),
