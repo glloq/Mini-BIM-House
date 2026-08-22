@@ -1252,11 +1252,14 @@ function iaqInput(context: ProjectCalculationContext): CalculationJson {
   const rooms = context.spaces.map((space) => {
     const occupants = spaceOccupancy(context, space, 'iaq');
     if (occupants === undefined)
+      // Named by the setting that fills it, not by the room that revealed it:
+      // eight rooms of one category are one missing figure, and the screen
+      // that takes it offers a line per category rather than per room.
       settings.reportMissing(
         'iaq',
-        `rooms/${space.spaceId}/occupants`,
+        `occupantsByCategory/${space.category}`,
         'MODULE_SETTINGS',
-        `No occupancy is declared for category ${space.category}.`,
+        `No occupancy is declared for category ${space.category}; ${space.name} cannot be assessed.`,
       );
     if (space.volumeM3 === undefined)
       settings.reportMissing(

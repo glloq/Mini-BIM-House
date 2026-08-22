@@ -1958,6 +1958,28 @@ test('keeps a scenario selected after deleting another one', async ({
   await expect(page.locator('h3')).toContainText('Modifications de');
 });
 
+test('takes the price of a product by the metre and of a model by the unit', async ({
+  page,
+}) => {
+  // A house's whole plumbing, wiring and equipment had prices the interface
+  // could not take: the screen knew one table, and it was per cubic metre.
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await page.getByLabel('Module', { exact: true }).selectOption('cost');
+  await expect(
+    page.getByRole('columnheader', { name: 'Produit réseau' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('columnheader', { name: 'Modèle d’équipement' }),
+  ).toBeVisible();
+  // And a line per product the project actually names.
+  const field = page.getByLabel('Prix du produit — Câble cuivre 3G1,5');
+  await expect(field).toBeVisible();
+  await field.fill('1.4');
+  await field.blur();
+  await expect(page.getByRole('status')).toContainText('appliqué');
+});
+
 test('never offers to fix a value the settings screen cannot take', async ({
   page,
 }) => {

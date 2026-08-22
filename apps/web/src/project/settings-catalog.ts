@@ -17,11 +17,24 @@ export interface ModuleSettingField {
   readonly hint?: string;
 }
 
-/** A setting the user fills in per material rather than once for the project. */
-export interface ModuleSettingMaterialTable {
+/**
+ * Where the rows of a per-object setting come from.
+ *
+ * A price per cubic metre is asked material by material. A price per metre of
+ * run is asked product by product, and a price per unit placed model by model:
+ * the same shape, three different lists, and only the first existed — so the
+ * whole plumbing, wiring and equipment of a house had prices the interface
+ * could not take.
+ */
+export type SettingTableSource = 'MATERIALS' | 'NETWORK_PRODUCTS' | 'EQUIPMENT';
+
+/** A setting the user fills in object by object rather than once for the project. */
+export interface ModuleSettingObjectTable {
   readonly key: string;
   readonly label: string;
   readonly unit: string;
+  /** The project's materials unless the table says otherwise. */
+  readonly source?: SettingTableSource;
 }
 
 /**
@@ -50,13 +63,22 @@ export interface ModuleSettingKeyedTable {
   readonly label: string;
   readonly unit: string;
   readonly rows: readonly { readonly key: string; readonly label: string }[];
+  /**
+   * Whether the rooms of the project add their own rows to this table.
+   *
+   * A room's category is a free string in the model, so the conventional list
+   * cannot be the whole of it: a project calling a landing a `CIRCULATION`
+   * asked for an occupancy the screen had no line for, and the module reported
+   * an input nobody could supply.
+   */
+  readonly fromSpaceCategories?: boolean;
 }
 
 export interface ModuleSettingsDescriptor {
   readonly moduleId: string;
   readonly label: string;
   readonly fields: readonly ModuleSettingField[];
-  readonly materialTables?: readonly ModuleSettingMaterialTable[];
+  readonly objectTables?: readonly ModuleSettingObjectTable[];
   readonly keyedTables?: readonly ModuleSettingKeyedTable[];
   readonly numberChoices?: readonly ModuleSettingNumberChoice[];
   /** Why this module has no editable field here, when it has none. */
@@ -206,6 +228,7 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
         label: 'Occupants',
         unit: 'personnes',
         rows: [...SPACE_CATEGORY_ROWS],
+        fromSpaceCategories: true,
       },
     ],
   },
@@ -346,10 +369,34 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
     fields: [
       { key: 'currency', kind: 'TEXT', label: 'Devise', unit: 'code ISO' },
     ],
-    materialTables: [
+    objectTables: [
       { key: 'unitPriceByMaterial', label: 'Prix matériau', unit: '/m³' },
       { key: 'labourPriceByMaterial', label: 'Main-d’œuvre', unit: '/m³' },
       { key: 'wasteFactorByMaterial', label: 'Déchets', unit: '0 à 1' },
+      {
+        key: 'unitPriceByProduct',
+        label: 'Prix du produit',
+        unit: '/m',
+        source: 'NETWORK_PRODUCTS',
+      },
+      {
+        key: 'labourPriceByProduct',
+        label: 'Pose du produit',
+        unit: '/m',
+        source: 'NETWORK_PRODUCTS',
+      },
+      {
+        key: 'unitPriceByEquipment',
+        label: 'Prix du modèle',
+        unit: '/u',
+        source: 'EQUIPMENT',
+      },
+      {
+        key: 'labourPriceByEquipment',
+        label: 'Pose du modèle',
+        unit: '/u',
+        source: 'EQUIPMENT',
+      },
     ],
   },
   {
@@ -370,7 +417,7 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
         hint: 'Une donnée générique doit le dire : elle ne devient jamais une donnée fabricant.',
       },
     ],
-    materialTables: [
+    objectTables: [
       { key: 'gwpPerUnitByMaterial', label: 'Facteur GWP', unit: 'kgCO₂e/m³' },
     ],
   },
@@ -504,20 +551,58 @@ export function withNumberChoice(
   return settingsNext;
 }
 
-/** Whether this catalogue can actually edit a module's setting key. */
+/**
+ * The rows of a keyed table, including the ones this project brought.
+ *
+ * The conventional list first, then whatever categories the rooms actually
+ * carry: the screen has to be able to take every figure a module can ask for,
+ * and a room's category is a free string in the model.
+ */
+export function keyedTableRows(
+  table: ModuleSettingKeyedTable,
+  project: Project,
+): readonly { readonly key: string; readonly label: string }[] {
+  if (table.fromSpaceCategories !== true) return table.rows;
+  const known = new Set(table.rows.map(({ key }) => key));
+  const extra = [
+    ...new Set(
+      project.building.levels
+        .flatMap(({ spaces }) => spaces)
+        .map(({ category }) => category)
+        .filter((category) => !known.has(category)),
+    ),
+  ].sort();
+  return [...table.rows, ...extra.map((key) => ({ key, label: key }))];
+}
+
+/**
+ * Whether this catalogue can actually edit a module's setting key.
+ *
+ * A module names a missing row of a table by the table and the row —
+ * `unitPriceByMaterial/material-masonry` — and the table is what the interface
+ * offers. Answering « non » to those was answering « non » to every price a
+ * project has ever failed to declare, so no `Corriger` was offered for the one
+ * kind of missing input the settings screen is entirely made for.
+ */
 export function canEditSetting(moduleId: string, key: string): boolean {
   const descriptor = MODULE_SETTINGS.find(
     (entry) => entry.moduleId === moduleId,
   );
   if (descriptor === undefined) return false;
+  const table = key.split('/')[0] ?? key;
   return (
     descriptor.fields.some((field) => field.key === key) ||
-    (descriptor.materialTables ?? []).some((table) => table.key === key) ||
-    (descriptor.keyedTables ?? []).some((table) => table.key === key) ||
+    (descriptor.objectTables ?? []).some(
+      (entry) => entry.key === key || entry.key === table,
+    ) ||
+    (descriptor.keyedTables ?? []).some(
+      (entry) => entry.key === key || entry.key === table,
+    ) ||
     (descriptor.numberChoices ?? []).some((choice) => choice.key === key)
   );
 }
 
+/** The settings with one row of a per-object table set, or removed when emptied. */
 export function withMaterialValue(
   settings: Readonly<Record<string, JsonValue>>,
   tableKey: string,

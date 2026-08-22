@@ -102,6 +102,19 @@ terminé.
   tableau. Une analyse reste une ligne de description — où sont ses nombres —
   et non une fonction de plus : deux mécanismes nouveaux y suffisent, choisir
   une bande d'octave et montrer un oui/non comme un et zéro ;
+- **tout réglage qu'un module peut réclamer se saisit maintenant à l'écran**, et
+  un test le prouve : il vide les réglages de la maison de référence, ramasse
+  tout ce que les dix-sept modules déclarent alors manquant, et exige que
+  l'écran sache prendre chacun. Trois trous s'y voyaient. Une ligne d'un tableau
+  — « prix du matériau _maçonnerie_ » — n'était pas reconnue comme éditable,
+  donc aucun « Corriger » n'était proposé pour la seule sorte d'entrée
+  manquante à laquelle cet écran sert entièrement. Les prix au mètre de produit
+  et à l'unité de modèle, tout juste ajoutés au module de coût, n'avaient aucun
+  champ. Et l'occupation d'une pièce était nommée par la pièce — huit pièces,
+  huit constats — au lieu de l'être par la catégorie qui la remplit, dont
+  l'écran offre une ligne ; la catégorie d'une pièce étant un texte libre dans
+  le modèle, l'écran ajoute désormais les catégories que le projet emploie à
+  celles qu'il connaît d'avance ;
 - un champ photovoltaïque posé sur un pan de toiture dit sur lequel ; le module
   demandait de le redire dans un réglage, et les deux réponses auraient divergé
   au premier déplacement ;
