@@ -4,6 +4,7 @@ import type {
   Level,
   NetworkProductSnapshot,
   Project,
+  EnvelopeElement,
   ResolvedPlacedEquipment,
   Space,
   TechnicalNetwork,
@@ -15,6 +16,7 @@ import {
   placedEquipmentByFamily,
   placedEquipmentByKind,
   placedEquipmentBySpace,
+  resolveEnvelope,
   resolveRoofGeometry,
   resolveSpaceGeometry,
   resolveWallGeometry,
@@ -122,6 +124,12 @@ export interface ProjectCalculationContext {
   readonly materials: readonly Material[];
   readonly assemblies: readonly Assembly[];
   readonly exteriorWalls: readonly ProjectWallCalculationElement[];
+  /**
+   * Everything that separates the heated house from the outside, the ground
+   * and the unheated: walls, the windows and doors cut through them, roofs
+   * and the slabs that actually close the house.
+   */
+  readonly envelope: readonly EnvelopeElement[];
   readonly spaces: readonly ProjectSpaceCalculationElement[];
   readonly rawSpaces: readonly Space[];
   readonly zones: readonly Zone[];
@@ -386,6 +394,7 @@ export function createProjectCalculationContext(
     materials,
     assemblies,
     exteriorWalls,
+    envelope: resolveEnvelope(project),
     spaces,
     rawSpaces,
     zones: project.building.zones,

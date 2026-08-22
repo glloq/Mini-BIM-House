@@ -255,6 +255,45 @@ function spaceOccupancy(
   return typeof value === 'number' ? value : undefined;
 }
 
+/**
+ * The transmittance a bought element states, out of the catalogue entry it is.
+ *
+ * A window is not assembled from layers: its datasheet gives one Uw covering
+ * the glass, the frame and the spacer, and no stack of layers reproduces it.
+ */
+function declaredUValue(
+  context: ProjectCalculationContext,
+  definitionId: string | undefined,
+): number | undefined {
+  if (definitionId === undefined) return undefined;
+  const definition = context.equipment.find(({ id }) => id === definitionId);
+  for (const key of ['uw', 'uValueWm2K', 'thermalTransmittanceWm2K']) {
+    const value = definition?.properties?.[key];
+    if (typeof value === 'number' && Number.isFinite(value) && value > 0)
+      return value;
+  }
+  return undefined;
+}
+
+const ENVELOPE_LABELS: Readonly<Record<string, string>> = {
+  WALL_OPAQUE: 'le mur',
+  WINDOW: 'la fenêtre',
+  DOOR: 'la porte',
+  ROOF: 'le pan de toiture',
+  FLOOR_GROUND: 'le plancher bas',
+  CEILING: 'le plafond',
+  OTHER: "l'élément",
+};
+
+/**
+ * The whole envelope, given to the engine element by element.
+ *
+ * It used to be the exterior walls and nothing else. A window was taken out of
+ * its wall and never put back as a window — twenty square metres of wall with
+ * four of glass reached the calculation as sixteen square metres of masonry
+ * and four square metres of nothing. The roof was resolved in the context and
+ * never reached the envelope; neither did the floors.
+ */
 function thermalInput(context: ProjectCalculationContext): CalculationJson {
   const settings = context.settings;
   const insideSurfaceResistanceM2KW = settings.methodConstant(
@@ -265,34 +304,97 @@ function thermalInput(context: ProjectCalculationContext): CalculationJson {
     'thermal',
     'outsideSurfaceResistanceM2KW',
   );
-  if (context.exteriorWalls.length === 0)
+  const assemblies = new Map(
+    context.assemblies.map((assembly) => [assembly.id as string, assembly]),
+  );
+  const materials = new Map(
+    context.materials.map((material) => [material.id as string, material]),
+  );
+  const elements: CalculationJson[] = [];
+
+  for (const element of context.envelope) {
+    const what = `${ENVELOPE_LABELS[element.kind] ?? "l'élément"} ${element.sourceEntityId}`;
+    if (element.netAreaM2 === undefined) {
+      settings.reportMissing(
+        'thermal',
+        `elements/${element.sourceEntityId}/areaM2`,
+        'PROJECT',
+        element.unresolved ?? `La surface de ${what} est inconnue.`,
+      );
+      continue;
+    }
+    settings.note(
+      'thermal',
+      `elements/${element.sourceEntityId}`,
+      'PROJECT',
+      element.sourceEntityId,
+    );
+    const shared = {
+      id: element.sourceEntityId,
+      areaM2: element.netAreaM2,
+      levelId: element.levelId,
+      kind: element.kind,
+      boundaryCondition: element.boundaryCondition,
+    };
+    // Built of layers, or bought whole. Those are the two ways an element of
+    // the envelope knows its transmittance, and neither is guessed.
+    if (element.assemblyId !== undefined) {
+      const assembly = assemblies.get(element.assemblyId);
+      if (assembly === undefined) {
+        settings.reportMissing(
+          'thermal',
+          `elements/${element.sourceEntityId}/assemblyId`,
+          'PROJECT',
+          `${what} nomme la composition ${element.assemblyId}, que le projet ne tient pas.`,
+        );
+        continue;
+      }
+      const layers = assembly.layers.map((layer) => {
+        const lambdaWmK = materials.get(layer.materialId)?.properties
+          ?.lambdaWmK;
+        if (typeof lambdaWmK !== 'number')
+          settings.reportMissing(
+            'thermal',
+            `elements/${element.sourceEntityId}/layers/${layer.id}/lambdaWmK`,
+            'PROJECT',
+            `Material ${layer.materialId} declares no thermal conductivity.`,
+          );
+        return {
+          layerId: layer.id,
+          materialId: layer.materialId,
+          thicknessM: layer.thicknessM,
+          ...(typeof lambdaWmK === 'number' ? { lambdaWmK } : {}),
+        };
+      });
+      elements.push({ ...shared, assemblyId: assembly.id, layers });
+      continue;
+    }
+    const uValueWm2K = declaredUValue(context, element.definitionId);
+    if (uValueWm2K === undefined) {
+      settings.reportMissing(
+        'thermal',
+        `elements/${element.sourceEntityId}/uValueWm2K`,
+        'PROJECT',
+        element.definitionId === undefined
+          ? `${what} ne dit pas de quel modèle elle est : sa transmission reste inconnue.`
+          : `Le modèle ${element.definitionId} ne déclare pas de coefficient Uw.`,
+      );
+      continue;
+    }
+    elements.push({ ...shared, uValueWm2K, layers: [] });
+  }
+
+  if (elements.length === 0)
     settings.reportMissing(
       'thermal',
       'elements',
       'PROJECT',
-      'The project has no exterior wall with a resolved assembly and explicit height.',
+      "Le projet ne décrit aucune paroi d'enveloppe dont la surface et la composition soient connues.",
     );
-  for (const wall of context.exteriorWalls) {
-    settings.note('thermal', `elements/${wall.wallId}`, 'PROJECT', wall.wallId);
-    for (const layer of wall.layers)
-      if (layer.lambdaWmK === undefined)
-        settings.reportMissing(
-          'thermal',
-          `elements/${wall.wallId}/layers/${layer.layerId}/lambdaWmK`,
-          'PROJECT',
-          `Material ${layer.materialId} declares no thermal conductivity.`,
-        );
-  }
   return {
     insideSurfaceResistanceM2KW,
     outsideSurfaceResistanceM2KW,
-    elements: context.exteriorWalls.map((wall) => ({
-      id: wall.wallId,
-      areaM2: wall.netAreaM2,
-      levelId: wall.levelId,
-      assemblyId: wall.assemblyId,
-      layers: wall.layers.map((layer) => ({ ...layer })),
-    })),
+    elements,
   };
 }
 

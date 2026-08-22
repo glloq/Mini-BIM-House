@@ -119,9 +119,14 @@ test('shows a thermal overlay with a legend', async ({ page }) => {
   await loadDemo(page);
   await page.getByLabel('Superposition').selectOption('thermal-u');
   await expect(page.locator('.overlay-legend')).toBeVisible();
-  await expect(page.locator('[data-layer="analysis.overlay"] > *')).toHaveCount(
-    4,
-  );
+  const coloured = page.locator('[data-layer="analysis.overlay"] > *');
+  // The whole envelope is coloured now, not the opaque walls alone: the
+  // windows, the roof and the floor were computed as nothing at all.
+  await expect(coloured).toHaveCount(8);
+  for (const id of ['wall-south', 'opening-living', 'slab-ground'])
+    await expect(
+      page.locator(`[data-layer="analysis.overlay"] [data-source-id="${id}"]`),
+    ).toHaveCount(1);
 });
 
 test('lists the bill of materials and offers a CSV export', async ({

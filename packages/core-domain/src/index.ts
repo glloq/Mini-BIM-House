@@ -16,6 +16,7 @@ export * from './host-types.js';
 export * from './clearance-analysis.js';
 export * from './placed-equipment.js';
 export * from './resolved-geometry.js';
+export * from './envelope.js';
 export * from './reference-index.js';
 export * from './stair.js';
 export * from './documents.js';

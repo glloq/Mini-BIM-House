@@ -382,6 +382,7 @@ export function createPreReferenceProject(): ProjectFile {
                 sillHeightMm: 900,
                 widthMm: 1200,
                 heightMm: 1000,
+                definitionId: 'glazing',
               },
             ],
             slabs: [
@@ -426,6 +427,14 @@ export function createPreReferenceProject(): ProjectFile {
       },
       systems: preReferenceNetworks(),
       equipment: [
+        {
+          // A window is bought whole: its Uw covers the glass, the frame and
+          // the spacer, and no stack of layers reproduces it.
+          id: 'glazing',
+          kind: 'WINDOW',
+          catalogKind: 'GENERIC',
+          properties: { uw: 1.3, gValue: 0.6 },
+        },
         {
           id: 'pv',
           kind: 'PHOTOVOLTAIC',

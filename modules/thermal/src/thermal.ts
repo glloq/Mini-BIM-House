@@ -131,13 +131,47 @@ export function calculateThermalResistance(
   };
 }
 
+/**
+ * A transmittance stated for the whole element rather than built from layers.
+ *
+ * A window is bought, not assembled: its datasheet gives one Uw for the glass,
+ * the frame and the spacer together, and no stack of layers reproduces it.
+ * Forcing one through the layer method would be inventing a build-up nobody
+ * chose.
+ */
+export interface ElementTransmissionOptions {
+  readonly declaredUValueWm2K?: number;
+}
+
 export function calculateElementTransmission(
   elementId: string,
   netAreaM2: number,
   layers: readonly ThermalLayerInput[],
   method: ThermalMethod,
+  options: ElementTransmissionOptions = {},
 ): ThermalElementResult {
   assertNonNegativeFinite(netAreaM2, 'net area');
+  const declared = options.declaredUValueWm2K;
+  if (declared !== undefined) {
+    if (!Number.isFinite(declared) || declared <= 0)
+      throw new RangeError(
+        `declared U-value for ${elementId} must be finite and positive.`,
+      );
+    return {
+      status: 'OK',
+      methodId: method.id,
+      methodVersion: method.version,
+      insideSurfaceResistanceM2KW: method.insideSurfaceResistanceM2KW,
+      outsideSurfaceResistanceM2KW: method.outsideSurfaceResistanceM2KW,
+      layers: [],
+      diagnostics: [],
+      totalResistanceM2KW: 1 / declared,
+      uValueWm2K: declared,
+      elementId,
+      netAreaM2,
+      heatTransferCoefficientWK: declared * netAreaM2,
+    };
+  }
   const resistance = calculateThermalResistance(layers, method);
   return {
     ...resistance,

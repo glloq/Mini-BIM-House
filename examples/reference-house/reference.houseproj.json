@@ -250,7 +250,8 @@
               "offsetAlongHostMm": 1000,
               "sillHeightMm": 0,
               "widthMm": 900,
-              "heightMm": 2100
+              "heightMm": 2100,
+              "definitionId": "generic-door"
             },
             {
               "id": "opening-living",
@@ -260,7 +261,8 @@
               "offsetAlongHostMm": 1000,
               "sillHeightMm": 900,
               "widthMm": 1800,
-              "heightMm": 1200
+              "heightMm": 1200,
+              "definitionId": "generic-window"
             },
             {
               "id": "opening-bedroom",
@@ -270,7 +272,8 @@
               "offsetAlongHostMm": 1000,
               "sillHeightMm": 900,
               "widthMm": 1400,
-              "heightMm": 1200
+              "heightMm": 1200,
+              "definitionId": "generic-window"
             }
           ],
           "slabs": [
@@ -694,7 +697,8 @@
               "offsetAlongHostMm": 1500,
               "sillHeightMm": 900,
               "widthMm": 1400,
-              "heightMm": 1300
+              "heightMm": 1300,
+              "definitionId": "generic-window"
             },
             {
               "id": "opening-bedroom-two",
@@ -704,7 +708,8 @@
               "offsetAlongHostMm": 6500,
               "sillHeightMm": 900,
               "widthMm": 1400,
-              "heightMm": 1300
+              "heightMm": 1300,
+              "definitionId": "generic-window"
             },
             {
               "id": "opening-first-bath",
@@ -714,7 +719,8 @@
               "offsetAlongHostMm": 2000,
               "sillHeightMm": 1400,
               "widthMm": 800,
-              "heightMm": 800
+              "heightMm": 800,
+              "definitionId": "generic-window"
             },
             {
               "id": "opening-first-landing",
@@ -724,7 +730,8 @@
               "offsetAlongHostMm": 3000,
               "sillHeightMm": 0,
               "widthMm": 830,
-              "heightMm": 2040
+              "heightMm": 2040,
+              "definitionId": "generic-door"
             }
           ],
           "slabs": [
@@ -1283,6 +1290,42 @@
             "property": "ratedAcPowerW",
             "sourceType": "USER",
             "reference": "Reference project design choice"
+          }
+        ]
+      },
+      {
+        "id": "generic-window",
+        "kind": "WINDOW",
+        "catalogKind": "GENERIC",
+        "name": "Fenêtre double vitrage générique",
+        "properties": {
+          "uw": 1.3,
+          "gValue": 0.6,
+          "glazing": "DOUBLE",
+          "cavityGas": "ARGON",
+          "visibleTransmittance": 0.7
+        },
+        "sources": [
+          {
+            "property": "uw",
+            "sourceType": "STANDARD",
+            "reference": "Generic double glazing, demonstration value"
+          }
+        ]
+      },
+      {
+        "id": "generic-door",
+        "kind": "DOOR",
+        "catalogKind": "GENERIC",
+        "name": "Porte d’entrée générique",
+        "properties": {
+          "uw": 1.7
+        },
+        "sources": [
+          {
+            "property": "uw",
+            "sourceType": "STANDARD",
+            "reference": "Generic insulated entrance door, demonstration value"
           }
         ]
       }
@@ -3257,7 +3300,9 @@
             "equipment-dhw-tank": 780.0,
             "equipment-pv": 3400.0,
             "equipment-inverter": 1250.0,
-            "equipment-battery": 3600.0
+            "equipment-battery": 3600.0,
+            "generic-window": 520.0,
+            "generic-door": 890.0
           },
           "labourPriceByEquipment": {
             "equipment-luminaire": 25.0,
@@ -3265,7 +3310,9 @@
             "equipment-dhw-tank": 340.0,
             "equipment-pv": 900.0,
             "equipment-inverter": 300.0,
-            "equipment-battery": 400.0
+            "equipment-battery": 400.0,
+            "generic-window": 160.0,
+            "generic-door": 220.0
           }
         }
       },

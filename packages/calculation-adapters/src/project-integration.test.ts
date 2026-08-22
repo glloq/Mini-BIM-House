@@ -53,6 +53,9 @@ describe('project calculation context', () => {
       'LUMINAIRE',
       'PHOTOVOLTAIC',
       'RAINWATER_TANK',
+      // A window is a catalogue entry too: it is bought whole and states the
+      // transmittance the envelope reads.
+      'WINDOW',
     ]);
     expect(context.quantities.length).toBeGreaterThan(0);
   });
