@@ -5,6 +5,52 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.7 — non publiée
+
+La passe sur la **propagation des inconnues** dans les calculs. Le projet
+affirme depuis le début qu'une donnée inconnue reste inconnue ; la règle tenait
+partout où une valeur était lue, et cédait partout où des valeurs étaient
+additionnées.
+
+### Corrigé
+
+- **un total ne dit plus la somme de ce qu'il connaît.** Un tube alimenté par
+  une douche à 0,15 L/s et un lavabo que personne n'a décrit sortait à
+  0,15 L/s — le total, sans marque, et faux. `ResolvedNumber` et `sumResolved`
+  rendent le tronçon indéterminé, en gardant la borne basse et le nom du nœud
+  qui manque. Même chose pour les gaines, les pertes de charge cumulées, les
+  unités de décharge, le débit de dimensionnement d'un caisson et le
+  coefficient de ventilation d'un bâtiment.
+- **une pièce servie par deux bouches dont une se tait** avait le débit de
+  l'autre. Elle n'a plus de débit, et le chauffage comme la qualité de l'air le
+  disent.
+- **trois panneaux dont un ne déclare pas sa puissance** ne font plus une
+  installation de la somme des deux autres.
+- **la charge additionnelle des pièces** était injectée à 0 W par l'adaptateur,
+  à un moteur qui savait pourtant dire « je ne sais pas ». Zéro reste la
+  réponse, mais elle est déclarée comme hypothèse, voyage avec le résultat et
+  se remplace par un chiffre choisi.
+- **le volume initial d'une cuve** était supposé nul. Une cuve vide fait
+  paraître les premières semaines pires qu'elles ne sont, une cuve pleine
+  meilleures ; aucune des deux n'est un défaut.
+- **le coefficient d'un bâtiment** se calculait avec la transmission seule
+  quand la ventilation manquait.
+
+### Ajouté
+
+- `ResolvedNumber` dans `calculation-core` : `sumResolved`, `minResolved`,
+  `maxResolved`, `averageResolved`, `mapResolved`, et de quoi dire à voix haute
+  ce qui manque.
+- un test d'architecture qui refuse tout `?? 0` inexpliqué dans les
+  adaptateurs de calcul. Un zéro délibéré reste permis ; il doit dire pourquoi.
+
+### Documentation
+
+- le README annonçait « 18 résultats » puis « dix analyses » dans la même
+  version, et la page de préparation à la bêta nommait encore `beta.5`. Le test
+  documentaire compte désormais aussi les nombres écrits en lettres, qui
+  échappaient au contrôle des chiffres.
+
 ## 0.3.0-beta.6 — non publiée
 
 La refonte de l'**interface**. Onze destinations en une colonne répondaient à

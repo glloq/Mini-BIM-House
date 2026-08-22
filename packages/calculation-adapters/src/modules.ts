@@ -8,6 +8,12 @@ import type {
   ModuleCalculation,
 } from '@house-technical-designer/calculation-core';
 import {
+  known,
+  resolvedNumber,
+  sumResolved,
+  valueOf,
+} from '@house-technical-designer/calculation-core';
+import {
   aggregateThermalEnvelope,
   calculateElementTransmission,
   type ThermalElementResult,
@@ -296,6 +302,10 @@ export const heatingAdapter: CalculationModule = {
       dependency(dependencies, 'thermal').heatTransferCoefficientWK,
     );
     const roomRows = rows(data.rooms);
+    // The denominator of the prorata, over the rooms whose area is known. A
+    // room with no derivable area contributes nothing here and receives no
+    // share below — it is reported as missing rather than given a slice of a
+    // building it cannot be measured against.
     const totalFloorAreaM2 = roomRows.reduce(
       (total, room) => total + (number(room.floorAreaM2) ?? 0),
       0,
@@ -339,7 +349,13 @@ export const heatingAdapter: CalculationModule = {
         ...(recovery === undefined
           ? {}
           : { heatRecoveryPresent: true, heatRecoveryEfficiency: recovery }),
-        otherW: 0,
+        // The additional load comes from the input, where it was either chosen
+        // or recorded as an assumption. The adapter used to answer « 0 W » on
+        // every room, silently, to an engine that knew how to say « je ne sais
+        // pas ».
+        ...(number(room.otherW) === undefined
+          ? {}
+          : { otherW: number(room.otherW)! }),
       };
     });
     const result = calculateHeatingLoads(rooms, {
@@ -348,15 +364,27 @@ export const heatingAdapter: CalculationModule = {
       airDensityKgM3: number(data.airDensityKgM3)!,
       airSpecificHeatJKgK: number(data.airSpecificHeatJKgK)!,
     });
-    const ventilationH = rooms.reduce<number>(
-      (total, room) =>
-        total +
-        (room.ventilationFlowM3s ?? 0) *
-          number(data.airDensityKgM3)! *
-          number(data.airSpecificHeatJKgK)! *
-          (1 - (recovery ?? 0)),
-      0,
-    );
+    /*
+     * The building's ventilation coefficient, which is a claim about every
+     * room. One room whose flow nobody stated makes the claim unstatable —
+     * summing the rooms that spoke would report a house that breathes less
+     * than it does, and the figure would look like a measurement.
+     */
+    const ventilationH =
+      valueOf(
+        sumResolved(
+          rooms.map((room) =>
+            room.ventilationFlowM3s === undefined
+              ? resolvedNumber(undefined, room.roomId)
+              : known(
+                  room.ventilationFlowM3s *
+                    number(data.airDensityKgM3)! *
+                    number(data.airSpecificHeatJKgK)! *
+                    (1 - (recovery ?? 0)),
+                ),
+          ),
+        ),
+      ) ?? null;
     return {
       status: result.status,
       outputs: {
@@ -569,6 +597,9 @@ export const lightingAdapter: CalculationModule = {
           id: string(placement.id)!,
           luminaireId: string(placement.luminaireId)!,
           roomId,
+          // A placed thing always has coordinates — the domain requires them
+          // — so this is the JSON being read back into numbers, not a
+          // position being invented for something that has none.
           position: {
             x: number(record(placement.position ?? null)?.x) ?? 0,
             y: number(record(placement.position ?? null)?.y) ?? 0,
@@ -868,6 +899,9 @@ export const ventilationAdapter: CalculationModule = {
                     heightM: heightM!,
                   }),
               roughnessM: number(segment.roughnessM)!,
+              // A segment that states no fitting has none: the zero is the
+              // adapter's declared assumption, recorded by `localLosses()` when
+              // the input was built.
               localLossCoefficient: number(segment.localLossCoefficient) ?? 0,
             },
           },
@@ -888,20 +922,40 @@ export const ventilationAdapter: CalculationModule = {
         pressureLossPa: result.totalPressureLossPa ?? null,
       };
     });
-    const totalPressureLossPa = segments.reduce<number>(
-      (total, segment) => total + (number(segment.pressureLossPa) ?? 0),
-      0,
-    );
+    // A run whose segments are not all sized has no total pressure loss:
+    // adding only the ones that computed would under-report the fan, and the
+    // number would look like a measurement.
+    const totalPressureLossPa =
+      valueOf(
+        sumResolved(
+          segments.map((segment) =>
+            resolvedNumber(
+              number(segment.pressureLossPa),
+              string(segment.id) ?? 'segment',
+            ),
+          ),
+        ),
+      ) ?? null;
     return {
       status: warnings.length === 0 ? 'OK' : 'PARTIAL',
       outputs: {
         segments,
         totalPressureLossPa,
         terminals: rows(data.terminals).map((terminal) => ({ ...terminal })),
-        designFlowM3h: rows(data.terminals).reduce<number>(
-          (total, terminal) => total + (number(terminal.targetFlowM3h) ?? 0),
-          0,
-        ),
+        // The unit is sized on what its terminals ask for. A terminal that
+        // asks for nothing stated is not a terminal that asks for zero, and a
+        // unit sized on the ones that spoke is a unit too small.
+        designFlowM3h:
+          valueOf(
+            sumResolved(
+              rows(data.terminals).map((terminal) =>
+                resolvedNumber(
+                  number(terminal.targetFlowM3h),
+                  string(terminal.id) ?? 'terminal',
+                ),
+              ),
+            ),
+          ) ?? null,
       },
       warnings,
       assumptions: declaredConstants(
@@ -1086,6 +1140,8 @@ export const waterAdapter: CalculationModule = {
           internalDiameterM,
           flowM3s,
           roughnessM: number(segment.roughnessM)!,
+          // Declared assumption: a segment that states no fitting has none,
+          // recorded by `localLosses()` when the input was built.
           localLossCoefficient: number(segment.localLossCoefficient) ?? 0,
         },
         context,
@@ -1103,10 +1159,20 @@ export const waterAdapter: CalculationModule = {
       status: warnings.length === 0 ? 'OK' : 'PARTIAL',
       outputs: {
         segments,
-        totalPressureLossPa: segments.reduce<number>(
-          (total, segment) => total + (number(segment.pressureLossPa) ?? 0),
-          0,
-        ),
+        // A run whose segments are not all sized has no total pressure loss:
+        // adding only the ones that computed would under-report the fan or the
+        // pump, and the number would look like a measurement.
+        totalPressureLossPa:
+          valueOf(
+            sumResolved(
+              segments.map((segment) =>
+                resolvedNumber(
+                  number(segment.pressureLossPa),
+                  string(segment.id) ?? 'segment',
+                ),
+              ),
+            ),
+          ) ?? null,
         maximumVelocityMs: segments.reduce<number | null>((peak, segment) => {
           const velocity = number(segment.velocityMs);
           if (velocity === undefined) return peak;
@@ -1239,10 +1305,20 @@ export const wastewaterAdapter: CalculationModule = {
           lengthM: segment.lengthM ?? null,
           totalDischargeUnits: segment.totalDischargeUnits ?? null,
         })),
-        totalDischargeUnits: rows(data.nodes).reduce<number>(
-          (total, node) => total + (number(node.dischargeUnits) ?? 0),
-          0,
-        ),
+        // Same rule: a stack whose fixtures are not all described has no
+        // total of discharge units, and sizing a downpipe on the ones that
+        // spoke would under-size it.
+        totalDischargeUnits:
+          valueOf(
+            sumResolved(
+              rows(data.nodes).map((node) =>
+                resolvedNumber(
+                  number(node.dischargeUnits),
+                  string(node.id) ?? 'node',
+                ),
+              ),
+            ),
+          ) ?? null,
       },
       warnings,
       assumptions: declaredConstants(
@@ -1326,7 +1402,13 @@ export const rainwaterAdapter: CalculationModule = {
       mainsTopUpSeriesL: periods.map(() => 0),
       tank: {
         nominalVolumeL: number(data.nominalVolumeL)!,
-        initialVolumeL: number(data.initialVolumeL) ?? 0,
+        // What is in the tank on the first day is a measurement. An empty tank
+        // makes the first weeks look worse than they are and a full one makes
+        // them look better; the engine is told nothing rather than told a
+        // guess, and it already knows how to report that.
+        ...(number(data.initialVolumeL) === undefined
+          ? {}
+          : { initialVolumeL: number(data.initialVolumeL)! }),
       },
     });
     return {
@@ -1586,10 +1668,13 @@ export const energyBalanceAdapter: CalculationModule = {
     const heating = dependency(dependencies, 'heating');
     const transmissionH = number(heating.transmissionHeatTransferCoefficientWK);
     const ventilationH = number(heating.ventilationHeatTransferCoefficientWK);
+    // A building coefficient is transmission plus ventilation. One of the two
+    // missing makes the coefficient missing — a house that only loses heat
+    // through its walls is not a house, it is half a calculation.
     const heatingH =
-      transmissionH === undefined
+      transmissionH === undefined || ventilationH === undefined
         ? undefined
-        : transmissionH + (ventilationH ?? 0);
+        : transmissionH + ventilationH;
     if (heatingH === undefined)
       warnings.push(
         missingWarning(
@@ -1649,6 +1734,8 @@ export const energyBalanceAdapter: CalculationModule = {
     const pvGeneration = numbers(pv.dispatchGenerationWh);
     const pvAligned = pvPeriods.length === periods.length;
     const pvWh = periods.map((_period, index) =>
+      // Reading past the end of an aligned series, not a missing value: the
+      // guard above is what decides whether the series is usable at all.
       pvAligned ? (pvGeneration[index] ?? 0) : 0,
     );
     if (!pvAligned && pvPeriods.length > 0)
@@ -1988,6 +2075,8 @@ export const acousticsAdapter: CalculationModule = {
         return [];
       }
       const absorptionByBand = Object.fromEntries(
+        // A band the defaults table does not name contributes nothing, which
+        // is what a table of defaults means.
         bands.map((band) => [String(band), defaults[String(band)] ?? 0]),
       );
       if (Object.values(absorptionByBand).every((value) => value === 0))
