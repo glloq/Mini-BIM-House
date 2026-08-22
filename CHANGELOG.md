@@ -94,6 +94,12 @@ terminé.
   les deux nombres qu'il a comparés — un verdict dont on ne voit pas les chiffres
   est un verdict qu'on ne peut que croire — et aucun ne dit « conforme » : c'est
   l'affaire d'un référentiel, qui sait de quel pays et de quelle année ;
+- **le plan dit où les coupes passent et d'où les façades sont vues.** Un dossier
+  pouvait tenir une coupe sans que le plan le laisse voir : un lecteur tenant
+  les deux feuilles devait deviner, et un lecteur ne tenant que le plan ignorait
+  que la coupe existait. Le repère est dérivé de la vue — ce n'est pas un second
+  endroit où la ligne de coupe est décidée — donc déplacer la coupe déplace le
+  repère, et une coupe qui ne dit pas où elle passe n'est marquée nulle part ;
 - **huit analyses de plus sur le plan.** Ce qu'une pièce demande en chauffage,
   au total et au mètre carré ; ce qu'elle reçoit en éclairement et en puissance
   d'éclairage ; le CO₂ qu'elle atteint ; son temps de réverbération à 1 kHz ; le

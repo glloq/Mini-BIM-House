@@ -738,9 +738,9 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   collée d'un niveau à l'autre, pivotée d'un quart de tour ou d'un angle tracé,
   retournée autour d'un axe tracé, décalée parallèlement, jointe, ajustée et
   alignée.
-- **Annotations** : la cotation et les notes de texte existent ; les étiquettes
-  associatives, les repères de coupe, les trames et les hachures paramétrées
-  restent hors périmètre.
+- **Annotations** : la cotation, les notes de texte et les repères de coupe et
+  de façade existent ; les étiquettes associatives, les trames et les hachures
+  paramétrées restent hors périmètre.
 - **Conformité réglementaire** : le moteur de règles et les Rule Packs
   existent ; l'espace Vérifications rassemble les constats du modèle et des
   calculs, mais aucun référentiel réglementaire n'est livré, et rien n'est

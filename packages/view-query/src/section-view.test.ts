@@ -12,6 +12,8 @@ import {
   buildSiteView,
 } from './section-view.js';
 import { buildSavedDrawing } from './saved-drawing.js';
+import { buildPlanView } from './plan-view.js';
+import { defaultVisibility } from './layers.js';
 
 const levelId = entityId<'Level'>('ground');
 const wallAssembly = 'wall-assembly' as never;
@@ -440,19 +442,19 @@ describe('the site plan', () => {
   });
 });
 
-describe('a saved view, reopened', () => {
-  function saved(overrides: Partial<SavedDrawingView>): SavedDrawingView {
-    return {
-      id: 'view-1',
-      type: 'PLAN',
-      name: 'Vue',
-      scaleDenominator: 50,
-      layers: {},
-      graphicProfileId: 'generic-technical-screen',
-      ...overrides,
-    };
-  }
+function saved(overrides: Partial<SavedDrawingView>): SavedDrawingView {
+  return {
+    id: 'view-1',
+    type: 'PLAN',
+    name: 'Vue',
+    scaleDenominator: 50,
+    layers: {},
+    graphicProfileId: 'generic-technical-screen',
+    ...overrides,
+  };
+}
 
+describe('a saved view, reopened', () => {
   it('is drawn as the kind of view it says it is', () => {
     for (const [type, expected] of [
       ['PLAN', 'PLAN'],
@@ -542,5 +544,84 @@ describe('a saved view, reopened', () => {
       { viewport },
     );
     expect(built.view.viewport).toEqual(viewport);
+  });
+
+  it('marks on the plan where the section is cut and the façade seen from', () => {
+    // A drawing set could hold a section and the plan would not say where it
+    // passes. A reader holding only the plan did not know it existed.
+    const marked: Project = {
+      ...house(),
+      drawingViews: [
+        saved({
+          id: 'view-cut',
+          name: 'Coupe AA',
+          type: 'SECTION',
+          cut: { start: CUT.line.start, end: CUT.line.end },
+        }),
+        saved({
+          id: 'view-face',
+          name: 'Façade nord',
+          type: 'ELEVATION',
+          viewDirectionDeg: 270,
+        }),
+      ],
+    };
+    const { primitives } = buildPlanView(marked, {
+      levelId: 'ground',
+      layers: defaultVisibility(),
+    });
+    const marks = (id: string) =>
+      primitives.filter((primitive) => primitive.id.includes(id));
+    const cut = marks('view-cut');
+    // The line, an arrow at each end, and the name.
+    expect(cut.map(({ id }) => id)).toEqual([
+      'view-mark:view-cut',
+      'view-mark-arrow:view-cut:0',
+      'view-mark-arrow:view-cut:1',
+      'view-mark-label:view-cut',
+    ]);
+    expect(cut[0]?.geometry).toMatchObject({
+      polyline: { points: [CUT.line.start, CUT.line.end] },
+    });
+    expect(cut.at(-1)?.geometry).toMatchObject({ text: 'Coupe AA' });
+    // The façade mark stands clear of the house and points the way it looks.
+    expect(marks('view-face').map(({ id }) => id)).toEqual([
+      'view-mark:view-face',
+      'view-mark-label:view-face',
+    ]);
+    // And no mark is an object of the plan: it says a drawing exists, it is
+    // not a thing standing under the pointer.
+    for (const mark of [...cut, ...marks('view-face')])
+      expect(mark.sourceObjectId, mark.id).toBeUndefined();
+  });
+
+  it('marks nothing for a view that does not say where it is', () => {
+    const marked: Project = {
+      ...house(),
+      drawingViews: [saved({ id: 'view-cut', type: 'SECTION' })],
+    };
+    const { primitives } = buildPlanView(marked, {
+      levelId: 'ground',
+      layers: defaultVisibility(),
+    });
+    expect(primitives.filter(({ id }) => id.includes('view-cut'))).toEqual([]);
+  });
+
+  it('hides the marks when their layer is off', () => {
+    const marked: Project = {
+      ...house(),
+      drawingViews: [
+        saved({
+          id: 'view-cut',
+          type: 'SECTION',
+          cut: { start: CUT.line.start, end: CUT.line.end },
+        }),
+      ],
+    };
+    const { primitives } = buildPlanView(marked, {
+      levelId: 'ground',
+      layers: { ...defaultVisibility(), 'annotation.view-marks': false },
+    });
+    expect(primitives.filter(({ id }) => id.includes('view-cut'))).toEqual([]);
   });
 });
