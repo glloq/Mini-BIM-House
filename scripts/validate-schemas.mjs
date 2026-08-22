@@ -38,6 +38,53 @@ const additionalFixtures = [
   ['project.schema.json', 'examples/reference-house/reference.houseproj.json'],
   ['climate.schema.json', 'examples/reference-house/climate-monthly.json'],
   ['climate.schema.json', 'examples/reference-house/climate-design-day.json'],
+  // The catalogue files themselves. Their entries are checked against their
+  // families by `validate:catalog`; this checks the shape they are written in,
+  // which nothing did — a misspelt field name was silently ignored, and the
+  // fiche looked complete while carrying nothing under that name.
+  ['catalog-material.schema.json', 'packages/materials/data/generic.json'],
+  ['catalog-opening.schema.json', 'packages/opening-catalog/data/generic.json'],
+  ['catalog-assembly.schema.json', 'packages/assemblies/data/generic.json'],
+  [
+    'catalog-network-product.schema.json',
+    'packages/network-products/data/generic.json',
+  ],
+  [
+    'catalog-symbol.schema.json',
+    'packages/drawing-engine/data/symbols/generic.json',
+  ],
+  [
+    'catalog-equipment.schema.json',
+    'packages/equipment-catalog/data/equipment/electrical/generic.json',
+  ],
+  [
+    'catalog-equipment.schema.json',
+    'packages/equipment-catalog/data/equipment/heating/generic.json',
+  ],
+  [
+    'catalog-equipment.schema.json',
+    'packages/equipment-catalog/data/equipment/lighting/generic.json',
+  ],
+  [
+    'catalog-equipment.schema.json',
+    'packages/equipment-catalog/data/equipment/plumbing/generic.json',
+  ],
+  [
+    'catalog-equipment.schema.json',
+    'packages/equipment-catalog/data/equipment/rainwater/generic.json',
+  ],
+  [
+    'catalog-equipment.schema.json',
+    'packages/equipment-catalog/data/equipment/solar/generic.json',
+  ],
+  [
+    'catalog-equipment.schema.json',
+    'packages/equipment-catalog/data/equipment/storage/generic.json',
+  ],
+  [
+    'catalog-equipment.schema.json',
+    'packages/equipment-catalog/data/equipment/ventilation/generic.json',
+  ],
 ];
 
 let failed = false;

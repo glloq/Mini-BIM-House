@@ -6,8 +6,11 @@ import {
   currentCatalogManifest,
   foldForSearch,
   formatCatalogRef,
+  familiesExercisedBy,
   installedCatalog,
   lazyCatalogRepository,
+  measuredStatus,
+  validateCatalog,
   type CatalogSummary,
 } from './index.js';
 
@@ -159,5 +162,63 @@ describe('where the catalogues come from', () => {
       }),
     ).toBeUndefined();
     expect(fetched).toBe(1);
+  });
+});
+
+describe('what the version gate covers, and what it says is proven', () => {
+  const entries = [
+    {
+      id: 'generic-nothing',
+      familyId: 'RADIATOR',
+      version: '1.0.0',
+      properties: {},
+    },
+  ];
+
+  it('refuses an entry no fingerprint covers', () => {
+    // It used to pass in silence, so the mechanism protected only the entries
+    // somebody had remembered to stamp — and ten thousand new ones would have
+    // been ten thousand entries outside it.
+    expect(
+      validateCatalog(entries, new Set(), {}).map(({ message }) => message),
+    ).toContain(
+      'is not recorded: generic-nothing@1.0.0 has no fingerprint. Run npm run catalog:fingerprints.',
+    );
+  });
+
+  it('refuses a fingerprint no entry claims', () => {
+    // The next entry to take that identifier would inherit it.
+    expect(
+      validateCatalog([], new Set(), { 'generic-gone@1.0.0': 'abcd' }).map(
+        ({ message }) => message,
+      ),
+    ).toEqual([
+      'is recorded and no entry claims it. Run npm run catalog:fingerprints.',
+    ]);
+  });
+
+  it('calls a family tested only when a fixture is made of it', () => {
+    // `TESTS` was set from « a catalogue entry of this family passes the
+    // gate », which is what GENERIC_DATA already says: the same measurement
+    // wearing a stronger word.
+    const known = { symbols: new Set<string>(), entries: [] };
+    expect(measuredStatus('RADIATOR', known).TESTS).toBe('NONE');
+    expect(
+      measuredStatus('RADIATOR', {
+        ...known,
+        exercised: new Set(['RADIATOR']),
+      }).TESTS,
+    ).toBe('VALIDATED');
+  });
+
+  it('reads what a project is made of, and does not guess the rest', () => {
+    expect(
+      familiesExercisedBy({
+        equipment: [{ familyId: 'RADIATOR' }, {}],
+        openingTypes: [{ familyId: 'WINDOW_CASEMENT' }],
+        networkProducts: [{ family: 'WATER_PIPE' }],
+      }),
+    ).toEqual(new Set(['RADIATOR', 'WINDOW_CASEMENT', 'WATER_PIPE']));
+    expect(familiesExercisedBy({})).toEqual(new Set());
   });
 });

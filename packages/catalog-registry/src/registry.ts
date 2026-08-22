@@ -456,13 +456,37 @@ export function validateCatalog(
         message: `${owner.id} has catalogue entries and states no category`,
       });
     const stamp = recorded[`${entry.id}@${entry.version ?? ''}`];
-    if (stamp !== undefined && stamp !== catalogFingerprint(entry))
+    // A fiche nobody has recorded is a fiche the promise does not cover. It
+    // used to pass in silence, which meant the whole mechanism protected only
+    // the entries somebody had remembered to stamp — and a catalogue filled
+    // with ten thousand new entries would have been ten thousand entries
+    // outside it.
+    if (stamp === undefined)
+      issues.push({
+        entryId: entry.id,
+        path: 'version',
+        message: `is not recorded: ${entry.id}@${entry.version ?? ''} has no fingerprint. Run npm run catalog:fingerprints.`,
+      });
+    else if (stamp !== catalogFingerprint(entry))
       issues.push({
         entryId: entry.id,
         path: 'version',
         message: `has changed without its version changing: ${entry.id}@${entry.version} no longer says what it said. Raise the version, then run npm run catalog:fingerprints.`,
       });
   }
+  // A stamp for an entry nothing ships is a record of something that no longer
+  // exists, and the next entry to take that identifier would inherit it.
+  const shipped = new Set(
+    entries.map((entry) => `${entry.id}@${entry.version ?? ''}`),
+  );
+  for (const key of Object.keys(recorded))
+    if (!shipped.has(key))
+      issues.push({
+        entryId: key,
+        path: 'version',
+        message:
+          'is recorded and no entry claims it. Run npm run catalog:fingerprints.',
+      });
   return issues;
 }
 
@@ -494,6 +518,20 @@ export function measuredStatus(
   known: {
     readonly symbols: ReadonlySet<string>;
     readonly entries: readonly CatalogEntryCandidate[];
+    /**
+     * The families a fixture actually holds an object of.
+     *
+     * `TESTS` used to be set from « a catalogue entry of this family passes
+     * the gate », which is what `GENERIC_DATA` already says — the same
+     * measurement wearing a stronger word. Three hundred families were
+     * therefore reported as tested because somebody had written a fiche for
+     * them, and nothing anywhere exercised one.
+     *
+     * A family is tested when something in the repository is made of it. That
+     * cannot be read from the registries, so it is handed in; absent, the
+     * answer is `NONE`, which is the truth rather than a compliment.
+     */
+    readonly exercised?: ReadonlySet<string>;
   },
 ): Readonly<Record<MeasuredAxis, StatusValue>> {
   const owner = BY_ID.get(familyId);
@@ -568,9 +606,10 @@ export function measuredStatus(
         : clean.length === mine.length
           ? 'READY'
           : 'PARTIAL',
-    // A family with an entry the gate passes is a family the suite exercises;
-    // one nothing has an entry for is one nothing runs against.
-    TESTS: clean.length > 0 ? 'VALIDATED' : 'NONE',
+    // Not « somebody wrote a fiche », which is what GENERIC_DATA says: a
+    // family is tested when a fixture in this repository is actually made of
+    // it, and nothing else counts.
+    TESTS: known.exercised?.has(familyId) === true ? 'VALIDATED' : 'NONE',
   };
 }
 
@@ -584,6 +623,7 @@ export function familyStatus(
   known: {
     readonly symbols: ReadonlySet<string>;
     readonly entries: readonly CatalogEntryCandidate[];
+    readonly exercised?: ReadonlySet<string>;
   },
 ): FamilyStatus {
   return {
@@ -602,11 +642,36 @@ export function familyStatus(
 export function familyReviews(known: {
   readonly symbols: ReadonlySet<string>;
   readonly entries: readonly CatalogEntryCandidate[];
+  readonly exercised?: ReadonlySet<string>;
 }): readonly FamilyReview[] {
   return FAMILY_REGISTRY.map((entry) => ({
     family: entry,
     status: familyStatus(entry.id, known),
   }));
+}
+
+/**
+ * The families a project is actually made of.
+ *
+ * What `TESTS` is measured from: a fixture in this repository holding one of
+ * these is the only evidence that anything exercises the family. It reads what
+ * a project carries, which is why materials and build-ups are absent — a
+ * project's copy of a material states no family, and counting them by name
+ * would be counting a resemblance.
+ */
+export function familiesExercisedBy(project: {
+  readonly equipment?: readonly { readonly familyId?: string }[];
+  readonly openingTypes?: readonly { readonly familyId?: string }[];
+  readonly networkProducts?: readonly { readonly family?: string }[];
+}): ReadonlySet<string> {
+  const found = new Set<string>();
+  for (const definition of project.equipment ?? [])
+    if (definition.familyId !== undefined) found.add(definition.familyId);
+  for (const definition of project.openingTypes ?? [])
+    if (definition.familyId !== undefined) found.add(definition.familyId);
+  for (const product of project.networkProducts ?? [])
+    if (product.family !== undefined) found.add(product.family);
+  return found;
 }
 
 export interface SchemaIssue extends PropertyIssue {

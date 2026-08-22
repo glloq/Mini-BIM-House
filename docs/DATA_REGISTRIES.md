@@ -580,6 +580,9 @@ sur un tube dont l'alésage est faux de quatre millimètres.
 - une capability lue de ce que la famille déclare et réécrite à la main ;
 - une vague hors des six, un cycle de vie inconnu, un remplaçant qui n'existe
   pas ou une famille qui se remplace elle-même ;
+- une fiche sans empreinte enregistrée, ou une empreinte que plus aucune fiche
+  ne réclame ;
+- un fichier de catalogue portant un champ qu'aucun schéma ne déclare ;
 - une ouverture qui perce une paroi et ne dit pas sa transmittance ;
 - un matériau dont la catégorie contredit celle de sa famille, ou une couche
   d'assemblage nommant un matériau qui n'existe pas, ou une épaisseur écrite en
@@ -589,6 +592,32 @@ sur un tube dont l'alésage est faux de quatre millimètres.
   inconnue ou en donne une autre unité.
 
 Tout cela est vérifié par les tests, donc à chaque intégration continue.
+
+## La porte fermée
+
+Trois trous rendaient la porte moins ferme qu'elle n'en avait l'air.
+
+**Les empreintes ne couvraient que ce que quelqu'un avait pensé à enregistrer.**
+Une fiche sans empreinte passait en silence : le mécanisme ne protégeait donc
+que les entrées déjà tamponnées, et un catalogue rempli de dix mille nouvelles
+fiches aurait été dix mille fiches hors du dispositif. Une fiche non enregistrée
+est maintenant refusée, et une empreinte que plus aucune fiche ne réclame aussi
+— sinon la prochaine entrée à prendre cet identifiant en hériterait.
+
+**La forme des fichiers n'était vérifiée par rien.** Les propriétés d'une fiche
+sont comparées à sa famille depuis longtemps, mais le fichier lui-même
+n'obéissait à aucun schéma : un nom de champ mal orthographié était ignoré sans
+bruit, et la fiche avait l'air complète en ne portant rien sous ce nom. Les six
+fichiers de catalogue ont chacun leur schéma JSON, en
+`additionalProperties: false`.
+
+**`TESTS` disait « prouvé » pour dire « écrit ».** L'axe était mis à `VALIDATED`
+dès qu'une fiche de la famille passait la porte — ce que `GENERIC_DATA` dit
+déjà, la même mesure portant un mot plus fort. Trois cents familles se
+déclaraient testées parce que quelqu'un avait écrit une fiche, et rien nulle
+part n'en exerçait une. Une famille est testée quand une pièce à conviction de
+ce dépôt est faite d'elle : la maison de référence. Le compte est passé de
+dix-neuf à quatre, ce qui est la vérité.
 
 ## Le manifeste, le dépôt et l'index
 

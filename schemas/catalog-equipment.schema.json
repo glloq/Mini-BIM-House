@@ -1,0 +1,383 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://house-technical-designer.local/schemas/catalog-equipment.schema.json",
+  "title": "Equipment catalogue file",
+  "type": "object",
+  "required": [
+    "definitions"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "definitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "familyId",
+          "name",
+          "version",
+          "ports",
+          "properties",
+          "provenance"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:[-.][a-z0-9]+)*$"
+          },
+          "familyId": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "manufacturer": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "dimensions": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "widthMm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "depthMm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "heightMm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          },
+          "ports": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "portTypeId",
+                "position"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "portTypeId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "position": {
+                  "type": "object",
+                  "required": [
+                    "x",
+                    "y",
+                    "z"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "z": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "direction": {
+                  "type": "object",
+                  "required": [
+                    "x",
+                    "y",
+                    "z"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "z": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "connectionType": {
+                  "type": "string"
+                },
+                "nominalSize": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              }
+            }
+          },
+          "properties": {
+            "type": "object"
+          },
+          "provenance": {
+            "type": "object",
+            "required": [
+              "type",
+              "reference"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "url": {
+                "type": "string"
+              },
+              "validAt": {
+                "type": "string"
+              }
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "property",
+                "sourceType",
+                "reference"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "property": {
+                  "type": "string"
+                },
+                "sourceType": {
+                  "type": "string"
+                },
+                "reference": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "url": {
+                  "type": "string"
+                },
+                "validAt": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "costEntryId": {
+            "type": "string"
+          },
+          "environmentalDeclarationId": {
+            "type": "string"
+          },
+          "performanceCurves": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "inputAxes",
+                "output",
+                "outputUnit",
+                "interpolation",
+                "points"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "inputAxes": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "unit"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "unit": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "output": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "outputUnit": {
+                  "type": "string"
+                },
+                "interpolation": {
+                  "enum": [
+                    "LINEAR",
+                    "BILINEAR",
+                    "TABLE"
+                  ]
+                },
+                "provenance": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "reference"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "reference": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "validAt": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "points": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "inputs",
+                      "output"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "inputs": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "number"
+                        }
+                      },
+                      "output": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "rendering": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "symbols": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "symbolId"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "discipline": {
+                      "type": "string"
+                    },
+                    "symbolId": {
+                      "type": "string"
+                    },
+                    "viewType": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "planFootprint": {
+                "enum": [
+                  "RECTANGLE",
+                  "CIRCLE",
+                  "SYMBOL_ONLY"
+                ]
+              },
+              "layer": {
+                "type": "string"
+              }
+            }
+          },
+          "clearances": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "zone"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "zone": {
+                  "type": "string"
+                },
+                "frontMm": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "backMm": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "leftMm": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "rightMm": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "aboveMm": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "belowMm": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -10,8 +10,7 @@
   "ports": [
     {
       "id": "supply",
-      "discipline": "VENTILATION",
-      "role": "SUPPLY",
+      "portTypeId": "AIR_SUPPLY",
       "position": {
         "x": 600,
         "y": 150,
@@ -25,8 +24,7 @@
     },
     {
       "id": "extract",
-      "discipline": "VENTILATION",
-      "role": "EXTRACT",
+      "portTypeId": "AIR_EXTRACT",
       "position": {
         "x": 0,
         "y": 150,
