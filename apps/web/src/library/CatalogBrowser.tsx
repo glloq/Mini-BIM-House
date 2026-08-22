@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { EquipmentDefinition } from '@house-technical-designer/equipment-catalog';
+import type { CatalogSummary } from '@house-technical-designer/catalog-registry';
 import {
   CATALOG_DOMAINS,
   catalogFamilyView,
@@ -12,11 +12,17 @@ import {
 } from '@house-technical-designer/catalog-registry';
 
 export interface CatalogBrowserProps {
-  readonly entriesByFamily: Readonly<
-    Record<string, readonly EquipmentDefinition[]>
+  /**
+   * The rows of each family, not its fiches.
+   *
+   * The panel draws a name and a version; it was handed whole catalogue
+   * entries to do it. The body is fetched when somebody places one.
+   */
+  readonly summariesByFamily: Readonly<
+    Record<string, readonly CatalogSummary[]>
   >;
   readonly known: Parameters<typeof catalogFamilyView>[2];
-  readonly onAdd: (definition: EquipmentDefinition) => void;
+  readonly onAdd: (summary: CatalogSummary) => void;
 }
 
 const AXIS_LABELS: Readonly<Record<string, string>> = {
@@ -61,22 +67,22 @@ const SHOWN = 40;
  * are at the beginning, and saying so is the point.
  */
 export function CatalogBrowser({
-  entriesByFamily,
+  summariesByFamily,
   known,
   onAdd,
 }: CatalogBrowserProps) {
   const [filter, setFilter] = useState<CatalogFilter>({});
   const [openId, setOpenId] = useState<string | undefined>(undefined);
   const rows = useMemo(
-    () => catalogRows(entriesByFamily, known, filter),
-    [entriesByFamily, known, filter],
+    () => catalogRows(summariesByFamily, known, filter),
+    [summariesByFamily, known, filter],
   );
   const open = useMemo(
     () =>
       openId === undefined
         ? undefined
-        : catalogFamilyView(openId, entriesByFamily, known),
-    [openId, entriesByFamily, known],
+        : catalogFamilyView(openId, summariesByFamily, known),
+    [openId, summariesByFamily, known],
   );
 
   return (
@@ -234,7 +240,7 @@ export function CatalogBrowser({
                   <ul className="catalog-entries">
                     {open.entries.map((entry) => (
                       <li key={entry.id}>
-                        <span>{entry.name}</span>
+                        <span>{entry.label}</span>
                         <button
                           type="button"
                           className="secondary"

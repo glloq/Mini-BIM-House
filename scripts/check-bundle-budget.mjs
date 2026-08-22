@@ -62,9 +62,13 @@ export const BUDGETS = {
    * an entry and nothing shipped one — so every window was drawn with a
    * transmittance nobody had stated.
    *
+   * And a last kio for catalogue discovery: the six loaders find their files
+   * instead of importing eight of them by name, which is what makes adding
+   * fiches a `git add` rather than an edit to two TypeScript files.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 258 * 1024,
+  initialGzipBytes: 259 * 1024,
   /**
    * Everything the build produces, gzipped.
    *

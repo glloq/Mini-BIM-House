@@ -13,9 +13,11 @@ import {
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import {
+  catalogEvidence,
   family,
   familyCapabilities,
-  genericCatalog,
+  installedCatalog,
+  type CatalogSummary,
 } from '@house-technical-designer/catalog-registry';
 import type { HostType } from '@house-technical-designer/core-domain';
 import { isHostType } from '@house-technical-designer/core-domain';
@@ -58,25 +60,33 @@ export function EquipmentPanel({
   selectedId,
   onSelect,
 }: EquipmentPanelProps) {
-  const catalog = useMemo(() => genericCatalog(), []);
   /**
-   * The catalogue entries of each family, worked out once.
+   * Where the catalogues come from, asked once.
    *
-   * The browser asks « what can I place from this family » five hundred times
-   * while somebody scrolls; asking the catalogue each time would be walking it
-   * five hundred times over.
+   * The panel used to call `genericCatalog()` and hold every entry it
+   * returned — ports, clearances, performance maps and every figure — in order
+   * to draw a list of names. That is invisible at nineteen entries and is the
+   * shape that stops working at ten thousand. It now holds rows, and asks the
+   * repository for a body only when somebody places one; the day those bodies
+   * are fetched rather than bundled, nothing here changes.
    */
-  const entriesByFamily = useMemo(() => {
-    const groups: Record<string, EquipmentDefinition[]> = {};
-    for (const entry of catalog) (groups[entry.familyId] ??= []).push(entry);
+  const repository = useMemo(() => installedCatalog(), []);
+  const summariesByFamily = useMemo(() => {
+    const groups: Record<string, CatalogSummary[]> = {};
+    for (const summary of repository.index.byRegistry.get('EQUIPMENT') ?? [])
+      if (summary.familyId !== undefined)
+        (groups[summary.familyId] ??= []).push(summary);
     return groups;
-  }, [catalog]);
+  }, [repository]);
   const known = useMemo(
     () => ({
       symbols: new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions)),
-      entries: catalog,
+      entries: [],
+      // Two numbers per family — how many entries, how many pass the gate —
+      // read off the rows, so that counting never means holding a fiche.
+      evidence: catalogEvidence(repository.summaries),
     }),
-    [catalog],
+    [repository],
   );
   // Memoised because the families are derived from it: `?? []` builds a new
   // array on every render, and a dependency that is always new is no
@@ -122,18 +132,27 @@ export function EquipmentPanel({
       <div className="library-split">
         <div>
           <CatalogBrowser
-            entriesByFamily={entriesByFamily}
+            summariesByFamily={summariesByFamily}
             known={known}
-            onAdd={(definition) => {
-              const added = projectEquipmentFromCatalog(
-                definition,
-                takenIds,
-                allowedHostsOfFamily(definition.familyId),
-                family(definition.familyId)?.clearances,
-                familyCapabilities(definition.familyId),
-              );
-              onCommand(new AddEquipmentCommand(added));
-              onSelect(added.id);
+            onAdd={(summary) => {
+              // The body, fetched now that somebody has actually chosen one.
+              void repository.entry(summary.ref).then((body) => {
+                const definition = body as EquipmentDefinition | undefined;
+                const familyId = summary.familyId ?? '';
+                if (definition === undefined) {
+                  onMessage(`La fiche ${summary.id} est introuvable.`);
+                  return;
+                }
+                const added = projectEquipmentFromCatalog(
+                  definition,
+                  takenIds,
+                  allowedHostsOfFamily(familyId),
+                  family(familyId)?.clearances,
+                  familyCapabilities(familyId),
+                );
+                onCommand(new AddEquipmentCommand(added));
+                onSelect(added.id);
+              });
             }}
           />
           <p className="notice">

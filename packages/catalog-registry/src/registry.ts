@@ -505,6 +505,17 @@ export function catalogFingerprints(
 }
 
 /**
+ * How many entries a family has, and how many of them pass its gate.
+ *
+ * The whole of what the status axes read the catalogue for. Counted once by
+ * whoever holds the entries, so that everything downstream can hold rows.
+ */
+export interface FamilyEvidence {
+  readonly entryCount: number;
+  readonly cleanCount: number;
+}
+
+/**
  * The five measured axes of one family, worked out from what is actually there.
  *
  * Nothing here reads what the family says about itself. `PORTS: READY` means
@@ -518,6 +529,15 @@ export function measuredStatus(
   known: {
     readonly symbols: ReadonlySet<string>;
     readonly entries: readonly CatalogEntryCandidate[];
+    /**
+     * How many entries each family has, and how many pass its gate.
+     *
+     * The same two numbers `entries` is walked for, when whoever asks already
+     * knows them. A catalogue browser holds rows, not fiches; making it hold
+     * every fiche in order to count them is the shape that stops working at
+     * ten thousand.
+     */
+    readonly evidence?: ReadonlyMap<string, FamilyEvidence>;
     /**
      * The families a fixture actually holds an object of.
      *
@@ -544,16 +564,27 @@ export function measuredStatus(
       GENERIC_DATA: 'NONE',
       TESTS: 'NONE',
     };
-  const mine = known.entries.filter((entry) => entry.familyId === familyId);
-  const clean = mine.filter(
-    (entry) =>
-      validateCatalogEntry(entry, {
-        family,
-        schema: propertySchema,
-        symbols: known.symbols,
-        property: propertyDefinition,
-      }).length === 0,
-  );
+  // Counted rather than recomputed when the caller already knows. Validating
+  // every entry of every family to draw one row is invisible at nineteen
+  // entries and four seconds at ten thousand — and whoever built the summaries
+  // has already run the gate once.
+  const held = known.evidence?.get(familyId);
+  const mine =
+    held === undefined
+      ? known.entries.filter((entry) => entry.familyId === familyId)
+      : { length: held.entryCount };
+  const clean =
+    held === undefined
+      ? (mine as readonly CatalogEntryCandidate[]).filter(
+          (entry) =>
+            validateCatalogEntry(entry, {
+              family,
+              schema: propertySchema,
+              symbols: known.symbols,
+              property: propertyDefinition,
+            }).length === 0,
+        )
+      : { length: held.cleanCount };
 
   const schema =
     owner.propertySchema === undefined
@@ -623,6 +654,7 @@ export function familyStatus(
   known: {
     readonly symbols: ReadonlySet<string>;
     readonly entries: readonly CatalogEntryCandidate[];
+    readonly evidence?: ReadonlyMap<string, FamilyEvidence>;
     readonly exercised?: ReadonlySet<string>;
   },
 ): FamilyStatus {
@@ -642,6 +674,7 @@ export function familyStatus(
 export function familyReviews(known: {
   readonly symbols: ReadonlySet<string>;
   readonly entries: readonly CatalogEntryCandidate[];
+  readonly evidence?: ReadonlyMap<string, FamilyEvidence>;
   readonly exercised?: ReadonlySet<string>;
 }): readonly FamilyReview[] {
   return FAMILY_REGISTRY.map((entry) => ({

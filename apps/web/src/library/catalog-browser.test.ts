@@ -1,20 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
-import { genericEquipmentCatalog } from '@house-technical-designer/equipment-catalog';
-import type { EquipmentDefinition } from '@house-technical-designer/equipment-catalog';
+import {
+  catalogEvidence,
+  installedCatalog,
+  type CatalogSummary,
+} from '@house-technical-designer/catalog-registry';
 import {
   CATALOG_DOMAINS,
   catalogFamilyView,
   catalogRows,
 } from './catalog-browser.js';
 
-const catalog = genericEquipmentCatalog();
-const entriesByFamily: Record<string, EquipmentDefinition[]> = {};
-for (const entry of catalog)
-  (entriesByFamily[entry.familyId] ??= []).push(entry);
+// Rows, not fiches: the panel draws a name and a version, and used to be
+// handed whole catalogue entries to do it.
+const repository = installedCatalog();
+const entriesByFamily: Record<string, CatalogSummary[]> = {};
+for (const summary of repository.index.byRegistry.get('EQUIPMENT') ?? [])
+  if (summary.familyId !== undefined)
+    (entriesByFamily[summary.familyId] ??= []).push(summary);
 const known = {
   symbols: new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions)),
-  entries: catalog,
+  entries: [],
+  evidence: catalogEvidence(repository.summaries),
 };
 
 describe('browsing the nomenclature', () => {
@@ -72,10 +79,23 @@ describe('browsing the nomenclature', () => {
   });
 
   it('says plainly when a family has nothing to place', () => {
-    const view = catalogFamilyView('FLUE_PIPE', entriesByFamily, known)!;
+    // Nothing anywhere: no fiche of it in any of the six registries.
+    const view = catalogFamilyView('EAVE', entriesByFamily, known)!;
     expect(view.entries).toEqual([]);
     expect(view.axes.find(({ axis }) => axis === 'GENERIC_DATA')?.value).toBe(
       'NONE',
+    );
+  });
+
+  it('separates « nothing exists » from « nothing to place here »', () => {
+    // A flue pipe family holds six catalogued products, so it has generic
+    // data; it holds no equipment, so this panel has nothing to offer from it.
+    // The evidence now counts all six registries, where it used to count the
+    // equipment catalogue alone and call the rest empty.
+    const view = catalogFamilyView('FLUE_PIPE', entriesByFamily, known)!;
+    expect(view.entries).toEqual([]);
+    expect(view.axes.find(({ axis }) => axis === 'GENERIC_DATA')?.value).toBe(
+      'READY',
     );
   });
 

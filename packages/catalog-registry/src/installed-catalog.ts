@@ -41,7 +41,19 @@ import type {
 } from './catalog-repository.js';
 import { bundledCatalogRepository } from './catalog-repository.js';
 import { capabilitiesOf } from './capabilities.js';
-import { family, genericCatalog } from './registry.js';
+import {
+  family,
+  genericCatalog,
+  propertyDefinition,
+  propertySchema,
+  type FamilyEvidence,
+} from './registry.js';
+import { validateCatalogEntry } from './catalog-validation.js';
+
+/** The glyphs the library holds, as a set the gate can be given. */
+function shippedSymbols(): ReadonlySet<string> {
+  return new Set(rawGenericSymbolEntries().map(({ id }) => id));
+}
 
 /**
  * The shape every catalogue file is written in.
@@ -69,6 +81,7 @@ function summary(
     readonly familyId?: string;
     readonly category?: string;
     readonly manufacturer?: string;
+    readonly valid?: boolean;
   },
 ): CatalogSummary {
   const owner =
@@ -84,6 +97,9 @@ function summary(
     ...(owner === undefined ? {} : { domain: owner.domain }),
     lifecycle: lifecycleOf(entry.familyId),
     capabilities: owner === undefined ? [] : capabilitiesOf(owner),
+    // Answered once, here, by whoever ran the gate. Recomputing it per render
+    // is invisible at nineteen entries and four seconds at ten thousand.
+    valid: entry.valid ?? true,
     ...(entry.manufacturer === undefined
       ? {}
       : { manufacturer: entry.manufacturer }),
@@ -105,6 +121,13 @@ export function catalogSummaries(): readonly CatalogSummary[] {
         version: entry.version,
         label: entry.name,
         familyId: entry.familyId,
+        valid:
+          validateCatalogEntry(entry, {
+            family,
+            schema: propertySchema,
+            symbols: shippedSymbols(),
+            property: propertyDefinition,
+          }).length === 0,
         ...(entry.category === undefined ? {} : { category: entry.category }),
         ...(entry.manufacturer === undefined
           ? {}
@@ -256,4 +279,27 @@ export function installedCatalog(): CatalogRepository {
     catalogSummaries(),
     bodies,
   );
+}
+
+/**
+ * How many entries each family has, and how many pass its gate.
+ *
+ * Read off the summaries, which already carry the answer, so that a browser
+ * never has to hold a fiche to count one.
+ */
+export function catalogEvidence(
+  summaries: readonly CatalogSummary[] = catalogSummaries(),
+): ReadonlyMap<string, FamilyEvidence> {
+  const counted = new Map<string, { entryCount: number; cleanCount: number }>();
+  for (const summary of summaries) {
+    if (summary.familyId === undefined) continue;
+    const held = counted.get(summary.familyId) ?? {
+      entryCount: 0,
+      cleanCount: 0,
+    };
+    held.entryCount += 1;
+    if (summary.valid) held.cleanCount += 1;
+    counted.set(summary.familyId, held);
+  }
+  return counted;
 }

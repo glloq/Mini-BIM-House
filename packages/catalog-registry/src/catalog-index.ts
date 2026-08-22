@@ -29,6 +29,17 @@ export interface CatalogSummary {
   readonly lifecycle: CatalogLifecycle;
   readonly capabilities: readonly CatalogCapability[];
   readonly manufacturer?: string;
+  /**
+   * Whether this entry passes the gate its family sets.
+   *
+   * Carried on the row rather than recomputed by whoever draws it. The
+   * interface needs to know « can I place one of these today », and answering
+   * it used to mean validating every entry of every family on every render —
+   * invisible at nineteen entries, four seconds at ten thousand. Whoever
+   * builds the summaries knows the answer already: the bundled repository
+   * because it ran the gate, a server because it ran it before shipping them.
+   */
+  readonly valid: boolean;
 }
 
 /**

@@ -18,7 +18,7 @@ import {
   HOST_TYPE_LABELS,
   isHostType,
 } from '@house-technical-designer/core-domain';
-import type { EquipmentDefinition } from '@house-technical-designer/equipment-catalog';
+import type { CatalogSummary } from '@house-technical-designer/catalog-registry';
 
 export interface CatalogFilter {
   readonly search?: string;
@@ -49,7 +49,7 @@ export interface CatalogRow {
  * wave, a word, and « what can I actually place today ».
  */
 export function catalogRows(
-  entriesByFamily: Readonly<Record<string, readonly EquipmentDefinition[]>>,
+  summariesByFamily: Readonly<Record<string, readonly CatalogSummary[]>>,
   known: Parameters<typeof familyStatus>[1],
   filter: CatalogFilter = {},
 ): readonly CatalogRow[] {
@@ -59,13 +59,13 @@ export function catalogRows(
       return false;
     if (filter.wave !== undefined && family.priority !== filter.wave)
       return false;
-    const entries = entriesByFamily[family.id] ?? [];
+    const entries = summariesByFamily[family.id] ?? [];
     if (filter.withGenericData === true && entries.length === 0) return false;
     if (needle === '') return true;
     return (
       family.label.toLowerCase().includes(needle) ||
       family.id.toLowerCase().includes(needle) ||
-      entries.some((entry) => entry.name.toLowerCase().includes(needle))
+      entries.some((entry) => entry.label.toLowerCase().includes(needle))
     );
   })
     .map((family) => ({
@@ -75,7 +75,7 @@ export function catalogRows(
       domainLabel: DATA_DOMAIN_LABELS[family.domain],
       wave: family.priority,
       progress: completeness(familyStatus(family.id, known)),
-      entryCount: (entriesByFamily[family.id] ?? []).length,
+      entryCount: (summariesByFamily[family.id] ?? []).length,
     }))
     .sort(
       (first, second) =>
@@ -104,13 +104,22 @@ export interface CatalogFamilyView {
     readonly source: string;
   }[];
   readonly axes: readonly CatalogAxis[];
-  readonly entries: readonly EquipmentDefinition[];
+  /**
+   * The rows of this family, not its fiches.
+   *
+   * A browser shows a name, a family and a version; it used to be handed whole
+   * catalogue entries — ports, clearances, performance maps and every figure —
+   * to draw that. Invisible at nineteen entries, and the reason the panel
+   * takes four seconds to open at ten thousand. The body is fetched from the
+   * repository when somebody actually places one.
+   */
+  readonly entries: readonly CatalogSummary[];
 }
 
 /** Everything the nomenclature holds about one family, in words. */
 export function catalogFamilyView(
   familyId: string,
-  entriesByFamily: Readonly<Record<string, readonly EquipmentDefinition[]>>,
+  summariesByFamily: Readonly<Record<string, readonly CatalogSummary[]>>,
   known: Parameters<typeof familyStatus>[1],
 ): CatalogFamilyView | undefined {
   const found = FAMILY_REGISTRY.find(({ id }) => id === familyId);
@@ -151,7 +160,7 @@ export function catalogFamilyView(
       }),
     ),
     axes: STATUS_AXES.map((axis) => ({ axis, value: statusOf(status, axis) })),
-    entries: entriesByFamily[familyId] ?? [],
+    entries: summariesByFamily[familyId] ?? [],
   };
 }
 

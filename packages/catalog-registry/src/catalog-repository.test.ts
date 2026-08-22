@@ -107,6 +107,7 @@ describe('the catalogue as rows, before it is the catalogue as entries', () => {
         label: 'Retiré',
         lifecycle: 'WITHDRAWN',
         capabilities: [],
+        valid: true,
       },
     ];
     const index = buildCatalogIndex(summaries);
