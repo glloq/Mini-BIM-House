@@ -11,6 +11,8 @@ export interface InspectorFieldProps {
    * user to write it back to all of them without ever deciding to.
    */
   readonly mixed?: boolean;
+  /** Whether someone was sent here to look at this exact property. */
+  readonly targeted?: boolean;
 }
 
 /**
@@ -25,6 +27,7 @@ export function InspectorField({
   edit,
   onApply,
   mixed = false,
+  targeted = false,
 }: InspectorFieldProps) {
   const initial = mixed
     ? ''
@@ -44,7 +47,11 @@ export function InspectorField({
   };
 
   return (
-    <div className="field inspector-edit">
+    <div
+      className={
+        targeted ? 'field inspector-edit targeted' : 'field inspector-edit'
+      }
+    >
       <label htmlFor={`inspector-${edit.id}`}>
         {edit.label}
         {edit.control.kind === 'NUMBER' && edit.control.unit !== undefined && (

@@ -7,6 +7,15 @@ import { InspectorField } from './InspectorField.js';
 export interface InspectorPanelProps {
   readonly project: Project;
   readonly selection: readonly string[];
+  /**
+   * The property someone was sent here to look at, when they were sent.
+   *
+   * A check that says « la hauteur de ce mur n'est pas résolue » has to be
+   * able to open that field, not just this panel: an espace n'est pas une
+   * réponse, un champ en est une. Matched against a field label or an edit
+   * identifier, so a target can name either.
+   */
+  readonly expandProperty?: string;
   readonly onClear: () => void;
   readonly onCommand: (command: ProjectCommand) => boolean;
   readonly onMessage: (message: string) => void;
@@ -25,9 +34,25 @@ export interface InspectorPanelProps {
   ) => boolean;
 }
 
+/**
+ * Whether a label or an identifier is the one being pointed at.
+ *
+ * Compared without accents or case, because a target is written by a check and
+ * read by a panel, and the two spell « Hauteur (mm) » differently.
+ */
+function matches(candidate: string, wanted: string): boolean {
+  const plain = (value: string): string =>
+    value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/gu, '')
+      .toLowerCase();
+  return plain(candidate).includes(plain(wanted));
+}
+
 export function InspectorPanel({
   project,
   selection,
+  expandProperty,
   onClear,
   onCommand,
   onMessage,
@@ -114,12 +139,22 @@ export function InspectorPanel({
           Désélectionner
         </button>
       </header>
-      {subject.sections.map((section) => (
-        <section key={section.title}>
-          <h4>{section.title}</h4>
+      {subject.sections.map((section) => {
+        const holdsTarget =
+          expandProperty !== undefined &&
+          section.fields.some(({ label }) => matches(label, expandProperty));
+        const body = (
           <dl className="inspector-fields">
             {section.fields.map((entry) => (
-              <div key={`${section.title}:${entry.label}`}>
+              <div
+                key={`${section.title}:${entry.label}`}
+                className={
+                  expandProperty !== undefined &&
+                  matches(entry.label, expandProperty)
+                    ? 'targeted'
+                    : undefined
+                }
+              >
                 <dt>{entry.label}</dt>
                 <dd>
                   {entry.value ?? (
@@ -132,13 +167,35 @@ export function InspectorPanel({
               </div>
             ))}
           </dl>
-        </section>
-      ))}
+        );
+        // What the object is stays open; where it lives in the file folds
+        // away — unless someone was sent to a field inside it.
+        return section.advanced === true ? (
+          <details key={section.title} open={holdsTarget}>
+            <summary>{section.title}</summary>
+            {body}
+          </details>
+        ) : (
+          <section key={section.title}>
+            <h4>{section.title}</h4>
+            {body}
+          </section>
+        );
+      })}
       {edits.length > 0 && (
         <section className="inspector-edits">
           <h4>Modifier</h4>
           {edits.map((edit) => (
-            <InspectorField key={edit.id} edit={edit} onApply={applyEdit} />
+            <InspectorField
+              key={edit.id}
+              edit={edit}
+              onApply={applyEdit}
+              targeted={
+                expandProperty !== undefined &&
+                (matches(edit.id, expandProperty) ||
+                  matches(edit.label, expandProperty))
+              }
+            />
           ))}
         </section>
       )}

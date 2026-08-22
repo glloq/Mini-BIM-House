@@ -29,6 +29,14 @@ export interface InspectorField {
 export interface InspectorSection {
   readonly title: string;
   readonly fields: readonly InspectorField[];
+  /**
+   * Whether this section is bookkeeping rather than the thing itself.
+   *
+   * What an object *is* stays open; where it lives in the file folds away.
+   * Identifiers and parent references are needed about once a month and take
+   * the top of the panel every second of the other days.
+   */
+  readonly advanced?: boolean;
 }
 
 /** What each family of placed component is called in the interface. */
@@ -188,6 +196,7 @@ export function wallSubject(
         },
         {
           title: 'Références',
+          advanced: true,
           fields: [
             field('Niveau', level.name),
             field('Identifiant', wall.id),
@@ -232,6 +241,7 @@ export function openingSubject(
         },
         {
           title: 'Références',
+          advanced: true,
           fields: [
             field('Mur porteur', opening.hostElementId),
             field('Niveau', level.name),
@@ -317,6 +327,7 @@ export function spaceSubject(
         },
         {
           title: 'Références',
+          advanced: true,
           fields: [
             field('Niveau', level.name),
             field('Identifiant', space.id),
@@ -392,6 +403,7 @@ export function networkSubject(
           },
           {
             title: 'Références',
+            advanced: true,
             fields: [
               field('Réseau', network.id),
               field('Discipline', network.discipline),
@@ -449,6 +461,7 @@ export function networkSubject(
         },
         {
           title: 'Références',
+          advanced: true,
           fields: [
             field('Réseau', network.id),
             field('Type de nœud', node.kind),
@@ -486,6 +499,7 @@ export function buildingElementSubject(
           },
           {
             title: 'Références',
+            advanced: true,
             fields: [
               field('Assemblage', slab.assemblyId),
               field('Niveau', level.name),
@@ -513,6 +527,7 @@ export function buildingElementSubject(
           },
           {
             title: 'Références',
+            advanced: true,
             fields: [
               field('Assemblage', roof.assemblyId),
               field('Niveau', level.name),
@@ -568,6 +583,7 @@ export function noteSubject(
         },
         {
           title: 'Références',
+          advanced: true,
           fields: [
             field('Identifiant', note.id),
             field('Niveau', level.name),
@@ -622,6 +638,7 @@ export function dimensionSubject(
         },
         {
           title: 'Références',
+          advanced: true,
           fields: [
             field(
               'Première extrémité',
@@ -703,6 +720,7 @@ export function componentSubject(
         },
         {
           title: 'Références',
+          advanced: true,
           fields: [
             field('Identifiant', component.id),
             field(
@@ -820,6 +838,7 @@ export function stairSubject(
         },
         {
           title: 'Références',
+          advanced: true,
           fields: [
             field('Identifiant', stair.id),
             field('Type', stair.stairType),
@@ -915,6 +934,7 @@ export function roofStructureSubject(
         },
         {
           title: 'Références',
+          advanced: true,
           fields: [
             field('Identifiant', roof.id),
             field('Assemblage', roof.assemblyId),
@@ -994,6 +1014,7 @@ export function structureSubject(
         },
         {
           title: 'Références',
+          advanced: true,
           fields: [field('Identifiant', member.id)],
         },
       ],

@@ -35,6 +35,13 @@ export interface CheckFix {
     | 'networks'
     | 'calculations';
   readonly objectIds?: readonly string[];
+  /**
+   * The field the finding is about, when it is about one.
+   *
+   * « La hauteur de ce mur n'est pas résolue » can open that field rather than
+   * a panel of thirty: un espace n'est pas une réponse, un champ en est une.
+   */
+  readonly propertyPath?: string;
 }
 
 /**
@@ -174,6 +181,7 @@ export function projectChecks(
           label: 'Voir sur le plan',
           tab: 'plan',
           objectIds: [roof.id],
+          propertyPath: 'Pente',
         },
       });
     // A stair is described twice: by the line it is drawn along, and by the
@@ -202,6 +210,9 @@ export function projectChecks(
           label: 'Voir sur le plan',
           tab: 'plan',
           objectIds: [stair.id],
+          // The finding is about the tread depth against the run: it opens
+          // that field, not a panel to search through.
+          propertyPath: 'Giron',
         },
       });
     }
@@ -222,6 +233,7 @@ export function projectChecks(
           label: 'Voir sur le plan',
           tab: 'plan',
           objectIds: [room.spaceId],
+          propertyPath: 'Surface',
         },
       });
 

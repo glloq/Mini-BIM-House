@@ -2137,3 +2137,27 @@ button.ghost:disabled {
   font-weight: 800;
   font-size: 0.85rem;
 }
+
+/*
+ * The property someone was sent to.
+ *
+ * A check that says « la hauteur de ce mur n'est pas résolue » opens this
+ * panel on that field. Arriving at a panel of thirty fields and being told to
+ * find one is not being taken anywhere.
+ */
+.inspector-fields .targeted,
+.inspector-edit.targeted {
+  border-radius: 0.5rem;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.inspector-subject details > summary {
+  padding: 0.25rem 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+.inspector-subject details[open] > summary {
+  color: var(--ink-strong);
+}

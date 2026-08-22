@@ -588,6 +588,7 @@ export function inspectObject(
     sections: [
       {
         title: 'Références',
+        advanced: true,
         fields: [
           field(
             'Identifiant',

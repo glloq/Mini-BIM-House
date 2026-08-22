@@ -26,6 +26,10 @@ import type {
 } from '@house-technical-designer/core-domain';
 import { GENERIC_TECHNICAL_SCREEN } from '@house-technical-designer/drawing-engine';
 import {
+  domainOfDiscipline,
+  projectEntities,
+} from '@house-technical-designer/core-domain';
+import {
   applyProjectScenario,
   DEFAULT_ZIP_LIMITS,
   loadProjectJson,
@@ -160,8 +164,10 @@ import {
   DEFAULT_SHELL_NAVIGATION,
   goToTab,
   goToWorkspace,
+  navigationFor,
   type ShellNavigation,
 } from './ux/navigation-state.js';
+import { isEmptyTarget, type UiTarget } from './ux/ui-target.js';
 import {
   LEGACY_WORKSPACE_LABELS,
   LEGACY_WORKSPACE_TABS,
@@ -354,6 +360,8 @@ function App() {
   /** A network object another screen asked to open the properties of. */
   const [inspectNetworkObjectId, setInspectNetworkObjectId] =
     useState<string>();
+  /** The property someone was sent to look at, when they were sent to one. */
+  const [inspectedProperty, setInspectedProperty] = useState<string>();
 
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
@@ -1716,13 +1724,74 @@ function App() {
     [setTab],
   );
 
+  /**
+   * The one way of sending someone somewhere.
+   *
+   * Six features had to say « va là-bas » and each said it differently, so
+   * each reached a different depth: a check could open a workspace, but not
+   * open the storey, reveal the discipline, select the object, frame it and
+   * expand the property it was talking about. It does all of it here, once,
+   * and everything the target leaves unstated is left alone.
+   */
+  const navigateTo = useCallback(
+    (target: UiTarget): void => {
+      if (isEmptyTarget(target)) return;
+      setNavigation((current) => navigationFor(current, target));
+      const project = session.current.file.project;
+      const entity =
+        target.objectId === undefined
+          ? undefined
+          : projectEntities(project).find(({ id }) => id === target.objectId);
+      const levelId = target.levelId ?? entity?.levelId;
+      if (levelId !== undefined) dispatchEditor({ type: 'SET_LEVEL', levelId });
+      if (target.domain !== undefined) {
+        // The discipline a target names is read on the plan by showing its
+        // layer: a network the layers hide is a network nobody was taken to.
+        const network = (project.systems ?? []).find(
+          (candidate) =>
+            domainOfDiscipline(candidate.discipline) === target.domain,
+        );
+        if (network !== undefined) {
+          selectNetwork(network.id);
+          dispatchEditor({
+            type: 'SHOW_LAYERS',
+            layerIds: [networkLayerId(network.discipline)],
+          });
+        }
+      }
+      if (target.overlayId !== undefined)
+        setOverlayId(target.overlayId as OverlayId);
+      if (target.objectId !== undefined) {
+        // The layer the object is drawn on, read from a view where nothing is
+        // hidden: restoring visibility is part of showing something.
+        const complete = buildPlanView(project, {
+          ...(levelId === undefined ? {} : { levelId }),
+        });
+        const drawn = complete.primitives.find(
+          (primitive) => primitive.sourceObjectId === target.objectId,
+        );
+        if (drawn !== undefined)
+          dispatchEditor({ type: 'SHOW_LAYERS', layerIds: [drawn.layer] });
+        dispatchEditor({ type: 'CLEAR_SELECTION' });
+        dispatchEditor({ type: 'SELECT', objectId: target.objectId });
+        const bounds = boundsOfObjects(complete.primitives, [target.objectId]);
+        if (bounds !== undefined)
+          dispatchEditor({ type: 'ZOOM_SELECTION', bounds });
+        // Showing an object without its properties is showing half of it.
+        changeLayout({ inspectorShown: true });
+      }
+      setInspectedProperty(target.propertyPath);
+    },
+    [changeLayout, selectNetwork],
+  );
+
   /** Takes the user where a finding can actually be dealt with. */
   const applyFix = useCallback(
     (fix: CheckFix) => {
       const objectId = fix.objectIds?.[0];
       if (fix.tab === 'networks' && objectId !== undefined) {
-        // Take the user to the very segment or node the finding is about, with
-        // its properties open: a workspace is not an answer, a field is.
+        // A network object is read in its own browser, which knows the run it
+        // belongs to; the plan alone cannot show a circuit.
         const holder = (session.current.file.project.systems ?? []).find(
           (network) =>
             [...network.nodes, ...network.edges].some(
@@ -1732,16 +1801,25 @@ function App() {
         if (holder !== undefined) selectNetwork(holder.id);
         setInspectNetworkObjectId(objectId);
         setTab('networks');
+        setInspectedProperty(fix.propertyPath);
         return;
       }
-      if (fix.objectIds !== undefined && fix.objectIds.length > 0) {
-        selectOnPlan(fix.objectIds);
+      if (objectId !== undefined && fix.objectIds !== undefined) {
+        navigateTo({
+          workspace: workspaceOfLegacyTab(fix.tab),
+          objectId,
+          ...(fix.propertyPath === undefined
+            ? {}
+            : { propertyPath: fix.propertyPath }),
+        });
         if (fix.tab !== 'plan') setTab(fix.tab);
+        if (fix.objectIds.length > 1) selectOnPlan(fix.objectIds);
         return;
       }
       setTab(fix.tab);
+      setInspectedProperty(fix.propertyPath);
     },
-    [selectNetwork, selectOnPlan, setTab],
+    [navigateTo, selectNetwork, selectOnPlan, setTab],
   );
 
   // A run computed on an earlier revision — or with another climate file — is
@@ -2369,6 +2447,9 @@ function App() {
             <InspectorPanel
               project={scenarioProject ?? file.project}
               selection={editor.selection}
+              {...(inspectedProperty === undefined
+                ? {}
+                : { expandProperty: inspectedProperty })}
               onClear={() => dispatchEditor({ type: 'CLEAR_SELECTION' })}
               onCommand={runCommand}
               onMessage={setMessage}

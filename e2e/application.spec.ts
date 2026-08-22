@@ -1821,14 +1821,93 @@ test('gathers what the project does not resolve and offers to fix it', async ({
     'ne constatent aucune conformité réglementaire',
   );
 
-  // "Corriger" takes the user to where the finding can be dealt with.
+  // The button says where it leads, and goes there.
   await findings
     .filter({ hasText: 'Aucun référentiel activé' })
-    .getByRole('button', { name: 'Corriger' })
+    .getByRole('button', { name: 'Ouvrir les référentiels' })
     .click();
   await expect(
     page.getByRole('heading', { name: 'Informations, site et réglages' }),
   ).toBeVisible();
+});
+
+test('takes seven steps to show what a finding is about', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  const frame = (await canvas.boundingBox())!;
+  const stair = (await page
+    .locator('[id="stair:stair-ground-first"]')
+    .boundingBox())!;
+  // A quarter of the way down the flight: the partitions cross its bounding
+  // box at the middle, and a click there takes the wall.
+  await canvas.click({
+    position: {
+      x: stair.x - frame.x + stair.width / 2,
+      y: stair.y - frame.y + stair.height * 0.15,
+    },
+  });
+  const inspector = page.locator('.inspector-subject');
+  await expect(inspector).toContainText('stair-ground-first');
+
+  // Treads too deep for the line they are drawn along: the plan now shows one
+  // stair and the dimensions state another.
+  const tread = inspector.getByLabel('Giron');
+  await tread.fill('420');
+  await tread.press('Enter');
+  await expect(page.getByRole('status')).toContainText('escalier');
+
+  await openDestination(page, 'Vérifications');
+  const findings = page.locator('.alert-list li');
+  const broken = findings.filter({ hasText: 'ne porte pas ses marches' });
+  await expect(broken.first()).toBeVisible();
+
+  // « Voir sur le plan » has to do all of it: open the right storey, restore
+  // the layer, select the object, frame it, open the inspector and expand the
+  // property the finding named. A workspace is not an answer; a field is.
+  await broken
+    .first()
+    .getByRole('button', { name: 'Voir sur le plan' })
+    .click();
+  await expect(canvas).toBeVisible();
+  await expect(inspector).toContainText('stair-ground-first');
+  // Both the stated value and the field that changes it are marked: they are
+  // the same property, read and written.
+  const targeted = inspector.locator('.targeted');
+  await expect(targeted.first()).toBeVisible();
+  for (const text of await targeted.allTextContents())
+    expect(text).toContain('Giron');
+  await expect(inspector.locator('.inspector-edit.targeted')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test('folds the bookkeeping away and keeps the object open', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  const east = (await page.locator('[id="wall:wall-east"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: east.x - box.x + east.width / 2,
+      y: east.y - box.y + east.height * 0.25,
+    },
+  });
+  const inspector = page.locator('.inspector-subject');
+  await expect(inspector).toContainText('wall-east');
+
+  // What the wall is stays open; where it lives in the file is one disclosure
+  // away — identifiers are needed about once a month and took the top of the
+  // panel every second of the other days.
+  const references = inspector.locator('details');
+  await expect(references).toHaveCount(1);
+  await expect(references).not.toHaveAttribute('open', '');
+  await expect(inspector.getByText('Identifiant')).toBeHidden();
+  await references.getByText('Références').click();
+  await expect(inspector.getByText('Identifiant')).toBeVisible();
+  expect(errors).toEqual([]);
 });
 
 test('puts what the house needs beside what is standing in it', async ({
@@ -2118,15 +2197,17 @@ test('never offers to fix a value the settings screen cannot take', async ({
   // settings screen has to be able to take it for the button to be offered.
   const occupancy = findings.filter({ hasText: 'occupantsByCategory' });
   if ((await occupancy.count()) > 0) {
-    await occupancy.first().getByRole('button', { name: 'Corriger' }).click();
+    await occupancy
+      .first()
+      .getByRole('button', { name: 'Ouvrir les réglages de calcul' })
+      .click();
     await page.getByLabel('Module').selectOption('iaq');
     await expect(page.getByLabel('Séjour')).toBeVisible();
   }
 
-  // Whatever the findings are, every "Corriger" leads to a real destination.
-  const fixable = await findings
-    .getByRole('button', { name: 'Corriger' })
-    .count();
+  // Whatever the findings are, each one that offers a way out says where it
+  // leads rather than saying « Corriger » about five different spaces.
+  const fixable = await findings.locator('button.link').count();
   expect(fixable).toBeGreaterThan(0);
 });
 
