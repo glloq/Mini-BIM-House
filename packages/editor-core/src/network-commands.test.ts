@@ -67,8 +67,20 @@ function waterNetwork(): TechnicalNetwork {
       { id: 'sink', kind: 'FIXTURE', position: { x: 3000, y: 2000, z: 0 } },
     ],
     ports: [
-      { id: 'source-out', nodeId: 'source', role: 'FLOW', direction: 'OUT' },
-      { id: 'sink-in', nodeId: 'sink', role: 'FLOW', direction: 'IN' },
+      {
+        id: 'source-out',
+        nodeId: 'source',
+        role: 'FLOW',
+        direction: 'OUT',
+        portTypeId: 'WATER_COLD',
+      },
+      {
+        id: 'sink-in',
+        nodeId: 'sink',
+        role: 'FLOW',
+        direction: 'IN',
+        portTypeId: 'WATER_COLD',
+      },
     ],
     edges: [],
   };
@@ -141,6 +153,22 @@ describe('network authoring helpers', () => {
     const connected = { ...network, edges: [pipe()] };
     expect(connectablePorts(connected, 'source-out')).toEqual([]);
     expect(openPorts(connected)).toEqual([]);
+  });
+
+  it('offers nothing when neither end says what it carries', () => {
+    // Two ports saying nothing used to be offered as a pair: a run whose fluid
+    // nobody had checked went into the file looking like a checked one. It is
+    // not refused — an old file keeps its runs — it is simply not proposed.
+    const silent = waterNetwork();
+    expect(
+      connectablePorts(
+        {
+          ...silent,
+          ports: silent.ports.map(({ portTypeId: _kind, ...port }) => port),
+        },
+        'source-out',
+      ),
+    ).toEqual([]);
   });
 
   it('drafts a network around the source node of its discipline', () => {

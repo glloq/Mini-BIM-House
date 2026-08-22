@@ -3,6 +3,7 @@ import {
   clearanceReport,
   stairDimensions,
   unresolvedRoofs,
+  portCompatibility,
   resolvedSpaces,
   validateTechnicalNetwork,
 } from '@house-technical-designer/core-domain';
@@ -254,6 +255,33 @@ export function projectChecks(
         objectIds: [missing.objectId],
       },
     });
+
+  // A run whose two ends never said what they carry. Not a refusal — the file
+  // holds it and an old file keeps its runs — but not a checked run either,
+  // and a drawing set that does not distinguish the two is a drawing set
+  // nobody can trust.
+  for (const network of project.systems ?? []) {
+    const ports = new Map(network.ports.map((port) => [port.id, port]));
+    for (const edge of network.edges) {
+      const from = ports.get(edge.fromPortId);
+      const to = ports.get(edge.toPortId);
+      if (from === undefined || to === undefined) continue;
+      const verdict = portCompatibility(from, to);
+      if (verdict.status !== 'UNKNOWN') continue;
+      checks.push({
+        id: `network:${network.id}:undetermined:${edge.id}`,
+        status: 'UNKNOWN',
+        source: 'NETWORK',
+        title: `${network.systemType} — raccordement indéterminé`,
+        detail: verdict.reason,
+        fix: {
+          label: 'Ouvrir les réseaux',
+          tab: 'networks',
+          objectIds: [edge.id],
+        },
+      });
+    }
+  }
 
   for (const network of project.systems ?? [])
     for (const issue of validateTechnicalNetwork(network))
