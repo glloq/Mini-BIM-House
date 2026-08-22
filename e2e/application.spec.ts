@@ -758,7 +758,15 @@ test('reaches tools, workspaces and objects from the command palette', async ({
   const palette = page.getByRole('dialog', { name: 'Palette de commandes' });
   await expect(palette).toBeVisible();
   await palette.getByLabel('Chercher une commande').fill('mur');
-  await page.keyboard.press('Enter');
+  // Named rather than first-in-the-list: the palette holds tools, spaces,
+  // disciplines, presets, levels and objects now, and « le premier résultat »
+  // is not what a person means when they mean the wall tool.
+  await palette
+    .locator('.palette-results button')
+    .filter({ has: page.locator('.palette-group', { hasText: 'Outils' }) })
+    .filter({ hasText: /^Mur/u })
+    .first()
+    .click();
   await expect(palette).toBeHidden();
   await expect(
     page.getByRole('button', { name: 'Mur', exact: true }),

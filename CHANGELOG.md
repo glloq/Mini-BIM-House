@@ -5,6 +5,67 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.6 — non publiée
+
+La refonte de l'**interface**. Onze destinations en une colonne répondaient à
+« où puis-je aller », question que personne ne pose. Cinq espaces répondent à
+« où je travaille », et les dix étapes de chantier répondent à « que reste-t-il
+à faire » — sans jamais devenir dix onglets de plus.
+
+### Ajouté
+
+- **cinq espaces au lieu de onze destinations.** `PROJECT | BUILD | SYSTEMS |
+ANALYZE | DOCUMENTS`, dans un rail qui ne bouge jamais : quelqu'un qui a
+  appris que Systèmes est la troisième entrée a appris une position. Chacune
+  des onze anciennes destinations reste atteignable par l'espace dont elle
+  relève, et la navigation retient ce qui était ouvert dans chaque espace.
+- **une page de création à la place d'une modale.** Elle ne demande plus dix
+  réponses avant le premier mur : une pile de niveaux qui sait dire deux
+  sous-sols, mezzanine et combles ; une localisation dont « à déterminer » est
+  une réponse ; une emprise facultative dont le défaut est « je dessinerai
+  moi-même » et qui produit de vrais murs par les commandes ordinaires.
+- **un périmètre de conception qui voyage dans le fichier.** Ce qu'on décide de
+  concevoir, pas ce que le fichier peut contenir : décocher le photovoltaïque
+  n'encombre plus l'interface et ne supprime rien. Un domaine hors périmètre
+  dont le projet tient déjà des objets ne peut pas être mis de côté, et
+  l'interface le dit.
+- **un guide de progression dérivé du modèle.** Trente-trois étapes, dix
+  phases, et aucun état persisté : ce qui compte est de savoir si la maison a
+  ses murs, pas si quelqu'un a coché une case. Il recommande et ne bloque
+  jamais.
+- **un compteur de vérifications permanent**, dans la barre d'état, qui mène à
+  chaque remarque en un clic.
+- **une seule navigation transversale.** `navigateTo(UiTarget)` ouvre le
+  niveau, active la discipline, rétablit la visibilité, sélectionne l'objet, le
+  cadre, ouvre l'inspecteur et déplie la propriété concernée.
+
+### Modifié
+
+- **les outils passent dans le panneau contextuel**, groupés par métier, et la
+  barre au-dessus du plan ne porte plus que ce que la situation permet — rien
+  au repos.
+- **plus de modes « simple » et « expert ».** Deux modes, ce sont deux
+  produits, et celui qui avait choisi le simple n'apprenait jamais que l'autre
+  outil existait. Les outils courants sont visibles, les autres à un dépliage,
+  pour tout le monde.
+- **la visibilité se choisit par préréglage**, dans un popover sur le plan ; les
+  vingt calques restent le moteur, un dépliage plus bas.
+- **Analyser et Systèmes ouvrent sur le plan.** Un résultat se lit contre le
+  bâtiment dont il parle, et une variante est un mode du dessin plutôt qu'une
+  destination.
+- **une seule façon de demander « lequel »** à un catalogue : recherche sans
+  accents ni casse, mots dans n'importe quel ordre, mêmes filtres partout. Les
+  assemblages et les équipements du projet n'avaient aucune recherche.
+- **l'inspecteur replie ce qui relève de la comptabilité du fichier** et garde
+  ouvert ce que l'objet est.
+
+### Documentation
+
+- `docs/UX_ARCHITECTURE.md` : le contrat de l'interface et ses dix-huit
+  critères d'acceptation, dont dix-huit tests dans
+  `apps/web/src/ux/acceptance.test.ts` — un contrat que chaque PR est « relue
+  contre » est un contrat que personne ne relit.
+
 ## 0.3.0-beta.5 — non publiée
 
 La passe de consolidation du **modèle dérivé** : la façon dont le BIM devient de

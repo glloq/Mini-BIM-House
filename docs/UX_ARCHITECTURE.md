@@ -268,7 +268,9 @@ défont et refont, `F` cadre, `V` sélectionne, `M` déplace. Chaque outil du
 
 ## 12. Les dix-huit critères d'acceptation
 
-Chaque PR d'interface est relue contre cette liste.
+Chaque PR d'interface est relue contre cette liste. Dix-huit d'entre eux sont
+aussi des tests — `apps/web/src/ux/acceptance.test.ts` — parce qu'un contrat que
+chaque PR est « relue contre » est un contrat que personne ne relit.
 
 1. La navigation primaire compte exactement cinq entrées.
 2. Aucune bibliothèque, quantité, scénario ni vérification n'est une

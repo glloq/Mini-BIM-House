@@ -45,6 +45,7 @@ import {
 import {
   boundsOfObjects,
   buildPlanView,
+  LAYER_PRESETS,
   networkLayerId,
 } from '@house-technical-designer/view-query';
 import './styles.css';
@@ -157,6 +158,7 @@ import {
   type WorkspaceLayout,
 } from './shell/workspace-layout.js';
 import { DisciplinePicker } from './systems/DisciplinePicker.js';
+import { technicalDomains } from './systems/discipline-scope.js';
 import { WorkflowGuide } from './workflow/WorkflowGuide.js';
 import { AppShell } from './shell/AppShell.js';
 import { TopBar } from './shell/TopBar.js';
@@ -1601,6 +1603,68 @@ function App() {
    * being drawn are unrelated everywhere else in the application and the same
    * thing here: a line to read and something that happens when it is chosen.
    */
+  /**
+   * The one way of sending someone somewhere.
+   *
+   * Six features had to say « va là-bas » and each said it differently, so
+   * each reached a different depth: a check could open a workspace, but not
+   * open the storey, reveal the discipline, select the object, frame it and
+   * expand the property it was talking about. It does all of it here, once,
+   * and everything the target leaves unstated is left alone.
+   */
+  const navigateTo = useCallback(
+    (target: UiTarget): void => {
+      if (isEmptyTarget(target)) return;
+      setNavigation((current) => navigationFor(current, target));
+      const project = session.current.file.project;
+      const entity =
+        target.objectId === undefined
+          ? undefined
+          : projectEntities(project).find(({ id }) => id === target.objectId);
+      const levelId = target.levelId ?? entity?.levelId;
+      if (levelId !== undefined) dispatchEditor({ type: 'SET_LEVEL', levelId });
+      if (target.domain !== undefined) {
+        setActiveDomain(target.domain);
+        // The discipline a target names is read on the plan by showing its
+        // layer: a network the layers hide is a network nobody was taken to.
+        const network = (project.systems ?? []).find(
+          (candidate) =>
+            domainOfDiscipline(candidate.discipline) === target.domain,
+        );
+        if (network !== undefined) {
+          selectNetwork(network.id);
+          dispatchEditor({
+            type: 'SHOW_LAYERS',
+            layerIds: [networkLayerId(network.discipline)],
+          });
+        }
+      }
+      if (target.overlayId !== undefined)
+        setOverlayId(target.overlayId as OverlayId);
+      if (target.objectId !== undefined) {
+        // The layer the object is drawn on, read from a view where nothing is
+        // hidden: restoring visibility is part of showing something.
+        const complete = buildPlanView(project, {
+          ...(levelId === undefined ? {} : { levelId }),
+        });
+        const drawn = complete.primitives.find(
+          (primitive) => primitive.sourceObjectId === target.objectId,
+        );
+        if (drawn !== undefined)
+          dispatchEditor({ type: 'SHOW_LAYERS', layerIds: [drawn.layer] });
+        dispatchEditor({ type: 'CLEAR_SELECTION' });
+        dispatchEditor({ type: 'SELECT', objectId: target.objectId });
+        const bounds = boundsOfObjects(complete.primitives, [target.objectId]);
+        if (bounds !== undefined)
+          dispatchEditor({ type: 'ZOOM_SELECTION', bounds });
+        // Showing an object without its properties is showing half of it.
+        changeLayout({ inspectorShown: true });
+      }
+      setInspectedProperty(target.propertyPath);
+    },
+    [changeLayout, selectNetwork],
+  );
+
   const paletteEntries = useMemo<readonly PaletteEntry[]>(
     () => [
       ...EDITOR_TOOLS.map((tool) => ({
@@ -1630,6 +1694,23 @@ function App() {
         hint: shortcutLabel(binding),
         run: () => runShortcut(binding.id),
       })),
+      // Everything the context panel offers is reachable from here too, so
+      // that a keyboard reaches what a pointer reaches.
+      ...technicalDomains(file.project).map((domain) => ({
+        id: `discipline:${domain}`,
+        label: designDomainLabel(domain),
+        group: 'Disciplines',
+        hint: 'Lire le plan par cette discipline',
+        run: () => navigateTo({ domain }),
+      })),
+      ...LAYER_PRESETS.map((preset) => ({
+        id: `visibilite:${preset.id}`,
+        label: preset.label,
+        group: 'Visibilité',
+        hint: 'Ce qui est dessiné',
+        run: () =>
+          dispatchEditor({ type: 'APPLY_PRESET', presetId: preset.id }),
+      })),
       ...file.project.building.levels.map((level) => ({
         id: `niveau:${level.id}`,
         label: level.name,
@@ -1651,7 +1732,7 @@ function App() {
         },
       }),
     ],
-    [activeLevelId, file.project, runShortcut, setTab],
+    [activeLevelId, file.project, navigateTo, runShortcut, setTab],
   );
 
   useEffect(() => {
@@ -1745,68 +1826,6 @@ function App() {
       setTab('plan');
     },
     [setTab],
-  );
-
-  /**
-   * The one way of sending someone somewhere.
-   *
-   * Six features had to say « va là-bas » and each said it differently, so
-   * each reached a different depth: a check could open a workspace, but not
-   * open the storey, reveal the discipline, select the object, frame it and
-   * expand the property it was talking about. It does all of it here, once,
-   * and everything the target leaves unstated is left alone.
-   */
-  const navigateTo = useCallback(
-    (target: UiTarget): void => {
-      if (isEmptyTarget(target)) return;
-      setNavigation((current) => navigationFor(current, target));
-      const project = session.current.file.project;
-      const entity =
-        target.objectId === undefined
-          ? undefined
-          : projectEntities(project).find(({ id }) => id === target.objectId);
-      const levelId = target.levelId ?? entity?.levelId;
-      if (levelId !== undefined) dispatchEditor({ type: 'SET_LEVEL', levelId });
-      if (target.domain !== undefined) {
-        setActiveDomain(target.domain);
-        // The discipline a target names is read on the plan by showing its
-        // layer: a network the layers hide is a network nobody was taken to.
-        const network = (project.systems ?? []).find(
-          (candidate) =>
-            domainOfDiscipline(candidate.discipline) === target.domain,
-        );
-        if (network !== undefined) {
-          selectNetwork(network.id);
-          dispatchEditor({
-            type: 'SHOW_LAYERS',
-            layerIds: [networkLayerId(network.discipline)],
-          });
-        }
-      }
-      if (target.overlayId !== undefined)
-        setOverlayId(target.overlayId as OverlayId);
-      if (target.objectId !== undefined) {
-        // The layer the object is drawn on, read from a view where nothing is
-        // hidden: restoring visibility is part of showing something.
-        const complete = buildPlanView(project, {
-          ...(levelId === undefined ? {} : { levelId }),
-        });
-        const drawn = complete.primitives.find(
-          (primitive) => primitive.sourceObjectId === target.objectId,
-        );
-        if (drawn !== undefined)
-          dispatchEditor({ type: 'SHOW_LAYERS', layerIds: [drawn.layer] });
-        dispatchEditor({ type: 'CLEAR_SELECTION' });
-        dispatchEditor({ type: 'SELECT', objectId: target.objectId });
-        const bounds = boundsOfObjects(complete.primitives, [target.objectId]);
-        if (bounds !== undefined)
-          dispatchEditor({ type: 'ZOOM_SELECTION', bounds });
-        // Showing an object without its properties is showing half of it.
-        changeLayout({ inspectorShown: true });
-      }
-      setInspectedProperty(target.propertyPath);
-    },
-    [changeLayout, selectNetwork],
   );
 
   /** Takes the user where a finding can actually be dealt with. */

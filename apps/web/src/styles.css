@@ -2351,3 +2351,52 @@ button.ghost:disabled {
   background: var(--surface);
   font-weight: 500;
 }
+
+/*
+ * The four widths the arrangement has to answer for.
+ *
+ * ≥ 1400 : everything at its stated size.
+ * 1000–1400 : the inspector gives back what it can, the plan takes it.
+ * 800–1000 : the panels become drawers; the rail stays.
+ * < 800 : reading, not drawing.
+ *
+ * The rule the whole thing hangs on is that the desktop is not sacrificed for
+ * a phone that will never draw a plan.
+ */
+@media (min-width: 1000px) and (max-width: 1400px) {
+  /*
+   * The inspector is the one that can afford to lose width: it lists what is
+   * already decided, while the plan is where the deciding happens. Capped
+   * rather than fixed — the remembered widths are still the person's, and
+   * overriding the whole grid took their decision away.
+   */
+  .inspector {
+    max-width: 20rem;
+  }
+}
+@media (max-width: 800px) {
+  /*
+   * Below this width a plan cannot be drawn with any accuracy, so the
+   * application says what the project is rather than pretending otherwise.
+   * Nothing is removed — every panel is still reachable through its drawer —
+   * but the drawing tools stop being offered first.
+   */
+  .tools-panel {
+    order: 2;
+  }
+  .context-tool-bar {
+    height: auto;
+    min-height: 2.6rem;
+    flex-wrap: wrap;
+  }
+  .creation-page {
+    width: calc(100% - 1.5rem);
+  }
+  .creation-steps button {
+    flex: 1 1 8rem;
+  }
+  .level-stack-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
