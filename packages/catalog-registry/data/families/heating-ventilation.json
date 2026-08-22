@@ -971,7 +971,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "UNDERFLOOR_HEATING",
+      "propertySchema": "HEATING_CONTROL",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -1045,7 +1045,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "UNDERFLOOR_HEATING",
+      "propertySchema": "HEATING_CONTROL",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -1067,7 +1067,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "UNDERFLOOR_HEATING",
+      "propertySchema": "HEATING_CONTROL",
       "status": {
         "MODEL": "PARTIAL"
       },

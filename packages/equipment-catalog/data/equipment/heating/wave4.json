@@ -2754,12 +2754,9 @@
       "id": "generic-heating-zone",
       "familyId": "HEATING_ZONE",
       "name": "Zone de chauffage",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "ports": [],
-      "properties": {
-        "supplyTemperatureC": 35,
-        "returnTemperatureC": 30
-      },
+      "properties": {},
       "rendering": {
         "planFootprint": "SYMBOL_ONLY",
         "layer": "heating.controls"

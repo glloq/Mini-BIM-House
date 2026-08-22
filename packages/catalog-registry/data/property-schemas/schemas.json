@@ -82,6 +82,30 @@
           "source": "DEFINITION",
           "minimum": 0,
           "maximum": 1
+        },
+        {
+          "key": "nominalVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "nominalCapacityAh",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ratedCurrentA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "breakingCapacityKA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ipRating",
+          "source": "DEFINITION"
         }
       ]
     },
@@ -528,6 +552,25 @@
           "key": "embodiedCarbon",
           "source": "DEFINITION",
           "minimum": 0
+        },
+        {
+          "key": "ipRating",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "loadCapacityKgM",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "entryCount",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "lengthMm",
+          "source": "DEFINITION",
+          "minimum": 0
         }
       ]
     },
@@ -580,6 +623,11 @@
         },
         {
           "key": "moduleCapacity",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ratedCurrentA",
           "source": "DEFINITION",
           "minimum": 0
         }
@@ -802,6 +850,11 @@
           "key": "distanceToCombustibleMm",
           "source": "DEFINITION",
           "minimum": 0
+        },
+        {
+          "key": "lengthMm",
+          "source": "DEFINITION",
+          "minimum": 0
         }
       ]
     },
@@ -889,6 +942,64 @@
       ]
     },
     {
+      "family": "HEATING_CONTROL",
+      "properties": [
+        {
+          "key": "widthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "source": "DEFINITION",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "supplyVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "electricalPowerW",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "circuitCount",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "minimumSetPointC",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "maximumSetPointC",
+          "source": "DEFINITION"
+        }
+      ]
+    },
+    {
       "family": "HEATING_DEVICE",
       "properties": [
         {
@@ -943,6 +1054,21 @@
         },
         {
           "key": "supplyVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "tankVolumeL",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "capacityL",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "maxPressureBar",
           "source": "DEFINITION",
           "minimum": 0
         }
@@ -1221,7 +1347,7 @@
           "source": "DEFINITION"
         },
         {
-          "key": "ip",
+          "key": "ipRating",
           "source": "DEFINITION"
         },
         {
@@ -1804,6 +1930,16 @@
           "key": "breakingCapacityKA",
           "source": "DEFINITION",
           "minimum": 0
+        },
+        {
+          "key": "protectionLevelUpV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "surgeCurrentKA",
+          "source": "DEFINITION",
+          "minimum": 0
         }
       ]
     },
@@ -1883,6 +2019,41 @@
         },
         {
           "key": "mpptInputCount",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ratedCurrentA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "ratedVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "breakingCapacityKA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "protectionLevelUpV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "surgeCurrentKA",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "loadCapacityKgM",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "lengthMm",
           "source": "DEFINITION",
           "minimum": 0
         }
@@ -2205,6 +2376,74 @@
           "key": "flushVolumeL",
           "source": "DEFINITION",
           "minimum": 0
+        }
+      ]
+    },
+    {
+      "family": "SENSOR_DEVICE",
+      "properties": [
+        {
+          "key": "widthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "depthMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "heightMm",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "cost",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "serviceLife",
+          "source": "DEFINITION",
+          "minimum": 1
+        },
+        {
+          "key": "embodiedCarbon",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "supplyVoltageV",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "electricalPowerW",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "coverageM2",
+          "source": "DEFINITION",
+          "minimum": 0
+        },
+        {
+          "key": "detectionAngleDeg",
+          "source": "DEFINITION",
+          "minimum": 0,
+          "maximum": 360
+        },
+        {
+          "key": "minimumSetPointC",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "maximumSetPointC",
+          "source": "DEFINITION"
+        },
+        {
+          "key": "ipRating",
+          "source": "DEFINITION"
         }
       ]
     },

@@ -1592,7 +1592,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "LUMINAIRE",
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
@@ -1614,7 +1614,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "LUMINAIRE",
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
@@ -1636,7 +1636,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "LUMINAIRE",
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"

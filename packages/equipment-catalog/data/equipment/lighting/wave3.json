@@ -26,8 +26,8 @@
         "colorTemperatureK": 3000,
         "cri": 80,
         "beamAngle": 60,
-        "ip": "IP20",
-        "powerFactor": 0.9
+        "powerFactor": 0.9,
+        "ipRating": "IP20"
       },
       "rendering": {
         "symbols": [
@@ -39,7 +39,7 @@
         "planFootprint": "CIRCLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -126,7 +126,7 @@
         "electricalPowerW": 7,
         "colorTemperatureK": 3000,
         "cri": 80,
-        "ip": "IP20"
+        "ipRating": "IP20"
       },
       "rendering": {
         "symbols": [
@@ -138,7 +138,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -177,7 +177,7 @@
         "colorTemperatureK": 4000,
         "cri": 80,
         "beamAngle": 30,
-        "ip": "IP65"
+        "ipRating": "IP65"
       },
       "rendering": {
         "symbols": [
@@ -189,7 +189,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -227,8 +227,8 @@
         "electricalPowerW": 10,
         "colorTemperatureK": 3000,
         "cri": 80,
-        "ip": "IP65",
-        "ik": "IK08"
+        "ik": "IK08",
+        "ipRating": "IP65"
       },
       "rendering": {
         "symbols": [
@@ -240,7 +240,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -327,14 +327,14 @@
         "electricalPowerW": 10,
         "colorTemperatureK": 3000,
         "cri": 90,
-        "ip": "IP20",
-        "dimmable": true
+        "dimmable": true,
+        "ipRating": "IP20"
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -370,9 +370,9 @@
       "properties": {
         "luminousFluxLm": 45,
         "electricalPowerW": 2,
-        "ip": "IP42",
         "ik": "IK07",
-        "lifetimeHours": 50000
+        "lifetimeHours": 50000,
+        "ipRating": "IP42"
       },
       "rendering": {
         "symbols": [
@@ -384,7 +384,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -427,15 +427,14 @@
         }
       ],
       "properties": {
-        "luminousFluxLm": 0,
         "electricalPowerW": 0.5,
-        "ip": "IP20"
+        "ipRating": "IP20"
       },
       "rendering": {
         "planFootprint": "CIRCLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -478,15 +477,14 @@
         }
       ],
       "properties": {
-        "luminousFluxLm": 0,
         "electricalPowerW": 0.5,
-        "ip": "IP20"
+        "ipRating": "IP20"
       },
       "rendering": {
         "planFootprint": "SYMBOL_ONLY",
         "layer": "electrical.lighting"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -529,14 +527,13 @@
         }
       ],
       "properties": {
-        "luminousFluxLm": 0,
         "electricalPowerW": 5
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

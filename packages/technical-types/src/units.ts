@@ -18,6 +18,7 @@ export const WRITTEN_UNITS = {
   kW: 'POWER',
   Wc: 'POWER',
   kWh: 'ENERGY',
+  Ah: 'CHARGE',
   Ω: 'RESISTANCE',
   'Ω/km': 'LINEAR_RESISTANCE',
   m: 'LENGTH',
