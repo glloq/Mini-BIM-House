@@ -114,6 +114,15 @@ export const PLAN_LAYERS = [
     defaultVisible: true,
   },
   {
+    // Where the sections are cut and the façades are looked from. On by
+    // default: a plan that does not say a section exists is a plan its reader
+    // trusts to be the whole drawing.
+    id: 'annotation.view-marks',
+    label: 'Repères de coupe et de façade',
+    disciplines: ['ARCHITECTURE'],
+    defaultVisible: true,
+  },
+  {
     id: 'water.pipes',
     label: 'Eau',
     disciplines: ['WATER'],
@@ -178,6 +187,7 @@ const ARCHITECTURE_BASE: readonly PlanLayerId[] = [
   'components.placed',
   'annotation.dimensions',
   'annotation.notes',
+  'annotation.view-marks',
 ];
 
 /** Discipline views the user can switch between without a second model. */

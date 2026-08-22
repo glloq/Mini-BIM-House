@@ -18,7 +18,81 @@
         "latitudeDeg": 48.1,
         "longitudeDeg": -1.7
       },
-      "altitudeM": 40
+      "altitudeM": 40,
+      "parcelBoundary": {
+        "outer": [
+          {
+            "x": -6000,
+            "y": -8000
+          },
+          {
+            "x": 22000,
+            "y": -8000
+          },
+          {
+            "x": 22000,
+            "y": 20000
+          },
+          {
+            "x": -6000,
+            "y": 20000
+          }
+        ]
+      },
+      "obstacles": [
+        {
+          "id": "obstacle-oak",
+          "boundary": {
+            "outer": [
+              {
+                "x": 17000,
+                "y": 13000
+              },
+              {
+                "x": 21000,
+                "y": 13000
+              },
+              {
+                "x": 21000,
+                "y": 17000
+              },
+              {
+                "x": 17000,
+                "y": 17000
+              }
+            ]
+          },
+          "kind": "TREE",
+          "heightMm": 9000,
+          "name": "Chêne"
+        },
+        {
+          "id": "obstacle-neighbour",
+          "boundary": {
+            "outer": [
+              {
+                "x": -5000,
+                "y": 10000
+              },
+              {
+                "x": -1000,
+                "y": 10000
+              },
+              {
+                "x": -1000,
+                "y": 18000
+              },
+              {
+                "x": -5000,
+                "y": 18000
+              }
+            ]
+          },
+          "kind": "BUILDING",
+          "heightMm": 6000,
+          "name": "Maison voisine"
+        }
+      ]
     },
     "building": {
       "levels": [
@@ -229,37 +303,7 @@
               "role": "FLOOR"
             }
           ],
-          "roofs": [
-            {
-              "id": "roof-south",
-              "type": "ROOF_PLANE",
-              "levelId": "ground",
-              "footprint": {
-                "outer": [
-                  {
-                    "x": 0,
-                    "y": 0
-                  },
-                  {
-                    "x": 10000,
-                    "y": 0
-                  },
-                  {
-                    "x": 10000,
-                    "y": 8000
-                  },
-                  {
-                    "x": 0,
-                    "y": 8000
-                  }
-                ]
-              },
-              "assemblyId": "assembly-horizontal",
-              "slopeDeg": 30,
-              "azimuthDeg": 180,
-              "baseElevationMm": 2600
-            }
-          ],
+          "roofs": [],
           "spaces": [
             {
               "id": "space-living",
@@ -374,8 +418,598 @@
               }
             }
           ],
+          "stairs": [
+            {
+              "id": "stair-ground-first",
+              "type": "STAIR",
+              "levelId": "ground",
+              "topLevelId": "first",
+              "stairType": "STRAIGHT",
+              "widthMm": 1000,
+              "riserCount": 16,
+              "treadDepthMm": 280,
+              "path": {
+                "points": [
+                  {
+                    "x": 6000,
+                    "y": 2000
+                  },
+                  {
+                    "x": 6000,
+                    "y": 6200
+                  }
+                ]
+              }
+            }
+          ],
+          "annotations": [],
+          "components": [
+            {
+              "id": "component-luminaire-living",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "LIGHTING",
+              "definitionId": "equipment-luminaire",
+              "name": "Plafonnier séjour",
+              "position": {
+                "x": 2500,
+                "y": 2000
+              },
+              "elevationMm": 2400,
+              "rotationDeg": 0,
+              "spaceId": "space-living"
+            },
+            {
+              "id": "component-luminaire-kitchen",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "LIGHTING",
+              "definitionId": "equipment-luminaire",
+              "name": "Plafonnier cuisine",
+              "position": {
+                "x": 7500,
+                "y": 2000
+              },
+              "elevationMm": 2400,
+              "rotationDeg": 0,
+              "spaceId": "space-kitchen"
+            },
+            {
+              "id": "component-luminaire-bedroom",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "LIGHTING",
+              "definitionId": "equipment-luminaire",
+              "name": "Plafonnier chambre",
+              "position": {
+                "x": 2500,
+                "y": 6000
+              },
+              "elevationMm": 2400,
+              "rotationDeg": 0,
+              "spaceId": "space-bedroom"
+            },
+            {
+              "id": "component-luminaire-bathroom",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "LIGHTING",
+              "definitionId": "equipment-luminaire",
+              "name": "Plafonnier salle de bain",
+              "position": {
+                "x": 7500,
+                "y": 6000
+              },
+              "elevationMm": 2400,
+              "rotationDeg": 0,
+              "spaceId": "space-bathroom"
+            },
+            {
+              "id": "component-vmc",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "VENTILATION",
+              "definitionId": "equipment-vmc",
+              "name": "Groupe VMC",
+              "position": {
+                "x": 9500,
+                "y": 500
+              },
+              "elevationMm": 2400,
+              "rotationDeg": 0
+            },
+            {
+              "id": "component-dhw-tank",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "SANITARY",
+              "definitionId": "equipment-dhw-tank",
+              "name": "Ballon ECS",
+              "position": {
+                "x": 9200,
+                "y": 4500
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-bathroom"
+            },
+            {
+              "id": "component-battery",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "ELECTRICAL",
+              "definitionId": "equipment-battery",
+              "name": "Batterie",
+              "position": {
+                "x": 9200,
+                "y": 900
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0
+            },
+            {
+              "id": "component-inverter",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "ELECTRICAL",
+              "definitionId": "equipment-inverter",
+              "name": "Onduleur",
+              "position": {
+                "x": 9200,
+                "y": 1500
+              },
+              "elevationMm": 1200,
+              "rotationDeg": 0
+            }
+          ]
+        },
+        {
+          "id": "first",
+          "name": "Étage",
+          "elevationMm": 2900,
+          "defaultStoreyHeightMm": 2500,
+          "walls": [
+            {
+              "id": "wall-first-south",
+              "type": "WALL",
+              "levelId": "first",
+              "path": {
+                "points": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 0
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "assembly-exterior",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2500,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-first-east",
+              "type": "WALL",
+              "levelId": "first",
+              "path": {
+                "points": [
+                  {
+                    "x": 10000,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 8000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "assembly-exterior",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2500,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-first-north",
+              "type": "WALL",
+              "levelId": "first",
+              "path": {
+                "points": [
+                  {
+                    "x": 10000,
+                    "y": 8000
+                  },
+                  {
+                    "x": 0,
+                    "y": 8000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "assembly-exterior",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2500,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-first-west",
+              "type": "WALL",
+              "levelId": "first",
+              "path": {
+                "points": [
+                  {
+                    "x": 0,
+                    "y": 8000
+                  },
+                  {
+                    "x": 0,
+                    "y": 0
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "assembly-exterior",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2500,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-first-partition",
+              "type": "WALL",
+              "levelId": "first",
+              "path": {
+                "points": [
+                  {
+                    "x": 5000,
+                    "y": 0
+                  },
+                  {
+                    "x": 5000,
+                    "y": 8000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "assembly-partition",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2500,
+              "role": "INTERIOR"
+            }
+          ],
+          "openings": [
+            {
+              "id": "opening-bedroom-one",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-first-south",
+              "offsetAlongHostMm": 1500,
+              "sillHeightMm": 900,
+              "widthMm": 1400,
+              "heightMm": 1300
+            },
+            {
+              "id": "opening-bedroom-two",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-first-south",
+              "offsetAlongHostMm": 6500,
+              "sillHeightMm": 900,
+              "widthMm": 1400,
+              "heightMm": 1300
+            },
+            {
+              "id": "opening-first-bath",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-first-north",
+              "offsetAlongHostMm": 2000,
+              "sillHeightMm": 1400,
+              "widthMm": 800,
+              "heightMm": 800
+            },
+            {
+              "id": "opening-first-landing",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-first-partition",
+              "offsetAlongHostMm": 3000,
+              "sillHeightMm": 0,
+              "widthMm": 830,
+              "heightMm": 2040
+            }
+          ],
+          "slabs": [
+            {
+              "id": "slab-first",
+              "type": "SLAB",
+              "levelId": "first",
+              "polygon": {
+                "outer": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 8000
+                  },
+                  {
+                    "x": 0,
+                    "y": 8000
+                  }
+                ]
+              },
+              "assemblyId": "assembly-horizontal",
+              "elevationOffsetMm": 0,
+              "role": "FLOOR"
+            }
+          ],
+          "roofs": [
+            {
+              "id": "roof-south",
+              "type": "ROOF_PLANE",
+              "levelId": "first",
+              "footprint": {
+                "outer": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 0,
+                    "y": 4000
+                  }
+                ]
+              },
+              "assemblyId": "assembly-horizontal",
+              "slopeDeg": 30,
+              "azimuthDeg": 270,
+              "baseElevationMm": 5400
+            },
+            {
+              "id": "roof-north",
+              "type": "ROOF_PLANE",
+              "levelId": "first",
+              "footprint": {
+                "outer": [
+                  {
+                    "x": 0,
+                    "y": 4000
+                  },
+                  {
+                    "x": 10000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 10000,
+                    "y": 8000
+                  },
+                  {
+                    "x": 0,
+                    "y": 8000
+                  }
+                ]
+              },
+              "assemblyId": "assembly-horizontal",
+              "slopeDeg": 30,
+              "azimuthDeg": 90,
+              "baseElevationMm": 5400
+            }
+          ],
+          "spaces": [
+            {
+              "id": "space-bedroom-one",
+              "type": "SPACE",
+              "levelId": "first",
+              "name": "Chambre 1",
+              "category": "BEDROOM",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 5000,
+                    "y": 0
+                  },
+                  {
+                    "x": 5000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 0,
+                    "y": 4000
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-bedroom-two",
+              "type": "SPACE",
+              "levelId": "first",
+              "name": "Chambre 2",
+              "category": "BEDROOM",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 5000,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 5000,
+                    "y": 4000
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-first-bath",
+              "type": "SPACE",
+              "levelId": "first",
+              "name": "Salle de bain",
+              "category": "BATHROOM",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 0,
+                    "y": 4000
+                  },
+                  {
+                    "x": 5000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 5000,
+                    "y": 8000
+                  },
+                  {
+                    "x": 0,
+                    "y": 8000
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-landing",
+              "type": "SPACE",
+              "levelId": "first",
+              "name": "Palier",
+              "category": "CIRCULATION",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 5000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 10000,
+                    "y": 4000
+                  },
+                  {
+                    "x": 10000,
+                    "y": 8000
+                  },
+                  {
+                    "x": 5000,
+                    "y": 8000
+                  }
+                ]
+              }
+            }
+          ],
           "stairs": [],
-          "annotations": []
+          "annotations": [],
+          "components": [
+            {
+              "id": "component-luminaire-bedroom-one",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "first",
+              "category": "LIGHTING",
+              "definitionId": "equipment-luminaire",
+              "name": "Plafonnier chambre 1",
+              "position": {
+                "x": 2500,
+                "y": 2000
+              },
+              "elevationMm": 2400,
+              "rotationDeg": 0,
+              "spaceId": "space-bedroom-one"
+            },
+            {
+              "id": "component-luminaire-bedroom-two",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "first",
+              "category": "LIGHTING",
+              "definitionId": "equipment-luminaire",
+              "name": "Plafonnier chambre 2",
+              "position": {
+                "x": 7500,
+                "y": 2000
+              },
+              "elevationMm": 2400,
+              "rotationDeg": 0,
+              "spaceId": "space-bedroom-two"
+            },
+            {
+              "id": "component-luminaire-first-bath",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "first",
+              "category": "LIGHTING",
+              "definitionId": "equipment-luminaire",
+              "name": "Plafonnier salle de bain",
+              "position": {
+                "x": 2500,
+                "y": 6000
+              },
+              "elevationMm": 2400,
+              "rotationDeg": 0,
+              "spaceId": "space-first-bath"
+            },
+            {
+              "id": "component-luminaire-landing",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "first",
+              "category": "LIGHTING",
+              "definitionId": "equipment-luminaire",
+              "name": "Plafonnier palier",
+              "position": {
+                "x": 7500,
+                "y": 6000
+              },
+              "elevationMm": 2400,
+              "rotationDeg": 0,
+              "spaceId": "space-landing"
+            },
+            {
+              "id": "component-pv-array",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "first",
+              "category": "PHOTOVOLTAIC",
+              "definitionId": "equipment-pv",
+              "name": "Champ photovoltaïque",
+              "position": {
+                "x": 5000,
+                "y": 1000
+              },
+              "elevationMm": 2600,
+              "rotationDeg": 0,
+              "hostObjectId": "roof-south"
+            }
+          ]
         }
       ],
       "zones": [
@@ -634,6 +1268,23 @@
           }
         ],
         "name": "Plafonnier LED générique"
+      },
+      {
+        "id": "equipment-inverter",
+        "kind": "STRING_INVERTER",
+        "catalogKind": "GENERIC",
+        "properties": {
+          "ratedAcPowerW": 3600,
+          "maximumDcPowerW": 5400,
+          "europeanEfficiency": 0.97
+        },
+        "sources": [
+          {
+            "property": "ratedAcPowerW",
+            "sourceType": "USER",
+            "reference": "Reference project design choice"
+          }
+        ]
       }
     ],
     "systems": [
@@ -722,6 +1373,48 @@
               "designFlowLps": 0.12,
               "minimumPressurePa": 100000
             }
+          },
+          {
+            "id": "water:riser",
+            "kind": "JUNCTION",
+            "position": {
+              "x": 7500,
+              "y": 5000,
+              "z": 3300
+            },
+            "levelId": "first"
+          },
+          {
+            "id": "water:first-basin",
+            "kind": "FIXTURE",
+            "position": {
+              "x": 2000,
+              "y": 5500,
+              "z": 3300
+            },
+            "levelId": "first",
+            "spaceId": "space-first-bath",
+            "properties": {
+              "fixtureType": "BASIN",
+              "designFlowLps": 0.2,
+              "minimumPressurePa": 100000
+            }
+          },
+          {
+            "id": "water:first-bath",
+            "kind": "FIXTURE",
+            "position": {
+              "x": 1000,
+              "y": 7000,
+              "z": 3300
+            },
+            "levelId": "first",
+            "spaceId": "space-first-bath",
+            "properties": {
+              "fixtureType": "BATH",
+              "designFlowLps": 0.3,
+              "minimumPressurePa": 100000
+            }
           }
         ],
         "ports": [
@@ -794,6 +1487,48 @@
             "role": "FLOW",
             "direction": "IN",
             "portTypeId": "WATER_COLD"
+          },
+          {
+            "id": "water:manifold-out-riser",
+            "nodeId": "water:manifold",
+            "role": "FLOW",
+            "direction": "OUT",
+            "portTypeId": "WATER_COLD"
+          },
+          {
+            "id": "water:riser-in",
+            "nodeId": "water:riser",
+            "role": "FLOW",
+            "direction": "IN",
+            "portTypeId": "WATER_COLD"
+          },
+          {
+            "id": "water:riser-out-basin",
+            "nodeId": "water:riser",
+            "role": "FLOW",
+            "direction": "OUT",
+            "portTypeId": "WATER_COLD"
+          },
+          {
+            "id": "water:first-basin-in",
+            "nodeId": "water:first-basin",
+            "role": "FLOW",
+            "direction": "IN",
+            "portTypeId": "WATER_COLD"
+          },
+          {
+            "id": "water:riser-out-bath",
+            "nodeId": "water:riser",
+            "role": "FLOW",
+            "direction": "OUT",
+            "portTypeId": "WATER_COLD"
+          },
+          {
+            "id": "water:first-bath-in",
+            "nodeId": "water:first-bath",
+            "role": "FLOW",
+            "direction": "IN",
+            "portTypeId": "WATER_COLD"
           }
         ],
         "edges": [
@@ -823,7 +1558,8 @@
               "internalDiameterM": 0.0166,
               "materialId": "copper",
               "localLossCoefficient": 1.2
-            }
+            },
+            "productId": "pipe-multilayer-26x3.0"
           },
           {
             "id": "water:branch-sink",
@@ -846,7 +1582,8 @@
               "internalDiameterM": 0.0126,
               "materialId": "copper",
               "localLossCoefficient": 2.4
-            }
+            },
+            "productId": "pipe-multilayer-16x2.0"
           },
           {
             "id": "water:branch-basin",
@@ -869,7 +1606,8 @@
               "internalDiameterM": 0.0126,
               "materialId": "copper",
               "localLossCoefficient": 2.4
-            }
+            },
+            "productId": "pipe-multilayer-16x2.0"
           },
           {
             "id": "water:branch-shower",
@@ -892,7 +1630,8 @@
               "internalDiameterM": 0.0126,
               "materialId": "copper",
               "localLossCoefficient": 2.4
-            }
+            },
+            "productId": "pipe-multilayer-20x2.0"
           },
           {
             "id": "water:branch-wc",
@@ -915,7 +1654,65 @@
               "internalDiameterM": 0.0126,
               "materialId": "copper",
               "localLossCoefficient": 2.4
-            }
+            },
+            "productId": "pipe-multilayer-16x2.0"
+          },
+          {
+            "id": "water:riser-run",
+            "fromPortId": "water:manifold-out-riser",
+            "toPortId": "water:riser-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5000,
+                "z": 400
+              },
+              {
+                "x": 7500,
+                "y": 5000,
+                "z": 3300
+              }
+            ],
+            "kind": "PIPE",
+            "productId": "pipe-multilayer-16x2.0"
+          },
+          {
+            "id": "water:branch-first-basin",
+            "fromPortId": "water:riser-out-basin",
+            "toPortId": "water:first-basin-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5000,
+                "z": 3300
+              },
+              {
+                "x": 2000,
+                "y": 5500,
+                "z": 3300
+              }
+            ],
+            "kind": "PIPE",
+            "productId": "pipe-multilayer-16x2.0"
+          },
+          {
+            "id": "water:branch-first-bath",
+            "fromPortId": "water:riser-out-bath",
+            "toPortId": "water:first-bath-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5000,
+                "z": 3300
+              },
+              {
+                "x": 1000,
+                "y": 7000,
+                "z": 3300
+              }
+            ],
+            "kind": "PIPE",
+            "productId": "pipe-multilayer-20x2.0"
           }
         ]
       },
@@ -993,6 +1790,46 @@
             "properties": {
               "dischargeUnits": 4
             }
+          },
+          {
+            "id": "wastewater:stack",
+            "kind": "INSPECTION_CHAMBER",
+            "position": {
+              "x": 7500,
+              "y": 5200,
+              "z": 2900
+            },
+            "levelId": "first"
+          },
+          {
+            "id": "wastewater:first-basin",
+            "kind": "FIXTURE",
+            "position": {
+              "x": 2000,
+              "y": 5500,
+              "z": 3200
+            },
+            "levelId": "first",
+            "spaceId": "space-first-bath",
+            "properties": {
+              "fixtureType": "BASIN",
+              "dischargeUnits": 1
+            }
+          },
+          {
+            "id": "wastewater:first-bath",
+            "kind": "FIXTURE",
+            "position": {
+              "x": 1000,
+              "y": 7000,
+              "z": 3050
+            },
+            "levelId": "first",
+            "spaceId": "space-first-bath",
+            "properties": {
+              "fixtureType": "BATH",
+              "dischargeUnits": 2
+            }
           }
         ],
         "ports": [
@@ -1055,6 +1892,42 @@
             "nodeId": "wastewater:collector",
             "role": "FLOW",
             "direction": "IN"
+          },
+          {
+            "id": "wastewater:first-basin-out",
+            "nodeId": "wastewater:first-basin",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:stack-in-basin",
+            "nodeId": "wastewater:stack",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:first-bath-out",
+            "nodeId": "wastewater:first-bath",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:stack-in-bath",
+            "nodeId": "wastewater:stack",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:stack-out",
+            "nodeId": "wastewater:stack",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:collector-in-stack",
+            "nodeId": "wastewater:collector",
+            "role": "FLOW",
+            "direction": "IN"
           }
         ],
         "edges": [
@@ -1078,7 +1951,8 @@
             "properties": {
               "internalDiameterM": 0.1,
               "materialId": "pvc"
-            }
+            },
+            "productId": "waste-pipe-pvc-100"
           },
           {
             "id": "wastewater:branch-sink",
@@ -1100,7 +1974,8 @@
             "properties": {
               "internalDiameterM": 0.04,
               "materialId": "pvc"
-            }
+            },
+            "productId": "waste-pipe-pvc-40"
           },
           {
             "id": "wastewater:branch-basin",
@@ -1122,7 +1997,8 @@
             "properties": {
               "internalDiameterM": 0.04,
               "materialId": "pvc"
-            }
+            },
+            "productId": "waste-pipe-pvc-40"
           },
           {
             "id": "wastewater:branch-shower",
@@ -1144,7 +2020,8 @@
             "properties": {
               "internalDiameterM": 0.04,
               "materialId": "pvc"
-            }
+            },
+            "productId": "waste-pipe-pvc-50"
           },
           {
             "id": "wastewater:branch-wc",
@@ -1166,7 +2043,77 @@
             "properties": {
               "internalDiameterM": 0.1,
               "materialId": "pvc"
-            }
+            },
+            "productId": "waste-pipe-pvc-100"
+          },
+          {
+            "id": "wastewater:branch-first-basin",
+            "fromPortId": "wastewater:first-basin-out",
+            "toPortId": "wastewater:stack-in-basin",
+            "path": [
+              {
+                "x": 2000,
+                "y": 5500,
+                "z": 3200
+              },
+              {
+                "x": 7500,
+                "y": 5200,
+                "z": 3050
+              }
+            ],
+            "kind": "GRAVITY_PIPE",
+            "properties": {
+              "nominalDiameterMm": 40,
+              "slopePercent": 2
+            },
+            "productId": "waste-pipe-pvc-40"
+          },
+          {
+            "id": "wastewater:branch-first-bath",
+            "fromPortId": "wastewater:first-bath-out",
+            "toPortId": "wastewater:stack-in-bath",
+            "path": [
+              {
+                "x": 1000,
+                "y": 7000,
+                "z": 3050
+              },
+              {
+                "x": 7500,
+                "y": 5200,
+                "z": 3000
+              }
+            ],
+            "kind": "GRAVITY_PIPE",
+            "properties": {
+              "nominalDiameterMm": 50,
+              "slopePercent": 2
+            },
+            "productId": "waste-pipe-pvc-50"
+          },
+          {
+            "id": "wastewater:stack-run",
+            "fromPortId": "wastewater:stack-out",
+            "toPortId": "wastewater:collector-in-stack",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5200,
+                "z": 2900
+              },
+              {
+                "x": 7500,
+                "y": 5200,
+                "z": -200
+              }
+            ],
+            "kind": "GRAVITY_PIPE",
+            "properties": {
+              "nominalDiameterMm": 100,
+              "slopePercent": 100
+            },
+            "productId": "waste-pipe-pvc-100"
           }
         ]
       },
@@ -1183,7 +2130,8 @@
               "y": 500,
               "z": 2400
             },
-            "equipmentId": "equipment-vmc"
+            "equipmentId": "equipment-vmc",
+            "componentId": "component-vmc"
           },
           {
             "id": "ventilation:junction",
@@ -1249,6 +2197,76 @@
               "airRole": "SUPPLY",
               "targetFlowM3h": 30
             }
+          },
+          {
+            "id": "ventilation:riser",
+            "kind": "JUNCTION",
+            "position": {
+              "x": 7500,
+              "y": 4000,
+              "z": 5200
+            },
+            "levelId": "first"
+          },
+          {
+            "id": "ventilation:extract-first-bath",
+            "kind": "TERMINAL",
+            "position": {
+              "x": 2500,
+              "y": 6000,
+              "z": 5200
+            },
+            "levelId": "first",
+            "spaceId": "space-first-bath",
+            "properties": {
+              "airRole": "EXTRACT",
+              "targetFlowM3h": 30
+            }
+          },
+          {
+            "id": "ventilation:inlet-bedroom-one",
+            "kind": "INTAKE",
+            "position": {
+              "x": 2500,
+              "y": 100,
+              "z": 5100
+            },
+            "levelId": "first",
+            "spaceId": "space-bedroom-one",
+            "properties": {
+              "airRole": "SUPPLY",
+              "targetFlowM3h": 30
+            }
+          },
+          {
+            "id": "ventilation:inlet-bedroom-two",
+            "kind": "INTAKE",
+            "position": {
+              "x": 7500,
+              "y": 100,
+              "z": 5100
+            },
+            "levelId": "first",
+            "spaceId": "space-bedroom-two",
+            "properties": {
+              "airRole": "SUPPLY",
+              "targetFlowM3h": 30
+            }
+          },
+          {
+            "id": "ventilation:transfer-landing",
+            "kind": "TERMINAL",
+            "position": {
+              "x": 6000,
+              "y": 5000,
+              "z": 5100
+            },
+            "levelId": "first",
+            "spaceId": "space-landing",
+            "properties": {
+              "airRole": "TRANSFER",
+              "targetFlowM3h": 30
+            }
           }
         ],
         "ports": [
@@ -1287,6 +2305,30 @@
             "nodeId": "ventilation:extract-bathroom",
             "role": "AIR",
             "direction": "IN"
+          },
+          {
+            "id": "ventilation:junction-out-riser",
+            "nodeId": "ventilation:junction",
+            "role": "AIR",
+            "direction": "OUT"
+          },
+          {
+            "id": "ventilation:riser-in",
+            "nodeId": "ventilation:riser",
+            "role": "AIR",
+            "direction": "IN"
+          },
+          {
+            "id": "ventilation:riser-out-bath",
+            "nodeId": "ventilation:riser",
+            "role": "AIR",
+            "direction": "OUT"
+          },
+          {
+            "id": "ventilation:first-bath-in",
+            "nodeId": "ventilation:extract-first-bath",
+            "role": "AIR",
+            "direction": "IN"
           }
         ],
         "edges": [
@@ -1317,7 +2359,8 @@
               "shape": "ROUND",
               "diameterM": 0.125,
               "localLossCoefficient": 0.6
-            }
+            },
+            "productId": "duct-round-125"
           },
           {
             "id": "ventilation:branch-kitchen",
@@ -1341,7 +2384,8 @@
               "shape": "ROUND",
               "diameterM": 0.08,
               "localLossCoefficient": 0.9
-            }
+            },
+            "productId": "duct-round-80"
           },
           {
             "id": "ventilation:branch-bathroom",
@@ -1365,7 +2409,58 @@
               "shape": "ROUND",
               "diameterM": 0.08,
               "localLossCoefficient": 0.9
-            }
+            },
+            "productId": "duct-round-80"
+          },
+          {
+            "id": "ventilation:riser-run",
+            "fromPortId": "ventilation:junction-out-riser",
+            "toPortId": "ventilation:riser-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 4000,
+                "z": 2400
+              },
+              {
+                "x": 7500,
+                "y": 4000,
+                "z": 5200
+              }
+            ],
+            "kind": "DUCT",
+            "properties": {
+              "airRole": "EXTRACT",
+              "shape": "ROUND",
+              "diameterM": 0.125,
+              "localLossCoefficient": 0.6
+            },
+            "productId": "duct-round-125"
+          },
+          {
+            "id": "ventilation:branch-first-bath",
+            "fromPortId": "ventilation:riser-out-bath",
+            "toPortId": "ventilation:first-bath-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 4000,
+                "z": 5200
+              },
+              {
+                "x": 2500,
+                "y": 6000,
+                "z": 5200
+              }
+            ],
+            "kind": "DUCT",
+            "properties": {
+              "airRole": "EXTRACT",
+              "shape": "ROUND",
+              "diameterM": 0.08,
+              "localLossCoefficient": 0.9
+            },
+            "productId": "duct-round-80"
           }
         ]
       },
@@ -1415,7 +2510,8 @@
               "powerFactor": 0.95,
               "demandFactor": 1
             },
-            "equipmentId": "equipment-luminaire"
+            "equipmentId": "equipment-luminaire",
+            "componentId": "component-luminaire-living"
           },
           {
             "id": "electrical:luminaire-kitchen",
@@ -1430,7 +2526,8 @@
               "powerFactor": 0.95,
               "demandFactor": 1
             },
-            "equipmentId": "equipment-luminaire"
+            "equipmentId": "equipment-luminaire",
+            "componentId": "component-luminaire-kitchen"
           },
           {
             "id": "electrical:luminaire-bedroom",
@@ -1445,7 +2542,8 @@
               "powerFactor": 0.95,
               "demandFactor": 1
             },
-            "equipmentId": "equipment-luminaire"
+            "equipmentId": "equipment-luminaire",
+            "componentId": "component-luminaire-bedroom"
           },
           {
             "id": "electrical:luminaire-bathroom",
@@ -1460,7 +2558,76 @@
               "powerFactor": 0.95,
               "demandFactor": 1
             },
-            "equipmentId": "equipment-luminaire"
+            "equipmentId": "equipment-luminaire",
+            "componentId": "component-luminaire-bathroom"
+          },
+          {
+            "id": "electrical:luminaire-bedroom-one",
+            "kind": "LUMINAIRE",
+            "position": {
+              "x": 2500,
+              "y": 2000,
+              "z": 5300
+            },
+            "levelId": "first",
+            "spaceId": "space-bedroom-one",
+            "equipmentId": "equipment-luminaire",
+            "componentId": "component-luminaire-bedroom-one",
+            "properties": {
+              "powerFactor": 0.95,
+              "demandFactor": 1
+            }
+          },
+          {
+            "id": "electrical:luminaire-bedroom-two",
+            "kind": "LUMINAIRE",
+            "position": {
+              "x": 7500,
+              "y": 2000,
+              "z": 5300
+            },
+            "levelId": "first",
+            "spaceId": "space-bedroom-two",
+            "equipmentId": "equipment-luminaire",
+            "componentId": "component-luminaire-bedroom-two",
+            "properties": {
+              "powerFactor": 0.95,
+              "demandFactor": 1
+            }
+          },
+          {
+            "id": "electrical:luminaire-first-bath",
+            "kind": "LUMINAIRE",
+            "position": {
+              "x": 2500,
+              "y": 6000,
+              "z": 5300
+            },
+            "levelId": "first",
+            "spaceId": "space-first-bath",
+            "equipmentId": "equipment-luminaire",
+            "componentId": "component-luminaire-first-bath",
+            "properties": {
+              "powerFactor": 0.95,
+              "demandFactor": 1
+            }
+          },
+          {
+            "id": "electrical:luminaire-landing",
+            "kind": "LUMINAIRE",
+            "position": {
+              "x": 7500,
+              "y": 6000,
+              "z": 5300
+            },
+            "levelId": "first",
+            "spaceId": "space-landing",
+            "equipmentId": "equipment-luminaire",
+            "componentId": "component-luminaire-landing",
+            "properties": {
+              "powerFactor": 0.95,
+              "demandFactor": 1
+            }
           }
         ],
         "ports": [
@@ -1533,6 +2700,54 @@
             "role": "POWER",
             "direction": "IN",
             "portTypeId": "ELECTRICAL_AC"
+          },
+          {
+            "id": "electrical:circuit-out-bedroom-one",
+            "nodeId": "electrical:lighting-circuit",
+            "role": "POWER",
+            "direction": "OUT"
+          },
+          {
+            "id": "electrical:luminaire-bedroom-one-in",
+            "nodeId": "electrical:luminaire-bedroom-one",
+            "role": "POWER",
+            "direction": "IN"
+          },
+          {
+            "id": "electrical:circuit-out-bedroom-two",
+            "nodeId": "electrical:lighting-circuit",
+            "role": "POWER",
+            "direction": "OUT"
+          },
+          {
+            "id": "electrical:luminaire-bedroom-two-in",
+            "nodeId": "electrical:luminaire-bedroom-two",
+            "role": "POWER",
+            "direction": "IN"
+          },
+          {
+            "id": "electrical:circuit-out-first-bath",
+            "nodeId": "electrical:lighting-circuit",
+            "role": "POWER",
+            "direction": "OUT"
+          },
+          {
+            "id": "electrical:luminaire-first-bath-in",
+            "nodeId": "electrical:luminaire-first-bath",
+            "role": "POWER",
+            "direction": "IN"
+          },
+          {
+            "id": "electrical:circuit-out-landing",
+            "nodeId": "electrical:lighting-circuit",
+            "role": "POWER",
+            "direction": "OUT"
+          },
+          {
+            "id": "electrical:luminaire-landing-in",
+            "nodeId": "electrical:luminaire-landing",
+            "role": "POWER",
+            "direction": "IN"
           }
         ],
         "edges": [
@@ -1556,7 +2771,8 @@
             "properties": {
               "conductorSectionMm2": 1.5,
               "conductorMaterial": "COPPER"
-            }
+            },
+            "productId": "cable-cu-3g2-5"
           },
           {
             "id": "electrical:cable-living",
@@ -1578,7 +2794,8 @@
             "properties": {
               "conductorSectionMm2": 1.5,
               "conductorMaterial": "COPPER"
-            }
+            },
+            "productId": "cable-cu-3g1-5"
           },
           {
             "id": "electrical:cable-kitchen",
@@ -1600,7 +2817,8 @@
             "properties": {
               "conductorSectionMm2": 1.5,
               "conductorMaterial": "COPPER"
-            }
+            },
+            "productId": "cable-cu-3g1-5"
           },
           {
             "id": "electrical:cable-bedroom",
@@ -1622,7 +2840,8 @@
             "properties": {
               "conductorSectionMm2": 1.5,
               "conductorMaterial": "COPPER"
-            }
+            },
+            "productId": "cable-cu-3g1-5"
           },
           {
             "id": "electrical:cable-bathroom",
@@ -1644,7 +2863,84 @@
             "properties": {
               "conductorSectionMm2": 1.5,
               "conductorMaterial": "COPPER"
-            }
+            },
+            "productId": "cable-cu-3g1-5"
+          },
+          {
+            "id": "electrical:cable-bedroom-one",
+            "fromPortId": "electrical:circuit-out-bedroom-one",
+            "toPortId": "electrical:luminaire-bedroom-one-in",
+            "path": [
+              {
+                "x": 9500,
+                "y": 1000,
+                "z": 2400
+              },
+              {
+                "x": 2500,
+                "y": 2000,
+                "z": 5300
+              }
+            ],
+            "kind": "CABLE",
+            "productId": "cable-cu-3g1-5"
+          },
+          {
+            "id": "electrical:cable-bedroom-two",
+            "fromPortId": "electrical:circuit-out-bedroom-two",
+            "toPortId": "electrical:luminaire-bedroom-two-in",
+            "path": [
+              {
+                "x": 9500,
+                "y": 1000,
+                "z": 2400
+              },
+              {
+                "x": 7500,
+                "y": 2000,
+                "z": 5300
+              }
+            ],
+            "kind": "CABLE",
+            "productId": "cable-cu-3g1-5"
+          },
+          {
+            "id": "electrical:cable-first-bath",
+            "fromPortId": "electrical:circuit-out-first-bath",
+            "toPortId": "electrical:luminaire-first-bath-in",
+            "path": [
+              {
+                "x": 9500,
+                "y": 1000,
+                "z": 2400
+              },
+              {
+                "x": 2500,
+                "y": 6000,
+                "z": 5300
+              }
+            ],
+            "kind": "CABLE",
+            "productId": "cable-cu-3g1-5"
+          },
+          {
+            "id": "electrical:cable-landing",
+            "fromPortId": "electrical:circuit-out-landing",
+            "toPortId": "electrical:luminaire-landing-in",
+            "path": [
+              {
+                "x": 9500,
+                "y": 1000,
+                "z": 2400
+              },
+              {
+                "x": 7500,
+                "y": 6000,
+                "z": 5300
+              }
+            ],
+            "kind": "CABLE",
+            "productId": "cable-cu-3g1-5"
           }
         ]
       }
@@ -1687,7 +2983,71 @@
         ]
       }
     ],
-    "drawingViews": [],
+    "drawingViews": [
+      {
+        "id": "view-plan-ground",
+        "type": "PLAN",
+        "name": "Plan du rez-de-chaussée",
+        "levelId": "ground",
+        "scaleDenominator": 50,
+        "layers": {},
+        "graphicProfileId": "generic-technical-screen"
+      },
+      {
+        "id": "view-plan-first",
+        "type": "PLAN",
+        "name": "Plan de l’étage",
+        "levelId": "first",
+        "scaleDenominator": 50,
+        "layers": {},
+        "graphicProfileId": "generic-technical-screen"
+      },
+      {
+        "id": "view-section-aa",
+        "type": "SECTION",
+        "name": "Coupe AA",
+        "scaleDenominator": 50,
+        "layers": {},
+        "graphicProfileId": "generic-technical-screen",
+        "cut": {
+          "start": {
+            "x": -1000,
+            "y": 4000
+          },
+          "end": {
+            "x": 11000,
+            "y": 4000
+          }
+        },
+        "viewDepthMm": 8000
+      },
+      {
+        "id": "view-elevation-south",
+        "type": "ELEVATION",
+        "name": "Façade sud",
+        "scaleDenominator": 50,
+        "layers": {},
+        "graphicProfileId": "generic-technical-screen",
+        "viewDirectionDeg": 90,
+        "viewDepthMm": 10000
+      },
+      {
+        "id": "view-roof",
+        "type": "ROOF",
+        "name": "Plan de toiture",
+        "scaleDenominator": 100,
+        "layers": {},
+        "graphicProfileId": "generic-technical-screen"
+      },
+      {
+        "id": "view-site",
+        "type": "SITE",
+        "name": "Plan de masse",
+        "scaleDenominator": 200,
+        "layers": {},
+        "graphicProfileId": "generic-technical-screen"
+      }
+    ],
     "calculationSettings": {
       "thermal": {
         "moduleId": "thermal",
@@ -1744,14 +3104,15 @@
         "methodId": "co2-mass-balance-v1",
         "precisionTarget": "ENGINEERING",
         "settings": {
-          "co2GenerationM3sPerOccupant": 0.0000047,
+          "co2GenerationM3sPerOccupant": 4.7e-06,
           "initialConcentrationPpm": 500,
           "durationHours": 8,
           "occupantsByCategory": {
             "LIVING": 4,
             "KITCHEN": 2,
             "BEDROOM": 2,
-            "BATHROOM": 1
+            "BATHROOM": 1,
+            "CIRCULATION": 0
           }
         }
       },
@@ -1865,6 +3226,46 @@
           "labourPriceByMaterial": {
             "material-masonry": 95,
             "material-insulation": 45
+          },
+          "unitPriceByProduct": {
+            "pipe-multilayer-16x2.0": 4.2,
+            "pipe-multilayer-20x2.0": 5.6,
+            "pipe-multilayer-26x3.0": 8.4,
+            "waste-pipe-pvc-40": 3.1,
+            "waste-pipe-pvc-50": 3.9,
+            "waste-pipe-pvc-100": 7.5,
+            "duct-round-80": 4.0,
+            "duct-round-125": 6.5,
+            "cable-cu-3g1-5": 1.15,
+            "cable-cu-3g2-5": 1.75
+          },
+          "labourPriceByProduct": {
+            "pipe-multilayer-16x2.0": 9.0,
+            "pipe-multilayer-20x2.0": 9.0,
+            "pipe-multilayer-26x3.0": 11.0,
+            "waste-pipe-pvc-40": 8.0,
+            "waste-pipe-pvc-50": 8.0,
+            "waste-pipe-pvc-100": 12.0,
+            "duct-round-80": 7.0,
+            "duct-round-125": 9.0,
+            "cable-cu-3g1-5": 3.5,
+            "cable-cu-3g2-5": 3.5
+          },
+          "unitPriceByEquipment": {
+            "equipment-luminaire": 38.0,
+            "equipment-vmc": 420.0,
+            "equipment-dhw-tank": 780.0,
+            "equipment-pv": 3400.0,
+            "equipment-inverter": 1250.0,
+            "equipment-battery": 3600.0
+          },
+          "labourPriceByEquipment": {
+            "equipment-luminaire": 25.0,
+            "equipment-vmc": 260.0,
+            "equipment-dhw-tank": 340.0,
+            "equipment-pv": 900.0,
+            "equipment-inverter": 300.0,
+            "equipment-battery": 400.0
           }
         }
       },
@@ -1887,7 +3288,250 @@
     "regulatoryContext": {
       "country": "FR",
       "enabledRulePacks": []
-    }
+    },
+    "networkProducts": [
+      {
+        "id": "cable-cu-3g1-5",
+        "family": "ELECTRICAL_CABLE",
+        "domain": "ELECTRICAL",
+        "label": "Câble cuivre 3G1,5",
+        "version": "1.0.0",
+        "properties": {
+          "conductor": "COPPER",
+          "conductorSectionMm2": 1.5,
+          "coreCount": 3,
+          "insulation": "PVC",
+          "ratedVoltageV": 1000,
+          "currentCapacityA": 16,
+          "resistivityOhmKm": 12.1
+        },
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        }
+      },
+      {
+        "id": "cable-cu-3g2-5",
+        "family": "ELECTRICAL_CABLE",
+        "domain": "ELECTRICAL",
+        "label": "Câble cuivre 3G2,5",
+        "version": "1.0.0",
+        "properties": {
+          "conductor": "COPPER",
+          "conductorSectionMm2": 2.5,
+          "coreCount": 3,
+          "insulation": "PVC",
+          "ratedVoltageV": 1000,
+          "currentCapacityA": 20,
+          "resistivityOhmKm": 7.41
+        },
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        }
+      },
+      {
+        "id": "duct-round-125",
+        "family": "ROUND_DUCT",
+        "domain": "VENTILATION",
+        "label": "Gaine circulaire Ø125",
+        "version": "1.0.0",
+        "properties": {
+          "shape": "ROUND",
+          "diameterMm": 125,
+          "material": "Acier galvanisé",
+          "roughnessMm": 0.09
+        },
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        }
+      },
+      {
+        "id": "duct-round-80",
+        "family": "ROUND_DUCT",
+        "domain": "VENTILATION",
+        "label": "Gaine circulaire Ø80",
+        "version": "1.0.0",
+        "properties": {
+          "shape": "ROUND",
+          "diameterMm": 80,
+          "material": "Acier galvanisé",
+          "roughnessMm": 0.09
+        },
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        }
+      },
+      {
+        "id": "pipe-multilayer-16x2.0",
+        "family": "WATER_PIPE",
+        "domain": "PLUMBING",
+        "label": "Tube multicouche 16×2.0",
+        "version": "1.0.0",
+        "properties": {
+          "material": "MULTILAYER",
+          "outerDiameterMm": 16,
+          "wallThicknessMm": 2.0,
+          "innerDiameterMm": 12.0,
+          "roughnessMm": 0.007,
+          "maxPressureBar": 10,
+          "maxTemperatureC": 95
+        },
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        }
+      },
+      {
+        "id": "pipe-multilayer-20x2.0",
+        "family": "WATER_PIPE",
+        "domain": "PLUMBING",
+        "label": "Tube multicouche 20×2.0",
+        "version": "1.0.0",
+        "properties": {
+          "material": "MULTILAYER",
+          "outerDiameterMm": 20,
+          "wallThicknessMm": 2.0,
+          "innerDiameterMm": 16.0,
+          "roughnessMm": 0.007,
+          "maxPressureBar": 10,
+          "maxTemperatureC": 95
+        },
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        }
+      },
+      {
+        "id": "pipe-multilayer-26x3.0",
+        "family": "WATER_PIPE",
+        "domain": "PLUMBING",
+        "label": "Tube multicouche 26×3.0",
+        "version": "1.0.0",
+        "properties": {
+          "material": "MULTILAYER",
+          "outerDiameterMm": 26,
+          "wallThicknessMm": 3.0,
+          "innerDiameterMm": 20.0,
+          "roughnessMm": 0.007,
+          "maxPressureBar": 10,
+          "maxTemperatureC": 95
+        },
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        }
+      },
+      {
+        "id": "waste-pipe-pvc-100",
+        "family": "WASTEWATER_PIPE",
+        "domain": "WASTEWATER",
+        "label": "Tube PVC évacuation Ø100",
+        "version": "1.0.0",
+        "properties": {
+          "material": "PVC",
+          "outerDiameterMm": 100,
+          "wallThicknessMm": 3.0,
+          "innerDiameterMm": 94.0,
+          "roughnessMm": 0.03,
+          "maxPressureBar": 1,
+          "maxTemperatureC": 70
+        },
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        }
+      },
+      {
+        "id": "waste-pipe-pvc-40",
+        "family": "WASTEWATER_PIPE",
+        "domain": "WASTEWATER",
+        "label": "Tube PVC évacuation Ø40",
+        "version": "1.0.0",
+        "properties": {
+          "material": "PVC",
+          "outerDiameterMm": 40,
+          "wallThicknessMm": 3.0,
+          "innerDiameterMm": 34.0,
+          "roughnessMm": 0.03,
+          "maxPressureBar": 1,
+          "maxTemperatureC": 70
+        },
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        }
+      },
+      {
+        "id": "waste-pipe-pvc-50",
+        "family": "WASTEWATER_PIPE",
+        "domain": "WASTEWATER",
+        "label": "Tube PVC évacuation Ø50",
+        "version": "1.0.0",
+        "properties": {
+          "material": "PVC",
+          "outerDiameterMm": 50,
+          "wallThicknessMm": 3.0,
+          "innerDiameterMm": 44.0,
+          "roughnessMm": 0.03,
+          "maxPressureBar": 1,
+          "maxTemperatureC": 70
+        },
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        }
+      }
+    ],
+    "sheets": [
+      {
+        "id": "sheet-a001",
+        "number": "A-001",
+        "title": "Plans, coupe et façade",
+        "format": "A1",
+        "orientation": "LANDSCAPE",
+        "viewports": [
+          {
+            "id": "viewport-plan-ground",
+            "viewId": "view-plan-ground",
+            "scaleDenominator": 50,
+            "x": 20,
+            "y": 20,
+            "width": 380,
+            "height": 260
+          },
+          {
+            "id": "viewport-plan-first",
+            "viewId": "view-plan-first",
+            "scaleDenominator": 50,
+            "x": 420,
+            "y": 20,
+            "width": 380,
+            "height": 260
+          },
+          {
+            "id": "viewport-section",
+            "viewId": "view-section-aa",
+            "scaleDenominator": 50,
+            "x": 20,
+            "y": 300,
+            "width": 380,
+            "height": 200
+          },
+          {
+            "id": "viewport-elevation",
+            "viewId": "view-elevation-south",
+            "scaleDenominator": 50,
+            "x": 420,
+            "y": 300,
+            "width": 380,
+            "height": 200
+          }
+        ]
+      }
+    ]
   },
   "references": {},
   "extensions": {}

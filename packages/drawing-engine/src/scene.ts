@@ -12,8 +12,15 @@ export type GraphicProfileId = string & {
   readonly [graphicProfileIdBrand]: true;
 };
 
+/**
+ * The kinds of drawing a project holds.
+ *
+ * The same list as the project's own `DRAWING_VIEW_TYPES`: a saved view whose
+ * type the engine could not name was a view the engine could not build, and a
+ * roof plan saved in the file came back as a storey plan without saying so.
+ */
 export type DrawingViewType =
-  'PLAN' | 'SECTION' | 'ELEVATION' | 'DETAIL' | 'SCHEMATIC';
+  'PLAN' | 'SECTION' | 'ELEVATION' | 'ROOF' | 'SITE' | 'DETAIL' | 'SCHEMATIC';
 /**
  * What part of the building a primitive belongs to.
  *

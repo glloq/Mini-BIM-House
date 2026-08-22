@@ -15,6 +15,7 @@ import {
   localCollisions,
   projectEntities,
   validateTextNote,
+  validateDrawingView,
 } from '@house-technical-designer/core-domain';
 import validateProjectSchema from './generated-project-validator.js';
 import {
@@ -646,6 +647,12 @@ export function validateProjectReferences(
         path: `/project/drawingViews/${index}/levelId`,
         message: `references unknown level ${view.levelId}`,
       });
+    // A section says where it cuts and a façade says which way it looks. The
+    // same rule the editor applies when saving one: a command must never
+    // produce a project the importer refuses, and a file must never carry a
+    // drawing the application cannot rebuild.
+    for (const message of validateDrawingView(view))
+      issues.push({ path: `/project/drawingViews/${index}`, message });
   });
   const drawingViews = new Set(
     file.project.drawingViews?.map(({ id }) => id) ?? [],

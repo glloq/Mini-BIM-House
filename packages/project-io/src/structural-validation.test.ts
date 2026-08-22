@@ -248,6 +248,45 @@ describe('structural validation of a project file', () => {
     );
   });
 
+  it('refuses a section that does not say where it cuts', () => {
+    // The importer and the editor answer alike: a command must never produce a
+    // project the importer refuses, and a file must never carry a drawing the
+    // application cannot rebuild.
+    const unbuildable = file([level], {
+      drawingViews: [
+        {
+          id: 'coupe-aa',
+          type: 'SECTION',
+          name: 'Coupe AA',
+          scaleDenominator: 50,
+          layers: {},
+          graphicProfileId: 'generic-technical-screen',
+        },
+      ],
+    });
+    expect(issues(unbuildable)).toEqual([
+      '/project/drawingViews/0 a SECTION view must carry the line it is cut along',
+    ]);
+  });
+
+  it('accepts the same section once it carries its line', () => {
+    const buildable = file([level], {
+      drawingViews: [
+        {
+          id: 'coupe-aa',
+          type: 'SECTION',
+          name: 'Coupe AA',
+          scaleDenominator: 50,
+          layers: {},
+          graphicProfileId: 'generic-technical-screen',
+          cut: { start: { x: 0, y: 2000 }, end: { x: 12_000, y: 2000 } },
+          viewDepthMm: 6000,
+        },
+      ],
+    });
+    expect(issues(buildable)).toEqual([]);
+  });
+
   it('refuses a network node placed in a space the project does not hold', () => {
     const dangling = file([level], {
       systems: [

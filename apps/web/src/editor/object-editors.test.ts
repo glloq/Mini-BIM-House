@@ -25,13 +25,14 @@ function demo(): Project {
 
 /** One object of each family the reference house holds. */
 const SUBJECTS = [
-  ['wall-south', 'WALL'],
-  ['opening-entry', 'OPENING'],
-  ['space-living', 'SPACE'],
-  ['slab-ground', 'SLAB'],
-  ['roof-south', 'ROOF'],
-  ['water:sink', 'NETWORK_NODE'],
-  ['water:branch-sink', 'NETWORK_EDGE'],
+  ['wall-south', 'WALL', 'ground'],
+  ['opening-entry', 'OPENING', 'ground'],
+  ['space-living', 'SPACE', 'ground'],
+  ['slab-ground', 'SLAB', 'ground'],
+  // The roof stands on the storey it covers, which is the one above.
+  ['roof-south', 'ROOF', 'first'],
+  ['water:sink', 'NETWORK_NODE', 'ground'],
+  ['water:branch-sink', 'NETWORK_EDGE', 'ground'],
 ] as const;
 
 describe('the object families the editor knows', () => {
@@ -179,25 +180,27 @@ describe('taking an object back off the plan', () => {
     // same object: a slab that could be dragged and not deleted was an object
     // the plan offered and could not take back.
     const project = demo();
-    for (const [objectId] of SUBJECTS) {
+    for (const [objectId, , levelId] of SUBJECTS) {
       if (objectId === 'water:branch-sink') continue;
       expect(
-        removalCommandFor(project, 'ground', objectId),
+        removalCommandFor(project, levelId, objectId),
         objectId,
       ).toBeDefined();
     }
   });
 
   it('applies those deletions on objects nothing else depends on', () => {
-    for (const objectId of [
-      'wall-partition-v',
-      'opening-entry',
-      'slab-ground',
-      'roof-south',
-      'water:sink',
-    ]) {
+    for (const [objectId, levelId] of [
+      ['wall-partition-v', 'ground'],
+      ['opening-entry', 'ground'],
+      ['slab-ground', 'ground'],
+      // The southern pitch carries the photovoltaic array; the northern one
+      // carries nothing.
+      ['roof-north', 'first'],
+      ['water:sink', 'ground'],
+    ] as const) {
       const project = demo();
-      const command = removalCommandFor(project, 'ground', objectId)!;
+      const command = removalCommandFor(project, levelId, objectId)!;
       const dispatcher = new ProjectCommandDispatcher(project);
       expect(dispatcher.dispatch(command).status, objectId).toBe('APPLIED');
     }
@@ -235,15 +238,15 @@ describe('taking an object back off the plan', () => {
 describe('measuring an object without drawing it', () => {
   it('measures every family that stands somewhere on the plan', () => {
     const project = demo();
-    for (const objectId of [
-      'wall-south',
-      'opening-entry',
-      'space-living',
-      'slab-ground',
-      'roof-south',
-      'water:sink',
-    ]) {
-      const bounds = boundsOf(project, 'ground', objectId);
+    for (const [objectId, levelId] of [
+      ['wall-south', 'ground'],
+      ['opening-entry', 'ground'],
+      ['space-living', 'ground'],
+      ['slab-ground', 'ground'],
+      ['roof-south', 'first'],
+      ['water:sink', 'ground'],
+    ] as const) {
+      const bounds = boundsOf(project, levelId, objectId);
       expect(bounds, objectId).toBeDefined();
       if (bounds === undefined) continue;
       expect(bounds.max.x, objectId).toBeGreaterThanOrEqual(bounds.min.x);

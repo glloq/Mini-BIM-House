@@ -87,7 +87,10 @@ export function productPhysicalProperties(
   const width = number('widthMm');
   const height = number('heightMm');
   const section = number('sectionMm2');
-  const material = product.properties.material;
+  // A tube names what it is made of « material »; a cable names its conductor
+  // « conductor ». Both answer the same question, and reading only the first
+  // left every cable in the catalogue saying nothing about its copper.
+  const material = product.properties.material ?? product.properties.conductor;
   return {
     ...(inner === undefined
       ? {}

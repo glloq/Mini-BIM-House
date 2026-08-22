@@ -1168,6 +1168,149 @@ function sitePrimitives(project: Project): readonly PrimitiveDraft[] {
   return drafts;
 }
 
+/**
+ * Where the sections are cut and the façades are looked from, on the plan.
+ *
+ * A drawing set can hold a section and the plan would not say where it passes.
+ * A reader holding both sheets had to guess, and a reader holding only the plan
+ * did not know the section existed. The mark is derived from the view — it is
+ * not a second place where the cut is decided — so moving the cut moves the
+ * mark.
+ */
+function viewMarkPrimitives(project: Project): readonly PrimitiveDraft[] {
+  // A mark carries no `sourceObjectId`: it is the plan saying that a drawing
+  // exists, not an object of the plan. Making it selectable would put a piece
+  // of the drawing set under the pointer, between the wall and the room it
+  // separates.
+  const drafts: PrimitiveDraft[] = [];
+  const footprint = project.building.levels.flatMap(({ walls }) =>
+    walls.flatMap(({ path }) => path.points),
+  );
+  for (const view of project.drawingViews ?? []) {
+    if (view.type === 'SECTION' && view.cut !== undefined) {
+      const { start, end } = view.cut;
+      drafts.push({
+        id: `view-mark:${view.id}`,
+        semanticRole: 'ANNOTATION',
+        geometry: {
+          kind: 'POLYLINE',
+          polyline: { points: [start, end], closed: false },
+        },
+        layer: 'annotation.view-marks',
+        zIndex: 60,
+        discipline: 'ARCHITECTURE',
+        metadata: { name: view.name, type: view.type },
+      });
+      // Which way the section looks, drawn at both ends the way a section mark
+      // is: the arrows point behind the cut, where the drawing looks.
+      const dx = end.x - start.x;
+      const dy = end.y - start.y;
+      const length = Math.hypot(dx, dy);
+      if (length > 0) {
+        const look = { x: -dy / length, y: dx / length };
+        const reach = Math.max(600, length / 12);
+        for (const [index, at] of [start, end].entries())
+          drafts.push({
+            id: `view-mark-arrow:${view.id}:${index}`,
+            semanticRole: 'ANNOTATION',
+            geometry: {
+              kind: 'POLYLINE',
+              polyline: {
+                points: [
+                  at,
+                  { x: at.x + look.x * reach, y: at.y + look.y * reach },
+                ],
+                closed: false,
+              },
+            },
+            layer: 'annotation.view-marks',
+            zIndex: 60,
+            discipline: 'ARCHITECTURE',
+          });
+        drafts.push({
+          id: `view-mark-label:${view.id}`,
+          semanticRole: 'ANNOTATION',
+          geometry: {
+            kind: 'TEXT',
+            anchor: { x: start.x, y: start.y },
+            text: view.name,
+          },
+          layer: 'annotation.view-marks',
+          zIndex: 61,
+          discipline: 'ARCHITECTURE',
+        });
+      }
+      continue;
+    }
+    if (view.type !== 'ELEVATION' || view.viewDirectionDeg === undefined)
+      continue;
+    // A façade is looked at from outside; the mark stands clear of the house
+    // and points the way the drawing looks.
+    if (footprint.length === 0) continue;
+    const centre = {
+      x:
+        (Math.min(...footprint.map(({ x }) => x)) +
+          Math.max(...footprint.map(({ x }) => x))) /
+        2,
+      y:
+        (Math.min(...footprint.map(({ y }) => y)) +
+          Math.max(...footprint.map(({ y }) => y))) /
+        2,
+    };
+    const span = Math.max(
+      Math.max(...footprint.map(({ x }) => x)) -
+        Math.min(...footprint.map(({ x }) => x)),
+      Math.max(...footprint.map(({ y }) => y)) -
+        Math.min(...footprint.map(({ y }) => y)),
+    );
+    const radians = (view.viewDirectionDeg * Math.PI) / 180;
+    const stand = {
+      x: centre.x - Math.cos(radians) * (span * 0.75),
+      y: centre.y - Math.sin(radians) * (span * 0.75),
+    };
+    drafts.push(
+      {
+        id: `view-mark:${view.id}`,
+        semanticRole: 'ANNOTATION',
+        geometry: {
+          kind: 'POLYLINE',
+          polyline: {
+            points: [
+              stand,
+              {
+                x: stand.x + Math.cos(radians) * (span / 8),
+                y: stand.y + Math.sin(radians) * (span / 8),
+              },
+            ],
+            closed: false,
+          },
+        },
+        layer: 'annotation.view-marks',
+        zIndex: 60,
+        discipline: 'ARCHITECTURE',
+        metadata: {
+          name: view.name,
+          type: view.type,
+          azimuthDeg: view.viewDirectionDeg,
+        },
+      },
+      {
+        id: `view-mark-label:${view.id}`,
+        semanticRole: 'ANNOTATION',
+        geometry: {
+          kind: 'TEXT',
+          anchor: stand,
+          text: view.name,
+        },
+        layer: 'annotation.view-marks',
+        zIndex: 61,
+        discipline: 'ARCHITECTURE',
+      },
+    );
+  }
+  return drafts;
+}
+
 function slabAndRoofPrimitives(level: Level): readonly PrimitiveDraft[] {
   return [
     ...level.slabs.map((slab) => ({
@@ -1289,6 +1432,7 @@ export function buildPlanView(
     drafts.push(...structurePrimitives(level));
   }
   drafts.push(...sitePrimitives(project));
+  drafts.push(...viewMarkPrimitives(project));
   for (const network of project.systems ?? [])
     drafts.push(...networkPrimitives(network, level?.id));
 

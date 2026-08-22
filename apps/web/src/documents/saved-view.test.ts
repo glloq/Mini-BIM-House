@@ -94,9 +94,26 @@ describe('a saved view reopened', () => {
     expect(restored.unresolved.join(' ')).toContain('thermal-clairvoyance');
   });
 
-  it('says a section is not a plan rather than opening a plan silently', () => {
+  it('reopens a section as a section, not as a plan wearing its name', () => {
+    const restored = restoredView(
+      project(),
+      view({
+        type: 'SECTION',
+        cut: { start: { x: 0, y: 2000 }, end: { x: 12_000, y: 2000 } },
+      }),
+    );
+    expect(restored.type).toBe('SECTION');
+    expect(restored.unresolved).toEqual([]);
+  });
+
+  it('says a section that lost its line cannot be cut anywhere', () => {
     const restored = restoredView(project(), view({ type: 'SECTION' }));
-    expect(restored.unresolved.join(' ')).toContain('SECTION');
+    expect(restored.unresolved.join(' ')).toContain('ligne de coupe');
+  });
+
+  it('says a façade that does not say where it looks from', () => {
+    const restored = restoredView(project(), view({ type: 'ELEVATION' }));
+    expect(restored.unresolved.join(' ')).toContain('direction du regard');
   });
 
   it('names a graphic profile it does not hold', () => {

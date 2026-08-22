@@ -51,7 +51,10 @@ import {
   safeFileStem,
   summarizeProject,
 } from './project-workspace.js';
-import { demoClimateDatasets, loadDemoProject } from './demo-project.js';
+// The demonstration house and its two climate datasets are a hundred kilobytes
+// of JSON behind one button. Loading them with the application would put a
+// demonstration in the way of opening one's own project.
+const demoProject = () => import('./demo-project.js');
 import { PlanCanvas } from './editor/PlanCanvas.js';
 import { ClearanceControl } from './editor/ClearanceControl.js';
 import { clearanceReport } from '@house-technical-designer/core-domain';
@@ -80,6 +83,10 @@ import {
   restoredView,
   scaleDenominatorForZoom,
 } from './documents/saved-view.js';
+import {
+  capturedView,
+  type ViewCaptureKind,
+} from './documents/view-capture.js';
 import {
   boundsOf,
   capabilitiesOf,
@@ -1287,12 +1294,12 @@ function App() {
    * reopened after a wall moved shows the wall where it is now.
    */
   const captureView = useCallback(
-    (name: string) => {
+    (name: string, kind: ViewCaptureKind) => {
       const levelId = activeLevelId as SavedDrawingView['levelId'] | undefined;
-      const view: SavedDrawingView = {
+      const view = capturedView(session.current.file.project, {
         id: `view-${crypto.randomUUID()}`,
-        type: 'PLAN',
         name,
+        kind,
         ...(levelId === undefined ? {} : { levelId }),
         // A drawing at 1:1 puts one model millimetre on one paper
         // millimetre, and a CSS pixel is 1/96 inch: the denominator is how
@@ -1302,7 +1309,7 @@ function App() {
         graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
         centreMm: editor.camera.centerModelMm,
         ...(overlayId === 'none' ? {} : { analysisOverlayId: overlayId }),
-      };
+      });
       if (runCommand(new SaveDrawingViewCommand(view)))
         setMessage(`Vue « ${name} » enregistrée.`);
     },
@@ -1863,13 +1870,17 @@ function App() {
             className="secondary"
             onClick={() =>
               replaceProject('Maison de démonstration', () => {
-                const demo = loadDemoProject();
-                if (demo.status === 'ERROR') {
-                  setMessage(demo.message);
-                  return;
-                }
-                setClimate(demoClimateDatasets());
-                adopt(demo.file, 'Maison de démonstration chargée.');
+                void (async () => {
+                  const { demoClimateDatasets, loadDemoProject } =
+                    await demoProject();
+                  const demo = loadDemoProject();
+                  if (demo.status === 'ERROR') {
+                    setMessage(demo.message);
+                    return;
+                  }
+                  setClimate(demoClimateDatasets());
+                  adopt(demo.file, 'Maison de démonstration chargée.');
+                })();
               })
             }
           >

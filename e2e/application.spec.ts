@@ -1707,6 +1707,33 @@ test('gathers what the project does not resolve and offers to fix it', async ({
   ).toBeVisible();
 });
 
+test('puts what the house needs beside what is standing in it', async ({
+  page,
+}) => {
+  // The heating load and the count of heat generators were both computed and
+  // never compared. What was missing was not a number, it was the sentence.
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Calculs', exact: true }).click();
+  await expect(page.locator('.module-header')).toHaveCount(17);
+
+  await page.getByRole('button', { name: 'Vérifications' }).click();
+  const findings = page.locator('.alert-list li');
+  await expect(findings.first()).toBeVisible();
+  // The reference house computes a heating load and holds no generator: not
+  // « non conforme », not silence — « je ne peux pas savoir », with the figure.
+  const heating = findings.filter({ hasText: 'aucun générateur posé' });
+  await expect(heating).toHaveCount(1);
+  await expect(heating).toContainText('kW');
+  // And its ventilation unit is smaller than the sum of its extract terminals.
+  await expect(
+    findings.filter({ hasText: 'ne tient pas les bouches' }),
+  ).toHaveCount(1);
+  // Nothing here claims compliance; that is a rule pack's business.
+  await expect(page.locator('.library-panel')).not.toContainText(
+    'est conforme',
+  );
+});
+
 test('offers only reference sides the model accepts', async ({ page }) => {
   await loadDemo(page);
   const canvas = page.locator('.plan-canvas');
@@ -1931,6 +1958,28 @@ test('keeps a scenario selected after deleting another one', async ({
   await expect(page.locator('h3')).toContainText('Modifications de');
 });
 
+test('takes the price of a product by the metre and of a model by the unit', async ({
+  page,
+}) => {
+  // A house's whole plumbing, wiring and equipment had prices the interface
+  // could not take: the screen knew one table, and it was per cubic metre.
+  await loadDemo(page);
+  await page.getByRole('button', { name: 'Projet', exact: true }).click();
+  await page.getByLabel('Module', { exact: true }).selectOption('cost');
+  await expect(
+    page.getByRole('columnheader', { name: 'Produit réseau' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('columnheader', { name: 'Modèle d’équipement' }),
+  ).toBeVisible();
+  // And a line per product the project actually names.
+  const field = page.getByLabel('Prix du produit — Câble cuivre 3G1,5');
+  await expect(field).toBeVisible();
+  await field.fill('1.4');
+  await field.blur();
+  await expect(page.getByRole('status')).toContainText('appliqué');
+});
+
 test('never offers to fix a value the settings screen cannot take', async ({
   page,
 }) => {
@@ -2077,17 +2126,22 @@ test('offers the objects stacked under one point, one after the other', async ({
 
   const title = page.locator('.inspector-subject h3');
   const seen: string[] = [];
-  for (let click = 0; click < 4; click += 1) {
+  // Click until the first one comes round again: what is stacked under a point
+  // depends on the house, and the rule under test is the cycling, not the
+  // number.
+  for (let click = 0; click < 12; click += 1) {
     await canvas.click({ position: stacked });
     await expect(title).toBeVisible();
-    seen.push((await title.textContent()) ?? '');
+    const shown = (await title.textContent()) ?? '';
+    if (click > 0 && shown === seen[0]) break;
+    seen.push(shown);
   }
-  // Each click offers the next one rather than the same one for ever.
+  // Each click offers the next one rather than the same one for ever, and the
+  // wall whose middle was avoided is the first.
   expect(seen[0]).toContain('wall-partition-h');
-  expect(new Set(seen).size).toBe(4);
-
+  expect(seen.length).toBeGreaterThan(3);
+  expect(new Set(seen).size).toBe(seen.length);
   // And round again, so nothing under the pointer is out of reach.
-  await canvas.click({ position: stacked });
   await expect(title).toHaveText(seen[0] ?? '');
   expect(errors).toEqual([]);
 });
@@ -2287,6 +2341,27 @@ test('colours the networks with what their own engines computed', async ({
   expect(errors).toEqual([]);
 });
 
+test('colours a room by what it needs, gets and breathes', async ({ page }) => {
+  // The heating load of a room, its illuminance and its CO₂ were all computed
+  // and only ever read in a table.
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const overlay = page.getByLabel('Superposition');
+  const legend = page.locator('.overlay-legend');
+  for (const [id, title] of [
+    ['heating-room-power', 'Puissance de chauffage par pièce'],
+    ['lighting-illuminance', 'Éclairement moyen'],
+    ['iaq-co2', 'Concentration maximale en CO₂'],
+  ] as const) {
+    await overlay.selectOption(id);
+    await expect(legend).toBeVisible({ timeout: 15_000 });
+    await expect(legend).toContainText(title);
+    // A room is a surface, and a surface is coloured like a wall is.
+    await expect(page.locator(`[id^="overlay:${id}:"]`)).not.toHaveCount(0);
+  }
+  expect(errors).toEqual([]);
+});
+
 test('keeps a view, lays it on a sheet and draws the sheet', async ({
   page,
 }) => {
@@ -2300,39 +2375,90 @@ test('keeps a view, lays it on a sheet and draws the sheet', async ({
   ).toBeVisible();
 
   await page.getByLabel('Nom de la vue').fill('Plan RDC');
-  await page
-    .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
-    .click();
+  await page.getByRole('button', { name: 'Enregistrer cette vue' }).click();
   await expect(page.getByRole('status')).toContainText('enregistrée');
 
   await page.getByLabel('Titre de la feuille').fill('Plan du rez-de-chaussée');
   await page.getByLabel('Format de la nouvelle feuille').selectOption('A3');
   await page.getByRole('button', { name: 'Ajouter une feuille' }).click();
+  // The reference house already carries a drawing set, so the sheet this test
+  // adds follows it rather than being the first.
   await expect(
-    page.getByRole('cell', { name: 'A-001', exact: true }),
+    page.getByRole('cell', { name: 'A-002', exact: true }),
   ).toBeVisible();
 
   // The sheet is drawn from the model, not from a picture kept aside.
   await page
     .getByRole('row')
-    .filter({ hasText: 'A-001' })
+    .filter({ hasText: 'A-002' })
     .getByRole('button', { name: 'Aperçu' })
     .click();
   const preview = page.locator('.sheet-preview svg').first();
   await expect(preview).toBeVisible();
   await expect(preview).toHaveAttribute('data-sheet-id', /sheet-/);
   // The title block says what the project says, and marks what it cannot say.
-  await expect(page.locator('.sheet-preview')).toContainText('A-001');
+  await expect(page.locator('.sheet-preview')).toContainText('A-002');
   await expect(page.locator('.sheet-preview')).toContainText('inconnu');
 
-  // A view a sheet still lays out cannot be taken away.
+  // A view a sheet still lays out cannot be taken away. A new sheet lays out
+  // the first view of the set, which in the reference house is its own plan of
+  // the ground floor.
   const views = page.getByRole('region', { name: 'Vues enregistrées' });
   await views
     .getByRole('row')
-    .filter({ hasText: 'Plan RDC' })
+    .filter({ hasText: 'Plan du rez-de-chaussée' })
     .getByRole('button', { name: 'Supprimer' })
     .click();
-  await expect(page.getByRole('status')).toContainText('A-001');
+  await expect(page.getByRole('status')).toContainText('A-002');
+  expect(errors).toEqual([]);
+});
+
+test('keeps a section, a façade, a roof plan and a site plan', async ({
+  page,
+}) => {
+  // The drawing set held four kinds of view the application could not draw:
+  // opening one gave a plan of a storey wearing the section's name.
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await page
+    .getByRole('button', { name: 'Vues et feuilles', exact: true })
+    .click();
+
+  for (const [kind, name] of [
+    ['Coupe', 'Coupe BB'],
+    ['Façade', 'Façade nord'],
+    ['Plan de toiture', 'Toiture BB'],
+    ['Plan de masse', 'Masse BB'],
+  ] as const) {
+    await page.getByLabel('Type de vue').selectOption({ label: kind });
+    await page.getByLabel('Nom de la vue').fill(name);
+    await page.getByRole('button', { name: 'Enregistrer cette vue' }).click();
+    await expect(page.getByRole('status')).toContainText(name);
+  }
+
+  const views = page.getByRole('region', { name: 'Vues enregistrées' });
+  for (const [name, type] of [
+    ['Coupe BB', 'SECTION'],
+    ['Façade nord', 'ELEVATION'],
+    ['Toiture BB', 'ROOF'],
+    ['Masse BB', 'SITE'],
+  ] as const)
+    await expect(
+      views.getByRole('row').filter({ hasText: name }).getByRole('cell', {
+        name: type,
+      }),
+    ).toBeVisible();
+
+  // Opening a section shows the section, drawn from the model.
+  await views
+    .getByRole('row')
+    .filter({ hasText: 'Coupe BB' })
+    .getByRole('button', { name: 'Ouvrir' })
+    .click();
+  const drawing = page.locator('.sheet-preview svg').first();
+  await expect(drawing).toBeVisible();
+  // A section stands on its storey: it carries the cut walls a plan has not.
+  await expect(drawing.locator('[data-role="WALL_CUT"]').first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -2347,9 +2473,7 @@ test('lays two views at two scales on one sheet', async ({ page }) => {
   // ordinary case of a drawing set, and it could not be expressed at all.
   for (const name of ['Plan RDC', 'Plan masse']) {
     await page.getByLabel('Nom de la vue').fill(name);
-    await page
-      .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
-      .click();
+    await page.getByRole('button', { name: 'Enregistrer cette vue' }).click();
     await expect(page.getByRole('status')).toContainText('enregistrée');
   }
 
@@ -2360,18 +2484,18 @@ test('lays two views at two scales on one sheet', async ({ page }) => {
     .selectOption('PORTRAIT');
   await page.getByRole('button', { name: 'Ajouter une feuille' }).click();
 
-  const row = page.getByRole('row').filter({ hasText: 'A-001' });
+  const row = page.getByRole('row').filter({ hasText: 'A-002' });
   await row.getByRole('button', { name: 'Ajouter une vue' }).click();
   await row
-    .getByRole('combobox', { name: 'Vue 2 de la feuille A-001' })
+    .getByRole('combobox', { name: 'Vue 2 de la feuille A-002' })
     .selectOption({ label: 'Plan masse' });
   await row
     .getByRole('spinbutton', {
-      name: 'Échelle de la vue 2 de la feuille A-001',
+      name: 'Échelle de la vue 2 de la feuille A-002',
     })
     .fill('200');
   await row
-    .getByRole('textbox', { name: 'Indice de la feuille A-001' })
+    .getByRole('textbox', { name: 'Indice de la feuille A-002' })
     .fill('B');
 
   // Two frames on the paper, and the title block carries the revision.
@@ -2383,7 +2507,7 @@ test('lays two views at two scales on one sheet', async ({ page }) => {
 
   // Turning the paper relays the frames rather than leaving them off it.
   await row
-    .getByRole('combobox', { name: 'Orientation de la feuille A-001' })
+    .getByRole('combobox', { name: 'Orientation de la feuille A-002' })
     .selectOption('LANDSCAPE');
   await row.getByRole('button', { name: 'Aperçu' }).click();
   await expect(preview.locator('[data-viewport-id]')).toHaveCount(2);
@@ -2405,9 +2529,7 @@ test('reopens a saved view exactly as it was saved', async ({ page }) => {
     .getByRole('button', { name: 'Vues et feuilles', exact: true })
     .click();
   await page.getByLabel('Nom de la vue').fill('Sans les escaliers');
-  await page
-    .getByRole('button', { name: 'Enregistrer le plan tel qu’il est' })
-    .click();
+  await page.getByRole('button', { name: 'Enregistrer cette vue' }).click();
   await expect(page.getByRole('status')).toContainText('enregistrée');
 
   // The layer turned back on, and the view reopened. Restoring used to turn

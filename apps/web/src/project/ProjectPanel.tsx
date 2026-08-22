@@ -22,6 +22,8 @@ import {
   withField,
   withNumberChoice,
   withMaterialValue,
+  type SettingTableSource,
+  keyedTableRows,
 } from './settings-catalog.js';
 import { coverageDetail, moduleCoverage } from './climate-coverage.js';
 import {
@@ -30,6 +32,17 @@ import {
   enabledRulePackIds,
 } from '../checks/rule-packs.js';
 import { jurisdictionApplies } from '@house-technical-designer/rule-engine';
+
+/** The three lists a per-object setting can be filled in over. */
+const SETTING_TABLE_SOURCES = [
+  ['MATERIALS', 'Matériau', 'Ce projet ne contient aucun matériau.'],
+  [
+    'NETWORK_PRODUCTS',
+    'Produit réseau',
+    'Ce projet ne nomme aucun produit réseau.',
+  ],
+  ['EQUIPMENT', 'Modèle d’équipement', 'Ce projet ne contient aucun modèle.'],
+] as const satisfies readonly (readonly [SettingTableSource, string, string])[];
 
 export interface ProjectPanelProps {
   readonly project: Project;
@@ -122,7 +135,28 @@ export function ProjectPanel({
     setLatitude(coordinate(project.site.location?.latitudeDeg));
     setLongitude(coordinate(project.site.location?.longitudeDeg));
   }
-  const materials = project.materialLibrary?.materials ?? [];
+  /**
+   * The rows a per-object setting is filled in over.
+   *
+   * A price per cubic metre is asked material by material, a price per metre of
+   * run product by product, and a price per unit placed model by model. Three
+   * lists, one table.
+   */
+  const tableRows: Readonly<
+    Record<SettingTableSource, readonly { id: string; name: string }[]>
+  > = {
+    MATERIALS: (project.materialLibrary?.materials ?? []).map(
+      ({ id, name }) => ({ id, name }),
+    ),
+    NETWORK_PRODUCTS: (project.networkProducts ?? []).map(({ id, label }) => ({
+      id,
+      name: label,
+    })),
+    EQUIPMENT: (project.equipment ?? []).map((entry) => ({
+      id: entry.id,
+      name: entry.name ?? entry.id,
+    })),
+  };
   const descriptor =
     MODULE_SETTINGS.find((entry) => entry.moduleId === moduleId) ??
     MODULE_SETTINGS[0]!;
@@ -633,7 +667,7 @@ export function ProjectPanel({
               <p className="hint">
                 {table.label} <small>({table.unit})</small>
               </p>
-              {table.rows.map((row) => (
+              {keyedTableRows(table, project).map((row) => (
                 <TextField
                   key={row.key}
                   id={`setting-${table.key}-${row.key}`}
@@ -650,63 +684,62 @@ export function ProjectPanel({
             </div>
           ))}
 
-          {descriptor.materialTables !== undefined && (
-            <div className="table-scroll">
-              <table className="library-table">
-                <caption className="visually-hidden">
-                  Réglages saisis matériau par matériau
-                </caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Matériau</th>
-                    {descriptor.materialTables.map((table) => (
-                      <th key={table.key} scope="col">
-                        {table.label} <small>({table.unit})</small>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {materials.map((material) => (
-                    <tr key={material.id}>
-                      <th scope="row">{material.name}</th>
-                      {descriptor.materialTables!.map((table) => (
-                        <td key={table.key}>
-                          <TextField
-                            id={`setting-${table.key}-${material.id}`}
-                            label={`${table.label} — ${material.name}`}
-                            numeric
-                            value={materialValue(
-                              settings,
-                              table.key,
-                              material.id,
-                            )}
-                            onCommit={(value) =>
-                              writeSettings(
-                                withMaterialValue(
-                                  settings,
-                                  table.key,
-                                  material.id,
-                                  value,
-                                ),
-                              )
-                            }
-                          />
-                        </td>
+          {SETTING_TABLE_SOURCES.map(([source, heading, empty]) => {
+            const tables = (descriptor.objectTables ?? []).filter(
+              (table) => (table.source ?? 'MATERIALS') === source,
+            );
+            if (tables.length === 0) return undefined;
+            const rows = tableRows[source];
+            return (
+              <div className="table-scroll" key={source}>
+                <table className="library-table">
+                  <caption className="visually-hidden">{heading}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">{heading}</th>
+                      {tables.map((table) => (
+                        <th key={table.key} scope="col">
+                          {table.label} <small>({table.unit})</small>
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                  {materials.length === 0 && (
-                    <tr>
-                      <td colSpan={1 + descriptor.materialTables.length}>
-                        Ce projet ne contient aucun matériau.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {rows.map((row) => (
+                      <tr key={row.id}>
+                        <th scope="row">{row.name}</th>
+                        {tables.map((table) => (
+                          <td key={table.key}>
+                            <TextField
+                              id={`setting-${table.key}-${row.id}`}
+                              label={`${table.label} — ${row.name}`}
+                              numeric
+                              value={materialValue(settings, table.key, row.id)}
+                              onCommit={(value) =>
+                                writeSettings(
+                                  withMaterialValue(
+                                    settings,
+                                    table.key,
+                                    row.id,
+                                    value,
+                                  ),
+                                )
+                              }
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                    {rows.length === 0 && (
+                      <tr>
+                        <td colSpan={1 + tables.length}>{empty}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })}
           <p className="notice">
             Un champ vidé est retiré des réglages : le module signale alors une
             entrée manquante, plutôt que de calculer avec une valeur que

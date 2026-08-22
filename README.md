@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml/badge.svg)](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml)
 [![Licence AGPL-3.0-only](https://img.shields.io/badge/licence-AGPL--3.0--only-blue)](LICENSE)
-![Version 0.3.0-beta.3](https://img.shields.io/badge/version-0.3.0--beta.3-yellow)
+![Version 0.3.0-beta.4](https://img.shields.io/badge/version-0.3.0--beta.4-yellow)
 ![Statut bêta](https://img.shields.io/badge/statut-b%C3%AAta-yellow)
 
-> **Version 0.3.0-beta.3 — bêta.** L'application couvre le parcours complet et
+> **Version 0.3.0-beta.4 — bêta.** L'application couvre le parcours complet et
 > ses formats sont stabilisés ; l'interface peut encore bouger et plusieurs
 > sujets restent hors périmètre. Voir
 > [Ce que l'application ne fait pas](#ce-que-lapplication-ne-fait-pas), le
@@ -628,7 +628,7 @@ sans casser le noyau.
 
 # État du projet
 
-**Version 0.3.0-beta.3, bêta.** L'application couvre le parcours complet :
+**Version 0.3.0-beta.4, bêta.** L'application couvre le parcours complet :
 dessiner, composer, calculer, superposer, métrer, comparer, exporter. Ce qu'un
 fichier de projet promet d'une version à l'autre est écrit dans
 [`CHANGELOG.md`](CHANGELOG.md).
@@ -665,10 +665,20 @@ fichier de projet promet d'une version à l'autre est écrit dans
 - **Calculs** — dix-sept modules exécutés depuis l'interface, chacun affichant sa
   méthode, sa précision, ses hypothèses, ses références et ses entrées
   manquantes.
-- **Analyse** — les résultats se projettent sur le plan en bandes légendées.
+- **Analyse** — dix-huit résultats se projettent sur le plan en bandes
+  légendées : transmission et déperditions des parois, risque de condensation,
+  vitesse et pertes de charge de l'eau et des gaines, pente et unités de
+  décharge des collecteurs, chute de tension et puissance foisonnée par
+  circuit, puissance de chauffage par pièce et au mètre carré, éclairement,
+  puissance d'éclairage au mètre carré, CO₂ maximal et temps de réverbération.
 - **Vérifications** — ce que le modèle, les réseaux, les calculs et le métré ne
-  résolvent pas, rassemblé avec le chemin pour le corriger. Aucune conformité
-  réglementaire n'y est constatée.
+  résolvent pas, rassemblé avec le chemin pour le corriger, et ce qu'il faut mis
+  en regard de ce qui est posé : générateur contre demande de chauffage,
+  émetteur contre charge de la pièce, groupe de ventilation contre ses bouches,
+  courant foisonné contre calibre, onduleur contre champ photovoltaïque, ballon
+  contre stockage calculé, cuve contre besoins en eau de pluie. Chaque constat
+  porte les deux nombres qu'il compare. Aucune conformité réglementaire n'y est
+  constatée.
 - **Projet** — assistant de création qui demande ce qu'aucun calcul ne peut
   deviner, puis nom, auteur, site, orientation, localisation, contexte
   réglementaire, zones, jeux climatiques et réglages de calcul des dix-sept
@@ -677,13 +687,19 @@ fichier de projet promet d'une version à l'autre est écrit dans
   export CSV, avec les matériaux non valorisés signalés comme tels.
 - **Scénarios** — création, duplication et comparaison d'une variante au projet
   de base, sans dupliquer le projet, et promotion d'une variante en projet.
+- **Dossier de plans** — cinq sortes de vue dessinées à partir du modèle et
+  jamais enregistrées comme images : plan de niveau, coupe, façade, plan de
+  toiture et plan de masse. Une coupe retient la ligne où elle coupe, une
+  façade la direction d'où elle est vue, l'une et l'autre leur profondeur et
+  leur tranche de hauteur ; ces vues se posent sur les feuilles et s'exportent
+  comme les plans.
 - **Fichiers** — conteneur `.houseproj` transportant le projet et son climat,
   export JSON canonique et SVG, import validé, sauvegarde locale automatique
   dans IndexedDB et restauration proposée — jamais appliquée en silence.
 
 ## Ce que l'application ne fait pas
 
-Cette liste décrit la `0.3.0-beta.3` telle qu'elle est aujourd'hui, et rien
+Cette liste décrit la `0.3.0-beta.4` telle qu'elle est aujourd'hui, et rien
 d'autre : ce qui y figure n'existe pas encore dans l'application.
 
 - **Toitures sur contour quelconque** : une toiture est décrite par son
@@ -722,9 +738,9 @@ d'autre : ce qui y figure n'existe pas encore dans l'application.
   collée d'un niveau à l'autre, pivotée d'un quart de tour ou d'un angle tracé,
   retournée autour d'un axe tracé, décalée parallèlement, jointe, ajustée et
   alignée.
-- **Annotations** : la cotation et les notes de texte existent ; les étiquettes
-  associatives, les repères de coupe, les trames et les hachures paramétrées
-  restent hors périmètre.
+- **Annotations** : la cotation, les notes de texte et les repères de coupe et
+  de façade existent ; les étiquettes associatives, les trames et les hachures
+  paramétrées restent hors périmètre.
 - **Conformité réglementaire** : le moteur de règles et les Rule Packs
   existent ; l'espace Vérifications rassemble les constats du modèle et des
   calculs, mais aucun référentiel réglementaire n'est livré, et rien n'est

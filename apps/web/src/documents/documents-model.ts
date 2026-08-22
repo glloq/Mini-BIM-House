@@ -13,8 +13,9 @@ import {
   type RenderedViewport,
   type SheetDefinition,
   type SheetLayout,
+  graphicProfileBundle,
 } from '@house-technical-designer/drawing-engine';
-import { modelWindowOf, planOf, type PaperFrameMm } from './model-window.js';
+import { drawingOf, modelWindowOf, type PaperFrameMm } from './model-window.js';
 
 export { modelWindowOf, type PaperFrameMm };
 
@@ -104,18 +105,22 @@ export function renderViewToSvg(
   frameMm?: PaperFrameMm,
   scaleDenominator?: number,
 ): string {
-  const plan = planOf(
+  const plan = drawingOf(
     project,
     view,
     frameMm === undefined
       ? undefined
       : modelWindowOf(project, view, frameMm, scaleDenominator),
   );
+  // The charter the view chose, and the generic one only when the view chose
+  // something this version does not ship.
+  const charter =
+    graphicProfileBundle(view.graphicProfileId) ?? GENERIC_TECHNICAL_SCREEN;
   return renderSemanticSceneToSvg(
     plan.scene,
     plan.view,
-    GENERIC_TECHNICAL_SCREEN.profile,
-    GENERIC_TECHNICAL_SCREEN.styles,
+    charter.profile,
+    charter.styles,
     { includeSemanticGroups: true },
   );
 }

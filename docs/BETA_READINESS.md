@@ -1,7 +1,7 @@
 # État de préparation à la bêta
 
 Ce fichier ne raconte pas l'histoire du projet : il dit où en est la version
-`0.3.0-beta.3` aujourd'hui. L'historique des passes d'audit et de leurs
+`0.3.0-beta.4` aujourd'hui. L'historique des passes d'audit et de leurs
 correctifs reste dans `IMPLEMENTATION_STATUS.md`, et ce qui a changé d'une
 version à l'autre dans `../CHANGELOG.md`.
 
@@ -187,10 +187,42 @@ complète, congés et chanfreins, contraintes paramétriques avancées,
 collaboration en ligne, édition tactile complète sur téléphone. Les Web Workers
 ne seront ajoutés que si les mesures de performance l'exigent.
 
+Le dossier de plans non plus n'est plus reporté : la coupe, la façade, le plan
+de toiture et le plan de masse sont dessinés à partir du modèle, et une coupe
+porte la ligne où elle coupe.
+
 Le remaniement CAO courant, lui, n'est plus reporté : déplacer, dupliquer,
 copier-coller entre niveaux, pivoter, retourner, décaler, joindre, ajuster,
 aligner et scinder à l'endroit désigné existent, avec la saisie de la longueur
 et de l'angle près du curseur et les cotes éditables sur le dessin.
+
+## Périmètre de la 1.0, arrêté
+
+Une liste de ce qui est hors périmètre n'a de valeur que si elle est arrêtée :
+tant qu'elle peut s'allonger, elle ne dit pas ce que la 1.0 sera, elle dit ce
+qu'elle n'est pas encore. Voici donc ce que la 1.0 **ne fera pas**, décidé et
+non reporté d'une passe à l'autre :
+
+- **PDF vectoriel** — les feuilles s'exportent en PDF multipage, chaque page
+  étant une image à l'échelle. Convertir le SVG en tracés PDF reviendrait à
+  écrire un second moteur de dessin ;
+- **DXF et IFC** — ni import ni export. Un IFC partiel est pire qu'aucun IFC :
+  il se donne pour un échange et n'en est pas un ;
+- **murs courbes et raccords visuels L/T/X** ;
+- **simulation thermique dynamique** — les modules sont en régime permanent et
+  le disent ; un moteur horaire est un autre produit ;
+- **calcul de structure et géotechnique** — les poteaux et les poutres sont
+  dessinés, décrits et métrés ; rien n'est dimensionné ;
+- **collaboration en ligne** — l'application est locale, le fichier est le
+  document, et il n'y a pas de serveur ;
+- **conformité réglementaire affirmée** — le moteur de règles et les Rule Packs
+  existent, et aucun référentiel national n'est livré. L'application rapporte
+  des constats ; elle ne délivre pas de conformité.
+
+Ce qui reste à faire pour la 1.0 est donc borné : remplir les catalogues,
+finir les Rule Packs, les toitures sur contour quelconque, un service de calcul
+persistant avec invalidation sélective, et le format d'import de données
+fabricant.
 
 ## Contrat fonctionnel de la bêta
 

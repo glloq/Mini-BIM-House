@@ -2087,41 +2087,33 @@ export const costAdapter: CalculationModule = {
   },
   calculate(input) {
     const data = record(input)!;
-    const prices = numberRecord(data.unitPriceByMaterial);
-    const waste = numberRecord(data.wasteFactorByMaterial);
-    const labour = numberRecord(data.labourPriceByMaterial);
     const labourDeclared = data.labourDeclared === true;
     const currency = string(data.currency) ?? 'EUR';
-    const lines = rows(data.quantities);
-    const priced = lines.filter(
-      (line) => prices[string(line.materialId) ?? ''] !== undefined,
-    );
-    const warnings = lines
-      .filter((line) => !priced.includes(line))
-      .map((line) =>
-        missingWarning(
-          'COST_MISSING_PRICE',
-          `No unit price is declared for material ${string(line.materialId) ?? '?'}.`,
-          [string(line.sourceEntityId) ?? ''],
-        ),
-      );
+    // What each line is priced by was settled upstream: a wall by its material
+    // per cubic metre, a run by its product per metre, a placed thing by its
+    // model, each. Here there is one table and one lookup.
+    const unitPrice = numberRecord(data.unitPriceByKey);
+    const labourPrice = numberRecord(data.labourPriceByKey);
+    const wasteFactors = numberRecord(data.wasteFactorByKey);
+    const priced = rows(data.quantities);
+    const warnings: CalculationWarning[] = [];
     const result = calculateCostEstimate(
       priced.map((line) => ({
         itemId: string(line.itemId)!,
         sourceEntityId: string(line.sourceEntityId)!,
         value: number(line.value)!,
         unit: string(line.unit) as 'm3',
-        lot: 'ENVELOPE' as const,
+        lot: (string(line.lot) ?? 'OTHER') as 'ENVELOPE',
       })),
       priced.map((line) => {
-        const materialId = string(line.materialId)!;
-        const wasteFactor = waste[materialId];
+        const key = string(line.priceKey)!;
+        const wasteFactor = wasteFactors[key];
         return {
           itemId: string(line.itemId)!,
-          materialPricePerUnit: prices[materialId]!,
+          materialPricePerUnit: unitPrice[key]!,
           // The engine requires both components explicitly; an undeclared labour
           // price is passed as zero and reported as an excluded scope.
-          laborPricePerUnit: labour[materialId] ?? 0,
+          laborPricePerUnit: labourPrice[key] ?? 0,
           currency,
           priceUnit: string(line.unit) as 'm3',
           ...(wasteFactor === undefined ? {} : { wasteFactor }),

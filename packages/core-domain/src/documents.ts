@@ -40,6 +40,35 @@ export interface SavedDrawingView {
   /** Where the view is centred, when it states a framing of its own. */
   readonly centreMm?: Point2D;
   readonly analysisOverlayId?: string;
+  /**
+   * Where the section is cut, for a view that cuts.
+   *
+   * A section without its line is a section nobody can reopen. The type said
+   * « coupe » and the file said nothing else, so the only honest thing the
+   * application could do was draw a plan and admit it.
+   */
+  readonly cut?: SectionLine;
+  /**
+   * Which way a façade is looked at: counter-clockwise from east, like every
+   * other azimuth in this model.
+   */
+  readonly viewDirectionDeg?: number;
+  /** How far behind the cut, or into the house, the drawing looks. */
+  readonly viewDepthMm?: number;
+  /** The slice of height the drawing keeps, when it keeps one. */
+  readonly verticalRangeMm?: VerticalRangeMm;
+}
+
+/** The two ends of a cut, in model millimetres. */
+export interface SectionLine {
+  readonly start: Point2D;
+  readonly end: Point2D;
+}
+
+/** A band of height, measured from the project's zero. */
+export interface VerticalRangeMm {
+  readonly minMm: number;
+  readonly maxMm: number;
 }
 
 export type SheetFormat = 'A4' | 'A3' | 'A2' | 'A1' | 'A0';
@@ -102,6 +131,46 @@ export function validateDrawingView(view: SavedDrawingView): readonly string[] {
     issues.push('scaleDenominator must be a whole number greater than zero');
   if (view.graphicProfileId.trim() === '')
     issues.push('graphicProfileId must not be empty');
+  // A section says where it cuts and a façade says which way it looks, because
+  // neither can be redrawn from the type alone. Everything else about the view
+  // is derived from the model; these two are decisions, and a decision the file
+  // does not carry is a decision lost.
+  if (view.type === 'SECTION' && view.cut === undefined)
+    issues.push('a SECTION view must carry the line it is cut along');
+  if (view.cut !== undefined) {
+    for (const [name, point] of [
+      ['start', view.cut.start],
+      ['end', view.cut.end],
+    ] as const)
+      if (!Number.isFinite(point.x) || !Number.isFinite(point.y))
+        issues.push(`cut.${name} must be a finite point`);
+    if (
+      view.cut.start.x === view.cut.end.x &&
+      view.cut.start.y === view.cut.end.y
+    )
+      issues.push('cut must have two distinct ends');
+  }
+  if (view.type === 'ELEVATION' && view.viewDirectionDeg === undefined)
+    issues.push('an ELEVATION view must carry the direction it is seen from');
+  if (
+    view.viewDirectionDeg !== undefined &&
+    !Number.isFinite(view.viewDirectionDeg)
+  )
+    issues.push('viewDirectionDeg must be finite');
+  if (
+    view.viewDepthMm !== undefined &&
+    (!Number.isFinite(view.viewDepthMm) || view.viewDepthMm <= 0)
+  )
+    issues.push('viewDepthMm must be a finite length greater than zero');
+  if (view.verticalRangeMm !== undefined) {
+    const { minMm, maxMm } = view.verticalRangeMm;
+    if (!Number.isFinite(minMm) || !Number.isFinite(maxMm))
+      issues.push('verticalRangeMm must be finite');
+    else if (maxMm <= minMm)
+      issues.push(
+        'verticalRangeMm must go from a lower height to a higher one',
+      );
+  }
   return issues;
 }
 

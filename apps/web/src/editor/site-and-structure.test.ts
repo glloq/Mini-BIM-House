@@ -66,7 +66,10 @@ describe('the ground the house sits on', () => {
         'obstacle-tree',
       ),
     );
-    const obstacle = (dispatcher.project.site.obstacles ?? [])[0]!;
+    // The one this test planted, among the ones already on the plot.
+    const obstacle = (dispatcher.project.site.obstacles ?? []).find(
+      ({ id }) => id === 'obstacle-tree',
+    )!;
     expect(obstacle.kind).toBe('TREE');
     expect(obstacle.heightMm).toBe(8000);
     expect(obstacle.name).toBe('Tilleul');
@@ -79,12 +82,14 @@ describe('the ground the house sits on', () => {
       addSiteOutlineCommand(
         PARCEL,
         { target: 'OBSTACLE', kind: 'BUILDING' },
-        'obstacle-neighbour',
+        'obstacle-neighbour-two',
       ),
     );
-    const obstacle = (dispatcher.project.site.obstacles ?? [])[0]!;
+    const obstacle = (dispatcher.project.site.obstacles ?? []).find(
+      ({ id }) => id === 'obstacle-neighbour-two',
+    )!;
     expect(obstacle.heightMm).toBeUndefined();
-    const subject = inspectObject(dispatcher.project, 'obstacle-neighbour');
+    const subject = inspectObject(dispatcher.project, 'obstacle-neighbour-two');
     const height = subject.sections
       .flatMap(({ fields }) => fields)
       .find(({ label }) => label === 'Hauteur')!;

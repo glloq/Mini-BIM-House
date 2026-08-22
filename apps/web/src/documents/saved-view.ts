@@ -3,7 +3,10 @@ import type {
   SavedDrawingView,
 } from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
-import { GENERIC_TECHNICAL_SCREEN } from '@house-technical-designer/drawing-engine';
+import {
+  GENERIC_TECHNICAL_SCREEN,
+  graphicProfileBundle,
+} from '@house-technical-designer/drawing-engine';
 import { defaultVisibility } from '@house-technical-designer/view-query';
 import {
   overlayOption,
@@ -46,12 +49,15 @@ export function scaleDenominatorForZoom(pixelsPerMm: number): number {
  * that says what it lost.
  */
 export interface RestoredView {
+  readonly type: SavedDrawingView['type'];
   readonly levelId?: string;
   /** Every layer, on or off, exactly as the view had them. */
   readonly layers: Readonly<Record<string, boolean>>;
   readonly centreMm: Point2D;
   readonly pixelsPerMm: number;
   readonly overlayId: OverlayId;
+  /** The charter the drawing is rendered under. */
+  readonly graphicProfileId: string;
   /** What the view asked for and the project can no longer give. */
   readonly unresolved: readonly string[];
 }
@@ -71,15 +77,20 @@ export function restoredView(
       `le niveau ${view.levelId}, qui n’est plus dans le projet — le plan reste sur le niveau courant`,
     );
 
-  // A view is drawn by the plan, and the plan draws plans. The other kinds are
-  // kept in the file — a section is a decision worth keeping — and saying so is
-  // what keeps « ouvrir la vue » from silently opening a plan instead.
-  if (view.type !== 'PLAN')
+  // Every kind of view is drawn now. What a kind still cannot say is named:
+  // a section without its line cannot be cut anywhere, and a façade without a
+  // direction is not a façade of anything.
+  if (view.type === 'SECTION' && view.cut === undefined)
     unresolved.push(
-      `le type ${view.type}, que le plan ne dessine pas encore — seuls le niveau, les calques et le cadrage sont rétablis`,
+      'la ligne de coupe, que cette vue ne porte pas — la coupe s’ouvre vide',
+    );
+  if (view.type === 'ELEVATION' && view.viewDirectionDeg === undefined)
+    unresolved.push(
+      'la direction du regard, que cette façade ne porte pas — la façade s’ouvre vide',
     );
 
-  if (view.graphicProfileId !== GENERIC_TECHNICAL_SCREEN.profile.id)
+  const charter = graphicProfileBundle(view.graphicProfileId);
+  if (charter === undefined)
     unresolved.push(
       `la charte graphique ${view.graphicProfileId}, que cette version ne connaît pas`,
     );
@@ -94,6 +105,7 @@ export function restoredView(
     );
 
   return {
+    type: view.type,
     ...(level === undefined ? {} : { levelId: level.id }),
     // Every layer the application knows, then what the view said about it: a
     // layer the view never mentioned takes its ordinary state rather than
@@ -102,6 +114,8 @@ export function restoredView(
     centreMm: centreOf(project, view),
     pixelsPerMm: pixelsPerMmForScale(view.scaleDenominator),
     overlayId: (overlay?.id ?? 'none') as OverlayId,
+    graphicProfileId:
+      charter?.profile.id ?? GENERIC_TECHNICAL_SCREEN.profile.id,
     unresolved,
   };
 }

@@ -5,6 +5,94 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.3.0-beta.4 — non publiée
+
+Le dossier de plans, la maison de référence, et la mise côte à côte de ce qu'il
+faut avec ce qui est posé.
+
+### Ajouté
+
+- **les coupes, les façades, le plan de toiture et le plan de masse sont
+  dessinés.** Une coupe est une projection : chaque mur que le trait traverse
+  devient une bande à l'endroit du passage, aussi haute que le mur, posée sur
+  son niveau et aussi épaisse que ce dont il est fait ; une fenêtre que la scie
+  a traversée devient le vide qu'elle est ; ce qui se tient derrière le trait,
+  dans la profondeur demandée, est dessiné en arrière-plan et non en
+  maçonnerie. Une façade est la même projection posée dehors, et laisse de côté
+  ce qui est plus profond que ce qu'on a demandé de voir. Le plan de toiture
+  nomme les arêtes où deux pans se rencontrent et dit de quel côté chacun
+  tombe. Le plan de masse montre le terrain, ce qui s'y tient et l'empreinte de
+  la maison ;
+- une coupe porte sa **ligne de coupe**, une façade sa **direction**, et l'une
+  et l'autre leur profondeur et leur tranche de hauteur : une vue qui ne les
+  portait pas était une vue que personne ne pouvait rouvrir. L'éditeur refuse
+  d'en enregistrer une sans, et l'importeur refuse d'en relire une sans ;
+- un **registre des chartes graphiques** : quatre profils existaient, un seul
+  était trouvable, et les trois autres revenaient comme « une charte que cette
+  version ne connaît pas ». Une feuille imprimée prend le pendant imprimé de la
+  charte de l'écran ;
+- **la maison de référence est devenue exhaustive.** Elle avait un niveau, aucun
+  objet posé, aucune vue et aucun produit réseau : toutes les suites qui
+  s'appuyaient dessus réussissaient en n'ayant rien à vérifier. Elle a
+  maintenant deux niveaux reliés par un escalier, une toiture posée sur le
+  niveau qu'elle couvre, un terrain avec ses limites et deux masques, dix objets
+  posés, quatre réseaux qui montent à l'étage dont chaque tronçon nomme son
+  produit, la copie de ces produits dans le projet, et un dossier de plans
+  portant les cinq sortes de vue sur une feuille A1. Un test exige qu'elle
+  continue de tenir un objet de chaque famille ;
+- **le module de coût chiffre au mètre et à l'unité**, plus seulement au mètre
+  cube de matériau. Toute la plomberie, l'électricité, la ventilation et les
+  équipements d'une maison étaient « comptés et non chiffrés » : un tronçon se
+  chiffre par le produit dont il est fait, un objet posé par son modèle, et le
+  lot suit le domaine du produit plutôt que d'être « enveloppe » pour tout le
+  monde ;
+- un câble du catalogue nomme son conducteur sous `conductor` et le résolveur ne
+  lisait que `material` : chaque câble ne disait rien de son cuivre ;
+- **les vérifications comparent ce qu'il faut à ce qui est posé.** La charge de
+  chauffage était calculée, les générateurs étaient comptés, et personne ne
+  mettait les deux nombres côte à côte. Huit rapprochements le font maintenant :
+  générateur contre demande, émetteur contre charge de la pièce, groupe de
+  ventilation contre ses bouches, courant foisonné contre calibre de protection,
+  onduleur contre champ photovoltaïque, batterie sans onduleur, ballon contre
+  stockage calculé, cuve contre besoins en eau de pluie. Chaque constat porte
+  les deux nombres qu'il a comparés — un verdict dont on ne voit pas les chiffres
+  est un verdict qu'on ne peut que croire — et aucun ne dit « conforme » : c'est
+  l'affaire d'un référentiel, qui sait de quel pays et de quelle année ;
+- **le plan dit où les coupes passent et d'où les façades sont vues.** Un dossier
+  pouvait tenir une coupe sans que le plan le laisse voir : un lecteur tenant
+  les deux feuilles devait deviner, et un lecteur ne tenant que le plan ignorait
+  que la coupe existait. Le repère est dérivé de la vue — ce n'est pas un second
+  endroit où la ligne de coupe est décidée — donc déplacer la coupe déplace le
+  repère, et une coupe qui ne dit pas où elle passe n'est marquée nulle part ;
+- **huit analyses de plus sur le plan.** Ce qu'une pièce demande en chauffage,
+  au total et au mètre carré ; ce qu'elle reçoit en éclairement et en puissance
+  d'éclairage ; le CO₂ qu'elle atteint ; son temps de réverbération à 1 kHz ; le
+  risque de condensation d'une paroi ; les unités de décharge cumulées d'un
+  collecteur. Tous ces chiffres étaient calculés et ne se lisaient qu'en
+  tableau. Une analyse reste une ligne de description — où sont ses nombres —
+  et non une fonction de plus : deux mécanismes nouveaux y suffisent, choisir
+  une bande d'octave et montrer un oui/non comme un et zéro ;
+- **tout réglage qu'un module peut réclamer se saisit maintenant à l'écran**, et
+  un test le prouve : il vide les réglages de la maison de référence, ramasse
+  tout ce que les dix-sept modules déclarent alors manquant, et exige que
+  l'écran sache prendre chacun. Trois trous s'y voyaient. Une ligne d'un tableau
+  — « prix du matériau _maçonnerie_ » — n'était pas reconnue comme éditable,
+  donc aucun « Corriger » n'était proposé pour la seule sorte d'entrée
+  manquante à laquelle cet écran sert entièrement. Les prix au mètre de produit
+  et à l'unité de modèle, tout juste ajoutés au module de coût, n'avaient aucun
+  champ. Et l'occupation d'une pièce était nommée par la pièce — huit pièces,
+  huit constats — au lieu de l'être par la catégorie qui la remplit, dont
+  l'écran offre une ligne ; la catégorie d'une pièce étant un texte libre dans
+  le modèle, l'écran ajoute désormais les catégories que le projet emploie à
+  celles qu'il connaît d'avance ;
+- un champ photovoltaïque posé sur un pan de toiture dit sur lequel ; le module
+  demandait de le redire dans un réglage, et les deux réponses auraient divergé
+  au premier déplacement ;
+- **la maison de démonstration se charge à la demande.** Cent kilooctets de JSON
+  derrière un bouton étaient chargés avec l'application : ouvrir son propre
+  projet passait par une démonstration. Le chargement initial descend de 245,3 à
+  239,3 kio.
+
 ## 0.3.0-beta.3 — non publiée
 
 Les quatre verrous que l'audit jugeait bloquants avant le remplissage massif

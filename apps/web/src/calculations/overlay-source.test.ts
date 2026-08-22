@@ -43,9 +43,15 @@ describe('the analyses the plan can be coloured by', () => {
       }),
     );
     // The engines have been in the repository for a long time; until now only
-    // the thermal ones reached the drawing.
+    // the thermal ones reached the drawing, then the network ones — and what a
+    // room needs, gets and breathes was still only read in a table.
     expect([...modules].sort()).toEqual([
+      'acoustics',
       'electrical',
+      'heating',
+      'hygrothermal',
+      'iaq',
+      'lighting',
       'thermal',
       'ventilation',
       'wastewater',
@@ -177,5 +183,76 @@ describe('the identifiers of the analyses', () => {
   it('keeps every one the interface can be set to', () => {
     const ids: readonly OverlayId[] = OVERLAY_OPTIONS.map(({ id }) => id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('colours a room by what it needs, gets and breathes', () => {
+    // Room-level figures were computed and only ever read in a table.
+    for (const [id, moduleId, outputs, expected] of [
+      [
+        'heating-room-power',
+        'heating',
+        { rooms: [{ roomId: 'space-living', totalW: 620 }] },
+        620,
+      ],
+      [
+        'lighting-illuminance',
+        'lighting',
+        { rooms: [{ roomId: 'space-living', averageIlluminanceLux: 120 }] },
+        120,
+      ],
+      [
+        'iaq-co2',
+        'iaq',
+        { rooms: [{ roomId: 'space-living', maximumConcentrationPpm: 1400 }] },
+        1400,
+      ],
+    ] as const) {
+      const overlay = buildOverlay(id, [run(moduleId, outputs)], undefined)!;
+      expect(overlay.values['space-living'], id).toBe(expected);
+    }
+  });
+
+  it('picks the octave band an acoustic analysis names', () => {
+    // A room's reverberation is one figure per band and the plan colours by
+    // one number; the band is stated rather than being the first in the list.
+    const overlay = buildOverlay(
+      'acoustics-reverberation',
+      [
+        run('acoustics', {
+          rooms: [
+            {
+              roomId: 'space-living',
+              bands: [
+                { bandHz: 125, reverberationTimeS: 1.9 },
+                { bandHz: 1000, reverberationTimeS: 1.07 },
+              ],
+            },
+          ],
+        }),
+      ],
+      undefined,
+    )!;
+    expect(overlay.values['space-living']).toBe(1.07);
+  });
+
+  it('shows a yes-or-no as one and zero, and an absent one as unknown', () => {
+    const overlay = buildOverlay(
+      'hygrothermal-condensation',
+      [
+        run('hygrothermal', {
+          assemblies: [
+            { elementId: 'wall-south', condensationRisk: true },
+            { elementId: 'wall-north', condensationRisk: false },
+            { elementId: 'wall-west' },
+          ],
+        }),
+      ],
+      undefined,
+    )!;
+    expect(overlay.values['wall-south']).toBe(1);
+    expect(overlay.values['wall-north']).toBe(0);
+    // Not a wall at no risk: a wall the module could not judge.
+    expect(overlay.values['wall-west']).toBeNull();
+    expect(overlay.states?.['wall-west']).toBe('UNKNOWN');
   });
 });

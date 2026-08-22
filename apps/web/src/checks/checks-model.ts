@@ -12,6 +12,7 @@ import {
 import { buildBom } from '../quantities/bom-model.js';
 import { canEditSetting } from '../project/settings-catalog.js';
 import type { CalculationRun } from '../calculations/calculation-runner.js';
+import { systemChecks } from './system-checks.js';
 
 export type CheckStatus = 'FAIL' | 'UNKNOWN';
 
@@ -274,6 +275,10 @@ export function projectChecks(
       }
     }
   }
+
+  // What the house needs against what is standing in it. The two numbers
+  // existed and nobody put them side by side.
+  checks.push(...systemChecks(project, run));
 
   const bom = buildBom(project);
   for (const warning of bom.warnings)

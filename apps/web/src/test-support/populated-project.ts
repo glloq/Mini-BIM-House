@@ -42,6 +42,18 @@ export function populatedProject(): Project {
       levels: [
         {
           ...ground,
+          // Every family this fixture covers is reachable from one storey, so
+          // a roof plane of its own stands on the ground one. A copy of the
+          // reference house's would carry its identifier, and the things
+          // hanging on that roof would then name a plane on another storey.
+          roofs: base.building.levels
+            .flatMap((level) => level.roofs)
+            .slice(0, 1)
+            .map((roof) => ({
+              ...roof,
+              id: entityId('roof-fixture'),
+              levelId: ground.id,
+            })),
           annotations: [
             ...ground.annotations,
             {
@@ -115,13 +127,18 @@ export function populatedProject(): Project {
             },
           ],
         },
+        // Every other storey of the reference house, kept as it is, so that
+        // what stands on them — a fixture, a terminal, a luminaire, a
+        // photovoltaic array hung on the roof — still names a level, a room
+        // and a support the project holds.
+        ...base.building.levels.slice(1),
         // The storey the stair arrives at. Without it the fixture named a
         // level that did not exist — which the importer refuses, and which is
         // exactly what a fixture claiming to be a whole project must not do.
         {
           id: entityId('upper'),
-          name: 'Étage',
-          elevationMm: 2700,
+          name: 'Comble',
+          elevationMm: 5600,
           defaultStoreyHeightMm: 2500,
           walls: [],
           openings: [],

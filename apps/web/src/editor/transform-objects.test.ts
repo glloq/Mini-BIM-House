@@ -186,8 +186,12 @@ describe('where a roof plane faces once the building has turned', () => {
 
   it('turns the roof of the project, outline and bearing together', () => {
     const opened = file();
-    const before = opened.project.building.levels[0]!.roofs[0]!;
-    const result = transformObjectsCommand(opened, 'ground', [before.id], {
+    // The roof stands on the storey it covers, which is not the ground one.
+    const storey = opened.project.building.levels.find(
+      ({ roofs }) => roofs.length > 0,
+    )!;
+    const before = storey.roofs[0]!;
+    const result = transformObjectsCommand(opened, storey.id, [before.id], {
       kind: 'ROTATE',
       centre: { x: 0, y: 0 },
       angleDeg: 90,
@@ -196,7 +200,9 @@ describe('where a roof plane faces once the building has turned', () => {
     if (result.status !== 'OK') return;
     const dispatcher = new ProjectCommandDispatcher(opened.project);
     expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
-    const after = dispatcher.project.building.levels[0]!.roofs[0]!;
+    const after = dispatcher.project.building.levels.find(
+      ({ id }) => id === storey.id,
+    )!.roofs[0]!;
     expect(after.azimuthDeg).toBeCloseTo(
       transformedAzimuthDeg(
         { kind: 'ROTATE', centre: { x: 0, y: 0 }, angleDeg: 90 },

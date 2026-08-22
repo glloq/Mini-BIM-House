@@ -268,12 +268,14 @@ describe('seeing what a variant changes', () => {
       ...base,
       building: {
         ...base.building,
-        levels: [
-          {
-            ...ground,
-            walls: ground.walls.filter(({ id }) => id !== 'wall-south'),
-          },
-        ],
+        levels: base.building.levels.map((level) =>
+          level.id === ground.id
+            ? {
+                ...level,
+                walls: level.walls.filter(({ id }) => id !== 'wall-south'),
+              }
+            : level,
+        ),
       },
     };
     expect(scenarioDiff(base, variant)).toEqual([

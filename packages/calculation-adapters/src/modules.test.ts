@@ -253,14 +253,51 @@ describe('real calculation orchestration adapters', () => {
       quantities: readonly { readonly itemId: string }[];
     };
     expect(cost.quantities.length).toBeGreaterThan(0);
-    // Counted, and said to be unpriced rather than quietly left out of a total
-    // that would then look complete.
+    // A thing standing in the house is priced by its model, each. Where no
+    // price is declared for that model, the estimate says which one is
+    // missing rather than leaving it out of a total that would then look
+    // complete.
     expect(
       built.missing.filter(
         ({ moduleId, key }) =>
-          moduleId === 'cost' && key.startsWith('unpriced/'),
+          moduleId === 'cost' && key.startsWith('unitPriceByEquipment/'),
       ).length,
     ).toBeGreaterThan(0);
+  });
+
+  it('prices a run by the metre and a placed thing by the unit', () => {
+    // A house's whole plumbing, wiring, ductwork and equipment used to be
+    // « counted and not priced »: the module knew one table, and it was per
+    // cubic metre of material.
+    const place = withPlaced('LUMINAIRE', 4);
+    const built = projectInputs((project) => {
+      place(project);
+      const model = (project.equipment ?? []).find(
+        ({ kind }) => kind === 'LUMINAIRE',
+      )!;
+      const cost = project.calculationSettings?.cost as
+        { settings: Record<string, unknown> } | undefined;
+      Object.assign(cost!.settings, {
+        unitPriceByEquipment: { [model.id]: 38 },
+        labourPriceByEquipment: { [model.id]: 25 },
+      });
+    });
+    expect(
+      built.missing.filter(
+        ({ moduleId, key }) =>
+          moduleId === 'cost' && key.startsWith('unitPriceByEquipment/'),
+      ),
+    ).toEqual([]);
+    const cost = built.inputs.cost as {
+      quantities: readonly {
+        readonly sourceEntityId: string;
+        readonly unit: string;
+        readonly value: number;
+      }[];
+    };
+    const counted = cost.quantities.find(({ unit }) => unit === 'each');
+    // Four of them, counted each, not a volume of luminaire.
+    expect(counted).toMatchObject({ unit: 'each', value: 4 });
   });
 
   it('sizes a run from the product it names, not from figures retyped on it', () => {

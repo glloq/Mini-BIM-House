@@ -43,26 +43,35 @@ function withRadiator(point = { x: 2500, y: 2000 }, id = 'component-radiator') {
   return dispatcher;
 }
 
+/** The one this suite just placed, among the ones the house already holds. */
+function placed(
+  dispatcher: ProjectCommandDispatcher,
+  id = 'component-radiator',
+) {
+  const found = dispatcher.project.building.levels
+    .flatMap((level) => level.components ?? [])
+    .find((component) => component.id === id);
+  if (found === undefined) throw new Error(`no ${id}`);
+  return found;
+}
+
 describe('placing a thing in the building', () => {
   it('stands where it was put, on the storey being drawn', () => {
-    const level = withRadiator().project.building.levels[0]!;
-    const component = (level.components ?? [])[0]!;
+    const component = placed(withRadiator());
     expect(component.position).toEqual({ x: 2500, y: 2000 });
     expect(component.levelId).toBe('ground');
     expect(component.elevationMm).toBe(150);
   });
 
   it('reads the room from the plan instead of asking for it', () => {
-    const component = (withRadiator().project.building.levels[0]!.components ??
-      [])[0]!;
-    expect(component.spaceId).toBeDefined();
+    expect(placed(withRadiator()).spaceId).toBeDefined();
   });
 
   it('leaves the room unsaid when the point is in none', () => {
     // A component outside every room has no room; it is not in the first one.
-    const component = (withRadiator({ x: 80_000, y: 80_000 }).project.building
-      .levels[0]!.components ?? [])[0]!;
-    expect(component.spaceId).toBeUndefined();
+    expect(
+      placed(withRadiator({ x: 80_000, y: 80_000 })).spaceId,
+    ).toBeUndefined();
   });
 
   it('refuses a catalogue model the project does not hold', () => {
@@ -82,8 +91,10 @@ describe('placing a thing in the building', () => {
     const dispatcher = withRadiator();
     expect(dispatcher.undo().status).toBe('APPLIED');
     expect(
-      dispatcher.project.building.levels[0]!.components ?? [],
-    ).toHaveLength(0);
+      (dispatcher.project.building.levels[0]!.components ?? []).some(
+        ({ id }) => id === 'component-radiator',
+      ),
+    ).toBe(false);
   });
 });
 
@@ -148,8 +159,7 @@ describe('a component as an object of the editor', () => {
         }),
       ).status,
     ).toBe('APPLIED');
-    const component = (dispatcher.project.building.levels[0]!.components ??
-      [])[0]!;
+    const component = placed(dispatcher);
     expect(component.name).toBeUndefined();
     expect(component.rotationDeg).toBe(90);
   });
