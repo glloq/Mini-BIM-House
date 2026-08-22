@@ -19,30 +19,46 @@ import type {
 } from './project-context.js';
 import { equipmentNumber } from './project-context.js';
 import type { MissingCalculationInput } from './calculation-settings.js';
+import type { ProjectCalculationModuleId } from './module-registry.js';
+import { PROJECT_CALCULATION_MODULE_IDS } from './module-registry.js';
 
-/** Modules the project integration can feed from persisted facts. */
-export const PROJECT_CALCULATION_MODULE_IDS = [
-  'thermal',
-  'heating',
-  'dhw',
-  'lighting',
-  'electrical',
-  'ventilation',
-  'iaq',
-  'water',
-  'wastewater',
-  'rainwater',
-  'photovoltaic',
-  'battery',
-  'energy-balance',
-  'hygrothermal',
-  'acoustics',
-  'cost',
-  'environmental',
-] as const;
+// Kept reachable from here so that every consumer of the module list can go on
+// importing it from where it always was.
+export {
+  PROJECT_CALCULATION_MODULE_IDS,
+  type ProjectCalculationModuleId,
+} from './module-registry.js';
 
-export type ProjectCalculationModuleId =
-  (typeof PROJECT_CALCULATION_MODULE_IDS)[number];
+/**
+ * What each module needs the project to say.
+ *
+ * `satisfies` is the point: the compiler refuses this map if it misses one of
+ * the seventeen identifiers, so the set of modules is stated once — in
+ * `module-registry` — and everything else is checked against it rather than
+ * repeated beside it.
+ */
+const MODULE_INPUT_BUILDERS = {
+  thermal: thermalInput,
+  heating: heatingInput,
+  dhw: dhwInput,
+  lighting: lightingInput,
+  electrical: electricalInput,
+  ventilation: ventilationInput,
+  iaq: iaqInput,
+  water: waterInput,
+  wastewater: wastewaterInput,
+  rainwater: rainwaterInput,
+  photovoltaic: photovoltaicInput,
+  battery: batteryInput,
+  'energy-balance': energyBalanceInput,
+  hygrothermal: hygrothermalInput,
+  acoustics: acousticsInput,
+  cost: costInput,
+  environmental: environmentalInput,
+} satisfies Record<
+  ProjectCalculationModuleId,
+  (context: ProjectCalculationContext) => CalculationJson
+>;
 
 export interface ProjectCalculationInputs {
   readonly inputs: Readonly<Record<string, CalculationJson>>;
@@ -2129,25 +2145,14 @@ export function buildProjectCalculationInputs(
   context: ProjectCalculationContext,
 ): ProjectCalculationInputs {
   reportClimateSelection(context);
-  const inputs: Record<string, CalculationJson> = {
-    thermal: thermalInput(context),
-    heating: heatingInput(context),
-    dhw: dhwInput(context),
-    lighting: lightingInput(context),
-    electrical: electricalInput(context),
-    ventilation: ventilationInput(context),
-    iaq: iaqInput(context),
-    water: waterInput(context),
-    wastewater: wastewaterInput(context),
-    rainwater: rainwaterInput(context),
-    photovoltaic: photovoltaicInput(context),
-    battery: batteryInput(context),
-    'energy-balance': energyBalanceInput(context),
-    hygrothermal: hygrothermalInput(context),
-    acoustics: acousticsInput(context),
-    cost: costInput(context),
-    environmental: environmentalInput(context),
-  };
+  // Built from the registry, so adding a module is describing it once rather
+  // than in four places.
+  const inputs: Record<string, CalculationJson> = Object.fromEntries(
+    PROJECT_CALCULATION_MODULE_IDS.map((id) => [
+      id,
+      MODULE_INPUT_BUILDERS[id](context),
+    ]),
+  );
   return {
     inputs,
     missing: context.settings.missing,

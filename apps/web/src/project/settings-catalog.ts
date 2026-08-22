@@ -1,5 +1,8 @@
 import type { JsonValue, Project } from '@house-technical-designer/core-domain';
-import { PROJECT_CALCULATION_MODULES } from '@house-technical-designer/calculation-adapters';
+import {
+  PROJECT_CALCULATION_MODULES,
+  calculationModuleLabel,
+} from '@house-technical-designer/calculation-adapters';
 
 /**
  * One scalar a module reads from the project settings.
@@ -76,6 +79,13 @@ export interface ModuleSettingKeyedTable {
 
 export interface ModuleSettingsDescriptor {
   readonly moduleId: string;
+  /**
+   * What this module is called.
+   *
+   * Read from the registry rather than written again here: the two spellings
+   * had already drifted — « Thermique » on this screen and « Enveloppe
+   * thermique » on the dashboard, for the same module.
+   */
   readonly label: string;
   readonly fields: readonly ModuleSettingField[];
   readonly objectTables?: readonly ModuleSettingObjectTable[];
@@ -105,11 +115,13 @@ const OCTAVE_BAND_ROWS = [
   { key: '4000', label: '4000 Hz' },
 ] as const;
 
-export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
-  { moduleId: 'thermal', label: 'Thermique', fields: [] },
+/** What each module's settings screen offers, before it is given its name. */
+type ModuleSettingsEntry = Omit<ModuleSettingsDescriptor, 'label'>;
+
+const MODULE_SETTINGS_ENTRIES: readonly ModuleSettingsEntry[] = [
+  { moduleId: 'thermal', fields: [] },
   {
     moduleId: 'heating',
-    label: 'Chauffage',
     fields: [
       {
         key: 'designIndoorTemperatureC',
@@ -128,7 +140,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'dhw',
-    label: 'Eau chaude sanitaire',
     fields: [
       {
         key: 'householdOccupants',
@@ -170,7 +181,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'lighting',
-    label: 'Éclairage',
     fields: [
       {
         key: 'utilizationFactor',
@@ -194,14 +204,12 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'electrical',
-    label: 'Électricité',
     fields: [],
     note: 'Tension, phases, puissances et sections se saisissent sur les nœuds et les tronçons du réseau électrique, dans l’espace Réseaux.',
   },
-  { moduleId: 'ventilation', label: 'Ventilation', fields: [] },
+  { moduleId: 'ventilation', fields: [] },
   {
     moduleId: 'iaq',
-    label: 'Qualité de l’air',
     fields: [
       {
         key: 'co2GenerationM3sPerOccupant',
@@ -234,7 +242,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'water',
-    label: 'Eau froide',
     fields: [
       {
         key: 'simultaneityFactor',
@@ -246,7 +253,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'wastewater',
-    label: 'Évacuations',
     fields: [
       {
         key: 'designFlowM3sPerDischargeUnit',
@@ -264,7 +270,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'rainwater',
-    label: 'Eaux pluviales',
     fields: [
       {
         key: 'runoffCoefficient',
@@ -288,7 +293,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'photovoltaic',
-    label: 'Photovoltaïque',
     fields: [
       {
         key: 'performanceRatio',
@@ -300,7 +304,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'battery',
-    label: 'Batterie',
     fields: [
       {
         key: 'offGrid',
@@ -312,7 +315,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'energy-balance',
-    label: 'Bilan énergétique',
     fields: [
       {
         key: 'heatingSetpointTemperatureC',
@@ -324,7 +326,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'hygrothermal',
-    label: 'Hygrothermie',
     fields: [
       {
         key: 'indoorTemperatureC',
@@ -342,7 +343,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'acoustics',
-    label: 'Acoustique',
     fields: [],
     numberChoices: [
       {
@@ -365,7 +365,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'cost',
-    label: 'Coût',
     fields: [
       { key: 'currency', kind: 'TEXT', label: 'Devise', unit: 'code ISO' },
     ],
@@ -401,7 +400,6 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
   },
   {
     moduleId: 'environmental',
-    label: 'Environnement',
     fields: [
       { key: 'indicator', kind: 'TEXT', label: 'Indicateur', unit: 'GWP…' },
       {
@@ -422,6 +420,19 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] = [
     ],
   },
 ];
+
+/**
+ * The settings screen, module by module, named by the registry.
+ *
+ * The name was written twice — here and in the calculation registry — and the
+ * two had drifted: this screen said « Thermique » where everything else said
+ * « Enveloppe thermique », for the same module.
+ */
+export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] =
+  MODULE_SETTINGS_ENTRIES.map((entry) => ({
+    ...entry,
+    label: calculationModuleLabel(entry.moduleId),
+  }));
 
 /** The method and version a module declares, so a settings entry can name them. */
 export function moduleContract(
