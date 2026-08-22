@@ -74,6 +74,7 @@ Pour travailler sur les données plutôt que sur l'application :
 npm run catalog:status        # où en est chacune des 520 familles
 npm run catalog:status 2      # la vague 2 seulement
 npm run validate:catalog      # toute la couche de données, en une seconde
+npm run catalog:manifest      # ce qui est installé, et quelle publication
 ```
 
 Ce que ces registres sont et pourquoi ils sont en données est écrit dans

@@ -590,6 +590,39 @@ sur un tube dont l'alésage est faux de quatre millimètres.
 
 Tout cela est vérifié par les tests, donc à chaque intégration continue.
 
+## Le manifeste, le dépôt et l'index
+
+Trois choses manquaient pour que « le catalogue » cesse d'être « ce qui se
+trouve importé ».
+
+**Le manifeste** (`packages/catalog-registry/data/manifest.json`, engendré par
+`npm run catalog:manifest`) dit quels fichiers existent, quel registre chacun
+remplit, combien d'entrées il porte et ce qu'il disait à sa publication. Il
+porte **deux** niveaux de version, parce qu'elles répondent à deux questions :
+`catalogFormatVersion` dit si cette application sait lire les fichiers — elle
+change quand la _forme_ change, ce qui est rare et cassant ; `releaseId` dit
+quel lot de données c'est — il change dès qu'une fiche est ajoutée, ce qui est
+constant et anodin. Les confondre revenait à monter une version cassante pour
+une faute de frappe, ou à n'en monter aucune. Le `releaseId` est dérivé des
+fichiers, jamais tapé : un numéro qu'il faut penser à monter est un numéro qui
+finira par contredire les données qu'il nomme.
+
+**Le dépôt** (`CatalogRepository`) est la question posée une fois : qu'est-ce
+qui est installé, qu'est-ce que ça contient, donne-moi cette fiche-là.
+Aujourd'hui les fichiers sont empaquetés avec l'application et la réponse coûte
+un accès mémoire ; à dix mille fiches elle coûtera un aller-retour réseau. Ce
+qui ne doit pas changer ce jour-là, c'est le code qui demande — d'où un `entry`
+qui rend une promesse et des `summaries` qui n'en rendent pas : une liste se
+dessine maintenant, un corps s'ouvre plus tard.
+
+**L'index** (`CatalogIndex`) porte des **résumés**, pas des fiches. L'interface
+demandait des entrées entières pour dessiner une ligne : le nom, la famille et
+la version, tirés d'un objet qui porte ses ports, ses dégagements, ses courbes
+et chacun de ses chiffres. À dix-neuf fiches cela ne se voit pas ; à dix mille,
+c'est la raison pour laquelle le panneau met quatre secondes à s'ouvrir, à
+chaque frappe dans la recherche. Cinq tables et un champ replié — accents
+ôtés, casse tombée, pour que « fenêtre » trouve `Fenetre`.
+
 ## Comment ajouter une famille
 
 1. l'écrire dans `data/families/<domaine>.json` avec ses ports, ses modules, son

@@ -30,6 +30,7 @@
     "audit:licenses": "node scripts/audit-licenses.mjs",
     "catalog:status": "vite-node scripts/catalog-status.ts",
     "catalog:fingerprints": "vite-node scripts/catalog-fingerprints.ts",
+    "catalog:manifest": "vite-node scripts/catalog-manifest.ts",
     "validate:docs": "node scripts/validation-report.mjs --check",
     "test:coverage": "vitest run --coverage"
   },

@@ -14,6 +14,7 @@
  * which entry, which property. Contributors get it in a second without running
  * thirteen hundred tests; the integration gets it as a gate.
  */
+import { existsSync, readFileSync } from 'node:fs';
 import {
   SYMBOL_LIBRARY_V1,
   rawGenericSymbolEntries,
@@ -25,6 +26,7 @@ import {
   FAMILY_REGISTRY,
   NETWORK_PRODUCT_REGISTRY,
   PROPERTY_SCHEMA_REGISTRY,
+  currentCatalogManifest,
   validateAssemblyCatalog,
   validateCatalog,
   validateMaterialCatalog,
@@ -37,6 +39,7 @@ import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
 import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies';
 import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
 
+const MANIFEST_PATH = 'packages/catalog-registry/data/manifest.json';
 const symbols = new Set(Object.keys(SYMBOL_LIBRARY_V1.definitions));
 const calculators = new Set<string>(PROJECT_CALCULATION_MODULE_IDS);
 
@@ -141,6 +144,20 @@ const sections: readonly Section[] = [
   },
 ];
 
+/**
+ * The manifest, compared to what is actually installed.
+ *
+ * A manifest nobody checks is a manifest that describes a previous release,
+ * which is worse than none: it is a promise about what a project was designed
+ * with.
+ */
+const manifest = currentCatalogManifest();
+const recorded = existsSync(MANIFEST_PATH)
+  ? (JSON.parse(readFileSync(MANIFEST_PATH, 'utf8')) as {
+      readonly releaseId?: string;
+    })
+  : undefined;
+
 let failed = false;
 for (const { title, counted, noun, issues } of sections) {
   if (issues.length === 0) {
@@ -152,6 +169,18 @@ for (const { title, counted, noun, issues } of sections) {
   for (const { subject, path, message } of issues)
     console.log(`    ${subject} · ${path} : ${message}`);
 }
+
+if (recorded === undefined)
+  console.log('✗ Manifeste — absent ; lancer npm run catalog:manifest.');
+else if (recorded.releaseId !== manifest.releaseId) {
+  console.log(
+    `✗ Manifeste — publication ${recorded.releaseId} enregistrée, ${manifest.releaseId} installée.`,
+  );
+} else
+  console.log(
+    `✓ Manifeste — publication ${manifest.releaseId}, format ${manifest.catalogFormatVersion}`,
+  );
+if (recorded?.releaseId !== manifest.releaseId) failed = true;
 
 if (failed) {
   console.error(

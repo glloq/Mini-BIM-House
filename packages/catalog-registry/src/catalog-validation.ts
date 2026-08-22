@@ -83,19 +83,31 @@ const SEMVER =
  * the content, sorted, not the file.
  */
 export function catalogFingerprint(entry: CatalogEntryCandidate): string {
-  const canonical = (value: unknown): unknown => {
-    if (Array.isArray(value)) return value.map(canonical);
-    if (value !== null && typeof value === 'object')
-      return Object.fromEntries(
-        Object.entries(value as Record<string, unknown>)
-          .filter(([, held]) => held !== undefined)
-          .sort(([first], [second]) => first.localeCompare(second))
-          .map(([key, held]) => [key, canonical(held)]),
-      );
-    return value;
-  };
   const { id: _id, version: _version, ...rest } = entry;
-  const text = JSON.stringify(canonical(rest));
+  return contentFingerprint(rest);
+}
+
+/**
+ * What any value says, reduced to one short string.
+ *
+ * Order does not matter and formatting does not either: what is compared is
+ * the content, sorted, not the file. Used for one entry and for a whole
+ * catalogue alike — a manifest has to notice that a file changed, which is the
+ * same question asked of more of it.
+ */
+export function contentFingerprint(value: unknown): string {
+  const canonical = (held: unknown): unknown => {
+    if (Array.isArray(held)) return held.map(canonical);
+    if (held !== null && typeof held === 'object')
+      return Object.fromEntries(
+        Object.entries(held as Record<string, unknown>)
+          .filter(([, inner]) => inner !== undefined)
+          .sort(([first], [second]) => first.localeCompare(second))
+          .map(([key, inner]) => [key, canonical(inner)]),
+      );
+    return held;
+  };
+  const text = JSON.stringify(canonical(value));
   // A short, stable digest: the point is to notice a change, not to resist an
   // attacker, and a hash nobody can read is a hash nobody checks.
   let low = 0x811c9dc5;
