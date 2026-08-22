@@ -213,6 +213,9 @@ const MaterialsPanel = lazy(async () => ({
 const AssembliesPanel = lazy(async () => ({
   default: (await import('./library/AssembliesPanel.js')).AssembliesPanel,
 }));
+const OpeningsPanel = lazy(async () => ({
+  default: (await import('./library/OpeningsPanel.js')).OpeningsPanel,
+}));
 const EquipmentPanel = lazy(async () => ({
   default: (await import('./library/EquipmentPanel.js')).EquipmentPanel,
 }));
@@ -2437,6 +2440,12 @@ function App() {
                   : { selectedId: selectedAssemblyId })}
                 onSelect={setSelectedAssemblyId}
               />
+            </LazyWorkspace>
+          )}
+
+          {tab === 'openings' && (
+            <LazyWorkspace>
+              <OpeningsPanel project={file.project} onCommand={runCommand} />
             </LazyWorkspace>
           )}
 

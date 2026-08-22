@@ -122,8 +122,12 @@ export const BUDGETS = {
    * has to land somewhere, and it landed on demand. That is the trade this
    * budget exists to make visible — the total went up by two kilobytes, the
    * download a first visit pays for went down by seven.
+   *
+   * And four more for the pickers: choosing a fiche instead of importing a
+   * catalogue is a search box, a list of rows and a menuiseries panel that had
+   * no home. All three land on demand, in the workspace that asks.
    */
-  totalGzipBytes: 418 * 1024,
+  totalGzipBytes: 422 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

@@ -15,6 +15,7 @@ const SPACE_OF: Readonly<Record<string, string>> = {
   'Niveaux et pièces': 'Construire',
   Matériaux: 'Construire',
   Assemblages: 'Construire',
+  Menuiseries: 'Construire',
   Équipements: 'Construire',
   Réseaux: 'Systèmes',
   Calculs: 'Analyser',

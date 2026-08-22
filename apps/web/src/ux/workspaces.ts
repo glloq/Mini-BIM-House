@@ -126,6 +126,7 @@ export const LEGACY_WORKSPACE_TABS = [
   'building',
   'materials',
   'assemblies',
+  'openings',
   'equipment',
   'networks',
   'calculations',
@@ -142,6 +143,7 @@ export const LEGACY_WORKSPACE_HOME = {
   building: 'BUILD',
   materials: 'BUILD',
   assemblies: 'BUILD',
+  openings: 'BUILD',
   equipment: 'BUILD',
   networks: 'SYSTEMS',
   calculations: 'ANALYZE',
@@ -163,6 +165,7 @@ export const LEGACY_WORKSPACE_LABELS = {
   building: 'Niveaux et pièces',
   materials: 'Matériaux',
   assemblies: 'Assemblages',
+  openings: 'Menuiseries',
   equipment: 'Équipements',
   networks: 'Réseaux',
   calculations: 'Calculs',
@@ -201,7 +204,14 @@ export const CONTEXT_GROUP_LABELS = {
  */
 export const WORKSPACE_DESTINATIONS = {
   PROJECT: ['project'],
-  BUILD: ['plan', 'building', 'materials', 'assemblies', 'equipment'],
+  BUILD: [
+    'plan',
+    'building',
+    'materials',
+    'assemblies',
+    'openings',
+    'equipment',
+  ],
   SYSTEMS: ['plan', 'networks'],
   // Analyser opens on the plan too: a result is read against the building it
   // is about. A space that took you out of the model to show you a number

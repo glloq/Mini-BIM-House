@@ -5,7 +5,75 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
-## 0.3.0-beta.12 — non publiée
+## 0.3.0-beta.13 — non publiée
+
+**Les six vagues de remplissage, et le catalogue branché sur le projet.** Le
+catalogue passe de 122 à 601 fiches ; 504 familles sur 527 ont une référence
+générique. Un projet neuf ne reçoit plus le catalogue : il reçoit un panier, et
+on y ajoute ce qu'on choisit.
+
+### Ajouté
+
+- **443 fiches génériques** sur les six vagues : matériaux, compositions,
+  menuiseries, mobilier, eau, évacuation, eaux pluviales, chauffage,
+  ventilation, électricité, éclairage, solaire, stockage, fumée, données,
+  sécurité, aménagements extérieurs. Aucun fichier moteur modifié pour les
+  écrire — c'est la propriété que le gel du format v1 devait rendre vraie, et
+  c'est la première fois qu'elle est exercée à cette échelle.
+- **un panier de départ** généré depuis le catalogue et comparé à lui par une
+  porte : une composition par sorte de surface, les matériaux que ces
+  compositions nomment, trois menuiseries. Vingt-deux fiches au lieu de
+  cent vingt-huit.
+- **un sélecteur de catalogue commun** aux matériaux, aux compositions et aux
+  menuiseries. Il tient des lignes, jamais des fiches, et ne cherche un corps
+  qu'au moment d'un choix. Choisir une composition amène les matériaux dont
+  elle est faite, en une seule transaction.
+- **un panneau Menuiseries**, qui n'existait pas : les modèles de fenêtre
+  venaient avec le projet et n'avaient aucun endroit où être choisis.
+- **dix types de port** pour trois médias que le registre ignorait — le
+  combustible, l'eau glacée, et le sens du courant hors photovoltaïque — et
+  **dix-huit propriétés**, dont l'ampère-heure d'un accumulateur et la tension
+  à vide d'un module.
+- **trois schémas de propriétés** — `SENSOR_DEVICE`, `HEATING_CONTROL`,
+  `SURGE_PROTECTOR_DEVICE` — pour des natures d'objet décrites jusque-là par le
+  schéma d'autre chose.
+
+### Corrigé
+
+- **les exigences de port étaient écrites par lot.** 186 familles sur 240
+  déclaraient une liste par schéma de propriétés, tout obligatoire : les 22
+  familles de conduit de fumée avaient deux sorties et aucune entrée, si bien
+  qu'un conduit de cheminée était indescriptible ; un coude de ventilation
+  devait être à la fois soufflage, extraction, air neuf et rejet ; une prise
+  avait un bus de commande et pas de terre. Elles distinguent maintenant ce
+  qu'un objet a toujours, ce que certaines variantes ont, et ce dont il a l'un
+  d'un ensemble.
+- **une bouche d'extraction que rien ne pouvait raccorder.** Elle déclarait un
+  port entrant, comme le caisson auquel elle doit se raccorder ; deux ports
+  entrants ne s'apparient jamais.
+- **la porte des empreintes interrogeait la mauvaise forme.** Elle demandait au
+  gardien la fiche _résolue_, qui porte la catégorie de sa famille — ce que le
+  gardien refuse. Les 122 fiches d'équipement se déclaraient invalides et
+  chaque famille s'affichait `PARTIAL` pendant que la validation disait le
+  catalogue propre.
+- **`PHYSICAL` était déclaré par 396 familles** et refusé systématiquement sur
+  une fiche : une zone que rien ne pouvait remplir, annoncée comme une
+  information.
+- **`ip` et `ipRating` étaient deux orthographes d'une seule propriété**, même
+  libellé, même type, chacune dans ses propres schémas.
+- **quarante-huit fiches étaient muettes** faute de champ applicable dans leur
+  schéma. Il en reste quatre, et chacune pour une raison qui tient.
+- **un projet vide pesait 92 ko** et mettait les trois catalogues dans le
+  premier chargement. Il pèse 17 ko, et le premier chargement n'en porte plus
+  aucun : les six vagues lui ont coûté quatre cents octets.
+
+### Écarts de contrat
+
+Huit sont écrits dans [`docs/CONTRACT_GAPS.md`](docs/CONTRACT_GAPS.md) plutôt
+que contournés. Trois sont refermés (`CG-05`, `CG-06`, `CG-07`) ; les cinq
+autres attendent une décision de format ou de nomenclature.
+
+## 0.3.0-beta.12
 
 La **dernière porte avant le remplissage massif**. Rien de neuf dans le moteur :
 quatre corrections d'industrialisation, et le format catalogue est figé.

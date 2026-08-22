@@ -96,6 +96,38 @@ test('takes a build-up out of the catalogue, with what it is made of', async ({
   expect(errors).toEqual([]);
 });
 
+test('gives the menuiseries a home, and a way back to the catalogue', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+  await openDestination(page, 'Menuiseries');
+
+  // Three came with the project. The other thirty-one were unreachable once a
+  // blank project stopped being handed the whole shelf — a basket that takes
+  // options away has to give a way to get them back.
+  const rows = page.locator('.library-table tbody tr');
+  await expect(rows.first()).toBeVisible();
+  const before = await rows.count();
+
+  await page
+    .getByRole('button', { name: 'Ajouter depuis le catalogue' })
+    .click();
+  const picker = page.getByRole('group', {
+    name: 'Ajouter depuis le catalogue',
+  });
+  await picker.getByRole('searchbox').fill('coulissante');
+  const choice = picker.getByRole('button').filter({ hasText: 'oulissante' });
+  await expect(choice.first()).toBeVisible();
+  await choice.first().click();
+
+  await expect(rows).toHaveCount(before + 1);
+  // And what the choice is made on is shown: a Uw, a solar factor, an
+  // acoustic figure — the reason one menuiserie is picked over another.
+  await expect(page.locator('.library-table tbody')).toContainText('Uw');
+  expect(errors).toEqual([]);
+});
+
 test('draws the reference house with real walls, openings and rooms', async ({
   page,
 }) => {

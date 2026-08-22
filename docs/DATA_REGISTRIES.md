@@ -707,7 +707,12 @@ que la découverte s'exécute à l'import et que rien n'élague cent fichiers JS
 Le catalogue est un sous-chemin : `@house-technical-designer/materials/catalog`.
 
 Tout le reste se choisit dans le catalogue, ce qui est ce à quoi sert un
-catalogue.
+catalogue — par **un seul sélecteur**, le même pour les matériaux, les
+compositions, les menuiseries et les équipements. Il tient des lignes, jamais
+des fiches, et ne demande un corps au dépôt qu'au moment d'un choix. Choisir
+une composition amène les matériaux dont elle est faite, en une transaction :
+une couche qui désigne un matériau que le projet ne tient pas est un mur qui se
+dessine, ne coûte rien et n'isole rien.
 
 Si une fiche ne peut pas être représentée avec les contrats existants, on
 n'étend pas le format en passant : on ouvre un **`CONTRACT_GAP`** — un écart
