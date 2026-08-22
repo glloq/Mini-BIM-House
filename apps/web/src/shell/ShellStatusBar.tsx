@@ -6,11 +6,15 @@
  * at, and where the count of checks will be able to sit beside it without
  * pushing the drawing down.
  */
+import type { ReactNode } from 'react';
+
 export interface ShellStatusBarProps {
   readonly projectName: string;
   readonly message: string;
   readonly saveLabel: string;
   readonly saveState: string;
+  /** The permanent count of findings, which lives here and nowhere else. */
+  readonly issues?: ReactNode;
 }
 
 export function ShellStatusBar({
@@ -18,6 +22,7 @@ export function ShellStatusBar({
   message,
   saveLabel,
   saveState,
+  issues,
 }: ShellStatusBarProps) {
   return (
     <footer className="shell-status" aria-label="État de l’application">
@@ -28,6 +33,7 @@ export function ShellStatusBar({
       <p role="status" className="shell-status-message">
         {message}
       </p>
+      {issues}
       <span className={`save-state save-${saveState.toLowerCase()}`}>
         {saveLabel}
       </span>

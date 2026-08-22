@@ -239,6 +239,15 @@ const DocumentsPanel = lazy(async () => ({
 const ChecksPanel = lazy(async () => ({
   default: (await import('./checks/ChecksPanel.js')).ChecksPanel,
 }));
+/*
+ * The count of findings is not needed to draw the first frame, and asking for
+ * it would bring the whole checking machinery — rule packs, clearances,
+ * quantities — into what the application downloads before showing a plan. It
+ * arrives a moment after the shell, which is when it starts being useful.
+ */
+const IssueCenter = lazy(async () => ({
+  default: (await import('./checks/IssueCenter.js')).IssueCenter,
+}));
 const VisibilityPopover = lazy(async () => ({
   default: (await import('./visibility/VisibilityPopover.js'))
     .VisibilityPopover,
@@ -2551,6 +2560,15 @@ function App() {
           message={message}
           saveLabel={SAVE_STATE_LABELS[saveState]}
           saveState={saveState}
+          issues={
+            <Suspense fallback={null}>
+              <IssueCenter
+                project={file.project}
+                {...(currentRun === undefined ? {} : { run: currentRun })}
+                onNavigate={navigateTo}
+              />
+            </Suspense>
+          }
         />
       }
       overlays={

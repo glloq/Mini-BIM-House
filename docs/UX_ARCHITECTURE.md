@@ -193,6 +193,20 @@ calques sont masqués, pour que personne n'imprime un plan amputé sans l'avoir 
 pas une façon de travailler : on l'ouvre quand le plan ne suffit pas, et il se
 replie le reste du temps pour laisser le panneau aux outils.
 
+## 8 ter. Le compteur de vérifications
+
+Il vit dans la barre d'état, en permanence, et nulle part ailleurs. Les constats
+avaient un écran, et un écran, il faut y aller : ils étaient donc lus quand
+quelqu'un pensait à les lire.
+
+Il ne prétend jamais qu'un contrôle est passé. Tout ce que l'application produit
+est un constat — ce qui n'a pas pu être résolu — donc le compteur dit combien de
+remarques il y a, pas combien de contrôles ont réussi. Un « ✓ 42 » serait un
+nombre que personne ne pourrait étayer.
+
+Il ne bloque rien : un compteur rouge est une information sur le modèle, pas un
+refus de laisser le modèle être ce qu'il est.
+
 ## 9. Règles de présentation
 
 - La couleur vient des variables CSS et des jetons, jamais des composants

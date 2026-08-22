@@ -1839,6 +1839,29 @@ test('gathers what the project does not resolve and offers to fix it', async ({
   ).toBeVisible();
 });
 
+test('counts the findings at the bottom edge, always', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const status = page.locator('.shell-status');
+  const counter = status.getByRole('button', { name: /^Vérifications :/u });
+  // Always there, whatever space one is in: findings were read when somebody
+  // thought to go and read them.
+  await expect(counter).toBeVisible();
+  await openDestination(page, 'Quantités');
+  await expect(counter).toBeVisible();
+
+  await counter.click();
+  const drawer = page.getByRole('dialog', { name: 'Anomalies' });
+  await expect(drawer).toBeVisible();
+  // It never claims a check passed: every finding it holds is a remark.
+  await expect(drawer).toContainText('remarque(s)');
+
+  // And it takes you where the remark is, in one click.
+  await drawer.locator('button.link').first().click();
+  await expect(drawer).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test('suggests what is left without ever standing in the way', async ({
   page,
 }) => {
