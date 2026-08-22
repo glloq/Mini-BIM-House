@@ -41,7 +41,9 @@
       "properties": {
         "nominalVoltageV": 230,
         "rowCount": 3,
-        "moduleCapacity": 39
+        "moduleCapacity": 39,
+        "ratedCurrentA": 63,
+        "ipRating": "IP30"
       },
       "rendering": {
         "symbols": [
@@ -53,7 +55,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "electrical.distribution"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

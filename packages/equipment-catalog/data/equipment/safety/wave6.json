@@ -93,14 +93,17 @@
       "id": "generic-water-extinguisher-6l",
       "familyId": "EXTINGUISHER",
       "name": "Extincteur à eau pulvérisée 6 L",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 180,
         "depthMm": 180,
         "heightMm": 550
       },
       "ports": [],
-      "properties": {},
+      "properties": {
+        "capacityL": 6,
+        "material": "Acier"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -120,14 +123,16 @@
       "id": "generic-fire-blanket",
       "familyId": "FIRE_BLANKET",
       "name": "Couverture anti-feu 1,2 × 1,2 m",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 250,
         "depthMm": 80,
         "heightMm": 350
       },
       "ports": [],
-      "properties": {},
+      "properties": {
+        "material": "Fibre de verre"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -212,7 +217,7 @@
       "id": "generic-outdoor-siren",
       "familyId": "SIREN",
       "name": "Sirène extérieure",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 250,
         "depthMm": 90,
@@ -229,7 +234,11 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "soundPowerLevel": 105,
+        "ipRating": "IP44",
+        "batteryBackupHours": 24
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -328,7 +337,7 @@
       "id": "generic-emergency-stop",
       "familyId": "EMERGENCY_STOP",
       "name": "Bouton d’arrêt d’urgence coup-de-poing",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 80,
@@ -345,7 +354,11 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ratedCurrentA": 25,
+        "ipRating": "IP55",
+        "material": "Polycarbonate"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -365,7 +378,7 @@
       "id": "generic-emergency-cutoff",
       "familyId": "ELECTRICAL_EMERGENCY_CUTOFF",
       "name": "Coupure d’urgence générale",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 100,
         "depthMm": 90,
@@ -391,7 +404,11 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ratedCurrentA": 63,
+        "breakingCapacityKA": 6,
+        "ipRating": "IP55"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

@@ -428,13 +428,16 @@
       ],
       "properties": {
         "electricalPowerW": 0.5,
-        "ipRating": "IP20"
+        "ipRating": "IP20",
+        "supplyVoltageV": 230,
+        "coverageM2": 50,
+        "detectionAngleDeg": 360
       },
       "rendering": {
         "planFootprint": "CIRCLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -478,13 +481,14 @@
       ],
       "properties": {
         "electricalPowerW": 0.5,
-        "ipRating": "IP20"
+        "ipRating": "IP20",
+        "supplyVoltageV": 230
       },
       "rendering": {
         "planFootprint": "SYMBOL_ONLY",
         "layer": "electrical.lighting"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -527,13 +531,15 @@
         }
       ],
       "properties": {
-        "electricalPowerW": 5
+        "electricalPowerW": 5,
+        "supplyVoltageV": 230,
+        "ipRating": "IP20"
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

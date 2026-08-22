@@ -1321,7 +1321,7 @@
       "id": "generic-ventilation-condensate-trap",
       "familyId": "VENTILATION_CONDENSATE_TRAP",
       "name": "Siphon de condensats",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 80,
@@ -1349,7 +1349,9 @@
           "nominalSize": 0.032
         }
       ],
-      "properties": {},
+      "properties": {
+        "waterSealHeightMm": 80
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "ventilation.equipment"

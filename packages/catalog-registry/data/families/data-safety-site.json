@@ -293,7 +293,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "DATA_DEVICE",
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -321,7 +321,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "DATA_DEVICE",
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -349,7 +349,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "DATA_DEVICE",
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -377,7 +377,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "DATA_DEVICE",
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -405,7 +405,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "DATA_DEVICE",
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -433,7 +433,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "DATA_DEVICE",
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -461,7 +461,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "DATA_DEVICE",
+      "propertySchema": "SENSOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -961,7 +961,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE", "SERVICE"],
-      "propertySchema": "SITE_DEVICE",
+      "propertySchema": "WATER_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -1133,7 +1133,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE", "SERVICE"],
-      "propertySchema": "SITE_DEVICE",
+      "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -1161,7 +1161,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE", "SERVICE"],
-      "propertySchema": "SITE_DEVICE",
+      "propertySchema": "ELECTRICAL_BOARD",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -1203,7 +1203,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE", "SERVICE"],
-      "propertySchema": "SITE_DEVICE",
+      "propertySchema": "HEAT_PUMP",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -1225,7 +1225,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE", "SERVICE"],
-      "propertySchema": "SITE_DEVICE",
+      "propertySchema": "PV_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -1333,7 +1333,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE", "SERVICE"],
-      "propertySchema": "SITE_DEVICE",
+      "propertySchema": "ELECTRICAL_LOAD",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -1355,7 +1355,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE", "SERVICE"],
-      "propertySchema": "SITE_DEVICE",
+      "propertySchema": "ELECTRICAL_DEVICE",
       "status": {
         "MODEL": "PARTIAL"
       },
@@ -1376,7 +1376,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE", "SERVICE"],
-      "propertySchema": "SITE_DEVICE",
+      "propertySchema": "LUMINAIRE",
       "status": {
         "MODEL": "PARTIAL"
       },

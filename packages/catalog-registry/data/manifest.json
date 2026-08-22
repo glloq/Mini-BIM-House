@@ -1,6 +1,6 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "f29db2f2fea7e6d2",
+  "releaseId": "33e3e147b626f3a3",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
@@ -32,7 +32,7 @@
       ],
       "entryCount": 363,
       "formatVersion": "1.0.0",
-      "fingerprint": "8bbb4fa8f839f674"
+      "fingerprint": "fb3adea757d026a9"
     },
     {
       "registry": "MATERIAL",

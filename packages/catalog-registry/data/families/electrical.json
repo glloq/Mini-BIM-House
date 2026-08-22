@@ -160,7 +160,7 @@
         "rotationAllowed": true
       },
       "clearances": ["ELECTRICAL_WORKING", "MAINTENANCE"],
-      "propertySchema": "ELECTRICAL_BOARD",
+      "propertySchema": "SURGE_PROTECTOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
@@ -433,7 +433,7 @@
         "levelRequired": true,
         "rotationAllowed": true
       },
-      "propertySchema": "PROTECTION_DEVICE",
+      "propertySchema": "SURGE_PROTECTOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"

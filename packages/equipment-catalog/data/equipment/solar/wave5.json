@@ -4,7 +4,7 @@
       "id": "generic-pv-array",
       "familyId": "PV_ARRAY",
       "name": "Champ photovoltaïque",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -39,7 +39,9 @@
         "moduleAreaM2": 23.4,
         "moduleEfficiency": 0.205,
         "temperatureCoefficientPerK": -0.0035,
-        "nominalVoltageV": 246
+        "nominalVoltageV": 246,
+        "openCircuitVoltageV": 297,
+        "shortCircuitCurrentA": 20.8
       },
       "rendering": {
         "symbols": [
@@ -65,7 +67,7 @@
       "id": "generic-pv-string",
       "familyId": "PV_STRING",
       "name": "Chaîne photovoltaïque",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -100,7 +102,9 @@
         "moduleAreaM2": 15.6,
         "moduleEfficiency": 0.205,
         "temperatureCoefficientPerK": -0.0035,
-        "nominalVoltageV": 328
+        "nominalVoltageV": 328,
+        "openCircuitVoltageV": 396,
+        "shortCircuitCurrentA": 10.4
       },
       "rendering": {
         "symbols": [
@@ -336,7 +340,7 @@
       "id": "generic-dc-combiner",
       "familyId": "DC_COMBINER",
       "name": "Coffret de regroupement continu",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -385,7 +389,8 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 1000
+        "nominalVoltageV": 1000,
+        "ratedCurrentA": 32
       },
       "rendering": {
         "symbols": [
@@ -409,7 +414,7 @@
       "id": "generic-dc-isolator",
       "familyId": "DC_ISOLATOR",
       "name": "Sectionneur continu",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -440,7 +445,8 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 1000
+        "nominalVoltageV": 1000,
+        "ratedCurrentA": 25
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
@@ -458,7 +464,7 @@
       "id": "generic-dc-fuse",
       "familyId": "DC_FUSE",
       "name": "Porte-fusible de chaîne",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -489,7 +495,8 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 1000
+        "nominalVoltageV": 1000,
+        "ratedCurrentA": 15
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
@@ -507,7 +514,7 @@
       "id": "generic-dc-spd",
       "familyId": "DC_SPD",
       "name": "Parafoudre continu",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -538,7 +545,14 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 1000
+        "nominalVoltageV": 1000,
+        "protectionLevelUpV": 3800,
+        "surgeCurrentKA": 20,
+        "surgeProtectorType": "Type 2",
+        "maximumContinuousVoltageV": 1000,
+        "maximumSurgeCurrentKA": 40,
+        "poleCount": 3,
+        "ipRating": "IP20"
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
@@ -556,7 +570,7 @@
       "id": "generic-ac-isolator",
       "familyId": "AC_ISOLATOR",
       "name": "Sectionneur alternatif",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -596,7 +610,8 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 400
+        "nominalVoltageV": 400,
+        "ratedCurrentA": 25
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
@@ -614,7 +629,7 @@
       "id": "generic-ac-panel",
       "familyId": "AC_PANEL",
       "name": "Coffret de protection alternatif",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -654,7 +669,8 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 400
+        "nominalVoltageV": 400,
+        "ratedCurrentA": 25
       },
       "rendering": {
         "symbols": [
@@ -678,7 +694,7 @@
       "id": "generic-ac-spd",
       "familyId": "AC_SPD",
       "name": "Parafoudre alternatif",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -709,7 +725,14 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 230
+        "nominalVoltageV": 230,
+        "protectionLevelUpV": 1500,
+        "surgeCurrentKA": 20,
+        "surgeProtectorType": "Type 2",
+        "maximumContinuousVoltageV": 275,
+        "maximumSurgeCurrentKA": 40,
+        "poleCount": 2,
+        "ipRating": "IP20"
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
@@ -727,7 +750,7 @@
       "id": "generic-production-meter",
       "familyId": "PRODUCTION_METER",
       "name": "Compteur de production",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -767,7 +790,8 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 230
+        "nominalVoltageV": 230,
+        "ratedCurrentA": 63
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
@@ -834,7 +858,7 @@
       "id": "generic-ground-mount",
       "familyId": "GROUND_MOUNT",
       "name": "Structure photovoltaïque au sol",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -855,7 +879,11 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "material": "Aluminium",
+        "loadCapacityKg": 250,
+        "ipRating": "IP68"
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "solar.modules"
@@ -873,7 +901,7 @@
       "id": "generic-roof-rail",
       "familyId": "ROOF_RAIL",
       "name": "Rail de fixation en toiture",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -884,7 +912,10 @@
         "heightMm": 45
       },
       "ports": [],
-      "properties": {},
+      "properties": {
+        "lengthMm": 3300,
+        "loadCapacityKgM": 100
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "solar.modules"
@@ -894,7 +925,7 @@
       "id": "generic-roof-hook",
       "familyId": "ROOF_HOOK",
       "name": "Crochet de toiture",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -905,7 +936,11 @@
         "heightMm": 130
       },
       "ports": [],
-      "properties": {},
+      "properties": {
+        "loadCapacityKg": 200,
+        "material": "Acier inoxydable",
+        "ipRating": "IP68"
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "solar.modules"

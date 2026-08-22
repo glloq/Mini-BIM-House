@@ -413,7 +413,7 @@
       "id": "generic-single-wall-flue-150",
       "familyId": "SINGLE_WALL_FLUE",
       "name": "Conduit simple paroi Ø 150",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 150,
         "depthMm": 150,
@@ -440,6 +440,7 @@
         }
       ],
       "properties": {
+        "lengthMm": 1000,
         "innerDiameterMm": 150,
         "distanceToCombustibleMm": 450
       },
@@ -465,7 +466,7 @@
       "id": "generic-insulated-flue-150",
       "familyId": "INSULATED_FLUE",
       "name": "Conduit isolé double paroi Ø 150",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 250,
         "depthMm": 250,
@@ -492,6 +493,7 @@
         }
       ],
       "properties": {
+        "lengthMm": 1000,
         "innerDiameterMm": 150,
         "distanceToCombustibleMm": 80
       },
@@ -517,7 +519,7 @@
       "id": "generic-flexible-liner-150",
       "familyId": "FLEXIBLE_LINER",
       "name": "Tubage flexible Ø 150",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 160,
         "depthMm": 160,
@@ -544,6 +546,7 @@
         }
       ],
       "properties": {
+        "lengthMm": 1000,
         "innerDiameterMm": 150
       },
       "provenance": {
@@ -987,7 +990,7 @@
       "id": "generic-combustion-air-duct-80",
       "familyId": "COMBUSTION_AIR_DUCT",
       "name": "Conduit d’air de combustion Ø 80",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 80,
@@ -1014,6 +1017,7 @@
         }
       ],
       "properties": {
+        "lengthMm": 1000,
         "innerDiameterMm": 80
       },
       "provenance": {

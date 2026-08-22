@@ -2678,7 +2678,7 @@
       "id": "generic-ufh-actuator",
       "familyId": "UFH_ACTUATOR",
       "name": "Tête électrothermique",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 45,
         "depthMm": 45,
@@ -2695,7 +2695,9 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "electricalPowerW": 2
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "heating.controls"
@@ -2716,7 +2718,7 @@
       "id": "generic-room-thermostat",
       "familyId": "ROOM_THERMOSTAT",
       "name": "Thermostat d’ambiance",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 86,
         "depthMm": 30,
@@ -2733,7 +2735,10 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "minimumSetPointC": 5,
+        "maximumSetPointC": 30
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "heating.controls"
@@ -3098,7 +3103,7 @@
       "id": "generic-heating-air-vent",
       "familyId": "HEATING_AIR_VENT",
       "name": "Purgeur automatique de chauffage",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 50,
         "depthMm": 50,
@@ -3116,7 +3121,9 @@
           "nominalSize": 0.015
         }
       ],
-      "properties": {},
+      "properties": {
+        "maxPressureBar": 10
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "heating.distribution"
@@ -3137,7 +3144,7 @@
       "id": "generic-heating-expansion-vessel",
       "familyId": "HEATING_EXPANSION_VESSEL",
       "name": "Vase d’expansion",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 280,
         "depthMm": 280,
@@ -3155,7 +3162,10 @@
           "nominalSize": 0.02
         }
       ],
-      "properties": {},
+      "properties": {
+        "capacityL": 18,
+        "maxPressureBar": 3
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "heating.distribution"
@@ -3177,7 +3187,7 @@
       "id": "generic-heating-safety-valve",
       "familyId": "SAFETY_VALVE",
       "name": "Soupape de sécurité",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 90,
         "depthMm": 60,
@@ -3206,6 +3216,7 @@
         }
       ],
       "properties": {
+        "maxPressureBar": 3,
         "kvs": 2
       },
       "rendering": {
@@ -3363,7 +3374,7 @@
       "id": "generic-heating-buffer-tank",
       "familyId": "BUFFER_TANK",
       "name": "Ballon tampon",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 600,
         "depthMm": 600,
@@ -3412,6 +3423,8 @@
         }
       ],
       "properties": {
+        "tankVolumeL": 200,
+        "maxPressureBar": 3,
         "maximumFlowM3h": 3.5
       },
       "rendering": {
@@ -3434,7 +3447,7 @@
       "id": "generic-hydraulic-separator",
       "familyId": "HYDRAULIC_SEPARATOR",
       "name": "Bouteille de découplage",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 140,
         "depthMm": 140,
@@ -3483,6 +3496,7 @@
         }
       ],
       "properties": {
+        "capacityL": 8,
         "maximumFlowM3h": 3.5
       },
       "rendering": {

@@ -137,9 +137,10 @@ vérifient que la nouvelle grammaire _raccorde_ — qu'un compteur gaz joigne un
 chaudière gaz, qu'un départ fioul ne la joigne pas, qu'un aval de disjoncteur
 joigne l'amont du suivant : déclarer un vocabulaire est la moitié du travail.
 
-## CG-06 — des schémas de propriétés qui ne décrivent pas leurs familles
+## CG-06 — des schémas de propriétés qui ne décrivaient pas leurs familles
 
-**Registre** `EQUIPMENT` · **une quarantaine de familles** · vagues 3 à 6
+**Registre** `EQUIPMENT` · **une quarantaine de familles** · vagues 3 à 6 ·
+**résolu**
 
 Chaque famille nomme un schéma de propriétés, et la porte vérifie qu'une fiche
 ne déclare que ce que ce schéma connaît. Quand le schéma ne connaît rien
@@ -173,9 +174,43 @@ bon comportement, et un mauvais résultat :
   `UFH_ACTUATOR`, `ROOM_THERMOSTAT` et `HEATING_ZONE` héritent d'un schéma qui
   parle d'un circuit de tubes.
 
-Le remède n'est pas d'élargir un schéma pour y faire entrer ce qui n'en relève
-pas : c'est d'en déclarer d'autres. Un schéma est une donnée, l'opération est
-donc data-only — mais elle demande d'être décidée, pas faite en passant.
+Le remède n'était pas d'élargir un schéma pour y faire entrer ce qui n'en relève
+pas : c'était d'en déclarer d'autres, et de laisser chaque famille nommer celui
+de son métier. Ce qui a été fait, en trois couches :
+
+1. **dix-huit propriétés au registre** — ampère-heure d'un accumulateur,
+   tension à vide et courant de court-circuit d'un module, Uc et Imax d'un
+   parafoudre, charge ponctuelle, consignes, garde d'eau d'un siphon, hauteur
+   de pose de référence d'un détecteur — et l'**ampère-heure** dans les unités
+   écrites ;
+2. **onze schémas étendus et trois créés.** `SENSOR_DEVICE` pour les neuf
+   capteurs qui nommaient `LUMINAIRE` ou `DATA_DEVICE` ; `HEATING_CONTROL` pour
+   les trois familles qui héritaient d'un circuit de tubes ;
+   `SURGE_PROTECTOR_DEVICE` pour les quatre parafoudres, qui nommaient un
+   tableau, un module photovoltaïque ou une protection dont le calibre est
+   obligatoire — un parafoudre était forcé de déclarer celui de son
+   déconnecteur pour passer la porte ;
+3. **vingt-trois familles réaffectées.** Neuf d'entre elles étaient du domaine
+   site, dont le schéma ne connaît que la profondeur d'enfouissement et une
+   capacité en litres : une borne de recharge ne pouvait pas dire 7,4 kW, une
+   unité extérieure de pompe à chaleur ne disait rien alors que ses cousines
+   savent tout dire. « Extérieur » est un lieu de pose, pas une nature d'objet.
+
+Le catalogue est passé de **quarante-huit fiches muettes à quatre**, et les
+quatre le sont pour une raison : la surface d'un pan de toiture est dérivée du
+contour, la consigne d'une zone est une décision de pose, le nombre de circuits
+vient du tracé, et la profondeur d'un forage est un résultat
+hydrogéologique — pas une donnée qu'un concepteur pose.
+
+Une dérive trouvée en chemin : **`ip` et `ipRating` étaient deux orthographes
+d'une seule propriété**, même libellé, même type. Cinq schémas disaient l'une,
+un disait l'autre — exactement ce que le registre de propriétés existe pour
+empêcher, passé parce que chaque schéma ne nommait que la sienne.
+
+Ce qui reste ouvert, plus petit : un parafoudre ne dit pas encore son type
+normalisé au-delà d'une chaîne libre ; un coude de conduit ne dit pas sa
+longueur équivalente, qui sert au calcul de tirage ; un capteur de luminosité
+n'a aucune propriété d'éclairement, faute de lux au registre des grandeurs.
 
 ## CG-07 — `PHYSICAL` était une déclaration morte
 

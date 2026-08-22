@@ -31,7 +31,8 @@
       ],
       "properties": {
         "nominalVoltageV": 230,
-        "ipRating": "IP30"
+        "ipRating": "IP30",
+        "ratedCurrentA": 45
       },
       "rendering": {
         "symbols": [
@@ -43,7 +44,7 @@
         "planFootprint": "SYMBOL_ONLY",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -105,7 +106,8 @@
         "nominalVoltageV": 230,
         "rowCount": 2,
         "moduleCapacity": 26,
-        "ipRating": "IP30"
+        "ipRating": "IP30",
+        "ratedCurrentA": 63
       },
       "rendering": {
         "symbols": [
@@ -117,7 +119,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -177,7 +179,8 @@
       ],
       "properties": {
         "nominalVoltageV": 230,
-        "ipRating": "IP44"
+        "ipRating": "IP44",
+        "ratedCurrentA": 60
       },
       "rendering": {
         "symbols": [
@@ -189,7 +192,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -239,7 +242,8 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 230
+        "nominalVoltageV": 230,
+        "ratedCurrentA": 45
       },
       "rendering": {
         "symbols": [
@@ -251,7 +255,7 @@
         "planFootprint": "SYMBOL_ONLY",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -301,7 +305,8 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 230
+        "nominalVoltageV": 230,
+        "ratedCurrentA": 63
       },
       "rendering": {
         "symbols": [
@@ -313,7 +318,7 @@
         "planFootprint": "SYMBOL_ONLY",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -373,13 +378,14 @@
       ],
       "properties": {
         "nominalVoltageV": 230,
-        "ipRating": "IP51"
+        "ipRating": "IP51",
+        "ratedCurrentA": 60
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -438,13 +444,14 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 230
+        "nominalVoltageV": 230,
+        "ratedCurrentA": 63
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -503,13 +510,14 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 230
+        "nominalVoltageV": 230,
+        "ratedCurrentA": 63
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -559,7 +567,14 @@
         }
       ],
       "properties": {
-        "nominalVoltageV": 230
+        "nominalVoltageV": 230,
+        "surgeProtectorType": "Type 1+2",
+        "maximumContinuousVoltageV": 275,
+        "protectionLevelUpV": 1500,
+        "surgeCurrentKA": 25,
+        "maximumSurgeCurrentKA": 50,
+        "poleCount": 2,
+        "moduleCapacity": 4
       },
       "rendering": {
         "symbols": [
@@ -571,7 +586,7 @@
         "planFootprint": "SYMBOL_ONLY",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -1058,7 +1073,14 @@
         }
       ],
       "properties": {
-        "ratedCurrentA": 20
+        "protectionLevelUpV": 1500,
+        "surgeCurrentKA": 20,
+        "surgeProtectorType": "Type 2",
+        "nominalVoltageV": 230,
+        "maximumContinuousVoltageV": 275,
+        "maximumSurgeCurrentKA": 40,
+        "poleCount": 2,
+        "moduleCapacity": 2
       },
       "rendering": {
         "symbols": [
@@ -1070,7 +1092,7 @@
         "planFootprint": "SYMBOL_ONLY",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -1383,12 +1405,15 @@
         "heightMm": 60
       },
       "ports": [],
-      "properties": {},
+      "properties": {
+        "lengthMm": 3000,
+        "loadCapacityKgM": 30
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.containment"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -1411,12 +1436,15 @@
         "heightMm": 90
       },
       "ports": [],
-      "properties": {},
+      "properties": {
+        "lengthMm": 3000,
+        "loadCapacityKgM": 80
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.containment"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -1458,12 +1486,15 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "entryCount": 4,
+        "ipRating": "IP55"
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.containment"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -1505,12 +1536,15 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "entryCount": 12,
+        "poleCount": 12
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.distribution"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -1552,12 +1586,15 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ipRating": "IP40",
+        "moduleCapacity": 4
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.outlets"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -1580,12 +1617,15 @@
         "heightMm": 71
       },
       "ports": [],
-      "properties": {},
+      "properties": {
+        "moduleCapacity": 1,
+        "material": "Polypropylène"
+      },
       "rendering": {
         "planFootprint": "CIRCLE",
         "layer": "electrical.containment"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

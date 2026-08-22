@@ -413,7 +413,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "PV_DEVICE",
+      "propertySchema": "SURGE_PROTECTOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
@@ -494,7 +494,7 @@
         "rotationAllowed": true
       },
       "clearances": ["MAINTENANCE"],
-      "propertySchema": "PV_DEVICE",
+      "propertySchema": "SURGE_PROTECTOR_DEVICE",
       "status": {
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"

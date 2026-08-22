@@ -4,7 +4,7 @@
       "id": "generic-room-temperature-sensor",
       "familyId": "DATA_TEMPERATURE_SENSOR",
       "name": "Sonde de température d’ambiance",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 85,
         "depthMm": 25,
@@ -21,7 +21,11 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "minimumSetPointC": -10,
+        "maximumSetPointC": 50,
+        "ipRating": "IP20"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -34,7 +38,7 @@
       "id": "generic-room-humidity-sensor",
       "familyId": "HUMIDITY_SENSOR",
       "name": "Sonde d’humidité d’ambiance",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 85,
         "depthMm": 25,
@@ -51,7 +55,9 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ipRating": "IP20"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -64,7 +70,7 @@
       "id": "generic-water-leak-sensor",
       "familyId": "LEAK_SENSOR",
       "name": "Détecteur de fuite d’eau",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 60,
         "depthMm": 20,
@@ -81,7 +87,9 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ipRating": "IP67"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -94,7 +102,7 @@
       "id": "generic-window-contact",
       "familyId": "WINDOW_SENSOR",
       "name": "Contact d’ouvrant",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 70,
         "depthMm": 20,
@@ -111,7 +119,9 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ipRating": "IP20"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -124,7 +134,7 @@
       "id": "generic-motion-sensor",
       "familyId": "MOTION_SENSOR",
       "name": "Détecteur de mouvement",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 60,
         "depthMm": 50,
@@ -141,7 +151,12 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "coverageM2": 40,
+        "detectionAngleDeg": 110,
+        "mountingHeightM": 2.2,
+        "ipRating": "IP20"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -154,7 +169,7 @@
       "id": "generic-data-presence-sensor",
       "familyId": "DATA_PRESENCE_SENSOR",
       "name": "Détecteur de présence de plafond",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 100,
         "depthMm": 40,
@@ -171,7 +186,12 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "coverageM2": 50,
+        "detectionAngleDeg": 360,
+        "mountingHeightM": 2.5,
+        "ipRating": "IP20"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -381,7 +401,7 @@
       "id": "generic-coax-socket",
       "familyId": "COAX_SOCKET",
       "name": "Prise coaxiale TV",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 45,
@@ -398,7 +418,10 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "protocol": "Coaxial 75 Ω",
+        "entryCount": 1
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -411,7 +434,7 @@
       "id": "generic-rj45-socket",
       "familyId": "RJ45_SOCKET",
       "name": "Prise RJ45 catégorie 6",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 45,
@@ -428,7 +451,10 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "protocol": "Cat 6",
+        "entryCount": 1
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -441,7 +467,7 @@
       "id": "generic-optical-termination",
       "familyId": "FIBER_TERMINATION",
       "name": "Point de terminaison optique",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 150,
         "depthMm": 35,
@@ -467,7 +493,10 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "protocol": "Fibre monomode",
+        "entryCount": 2
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -538,7 +567,7 @@
       "id": "generic-patch-panel-12",
       "familyId": "PATCH_PANEL",
       "name": "Panneau de brassage 12 ports",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 483,
         "depthMm": 110,
@@ -564,7 +593,10 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "entryCount": 12,
+        "material": "Acier"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -584,7 +616,7 @@
       "id": "generic-communication-enclosure",
       "familyId": "NETWORK_RACK",
       "name": "Coffret de communication",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 450,
         "depthMm": 200,
@@ -619,7 +651,9 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "activePowerW": 0
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -732,7 +766,7 @@
       "id": "generic-intercom-handset",
       "familyId": "INTERCOM",
       "name": "Combiné d’interphone",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 120,
         "depthMm": 40,
@@ -749,7 +783,9 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "activePowerW": 2
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

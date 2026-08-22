@@ -98,7 +98,7 @@
       "id": "generic-service-connection-box",
       "familyId": "ELECTRICAL_SERVICE_BOX",
       "name": "Coffret de branchement en limite de propriété",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 500,
         "depthMm": 250,
@@ -133,7 +133,11 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ratedCurrentA": 60,
+        "nominalVoltageV": 230,
+        "ipRating": "IP44"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -153,7 +157,7 @@
       "id": "generic-utility-meter",
       "familyId": "UTILITY_METER",
       "name": "Compteur de concession",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 250,
         "depthMm": 120,
@@ -179,7 +183,11 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ratedCurrentA": 60,
+        "nominalVoltageV": 230,
+        "ipRating": "IP44"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -231,7 +239,7 @@
       "id": "generic-ev-charging-station-7kw",
       "familyId": "SITE_EV_CHARGER",
       "name": "Borne de recharge sur pied 7,4 kW",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 200,
@@ -257,7 +265,10 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "activePowerW": 7400,
+        "powerFactor": 1
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -277,7 +288,7 @@
       "id": "generic-exterior-wall-luminaire",
       "familyId": "SITE_EXTERIOR_LIGHT",
       "name": "Applique extérieure",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 150,
         "depthMm": 200,
@@ -294,7 +305,12 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "luminousFluxLm": 1200,
+        "electricalPowerW": 12,
+        "colorTemperatureK": 3000,
+        "ipRating": "IP65"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -313,7 +329,7 @@
       "id": "generic-exterior-socket-ip55",
       "familyId": "SITE_EXTERIOR_SOCKET",
       "name": "Prise extérieure étanche IP 55",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 100,
         "depthMm": 80,
@@ -330,7 +346,12 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ratedCurrentA": 16,
+        "nominalVoltageV": 230,
+        "ipRating": "IP55",
+        "poleCount": 2
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -349,7 +370,7 @@
       "id": "generic-outdoor-monobloc-heat-pump",
       "familyId": "OUTDOOR_HEAT_PUMP",
       "name": "Unité extérieure monobloc air/eau",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 1100,
         "depthMm": 450,
@@ -384,7 +405,14 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "nominalHeatingCapacityW": 8000,
+        "nominalCop": 4.2,
+        "minimumOutdoorTemperatureC": -20,
+        "maximumFlowTemperatureC": 60,
+        "supplyVoltageV": 230,
+        "soundPowerOutdoor": 58
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -413,7 +441,7 @@
       "id": "generic-ground-mounted-pv-array",
       "familyId": "GROUND_PV_ARRAY",
       "name": "Champ photovoltaïque au sol",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 6000,
         "depthMm": 3000,
@@ -439,7 +467,15 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "peakPowerWp": 6000,
+        "moduleAreaM2": 29.3,
+        "moduleEfficiency": 0.205,
+        "nominalVoltageV": 246,
+        "openCircuitVoltageV": 297,
+        "shortCircuitCurrentA": 20.8,
+        "material": "Acier galvanisé"
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -774,7 +810,7 @@
       "id": "generic-outdoor-water-meter",
       "familyId": "SITE_WATER_METER",
       "name": "Compteur d’eau en regard",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 250,
         "depthMm": 110,
@@ -800,7 +836,10 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "nominalDiameterMm": 20,
+        "pressureLossPa": 25000
+      },
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

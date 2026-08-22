@@ -702,6 +702,13 @@
       "quantity": "LINEAR_MASS"
     },
     {
+      "id": "loadCapacityKg",
+      "label": "Charge ponctuelle admissible",
+      "type": "number",
+      "unit": "kg",
+      "quantity": "MASS"
+    },
+    {
       "id": "loadCapacityKgM",
       "label": "Charge admissible",
       "type": "number",
@@ -782,6 +789,13 @@
       "quantity": "TEMPERATURE"
     },
     {
+      "id": "maximumContinuousVoltageV",
+      "label": "Tension de régime permanent Uc",
+      "type": "number",
+      "unit": "V",
+      "quantity": "VOLTAGE"
+    },
+    {
       "id": "maximumCurrent",
       "label": "Courant maximal",
       "type": "number",
@@ -843,6 +857,13 @@
       "type": "number",
       "unit": "Pa",
       "quantity": "PRESSURE"
+    },
+    {
+      "id": "maximumSurgeCurrentKA",
+      "label": "Courant de décharge maximal Imax",
+      "type": "number",
+      "unit": "kA",
+      "quantity": "CURRENT"
     },
     {
       "id": "minHeatingPower",
@@ -928,6 +949,13 @@
       "id": "motorized",
       "label": "Motorisé",
       "type": "boolean"
+    },
+    {
+      "id": "mountingHeightM",
+      "label": "Hauteur de pose de référence",
+      "type": "number",
+      "unit": "m",
+      "quantity": "LENGTH"
     },
     {
       "id": "mountingHeightMm",
@@ -1043,6 +1071,13 @@
       "type": "number",
       "unit": "L",
       "quantity": "VOLUME"
+    },
+    {
+      "id": "openCircuitVoltageV",
+      "label": "Tension à vide",
+      "type": "number",
+      "unit": "V",
+      "quantity": "VOLTAGE"
     },
     {
       "id": "openingAngle",
@@ -1363,9 +1398,23 @@
       "quantity": "TEMPERATURE"
     },
     {
+      "id": "setPointC",
+      "label": "Consigne",
+      "type": "number",
+      "unit": "°C",
+      "quantity": "TEMPERATURE"
+    },
+    {
       "id": "shape",
       "label": "Section",
       "type": "enum"
+    },
+    {
+      "id": "shortCircuitCurrentA",
+      "label": "Courant de court-circuit",
+      "type": "number",
+      "unit": "A",
+      "quantity": "CURRENT"
     },
     {
       "id": "sillHeight",
@@ -1415,6 +1464,13 @@
     {
       "id": "soundPowerIndoor",
       "label": "Puissance acoustique intérieure",
+      "type": "number",
+      "unit": "dB(A)",
+      "quantity": "SOUND_LEVEL"
+    },
+    {
+      "id": "soundPowerLevel",
+      "label": "Niveau de puissance acoustique",
       "type": "number",
       "unit": "dB(A)",
       "quantity": "SOUND_LEVEL"
@@ -1494,6 +1550,11 @@
       "type": "number",
       "unit": "kA",
       "quantity": "CURRENT"
+    },
+    {
+      "id": "surgeProtectorType",
+      "label": "Type de parafoudre",
+      "type": "string"
     },
     {
       "id": "systemType",
@@ -1664,6 +1725,13 @@
       "id": "waterResistance",
       "label": "Résistance à l’eau",
       "type": "string"
+    },
+    {
+      "id": "waterSealHeightMm",
+      "label": "Hauteur de garde d’eau",
+      "type": "number",
+      "unit": "mm",
+      "quantity": "LENGTH"
     },
     {
       "id": "waterTightness",

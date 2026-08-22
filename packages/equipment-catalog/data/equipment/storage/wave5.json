@@ -4,7 +4,7 @@
       "id": "generic-battery-cell",
       "familyId": "BATTERY_CELL",
       "name": "Cellule lithium fer phosphate",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -33,7 +33,9 @@
         "maxDischargePowerKW": 0.32,
         "chargeEfficiency": 0.97,
         "dischargeEfficiency": 0.97,
-        "cycleLife": 6000
+        "cycleLife": 6000,
+        "nominalVoltageV": 3.2,
+        "nominalCapacityAh": 100
       },
       "rendering": {
         "planFootprint": "RECTANGLE",
@@ -52,7 +54,7 @@
       "id": "generic-battery-module",
       "familyId": "BATTERY_MODULE",
       "name": "Module batterie 19 pouces",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -99,7 +101,9 @@
         "maxDischargePowerKW": 2.5,
         "chargeEfficiency": 0.96,
         "dischargeEfficiency": 0.96,
-        "cycleLife": 6000
+        "cycleLife": 6000,
+        "nominalVoltageV": 51.2,
+        "nominalCapacityAh": 100
       },
       "rendering": {
         "symbols": [
@@ -128,7 +132,7 @@
       "id": "generic-battery-rack",
       "familyId": "BATTERY_RACK",
       "name": "Armoire batterie",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -175,7 +179,10 @@
         "maxDischargePowerKW": 12.5,
         "chargeEfficiency": 0.96,
         "dischargeEfficiency": 0.96,
-        "cycleLife": 6000
+        "cycleLife": 6000,
+        "nominalVoltageV": 51.2,
+        "nominalCapacityAh": 500,
+        "ipRating": "IP20"
       },
       "rendering": {
         "symbols": [
@@ -213,7 +220,7 @@
       "id": "generic-bms",
       "familyId": "BMS",
       "name": "Système de gestion de batterie",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -243,7 +250,10 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "nominalVoltageV": 51.2,
+        "ratedCurrentA": 250
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.equipment"
@@ -344,7 +354,7 @@
       "id": "generic-battery-isolator",
       "familyId": "BATTERY_ISOLATOR",
       "name": "Sectionneur batterie",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -374,7 +384,9 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ratedCurrentA": 125
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.equipment"
@@ -391,7 +403,7 @@
       "id": "generic-battery-breaker",
       "familyId": "BATTERY_BREAKER",
       "name": "Disjoncteur batterie",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -421,7 +433,10 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ratedCurrentA": 125,
+        "breakingCapacityKA": 10
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.equipment"
@@ -438,7 +453,7 @@
       "id": "generic-battery-fuse",
       "familyId": "BATTERY_FUSE",
       "name": "Fusible batterie",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -468,7 +483,10 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "ratedCurrentA": 125,
+        "breakingCapacityKA": 20
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.equipment"
@@ -485,7 +503,7 @@
       "id": "generic-backup-gateway",
       "familyId": "BACKUP_GATEWAY",
       "name": "Coffret de secours",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -533,7 +551,11 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "nominalVoltageV": 230,
+        "ratedCurrentA": 63,
+        "ipRating": "IP30"
+      },
       "rendering": {
         "symbols": [
           {
@@ -556,7 +578,7 @@
       "id": "generic-ats",
       "familyId": "ATS",
       "name": "Inverseur de source",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -613,7 +635,10 @@
           }
         }
       ],
-      "properties": {},
+      "properties": {
+        "nominalVoltageV": 230,
+        "ratedCurrentA": 63
+      },
       "rendering": {
         "planFootprint": "RECTANGLE",
         "layer": "electrical.equipment"
