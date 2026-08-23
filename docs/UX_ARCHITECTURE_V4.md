@@ -918,7 +918,7 @@ Ils viennent de V2 et de V3, ils ont tenu, et ils tiennent encore :
 | --------- | ------------------------------------------------------------------------- | --------- |
 | **V4-1**  | _Livré._ Sept onglets ; Structure et Énergie fondues, Vérifier → Études   | —         |
 | **V4-2**  | _Livré._ Sous-parties : une rangée, une seule ouverte, le métier suit     | V4-1      |
-| **V4-3**  | Header d'outils : trois zones, seconde ligne conditionnelle, `+`          | V4-2      |
+| **V4-3**  | _Livré._ Header du plan : outils contre le dessin, `+`, bandeau flottant  | V4-2      |
 | **V4-4**  | Le registre des headers — les tableaux §5 à §10, écrits en données        | V4-3      |
 | **V4-5**  | Inspecteur à la sélection seule ; suppression du panneau permanent        | V4-3      |
 | **V4-6**  | Barre d'état : niveau, grille en mm, snap, ortho, cotes, échelle, curseur | V4-1      |
@@ -940,15 +940,26 @@ Un seuil qu'on ne mesure pas n'est pas un seuil. `scripts/measure-shell.mjs`
 vérifie déjà les quatre premiers ; les deux derniers demandent un compteur
 nouveau.
 
-| Seuil                                              | Cible        | Aujourd'hui   |
-| -------------------------------------------------- | ------------ | ------------- |
-| Chrome vertical hors plan, au repos, en 1024 × 768 | **≤ 146 px** | 153 px        |
-| Chrome vertical avec la seconde ligne d'outils     | **≤ 182 px** | —             |
-| Plan visible, en 1024 × 768                        | **≥ 60 %**   | 55 %          |
-| Boutons visibles dans le header d'outils           | **3 à 8**    | 22 en colonne |
-| Clics pour le premier mur d'un projet neuf         | **≤ 3**      | 3             |
-| Clics pour changer de sous-partie                  | **1**        | —             |
+| Seuil                                              | Cible        | Aujourd'hui              |
+| -------------------------------------------------- | ------------ | ------------------------ |
+| Chrome vertical hors plan, au repos, en 1024 × 768 | **≤ 146 px** | **116 px**               |
+| Chrome vertical avec la seconde ligne d'outils     | **≤ 182 px** | **116 px** — elle flotte |
+| Plan visible, en 1024 × 768                        | **≥ 60 %**   | 58 %                     |
+| Boutons visibles dans le header d'outils           | **3 à 8**    | 5 à 8 ; 2 en colonne     |
+| Clics pour le premier mur d'un projet neuf         | **≤ 3**      | 3                        |
+| Clics pour changer de sous-partie                  | **1**        | 1                        |
 
-Les 146 px se décomposent : navigation 42, sous-parties 34, outils 42, barre
-d'état 28. C'est une décision, pas une mesure — et c'est la suppression du
-panneau latéral permanent qui la finance.
+Les 146 px se décomposaient : navigation 42, sous-parties 34, outils 42, barre
+d'état 28. Ce qui les a financés n'est pas ce qu'on croyait : ce sont les deux
+rangées supérieures fondues en une — le nom de l'application partage la sienne
+avec les sept espaces — et la barre de vue dissoute, son niveau déjà écrit dans
+la barre d'état et son métier devenu la rangée des sous-parties. Quatre rangées
+sont devenues trois : **116 px**, contre 153 avant la V4 et 306 avant la
+refonte.
+
+La seconde ligne d'options ne pousse rien : elle **flotte** sur la marge haute
+du dessin, et seuls ses contrôles répondent au pointeur. Une rangée qui pousse
+le plan en apparaissant le fait changer de taille, la caméra se remet à
+l'échelle, et le point qu'on visait n'est plus là. Trente-quatre pixels de
+bandeau translucide coûtent infiniment moins qu'un plan qui bouge sous la
+main.

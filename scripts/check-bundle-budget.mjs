@@ -131,8 +131,12 @@ export const BUDGETS = {
    * du modèle, et la raison écrite de chaque outil qui ne sert pas encore. Ces
    * phrases sont la fonction — les abréger reviendrait à griser des boutons en
    * silence, ce qui est précisément la panne qu'on répare.
+   *
+   * Et un avec le header du plan. Il rend bien plus qu'il ne prend : la coque
+   * passe de 153 à 116 px au-dessus du dessin, et la colonne de gauche de
+   * vingt-deux boutons à deux.
    */
-  initialGzipBytes: 279 * 1024,
+  initialGzipBytes: 280 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -214,8 +218,12 @@ export const BUDGETS = {
    * partent dans le même chargement que la boîte à outils, faute de quoi la
    * première grille de l'écran serait grise sans un mot pendant qu'un morceau
    * arrive.
+   *
+   * Et un avec le header du plan : la rangée des sous-parties, la rangée
+   * d'outils et le bandeau d'options sont le premier écran, et le premier
+   * écran ne se charge pas en deux fois.
    */
-  totalGzipBytes: 449 * 1024,
+  totalGzipBytes: 450 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

@@ -65,7 +65,7 @@ import type { ClearanceGroupId } from './editor/clearance-overlay.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { ViewProperties } from './editor/ViewProperties.js';
 import { ContextToolBar } from './editor/ContextToolBar.js';
-import { Toolbox } from './editor/Toolbox.js';
+import { ToolHeader } from './editor/ToolHeader.js';
 import { toolboxFor } from './editor/toolbox.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
@@ -156,11 +156,7 @@ import {
   saveLayout,
   type WorkspaceLayout,
 } from './shell/workspace-layout.js';
-import {
-  domainsOfStage,
-  networksOfDomain,
-} from './systems/discipline-scope.js';
-import { ViewBar } from './shell/ViewBar.js';
+import { networksOfDomain } from './systems/discipline-scope.js';
 import { hiddenLayerCount } from './visibility/display-count.js';
 import { technicalDomains } from './systems/discipline-scope.js';
 import { WorkflowGuide } from './workflow/WorkflowGuide.js';
@@ -830,21 +826,6 @@ function App() {
    * travailler dans une étape qui n'affiche rien, ni d'en quitter une qui
    * affiche cinq. Il disparaît quand il n'y a plus rien à dire.
    */
-  /*
-   * Les métiers que l'étape propose, comptés.
-   *
-   * La barre de vue est le seul endroit où l'on choisit un métier : le compte
-   * de réseaux part donc dans l'étiquette de chaque option, pour que la
-   * différence entre « rien à voir » et « rien de tracé » n'y perde rien.
-   */
-  const disciplineChoices = useMemo(
-    () =>
-      domainsOfStage(file.project, navigation.stage).map((id) => ({
-        id,
-        networks: networksOfDomain(file.project, id),
-      })),
-    [file.project, navigation.stage],
-  );
   const hiddenLayers = useMemo(() => hiddenLayerCount(editor), [editor]);
 
   const stageProgress = useMemo(
@@ -874,7 +855,16 @@ function App() {
         (section) => ({
           id: section.id,
           label: section.label,
-          ...(section.domain === undefined ? {} : { domain: section.domain }),
+          ...(section.domain === undefined
+            ? {}
+            : {
+                domain: section.domain,
+                // La rangée est désormais le seul endroit où l'on choisit un
+                // métier : le compte de réseaux la suit, pour que la
+                // différence entre « rien à voir » et « rien de tracé » ne s'y
+                // perde pas.
+                networks: networksOfDomain(file.project, section.domain),
+              }),
           toolCount: section.entries.length,
         }),
       ),
@@ -2203,6 +2193,16 @@ function App() {
         <TopBar
           eyebrow="Mini BIM local-first"
           title="House Technical Designer"
+          tabs={
+            <StageBar
+              stage={navigation.stage}
+              remaining={stageProgress}
+              onSelect={(stage) => {
+                setNavigation((current) => goToStage(current, stage));
+                setMenuOpen(false);
+              }}
+            />
+          }
           actions={
             <>
               <button
@@ -2274,25 +2274,15 @@ function App() {
         />
       }
       stageBar={
-        <>
-          <StageBar
-            stage={navigation.stage}
-            remaining={stageProgress}
-            onSelect={(stage) => {
-              setNavigation((current) => goToStage(current, stage));
-              setMenuOpen(false);
-            }}
-          />
-          <SectionBar
-            stageLabel={creationStage(navigation.stage).label}
-            sections={sectionChoices}
-            {...(openSection === undefined ? {} : { activeId: openSection })}
-            onSelect={(section) => {
-              setNavigation((current) => goToSection(current, section));
-              setMenuOpen(false);
-            }}
-          />
-        </>
+        <SectionBar
+          stageLabel={creationStage(navigation.stage).label}
+          sections={sectionChoices}
+          {...(openSection === undefined ? {} : { activeId: openSection })}
+          onSelect={(section) => {
+            setNavigation((current) => goToSection(current, section));
+            setMenuOpen(false);
+          }}
+        />
       }
       contextPanel={
         <ContextPanel
@@ -2348,25 +2338,6 @@ function App() {
                   setPaletteQuery(query);
                   setPaletteOpen(true);
                 }}
-              />
-              <Toolbox
-                project={file.project}
-                stage={navigation.stage}
-                design={design}
-                {...(openSection === undefined ? {} : { section: openSection })}
-                {...(activeDomain === undefined
-                  ? {}
-                  : { domain: activeDomain })}
-                editor={editor}
-                dispatch={dispatchEditor}
-                drafts={toolDrafts}
-                onDraftChange={(key, value) =>
-                  setToolDrafts((current) => ({ ...current, [key]: value }))
-                }
-                onDraftsChange={(prefilled) =>
-                  setToolDrafts((current) => ({ ...current, ...prefilled }))
-                }
-                onOpenLibrary={() => setTab('equipment')}
               />
               {(file.project.scenarios ?? []).length > 0 && (
                 <section
@@ -2443,56 +2414,87 @@ function App() {
         <>
           {tab === 'plan' && (
             <section className="canvas-panel panel" id="plan">
-              <ViewBar
-                levelName={
-                  levels.find(({ id }) => id === activeLevelId)?.name ??
-                  'aucun niveau'
-                }
-                domains={disciplineChoices}
-                {...(activeDomain === undefined ? {} : { activeDomain })}
-                onDomain={(domain) => navigateTo({ domain })}
-                scenarios={file.project.scenarios ?? []}
-                {...(scenarioMode === undefined
-                  ? {}
-                  : { scenarioId: scenarioMode })}
-                onScenario={setScenarioMode}
-                display={
-                  <div className="visibility-anchor">
-                    <button
-                      type="button"
-                      className="secondary"
-                      aria-expanded={displayOpen}
-                      aria-haspopup="dialog"
-                      onClick={() => setDisplayOpen((open) => !open)}
-                    >
-                      Affichage
-                      {hiddenLayers > 0 && (
-                        <span className="view-badge" aria-hidden="true">
-                          {hiddenLayers}
-                        </span>
-                      )}
-                    </button>
-                    {displayOpen && (
-                      <Suspense fallback={null}>
-                        <DisplayPanel
-                          editor={editor}
-                          dispatch={dispatchEditor}
-                          renderingId={rendering.id}
-                          onRendering={setRenderingId}
-                          onClose={() => setDisplayOpen(false)}
-                        />
-                      </Suspense>
-                    )}
-                  </div>
-                }
-              />
-              <ContextToolBar
+              <ToolHeader
                 project={file.project}
+                stage={navigation.stage}
+                design={design}
+                {...(openSection === undefined ? {} : { section: openSection })}
+                {...(activeDomain === undefined
+                  ? {}
+                  : { domain: activeDomain })}
                 editor={editor}
                 dispatch={dispatchEditor}
-                onTransform={transformSelection}
-                onAlign={alignSelection}
-                onCancel={() => dispatchEditor({ type: 'CANCEL' })}
+                drafts={toolDrafts}
+                onDraftChange={(key, value) =>
+                  setToolDrafts((current) => ({ ...current, [key]: value }))
+                }
+                onDraftsChange={(prefilled) =>
+                  setToolDrafts((current) => ({ ...current, ...prefilled }))
+                }
+                onOpenLibrary={() => setTab('equipment')}
+                context={
+                  <ContextToolBar
+                    project={file.project}
+                    editor={editor}
+                    dispatch={dispatchEditor}
+                    onTransform={transformSelection}
+                    onAlign={alignSelection}
+                    onCancel={() => dispatchEditor({ type: 'CANCEL' })}
+                  />
+                }
+                view={
+                  <>
+                    {(file.project.scenarios ?? []).length > 0 && (
+                      <label className="view-choice">
+                        <span className="visually-hidden">Variante</span>
+                        <select
+                          value={scenarioMode ?? ''}
+                          onChange={(event) =>
+                            setScenarioMode(
+                              event.target.value === ''
+                                ? undefined
+                                : event.target.value,
+                            )
+                          }
+                        >
+                          <option value="">Le projet lui-même</option>
+                          {(file.project.scenarios ?? []).map((scenario) => (
+                            <option key={scenario.id} value={scenario.id}>
+                              {scenario.name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
+                    <div className="visibility-anchor">
+                      <button
+                        type="button"
+                        className="secondary"
+                        aria-expanded={displayOpen}
+                        aria-haspopup="dialog"
+                        onClick={() => setDisplayOpen((open) => !open)}
+                      >
+                        Affichage
+                        {hiddenLayers > 0 && (
+                          <span className="view-badge" aria-hidden="true">
+                            {hiddenLayers}
+                          </span>
+                        )}
+                      </button>
+                      {displayOpen && (
+                        <Suspense fallback={null}>
+                          <DisplayPanel
+                            editor={editor}
+                            dispatch={dispatchEditor}
+                            renderingId={rendering.id}
+                            onRendering={setRenderingId}
+                            onClose={() => setDisplayOpen(false)}
+                          />
+                        </Suspense>
+                      )}
+                    </div>
+                  </>
+                }
               />
               <PlanCanvas
                 graphicProfileId={rendering.graphicProfileId}

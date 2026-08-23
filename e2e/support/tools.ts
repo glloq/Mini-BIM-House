@@ -14,16 +14,14 @@ import type { Page } from '@playwright/test';
  * façon : ce que quelqu'un lit dans la colonne.
  */
 export async function revealAllTools(page: Page): Promise<void> {
-  const panel = page.locator('.toolbox');
-  const disclosures = panel.locator(
-    'details.toolbox-others:not([open]) summary',
+  const more = page.locator(
+    '.tool-header details.tool-more:not([open]) > summary',
   );
-  for (let index = 0; index < (await disclosures.count()); index += 1)
-    await disclosures.nth(index).click();
+  if ((await more.count()) > 0) await more.first().click();
 }
 
 export async function chooseTool(page: Page, label: string): Promise<void> {
-  const toolbox = page.locator('.toolbox');
+  const toolbox = page.locator('.tool-header');
   const offered = toolbox.getByRole('button', { name: label, exact: true });
   if ((await offered.count()) === 0) {
     // Une sous-partie à la fois : l'outil est peut-être dans une autre, et

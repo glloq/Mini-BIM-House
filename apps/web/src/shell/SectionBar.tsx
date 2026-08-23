@@ -23,6 +23,8 @@ export interface SectionChoice {
   readonly id: string;
   readonly label: string;
   readonly domain?: DesignDomainId;
+  /** Combien de réseaux le projet en tient : « rien à voir » ≠ « rien de tracé ». */
+  readonly networks?: number;
   /** Combien d'outils elle met sous la main. */
   readonly toolCount: number;
 }
@@ -55,10 +57,26 @@ export function SectionBar({
             aria-current={current ? 'true' : undefined}
             title={`${section.label} — ${section.toolCount} outil${
               section.toolCount > 1 ? 's' : ''
+            }${
+              section.networks === undefined
+                ? ''
+                : `, ${section.networks} réseau${
+                    section.networks > 1 ? 'x' : ''
+                  } tracé${section.networks > 1 ? 's' : ''}`
             }`}
             onClick={() => onSelect(section)}
           >
             {section.label}
+            {/*
+             * Le compte est dans l'infobulle et hors du nom accessible : sans
+             * cela, « Eau » s'appelle « Eau 2 » et change de nom quand le
+             * projet change — plus rien ne le trouve.
+             */}
+            {section.networks !== undefined && section.networks > 0 && (
+              <span className="section-count" aria-hidden="true">
+                {section.networks}
+              </span>
+            )}
           </button>
         );
       })}

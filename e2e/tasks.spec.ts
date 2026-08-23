@@ -74,7 +74,7 @@ test('T1 — un projet neuf, quatre murs, une porte, une fenêtre, une pièce', 
   await countClicks(page);
   await page.goto('/');
   const canvas = page.locator('.plan-canvas');
-  const toolbox = page.locator('.toolbox');
+  const toolbox = page.locator('.tool-header');
 
   // Trois clics pour le premier mur d'un projet neuf : l'outil, puis ses deux
   // points. L'étape Bâtiment le met sous la main sans qu'on ait à le chercher,
@@ -128,14 +128,12 @@ test('T2 — de l’architecture à l’électricité, une prise et un circuit',
   await loadDemoProject(page);
   const beforeTrade = await clicksSoFar(page);
 
-  // Deux clics pour changer de discipline : l'étape, puis le métier.
+  // Deux clics pour changer de discipline : l'espace, puis le métier — qui
+  // est une sous-partie, et se prend donc dans la rangée.
   await openStage(page, 'Systèmes');
-  await page
-    .locator('.view-bar')
-    .getByLabel('Discipline')
-    .selectOption('ELECTRICAL');
+  await openSection(page, 'Électricité');
 
-  const toolbox = page.locator('.toolbox');
+  const toolbox = page.locator('.tool-header');
   await toolbox.getByRole('button', { name: 'Prise', exact: true }).click();
   // L'entrée a rempli la fiche : c'est ce qu'elle promet en portant ce nom.
   await expect(page.getByLabel('Modèle catalogue')).toHaveValue(
@@ -164,15 +162,12 @@ test('T3 — changer de niveau, de discipline, et masquer une famille', async ({
   // fallait deux — ouvrir « ☰ Modèle », puis choisir.
   const beforeLevel = await clicksSoFar(page);
   await tree.getByRole('button', { name: 'Étage', exact: true }).click();
-  await expect(page.locator('.view-bar h2')).toContainText('Étage');
+  await expect(page.locator('.status-bar')).toContainText('Étage');
   expect((await clicksSoFar(page)) - beforeLevel).toBe(1);
 
   // Deux clics pour changer de discipline.
   await openStage(page, 'Systèmes');
-  await page
-    .locator('.view-bar')
-    .getByLabel('Discipline')
-    .selectOption('HEATING');
+  await openSection(page, 'Chauffage');
 
   // Deux clics pour masquer une famille : le bouton, puis le préréglage. Il en
   // fallait trois, et il y avait deux écrans pour le faire.
@@ -267,7 +262,7 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
    * la personne comprend ce qui manque, et si elle peut y aller de là.
    */
   await page.goto('/');
-  const toolbox = page.locator('.toolbox');
+  const toolbox = page.locator('.tool-header');
   await openSection(page, 'Ouvertures');
   const door = toolbox.getByRole('button', { name: 'Porte', exact: true });
 

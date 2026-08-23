@@ -43,7 +43,7 @@ const FORMATS = [
    * décision prise ailleurs dans la feuille de style, et le budget la reprend
    * plutôt que de la contredire.
    */
-  { id: 'phone', label: '390 × 844', width: 390, height: 844, chromePx: 197 },
+  { id: 'phone', label: '390 × 844', width: 390, height: 844, chromePx: 118 },
 ];
 
 /**
@@ -73,16 +73,23 @@ export const SHELL_BUDGETS = {
    * Descendre plus bas demanderait d'en retirer une, ce que la spécification
    * ne demande pas.
    *
-   * **V4-2 en ajoute 28** : la rangée des sous-parties. C'est une avance, pas
-   * une dépense — elle est ce qui permet à V4-3 de faire descendre les outils
-   * dans un header et de retirer le panneau gauche, que ces 28 px payent
-   * plusieurs fois. Le compte de boutons du panneau est déjà passé de 22 à 15
-   * en la posant. La cible de `docs/UX_ARCHITECTURE_V4.md` §14 est 146 px au
-   * repos, et c'est V4-3 qui la rend atteignable ; ce budget-ci redescend avec
-   * elle. Le relever aujourd'hui et le laisser en l'état serait la seule
-   * façon de se tromper.
+   * **V4-2 en ajoute 28** : la rangée des sous-parties. C'était une avance, et
+   * V4-3 l'a remboursée : les outils sont descendus du panneau gauche dans un
+   * header contre le plan, la barre de vue s'y est fondue — le niveau était
+   * déjà dans la barre d'état, le métier est désormais la rangée des
+   * sous-parties — et le nom de l'application partage sa rangée avec les sept
+   * espaces au lieu d'en prendre une.
+   *
+   * Quatre rangées sont devenues trois : 44 (nom + espaces) + 28
+   * (sous-parties) + 42 (outils), bordures comprises. **116 px**, contre 153
+   * avant la V4 et 306 avant la refonte. La cible de
+   * `docs/UX_ARCHITECTURE_V4.md` §14 était 146 ; le budget la reprend à 118,
+   * c'est-à-dire deux pixels de jeu et pas un de plus.
+   *
+   * La seconde ligne d'options, elle, n'existe qu'avec un outil actif : elle
+   * n'est pas dans ce budget-ci parce qu'elle n'est pas là au repos.
    */
-  chromeAboveCanvasPx: 182,
+  chromeAboveCanvasPx: 118,
   topBarPx: 48,
   /**
    * Part de la fenêtre occupée par le plan.
@@ -112,8 +119,13 @@ export const SHELL_BUDGETS = {
    * permanence — et UX-8 en retire quatre : les bibliothèques ne sont plus des
    * destinations en tête du panneau, elles se rangent avec ce qu'on cherche.
    * Vingt-deux.
+   *
+   * V4-2 en retire sept en n'ouvrant qu'une sous-partie à la fois : quinze.
+   * Puis V4-3 les sort tous de la colonne — les outils sont contre le plan —
+   * et il en reste **deux**. Le budget passe à huit, ce qui laisse la place
+   * d'un navigateur de modèle sans laisser celle d'une seconde barre d'outils.
    */
-  leftColumnButtons: 26,
+  leftColumnButtons: 8,
   /** Zones qui réservent de la place sans rien montrer. */
   emptyReservedZones: 0,
 };
