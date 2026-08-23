@@ -886,13 +886,17 @@ manques, avec ce que chacun coûte.
 | 6   | ~~**Pans de toiture** posés d'un coup~~ — _livré_                     | les pignons vont sur les côtés les plus courts ; l'inspecteur garde le dernier mot côté par côté                                           | petit |
 | 7   | ~~**Pente visible** sur une évacuation~~ — _livré_                    | `routeFall` la calculait déjà ; une évacuation en dessous d'un pour cent est marquée                                                       | petit |
 | 8   | ~~**Natures d'aménagement extérieur**~~ — _livré_                     | `SiteObstacleKind` en tient quatre de plus : allée, stationnement, voirie, terrasse                                                        | petit |
-| 9   | **Clôture, haie, portail**                                            | soit des natures d'obstacle linéaires, soit des familles de catalogue — à décider avant d'écrire                                           | moyen |
+| 9   | ~~**Clôture, haie, portail**~~ — _livré_                              | trois natures d'obstacle de plus : elles bordent, se tracent en long, et une haie ombre pour de bon                                        | moyen |
 | 10  | ~~**Fusionner deux pièces**~~ — _livré_                               | retirer la cloison qui sépare, et relire du modèle le contour qui reste                                                                    | moyen |
 | 11  | **La maison comme objet déplaçable**                                  | une sélection « tout le bâti » et une transformation qui la porte, pour `TERRAIN › Implantation`                                           | gros  |
 
-Aucun de ces onze n'est un préalable à la navigation : les sept onglets et les
-headers peuvent être construits sur ce qui existe, et chaque manque se comble
-ensuite sans rien déplacer.
+Aucun de ces onze n'était un préalable à la navigation : les sept onglets et
+les headers ont été construits sur ce qui existait, et chaque manque s'est
+comblé ensuite sans rien déplacer.
+
+**Dix sur onze sont levés.** Le onzième — la maison comme objet déplaçable —
+touche le modèle et non l'écran, et se décide à part : ce n'est pas un manque
+de l'interface, c'est une notion que le modèle n'a pas.
 
 ---
 

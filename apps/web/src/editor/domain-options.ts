@@ -178,6 +178,9 @@ export const SITE_OBSTACLE_OPTIONS = optionsFrom<SiteObstacleKind>(
     PARKING: 'Stationnement',
     ROAD: 'Voirie',
     TERRACE: 'Terrasse',
+    FENCE: 'Clôture',
+    HEDGE: 'Haie',
+    GATE: 'Portail',
     OTHER: 'Autre',
   },
 );

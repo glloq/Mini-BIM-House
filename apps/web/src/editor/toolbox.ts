@@ -275,6 +275,22 @@ const STAGE_SECTIONS: Readonly<
           'OTHER',
           'SITE_RAINWATER_TANK',
         ),
+        entry(
+          'site.hedge',
+          'SITE',
+          'Haie',
+          'Tracer une haie, pour son ombre',
+          'TREE',
+          { target: 'OBSTACLE', kind: 'HEDGE' },
+        ),
+        entry('site.fence', 'SITE', 'Clôture', 'Tracer une clôture', 'WALL', {
+          target: 'OBSTACLE',
+          kind: 'FENCE',
+        }),
+        entry('site.gate', 'SITE', 'Portail', 'Tracer un portail', 'DOOR', {
+          target: 'OBSTACLE',
+          kind: 'GATE',
+        }),
       ],
     },
     {
