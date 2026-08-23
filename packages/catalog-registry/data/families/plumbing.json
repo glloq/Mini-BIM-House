@@ -394,7 +394,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "SITE_FEATURE"
     },
     {
       "id": "WATER_METER",
@@ -420,7 +420,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "SENSOR"
+      "category": "METER"
     },
     {
       "id": "MAIN_VALVE",
@@ -446,7 +446,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "BACKFLOW_PREVENTER",
@@ -472,7 +472,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "PRESSURE_REDUCER",
@@ -498,7 +498,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "FILTER",
@@ -524,7 +524,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "WATER_TREATMENT"
     },
     {
       "id": "SEDIMENT_FILTER",
@@ -550,7 +550,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "WATER_TREATMENT"
     },
     {
       "id": "CARBON_FILTER",
@@ -576,7 +576,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "WATER_TREATMENT"
     },
     {
       "id": "UV_TREATMENT",
@@ -603,7 +603,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "WATER_TREATMENT"
     },
     {
       "id": "WATER_SOFTENER",
@@ -630,7 +630,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "WATER_TREATMENT"
     },
     {
       "id": "BOOSTER_PUMP",
@@ -677,7 +677,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VESSEL"
     },
     {
       "id": "MANIFOLD",
@@ -703,7 +703,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "TEE",
@@ -729,7 +729,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "ELBOW",
@@ -755,7 +755,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "COUPLING",
@@ -781,7 +781,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "REDUCER",
@@ -807,7 +807,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "ISOLATION_VALVE",
@@ -833,7 +833,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "CHECK_VALVE",
@@ -859,7 +859,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "BALANCING_VALVE",
@@ -885,7 +885,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "DRAIN_VALVE",
@@ -911,7 +911,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "AIR_VENT",
@@ -935,7 +935,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "FLOW_METER",
@@ -961,7 +961,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "SENSOR"
+      "category": "METER"
     },
     {
       "id": "SUB_METER",
@@ -987,7 +987,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "SENSOR"
+      "category": "METER"
     },
     {
       "id": "THERMOSTATIC_MIXING_VALVE",
@@ -1007,7 +1007,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "DHW_RECIRCULATION_PUMP",
@@ -1199,7 +1199,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["WASTEWATER"],
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "EXPANSION_VESSEL",
@@ -1219,7 +1219,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VESSEL"
     },
     {
       "id": "THERMOSTATIC_MIXER",
@@ -1239,7 +1239,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "RECIRCULATION_PUMP",

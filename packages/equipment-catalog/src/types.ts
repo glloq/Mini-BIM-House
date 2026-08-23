@@ -14,27 +14,62 @@ export type EquipmentCatalogKind = 'GENERIC' | 'PRODUCT' | 'CUSTOM';
  * Families the application can place and connect. The list is closed so a
  * definition cannot silently introduce a category the interface and the
  * calculation modules do not know how to treat.
+ *
+ * It held twenty words, and two hundred and one families of the nomenclature
+ * answered `OTHER` — which is exact and useless: a list that cannot say
+ * « mobilier », « vanne » or « prise de terre » cannot be asked for them
+ * either. CG-04 wrote that down rather than letting a fiche in a hurry add a
+ * value in passing; this is the deliberate lengthening it asked for, and
+ * `scripts/equipment-categories.ts` is the family-by-family decision that goes
+ * with it.
+ *
+ * Twenty-one words, each one covering a group of families that exists. Four
+ * families left `PROTECTION_DEVICE` for `CONTROL_DEVICE` — a contactor
+ * protects nothing — and seven left `SENSOR` for `METER`: a meter counts what
+ * has passed, a sensor says what is happening now, and the difference is the
+ * one between a bill and a setpoint.
  */
 export const EQUIPMENT_CATEGORIES = [
   'HEAT_PUMP',
   'BOILER',
+  'STOVE',
   'RADIATOR',
   'UNDERFLOOR_HEATING',
+  'HEAT_EXCHANGER',
   'DHW_TANK',
+  'VESSEL',
+  'HYDRAULIC_ACCESSORY',
   'VENTILATION_UNIT',
   'AIR_TERMINAL',
+  'AIR_ACCESSORY',
   'FAN',
   'PUMP',
+  'VALVE',
+  'FITTING',
+  'FLUE_COMPONENT',
   'PV_MODULE',
   'INVERTER',
   'BATTERY',
+  'MOUNTING',
   'LUMINAIRE',
   'SOCKET',
+  'CONTROL_DEVICE',
   'DISTRIBUTION_BOARD',
   'PROTECTION_DEVICE',
+  'EARTHING_DEVICE',
+  'CABLE_ROUTING',
+  'APPLIANCE',
   'SANITARY_FIXTURE',
+  'WATER_TREATMENT',
+  'DRAINAGE',
   'RAINWATER_TANK',
+  'RAINWATER_DEVICE',
   'SENSOR',
+  'METER',
+  'DATA_DEVICE',
+  'SAFETY_DEVICE',
+  'FURNITURE',
+  'SITE_FEATURE',
   'OTHER',
 ] as const;
 export type EquipmentCategory = (typeof EQUIPMENT_CATEGORIES)[number];

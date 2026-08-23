@@ -2237,11 +2237,11 @@
       {
         "id": "generic-heating-buffer-tank",
         "familyId": "BUFFER_TANK",
-        "kind": "OTHER",
+        "kind": "VESSEL",
         "catalogKind": "GENERIC",
         "version": "1.1.0",
         "name": "Ballon tampon",
-        "category": "OTHER",
+        "category": "VESSEL",
         "dimensions": {
           "widthMm": 600,
           "depthMm": 600,

@@ -19,7 +19,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "APPLIANCE_BRANCH",
@@ -39,7 +39,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "WASTE_BRANCH",
@@ -59,7 +59,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "SOIL_BRANCH",
@@ -79,7 +79,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "WASTE_STACK",
@@ -100,7 +100,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["DRAIN_VENT"],
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "SOIL_STACK",
@@ -121,7 +121,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["DRAIN_VENT"],
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "VENT_STACK",
@@ -141,7 +141,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "SECONDARY_VENT",
@@ -161,7 +161,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "SANITARY_TEE",
@@ -189,7 +189,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "WYE",
@@ -217,7 +217,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "LONG_RADIUS_BEND",
@@ -238,7 +238,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "WASTE_REDUCER",
@@ -258,7 +258,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "CLEANOUT",
@@ -279,7 +279,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "ACCESS_CAP",
@@ -300,7 +300,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["SOILWATER_INLET"],
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "INSPECTION_CHAMBER",
@@ -321,7 +321,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "BACKWATER_VALVE",
@@ -342,7 +342,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "LIFTING_STATION",
@@ -405,7 +405,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["SOILWATER_INLET"],
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "SEPTIC_TANK",
@@ -431,7 +431,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["DRAIN_VENT"],
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "GREASE_TRAP",
@@ -451,7 +451,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "MICRO_TREATMENT_PLANT",
@@ -478,7 +478,7 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["DRAIN_VENT"],
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "DRAIN_FIELD",
@@ -498,7 +498,7 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "ROOF_CATCHMENT",
@@ -520,7 +520,7 @@
         "CALCULATION": "NONE"
       },
       "hint": "La surface de collecte, la pente et l’orientation viennent de la toiture ; elles ne se ressaisissent pas.",
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "VALLEY_GUTTER",
@@ -541,7 +541,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "GUTTER",
@@ -563,7 +563,7 @@
         "CALCULATION": "NONE"
       },
       "optionalPorts": ["RAINWATER_OVERFLOW"],
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "BOX_GUTTER",
@@ -585,7 +585,7 @@
         "CALCULATION": "NONE"
       },
       "optionalPorts": ["RAINWATER_OVERFLOW"],
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "ROOF_DRAIN",
@@ -606,7 +606,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "LEAF_GUARD",
@@ -627,7 +627,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "DOWNPIPE",
@@ -648,7 +648,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "RAINWATER_CHAMBER",
@@ -669,7 +669,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "FIRST_FLUSH",
@@ -691,7 +691,7 @@
         "CALCULATION": "NONE"
       },
       "optionalPorts": ["RAINWATER_OVERFLOW"],
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "RAIN_FILTER",
@@ -713,7 +713,7 @@
         "CALCULATION": "NONE"
       },
       "optionalPorts": ["RAINWATER_OVERFLOW"],
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "RAINWATER_TANK",
@@ -821,7 +821,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "SOAKAWAY",
@@ -843,7 +843,7 @@
         "CALCULATION": "NONE"
       },
       "optionalPorts": ["RAINWATER_OVERFLOW"],
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "INFILTRATION_TRENCH",
@@ -865,7 +865,7 @@
         "CALCULATION": "NONE"
       },
       "optionalPorts": ["RAINWATER_OVERFLOW"],
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "SWALE",
@@ -887,7 +887,7 @@
         "CALCULATION": "NONE"
       },
       "optionalPorts": ["RAINWATER_OUT"],
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "RETENTION_BASIN",
@@ -909,7 +909,7 @@
         "CALCULATION": "NONE"
       },
       "optionalPorts": ["RAINWATER_OVERFLOW"],
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "DETENTION_BASIN",
@@ -931,7 +931,7 @@
         "CALCULATION": "NONE"
       },
       "optionalPorts": ["RAINWATER_OVERFLOW"],
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "PUBLIC_STORM_CONNECTION",
@@ -952,7 +952,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     }
   ]
 }

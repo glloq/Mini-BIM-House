@@ -64,9 +64,9 @@ vraisemblablement des **ouvertures** rangées dans le registre des assemblages :
 une fenêtre de toit a un Uw, un facteur solaire et un vantail, c'est-à-dire le
 contrat `OPENING`, pas celui d'une paroi.
 
-## CG-04 — le vocabulaire des catégories d'équipement est trop court
+## CG-04 — le vocabulaire des catégories d'équipement était trop court
 
-**Registre** `EQUIPMENT` · **plus de deux cents familles** · toutes vagues
+**Registre** `EQUIPMENT` · **201 familles** · toutes vagues · **résolu**
 
 Le mobilier d'abord — `BED`, `SOFA`, `CHAIR`, `TABLE`, `DESK`, `WARDROBE`,
 `CABINET`, `KITCHEN_CABINET`, `WORKTOP`, `SHELF` — puis, en vague 2, presque
@@ -95,9 +95,51 @@ compteurs sont en `SENSOR`.
 
 Cette liste est une énumération TypeScript, pas une donnée. L'allonger est une
 modification du format, ce qu'une PR de remplissage ne fait pas — d'où cette
-ligne plutôt qu'une valeur ajoutée en passant. Le jour où le format bouge,
-`FURNITURE`, `VALVE`, `FITTING`, `DRAINAGE` et `RAINWATER_DEVICE` sont les
-valeurs à ajouter, et ces familles les prendront.
+ligne plutôt qu'une valeur ajoutée en passant.
+
+**Le format a bougé, délibérément.** Vingt et un mots ont été ajoutés, chacun
+couvrant un groupe de familles qui existe :
+
+| catégorie             | ce qu'elle nomme                                               | familles |
+| --------------------- | -------------------------------------------------------------- | -------- |
+| `FITTING`             | ce qui change la direction, la section ou le nombre d'un tracé | 28       |
+| `VALVE`               | ce qui ouvre, ferme, limite ou mélange un débit                | 19       |
+| `RAINWATER_DEVICE`    | ce qui recueille, retient ou infiltre la pluie                 | 18       |
+| `CONTROL_DEVICE`      | ce qui commande                                                | 17       |
+| `DRAINAGE`            | ce qui emmène et traite ce qu'on rejette                       | 15       |
+| `DATA_DEVICE`         | ce qui transporte de l'information                             | 14       |
+| `FLUE_COMPONENT`      | ce qui évacue les fumées et amène l'air comburant              | 11       |
+| `APPLIANCE`           | l'électroménager et la recharge                                | 10       |
+| `EARTHING_DEVICE`     | ce qui met à la terre                                          | 10       |
+| `FURNITURE`           | ce qui meuble                                                  | 10       |
+| `METER`               | ce qui compte                                                  | 9        |
+| `SAFETY_DEVICE`       | ce qui alerte, surveille ou éteint                             | 8        |
+| `AIR_ACCESSORY`       | ce qui règle, atténue ou filtre un circuit d'air               | 7        |
+| `STOVE`               | ce qui brûle du bois dans la pièce qu'il chauffe               | 6        |
+| `CABLE_ROUTING`       | ce qui porte et abrite les câbles                              | 6        |
+| `HYDRAULIC_ACCESSORY` | ce qui sépare, purge ou filtre un circuit humide               | 5        |
+| `WATER_TREATMENT`     | ce qui traite l'eau avant qu'on la boive                       | 5        |
+| `HEAT_EXCHANGER`      | ce qui fait passer la chaleur d'un fluide à un autre           | 4        |
+| `VESSEL`              | ce qui tient un volume sous pression                           | 4        |
+| `SITE_FEATURE`        | ce qui est sur la parcelle et n'est pas un bâtiment            | 4        |
+| `MOUNTING`            | ce qui porte un module ou un capteur                           | 3        |
+
+Les deux rangements faits faute de mieux ont été défaits : **contacteur,
+télérupteur, minuterie et délesteur** quittent `PROTECTION_DEVICE` pour
+`CONTROL_DEVICE` — un contacteur ne protège rien — et **sept compteurs**
+quittent `SENSOR` pour `METER` : un compteur compte ce qui est passé, un
+capteur dit ce qui se passe, et la différence est celle entre une facture et
+une consigne.
+
+**Une seule famille reste en `OTHER`** : l'optimiseur photovoltaïque. Une
+catégorie pour un seul objet est un mot que personne ne cherchera ; le jour où
+l'électronique de puissance au niveau du module se décline, la liste
+s'allongera encore, délibérément, comme aujourd'hui.
+
+La décision famille par famille est dans `scripts/equipment-categories.ts`,
+qui la rejoue et échoue plutôt que de laisser une famille sans mot : c'est un
+script parce qu'un rangement de deux cents familles que personne ne peut
+relire est un rangement que personne ne peut vérifier.
 
 Le mobilier n'a pas non plus de symbole de plan, et cela n'est pas un écart de
 contrat : l'axe `PLAN_SYMBOL` le mesure déjà à `NONE`, ce qui est la bonne

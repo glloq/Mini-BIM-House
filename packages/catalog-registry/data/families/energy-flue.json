@@ -109,7 +109,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "MOUNTING",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -137,7 +137,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "MOUNTING"
     },
     {
       "id": "GROUND_MOUNT",
@@ -164,7 +164,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "MOUNTING"
     },
     {
       "id": "OPTIMIZER",
@@ -526,7 +526,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SENSOR",
+      "category": "METER",
       "optionalPorts": ["CONTROL", "EARTH"]
     },
     {
@@ -554,7 +554,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SENSOR",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -694,7 +694,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -897,7 +897,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
@@ -919,7 +919,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR", "FUEL_PELLET"]
     },
     {
@@ -941,7 +941,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
@@ -963,7 +963,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR", "FUEL_PELLET"]
     },
     {
@@ -985,7 +985,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
@@ -1007,7 +1007,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
@@ -1028,7 +1028,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1049,7 +1049,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1070,7 +1070,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1091,7 +1091,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1112,7 +1112,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1133,7 +1133,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1154,7 +1154,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1175,7 +1175,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1196,7 +1196,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1217,7 +1217,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1238,7 +1238,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1259,7 +1259,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1280,7 +1280,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1301,7 +1301,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER"
+      "category": "FLUE_COMPONENT"
     },
     {
       "id": "COMBUSTION_AIR_DUCT",
@@ -1321,7 +1321,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER"
+      "category": "FLUE_COMPONENT"
     },
     {
       "id": "EXTERNAL_AIR_TERMINAL",
@@ -1341,7 +1341,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["FLUE_GAS_INLET"]
     }
   ]

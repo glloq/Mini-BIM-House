@@ -421,7 +421,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "HEAT_EXCHANGER",
       "optionalPorts": ["CONTROL"]
     },
     {
@@ -455,7 +455,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "HEAT_EXCHANGER",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -511,7 +511,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "BUFFER_TANK",
@@ -532,7 +532,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "VESSEL",
       "optionalPorts": ["PRIMARY_FLOW", "PRIMARY_RETURN"]
     },
     {
@@ -559,7 +559,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "HYDRAULIC_ACCESSORY"
     },
     {
       "id": "HEATING_EXPANSION_VESSEL",
@@ -586,7 +586,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "VESSEL"
     },
     {
       "id": "SAFETY_VALVE",
@@ -613,7 +613,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "VALVE",
       "optionalPorts": ["WASTEWATER"]
     },
     {
@@ -635,7 +635,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "HYDRAULIC_ACCESSORY"
     },
     {
       "id": "HEATING_AIR_VENT",
@@ -662,7 +662,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "DIRT_SEPARATOR",
@@ -683,7 +683,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "HYDRAULIC_ACCESSORY"
     },
     {
       "id": "MAGNETIC_FILTER",
@@ -704,7 +704,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "HYDRAULIC_ACCESSORY"
     },
     {
       "id": "HEATING_ISOLATION_VALVE",
@@ -725,7 +725,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "HEATING_CHECK_VALVE",
@@ -746,7 +746,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "HEATING_BALANCING_VALVE",
@@ -767,7 +767,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "THREE_WAY_VALVE",
@@ -794,7 +794,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "VALVE",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -823,7 +823,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "VALVE",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -1072,7 +1072,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies.",
-      "category": "SENSOR",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -1218,7 +1218,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["ELECTRICAL_AC", "CONDENSATE", "CONTROL"]
     },
     {
@@ -1249,7 +1249,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "CONDENSATE_DRAIN",
@@ -1270,7 +1270,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
-      "category": "OTHER",
+      "category": "HYDRAULIC_ACCESSORY",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -1546,7 +1546,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "VENTILATION_TEE",
@@ -1586,7 +1586,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "Y_BRANCH",
@@ -1626,7 +1626,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "VENTILATION_REDUCER",
@@ -1668,7 +1668,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "TRANSITION",
@@ -1710,7 +1710,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "PLENUM",
@@ -1750,7 +1750,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "DAMPER",
@@ -1792,7 +1792,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "AIR_ACCESSORY",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -1835,7 +1835,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "AIR_ACCESSORY"
     },
     {
       "id": "BACKDRAFT_DAMPER",
@@ -1877,7 +1877,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "AIR_ACCESSORY"
     },
     {
       "id": "FIRE_DAMPER",
@@ -1919,7 +1919,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "AIR_ACCESSORY",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -1962,7 +1962,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "AIR_ACCESSORY"
     },
     {
       "id": "VENTILATION_FILTER",
@@ -2004,7 +2004,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "AIR_ACCESSORY"
     },
     {
       "id": "HEATING_COIL",
@@ -2048,7 +2048,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "HEAT_EXCHANGER",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -2102,7 +2102,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "HEAT_EXCHANGER",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -2124,7 +2124,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "AIR_ACCESSORY"
     }
   ]
 }

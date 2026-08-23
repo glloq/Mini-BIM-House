@@ -19,7 +19,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER"
+      "category": "DATA_DEVICE"
     },
     {
       "id": "FIBER_TERMINATION",
@@ -46,7 +46,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -68,7 +68,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER"
+      "category": "DATA_DEVICE"
     },
     {
       "id": "NETWORK_RACK",
@@ -94,7 +94,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC", "FIBER"]
     },
     {
@@ -121,7 +121,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER"
+      "category": "DATA_DEVICE"
     },
     {
       "id": "NETWORK_SWITCH",
@@ -148,7 +148,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["FIBER"]
     },
     {
@@ -176,7 +176,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["FIBER", "COAX", "WIRELESS"]
     },
     {
@@ -198,7 +198,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -220,7 +220,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC", "WIRELESS"]
     },
     {
@@ -248,7 +248,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -270,7 +270,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -488,7 +488,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["BUS", "CONTROL", "WIRELESS"]
     },
     {
@@ -510,7 +510,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["BUS", "WIRELESS"]
     },
     {
@@ -532,7 +532,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["BUS", "WIRELESS"]
     },
     {
@@ -554,7 +554,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -576,7 +576,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -598,7 +598,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -620,7 +620,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -642,7 +642,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -752,7 +752,7 @@
         "MODEL": "PARTIAL",
         "RULES": "NONE"
       },
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["WIRELESS", "BUS", "ETHERNET", "DRY_CONTACT"]
     },
     {
@@ -780,7 +780,7 @@
         "MODEL": "PARTIAL",
         "RULES": "NONE"
       },
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -852,7 +852,7 @@
         "MODEL": "PARTIAL",
         "RULES": "NONE"
       },
-      "category": "OTHER"
+      "category": "SAFETY_DEVICE"
     },
     {
       "id": "FIRE_BLANKET",
@@ -873,7 +873,7 @@
         "MODEL": "PARTIAL",
         "RULES": "NONE"
       },
-      "category": "OTHER"
+      "category": "SAFETY_DEVICE"
     },
     {
       "id": "SAFETY_EMERGENCY_LIGHT",
@@ -916,7 +916,7 @@
         "MODEL": "PARTIAL",
         "RULES": "NONE"
       },
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -966,7 +966,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "METER"
     },
     {
       "id": "WATER_CHAMBER",
@@ -993,7 +993,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "SITE_FEATURE"
     },
     {
       "id": "SEWER_CHAMBER",
@@ -1025,7 +1025,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "SITE_RAINWATER_CHAMBER",
@@ -1046,7 +1046,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE"
     },
     {
       "id": "SITE_SEPTIC_TANK",
@@ -1078,7 +1078,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "SITE_MICRO_TREATMENT_PLANT",
@@ -1111,7 +1111,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "ELECTRICAL_SERVICE_BOX",
@@ -1166,7 +1166,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "METER"
     },
     {
       "id": "SITE_EARTH_ROD",
@@ -1187,7 +1187,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "EARTHING_DEVICE"
     },
     {
       "id": "OUTDOOR_HEAT_PUMP",
@@ -1273,7 +1273,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER",
+      "category": "SITE_FEATURE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -1295,7 +1295,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER",
+      "category": "SITE_FEATURE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -1317,7 +1317,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "SITE_EV_CHARGER",
@@ -1338,7 +1338,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER",
+      "category": "APPLIANCE",
       "optionalPorts": ["ETHERNET", "WIRELESS", "CONTROL"]
     },
     {
@@ -1597,7 +1597,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "SOFA",
@@ -1617,7 +1617,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "CHAIR",
@@ -1637,7 +1637,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "TABLE",
@@ -1657,7 +1657,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "DESK",
@@ -1677,7 +1677,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "WARDROBE",
@@ -1697,7 +1697,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "CABINET",
@@ -1717,7 +1717,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "KITCHEN_CABINET",
@@ -1737,7 +1737,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "WORKTOP",
@@ -1757,7 +1757,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "SHELF",
@@ -1777,7 +1777,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     }
   ]
 }
