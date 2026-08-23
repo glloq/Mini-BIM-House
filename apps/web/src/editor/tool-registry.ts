@@ -1429,6 +1429,17 @@ export function toolDefinition(tool: EditorTool): EditorToolDefinition {
   return EDITOR_TOOLS.find(({ id }) => id === tool)!;
 }
 
+/**
+ * The tool an identifier names, when the registry holds one.
+ *
+ * `toolDefinition` answers for an identifier the compiler already knows; this
+ * one answers for a string that may name nothing, which is what a toolbox
+ * entry or a saved preference hands over.
+ */
+export function toolById(id: string): EditorToolDefinition | undefined {
+  return EDITOR_TOOLS.find((tool) => tool.id === id);
+}
+
 /** The tools of one family, in the order they were registered. */
 /** The tools of one group that this level of the interface offers. */
 export function toolsInGroupAtLevel(

@@ -225,6 +225,21 @@ Ce qu'un outil laisse décider avant de dessiner se trouve **sous l'outil**,
 dans le panneau contextuel : choisir un assemblage fait partie du choix de
 l'outil mur, ce n'est pas une course séparée en haut de la fenêtre.
 
+**La boîte à outils propose ce que l'étape demande.**
+`apps/web/src/editor/toolbox.ts` déclare, par étape et par sous-étape, des
+**entrées** : un outil du registre plus ce qu'on aurait choisi juste après.
+« Porte » est l'outil ouverture avec le type déjà mis ; « WC » est l'outil
+composant avec la fiche déjà désignée. Le registre reste à vingt-cinq outils et
+continue de parler la langue du modèle ; la boîte parle celle de la personne.
+
+Une entrée nomme une **famille** de la nomenclature, jamais une fiche : la
+fiche est celle que le catalogue du projet tient, et une entrée dont la famille
+n'est pas installée n'est pas offerte. Une entrée qui ne change rien à son
+outil porte le nom de l'outil — deux noms pour une même chose sur un même écran
+font croire qu'il y en a deux. Ce que l'étape ne propose pas est sous « Tous
+les outils », sur le même écran : un test refuse qu'un outil du registre
+devienne inatteignable.
+
 ## 8 bis. Systèmes, la visibilité et le navigateur
 
 **Systèmes** n'est pas une autre application : c'est le même dessin, le même

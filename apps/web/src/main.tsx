@@ -65,7 +65,7 @@ import type { ClearanceGroupId } from './editor/clearance-overlay.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { LayersPanel } from './editor/LayersPanel.js';
 import { ContextToolBar } from './editor/ContextToolBar.js';
-import { ToolsPanel } from './editor/ToolsPanel.js';
+import { Toolbox } from './editor/Toolbox.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
 import { scenarioOverride } from './scenarios/scenario-changes.js';
@@ -2262,14 +2262,22 @@ function App() {
           )}
           {tab === 'plan' && (
             <>
-              <ToolsPanel
+              <Toolbox
                 project={file.project}
+                stage={navigation.stage}
+                {...(activeDomain === undefined
+                  ? {}
+                  : { domain: activeDomain })}
                 editor={editor}
                 dispatch={dispatchEditor}
                 drafts={toolDrafts}
                 onDraftChange={(key, value) =>
                   setToolDrafts((current) => ({ ...current, [key]: value }))
                 }
+                onDraftsChange={(prefilled) =>
+                  setToolDrafts((current) => ({ ...current, ...prefilled }))
+                }
+                onOpenLibrary={() => setTab('equipment')}
               />
               {/*
                 The model tree is a way of finding an object, not a way of

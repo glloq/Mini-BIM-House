@@ -113,8 +113,16 @@ export const BUDGETS = {
    * permanence dans la barre. Un nombre qui dit « il reste trois choses dans
    * Systèmes » se paie dans le premier chargement, parce que la barre est là
    * dès le premier écran.
+   *
+   * Et cinq de plus pour la boîte à outils : cinquante-quatre dessins de vingt
+   * pixels, plus les entrées qui disent ce qu'on pose. Une colonne de vingt-cinq
+   * libellés se lit ligne à ligne ; une grille se balaie, et c'est l'icône qui
+   * fait la grille. Aucun de ces octets ne peut attendre — la boîte est le
+   * premier panneau du premier écran. Aucune bibliothèque d'icônes n'est
+   * installée pour autant : ce sont des `<svg>` en ligne, en `currentColor`,
+   * et la plus légère des bibliothèques aurait coûté davantage.
    */
-  initialGzipBytes: 271 * 1024,
+  initialGzipBytes: 276 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -183,8 +191,12 @@ export const BUDGETS = {
    *
    * Et un de plus avec les neuf étapes : le registre des étapes et le compte
    * de ce qu'il reste, tous deux dans la coque.
+   *
+   * Et quatre avec la boîte à outils, pour la même raison et par le même
+   * montant : les icônes sont le premier panneau du premier écran, donc rien
+   * d'elles ne pouvait passer derrière une frontière paresseuse.
    */
-  totalGzipBytes: 442 * 1024,
+  totalGzipBytes: 447 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

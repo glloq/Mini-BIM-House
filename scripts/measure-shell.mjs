@@ -66,10 +66,20 @@ export const SHELL_BUDGETS = {
   /**
    * Boutons offerts d'un coup dans la colonne de gauche.
    *
-   * Cent quarante et un aujourd'hui : c'est le défaut que UX-3 traite, et le
-   * budget ne le mesure ici que pour l'empêcher de croître.
+   * Cette mesure comptait le DOM et annonçait 143 : elle additionnait tout ce
+   * qui dormait dans un dépliage fermé — les cent onze entrées de
+   * l'arborescence, les « Plus d'outils » de chaque groupe. Un bouton replié
+   * est atteignable, il n'est pas offert, et c'est la seconde chose qu'il
+   * fallait compter. Offerts d'un coup, ils étaient vingt-cinq avant UX-3 et
+   * sont vingt-quatre après.
+   *
+   * Ce que UX-3 change n'est donc pas le nombre : c'est ce que ces boutons
+   * sont. Vingt-cinq outils génériques qui ne bougeaient jamais, contre une
+   * dizaine d'entrées qui nomment ce qu'on pose — Porte, Fenêtre, WC, Prise —
+   * et qui suivent l'étape, plus neuf communs. Le budget est ici pour
+   * empêcher la colonne de regrossir.
    */
-  leftColumnButtons: 142,
+  leftColumnButtons: 30,
   /** Zones qui réservent de la place sans rien montrer. */
   emptyReservedZones: 0,
 };
@@ -151,7 +161,26 @@ function readShell() {
     topBarPx: height('.app-header'),
     chromeAboveCanvasPx: canvas === undefined ? 0 : Math.round(canvas.top),
     canvasVisiblePx: visible(canvas),
-    leftColumnButtons: document.querySelectorAll('.sidebar button').length,
+    // Ce qui est offert d'un coup, et non ce que le DOM contient.
+    //
+    // Un bouton dans un dépliage fermé est atteignable ; il n'est pas offert,
+    // et c'est exactement la différence que la refonte poursuit. Le navigateur
+    // garde ces boutons dans le document et leur laisse même une boîte, donc
+    // la question se pose au `details` : est-il ouvert ?
+    leftColumnButtons: [...document.querySelectorAll('.sidebar button')].filter(
+      (element) => {
+        if (element.getClientRects().length === 0) return false;
+        for (
+          let holder = element.parentElement;
+          holder !== null;
+          holder = holder.parentElement
+        ) {
+          if (holder.tagName === 'DETAILS' && !holder.open) return false;
+          if (holder.classList.contains('sidebar')) break;
+        }
+        return true;
+      },
+    ).length,
     emptyReservedZones: reserved,
   };
 }

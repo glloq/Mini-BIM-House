@@ -1720,10 +1720,15 @@ test('shows nothing above the plan until something is being done', async ({
   await expect(bar).toHaveClass(/is-empty/u);
   await expect(bar.getByRole('button')).toHaveCount(0);
 
-  // The tools live in the context panel, grouped by trade.
-  const tools = page.locator('.tools-panel');
+  // Les outils vivent dans le panneau de contexte, groupés par sous-étape :
+  // ce que l'étape Bâtiment met sous la main, et non les vingt-cinq du
+  // registre.
+  const tools = page.locator('.toolbox');
   await expect(
-    tools.getByRole('region', { name: 'Outils · Architecture' }),
+    tools.getByRole('region', { name: 'Outils · Murs' }),
+  ).toBeVisible();
+  await expect(
+    tools.getByRole('region', { name: 'Outils · Ouvertures' }),
   ).toBeVisible();
   await chooseTool(page, 'Mur');
   await expect(bar).toContainText('Mur');
@@ -1749,10 +1754,16 @@ test('shows nothing above the plan until something is being done', async ({
   await expect(bar.getByRole('group', { name: 'Alignement' })).toBeVisible();
   await expect(bar).not.toContainText('Terminer');
 
-  // One screen for everyone: the advanced tools are a disclosure away, not a
-  // mode away.
+  // Un seul écran pour tout le monde : ce que l'étape ne propose pas est à un
+  // dépliage, pas à un changement de mode. Une étape filtre ce qui est
+  // proposé ; elle ne restreint jamais ce qui est possible.
   await expect(page.getByLabel('Niveau d’interface')).toHaveCount(0);
-  await expect(tools.getByText('Plus d’outils').first()).toBeVisible();
+  const others = tools.getByText(/^Tous les outils/u).first();
+  await expect(others).toBeVisible();
+  await others.click();
+  await expect(
+    tools.getByRole('button', { name: 'Composant', exact: true }),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -2176,6 +2187,41 @@ test('reads the same plan through one discipline at a time', async ({
   await expect(canvas).toBeVisible();
   await expect(walls).toHaveCount(6);
   await expect(page.locator('.canvas-panel h2')).toContainText('Électricité');
+  expect(errors).toEqual([]);
+});
+
+test('names an entry by what it places, and pre-fills its fiche', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await openStage(page, 'Systèmes');
+
+  // « WC » n'est pas un vingt-sixième outil : c'est l'outil composant avec la
+  // fiche WC déjà désignée. Choisir l'entrée fait les deux d'un coup.
+  const toolbox = page.locator('.toolbox');
+  await toolbox.getByRole('button', { name: 'WC', exact: true }).click();
+  await expect(page.getByLabel('Catégorie')).toHaveValue('SANITARY');
+  await expect(page.getByLabel('Modèle catalogue')).toHaveValue(/generic-wc/u);
+
+  // Et l'entrée voisine change la fiche sans changer d'outil.
+  await toolbox.getByRole('button', { name: 'Lavabo', exact: true }).click();
+  await expect(page.getByLabel('Modèle catalogue')).toHaveValue(
+    /generic-washbasin/u,
+  );
+
+  // Et c'est bien un seul outil : la barre au-dessus du dessin nomme
+  // l'outil composant, pas une vingt-sixième entrée du registre.
+  await expect(page.locator('.context-tool-bar')).toContainText('Composant');
+
+  // Ce que l'étape ne propose pas reste atteignable depuis la même colonne.
+  await page
+    .locator('.toolbox')
+    .getByText(/^Tous les outils/u)
+    .click();
+  await expect(
+    page.locator('.toolbox').getByRole('button', { name: 'Mur', exact: true }),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
 

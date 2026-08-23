@@ -1965,6 +1965,104 @@ legend {
     display: none;
   }
 }
+/*
+ * La boîte à outils : une grille d'icônes, pas une colonne de libellés.
+ *
+ * Cent quarante et un boutons attendaient dans cette colonne quelle que soit
+ * l'activité. Une grille de trois se balaie ; une colonne de vingt-cinq se
+ * lit ligne à ligne, et on finit par en utiliser cinq.
+ */
+.toolbox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+/*
+ * La boîte reste dans sa colonne, quel que soit le nom des choses.
+ *
+ * Un élément de grille vaut `min-width: auto` : le plus large de ce qu'il
+ * contient fixe la largeur du groupe — et l'une de ces choses est la liste de
+ * ce que le projet tient. Le jour où la maison de référence a été meublée
+ * depuis le catalogue, « Sèche-serviettes eau chaude » a rendu la colonne d'un
+ * tiers plus large que le panneau et poussé les outils sous le dessin, là où
+ * rien ne se clique. Qu'un nom soit long n'est pas une décision de mise en
+ * page.
+ */
+.toolbox > *,
+.toolbox .toolbox-section,
+.toolbox .toolbox-others {
+  min-width: 0;
+}
+.toolbox select,
+.toolbox input {
+  max-width: 100%;
+}
+.toolbox-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.toolbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr));
+  gap: 0.2rem;
+}
+.toolbox-entry {
+  display: flex;
+  min-height: 3.6rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.35rem 0.2rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+}
+.toolbox-entry:hover {
+  border-color: var(--accent);
+}
+.toolbox-entry.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--ink-strong);
+}
+.tool-icon {
+  flex: none;
+}
+/* Ce que l'étape ne propose pas, à un dépliage et sur le même écran. */
+.toolbox-others > summary {
+  padding: 0.3rem 0;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.toolbox-list {
+  display: grid;
+  gap: 0.1rem;
+}
+.toolbox-list button {
+  border: 0;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.4rem;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  font-weight: 650;
+  text-align: left;
+}
+.toolbox-list button.active {
+  background: var(--accent-soft);
+  color: var(--ink-strong);
+}
+
 /* Les sous-étapes : ce qu'on fait à l'intérieur de l'étape. */
 .stage-sections {
   display: flex;
@@ -2267,60 +2365,6 @@ button.ghost:disabled {
   color: #7a4a12;
 }
 
-/*
- * The tools, in a column rather than a row.
- *
- * A row of forty buttons is a wall for whoever is drawing their first plan,
- * and it takes the width the drawing needs. Grouped by trade, in the context
- * panel, they answer « que puis-je faire ici ».
- */
-.tools-panel {
-  display: grid;
-  gap: 0.6rem;
-  margin-bottom: 0.75rem;
-}
-/*
- * The tools stay inside their column, whatever the project is called.
- *
- * A grid item is `min-width: auto` by default, so the widest thing inside a
- * group sets the width of the group — and one of those things is a list of
- * what the project holds. The day the reference house was furnished from the
- * catalogue, « Sèche-serviettes eau chaude » made the column a third wider
- * than the panel and slid the tools under the drawing, where nothing could be
- * clicked. What a name is long is not a layout decision.
- */
-.tools-panel > *,
-.tools-panel .context-group,
-.tools-panel .tools-advanced {
-  min-width: 0;
-}
-.tools-panel select,
-.tools-panel input {
-  max-width: 100%;
-}
-.tools-panel button {
-  border: 0;
-  background: none;
-  color: #31443b;
-  font-weight: 650;
-  text-align: left;
-  padding: 0.35rem 0.6rem;
-  border-radius: 0.5rem;
-}
-.tools-panel button.active {
-  background: var(--accent-soft);
-  color: var(--ink-strong);
-}
-.tools-advanced summary {
-  padding: 0.3rem 0.6rem;
-  color: var(--ink-soft);
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-.tools-advanced[open] summary {
-  color: var(--ink-strong);
-}
 /*
  * The bar above the drawing: what the current tool and the current selection
  * make possible, and nothing when neither makes anything possible. An empty

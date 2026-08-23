@@ -48,6 +48,14 @@ même code, servi localement.
 | Boutons dans le panneau gauche                 | **143**      | **143**      | ≤ 20 visibles    |
 | Boutons dans la page                           | 161          | 161          | —                |
 
+> **Correction apportée par UX-3.** Les 143 comptaient le DOM : tout ce qui
+> dormait dans un dépliage fermé — les cent onze entrées de l'arborescence, les
+> « Plus d'outils » de chaque groupe. Offerts d'un coup, ils étaient
+> **vingt-cinq**. Le défaut n'était donc pas leur nombre mais leur nature :
+> vingt-cinq outils génériques qui ne changeaient jamais, quelle que soit
+> l'activité. Le seuil de « ≤ 20 visibles » et le tableau du §13.1 se lisent
+> avec ce compte-là.
+
 ### 1.3 Le défaut structurel
 
 `.workspace` n'est pas verrouillé sur la fenêtre :
@@ -108,9 +116,12 @@ plan ne tient pas dans la fenêtre. _→ UX-1._
 passe à la ligne, en-tête de canvas de 140 px répétant ce que la barre de vue
 dira en une ligne, barre d'état de plan sur deux rangées. _→ UX-1, UX-5._
 
-**P3 — Le panneau gauche montre tout, tout le temps.** 143 boutons, huit
-groupes d'outils, quelle que soit l'activité. Poser une prise électrique et
-tracer un mur offrent exactement le même écran. _→ UX-2, UX-3._
+**P3 — Le panneau gauche montre tout, tout le temps.** Vingt-cinq outils
+offerts d'un coup, huit groupes, quelle que soit l'activité — et cent
+quarante-trois boutons dans le DOM si l'on compte ce qui dort replié. Poser
+une prise électrique et tracer un mur offrent exactement le même écran, et
+aucun des vingt-cinq ne dit ce qu'on pose : « Composant » ne se lit pas
+« prise ». _→ UX-2, UX-3._
 
 **P4 — Deux interfaces de visibilité.** `LayersPanel` et `VisibilityPopover`
 répondent à la même question, avec deux présentations. _→ UX-5._
@@ -635,8 +646,31 @@ Trois écarts à la spécification :
   remplace jamais le plan et n'est jamais persistée », et le test le vérifie
   point par point.
 
-**UX-3 — Boîte à outils.** `editor/toolbox.ts`, `tool-icons.tsx`,
-`editor/Toolbox.tsx`, outils dérivés, principaux / secondaires.
+**UX-3 — Boîte à outils.** _Livré._ `editor/toolbox.ts` déclare les entrées par
+étape et par sous-étape, `editor/tool-icons.tsx` dessine cinquante-quatre
+icônes en `<svg>` inline et `currentColor`, `editor/Toolbox.tsx` les rend en
+grille. `ToolsPanel` est supprimé.
+
+Une **entrée** est un outil du registre plus ce qu'on aurait choisi juste
+après : « Porte » est l'outil ouverture avec le type déjà mis, « WC » l'outil
+composant avec la fiche déjà désignée. Le registre reste à vingt-cinq outils ;
+il en aurait fallu une cinquantaine pour offrir la même chose en outils.
+
+**Aucune fiche n'est écrite en dur.** Une entrée nomme une _famille_ de la
+nomenclature — `WC`, `SOCKET_16A`, `RADIATOR` — et la fiche est celle que le
+catalogue du projet propose pour cette famille. Une entrée dont la famille
+n'est pas installée n'est pas offerte, et l'étape dit alors d'où viennent les
+fiches plutôt que de montrer une colonne vide.
+
+Ce que l'étape ne propose pas est sous « Tous les outils », sur le même écran :
+un test refuse qu'un outil du registre devienne inatteignable, et un autre
+qu'une entrée qui ne change rien à son outil porte un autre nom que lui — deux
+noms pour un même outil sur un même écran, et la personne croit en avoir trouvé
+un second.
+
+Mesuré : vingt-cinq boutons offerts d'un coup avant, vingt-quatre après. Le
+gain n'est pas le nombre — voir la correction du §1.2 — c'est que onze d'entre
+eux nomment ce qu'on pose et suivent l'étape.
 
 **UX-4 — Bâtiment.** `ProjectTree` promu, compacté, sorti de `☰ Modèle` ;
 sections Vues et Documents ; le renvoi à `Ctrl+K` remplacé par un bouton.
@@ -672,7 +706,7 @@ une fiche ; les quatre panneaux cessent d'être des destinations.
 | Hauteur de la barre supérieure          | 102 px      | **≤ 48 px**  |
 | Plan visible, deux panneaux ouverts     | —           | **≥ 50 %**   |
 | Plan visible, inspecteur replié         | —           | **≥ 70 %**   |
-| Boutons visibles dans le panneau gauche | 143         | **≤ 20**     |
+| Boutons visibles dans le panneau gauche | 25          | **≤ 20**     |
 | Panneaux vides réservant de la place    | 1           | **0**        |
 
 Le script échoue si un seuil est dépassé : un critère qu'on ne peut pas mesurer
