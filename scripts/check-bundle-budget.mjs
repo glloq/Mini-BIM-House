@@ -106,8 +106,15 @@ export const BUDGETS = {
    * before anything else has been asked for.
    *
    * A budget is a decision, not a measurement. This one was taken knowingly.
+   *
+   * Un kio de plus pour les neuf étapes de création. Le registre remplace les
+   * cinq espaces, qui pesaient déjà : ce que la refonte ajoute vraiment est le
+   * compte de ce qu'il reste à faire par étape, dérivé du modèle et affiché en
+   * permanence dans la barre. Un nombre qui dit « il reste trois choses dans
+   * Systèmes » se paie dans le premier chargement, parce que la barre est là
+   * dès le premier écran.
    */
-  initialGzipBytes: 270 * 1024,
+  initialGzipBytes: 271 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -173,8 +180,11 @@ export const BUDGETS = {
    * And ten more with the initial payload, for the same reason and by the same
    * amount: what the fourteenth audit added to the drawing is the drawing, so
    * none of it could be moved behind a lazy boundary.
+   *
+   * Et un de plus avec les neuf étapes : le registre des étapes et le compte
+   * de ce qu'il reste, tous deux dans la coque.
    */
-  totalGzipBytes: 441 * 1024,
+  totalGzipBytes: 442 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

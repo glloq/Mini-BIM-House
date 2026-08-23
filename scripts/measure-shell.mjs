@@ -44,10 +44,16 @@ export const SHELL_BUDGETS = {
   /**
    * Pixels pris au-dessus du plan par les barres.
    *
-   * UX-1 en mesure 131 ; la cible de §13.1 est 120, et il faut la boîte à
-   * outils contextuelle (UX-3) pour l'atteindre.
+   * UX-1 en mesurait 131. UX-2 en ajoute 34 : la barre d'étapes est une
+   * rangée, là où le rail était une colonne de 56 px. La hauteur coûtée est
+   * rendue en largeur, et la part de fenêtre occupée par le plan n'a pas
+   * bougé — 60 % et 54 %. Un budget est une décision : celle-ci est de payer
+   * 34 px de haut pour 56 px de large et un ordre de lecture.
+   *
+   * La cible de §13.1 est 120 px. Il y faut UX-5, qui fond l'en-tête du canvas
+   * dans la barre de vue : deux rangées deviennent une.
    */
-  chromeAboveCanvasPx: 140,
+  chromeAboveCanvasPx: 170,
   topBarPx: 48,
   /**
    * Part de la fenêtre occupée par le plan.
@@ -60,10 +66,10 @@ export const SHELL_BUDGETS = {
   /**
    * Boutons offerts d'un coup dans la colonne de gauche.
    *
-   * Cent quarante-trois aujourd'hui : c'est le défaut que UX-3 traite, et le
+   * Cent quarante et un aujourd'hui : c'est le défaut que UX-3 traite, et le
    * budget ne le mesure ici que pour l'empêcher de croître.
    */
-  leftColumnButtons: 145,
+  leftColumnButtons: 142,
   /** Zones qui réservent de la place sans rien montrer. */
   emptyReservedZones: 0,
 };

@@ -14,7 +14,7 @@ import type { Project } from '@house-technical-designer/core-domain';
 
 import type { CalculationRun } from '../calculations/calculation-runner.js';
 import type { UiTarget } from '../ux/ui-target.js';
-import { workspaceOfLegacyTab } from '../ux/workspaces.js';
+import { stageOfTab } from '../ux/creation-stages.js';
 import { projectChecks, sourceLabel, summarize } from './checks-model.js';
 
 export interface IssueCenterProps {
@@ -105,7 +105,7 @@ export function IssueCenter({ project, run, onNavigate }: IssueCenterProps) {
                       const objectId = check.fix?.objectIds?.[0];
                       const propertyPath = check.fix?.propertyPath;
                       onNavigate({
-                        workspace: workspaceOfLegacyTab(check.fix!.tab),
+                        stage: stageOfTab(check.fix!.tab),
                         ...(objectId === undefined ? {} : { objectId }),
                         ...(propertyPath === undefined ? {} : { propertyPath }),
                       });

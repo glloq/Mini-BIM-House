@@ -19,7 +19,6 @@
   --shadow: rgba(12, 24, 19, 0.3);
   --scrim: rgba(12, 24, 19, 0.45);
   /* The fixed edges of the shell. */
-  --rail-width: 56px;
   --topbar-height: 52px;
   --statusbar-height: 32px;
 }
@@ -1879,12 +1878,12 @@ legend {
 }
 
 /*
- * The shell: a top edge, a rail, the panels, a bottom edge.
+ * La coque : une rangée de titre, une rangée d'étapes, les panneaux, un pied.
  *
- * The rail is outside the resizable grid on purpose. It is the one part of the
- * application whose width is not a preference: a person who has learnt that
- * Systèmes is the third entry has learnt a position, and a position that moves
- * has not been learnt.
+ * La barre d'étapes est hors de la grille redimensionnable, exprès. C'est la
+ * seule partie de l'application dont la place n'est pas une préférence : qui a
+ * appris que Systèmes est la sixième entrée a appris une position, et une
+ * position qui bouge n'a pas été apprise.
  */
 .shell-body {
   display: flex;
@@ -1895,60 +1894,97 @@ legend {
   flex: 1;
   min-width: 0;
 }
-.primary-rail {
+/*
+ * Neuf étapes sur une rangée de 34 px.
+ *
+ * Un rail vertical prenait 56 px de largeur en permanence pour cinq mots. Une
+ * rangée coûte sa hauteur une fois, rend la largeur au dessin, et se lit dans
+ * l'ordre du chantier — de gauche à droite, comme on lit.
+ */
+.stage-bar {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  flex: 0 0 var(--rail-width);
-  width: var(--rail-width);
-  padding: 0.35rem 0.2rem;
-  border: 1px solid var(--line);
-  border-radius: 0.8rem;
-  background: var(--surface-raised);
-  align-self: start;
-  position: sticky;
-  top: 0.5rem;
+  min-height: 34px;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.15rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
 }
-.rail-entry {
-  display: grid;
-  gap: 0.1rem;
-  justify-items: center;
+.stage-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   border: 0;
-  padding: 0.45rem 0.1rem;
-  border-radius: 0.6rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 0.45rem;
   background: none;
   color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
 }
-.rail-entry:hover {
+.stage-entry:hover {
   background: var(--surface);
 }
-.rail-entry.active {
+.stage-entry.active {
   background: var(--accent-soft);
   color: var(--ink-strong);
 }
-.rail-letter {
-  display: grid;
+/* Ce qu'il reste à faire dans l'étape : un nombre, jamais un barrage. */
+.stage-remaining {
+  display: inline-grid;
   place-items: center;
-  width: 1.65rem;
-  height: 1.65rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--line);
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.2rem;
+  border-radius: 0.6rem;
   background: var(--surface);
-  font-size: 0.85rem;
+  border: 1px solid var(--line);
+  font-size: 0.62rem;
   font-weight: 800;
   line-height: 1;
 }
-.rail-entry.active .rail-letter {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--surface);
+/* En dessous de 1 100 px, neuf libellés deviennent une liste déroulante. */
+.stage-compact {
+  display: none;
 }
-.rail-label {
-  font-size: 0.6rem;
+.stage-compact select {
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  background: var(--surface);
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
-  text-align: center;
+}
+@media (max-width: 1100px) {
+  .stage-compact {
+    display: inline-flex;
+  }
+  .stage-entry {
+    display: none;
+  }
+}
+/* Les sous-étapes : ce qu'on fait à l'intérieur de l'étape. */
+.stage-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  margin-bottom: 0.6rem;
+}
+.stage-sections button {
+  border: 1px solid var(--line);
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.45rem;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.stage-sections button.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--ink-strong);
 }
 .context-group {
   display: grid;
@@ -2020,21 +2056,12 @@ legend {
 }
 @media (max-width: 720px) {
   /*
-   * The rail becomes a row on a phone. It never becomes a drawer: five entries
-   * that are always visible are what the whole arrangement is for.
+   * La barre d'étapes ne devient jamais un tiroir : l'étape qu'on est en train
+   * de faire est ce que la coque doit dire en permanence, et sur un téléphone
+   * elle le dit avec sa liste déroulante.
    */
   .shell-body {
     flex-direction: column;
-  }
-  .primary-rail {
-    position: static;
-    flex-direction: row;
-    width: auto;
-    flex-basis: auto;
-    justify-content: space-between;
-  }
-  .rail-entry {
-    flex: 1;
   }
   .shell-status {
     flex-wrap: wrap;
@@ -2549,7 +2576,7 @@ button.ghost:disabled {
  *
  * ≥ 1400 : everything at its stated size.
  * 1000–1400 : the inspector gives back what it can, the plan takes it.
- * 800–1000 : the panels become drawers; the rail stays.
+ * 800–1000 : the panels become drawers; the stage bar stays.
  * < 800 : reading, not drawing.
  *
  * The rule the whole thing hangs on is that the desktop is not sacrificed for

@@ -28,7 +28,6 @@ import {
   designDomainLabel,
   domainOfDiscipline,
   projectEntities,
-  type DesignDomainId,
 } from '@house-technical-designer/core-domain';
 import {
   applyProjectScenario,
@@ -159,21 +158,25 @@ import {
 import { DisciplinePicker } from './systems/DisciplinePicker.js';
 import { technicalDomains } from './systems/discipline-scope.js';
 import { WorkflowGuide } from './workflow/WorkflowGuide.js';
+import { workflowEntries } from './workflow/workflow-registry.js';
 import { AppShell } from './shell/AppShell.js';
 import { TopBar } from './shell/TopBar.js';
-import { PrimaryRail } from './shell/PrimaryRail.js';
+import { StageBar } from './shell/StageBar.js';
 import { ContextPanel } from './shell/ContextPanel.js';
 import { ShellStatusBar } from './shell/ShellStatusBar.js';
 import { ProjectMenu } from './shell/ProjectMenu.js';
 
 import {
+  activeDomain as activeDomainOf,
   activeTab as activeTabOf,
   DEFAULT_SHELL_NAVIGATION,
+  goToStage,
   goToTab,
-  goToWorkspace,
   navigationFor,
+  remainingByStage,
   type ShellNavigation,
-} from './ux/navigation-state.js';
+} from './ux/stage-state.js';
+import { creationStage, stageOfTab } from './ux/creation-stages.js';
 import {
   PLAN_RENDERINGS,
   defaultPlanRendering,
@@ -183,8 +186,6 @@ import { isEmptyTarget, type UiTarget } from './ux/ui-target.js';
 import {
   LEGACY_WORKSPACE_LABELS,
   LEGACY_WORKSPACE_TABS,
-  primaryWorkspace,
-  workspaceOfLegacyTab,
   type LegacyWorkspaceTab,
 } from './ux/workspaces.js';
 import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
@@ -418,7 +419,14 @@ function App() {
   /** Whether the model tree is open; it is secondary, behind « ☰ Modèle ». */
   const [navigatorOpen, setNavigatorOpen] = useState(false);
   /** The trade the plan is being read through, in Systèmes. */
-  const [activeDomain, setActiveDomain] = useState<DesignDomainId>();
+  /*
+   * Le métier lu en ce moment vit dans la navigation, pas à côté.
+   *
+   * Il était un état séparé, et deux mémoires de la même chose finissent par
+   * ne plus dire la même : l'étape se souvient du métier qu'on y lisait, et
+   * c'est elle qu'on interroge.
+   */
+  const activeDomain = activeDomainOf(navigation);
 
   /**
    * Le rendu choisi pour le plan, quand quelqu’un en a choisi un.
@@ -431,7 +439,7 @@ function App() {
   const [renderingId, setRenderingId] = useState<string>();
   const rendering =
     (renderingId === undefined ? undefined : planRendering(renderingId)) ??
-    defaultPlanRendering(navigation.workspace);
+    defaultPlanRendering(navigation.stage);
 
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
@@ -801,6 +809,18 @@ function App() {
   const inspectorShown =
     layout.inspectorShown && (inspectorEngaged || inspectorHasSubject);
   const columns = gridColumns({ ...layout, inspectorShown });
+
+  /*
+   * Ce qu'il reste à faire, par étape, dérivé du modèle.
+   *
+   * Un nombre à côté d'un libellé, jamais un barrage : rien n'empêche de
+   * travailler dans une étape qui n'affiche rien, ni d'en quitter une qui
+   * affiche cinq. Il disparaît quand il n'y a plus rien à dire.
+   */
+  const stageProgress = useMemo(
+    () => remainingByStage(workflowEntries(file.project)),
+    [file.project],
+  );
 
   const changeLayout = useCallback((patch: Partial<WorkspaceLayout>): void => {
     setLayout((current) => {
@@ -1695,7 +1715,7 @@ function App() {
       const levelId = target.levelId ?? entity?.levelId;
       if (levelId !== undefined) dispatchEditor({ type: 'SET_LEVEL', levelId });
       if (target.domain !== undefined) {
-        setActiveDomain(target.domain);
+        // `navigationFor` a déjà retenu le métier dans son étape.
         // The discipline a target names is read on the plan by showing its
         // layer: a network the layers hide is a network nobody was taken to.
         const network = (project.systems ?? []).find(
@@ -1752,7 +1772,7 @@ function App() {
         id: `espace:${entry}`,
         label: LEGACY_WORKSPACE_LABELS[entry],
         group: 'Espaces',
-        hint: primaryWorkspace(workspaceOfLegacyTab(entry)).label,
+        hint: creationStage(stageOfTab(entry)).label,
         run: () => setTab(entry),
       })),
       ...SHORTCUTS.filter(
@@ -1933,7 +1953,7 @@ function App() {
       }
       if (objectId !== undefined && fix.objectIds !== undefined) {
         navigateTo({
-          workspace: workspaceOfLegacyTab(fix.tab),
+          stage: stageOfTab(fix.tab),
           objectId,
           ...(fix.propertyPath === undefined
             ? {}
@@ -2050,9 +2070,9 @@ function App() {
                * mode that changed the BIM would be a second kind of project.
                */
               setNavigation((current) =>
-                goToWorkspace(
+                goToStage(
                   current,
-                  draft.startMode === 'GUIDED' ? 'PROJECT' : 'BUILD',
+                  draft.startMode === 'GUIDED' ? 'PROJECT' : 'BUILDING',
                 ),
               );
               setNavigatorOpen(false);
@@ -2188,11 +2208,12 @@ function App() {
           }
         />
       }
-      rail={
-        <PrimaryRail
-          workspace={navigation.workspace}
-          onSelect={(workspace) => {
-            setNavigation((current) => goToWorkspace(current, workspace));
+      stageBar={
+        <StageBar
+          stage={navigation.stage}
+          remaining={stageProgress}
+          onSelect={(stage) => {
+            setNavigation((current) => goToStage(current, stage));
             setMenuOpen(false);
           }}
         />
@@ -2224,12 +2245,17 @@ function App() {
               ))}
             </select>
           </label>
-          {navigation.workspace === 'PROJECT' && (
+          {navigation.stage === 'PROJECT' && (
             <WorkflowGuide project={file.project} onNavigate={navigateTo} />
           )}
-          {navigation.workspace === 'SYSTEMS' && (
+          {/*
+           * Le sélecteur n'apparaît que là où il y a un choix : une étape qui
+           * ne propose qu'un métier n'a pas de métier à choisir.
+           */}
+          {creationStage(navigation.stage).domains.length > 1 && (
             <DisciplinePicker
               project={file.project}
+              stage={navigation.stage}
               {...(activeDomain === undefined ? {} : { activeDomain })}
               onSelect={(domain) => navigateTo({ domain })}
             />
@@ -2363,7 +2389,7 @@ function App() {
                   {levels.find(({ id }) => id === activeLevelId)?.name ??
                     'aucun niveau'}
                   {activeDomain !== undefined &&
-                    navigation.workspace === 'SYSTEMS' &&
+                    navigation.stage === 'SYSTEMS' &&
                     ` · ${designDomainLabel(activeDomain)}`}
                 </h2>
                 {(file.project.scenarios ?? []).length > 0 && (

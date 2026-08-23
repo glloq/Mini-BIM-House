@@ -6,9 +6,9 @@ import {
   DEFAULT_SHELL_NAVIGATION,
   activeTab,
   navigationFor,
-} from './navigation-state.js';
+} from './stage-state.js';
 import { describeTarget, isEmptyTarget, targetReach } from './ui-target.js';
-import { workspaceOfLegacyTab } from './workspaces.js';
+import { stageOfTab } from './creation-stages.js';
 
 const demo = loadDemoProject();
 if (demo.status === 'ERROR') throw new Error(demo.message);
@@ -21,7 +21,7 @@ describe('what a finding can ask the interface to do', () => {
     for (const check of checks) {
       if (check.fix === undefined) continue;
       const target = {
-        workspace: workspaceOfLegacyTab(check.fix.tab),
+        stage: stageOfTab(check.fix.tab),
         ...(check.fix.objectIds?.[0] === undefined
           ? {}
           : { objectId: check.fix.objectIds[0] }),
@@ -34,11 +34,11 @@ describe('what a finding can ask the interface to do', () => {
     }
   });
 
-  it('sends every fix to a space that exists', () => {
+  it('sends every fix to a stage that exists', () => {
     for (const check of checks) {
       if (check.fix === undefined) continue;
       const navigation = navigationFor(DEFAULT_SHELL_NAVIGATION, {
-        workspace: workspaceOfLegacyTab(check.fix.tab),
+        stage: stageOfTab(check.fix.tab),
       });
       expect(activeTab(navigation)).toBeDefined();
     }
@@ -67,8 +67,8 @@ describe('what a finding can ask the interface to do', () => {
   });
 
   it('measures how far a target is going, so nothing is animated for nothing', () => {
-    const here = { workspace: 'BUILD' as const, levelId: 'ground' };
-    expect(targetReach(here, { workspace: 'BUILD', levelId: 'ground' })).toBe(
+    const here = { stage: 'BUILDING' as const, levelId: 'ground' };
+    expect(targetReach(here, { stage: 'BUILDING', levelId: 'ground' })).toBe(
       'NONE',
     );
     expect(targetReach(here, { levelId: 'level-1' })).toBe('LEVEL');

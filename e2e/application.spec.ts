@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { fileAction } from './support/file-menu.js';
 
-import { openDestination } from './support/navigation.js';
+import { openDestination, openStage } from './support/navigation.js';
 import {
   hidePlacedComponents,
   openInspector,
@@ -717,24 +717,40 @@ test('creates a partition as a partition, not as an exterior wall', async ({
       nodes.map((node) => node.getAttribute('id') ?? ''),
     );
   const before = await wallIds();
-  await canvas.click({ position: { x: 120, y: 380 } });
-  await canvas.click({ position: { x: 420, y: 380 } });
+  /*
+   * Où tracer se lit sur le dessin, pas sur deux coordonnées écrites à la
+   * main.
+   *
+   * Elles étaient (120, 380) et (420, 380) : justes tant que le canvas avait
+   * la taille qu'il avait ce jour-là. Chaque pixel de chrome rendu au dessin
+   * les déplaçait sur une fenêtre, puis sur une pompe à chaleur. La cloison se
+   * trace sous la maison, où il n'y a rien.
+   */
+  const frame = (await canvas.boundingBox())!;
+  const houseBottom = await walls.evaluateAll((nodes) =>
+    Math.max(...nodes.map((node) => node.getBoundingClientRect().bottom)),
+  );
+  const below = Math.min(houseBottom - frame.y + 40, frame.height - 20);
+  await canvas.click({ position: { x: 60, y: below } });
+  await canvas.click({ position: { x: 260, y: below } });
   await expect(page.getByRole('status')).toContainText('Ajouter un mur');
 
-  // Où cliquer se lit sur le mur tel qu'il a été dessiné : combien de pixels
-  // prend un mètre dépend de la taille du canvas, qui est une décision de mise
-  // en page et non un fait du mur.
+  expect((await wallIds()).length).toBe(before.length + 1);
+
+  /*
+   * On reclique là où on a tracé, et non sur le mur tel qu'il se dessine.
+   *
+   * Le dessin s'ajuste à ce qu'il contient : ajouter un mur sous la maison
+   * élargit le cadre, et tout le SVG se remet à l'échelle. Ce qui interprète
+   * un clic est la caméra, qui n'a pas bougé : le point où l'on a posé le mur
+   * est donc encore le point où il est.
+   *
+   * Sous la maison il y a la parcelle, qui couvre tout le terrain ; demander
+   * les murs est ce que le filtre de sélection est fait pour.
+   */
   await chooseTool(page, 'Sélection');
-  const drawn = (await wallIds()).find((id) => !before.includes(id));
-  expect(drawn).toBeDefined();
-  const shape = (await page.locator(`[id="${drawn!}"]`).boundingBox())!;
-  const frame = (await canvas.boundingBox())!;
-  await canvas.click({
-    position: {
-      x: shape.x - frame.x + shape.width / 2,
-      y: shape.y - frame.y + shape.height / 2,
-    },
-  });
+  await page.getByLabel('Filtrer sur').selectOption('WALL');
+  await canvas.click({ position: { x: 160, y: below } });
   await expect(page.locator('.inspector-subject')).toContainText('PARTITION');
 });
 
@@ -2119,9 +2135,10 @@ test('suggests what is left without ever standing in the way', async ({
   await expect(guide).toBeVisible();
   await expect(guide).toContainText('une suggestion, jamais une condition');
 
-  // The ten phases are here and nowhere else: they never became ten tabs.
-  const rail = page.getByRole('navigation', { name: 'Espaces de travail' });
-  await expect(rail.getByRole('button')).toHaveCount(5);
+  // Les dix phases sont ici et nulle part ailleurs : la barre d'étapes en
+  // compte neuf, qui disent ce qu'on fait et non ce qu'il reste à faire.
+  const bar = page.getByRole('navigation', { name: 'Étapes de création' });
+  await expect(bar.getByRole('button')).toHaveCount(9);
   await expect(guide).toContainText('Architecture');
   await expect(guide).toContainText('Technique');
 
@@ -2130,7 +2147,7 @@ test('suggests what is left without ever standing in the way', async ({
   await architecture.getByText('Architecture').click();
   await expect(architecture.locator('.workflow-done').first()).toBeVisible();
 
-  // A step is a way in, not a gate: clicking one takes you to its space.
+  // A step is a way in, not a gate: clicking one takes you to its stage.
   await architecture
     .getByRole('button', { name: 'Dessiner les murs extérieurs' })
     .click();
@@ -2147,10 +2164,7 @@ test('reads the same plan through one discipline at a time', async ({
   const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
   await expect(walls).toHaveCount(6);
 
-  await page
-    .getByRole('navigation', { name: 'Espaces de travail' })
-    .getByRole('button', { name: 'Systèmes', exact: true })
-    .click();
+  await openStage(page, 'Systèmes');
   const disciplines = page.getByRole('region', { name: 'Disciplines' });
   await expect(disciplines).toBeVisible();
   // The count is the difference between « rien à voir » and « rien de tracé ».
@@ -2162,6 +2176,34 @@ test('reads the same plan through one discipline at a time', async ({
   await expect(canvas).toBeVisible();
   await expect(walls).toHaveCount(6);
   await expect(page.locator('.canvas-panel h2')).toContainText('Électricité');
+  expect(errors).toEqual([]);
+});
+
+test('reads a trade in the stage that draws it, Énergie included', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+
+  // Le solaire et le stockage se dessinent dans Énergie, pas dans Systèmes :
+  // les neuf étapes ont réparti les seize métiers, et aucune n'a le droit d'en
+  // perdre un en route.
+  await openStage(page, 'Énergie');
+  const disciplines = page.getByRole('region', { name: 'Disciplines' });
+  await expect(disciplines).toBeVisible();
+  await disciplines.getByRole('button', { name: /^Solaire/ }).click();
+  await expect(canvas).toBeVisible();
+
+  // Et Systèmes ne les propose plus : un métier revendiqué par deux étapes est
+  // un métier qu'on cherchera dans la mauvaise.
+  await openStage(page, 'Systèmes');
+  await expect(
+    disciplines.getByRole('button', { name: /^Solaire/ }),
+  ).toHaveCount(0);
+  await expect(
+    disciplines.getByRole('button', { name: /^Électricité/ }),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
 

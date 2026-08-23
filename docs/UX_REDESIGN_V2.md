@@ -602,9 +602,38 @@ pas prévues :
   du même nom sont une chose de trop. Quand le rail disparaîtra (UX-2), le nom
   restera juste : ce menu porte sur le fichier, pas sur le projet.
 
-**UX-2 — Étapes.** `ux/creation-stages.ts`, `StageBar`, étape active dans l'état
-de la coque, guide de progression compact et masquable branché sur
-`workflow-steps.ts`. Le rail disparaît.
+**UX-2 — Étapes.** _Livré._ `ux/creation-stages.ts` gèle les neuf étapes, leurs
+sous-étapes, les métiers qu'elles proposent et les destinations qu'elles
+offrent ; `ux/stage-state.ts` remplace `navigation-state.ts` ; `StageBar`
+remplace `PrimaryRail`, qui est supprimé. `UiTarget.workspace` devient
+`UiTarget.stage`. Le compte de ce qu'il reste à faire par étape est dérivé de
+`workflow-steps.ts` et s'affiche dans la barre — un nombre, jamais un barrage.
+
+Trois invariants deviennent des tests : chaque métier est revendiqué par
+exactement une étape, chaque phase de chantier est portée par exactement une
+étape, et chacune des treize destinations reste atteignable. Le rail coûtait
+56 px de largeur en permanence ; la barre coûte 34 px de hauteur une fois, et
+la part de fenêtre occupée par le plan n'a pas bougé — 60 % et 54 %.
+
+Trois écarts à la spécification :
+
+- **Les sous-étapes déclarent ce qu'elles sont, pas les outils qu'elles
+  portent.** Le §11.1 met `primary` et `secondary` dans `StageSection` ; ils
+  vivront dans `editor/toolbox.ts` (UX-3). Un registre d'étapes qui contient la
+  liste des outils est un registre d'outils qui se fait passer pour autre
+  chose. Le panneau n'affiche pour l'instant que les sous-étapes sur lesquelles
+  il sait agir — celles qui portent un métier — parce qu'un bouton grisé qui
+  promet pour plus tard est pire que pas de bouton.
+- **Le plan reste une destination.** Le §7.1 le veut permanent. Il ne peut
+  l'être qu'une fois les bibliothèques ouvertes depuis une propriété (UX-8) et
+  les résultats rangés dans le panneau de l'étape : sinon « Matériaux » n'a
+  nulle part où s'afficher. Les treize destinations restent donc, redistribuées
+  par étape ; le test qui refuse qu'une devienne inatteignable est conservé.
+- **Le critère d'acceptation n° 3 change d'énoncé**, comme le §4.3 l'annonçait.
+  « Les dix phases ne sont nulle part dans la navigation » valait tant que la
+  navigation était cinq lieux ; il devient « une étape ne verrouille rien, ne
+  remplace jamais le plan et n'est jamais persistée », et le test le vérifie
+  point par point.
 
 **UX-3 — Boîte à outils.** `editor/toolbox.ts`, `tool-icons.tsx`,
 `editor/Toolbox.tsx`, outils dérivés, principaux / secondaires.

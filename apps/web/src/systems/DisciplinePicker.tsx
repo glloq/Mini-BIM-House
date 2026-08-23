@@ -1,14 +1,19 @@
 /**
- * Which trade the plan is being read through, in Systèmes.
+ * Par quel métier le plan est lu, dans l'étape qui en propose plusieurs.
  *
- * Systèmes is not another application: it is the same drawing, the same
- * inspector and the same tools, with one discipline switched on. Choosing one
- * is therefore a context, not a destination — and the plan under it never
- * changes.
+ * Systèmes n'est pas une autre application : c'est le même dessin, le même
+ * inspecteur et les mêmes outils, avec une discipline allumée. En choisir une
+ * est donc un contexte et non une destination — et le plan dessous ne change
+ * pas. Énergie fonctionne pareil, avec le solaire et le stockage.
  *
- * A trade the project has switched off is not offered, unless the project
- * already holds objects of it: a scope narrows what is proposed, never what
- * exists.
+ * C'est aussi la seule façon de choisir un métier : les sous-étapes de
+ * Systèmes et d'Énergie *sont* ces disciplines, et deux sélecteurs pour la
+ * même chose sont un sélecteur de trop. Ce panneau compte les réseaux et suit
+ * le périmètre ; une rangée de libellés ne saurait faire ni l'un ni l'autre.
+ *
+ * Un métier que le projet a désactivé n'est pas proposé — sauf si le projet en
+ * tient déjà des objets : un périmètre restreint ce qu'on propose, jamais ce
+ * qui existe.
  */
 import {
   designDomain,
@@ -16,20 +21,24 @@ import {
   type Project,
 } from '@house-technical-designer/core-domain';
 
-import { networksOfDomain, technicalDomains } from './discipline-scope.js';
+import type { CreationStageId } from '../ux/creation-stages.js';
+
+import { domainsOfStage, networksOfDomain } from './discipline-scope.js';
 
 export interface DisciplinePickerProps {
   readonly project: Project;
+  readonly stage: CreationStageId;
   readonly activeDomain?: DesignDomainId;
   readonly onSelect: (domain: DesignDomainId) => void;
 }
 
 export function DisciplinePicker({
   project,
+  stage,
   activeDomain,
   onSelect,
 }: DisciplinePickerProps) {
-  const domains = technicalDomains(project);
+  const domains = domainsOfStage(project, stage);
   return (
     <section className="context-group" aria-label="Disciplines">
       <p className="context-group-label">Discipline</p>
@@ -56,7 +65,7 @@ export function DisciplinePicker({
       })}
       {domains.length === 0 && (
         <p className="hint">
-          Aucune discipline technique dans le périmètre de ce projet.
+          Aucune discipline de cette étape dans le périmètre de ce projet.
         </p>
       )}
     </section>

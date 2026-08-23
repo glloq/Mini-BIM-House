@@ -6,8 +6,16 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import { loadDemoProject } from '../demo-project.js';
-import { workspaceOfDomain } from '../ux/workspaces.js';
-import { networksOfDomain, technicalDomains } from './discipline-scope.js';
+import {
+  CREATION_STAGES,
+  creationStage,
+  stageOfDomain,
+} from '../ux/creation-stages.js';
+import {
+  domainsOfStage,
+  networksOfDomain,
+  technicalDomains,
+} from './discipline-scope.js';
 
 const demo = loadDemoProject();
 if (demo.status === 'ERROR') throw new Error(demo.message);
@@ -21,7 +29,7 @@ const ARCHITECTURE_ONLY: ProjectScope = {
 describe('the disciplines Systèmes reads the plan through', () => {
   it('only offers trades that belong to that space', () => {
     for (const id of technicalDomains(project))
-      expect(workspaceOfDomain(id)).toBe('SYSTEMS');
+      expect(stageOfDomain(id)).toBe('SYSTEMS');
   });
 
   it('counts what the project holds of each', () => {
@@ -40,6 +48,24 @@ describe('the disciplines Systèmes reads the plan through', () => {
     expect(technicalDomains(narrowed).length).toBeLessThan(
       DESIGN_DOMAIN_IDS.length,
     );
+  });
+
+  it('offers the trades of any stage, not only those of Systèmes', () => {
+    // Le solaire et le stockage se dessinent dans Énergie depuis que les neuf
+    // étapes ont remplacé les cinq espaces. Un sélecteur qui ne saurait parler
+    // que de Systèmes les rendrait inatteignables.
+    expect(domainsOfStage(project, 'ENERGY')).toContain('SOLAR');
+    expect(domainsOfStage(project, 'SYSTEMS')).toContain('ELECTRICAL');
+    expect(domainsOfStage(project, 'SYSTEMS')).not.toContain('SOLAR');
+    // Rien pour une étape qui ne propose aucun métier : Vérifier lit le plan
+    // tel qu'il est.
+    expect(domainsOfStage(project, 'CHECKS')).toEqual([]);
+  });
+
+  it('never proposes a trade its stage does not claim', () => {
+    for (const stage of CREATION_STAGES)
+      for (const id of domainsOfStage(project, stage))
+        expect(creationStage(stage).domains).toContain(id);
   });
 
   it('offers nothing technical on a project that draws nothing technical', () => {
