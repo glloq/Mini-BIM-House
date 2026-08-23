@@ -1,5 +1,12 @@
 # Ce que l'interface doit savoir du projet
 
+> **Ce document est un journal de décision, pas le plan en vigueur.**
+> [`UX_ARCHITECTURE_V4.md`](UX_ARCHITECTURE_V4.md) l'a remplacé : V4 garde
+> l'acquis de V3-1 et V3-2 — `DesignState` et les prédicats de disponibilité,
+> devenus le moteur silencieux des headers — et abandonne la couche de guidage
+> des §4 à §7 (macro-phases, sous-étapes, prochaine action). Ce que V3 avait mis
+> au programme et qui survit est repris dans le tableau §0 de V4.
+
 > La V2 a répondu à « comment ranger toutes les fonctionnalités ». Elle laisse
 > ouverte la question suivante : **de quoi la personne a-t-elle besoin
 > maintenant pour passer de son idée à une maison complète ?**
