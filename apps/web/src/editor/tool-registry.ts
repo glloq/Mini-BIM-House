@@ -6,6 +6,7 @@ import type {
   SlabRole,
   StairType,
   StructuralMemberKind,
+  WallReferenceSide,
   WallRole,
 } from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
@@ -42,6 +43,8 @@ import {
   COMPONENT_CATEGORY_OPTIONS,
   DIMENSION_TYPE_OPTIONS,
   OPENING_TYPE_OPTIONS,
+  RECTANGLE_REFERENCE_OPTIONS,
+  REFERENCE_SIDE_OPTIONS,
   SLAB_ROLE_OPTIONS,
   SITE_OBSTACLE_OPTIONS,
   SPACE_CATEGORY_OPTIONS,
@@ -306,6 +309,14 @@ export const EDITOR_TOOLS = [
             ? 'PARTITION'
             : 'EXTERIOR',
       },
+      {
+        key: 'referenceSide',
+        kind: 'SELECT',
+        label: 'Référence',
+        hint: 'Ce que le tracé suit : l’axe du mur, ou l’une de ses faces.',
+        choices: () => REFERENCE_SIDE_OPTIONS,
+        fallback: () => 'CENTER',
+      },
     ],
     createCommand: (context) =>
       addWallCommand(
@@ -315,6 +326,7 @@ export const EDITOR_TOOLS = [
         {
           assemblyId: context.option('assemblyId'),
           role: context.option('role') as WallRole,
+          referenceSide: context.option('referenceSide') as WallReferenceSide,
         },
         context.newId('wall'),
       ),
@@ -363,6 +375,14 @@ export const EDITOR_TOOLS = [
             : 'EXTERIOR',
       },
       {
+        key: 'referenceSide',
+        kind: 'SELECT',
+        label: 'Référence',
+        hint: 'Ce que le tracé suit : l’axe du mur, ou l’une de ses faces.',
+        choices: () => REFERENCE_SIDE_OPTIONS,
+        fallback: () => 'CENTER',
+      },
+      {
         key: 'shape',
         kind: 'SELECT',
         label: 'Créer',
@@ -393,6 +413,7 @@ export const EDITOR_TOOLS = [
         {
           assemblyId: context.option('assemblyId'),
           role: context.option('role') as WallRole,
+          referenceSide: context.option('referenceSide') as WallReferenceSide,
         },
         {
           asOneWall: context.option('shape') === 'POLYLINE',
@@ -439,6 +460,20 @@ export const EDITOR_TOOLS = [
             ? 'PARTITION'
             : 'EXTERIOR',
       },
+      {
+        key: 'referenceSide',
+        kind: 'SELECT',
+        label: 'Référence',
+        /*
+         * Sur un rectangle fermé, le sens du tracé est connu : la face gauche
+         * est l'intérieur. C'est le seul cas où le mot « intérieur » peut être
+         * dit sans mentir — pour un mur isolé, lequel des deux côtés est
+         * dedans n'appartient pas au mur, il appartient à l'enceinte.
+         */
+        hint: 'Ce que les deux coins mesurent : l’axe des murs, ou l’intérieur.',
+        choices: () => RECTANGLE_REFERENCE_OPTIONS,
+        fallback: () => 'CENTER',
+      },
     ],
     createCommand: (context) =>
       addWallRectangleCommand(
@@ -448,6 +483,7 @@ export const EDITOR_TOOLS = [
         {
           assemblyId: context.option('assemblyId'),
           role: context.option('role') as WallRole,
+          referenceSide: context.option('referenceSide') as WallReferenceSide,
         },
         context.newId,
       ),

@@ -66,6 +66,20 @@ export const REFERENCE_SIDE_OPTIONS = optionsFrom<Wall['referenceSide']>(
   },
 );
 
+/**
+ * La même chose, quand le sens du tracé est connu.
+ *
+ * Sur un rectangle fermé, les quatre murs sont parcourus dans le même sens :
+ * la face gauche est l'intérieur, la droite l'extérieur. C'est le seul cas où
+ * ces deux mots peuvent être dits sans mentir, et c'est le cas qui compte —
+ * un plan d'architecte est coté à l'intérieur.
+ */
+export const RECTANGLE_REFERENCE_OPTIONS: readonly DomainOption[] = [
+  { value: 'CENTER', label: 'Axe des murs' },
+  { value: 'LEFT', label: 'Faces intérieures' },
+  { value: 'RIGHT', label: 'Faces extérieures' },
+];
+
 export const SLAB_ROLE_OPTIONS = optionsFrom<Slab['role']>(SLAB_ROLES, {
   FLOOR: 'Plancher',
   CEILING: 'Plafond',

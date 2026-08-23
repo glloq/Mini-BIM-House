@@ -82,6 +82,20 @@ const MAXIMUM_ENDPOINT_DISTANCE_MM = 1200;
 export interface WallToolDraft {
   readonly assemblyId: string;
   readonly role: Wall['role'];
+  /**
+   * Quelle face le tracé représente.
+   *
+   * Le modèle la porte depuis toujours et l'inspecteur la modifie ; les outils
+   * de tracé ne l'offraient pas, si bien qu'on dessinait à l'axe et qu'on
+   * corrigeait après — l'inverse de la façon dont on lit un plan
+   * d'architecte, où les cotes sont intérieures. Absente, c'est l'axe, comme
+   * avant.
+   *
+   * Gauche et droite sont **relatives au sens du tracé**, et c'est le mot du
+   * modèle : lequel des deux côtés est l'intérieur n'appartient pas à un mur,
+   * il appartient à l'enceinte.
+   */
+  readonly referenceSide?: Wall['referenceSide'];
 }
 
 export interface OpeningToolDraft {
@@ -127,7 +141,7 @@ export function addWallCommand(
     type: 'WALL',
     levelId: level.id,
     path: { points: [points[0]!, points[points.length - 1]!] },
-    referenceSide: 'CENTER',
+    referenceSide: draft.referenceSide ?? 'CENTER',
     assemblyId: assembly.id,
     baseOffsetMm: 0,
     heightMode: 'EXPLICIT',
@@ -197,7 +211,7 @@ export function addWallRunCommand(
     type: 'WALL',
     levelId: level.id,
     path: { points: walls },
-    referenceSide: 'CENTER',
+    referenceSide: draft.referenceSide ?? 'CENTER',
     assemblyId: assembly.id,
     baseOffsetMm: 0,
     heightMode: 'EXPLICIT',
@@ -266,10 +280,28 @@ export function addWallRectangleCommand(
       status: 'ERROR',
       message: 'Les deux coins doivent délimiter une surface.',
     };
+  /*
+   * Les coins sont remis dans un ordre fixe.
+   *
+   * « Gauche » et « droite » sont relatives au sens du parcours : sur un
+   * rectangle tracé du coin bas-droit vers le haut-gauche, elles s'échangent.
+   * Une option qui promet « faces intérieures » ne peut pas dépendre du sens
+   * du glissement — on normalise donc le parcours, et l'option dit alors la
+   * vérité quel que soit le geste.
+   */
+  const left = Math.min(from.x, to.x);
+  const right = Math.max(from.x, to.x);
+  const top = Math.min(from.y, to.y);
+  const bottom = Math.max(from.y, to.y);
   return addWallRunCommand(
     file,
     levelId,
-    [from, { x: to.x, y: from.y }, to, { x: from.x, y: to.y }],
+    [
+      { x: left, y: top },
+      { x: left, y: bottom },
+      { x: right, y: bottom },
+      { x: right, y: top },
+    ],
     draft,
     { asOneWall: false, closed: true, newId },
   );
