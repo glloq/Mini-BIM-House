@@ -1,0 +1,4103 @@
+{
+  "format": "house-technical-designer-project",
+  "schemaVersion": "1.2.0",
+  "applicationVersion": "0.1.0",
+  "project": {
+    "id": "graphic-reference-house",
+    "metadata": {
+      "name": "Maison de référence graphique",
+      "description": "Fixture de non-régression du moteur graphique : trois chambres, pièces humides, garage, baie, porte de garage et onze jonctions de murs. Valeurs techniques de démonstration.",
+      "createdAt": "2026-08-19T00:00:00Z",
+      "updatedAt": "2026-08-19T00:00:00Z",
+      "projectRevision": "graphic-reference-1"
+    },
+    "site": {
+      "northAngleDeg": 0,
+      "climateProfileId": "reference-temperate",
+      "location": {
+        "latitudeDeg": 48.1,
+        "longitudeDeg": -1.7
+      },
+      "altitudeM": 40,
+      "parcelBoundary": {
+        "outer": [
+          {
+            "x": -6000,
+            "y": -8000
+          },
+          {
+            "x": 22000,
+            "y": -8000
+          },
+          {
+            "x": 22000,
+            "y": 20000
+          },
+          {
+            "x": -6000,
+            "y": 20000
+          }
+        ]
+      },
+      "obstacles": [
+        {
+          "id": "obstacle-oak",
+          "boundary": {
+            "outer": [
+              {
+                "x": 17000,
+                "y": 13000
+              },
+              {
+                "x": 21000,
+                "y": 13000
+              },
+              {
+                "x": 21000,
+                "y": 17000
+              },
+              {
+                "x": 17000,
+                "y": 17000
+              }
+            ]
+          },
+          "kind": "TREE",
+          "heightMm": 9000,
+          "name": "Chêne"
+        },
+        {
+          "id": "obstacle-neighbour",
+          "boundary": {
+            "outer": [
+              {
+                "x": -5000,
+                "y": 10000
+              },
+              {
+                "x": -1000,
+                "y": 10000
+              },
+              {
+                "x": -1000,
+                "y": 18000
+              },
+              {
+                "x": -5000,
+                "y": 18000
+              }
+            ]
+          },
+          "kind": "BUILDING",
+          "heightMm": 6000,
+          "name": "Maison voisine"
+        }
+      ]
+    },
+    "building": {
+      "levels": [
+        {
+          "id": "ground",
+          "name": "Rez-de-chaussée",
+          "elevationMm": 0,
+          "defaultStoreyHeightMm": 2600,
+          "walls": [
+            {
+              "id": "wall-south",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 13000,
+                    "y": 0
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-wall-block-external-insulation",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-east",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 13000,
+                    "y": 0
+                  },
+                  {
+                    "x": 13000,
+                    "y": 10000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-wall-block-external-insulation",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-north",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 13000,
+                    "y": 10000
+                  },
+                  {
+                    "x": 0,
+                    "y": 10000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-wall-block-external-insulation",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-west",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 0,
+                    "y": 10000
+                  },
+                  {
+                    "x": 0,
+                    "y": 0
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-wall-block-external-insulation",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "EXTERIOR"
+            },
+            {
+              "id": "wall-garage",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 10000,
+                    "y": 0
+                  },
+                  {
+                    "x": 10000,
+                    "y": 10000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-partition-stud",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "INTERIOR"
+            },
+            {
+              "id": "wall-corridor-south",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 0,
+                    "y": 4600
+                  },
+                  {
+                    "x": 10000,
+                    "y": 4600
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-partition-stud",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "INTERIOR"
+            },
+            {
+              "id": "wall-corridor-north",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 0,
+                    "y": 5800
+                  },
+                  {
+                    "x": 10000,
+                    "y": 5800
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-partition-stud",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "INTERIOR"
+            },
+            {
+              "id": "wall-living-east",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 6000,
+                    "y": 0
+                  },
+                  {
+                    "x": 6000,
+                    "y": 4600
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-partition-stud",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "INTERIOR"
+            },
+            {
+              "id": "wall-hall-east",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 7000,
+                    "y": 0
+                  },
+                  {
+                    "x": 7000,
+                    "y": 4600
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-partition-stud",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "INTERIOR"
+            },
+            {
+              "id": "wall-office-west",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 8400,
+                    "y": 0
+                  },
+                  {
+                    "x": 8400,
+                    "y": 4600
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-partition-stud",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "INTERIOR"
+            },
+            {
+              "id": "wall-bed-1-2",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 3000,
+                    "y": 5800
+                  },
+                  {
+                    "x": 3000,
+                    "y": 10000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-partition-stud",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "PARTITION"
+            },
+            {
+              "id": "wall-bed-2-3",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 6000,
+                    "y": 5800
+                  },
+                  {
+                    "x": 6000,
+                    "y": 10000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-partition-stud",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "PARTITION"
+            },
+            {
+              "id": "wall-bed-3-bath",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 8000,
+                    "y": 5800
+                  },
+                  {
+                    "x": 8000,
+                    "y": 10000
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-partition-stud",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "PARTITION"
+            },
+            {
+              "id": "wall-wc-cellier",
+              "type": "WALL",
+              "levelId": "ground",
+              "path": {
+                "points": [
+                  {
+                    "x": 7000,
+                    "y": 1500
+                  },
+                  {
+                    "x": 8400,
+                    "y": 1500
+                  }
+                ]
+              },
+              "referenceSide": "CENTER",
+              "assemblyId": "generic-partition-stud",
+              "baseOffsetMm": 0,
+              "heightMode": "EXPLICIT",
+              "heightMm": 2600,
+              "role": "PARTITION"
+            }
+          ],
+          "openings": [
+            {
+              "id": "opening-bay-living",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-south",
+              "offsetAlongHostMm": 1200,
+              "sillHeightMm": 0,
+              "widthMm": 2400,
+              "heightMm": 2200,
+              "definitionId": "generic-window-bay-triple"
+            },
+            {
+              "id": "opening-french-door",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-south",
+              "offsetAlongHostMm": 4200,
+              "sillHeightMm": 0,
+              "widthMm": 1600,
+              "heightMm": 2150,
+              "definitionId": "generic-french-door-double"
+            },
+            {
+              "id": "opening-entry",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-south",
+              "offsetAlongHostMm": 6050,
+              "sillHeightMm": 0,
+              "widthMm": 830,
+              "heightMm": 2100,
+              "definitionId": "generic-entrance-door",
+              "swing": {
+                "hinge": "START",
+                "opensTo": "LEFT_OF_HOST"
+              }
+            },
+            {
+              "id": "opening-window-office",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-south",
+              "offsetAlongHostMm": 8700,
+              "sillHeightMm": 900,
+              "widthMm": 1200,
+              "heightMm": 1300,
+              "definitionId": "generic-window-casement-double"
+            },
+            {
+              "id": "opening-garage-door",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-south",
+              "offsetAlongHostMm": 10400,
+              "sillHeightMm": 0,
+              "widthMm": 2400,
+              "heightMm": 2100,
+              "definitionId": "generic-garage-door-sectional"
+            },
+            {
+              "id": "opening-window-living-west",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-west",
+              "offsetAlongHostMm": 6500,
+              "sillHeightMm": 900,
+              "widthMm": 1400,
+              "heightMm": 1300,
+              "definitionId": "generic-window-casement-double"
+            },
+            {
+              "id": "opening-window-bed-1-west",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-west",
+              "offsetAlongHostMm": 400,
+              "sillHeightMm": 900,
+              "widthMm": 1200,
+              "heightMm": 1300,
+              "definitionId": "generic-window-tilt-turn-triple"
+            },
+            {
+              "id": "opening-window-bed-1",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-north",
+              "offsetAlongHostMm": 10800,
+              "sillHeightMm": 900,
+              "widthMm": 1200,
+              "heightMm": 1300,
+              "definitionId": "generic-window-tilt-turn-triple"
+            },
+            {
+              "id": "opening-window-bed-2",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-north",
+              "offsetAlongHostMm": 8000,
+              "sillHeightMm": 900,
+              "widthMm": 1400,
+              "heightMm": 1300,
+              "definitionId": "generic-window-casement-double"
+            },
+            {
+              "id": "opening-window-bed-3",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-north",
+              "offsetAlongHostMm": 5900,
+              "sillHeightMm": 900,
+              "widthMm": 1000,
+              "heightMm": 1300,
+              "definitionId": "generic-window-casement-double"
+            },
+            {
+              "id": "opening-window-bath",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-north",
+              "offsetAlongHostMm": 3800,
+              "sillHeightMm": 1400,
+              "widthMm": 800,
+              "heightMm": 800,
+              "definitionId": "generic-window-fixed-double"
+            },
+            {
+              "id": "opening-window-garage",
+              "type": "OPENING",
+              "openingType": "WINDOW",
+              "hostElementId": "wall-north",
+              "offsetAlongHostMm": 1500,
+              "sillHeightMm": 1400,
+              "widthMm": 1000,
+              "heightMm": 800,
+              "definitionId": "generic-window-fixed-double"
+            },
+            {
+              "id": "door-living",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-corridor-south",
+              "offsetAlongHostMm": 1800,
+              "sillHeightMm": 0,
+              "widthMm": 830,
+              "heightMm": 2040,
+              "definitionId": "generic-internal-door",
+              "swing": {
+                "hinge": "START",
+                "opensTo": "RIGHT_OF_HOST"
+              }
+            },
+            {
+              "id": "door-hall",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-corridor-south",
+              "offsetAlongHostMm": 6100,
+              "sillHeightMm": 0,
+              "widthMm": 830,
+              "heightMm": 2040,
+              "definitionId": "generic-internal-door",
+              "swing": {
+                "hinge": "END",
+                "opensTo": "RIGHT_OF_HOST"
+              }
+            },
+            {
+              "id": "door-office",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-corridor-south",
+              "offsetAlongHostMm": 8800,
+              "sillHeightMm": 0,
+              "widthMm": 830,
+              "heightMm": 2040,
+              "definitionId": "generic-internal-door",
+              "swing": {
+                "hinge": "START",
+                "opensTo": "RIGHT_OF_HOST"
+              }
+            },
+            {
+              "id": "door-bed-1",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-corridor-north",
+              "offsetAlongHostMm": 1200,
+              "sillHeightMm": 0,
+              "widthMm": 830,
+              "heightMm": 2040,
+              "definitionId": "generic-internal-door",
+              "swing": {
+                "hinge": "START",
+                "opensTo": "LEFT_OF_HOST"
+              }
+            },
+            {
+              "id": "door-bed-2",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-corridor-north",
+              "offsetAlongHostMm": 4200,
+              "sillHeightMm": 0,
+              "widthMm": 830,
+              "heightMm": 2040,
+              "definitionId": "generic-internal-door",
+              "swing": {
+                "hinge": "END",
+                "opensTo": "LEFT_OF_HOST"
+              }
+            },
+            {
+              "id": "door-bed-3",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-corridor-north",
+              "offsetAlongHostMm": 6700,
+              "sillHeightMm": 0,
+              "widthMm": 830,
+              "heightMm": 2040,
+              "definitionId": "generic-internal-door",
+              "swing": {
+                "hinge": "START",
+                "opensTo": "LEFT_OF_HOST"
+              }
+            },
+            {
+              "id": "door-bath",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-corridor-north",
+              "offsetAlongHostMm": 8600,
+              "sillHeightMm": 0,
+              "widthMm": 830,
+              "heightMm": 2040,
+              "definitionId": "generic-internal-door",
+              "swing": {
+                "hinge": "END",
+                "opensTo": "LEFT_OF_HOST"
+              }
+            },
+            {
+              "id": "door-wc",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-hall-east",
+              "offsetAlongHostMm": 300,
+              "sillHeightMm": 0,
+              "widthMm": 730,
+              "heightMm": 2040,
+              "definitionId": "generic-internal-door",
+              "swing": {
+                "hinge": "END",
+                "opensTo": "RIGHT_OF_HOST"
+              }
+            },
+            {
+              "id": "door-cellier",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-hall-east",
+              "offsetAlongHostMm": 2400,
+              "sillHeightMm": 0,
+              "widthMm": 730,
+              "heightMm": 2040,
+              "definitionId": "generic-internal-door",
+              "swing": {
+                "hinge": "START",
+                "opensTo": "RIGHT_OF_HOST"
+              }
+            },
+            {
+              "id": "door-garage-service",
+              "type": "OPENING",
+              "openingType": "DOOR",
+              "hostElementId": "wall-garage",
+              "offsetAlongHostMm": 4800,
+              "sillHeightMm": 0,
+              "widthMm": 900,
+              "heightMm": 2040,
+              "definitionId": "generic-door-sliding"
+            }
+          ],
+          "slabs": [
+            {
+              "id": "slab-ground",
+              "type": "SLAB",
+              "levelId": "ground",
+              "polygon": {
+                "outer": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 13000,
+                    "y": 0
+                  },
+                  {
+                    "x": 13000,
+                    "y": 10000
+                  },
+                  {
+                    "x": 0,
+                    "y": 10000
+                  }
+                ]
+              },
+              "assemblyId": "generic-floor-slab-on-ground",
+              "elevationOffsetMm": 0,
+              "role": "FLOOR"
+            }
+          ],
+          "roofs": [],
+          "spaces": [
+            {
+              "id": "space-living",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Séjour / cuisine",
+              "category": "LIVING_KITCHEN",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 176.5,
+                    "y": 176.5
+                  },
+                  {
+                    "x": 5964.5,
+                    "y": 176.5
+                  },
+                  {
+                    "x": 5964.5,
+                    "y": 4564.5
+                  },
+                  {
+                    "x": 176.5,
+                    "y": 4564.5
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-hall",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Entrée",
+              "category": "HALL",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 6035.5,
+                    "y": 176.5
+                  },
+                  {
+                    "x": 6964.5,
+                    "y": 176.5
+                  },
+                  {
+                    "x": 6964.5,
+                    "y": 4564.5
+                  },
+                  {
+                    "x": 6035.5,
+                    "y": 4564.5
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-wc",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "WC",
+              "category": "WC",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 7035.5,
+                    "y": 176.5
+                  },
+                  {
+                    "x": 8364.5,
+                    "y": 176.5
+                  },
+                  {
+                    "x": 8364.5,
+                    "y": 1464.5
+                  },
+                  {
+                    "x": 7035.5,
+                    "y": 1464.5
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-cellier",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Cellier",
+              "category": "STORAGE",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 7035.5,
+                    "y": 1535.5
+                  },
+                  {
+                    "x": 8364.5,
+                    "y": 1535.5
+                  },
+                  {
+                    "x": 8364.5,
+                    "y": 4564.5
+                  },
+                  {
+                    "x": 7035.5,
+                    "y": 4564.5
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-office",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Bureau",
+              "category": "OFFICE",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 8435.5,
+                    "y": 176.5
+                  },
+                  {
+                    "x": 9964.5,
+                    "y": 176.5
+                  },
+                  {
+                    "x": 9964.5,
+                    "y": 4564.5
+                  },
+                  {
+                    "x": 8435.5,
+                    "y": 4564.5
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-corridor",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Dégagement",
+              "category": "CORRIDOR",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 176.5,
+                    "y": 4635.5
+                  },
+                  {
+                    "x": 9964.5,
+                    "y": 4635.5
+                  },
+                  {
+                    "x": 9964.5,
+                    "y": 5764.5
+                  },
+                  {
+                    "x": 176.5,
+                    "y": 5764.5
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-bed-1",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Chambre 1",
+              "category": "BEDROOM",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 176.5,
+                    "y": 5835.5
+                  },
+                  {
+                    "x": 2964.5,
+                    "y": 5835.5
+                  },
+                  {
+                    "x": 2964.5,
+                    "y": 9823.5
+                  },
+                  {
+                    "x": 176.5,
+                    "y": 9823.5
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-bed-2",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Chambre 2",
+              "category": "BEDROOM",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 3035.5,
+                    "y": 5835.5
+                  },
+                  {
+                    "x": 5964.5,
+                    "y": 5835.5
+                  },
+                  {
+                    "x": 5964.5,
+                    "y": 9823.5
+                  },
+                  {
+                    "x": 3035.5,
+                    "y": 9823.5
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-bed-3",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Chambre 3",
+              "category": "BEDROOM",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 6035.5,
+                    "y": 5835.5
+                  },
+                  {
+                    "x": 7964.5,
+                    "y": 5835.5
+                  },
+                  {
+                    "x": 7964.5,
+                    "y": 9823.5
+                  },
+                  {
+                    "x": 6035.5,
+                    "y": 9823.5
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-bath",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Salle de bains",
+              "category": "BATHROOM",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 8035.5,
+                    "y": 5835.5
+                  },
+                  {
+                    "x": 9964.5,
+                    "y": 5835.5
+                  },
+                  {
+                    "x": 9964.5,
+                    "y": 9823.5
+                  },
+                  {
+                    "x": 8035.5,
+                    "y": 9823.5
+                  }
+                ]
+              }
+            },
+            {
+              "id": "space-garage",
+              "type": "SPACE",
+              "levelId": "ground",
+              "name": "Garage",
+              "category": "GARAGE",
+              "boundaryMode": "MANUAL",
+              "manualPolygon": {
+                "outer": [
+                  {
+                    "x": 10035.5,
+                    "y": 176.5
+                  },
+                  {
+                    "x": 12823.5,
+                    "y": 176.5
+                  },
+                  {
+                    "x": 12823.5,
+                    "y": 9823.5
+                  },
+                  {
+                    "x": 10035.5,
+                    "y": 9823.5
+                  }
+                ]
+              }
+            }
+          ],
+          "stairs": [],
+          "annotations": [],
+          "components": [
+            {
+              "id": "fixture-bathtub",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "SANITARY",
+              "definitionId": "generic-bathtub",
+              "name": "Baignoire",
+              "position": {
+                "x": 8890,
+                "y": 9450
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-bath"
+            },
+            {
+              "id": "fixture-basin-bath",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "SANITARY",
+              "definitionId": "generic-washbasin",
+              "name": "Lavabo",
+              "position": {
+                "x": 8330,
+                "y": 6100
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-bath"
+            },
+            {
+              "id": "fixture-shower",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "SANITARY",
+              "definitionId": "generic-walk-in-shower",
+              "name": "Douche",
+              "position": {
+                "x": 9350,
+                "y": 7300
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-bath"
+            },
+            {
+              "id": "emitter-towel-rail",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-towel-radiator",
+              "name": "Sèche-serviettes",
+              "position": {
+                "x": 8100,
+                "y": 8200
+              },
+              "elevationMm": 0,
+              "rotationDeg": 90,
+              "spaceId": "space-bath"
+            },
+            {
+              "id": "fixture-wc",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "SANITARY",
+              "definitionId": "generic-wc",
+              "name": "WC",
+              "position": {
+                "x": 7420,
+                "y": 460
+              },
+              "elevationMm": 0,
+              "rotationDeg": 90,
+              "spaceId": "space-wc"
+            },
+            {
+              "id": "fixture-sink",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "SANITARY",
+              "definitionId": "generic-double-sink",
+              "name": "Évier deux bacs",
+              "position": {
+                "x": 5100,
+                "y": 4260
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-living"
+            },
+            {
+              "id": "appliance-hob",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "APPLIANCE",
+              "definitionId": "generic-hob",
+              "name": "Plaque de cuisson",
+              "position": {
+                "x": 4100,
+                "y": 4300
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-living"
+            },
+            {
+              "id": "appliance-dishwasher",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "APPLIANCE",
+              "definitionId": "generic-dishwasher",
+              "name": "Lave-vaisselle",
+              "position": {
+                "x": 3400,
+                "y": 4260
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-living"
+            },
+            {
+              "id": "heater-wood-stove",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-wood-stove-8kw",
+              "name": "Poêle à bois",
+              "position": {
+                "x": 800,
+                "y": 800
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-living"
+            },
+            {
+              "id": "appliance-washing-machine",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "APPLIANCE",
+              "definitionId": "generic-washing-machine",
+              "name": "Lave-linge",
+              "position": {
+                "x": 7700,
+                "y": 1950
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-cellier"
+            },
+            {
+              "id": "store-dhw-tank",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "SANITARY",
+              "definitionId": "generic-dhw-tank",
+              "name": "Ballon ECS",
+              "position": {
+                "x": 7700,
+                "y": 2600
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-cellier"
+            },
+            {
+              "id": "unit-ventilation",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "VENTILATION",
+              "definitionId": "generic-balanced-ventilation-unit",
+              "name": "Centrale VMC",
+              "position": {
+                "x": 7700,
+                "y": 3650
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-cellier"
+            },
+            {
+              "id": "board-main",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "ELECTRICAL",
+              "definitionId": "generic-distribution-board",
+              "name": "Tableau électrique",
+              "position": {
+                "x": 7700,
+                "y": 4400
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-cellier"
+            },
+            {
+              "id": "emitter-living",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-radiator",
+              "name": "Radiateur séjour",
+              "position": {
+                "x": 300,
+                "y": 2800
+              },
+              "elevationMm": 0,
+              "rotationDeg": 90,
+              "spaceId": "space-living"
+            },
+            {
+              "id": "emitter-bed-1",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-radiator",
+              "name": "Radiateur chambre 1",
+              "position": {
+                "x": 1600,
+                "y": 9700
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-bed-1"
+            },
+            {
+              "id": "emitter-bed-2",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-radiator",
+              "name": "Radiateur chambre 2",
+              "position": {
+                "x": 4300,
+                "y": 9700
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-bed-2"
+            },
+            {
+              "id": "emitter-bed-3",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-radiator",
+              "name": "Radiateur chambre 3",
+              "position": {
+                "x": 6600,
+                "y": 9700
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-bed-3"
+            },
+            {
+              "id": "emitter-office",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-radiator",
+              "name": "Radiateur bureau",
+              "position": {
+                "x": 9200,
+                "y": 400
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-office"
+            }
+          ]
+        }
+      ],
+      "zones": []
+    },
+    "materialLibrary": {
+      "materials": [
+        {
+          "id": "generic-concrete",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-concrete",
+            "version": "1.0.0"
+          },
+          "name": "Béton armé",
+          "kind": "GENERIC",
+          "category": "STRUCTURE",
+          "properties": {
+            "lambdaWmK": 2.3,
+            "densityKgM3": 2400,
+            "specificHeatJKgK": 1000,
+            "mu": 130,
+            "acousticAbsorption": {
+              "125": 0.01,
+              "250": 0.01,
+              "500": 0.02,
+              "1000": 0.02,
+              "2000": 0.02,
+              "4000": 0.03
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-concrete-block",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-concrete-block",
+            "version": "1.0.0"
+          },
+          "name": "Parpaing de béton",
+          "kind": "GENERIC",
+          "category": "MASONRY",
+          "properties": {
+            "lambdaWmK": 1.05,
+            "densityKgM3": 1300,
+            "specificHeatJKgK": 1000,
+            "mu": 60,
+            "acousticAbsorption": {
+              "125": 0.02,
+              "250": 0.03,
+              "500": 0.04,
+              "1000": 0.05,
+              "2000": 0.05,
+              "4000": 0.06
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-softwood",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-softwood",
+            "version": "1.0.0"
+          },
+          "name": "Bois résineux",
+          "kind": "GENERIC",
+          "category": "WOOD",
+          "properties": {
+            "lambdaWmK": 0.13,
+            "densityKgM3": 500,
+            "specificHeatJKgK": 1600,
+            "mu": 50,
+            "acousticAbsorption": {
+              "125": 0.15,
+              "250": 0.11,
+              "500": 0.1,
+              "1000": 0.07,
+              "2000": 0.06,
+              "4000": 0.07
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-osb",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-osb",
+            "version": "1.0.0"
+          },
+          "name": "Panneau OSB",
+          "kind": "GENERIC",
+          "category": "WOOD",
+          "properties": {
+            "lambdaWmK": 0.13,
+            "densityKgM3": 650,
+            "specificHeatJKgK": 1700,
+            "mu": 200,
+            "acousticAbsorption": {
+              "125": 0.1,
+              "250": 0.1,
+              "500": 0.08,
+              "1000": 0.08,
+              "2000": 0.08,
+              "4000": 0.08
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-gypsum-board",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-gypsum-board",
+            "version": "1.0.0"
+          },
+          "name": "Plaque de plâtre",
+          "kind": "GENERIC",
+          "category": "FINISH",
+          "properties": {
+            "lambdaWmK": 0.25,
+            "densityKgM3": 900,
+            "specificHeatJKgK": 1000,
+            "mu": 10,
+            "acousticAbsorption": {
+              "125": 0.15,
+              "250": 0.1,
+              "500": 0.06,
+              "1000": 0.04,
+              "2000": 0.04,
+              "4000": 0.05
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-glass-wool",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-glass-wool",
+            "version": "1.0.0"
+          },
+          "name": "Laine de verre",
+          "kind": "GENERIC",
+          "category": "INSULATION",
+          "properties": {
+            "lambdaWmK": 0.035,
+            "densityKgM3": 20,
+            "specificHeatJKgK": 1030,
+            "mu": 1,
+            "acousticAbsorption": {
+              "125": 0.2,
+              "250": 0.45,
+              "500": 0.7,
+              "1000": 0.85,
+              "2000": 0.9,
+              "4000": 0.9
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-rock-wool",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-rock-wool",
+            "version": "1.0.0"
+          },
+          "name": "Laine de roche",
+          "kind": "GENERIC",
+          "category": "INSULATION",
+          "properties": {
+            "lambdaWmK": 0.037,
+            "densityKgM3": 40,
+            "specificHeatJKgK": 1030,
+            "mu": 1,
+            "acousticAbsorption": {
+              "125": 0.25,
+              "250": 0.5,
+              "500": 0.75,
+              "1000": 0.9,
+              "2000": 0.95,
+              "4000": 0.95
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-wood-fibre",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-wood-fibre",
+            "version": "1.0.0"
+          },
+          "name": "Fibre de bois",
+          "kind": "GENERIC",
+          "category": "INSULATION",
+          "properties": {
+            "lambdaWmK": 0.042,
+            "densityKgM3": 160,
+            "specificHeatJKgK": 2100,
+            "mu": 5,
+            "acousticAbsorption": {
+              "125": 0.15,
+              "250": 0.35,
+              "500": 0.6,
+              "1000": 0.75,
+              "2000": 0.8,
+              "4000": 0.8
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-eps",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-eps",
+            "version": "1.0.0"
+          },
+          "name": "Polystyrène expansé PSE",
+          "kind": "GENERIC",
+          "category": "INSULATION",
+          "properties": {
+            "lambdaWmK": 0.038,
+            "densityKgM3": 20,
+            "specificHeatJKgK": 1450,
+            "mu": 60,
+            "acousticAbsorption": {
+              "125": 0.05,
+              "250": 0.07,
+              "500": 0.1,
+              "1000": 0.12,
+              "2000": 0.12,
+              "4000": 0.12
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-xps",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-xps",
+            "version": "1.0.0"
+          },
+          "name": "Polystyrène extrudé XPS",
+          "kind": "GENERIC",
+          "category": "INSULATION",
+          "properties": {
+            "lambdaWmK": 0.034,
+            "densityKgM3": 33,
+            "specificHeatJKgK": 1450,
+            "mu": 150,
+            "acousticAbsorption": {
+              "125": 0.04,
+              "250": 0.05,
+              "500": 0.06,
+              "1000": 0.08,
+              "2000": 0.08,
+              "4000": 0.08
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-air-cavity",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-air-cavity",
+            "version": "1.0.0"
+          },
+          "name": "Lame d’air non ventilée",
+          "kind": "GENERIC",
+          "category": "AIR",
+          "properties": {
+            "lambdaWmK": 0.025,
+            "densityKgM3": 1.2,
+            "specificHeatJKgK": 1005,
+            "mu": 1
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            }
+          ]
+        }
+      ]
+    },
+    "assemblies": [
+      {
+        "id": "generic-wall-block-external-insulation",
+        "catalogRef": {
+          "registry": "ASSEMBLY",
+          "id": "generic-wall-block-external-insulation",
+          "version": "1.0.0"
+        },
+        "name": "Mur en blocs béton isolé par l’extérieur",
+        "category": "WALL",
+        "layers": [
+          {
+            "id": "finish",
+            "materialId": "generic-eps",
+            "thicknessM": 0.14,
+            "role": "INSULATION"
+          },
+          {
+            "id": "structure",
+            "materialId": "generic-concrete-block",
+            "thicknessM": 0.2,
+            "role": "STRUCTURAL"
+          },
+          {
+            "id": "lining",
+            "materialId": "generic-gypsum-board",
+            "thicknessM": 0.013,
+            "role": "FINISH"
+          }
+        ]
+      },
+      {
+        "id": "generic-roof-timber-insulated",
+        "catalogRef": {
+          "registry": "ASSEMBLY",
+          "id": "generic-roof-timber-insulated",
+          "version": "1.0.0"
+        },
+        "name": "Toiture bois isolée entre chevrons",
+        "category": "ROOF",
+        "layers": [
+          {
+            "id": "sarking",
+            "materialId": "generic-wood-fibre",
+            "thicknessM": 0.06,
+            "role": "INSULATION"
+          },
+          {
+            "id": "insulation",
+            "materialId": "generic-glass-wool",
+            "thicknessM": 0.3,
+            "role": "INSULATION"
+          },
+          {
+            "id": "lining",
+            "materialId": "generic-gypsum-board",
+            "thicknessM": 0.013,
+            "role": "FINISH"
+          }
+        ]
+      },
+      {
+        "id": "generic-floor-slab-on-ground",
+        "catalogRef": {
+          "registry": "ASSEMBLY",
+          "id": "generic-floor-slab-on-ground",
+          "version": "1.0.0"
+        },
+        "name": "Dallage sur terre-plein isolé sous dalle",
+        "category": "FLOOR",
+        "layers": [
+          {
+            "id": "insulation",
+            "materialId": "generic-xps",
+            "thicknessM": 0.1,
+            "role": "INSULATION"
+          },
+          {
+            "id": "slab",
+            "materialId": "generic-concrete",
+            "thicknessM": 0.15,
+            "role": "STRUCTURAL"
+          }
+        ]
+      },
+      {
+        "id": "generic-partition-stud",
+        "catalogRef": {
+          "registry": "ASSEMBLY",
+          "id": "generic-partition-stud",
+          "version": "1.0.0"
+        },
+        "name": "Cloison sur ossature métallique",
+        "category": "PARTITION",
+        "layers": [
+          {
+            "id": "board-a",
+            "materialId": "generic-gypsum-board",
+            "thicknessM": 0.013,
+            "role": "FINISH"
+          },
+          {
+            "id": "insulation",
+            "materialId": "generic-rock-wool",
+            "thicknessM": 0.045,
+            "role": "INSULATION"
+          },
+          {
+            "id": "board-b",
+            "materialId": "generic-gypsum-board",
+            "thicknessM": 0.013,
+            "role": "FINISH"
+          }
+        ]
+      },
+      {
+        "id": "generic-floor-intermediate-timber",
+        "catalogRef": {
+          "registry": "ASSEMBLY",
+          "id": "generic-floor-intermediate-timber",
+          "version": "1.0.0"
+        },
+        "name": "Plancher intermédiaire bois",
+        "category": "FLOOR",
+        "layers": [
+          {
+            "id": "deck",
+            "materialId": "generic-osb",
+            "thicknessM": 0.022,
+            "role": "STRUCTURAL"
+          },
+          {
+            "id": "joists",
+            "materialId": "generic-softwood",
+            "thicknessM": 0.22,
+            "role": "STRUCTURAL"
+          },
+          {
+            "id": "cavity",
+            "materialId": "generic-air-cavity",
+            "thicknessM": 0.05,
+            "role": "AIR_GAP"
+          },
+          {
+            "id": "ceiling",
+            "materialId": "generic-gypsum-board",
+            "thicknessM": 0.013,
+            "role": "FINISH"
+          }
+        ]
+      }
+    ],
+    "equipment": [
+      {
+        "id": "generic-bathtub",
+        "familyId": "BATHTUB",
+        "kind": "SANITARY_FIXTURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Baignoire 170 × 75",
+        "category": "SANITARY_FIXTURE",
+        "dimensions": {
+          "widthMm": 1700,
+          "depthMm": 750,
+          "heightMm": 600
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": 0,
+              "y": 375,
+              "z": 0
+            }
+          },
+          {
+            "id": "hot",
+            "portTypeId": "WATER_HOT",
+            "position": {
+              "x": 0,
+              "y": 375,
+              "z": 0
+            }
+          },
+          {
+            "id": "drain",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -300
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 700,
+            "reason": "Dégagement d’usage devant l’appareil"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowLps",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "hotWaterFraction",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "minimumPressurePa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "trapDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "designFlowLps": 0.3,
+          "hotWaterFraction": 0.6,
+          "dischargeUnits": 3,
+          "minimumPressurePa": 100000,
+          "trapDiameterMm": 40,
+          "name": "Baignoire 170 × 75"
+        }
+      },
+      {
+        "id": "generic-washbasin",
+        "familyId": "WASHBASIN",
+        "kind": "SANITARY_FIXTURE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Lavabo",
+        "category": "SANITARY_FIXTURE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 450,
+          "heightMm": 850
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": -100,
+              "y": 0,
+              "z": -300
+            }
+          },
+          {
+            "id": "hot",
+            "portTypeId": "WATER_HOT",
+            "position": {
+              "x": 100,
+              "y": 0,
+              "z": -300
+            }
+          },
+          {
+            "id": "drain",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -400
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 550,
+            "reason": "Place de la personne devant l’appareil"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 1100,
+            "reason": "Approche d’un fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowLps",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "hotWaterFraction",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "minimumPressurePa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "WATER",
+              "symbolId": "symbol-washbasin"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "water.fixtures"
+        },
+        "properties": {
+          "designFlowLps": 0.2,
+          "hotWaterFraction": 0.5,
+          "dischargeUnits": 1,
+          "minimumPressurePa": 100000,
+          "name": "Lavabo"
+        }
+      },
+      {
+        "id": "generic-walk-in-shower",
+        "familyId": "WALK_IN_SHOWER",
+        "kind": "SANITARY_FIXTURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Douche à l’italienne",
+        "category": "SANITARY_FIXTURE",
+        "dimensions": {
+          "widthMm": 1200,
+          "depthMm": 900,
+          "heightMm": 2100
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": 0,
+              "y": 450,
+              "z": 0
+            }
+          },
+          {
+            "id": "hot",
+            "portTypeId": "WATER_HOT",
+            "position": {
+              "x": 0,
+              "y": 450,
+              "z": 0
+            }
+          },
+          {
+            "id": "drain",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -1050
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 700,
+            "reason": "Dégagement d’usage devant l’appareil"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowLps",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "hotWaterFraction",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "minimumPressurePa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "trapDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "WATER",
+              "symbolId": "symbol-shower"
+            }
+          ],
+          "planFootprint": "SYMBOL_ONLY"
+        },
+        "properties": {
+          "designFlowLps": 0.2,
+          "hotWaterFraction": 0.6,
+          "dischargeUnits": 2,
+          "minimumPressurePa": 100000,
+          "trapDiameterMm": 50,
+          "name": "Douche à l’italienne"
+        }
+      },
+      {
+        "id": "generic-towel-radiator",
+        "familyId": "TOWEL_RADIATOR",
+        "kind": "RADIATOR",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Sèche-serviettes eau chaude",
+        "category": "RADIATOR",
+        "dimensions": {
+          "widthMm": 500,
+          "depthMm": 100,
+          "heightMm": 1200
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "CEILING"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "flow",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": -250,
+              "y": 0,
+              "z": -600
+            }
+          },
+          {
+            "id": "return",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": 250,
+              "y": 0,
+              "z": -600
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "belowMm": 150,
+            "frontMm": 300,
+            "reason": "Accès aux robinets et purge de l’appareil"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 400,
+            "reason": "Dégagement devant l’échelle pour poser et prendre le linge"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalOutputW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "exponent",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "waterContentL",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalFlowTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalReturnTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalRoomTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "HEATING",
+              "symbolId": "symbol-radiator"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "heating.emitters"
+        },
+        "properties": {
+          "nominalOutputW": 600,
+          "exponent": 1.3,
+          "waterContentL": 4,
+          "nominalFlowTemperatureC": 55,
+          "nominalReturnTemperatureC": 45,
+          "nominalRoomTemperatureC": 20,
+          "name": "Sèche-serviettes eau chaude"
+        }
+      },
+      {
+        "id": "generic-wc",
+        "familyId": "WC",
+        "kind": "SANITARY_FIXTURE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "WC à réservoir",
+        "category": "SANITARY_FIXTURE",
+        "dimensions": {
+          "widthMm": 380,
+          "depthMm": 700,
+          "heightMm": 800
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -300
+            }
+          },
+          {
+            "id": "drain",
+            "portTypeId": "SOILWATER",
+            "position": {
+              "x": 0,
+              "y": 250,
+              "z": -350
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 600,
+            "leftMm": 200,
+            "rightMm": 200,
+            "reason": "Place de la personne assise"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "leftMm": 800,
+            "reason": "Transfert latéral depuis un fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowLps",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "hotWaterFraction",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "flushVolumeL",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "WATER",
+              "symbolId": "symbol-wc"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "water.fixtures"
+        },
+        "properties": {
+          "designFlowLps": 0.12,
+          "hotWaterFraction": 0,
+          "dischargeUnits": 4,
+          "flushVolumeL": 6,
+          "name": "WC à réservoir"
+        }
+      },
+      {
+        "id": "generic-double-sink",
+        "familyId": "DOUBLE_SINK",
+        "kind": "SANITARY_FIXTURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Évier deux bacs",
+        "category": "SANITARY_FIXTURE",
+        "dimensions": {
+          "widthMm": 1200,
+          "depthMm": 600,
+          "heightMm": 200
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": 0
+            }
+          },
+          {
+            "id": "hot",
+            "portTypeId": "WATER_HOT",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": 0
+            }
+          },
+          {
+            "id": "drain",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 700,
+            "reason": "Dégagement d’usage devant l’appareil"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowLps",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "hotWaterFraction",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "minimumPressurePa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "trapDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "WATER",
+              "symbolId": "symbol-kitchen-sink"
+            }
+          ],
+          "planFootprint": "SYMBOL_ONLY"
+        },
+        "properties": {
+          "designFlowLps": 0.4,
+          "hotWaterFraction": 0.5,
+          "dischargeUnits": 2,
+          "minimumPressurePa": 100000,
+          "trapDiameterMm": 50,
+          "name": "Évier deux bacs"
+        }
+      },
+      {
+        "id": "generic-hob",
+        "familyId": "HOB",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Plaque de cuisson à induction",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 520,
+          "heightMm": 60
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 260,
+              "z": -30
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 260,
+              "z": -30
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "belowMm": 100,
+            "reason": "Ventilation et accès au boîtier de raccordement"
+          },
+          {
+            "zone": "USAGE",
+            "aboveMm": 650,
+            "reason": "Hauteur libre au-dessus du plan de cuisson"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.loads"
+        },
+        "properties": {
+          "activePowerW": 7200,
+          "name": "Plaque de cuisson à induction"
+        }
+      },
+      {
+        "id": "generic-dishwasher",
+        "familyId": "DISHWASHER",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Lave-vaisselle",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 600,
+          "heightMm": 850
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -425
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -425
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Extraction de l’appareil pour intervention"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Ouverture de la porte et service devant l’appareil"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.loads"
+        },
+        "properties": {
+          "activePowerW": 1800,
+          "name": "Lave-vaisselle"
+        }
+      },
+      {
+        "id": "generic-wood-stove-8kw",
+        "familyId": "WOOD_STOVE",
+        "kind": "STOVE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Poêle à bûches 8 kW",
+        "category": "STOVE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 500,
+          "heightMm": 1000
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "COMBUSTIBLE_CLEARANCE",
+          "FIRE",
+          "THERMAL"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "flue-outlet",
+            "portTypeId": "FLUE_GAS",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 500
+            }
+          },
+          {
+            "id": "air-inlet",
+            "portTypeId": "COMBUSTION_AIR",
+            "position": {
+              "x": 0,
+              "y": 250,
+              "z": -400
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "COMBUSTIBLE_CLEARANCE",
+            "backMm": 200,
+            "leftMm": 300,
+            "rightMm": 300,
+            "reason": "Distance aux parois combustibles autour d’un foyer fermé"
+          },
+          {
+            "zone": "FIRE",
+            "frontMm": 500,
+            "reason": "Plaque de sol devant la porte, contre les projections de braises"
+          },
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 800,
+            "reason": "Chargement du foyer et décendrage par l’avant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalOutputW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "efficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "fuel",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "flueDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "combustionAirFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalOutputW": 8000,
+          "efficiency": 0.78,
+          "fuel": "WOOD_LOG",
+          "flueDiameterMm": 150,
+          "combustionAirFlowM3h": 25,
+          "name": "Poêle à bûches 8 kW"
+        }
+      },
+      {
+        "id": "generic-washing-machine",
+        "familyId": "WASHING_MACHINE",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Lave-linge",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 600,
+          "heightMm": 850
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -425
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -425
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Extraction de l’appareil pour intervention"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Ouverture de la porte et service devant l’appareil"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.loads"
+        },
+        "properties": {
+          "activePowerW": 2200,
+          "name": "Lave-linge"
+        }
+      },
+      {
+        "id": "generic-dhw-tank",
+        "familyId": "ELECTRIC_DHW_TANK",
+        "kind": "DHW_TANK",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Ballon d’eau chaude sanitaire",
+        "category": "DHW_TANK",
+        "dimensions": {
+          "widthMm": 570,
+          "depthMm": 570,
+          "heightMm": 1500
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "SERVICE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -740
+            }
+          },
+          {
+            "id": "hot",
+            "portTypeId": "WATER_HOT",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 740
+            }
+          },
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 280,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès au groupe de sécurité et à la résistance"
+          },
+          {
+            "zone": "SERVICE",
+            "frontMm": 600,
+            "aboveMm": 300,
+            "reason": "Dépose de la résistance et de l’anode"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "tankVolumeL",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "usefulHeatingPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "standbyLossW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "storageTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "WATER",
+              "symbolId": "symbol-dhw-tank"
+            }
+          ],
+          "planFootprint": "CIRCLE",
+          "layer": "water.equipment"
+        },
+        "properties": {
+          "tankVolumeL": 200,
+          "usefulHeatingPowerW": 2000,
+          "standbyLossW": 45,
+          "storageTemperatureC": 60,
+          "name": "Ballon d’eau chaude sanitaire"
+        }
+      },
+      {
+        "id": "generic-balanced-ventilation-unit",
+        "familyId": "BALANCED_VENTILATION_UNIT",
+        "kind": "VENTILATION_UNIT",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "VMC double flux avec échangeur",
+        "category": "VENTILATION_UNIT",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 600,
+          "heightMm": 500
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL",
+          "SLAB",
+          "ROOF"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "AIR_INTAKE",
+          "AIR_EXHAUST"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "extract",
+            "portTypeId": "AIR_EXTRACT",
+            "position": {
+              "x": -300,
+              "y": -150,
+              "z": 0
+            }
+          },
+          {
+            "id": "exhaust",
+            "portTypeId": "AIR_EXHAUST",
+            "position": {
+              "x": 300,
+              "y": -150,
+              "z": 0
+            }
+          },
+          {
+            "id": "intake",
+            "portTypeId": "AIR_OUTSIDE",
+            "position": {
+              "x": 300,
+              "y": 150,
+              "z": 0
+            }
+          },
+          {
+            "id": "supply",
+            "portTypeId": "AIR_SUPPLY",
+            "position": {
+              "x": -300,
+              "y": 150,
+              "z": 0
+            }
+          },
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": -300,
+              "y": -150,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 500,
+            "belowMm": 400,
+            "reason": "Changement des filtres et de l’échangeur"
+          },
+          {
+            "zone": "AIR_INTAKE",
+            "frontMm": 300,
+            "reason": "Prise d’air neuf"
+          },
+          {
+            "zone": "AIR_EXHAUST",
+            "aboveMm": 500,
+            "reason": "Rejet d’air vicié, à distance de la prise d’air neuf"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "heatRecoveryEfficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maximumStaticPressurePa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "systemType",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "bypassAvailable",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "VENTILATION",
+              "symbolId": "symbol-ventilation-unit"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "ventilation.equipment"
+        },
+        "properties": {
+          "designFlowM3h": 250,
+          "nominalPowerW": 55,
+          "heatRecoveryEfficiency": 0.85,
+          "maximumStaticPressurePa": 200,
+          "systemType": "BALANCED",
+          "bypassAvailable": true,
+          "name": "VMC double flux avec échangeur"
+        }
+      },
+      {
+        "id": "generic-distribution-board",
+        "familyId": "MAIN_DISTRIBUTION_BOARD",
+        "kind": "DISTRIBUTION_BOARD",
+        "catalogKind": "GENERIC",
+        "version": "1.2.0",
+        "name": "Tableau de répartition",
+        "category": "DISTRIBUTION_BOARD",
+        "dimensions": {
+          "widthMm": 350,
+          "depthMm": 100,
+          "heightMm": 450
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "ELECTRICAL_WORKING",
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "incoming",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 225
+            }
+          },
+          {
+            "id": "outgoing",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -225
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 225
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "ELECTRICAL_WORKING",
+            "frontMm": 700,
+            "leftMm": 300,
+            "rightMm": 300,
+            "reason": "Zone de travail devant un tableau sous tension"
+          },
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 700,
+            "reason": "Ouverture de la porte et repérage des circuits"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "rowCount",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "moduleCapacity",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ipRating",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-distribution-board"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.distribution"
+        },
+        "properties": {
+          "nominalVoltageV": 230,
+          "rowCount": 3,
+          "moduleCapacity": 39,
+          "ratedCurrentA": 63,
+          "ipRating": "IP30",
+          "name": "Tableau de répartition"
+        }
+      },
+      {
+        "id": "generic-radiator",
+        "familyId": "RADIATOR",
+        "kind": "RADIATOR",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Radiateur eau chaude",
+        "category": "RADIATOR",
+        "dimensions": {
+          "widthMm": 1000,
+          "depthMm": 100,
+          "heightMm": 600
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "CEILING"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "flow",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": -480,
+              "y": 0,
+              "z": -280
+            }
+          },
+          {
+            "id": "return",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": 480,
+              "y": 0,
+              "z": -280
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "leftMm": 100,
+            "rightMm": 100,
+            "belowMm": 100,
+            "reason": "Accès aux robinets et au té de réglage"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 150,
+            "reason": "Circulation de l’air devant l’émetteur"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalOutputW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalFlowTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalReturnTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalRoomTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "exponent",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "HEATING",
+              "symbolId": "symbol-radiator"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "heating.emitters"
+        },
+        "properties": {
+          "nominalOutputW": 1200,
+          "nominalFlowTemperatureC": 55,
+          "nominalReturnTemperatureC": 45,
+          "nominalRoomTemperatureC": 20,
+          "exponent": 1.3,
+          "name": "Radiateur eau chaude"
+        }
+      }
+    ],
+    "systems": [],
+    "scenarios": [],
+    "drawingViews": [],
+    "calculationSettings": {
+      "thermal": {
+        "moduleId": "thermal",
+        "moduleVersion": "2.0.0",
+        "methodId": "assembly-u-value-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {}
+      },
+      "heating": {
+        "moduleId": "heating",
+        "moduleVersion": "2.0.0",
+        "methodId": "design-heating-steady-state-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "designIndoorTemperatureC": 20,
+          "designOutdoorTemperatureC": -7
+        }
+      },
+      "dhw": {
+        "moduleId": "dhw",
+        "moduleVersion": "2.0.0",
+        "methodId": "sensible-water-heating-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "householdOccupants": 4,
+          "dailyUseVolumeLPerOccupant": 40,
+          "coldWaterTemperatureC": 10,
+          "useTemperatureC": 40,
+          "storageTemperatureC": 60,
+          "annualOperatingDays": 365
+        }
+      },
+      "lighting": {
+        "moduleId": "lighting",
+        "moduleVersion": "2.0.0",
+        "methodId": "lumen-average-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "utilizationFactor": 0.6,
+          "maintenanceFactor": 0.8,
+          "operatingHoursPerDay": 3
+        }
+      },
+      "ventilation": {
+        "moduleId": "ventilation",
+        "moduleVersion": "2.0.0",
+        "methodId": "duct-darcy-weisbach-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {}
+      },
+      "iaq": {
+        "moduleId": "iaq",
+        "moduleVersion": "2.0.0",
+        "methodId": "co2-mass-balance-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "co2GenerationM3sPerOccupant": 0.0000047,
+          "initialConcentrationPpm": 500,
+          "durationHours": 8,
+          "occupantsByCategory": {
+            "LIVING": 4,
+            "KITCHEN": 2,
+            "BEDROOM": 2,
+            "BATHROOM": 1,
+            "CIRCULATION": 0
+          }
+        }
+      },
+      "water": {
+        "moduleId": "water",
+        "moduleVersion": "2.0.0",
+        "methodId": "pipe-darcy-weisbach-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "simultaneityFactor": 0.5
+        }
+      },
+      "wastewater": {
+        "moduleId": "wastewater",
+        "moduleVersion": "2.0.0",
+        "methodId": "discharge-unit-gravity-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "designFlowM3sPerDischargeUnit": 0.0004,
+          "minimumSlope": 0.01
+        }
+      },
+      "rainwater": {
+        "moduleId": "rainwater",
+        "moduleVersion": "2.0.0",
+        "methodId": "tank-water-balance-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "runoffCoefficient": 0.9,
+          "preFilterEfficiency": 0.95,
+          "dailyDemandL": 120
+        }
+      },
+      "photovoltaic": {
+        "moduleId": "photovoltaic",
+        "moduleVersion": "2.0.0",
+        "methodId": "offline-pv-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "performanceRatio": 0.8,
+          "roofId": "roof-south"
+        }
+      },
+      "battery": {
+        "moduleId": "battery",
+        "moduleVersion": "2.0.0",
+        "methodId": "battery-configuration-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "offGrid": 0,
+          "initialSoc": 0.5
+        }
+      },
+      "energy-balance": {
+        "moduleId": "energy-balance",
+        "moduleVersion": "2.0.0",
+        "methodId": "physical-energy-balance-v1",
+        "precisionTarget": "ENGINEERING",
+        "settings": {
+          "heatingSetpointTemperatureC": 19
+        }
+      },
+      "hygrothermal": {
+        "moduleId": "hygrothermal",
+        "moduleVersion": "2.0.0",
+        "methodId": "glaser-steady-state-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "indoorTemperatureC": 20,
+          "indoorRelativeHumidity": 0.5,
+          "period": "design-winter"
+        }
+      },
+      "acoustics": {
+        "moduleId": "acoustics",
+        "moduleVersion": "2.0.0",
+        "methodId": "sabine-reverberation-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "bandsHz": [
+            125,
+            250,
+            500,
+            1000,
+            2000,
+            4000
+          ],
+          "defaultSurfaceAbsorption": {
+            "125": 0.05,
+            "250": 0.06,
+            "500": 0.08,
+            "1000": 0.09,
+            "2000": 0.1,
+            "4000": 0.1
+          }
+        }
+      },
+      "cost": {
+        "moduleId": "cost",
+        "moduleVersion": "2.0.0",
+        "methodId": "quantity-priced-estimate-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "currency": "EUR",
+          "unitPriceByMaterial": {
+            "generic-concrete": 180,
+            "generic-concrete-block": 185,
+            "generic-softwood": 620,
+            "generic-osb": 480,
+            "generic-gypsum-board": 320,
+            "generic-glass-wool": 95,
+            "generic-rock-wool": 130,
+            "generic-wood-fibre": 210,
+            "generic-eps": 110,
+            "generic-xps": 165,
+            "generic-air-cavity": 0
+          },
+          "wasteFactorByMaterial": {
+            "generic-concrete": 0.03,
+            "generic-concrete-block": 0.05,
+            "generic-softwood": 0.1,
+            "generic-osb": 0.08,
+            "generic-gypsum-board": 0.08,
+            "generic-glass-wool": 0.1,
+            "generic-rock-wool": 0.1,
+            "generic-wood-fibre": 0.1,
+            "generic-eps": 0.1,
+            "generic-xps": 0.1,
+            "generic-air-cavity": 0
+          },
+          "labourPriceByMaterial": {
+            "generic-concrete": 120,
+            "generic-concrete-block": 95,
+            "generic-softwood": 260,
+            "generic-osb": 180,
+            "generic-gypsum-board": 210,
+            "generic-glass-wool": 45,
+            "generic-rock-wool": 45,
+            "generic-wood-fibre": 55,
+            "generic-eps": 40,
+            "generic-xps": 40,
+            "generic-air-cavity": 0
+          },
+          "unitPriceByProduct": {
+            "pipe-multilayer-16x2.0": 4.2,
+            "pipe-multilayer-20x2.0": 5.6,
+            "pipe-multilayer-26x3.0": 8.4,
+            "waste-pipe-pvc-40": 3.1,
+            "waste-pipe-pvc-50": 3.9,
+            "waste-pipe-pvc-100": 7.5,
+            "duct-round-80": 4,
+            "duct-round-125": 6.5,
+            "cable-cu-3g1-5": 1.15,
+            "cable-cu-3g2-5": 1.75
+          },
+          "labourPriceByProduct": {
+            "pipe-multilayer-16x2.0": 9,
+            "pipe-multilayer-20x2.0": 9,
+            "pipe-multilayer-26x3.0": 11,
+            "waste-pipe-pvc-40": 8,
+            "waste-pipe-pvc-50": 8,
+            "waste-pipe-pvc-100": 12,
+            "duct-round-80": 7,
+            "duct-round-125": 9,
+            "cable-cu-3g1-5": 3.5,
+            "cable-cu-3g2-5": 3.5
+          },
+          "unitPriceByEquipment": {
+            "generic-air-water-heat-pump": 8200,
+            "generic-heating-buffer-tank": 640,
+            "generic-circulator-pump": 320,
+            "generic-radiator": 210,
+            "generic-towel-radiator": 290,
+            "generic-dhw-tank": 780,
+            "generic-extract-ventilation-unit": 340,
+            "generic-air-terminal": 24,
+            "generic-rainwater-tank": 1900,
+            "generic-washbasin": 180,
+            "generic-shower-tray": 260,
+            "generic-wc": 240,
+            "generic-kitchen-sink": 320,
+            "generic-distribution-board": 210,
+            "generic-miniature-circuit-breaker": 12,
+            "generic-socket": 9,
+            "generic-led-luminaire": 38,
+            "generic-pv-array": 3400,
+            "generic-inverter": 1250,
+            "generic-battery-rack": 3600,
+            "generic-window-casement-double": 520,
+            "generic-entrance-door": 890,
+            "generic-internal-door": 180
+          },
+          "labourPriceByEquipment": {
+            "generic-air-water-heat-pump": 1400,
+            "generic-heating-buffer-tank": 260,
+            "generic-circulator-pump": 120,
+            "generic-radiator": 95,
+            "generic-towel-radiator": 110,
+            "generic-dhw-tank": 340,
+            "generic-extract-ventilation-unit": 240,
+            "generic-air-terminal": 18,
+            "generic-rainwater-tank": 850,
+            "generic-washbasin": 140,
+            "generic-shower-tray": 220,
+            "generic-wc": 160,
+            "generic-kitchen-sink": 150,
+            "generic-distribution-board": 180,
+            "generic-miniature-circuit-breaker": 14,
+            "generic-socket": 22,
+            "generic-led-luminaire": 25,
+            "generic-pv-array": 900,
+            "generic-inverter": 300,
+            "generic-battery-rack": 400,
+            "generic-window-casement-double": 160,
+            "generic-entrance-door": 220,
+            "generic-internal-door": 90
+          }
+        }
+      },
+      "environmental": {
+        "moduleId": "environmental",
+        "moduleVersion": "2.0.0",
+        "methodId": "declaration-linked-impact-v1",
+        "precisionTarget": "ESTIMATE",
+        "settings": {
+          "indicator": "GWP",
+          "validAt": "2026-01-01",
+          "declarationSource": "Generic demonstration data — not a manufacturer declaration",
+          "gwpPerUnitByMaterial": {
+            "generic-concrete": 300,
+            "generic-concrete-block": 255,
+            "generic-softwood": 60,
+            "generic-osb": 90,
+            "generic-gypsum-board": 180,
+            "generic-glass-wool": 140,
+            "generic-rock-wool": 160,
+            "generic-wood-fibre": 40,
+            "generic-eps": 190,
+            "generic-xps": 240,
+            "generic-air-cavity": 0
+          }
+        }
+      }
+    },
+    "regulatoryContext": {
+      "country": "FR",
+      "enabledRulePacks": []
+    },
+    "networkProducts": [],
+    "sheets": [],
+    "openingTypes": [
+      {
+        "id": "generic-window-bay-triple",
+        "familyId": "WINDOW_BAY",
+        "category": "WINDOW",
+        "name": "Baie vitrée fixe, triple vitrage",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 2400,
+          "height": 2150,
+          "panelCount": 1,
+          "uw": 1,
+          "ug": 0.6,
+          "uf": 1.4,
+          "gValue": 0.5,
+          "visibleTransmittance": 0.7,
+          "rw": 36,
+          "glazing": "TRIPLE",
+          "cavityGas": "ARGON",
+          "frameDepth": 90,
+          "frameWidth": 65
+        }
+      },
+      {
+        "id": "generic-french-door-double",
+        "familyId": "FRENCH_DOOR",
+        "category": "WINDOW",
+        "name": "Porte-fenêtre à deux vantaux",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 1400,
+          "height": 2150,
+          "panelCount": 2,
+          "uw": 1.5,
+          "ug": 1.1,
+          "uf": 1.9,
+          "gValue": 0.58,
+          "visibleTransmittance": 0.75,
+          "rw": 32,
+          "glazing": "DOUBLE",
+          "cavityGas": "ARGON"
+        }
+      },
+      {
+        "id": "generic-entrance-door",
+        "familyId": "DOOR_EXTERNAL",
+        "category": "DOOR",
+        "name": "Porte d’entrée isolée",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 900,
+          "height": 2150,
+          "leafCount": 1,
+          "uw": 1.4,
+          "rw": 32
+        }
+      },
+      {
+        "id": "generic-window-casement-double",
+        "familyId": "WINDOW_CASEMENT",
+        "category": "WINDOW",
+        "name": "Fenêtre à la française, double vitrage",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 1200,
+          "height": 1200,
+          "panelCount": 1,
+          "uw": 1.4,
+          "ug": 1.1,
+          "uf": 1.8,
+          "psiSpacer": 0.06,
+          "gValue": 0.6,
+          "visibleTransmittance": 0.78,
+          "rw": 32,
+          "glazing": "DOUBLE",
+          "cavityGas": "ARGON",
+          "frameDepth": 70,
+          "frameWidth": 60
+        }
+      },
+      {
+        "id": "generic-garage-door-sectional",
+        "familyId": "DOOR_GARAGE",
+        "category": "DOOR",
+        "name": "Porte de garage sectionnelle",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 2400,
+          "height": 2000,
+          "leafCount": 1,
+          "uw": 1.8
+        }
+      },
+      {
+        "id": "generic-window-tilt-turn-triple",
+        "familyId": "WINDOW_TILT_TURN",
+        "category": "WINDOW",
+        "name": "Fenêtre oscillo-battante, triple vitrage",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 1200,
+          "height": 1400,
+          "panelCount": 1,
+          "uw": 0.9,
+          "ug": 0.6,
+          "uf": 1.3,
+          "psiSpacer": 0.04,
+          "gValue": 0.5,
+          "visibleTransmittance": 0.7,
+          "rw": 35,
+          "glazing": "TRIPLE",
+          "cavityGas": "ARGON",
+          "frameDepth": 90,
+          "frameWidth": 65
+        }
+      },
+      {
+        "id": "generic-window-fixed-double",
+        "familyId": "WINDOW_FIXED",
+        "category": "WINDOW",
+        "name": "Châssis fixe, double vitrage",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 1000,
+          "height": 1000,
+          "panelCount": 1,
+          "uw": 1.2,
+          "ug": 1.1,
+          "uf": 1.6,
+          "gValue": 0.62,
+          "visibleTransmittance": 0.8,
+          "rw": 33,
+          "glazing": "DOUBLE",
+          "cavityGas": "ARGON"
+        }
+      },
+      {
+        "id": "generic-internal-door",
+        "familyId": "DOOR_INTERNAL",
+        "category": "DOOR",
+        "name": "Porte intérieure à âme alvéolaire",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 830,
+          "height": 2040,
+          "leafCount": 1,
+          "uw": 2.4,
+          "rw": 22
+        }
+      },
+      {
+        "id": "generic-door-sliding",
+        "familyId": "DOOR_SLIDING",
+        "category": "DOOR",
+        "name": "Porte coulissante en applique",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 830,
+          "height": 2040,
+          "leafCount": 1,
+          "uw": 2.6,
+          "rw": 18
+        }
+      }
+    ]
+  },
+  "references": {},
+  "extensions": {}
+}

@@ -37,7 +37,8 @@
     "catalog:starter": "vite-node scripts/starter-library.ts",
     "reference:equipment": "vite-node scripts/reference-house-equipment.ts",
     "reference:envelope": "vite-node scripts/reference-house-envelope.ts",
-    "catalog:merge-duplicates": "vite-node scripts/merge-duplicate-families.ts"
+    "catalog:merge-duplicates": "vite-node scripts/merge-duplicate-families.ts",
+    "reference:graphic": "vite-node scripts/graphic-reference-house.ts"
   },
   "engines": {
     "node": ">=22.0.0"

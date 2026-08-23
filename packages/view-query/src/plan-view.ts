@@ -558,7 +558,8 @@ function openingPrimitives(
       leafAndSwing('', jamb(hingeAtStart), along, opening.widthMm);
       break;
     }
-    case 'DOUBLE_DOOR': {
+    case 'DOUBLE_DOOR':
+    case 'GLAZED_DOUBLE_DOOR': {
       // Two leaves, each half the bay, hinged one at each jamb.
       const half = opening.widthMm / 2;
       leafAndSwing('-a', jamb(true), direction, half);
@@ -1865,7 +1866,7 @@ function slabAndRoofPrimitives(level: Level): readonly PrimitiveDraft[] {
 }
 
 function boundsOf(
-  primitives: readonly PrimitiveDraft[],
+  primitives: readonly Pick<PrimitiveDraft, 'geometry'>[],
   paddingMm: number,
 ): DrawingView['viewport'] {
   const points: Point2D[] = [];
@@ -2010,7 +2011,13 @@ export function buildPlanView(
     scale: options.scale ?? DEFAULT_SCALE,
     viewport:
       options.viewport ??
-      boundsOf(drafts, options.paddingMm ?? DEFAULT_PADDING_MM),
+      // What is drawn, not what was built: the bounds used to come from every
+      // draft, so switching the plot off left the drawing framed on a plot
+      // nobody could see and the house at a quarter of the sheet.
+      boundsOf(
+        primitives.length === 0 ? drafts : primitives,
+        options.paddingMm ?? DEFAULT_PADDING_MM,
+      ),
     visibleDisciplines: visibleDisciplines(layers),
     graphicProfileId: graphicProfileId(
       options.graphicProfileId ?? 'generic-technical-screen',

@@ -12,6 +12,7 @@
 export type OpeningRepresentation =
   | 'HINGED_DOOR'
   | 'GLAZED_DOOR'
+  | 'GLAZED_DOUBLE_DOOR'
   | 'DOUBLE_DOOR'
   | 'SLIDING_DOOR'
   | 'POCKET_DOOR'
@@ -29,7 +30,9 @@ const BY_FAMILY: Readonly<Record<string, OpeningRepresentation>> = {
   DOOR_EXTERNAL: 'HINGED_DOOR',
   DOOR_FIRE: 'HINGED_DOOR',
   DOOR_SECURITY: 'HINGED_DOOR',
-  FRENCH_DOOR: 'GLAZED_DOOR',
+  // Une porte-fenêtre du catalogue est à deux vantaux : un seul vantail de
+  // 1,60 m balayerait un mètre six de jardin qu'il ne balaie pas.
+  FRENCH_DOOR: 'GLAZED_DOUBLE_DOOR',
   DOOR_DOUBLE: 'DOUBLE_DOOR',
   DOOR_SLIDING: 'SLIDING_DOOR',
   SLIDING_PATIO_DOOR: 'SLIDING_DOOR',

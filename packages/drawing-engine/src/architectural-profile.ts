@@ -58,7 +58,7 @@ const SCREEN = {
     STORAGE: '#F1EEE5',
     UTILITY: '#ECF0E9',
     OFFICE: '#E9EEF4',
-    GARAGE: '#EBC9D0',
+    GARAGE: '#EFDCDF',
     TECHNICAL: '#E5E8EA',
     OTHER: '#F4F4F1',
   },

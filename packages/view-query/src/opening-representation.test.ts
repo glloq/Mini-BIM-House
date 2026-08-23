@@ -15,7 +15,9 @@ describe('the drawing an opening gets', () => {
     expect(openingRepresentation('DOOR', 'DOOR_DOUBLE')).toBe('DOUBLE_DOOR');
     expect(openingRepresentation('DOOR', 'DOOR_FOLDING')).toBe('FOLDING_DOOR');
     expect(openingRepresentation('DOOR', 'DOOR_GARAGE')).toBe('GARAGE_DOOR');
-    expect(openingRepresentation('DOOR', 'FRENCH_DOOR')).toBe('GLAZED_DOOR');
+    expect(openingRepresentation('DOOR', 'FRENCH_DOOR')).toBe(
+      'GLAZED_DOUBLE_DOOR',
+    );
     expect(openingRepresentation('WINDOW', 'WINDOW_FIXED')).toBe(
       'GLAZED_FIXED',
     );
@@ -37,6 +39,7 @@ describe('the drawing an opening gets', () => {
 
   it('knows which representations show a pane of glass', () => {
     expect(isGlazedRepresentation('GLAZED_BAY')).toBe(true);
+    expect(isGlazedRepresentation('GLAZED_DOUBLE_DOOR')).toBe(true);
     expect(isGlazedRepresentation('HINGED_DOOR')).toBe(false);
     expect(isGlazedRepresentation('PLAIN_VOID')).toBe(false);
   });
