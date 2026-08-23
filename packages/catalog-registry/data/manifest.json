@@ -1,6 +1,6 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "b4df760b2a627c73",
+  "releaseId": "c421e840bb50d697",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
@@ -74,7 +74,7 @@
         "packages/assemblies/data/wall.json"
       ],
       "entryCount": 56,
-      "formatVersion": "1.0.0",
+      "formatVersion": "1.1.0",
       "fingerprint": "b3a318b3bb81c6d5"
     },
     {
@@ -90,11 +90,12 @@
     {
       "registry": "SYMBOL",
       "sources": [
+        "packages/drawing-engine/data/symbols/architecture-fixtures.json",
         "packages/drawing-engine/data/symbols/generic.json"
       ],
-      "entryCount": 27,
+      "entryCount": 45,
       "formatVersion": "1.0.0",
-      "fingerprint": "80b252f98d2dc228"
+      "fingerprint": "bf7c5af8bb298d8e"
     }
   ]
 }
