@@ -1044,6 +1044,20 @@ button.icon {
   gap: 0.4rem;
   align-items: center;
 }
+/* Ce que le plan montre, au repos, dans l'inspecteur. */
+.view-properties {
+  display: grid;
+  gap: 0.6rem;
+}
+.view-properties h3 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+.view-properties .hint {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+}
 .inspector-subject {
   display: grid;
   gap: 0.85rem;

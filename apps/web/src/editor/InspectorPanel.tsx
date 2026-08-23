@@ -1,6 +1,8 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import { editsFor, inspectObject, sharedEditsFor } from './object-editors.js';
+import type { ReactNode } from 'react';
+
 import type { InspectorEdit } from './inspector-edits.js';
 import { InspectorField } from './InspectorField.js';
 
@@ -16,6 +18,14 @@ export interface InspectorPanelProps {
    * identifier, so a target can name either.
    */
   readonly expandProperty?: string;
+  /**
+   * Ce que le panneau montre quand rien n'est désigné.
+   *
+   * Un objet a des propriétés ; une vue aussi. « Sélectionnez un objet »
+   * n'apprend rien à qui vient de cliquer dans le vide, et prenait la place
+   * d'un panneau entier pour le dire.
+   */
+  readonly atRest?: ReactNode;
   readonly onClear: () => void;
   readonly onCommand: (command: ProjectCommand) => boolean;
   readonly onMessage: (message: string) => void;
@@ -53,6 +63,7 @@ export function InspectorPanel({
   project,
   selection,
   expandProperty,
+  atRest,
   onClear,
   onCommand,
   onMessage,
@@ -61,9 +72,11 @@ export function InspectorPanel({
 }: InspectorPanelProps) {
   if (selection.length === 0)
     return (
-      <p className="empty-state">
-        Sélectionnez un objet du plan pour voir ses propriétés.
-      </p>
+      atRest ?? (
+        <p className="empty-state">
+          Sélectionnez un objet du plan pour voir ses propriétés.
+        </p>
+      )
     );
 
   if (selection.length > 1) {

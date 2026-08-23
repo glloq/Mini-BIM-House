@@ -745,8 +745,26 @@ Les actions de sélection selon `selectionCapabilities()` étaient déjà là ; 
 options essentielles de l'outil restent sous l'outil, dans la boîte, où choisir
 un assemblage fait partie du choix de l'outil mur.
 
-**UX-7 — Inspecteur.** Propriétés de vue au repos ; sections hiérarchisées ;
-avancé replié.
+**UX-7 — Inspecteur.** _Livré._ `editor/ViewProperties.tsx` occupe l'inspecteur
+quand rien n'est désigné : le niveau, le métier, le rendu, le préréglage, les
+calques masqués, l'échelle. Un objet a des propriétés ; une vue aussi, et
+« Sélectionnez un objet du plan » réservait un panneau entier pour une phrase
+qui n'apprend rien à qui vient de cliquer dans le vide.
+
+Ces faits se **lisent** ici et se changent ailleurs — chacun dit où —, parce
+qu'un même réglage à deux endroits finit par dire deux choses. C'est aussi ce
+qu'on vérifie avant d'exporter, et cela se lisait jusqu'ici en ouvrant trois
+panneaux.
+
+Les sections hiérarchisées et le repli de l'avancé existaient déjà dans
+`InspectorPanel` : ce que l'objet **est** reste ouvert, où il vit dans le
+fichier se replie — sauf si une vérification a envoyé quelqu'un vers un champ
+qui s'y trouve.
+
+> Le repli automatique de UX-1 reste. L'inspecteur a maintenant quelque chose à
+> dire au repos, mais la place appartient encore au dessin tant qu'on ne l'a pas
+> demandée : les propriétés de vue sont ce qu'on trouve en l'ouvrant, pas une
+> raison de l'ouvrir tout seul.
 
 **UX-8 — Bibliothèques.** Bouton `Bibliothèque…` dans les champs qui désignent
 une fiche ; les quatre panneaux cessent d'être des destinations.

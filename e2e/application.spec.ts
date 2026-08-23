@@ -2192,6 +2192,44 @@ test('reads the same plan through one discipline at a time', async ({
   expect(errors).toEqual([]);
 });
 
+test('shows what the plan shows when nothing is selected', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  // « Sélectionnez un objet du plan » réservait un panneau entier pour une
+  // phrase qui n'apprend rien à qui vient de cliquer dans le vide. Un objet a
+  // des propriétés ; une vue aussi.
+  await openInspector(page);
+  const rest = page.locator('.view-properties');
+  await expect(rest).toBeVisible();
+  await expect(rest).toContainText('Rez-de-chaussée');
+  await expect(rest).toContainText('Plan architectural');
+  await expect(rest).toContainText('1:');
+
+  // Elles se lisent ici et se changent ailleurs : un même réglage à deux
+  // endroits finit par dire deux choses.
+  await expect(rest).toContainText('se change dans Affichage');
+  await expect(rest.getByRole('button')).toHaveCount(0);
+
+  // Et l'objet reprend la place dès qu'on en désigne un.
+  const canvas = page.locator('.plan-canvas');
+  const at = await page.evaluate(() => {
+    const wall = document
+      .querySelector('[id="wall:wall-south"]')!
+      .getBoundingClientRect();
+    const frame = document
+      .querySelector('.plan-canvas')!
+      .getBoundingClientRect();
+    return {
+      x: wall.x - frame.x + wall.width / 2,
+      y: wall.y - frame.y + wall.height / 2,
+    };
+  });
+  await canvas.click({ position: at });
+  await expect(page.locator('.inspector-subject')).toBeVisible();
+  await expect(rest).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test('says what the active tool expects, and how to stop', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);

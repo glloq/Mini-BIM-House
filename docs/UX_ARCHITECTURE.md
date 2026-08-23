@@ -202,7 +202,10 @@ seule ; la barre supérieure tient sur une rangée, jamais deux.
 
 **Aucune zone ne réserve de place pour rien.** L'inspecteur ne prend ses
 280 px qu'à partir du moment où quelque chose est désigné ; tant que rien ne
-l'a jamais été, il vaut zéro pixel et le dessin a la largeur. Le repli est
+l'a jamais été, il vaut zéro pixel et le dessin a la largeur. Ouvert sans
+sélection, il montre **les propriétés de la vue** — niveau, métier, rendu,
+préréglage, calques masqués, échelle — parce qu'un objet a des propriétés et
+une vue aussi. Elles s'y lisent et se changent ailleurs, chacune disant où. Le repli est
 collant : il vaut jusqu'à la première sélection et plus jamais après, sinon la
 fenêtre respirerait à chaque Échap. Ensuite c'est le bouton « Inspecteur » qui
 décide, et lui seul.

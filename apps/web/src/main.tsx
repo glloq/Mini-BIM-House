@@ -63,6 +63,7 @@ import { ClearanceControl } from './editor/ClearanceControl.js';
 import { clearanceReport } from '@house-technical-designer/core-domain';
 import type { ClearanceGroupId } from './editor/clearance-overlay.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
+import { ViewProperties } from './editor/ViewProperties.js';
 import { ContextToolBar } from './editor/ContextToolBar.js';
 import { Toolbox } from './editor/Toolbox.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
@@ -2644,6 +2645,19 @@ function App() {
             <InspectorPanel
               project={scenarioProject ?? file.project}
               selection={editor.selection}
+              atRest={
+                <ViewProperties
+                  editor={editor}
+                  levelName={
+                    levels.find(({ id }) => id === activeLevelId)?.name ??
+                    'aucun niveau'
+                  }
+                  {...(activeDomain === undefined
+                    ? {}
+                    : { domainLabel: designDomainLabel(activeDomain) })}
+                  renderingId={rendering.id}
+                />
+              }
               {...(inspectedProperty === undefined
                 ? {}
                 : { expandProperty: inspectedProperty })}
