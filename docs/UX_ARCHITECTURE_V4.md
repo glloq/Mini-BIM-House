@@ -145,6 +145,11 @@ Il n'y a pas de colonne de propriétés permanente. L'inspecteur apparaît à
 droite **quand un objet est sélectionné**, et disparaît au clic dans le vide.
 Le plan récupère toute la largeur, ce qui est la seule chose qu'il demande.
 
+Le bouton « Inspecteur » de la barre supérieure est une **épingle**, pas un
+interrupteur : enfoncé, le panneau reste ouvert même sans rien de désigné, et
+montre alors les propriétés de la vue — un objet a des propriétés, une vue
+aussi. Au repos il n'est pas enfoncé.
+
 ---
 
 ## 3. Comment lire les tableaux qui suivent
@@ -920,7 +925,7 @@ Ils viennent de V2 et de V3, ils ont tenu, et ils tiennent encore :
 | **V4-2**  | _Livré._ Sous-parties : une rangée, une seule ouverte, le métier suit     | V4-1      |
 | **V4-3**  | _Livré._ Header du plan : outils contre le dessin, `+`, bandeau flottant  | V4-2      |
 | **V4-4**  | _Livré._ Le registre des headers — §5 à §10 écrits en données             | V4-3      |
-| **V4-5**  | Inspecteur à la sélection seule ; suppression du panneau permanent        | V4-3      |
+| **V4-5**  | _Livré._ Inspecteur à la sélection, bouton devenu épingle                 | V4-3      |
 | **V4-6**  | Barre d'état : niveau, grille en mm, snap, ortho, cotes, échelle, curseur | V4-1      |
 | **V4-7**  | Face de référence au tracé, et cotes intérieures (manques 2 et 3)         | V4-4      |
 | **V4-8**  | Étiquettes de surface dans le plan, et « + Créer pièce » (manque 4)       | V4-4      |

@@ -13,6 +13,13 @@ export interface WorkspaceLayout {
   readonly sidebarPx: number;
   readonly inspectorPx: number;
   readonly sidebarShown: boolean;
+  /**
+   * L'épingle de l'inspecteur, et non sa présence.
+   *
+   * Le panneau paraît de lui-même quand on désigne quelque chose. Ce drapeau
+   * dit qu'on veut le garder ouvert même sans rien de désigné — pour lire les
+   * propriétés de la vue. Il part fermé : au repos, la largeur est au dessin.
+   */
   readonly inspectorShown: boolean;
 }
 
@@ -26,7 +33,7 @@ export const DEFAULT_LAYOUT: WorkspaceLayout = {
   sidebarPx: 220,
   inspectorPx: 280,
   sidebarShown: true,
-  inspectorShown: true,
+  inspectorShown: false,
 };
 
 /** A width the grid can actually use, whatever it was asked for. */
@@ -68,7 +75,7 @@ export function parseLayout(stored: string | null): WorkspaceLayout {
         : DEFAULT_LAYOUT.inspectorPx,
     ),
     sidebarShown: readBoolean(record.sidebarShown, true),
-    inspectorShown: readBoolean(record.inspectorShown, true),
+    inspectorShown: readBoolean(record.inspectorShown, false),
   };
 }
 

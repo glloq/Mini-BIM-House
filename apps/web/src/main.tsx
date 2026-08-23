@@ -795,28 +795,31 @@ function App() {
   );
 
   /**
-   * Un inspecteur qui n'a rien à dire ne réserve pas sa largeur.
+   * L'inspecteur paraît quand on désigne quelque chose, et s'en va avec.
    *
    * Deux cent quatre-vingts pixels tenus en permanence pour afficher
    * « Sélectionnez un objet » : sur un portable, un sixième de la fenêtre pour
-   * une phrase. Au repos il ne prend rien.
+   * une phrase.
    *
-   * Le repli est **collant** : il vaut jusqu'à ce qu'on désigne un objet, et
-   * plus jamais après. Un panneau qui se rouvrirait à chaque sélection et se
-   * refermerait à chaque Échap ferait respirer la fenêtre — et la colonne
-   * qu'il rend au dessin, le dessin la rendrait aussitôt. On l'ouvre une fois
-   * ; ensuite c'est le bouton « Inspecteur » qui décide, et lui seul.
+   * Le repli avait dû être **collant** — valable jusqu'à la première
+   * sélection, et plus jamais après — parce qu'un panneau qui va et vient
+   * redimensionnait le plan, et que le plan se remettait alors à l'échelle :
+   * le dessin sautait sous le pointeur au moment précis où l'on venait de
+   * viser. Ce n'était pas le panneau qui avait tort, c'était le
+   * redimensionnement ; il montre désormais plus ou moins de dessin sans rien
+   * remettre à l'échelle, et le panneau peut faire ce que V4 §21 demande :
+   * paraître à la sélection, disparaître au clic dans le vide.
+   *
+   * Le bouton « Inspecteur » devient une **épingle** : enfoncé, le panneau
+   * reste ouvert et montre les propriétés de la vue quand rien n'est désigné —
+   * un objet a des propriétés, une vue aussi. Au repos il n'est pas enfoncé,
+   * et le panneau suit la sélection.
    */
   const inspectorHasSubject =
     tab !== 'plan' ||
     editor.selection.length > 0 ||
     inspectedProperty !== undefined;
-  const [inspectorEngaged, setInspectorEngaged] = useState(false);
-  useEffect(() => {
-    if (inspectorHasSubject) setInspectorEngaged(true);
-  }, [inspectorHasSubject]);
-  const inspectorShown =
-    layout.inspectorShown && (inspectorEngaged || inspectorHasSubject);
+  const inspectorShown = layout.inspectorShown || inspectorHasSubject;
   const columns = gridColumns({ ...layout, inspectorShown });
 
   /*
@@ -2228,12 +2231,11 @@ function App() {
               <button
                 type="button"
                 className="secondary panel-toggle"
-                aria-pressed={inspectorShown}
+                aria-pressed={layout.inspectorShown}
                 title="Afficher ou masquer l’inspecteur"
-                onClick={() => {
-                  setInspectorEngaged(true);
-                  changeLayout({ inspectorShown: !inspectorShown });
-                }}
+                onClick={() =>
+                  changeLayout({ inspectorShown: !layout.inspectorShown })
+                }
               >
                 Inspecteur
               </button>
