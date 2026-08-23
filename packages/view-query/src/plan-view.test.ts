@@ -312,7 +312,7 @@ describe('plan view walls', () => {
     const { primitives } = buildPlanView(project());
     const join = find(primitives, 'wall-join:wall-south:wall-west');
     expect(join?.metadata?.joinKind).toBe('L');
-    expect(join?.geometry).toEqual({ kind: 'POINT', point: { x: 0, y: 0 } });
+    expect(join?.geometry.kind).toBe('POLYGON');
   });
 
   it('reports a wall whose assembly is missing instead of drawing it', () => {
@@ -667,5 +667,196 @@ describe('what discipline a drawing reads each thing by', () => {
         view.primitives.some((primitive) => primitive.id === id),
         id,
       ).toBe(true);
+  });
+});
+
+/**
+ * Two walls, and the corner they make.
+ *
+ * Each wall is drawn as its own rectangle, so two walls meeting at their ends
+ * cover three of the four quadrants around the corner and leave the fourth
+ * empty: a white notch bitten out of the outside of every corner of a house.
+ * These cases are the shapes a corner comes in.
+ */
+describe('wall junctions', () => {
+  interface Leg {
+    readonly id: string;
+    readonly from: { readonly x: number; readonly y: number };
+    readonly to: { readonly x: number; readonly y: number };
+    readonly thicknessMm?: number;
+    readonly role?: 'EXTERIOR' | 'INTERIOR' | 'PARTITION' | 'OTHER';
+  }
+
+  const assemblyOf = (thicknessMm: number): unknown => ({
+    id: `assembly-${thicknessMm}`,
+    name: `Mur ${thicknessMm}`,
+    category: 'WALL',
+    layers: [
+      {
+        id: `layer-${thicknessMm}`,
+        materialId: 'masonry',
+        thicknessM: thicknessMm / 1000,
+        role: 'STRUCTURAL',
+      },
+    ],
+  });
+
+  function junction(first: Leg, second: Leg): Project {
+    const base = project();
+    const legs = [first, second];
+    const thicknesses = [
+      ...new Set(legs.map(({ thicknessMm }) => thicknessMm ?? 300)),
+    ];
+    const level = base.building.levels[0]!;
+    return {
+      ...base,
+      assemblies: thicknesses.map(assemblyOf) as NonNullable<
+        Project['assemblies']
+      >,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            spaces: [],
+            walls: legs.map(
+              (leg) =>
+                ({
+                  id: entityId<'Wall'>(leg.id),
+                  type: 'WALL',
+                  levelId,
+                  path: { points: [leg.from, leg.to] },
+                  referenceSide: 'CENTER',
+                  assemblyId: `assembly-${leg.thicknessMm ?? 300}`,
+                  baseOffsetMm: 0,
+                  heightMode: 'EXPLICIT',
+                  heightMm: 2500,
+                  role: leg.role ?? 'EXTERIOR',
+                }) as unknown as (typeof level.walls)[number],
+            ),
+          },
+        ],
+      },
+    };
+  }
+
+  const patchOf = (first: Leg, second: Leg): ScenePrimitive | undefined => {
+    const { primitives } = buildPlanView(junction(first, second));
+    const [a, b] = [first.id, second.id].sort();
+    return find(primitives, `wall-join:${a}:${b}`);
+  };
+
+  /** Signed distance of a point from a wall's centre line. */
+  const offsetFrom = (
+    leg: Leg,
+    point: { readonly x: number; readonly y: number },
+  ): number => {
+    const dx = leg.to.x - leg.from.x;
+    const dy = leg.to.y - leg.from.y;
+    const length = Math.hypot(dx, dy);
+    return Math.abs(
+      ((point.x - leg.from.x) * -dy + (point.y - leg.from.y) * dx) / length,
+    );
+  };
+
+  const cases: readonly (readonly [string, Leg, Leg, string])[] = [
+    [
+      'a right-angle corner',
+      { id: 'w-a', from: { x: -4_000, y: 0 }, to: { x: 0, y: 0 } },
+      { id: 'w-b', from: { x: 0, y: 0 }, to: { x: 0, y: 4_000 } },
+      'L',
+    ],
+    [
+      'a wall dying into another',
+      { id: 'w-a', from: { x: 0, y: 0 }, to: { x: 6_000, y: 0 } },
+      { id: 'w-b', from: { x: 3_000, y: 0 }, to: { x: 3_000, y: 4_000 } },
+      'T',
+    ],
+    [
+      'a crossing',
+      { id: 'w-a', from: { x: 0, y: 0 }, to: { x: 6_000, y: 0 } },
+      { id: 'w-b', from: { x: 3_000, y: -2_000 }, to: { x: 3_000, y: 2_000 } },
+      'X',
+    ],
+    [
+      'an acute angle',
+      { id: 'w-a', from: { x: 0, y: 0 }, to: { x: 6_000, y: 0 } },
+      { id: 'w-b', from: { x: 0, y: 0 }, to: { x: 6_000, y: 3_000 } },
+      'L',
+    ],
+    [
+      'an obtuse angle',
+      { id: 'w-a', from: { x: 0, y: 0 }, to: { x: 6_000, y: 0 } },
+      { id: 'w-b', from: { x: 0, y: 0 }, to: { x: -4_000, y: 4_000 } },
+      'L',
+    ],
+    [
+      'a partition meeting an outer wall',
+      {
+        id: 'w-a',
+        from: { x: 0, y: 0 },
+        to: { x: 6_000, y: 0 },
+        thicknessMm: 400,
+        role: 'EXTERIOR',
+      },
+      {
+        id: 'w-b',
+        from: { x: 3_000, y: 0 },
+        to: { x: 3_000, y: 4_000 },
+        thicknessMm: 100,
+        role: 'PARTITION',
+      },
+      'T',
+    ],
+  ];
+
+  it.each(cases)('closes %s', (_name, first, second, kind) => {
+    const patch = patchOf(first, second);
+    expect(patch?.metadata?.joinKind).toBe(kind);
+    expect(patch?.geometry.kind).toBe('POLYGON');
+    if (patch?.geometry.kind !== 'POLYGON') return;
+    expect(patch.geometry.polygon.outer).toHaveLength(4);
+    // No spike past a face: every corner of the patch sits exactly on both
+    // walls' faces, which is where the masonry of a mitre ends.
+    for (const point of patch.geometry.polygon.outer) {
+      expect(offsetFrom(first, point)).toBeCloseTo(
+        (first.thicknessMm ?? 300) / 2,
+        6,
+      );
+      expect(offsetFrom(second, point)).toBeCloseTo(
+        (second.thicknessMm ?? 300) / 2,
+        6,
+      );
+    }
+  });
+
+  it('fills the quadrant neither wall covers', () => {
+    // The notch: outside the end of the horizontal wall, and on the far side
+    // of the vertical one. Neither rectangle reaches it.
+    const [first, second] = [cases[0]![1], cases[0]![2]];
+    const patch = patchOf(first, second)!;
+    if (patch.geometry.kind !== 'POLYGON') return;
+    expect(polygonContains(patch.geometry.polygon, { x: 100, y: -100 })).toBe(
+      true,
+    );
+    expect(polygonContains(patch.geometry.polygon, { x: 200, y: -100 })).toBe(
+      false,
+    );
+  });
+
+  it('gives the corner to the heavier of the two walls', () => {
+    // A partition dies into a party wall, not the other way round.
+    const [, first, second] = cases[5]!;
+    expect(patchOf(first, second)?.metadata?.role).toBe('EXTERIOR');
+  });
+
+  it('draws no corner where two walls are all but parallel', () => {
+    // The patch of a one-degree corner is metres long and is not a corner.
+    expect(
+      patchOf(
+        { id: 'w-a', from: { x: 0, y: 0 }, to: { x: 6_000, y: 0 } },
+        { id: 'w-b', from: { x: 0, y: 0 }, to: { x: 6_000, y: 60 } },
+      ),
+    ).toBeUndefined();
   });
 });

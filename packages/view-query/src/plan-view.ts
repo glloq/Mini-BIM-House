@@ -232,6 +232,7 @@ function wallPrimitives(
   wall: Wall,
   assembly: Assembly,
   neighbours: readonly Wall[],
+  assemblies: ReadonlyMap<string, Assembly>,
   issues: PlanViewIssue[],
 ): readonly PrimitiveDraft[] {
   const validation = validateWall(wall, assembly);
@@ -297,18 +298,97 @@ function wallPrimitives(
     if (other.id <= wall.id) continue;
     const join = resolveStraightWallJoin(wall, other);
     if (join.status !== 'JOINED') continue;
+    const otherAssembly = assemblies.get(other.assemblyId);
+    if (otherAssembly === undefined) continue;
+    const patch = joinPatch(
+      wall,
+      faces.thicknessMm,
+      other,
+      deriveWallFaces(other, otherAssembly).thicknessMm,
+      join.point,
+    );
+    if (patch === undefined) continue;
     drafts.push({
       id: `wall-join:${wall.id}:${other.id}`,
       sourceObjectId: wall.id,
       semanticRole: 'WALL_CUT',
-      geometry: { kind: 'POINT', point: join.point },
+      geometry: { kind: 'POLYGON', polygon: patch },
       layer: 'architecture.walls',
       zIndex: 22,
       discipline: 'ARCHITECTURE',
-      metadata: { joinKind: join.kind, withWallId: other.id },
+      metadata: {
+        joinKind: join.kind,
+        withWallId: other.id,
+        // The corner reads as the heavier of the two walls, because that is
+        // what it is: a partition dies into a party wall, not the other way.
+        role: heavierRole(wall.role, other.role),
+      },
     });
   }
   return drafts;
+}
+
+/** Which of two walls the corner between them belongs to. */
+const WALL_ROLE_WEIGHT: Readonly<Record<string, number>> = {
+  EXTERIOR: 3,
+  INTERIOR: 2,
+  PARTITION: 1,
+  OTHER: 0,
+};
+
+function heavierRole(first: string, second: string): string {
+  return (WALL_ROLE_WEIGHT[first] ?? 0) >= (WALL_ROLE_WEIGHT[second] ?? 0)
+    ? first
+    : second;
+}
+
+/**
+ * Below this, two walls are too nearly parallel for a corner to mean anything.
+ *
+ * The patch of a one-degree corner is metres long and is not a corner; the
+ * walls simply overlap, and drawing them is enough.
+ */
+const JOIN_MINIMUM_SINE = 0.05;
+
+/**
+ * The piece of masonry that closes the corner between two walls.
+ *
+ * Each wall is drawn as its own rectangle, so two walls meeting at their ends
+ * cover three of the four quadrants around the corner and leave the fourth
+ * empty: a white notch bitten out of the outside of every corner of the house.
+ * The missing piece is exactly where both walls' faces would run if neither
+ * stopped — the parallelogram cut by the four face lines — so the patch is
+ * built from those lines and can never spill past a face.
+ */
+function joinPatch(
+  first: Wall,
+  firstThicknessMm: number,
+  second: Wall,
+  secondThicknessMm: number,
+  point: Point2D,
+): Polygon2D | undefined {
+  const firstSegment = wallSegment(first);
+  const secondSegment = wallSegment(second);
+  if (firstSegment === undefined || secondSegment === undefined)
+    return undefined;
+  const firstDirection = unitDirection(firstSegment[0], firstSegment[1]);
+  const secondDirection = unitDirection(secondSegment[0], secondSegment[1]);
+  if (firstDirection === undefined || secondDirection === undefined)
+    return undefined;
+  const cross =
+    firstDirection.x * secondDirection.y - firstDirection.y * secondDirection.x;
+  if (Math.abs(cross) < JOIN_MINIMUM_SINE) return undefined;
+  const corner = (firstSide: number, secondSide: number): Point2D => {
+    const along = (-secondSide * secondThicknessMm) / (2 * cross);
+    const across = (firstSide * firstThicknessMm) / (2 * cross);
+    return {
+      x: point.x + firstDirection.x * along + secondDirection.x * across,
+      y: point.y + firstDirection.y * along + secondDirection.y * across,
+    };
+  };
+  return {
+    outer: [corner(1, 1), corner(-1, 1), corner(-1, -1), corner(1, -1)],
+  };
 }
 
 /**
@@ -1487,7 +1567,9 @@ export function buildPlanView(
         });
         continue;
       }
-      drafts.push(...wallPrimitives(wall, assembly, level.walls, issues));
+      drafts.push(
+        ...wallPrimitives(wall, assembly, level.walls, assemblies, issues),
+      );
     }
     for (const opening of level.openings) {
       const host = level.walls.find(({ id }) => id === opening.hostElementId);
