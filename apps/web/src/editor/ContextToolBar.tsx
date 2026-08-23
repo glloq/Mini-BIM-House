@@ -1,11 +1,16 @@
 /**
- * What the current tool and the current selection make possible — and nothing
- * when neither makes anything possible.
+ * Ce que l'outil actif et la sélection rendent possible — et rien quand ni
+ * l'un ni l'autre ne rend rien possible.
  *
- * The universal toolbar was always the same forty buttons, whatever was being
- * done, so it said nothing about what was being done. This one is empty when
- * no tool is active and nothing is selected, which is itself information: the
- * plan is waiting.
+ * La barre universelle montrait les mêmes quarante boutons quoi qu'on fasse,
+ * donc elle ne disait rien de ce qu'on faisait. Celle-ci est vide quand aucun
+ * outil n'est actif et que rien n'est sélectionné, ce qui est déjà une
+ * information : le plan attend.
+ *
+ * Elle dit surtout **ce que l'outil attend**. « Mur » ne disait pas s'il faut
+ * cliquer une fois ou deux, ni comment on arrête un tracé qui ne s'arrête pas
+ * tout seul : on le découvrait en essayant, c'est-à-dire en se trompant. La
+ * phrase est dérivée du registre, jamais écrite par un outil.
  */
 import type { Project } from '@house-technical-designer/core-domain';
 
@@ -13,6 +18,7 @@ import type { AlignEdge } from './editing-commands.js';
 import type { EditorAction, EditorState } from './editor-state.js';
 import { selectionCapabilities } from './object-editors.js';
 import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
+import { toolInstruction } from './tool-instruction.js';
 import { toolDefinition } from './tool-registry.js';
 
 export interface ContextToolBarProps {
@@ -21,6 +27,8 @@ export interface ContextToolBarProps {
   readonly dispatch: (action: EditorAction) => void;
   readonly onTransform?: (kind: 'ROTATE' | 'MIRROR') => void;
   readonly onAlign?: (edge: AlignEdge) => void;
+  /** Abandonner le tracé en cours, sans quitter l'outil. */
+  readonly onCancel?: () => void;
 }
 
 function hint(commandId: string): string {
@@ -41,8 +49,11 @@ export function ContextToolBar({
   dispatch,
   onTransform,
   onAlign,
+  onCancel,
 }: ContextToolBarProps) {
   const definition = toolDefinition(editor.activeTool);
+  const instruction = toolInstruction(editor);
+  const drafting = editor.pendingPoints.length > 0;
   const selected = editor.selection.length;
   const allowed = selectionCapabilities(project, editor.selection);
   // Selection is the resting state, not a tool being used: it is what the plan
@@ -75,6 +86,29 @@ export function ContextToolBar({
           >
             Terminer
           </button>
+          {drafting && (
+            <button
+              type="button"
+              className="ghost"
+              title="Abandonner le tracé en cours sans quitter l’outil"
+              onClick={() => onCancel?.()}
+            >
+              Annuler le tracé
+            </button>
+          )}
+        </span>
+      )}
+      {/*
+        Ce que l'outil attend, écrit. Un outil qui n'annonce pas sa prochaine
+        action se découvre en se trompant, et rien à l'écran ne disait qu'un
+        mur continu se termine par Entrée.
+      */}
+      {drawing && (
+        <span className="context-instruction">
+          {instruction.next}
+          {instruction.finish !== undefined && (
+            <small> · {instruction.finish}</small>
+          )}
         </span>
       )}
       {selected > 0 && (

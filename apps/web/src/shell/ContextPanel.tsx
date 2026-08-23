@@ -16,16 +16,14 @@
 import type { ReactNode } from 'react';
 
 import { creationStage } from '../ux/creation-stages.js';
-import { destinationsOf, type ShellNavigation } from '../ux/stage-state.js';
-import {
-  LEGACY_WORKSPACE_LABELS,
-  type LegacyWorkspaceTab,
-} from '../ux/workspaces.js';
+import { destinationsOfStage } from '../ux/creation-stages.js';
+import type { ShellNavigation } from '../ux/stage-state.js';
+import { DESTINATION_LABELS, type DestinationId } from '../ux/destinations.js';
 
 export interface ContextPanelProps {
   readonly navigation: ShellNavigation;
-  readonly activeTab: LegacyWorkspaceTab;
-  readonly onSelectTab: (tab: LegacyWorkspaceTab) => void;
+  readonly activeTab: DestinationId;
+  readonly onSelectTab: (tab: DestinationId) => void;
   readonly children?: ReactNode;
 }
 
@@ -36,18 +34,32 @@ export function ContextPanel({
   children,
 }: ContextPanelProps) {
   const stage = creationStage(navigation.stage);
-  const destinations = destinationsOf(navigation.stage);
+  // Les bibliothèques ne sont pas des destinations : on ne « va » pas dans les
+  // matériaux, on les ouvre parce qu'un mur en désigne un. Elles sont rangées
+  // avec le reste de ce qu'on cherche, dans l'arborescence.
+  const destinations = destinationsOfStage(navigation.stage);
+  /*
+   * La liste montre où l'on peut aller **et** où l'on est.
+   *
+   * Une bibliothèque n'est pas une destination de l'étape : on l'ouvre depuis
+   * une propriété. Mais une fois dedans, si rien ne la nomme, plus rien ne
+   * ramène au plan — et une étape qui n'offre qu'une destination n'affichait
+   * aucune liste du tout.
+   */
+  const rows = destinations.includes(activeTab)
+    ? destinations
+    : [...destinations, activeTab];
   return (
     <>
       <p className="panel-label">{stage.label}</p>
-      {destinations.length > 1 && (
+      {rows.length > 1 && (
         <nav
           className="context-group"
           aria-label={`Ouvrir dans ${stage.label}`}
           role="group"
         >
           <p className="context-group-label">Ouvrir</p>
-          {destinations.map((tab) => (
+          {rows.map((tab) => (
             <button
               key={tab}
               type="button"
@@ -55,7 +67,7 @@ export function ContextPanel({
               aria-current={tab === activeTab ? 'page' : undefined}
               onClick={() => onSelectTab(tab)}
             >
-              {LEGACY_WORKSPACE_LABELS[tab]}
+              {DESTINATION_LABELS[tab]}
             </button>
           ))}
         </nav>

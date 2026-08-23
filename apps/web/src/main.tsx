@@ -63,7 +63,7 @@ import { ClearanceControl } from './editor/ClearanceControl.js';
 import { clearanceReport } from '@house-technical-designer/core-domain';
 import type { ClearanceGroupId } from './editor/clearance-overlay.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
-import { LayersPanel } from './editor/LayersPanel.js';
+import { ViewProperties } from './editor/ViewProperties.js';
 import { ContextToolBar } from './editor/ContextToolBar.js';
 import { Toolbox } from './editor/Toolbox.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
@@ -155,7 +155,12 @@ import {
   saveLayout,
   type WorkspaceLayout,
 } from './shell/workspace-layout.js';
-import { DisciplinePicker } from './systems/DisciplinePicker.js';
+import {
+  domainsOfStage,
+  networksOfDomain,
+} from './systems/discipline-scope.js';
+import { ViewBar } from './shell/ViewBar.js';
+import { hiddenLayerCount } from './visibility/display-count.js';
 import { technicalDomains } from './systems/discipline-scope.js';
 import { WorkflowGuide } from './workflow/WorkflowGuide.js';
 import { workflowEntries } from './workflow/workflow-registry.js';
@@ -176,7 +181,11 @@ import {
   remainingByStage,
   type ShellNavigation,
 } from './ux/stage-state.js';
-import { creationStage, stageOfTab } from './ux/creation-stages.js';
+import {
+  creationStage,
+  librariesOfStage,
+  stageOfTab,
+} from './ux/creation-stages.js';
 import {
   PLAN_RENDERINGS,
   defaultPlanRendering,
@@ -184,10 +193,10 @@ import {
 } from './ux/view-profiles.js';
 import { isEmptyTarget, type UiTarget } from './ux/ui-target.js';
 import {
-  LEGACY_WORKSPACE_LABELS,
-  LEGACY_WORKSPACE_TABS,
-  type LegacyWorkspaceTab,
-} from './ux/workspaces.js';
+  DESTINATION_LABELS,
+  DESTINATIONS,
+  type DestinationId,
+} from './ux/destinations.js';
 import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import {
@@ -283,9 +292,8 @@ const ChecksPanel = lazy(async () => ({
 const IssueCenter = lazy(async () => ({
   default: (await import('./checks/IssueCenter.js')).IssueCenter,
 }));
-const VisibilityPopover = lazy(async () => ({
-  default: (await import('./visibility/VisibilityPopover.js'))
-    .VisibilityPopover,
+const DisplayPanel = lazy(async () => ({
+  default: (await import('./visibility/DisplayPanel.js')).DisplayPanel,
 }));
 const ProjectCreationPage = lazy(async () => ({
   default: (await import('./project-creation/ProjectCreationPage.js'))
@@ -395,8 +403,7 @@ function App() {
   );
   const tab = activeTabOf(navigation);
   const setTab = useCallback(
-    (next: LegacyWorkspaceTab) =>
-      setNavigation((current) => goToTab(current, next)),
+    (next: DestinationId) => setNavigation((current) => goToTab(current, next)),
     [],
   );
   const [selectedMaterialId, setSelectedMaterialId] = useState<string>();
@@ -415,9 +422,8 @@ function App() {
   /** The property someone was sent to look at, when they were sent to one. */
   const [inspectedProperty, setInspectedProperty] = useState<string>();
   /** Whether what is drawn is being chosen right now. */
-  const [visibilityOpen, setVisibilityOpen] = useState(false);
+  const [displayOpen, setDisplayOpen] = useState(false);
   /** Whether the model tree is open; it is secondary, behind « ☰ Modèle ». */
-  const [navigatorOpen, setNavigatorOpen] = useState(false);
   /** The trade the plan is being read through, in Systèmes. */
   /*
    * Le métier lu en ce moment vit dans la navigation, pas à côté.
@@ -458,6 +464,8 @@ function App() {
   /** Whether the workspace navigation is open as a drawer on a narrow screen. */
   const [menuOpen, setMenuOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  /** Ce qu'on cherchait en ouvrant la palette, quand on le savait déjà. */
+  const [paletteQuery, setPaletteQuery] = useState('');
   // How wide the panels are is a preference of the person, kept in the browser
   // and never in the project.
   const [layout, setLayout] = useState<WorkspaceLayout>(() =>
@@ -817,6 +825,23 @@ function App() {
    * travailler dans une étape qui n'affiche rien, ni d'en quitter une qui
    * affiche cinq. Il disparaît quand il n'y a plus rien à dire.
    */
+  /*
+   * Les métiers que l'étape propose, comptés.
+   *
+   * La barre de vue est le seul endroit où l'on choisit un métier : le compte
+   * de réseaux part donc dans l'étiquette de chaque option, pour que la
+   * différence entre « rien à voir » et « rien de tracé » n'y perde rien.
+   */
+  const disciplineChoices = useMemo(
+    () =>
+      domainsOfStage(file.project, navigation.stage).map((id) => ({
+        id,
+        networks: networksOfDomain(file.project, id),
+      })),
+    [file.project, navigation.stage],
+  );
+  const hiddenLayers = useMemo(() => hiddenLayerCount(editor), [editor]);
+
   const stageProgress = useMemo(
     () => remainingByStage(workflowEntries(file.project)),
     [file.project],
@@ -1668,6 +1693,7 @@ function App() {
           dispatchEditor({ type: 'RESET_VIEW' });
           return;
         case 'palette.open':
+          setPaletteQuery('');
           setPaletteOpen(true);
       }
     },
@@ -1768,9 +1794,9 @@ function App() {
           dispatchEditor({ type: 'SET_TOOL', tool: tool.id });
         },
       })),
-      ...LEGACY_WORKSPACE_TABS.map((entry) => ({
+      ...DESTINATIONS.map((entry) => ({
         id: `espace:${entry}`,
-        label: LEGACY_WORKSPACE_LABELS[entry],
+        label: DESTINATION_LABELS[entry],
         group: 'Espaces',
         hint: creationStage(stageOfTab(entry)).label,
         run: () => setTab(entry),
@@ -2075,7 +2101,6 @@ function App() {
                   draft.startMode === 'GUIDED' ? 'PROJECT' : 'BUILDING',
                 ),
               );
-              setNavigatorOpen(false);
               const shape = draft.initialShape;
               if (shape === undefined || shape.kind === 'NONE') return;
               const built = initialShapeCommands(
@@ -2187,7 +2212,12 @@ function App() {
                 type="button"
                 className="secondary"
                 title="Chercher un outil, une pièce, une commande (Ctrl+K)"
-                onClick={() => setPaletteOpen(true)}
+                onClick={() => {
+                  // Un champ qui garde ce qu'on cherchait la fois d'avant est
+                  // un champ qu'il faut vider avant de s'en servir.
+                  setPaletteQuery('');
+                  setPaletteOpen(true);
+                }}
               >
                 Rechercher
               </button>
@@ -2227,41 +2257,52 @@ function App() {
             setMenuOpen(false);
           }}
         >
-          <label className="level-selector">
-            Niveau
-            <select
-              value={activeLevelId ?? ''}
-              onChange={(event) =>
-                dispatchEditor({
-                  type: 'SET_LEVEL',
-                  levelId: event.target.value,
-                })
-              }
-            >
-              {levels.map((level) => (
-                <option key={level.id} value={level.id}>
-                  {level.name}
-                </option>
-              ))}
-            </select>
-          </label>
           {navigation.stage === 'PROJECT' && (
             <WorkflowGuide project={file.project} onNavigate={navigateTo} />
           )}
-          {/*
-           * Le sélecteur n'apparaît que là où il y a un choix : une étape qui
-           * ne propose qu'un métier n'a pas de métier à choisir.
-           */}
-          {creationStage(navigation.stage).domains.length > 1 && (
-            <DisciplinePicker
-              project={file.project}
-              stage={navigation.stage}
-              {...(activeDomain === undefined ? {} : { activeDomain })}
-              onSelect={(domain) => navigateTo({ domain })}
-            />
-          )}
           {tab === 'plan' && (
             <>
+              {/*
+               * Où je suis, en permanence.
+               *
+               * L'arborescence était derrière un dépliage nommé « ☰ Modèle »,
+               * c'est-à-dire rangée : une question qu'on se pose sans arrêt ne
+               * se range pas. Elle est au-dessus des outils parce qu'on
+               * choisit l'étage avant de choisir le mur.
+               */}
+              <ProjectTree
+                project={file.project}
+                {...(activeLevelId === undefined
+                  ? {}
+                  : { levelId: activeLevelId })}
+                selection={editor.selection}
+                onSelectLevel={(levelId) =>
+                  dispatchEditor({ type: 'SET_LEVEL', levelId })
+                }
+                onSelectObject={(objectId) =>
+                  dispatchEditor({ type: 'SELECT', objectId })
+                }
+                onFrameObject={(objectId) => {
+                  dispatchEditor({ type: 'SELECT', objectId });
+                  zoomSelection();
+                }}
+                onOpenDocuments={() => setTab('documents')}
+                libraries={librariesOfStage(navigation.stage).map((id) => ({
+                  id,
+                  label: DESTINATION_LABELS[id],
+                }))}
+                onOpenLibrary={(library) => {
+                  // Sur un téléphone le panneau est un tiroir : ouvrir une
+                  // destination le referme, sinon il reste devant ce qu'on
+                  // vient d'ouvrir.
+                  setTab(library as DestinationId);
+                  setMenuOpen(false);
+                }}
+                onSearch={(query) => {
+                  setPaletteQuery(query);
+                  setPaletteOpen(true);
+                }}
+              />
               <Toolbox
                 project={file.project}
                 stage={navigation.stage}
@@ -2279,44 +2320,6 @@ function App() {
                 }
                 onOpenLibrary={() => setTab('equipment')}
               />
-              {/*
-                The model tree is a way of finding an object, not a way of
-                working: it is opened when the plan is not enough, and folded
-                away the rest of the time so the tools have the panel.
-              */}
-              <details
-                className="model-navigator"
-                open={navigatorOpen}
-                onToggle={(event) => setNavigatorOpen(event.currentTarget.open)}
-              >
-                <summary>☰ Modèle</summary>
-                <ProjectTree
-                  project={file.project}
-                  {...(activeLevelId === undefined
-                    ? {}
-                    : { levelId: activeLevelId })}
-                  selection={editor.selection}
-                  onSelectLevel={(levelId) =>
-                    dispatchEditor({ type: 'SET_LEVEL', levelId })
-                  }
-                  onSelectObject={(objectId) =>
-                    dispatchEditor({ type: 'SELECT', objectId })
-                  }
-                  onFrameObject={(objectId) => {
-                    dispatchEditor({ type: 'SELECT', objectId });
-                    zoomSelection();
-                  }}
-                />
-              </details>
-              {/*
-                Twenty checkboxes were the normal way of choosing what is
-                drawn. They are the engine; the presets are the interface, and
-                the engine stays reachable for the tenth time in ten.
-              */}
-              <details className="layers-advanced">
-                <summary>Calques (avancé)</summary>
-                <LayersPanel editor={editor} dispatch={dispatchEditor} />
-              </details>
               {(file.project.scenarios ?? []).length > 0 && (
                 <section
                   className="overlay-control"
@@ -2392,63 +2395,56 @@ function App() {
         <>
           {tab === 'plan' && (
             <section className="canvas-panel panel" id="plan">
-              <header className="panel-heading canvas-heading">
-                <h2>
-                  {levels.find(({ id }) => id === activeLevelId)?.name ??
-                    'aucun niveau'}
-                  {activeDomain !== undefined &&
-                    navigation.stage === 'SYSTEMS' &&
-                    ` · ${designDomainLabel(activeDomain)}`}
-                </h2>
-                {(file.project.scenarios ?? []).length > 0 && (
-                  <label className="canvas-mode">
-                    Variante
-                    <select
-                      value={scenarioMode ?? ''}
-                      onChange={(event) =>
-                        setScenarioMode(
-                          event.target.value === ''
-                            ? undefined
-                            : event.target.value,
-                        )
-                      }
+              <ViewBar
+                levelName={
+                  levels.find(({ id }) => id === activeLevelId)?.name ??
+                  'aucun niveau'
+                }
+                domains={disciplineChoices}
+                {...(activeDomain === undefined ? {} : { activeDomain })}
+                onDomain={(domain) => navigateTo({ domain })}
+                scenarios={file.project.scenarios ?? []}
+                {...(scenarioMode === undefined
+                  ? {}
+                  : { scenarioId: scenarioMode })}
+                onScenario={setScenarioMode}
+                display={
+                  <div className="visibility-anchor">
+                    <button
+                      type="button"
+                      className="secondary"
+                      aria-expanded={displayOpen}
+                      aria-haspopup="dialog"
+                      onClick={() => setDisplayOpen((open) => !open)}
                     >
-                      <option value="">Le projet lui-même</option>
-                      {(file.project.scenarios ?? []).map((scenario) => (
-                        <option key={scenario.id} value={scenario.id}>
-                          {scenario.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                )}
-                <div className="visibility-anchor">
-                  <button
-                    type="button"
-                    className="secondary"
-                    aria-expanded={visibilityOpen}
-                    aria-haspopup="dialog"
-                    onClick={() => setVisibilityOpen((open) => !open)}
-                  >
-                    Visibilité
-                  </button>
-                  {visibilityOpen && (
-                    <Suspense fallback={null}>
-                      <VisibilityPopover
-                        editor={editor}
-                        dispatch={dispatchEditor}
-                        onClose={() => setVisibilityOpen(false)}
-                      />
-                    </Suspense>
-                  )}
-                </div>
-              </header>
+                      Affichage
+                      {hiddenLayers > 0 && (
+                        <span className="view-badge" aria-hidden="true">
+                          {hiddenLayers}
+                        </span>
+                      )}
+                    </button>
+                    {displayOpen && (
+                      <Suspense fallback={null}>
+                        <DisplayPanel
+                          editor={editor}
+                          dispatch={dispatchEditor}
+                          renderingId={rendering.id}
+                          onRendering={setRenderingId}
+                          onClose={() => setDisplayOpen(false)}
+                        />
+                      </Suspense>
+                    )}
+                  </div>
+                }
+              />
               <ContextToolBar
                 project={file.project}
                 editor={editor}
                 dispatch={dispatchEditor}
                 onTransform={transformSelection}
                 onAlign={alignSelection}
+                onCancel={() => dispatchEditor({ type: 'CANCEL' })}
               />
               <PlanCanvas
                 graphicProfileId={rendering.graphicProfileId}
@@ -2663,9 +2659,26 @@ function App() {
             <InspectorPanel
               project={scenarioProject ?? file.project}
               selection={editor.selection}
+              atRest={
+                <ViewProperties
+                  editor={editor}
+                  levelName={
+                    levels.find(({ id }) => id === activeLevelId)?.name ??
+                    'aucun niveau'
+                  }
+                  {...(activeDomain === undefined
+                    ? {}
+                    : { domainLabel: designDomainLabel(activeDomain) })}
+                  renderingId={rendering.id}
+                />
+              }
               {...(inspectedProperty === undefined
                 ? {}
                 : { expandProperty: inspectedProperty })}
+              onOpenLibrary={(library) => {
+                setTab(library as DestinationId);
+                setMenuOpen(false);
+              }}
               onClear={() => dispatchEditor({ type: 'CLEAR_SELECTION' })}
               onCommand={runCommand}
               onMessage={setMessage}
@@ -2797,6 +2810,7 @@ function App() {
 
           {paletteOpen && (
             <CommandPalette
+              initialQuery={paletteQuery}
               entries={paletteEntries}
               onClose={() => setPaletteOpen(false)}
             />

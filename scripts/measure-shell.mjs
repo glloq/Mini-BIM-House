@@ -23,10 +23,27 @@ import { chromium } from '@playwright/test';
 
 const DIST = 'apps/web/dist';
 
-/** Les formats mesurés : un écran de bureau, un portable ordinaire. */
+/**
+ * Les cinq formats du §10, plus le portable ordinaire.
+ *
+ * Le mobile n'est pas le bureau rétréci : ce qui compte à 390 px n'est pas ce
+ * qui compte à 1 600, et une mesure qui ne regarde que le large ne voit pas la
+ * coque s'empiler.
+ */
 const FORMATS = [
-  { id: 'desktop', label: '1600 × 900', width: 1600, height: 900 },
+  { id: 'wide', label: '1600 × 900', width: 1600, height: 900 },
   { id: 'laptop', label: '1280 × 800', width: 1280, height: 800 },
+  { id: 'small-laptop', label: '1024 × 768', width: 1024, height: 768 },
+  { id: 'tablet', label: '820 × 1180', width: 820, height: 1180 },
+  /*
+   * Un doigt n'est pas un pointeur.
+   *
+   * Sur un écran tactile les contrôles sont plus hauts, exprès : la barre de
+   * vue y fait 48 px et non 34. Ce n'est pas un défaut à corriger, c'est une
+   * décision prise ailleurs dans la feuille de style, et le budget la reprend
+   * plutôt que de la contredire.
+   */
+  { id: 'phone', label: '390 × 844', width: 390, height: 844, chromePx: 175 },
 ];
 
 /**
@@ -44,16 +61,19 @@ export const SHELL_BUDGETS = {
   /**
    * Pixels pris au-dessus du plan par les barres.
    *
-   * UX-1 en mesurait 131. UX-2 en ajoute 34 : la barre d'étapes est une
-   * rangée, là où le rail était une colonne de 56 px. La hauteur coûtée est
-   * rendue en largeur, et la part de fenêtre occupée par le plan n'a pas
-   * bougé — 60 % et 54 %. Un budget est une décision : celle-ci est de payer
-   * 34 px de haut pour 56 px de large et un ordre de lecture.
+   * Trois cent six au départ. UX-1 en a fait 131 ; UX-2 en a ajouté 34, la
+   * barre d'étapes étant une rangée là où le rail était une colonne de 56 px —
+   * de la hauteur payée pour de la largeur rendue. UX-5 fond l'en-tête du
+   * canvas dans la barre de vue et colle la barre d'outil au dessin : 153.
    *
-   * La cible de §13.1 est 120 px. Il y faut UX-5, qui fond l'en-tête du canvas
-   * dans la barre de vue : deux rangées deviennent une.
+   * C'est le compte du §9 de la spécification : 44 (titre) + 34 (étapes) +
+   * 34 (vue) + 40 (outil), plus un pixel de bordure. Le seuil de « ≤ 120 px »
+   * du §13.1 a été écrit avant que ces quatre barres ne soient posées, et son
+   * arithmétique le contredit : quatre rangées ne tiennent pas dans 120 px.
+   * Descendre plus bas demanderait d'en retirer une, ce que la spécification
+   * ne demande pas.
    */
-  chromeAboveCanvasPx: 170,
+  chromeAboveCanvasPx: 155,
   topBarPx: 48,
   /**
    * Part de la fenêtre occupée par le plan.
@@ -78,8 +98,13 @@ export const SHELL_BUDGETS = {
    * dizaine d'entrées qui nomment ce qu'on pose — Porte, Fenêtre, WC, Prise —
    * et qui suivent l'étape, plus neuf communs. Le budget est ici pour
    * empêcher la colonne de regrossir.
+   *
+   * UX-4 en ajoute deux — les niveaux, pour une question qu'on se posait en
+   * permanence — et UX-8 en retire quatre : les bibliothèques ne sont plus des
+   * destinations en tête du panneau, elles se rangent avec ce qu'on cherche.
+   * Vingt-deux.
    */
-  leftColumnButtons: 30,
+  leftColumnButtons: 26,
   /** Zones qui réservent de la place sans rien montrer. */
   emptyReservedZones: 0,
 };
@@ -255,9 +280,10 @@ for (const shell of measured) {
     at(
       `la barre supérieure fait ${shell.topBarPx} px ; le budget est de ${SHELL_BUDGETS.topBarPx}.`,
     );
-  if (shell.chromeAboveCanvasPx > SHELL_BUDGETS.chromeAboveCanvasPx)
+  const chromeBudget = shell.chromePx ?? SHELL_BUDGETS.chromeAboveCanvasPx;
+  if (shell.chromeAboveCanvasPx > chromeBudget)
     at(
-      `${shell.chromeAboveCanvasPx} px de chrome avant le plan ; le budget est de ${SHELL_BUDGETS.chromeAboveCanvasPx}.`,
+      `${shell.chromeAboveCanvasPx} px de chrome avant le plan ; le budget est de ${chromeBudget}.`,
     );
   if (shell.canvasShare < SHELL_BUDGETS.minimumCanvasShare)
     at(

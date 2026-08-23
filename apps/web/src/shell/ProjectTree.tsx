@@ -11,18 +11,40 @@ export interface ProjectTreeProps {
   readonly onSelectObject: (objectId: string) => void;
   /** Frames the object on the plan, when the user asks for it twice. */
   readonly onFrameObject: (objectId: string) => void;
+  /** Opens a saved view or a sheet, by the destination that holds it. */
+  readonly onOpenDocuments: () => void;
+  /** Les bibliothèques que l'étape consulte, et comment on les ouvre. */
+  readonly libraries: readonly {
+    readonly id: string;
+    readonly label: string;
+  }[];
+  readonly onOpenLibrary: (library: string) => void;
+  /**
+   * Cherche dans le projet, avec ce qu'on cherche déjà écrit.
+   *
+   * Les listes s'arrêtent à quarante objets, et le reste était renvoyé à
+   * `Ctrl+K` — une phrase qui suppose qu'on connaît le raccourci, qu'on a un
+   * clavier, et qu'on a lu la ligne. C'est un bouton.
+   */
+  readonly onSearch: (query: string) => void;
 }
 
 /** How many objects of one family are listed before the count stands in. */
 const LISTED_PER_FAMILY = 40;
 
 /**
- * The project as a tree, which is how a building is thought about.
+ * Le bâtiment comme un arbre, qui est la façon dont on pense un bâtiment.
  *
- * The workspaces answer "what am I doing"; this answers "what is in there".
- * Only the storey being drawn is expanded: an object of another one cannot be
- * shown on the plan without changing the plan first, and a tree that walks the
- * whole project would list a thousand walls nobody asked for.
+ * L'étape répond à « ce que je fais » ; ceci répond à « où je suis et ce qu'il
+ * y a dedans ». C'était derrière un dépliage nommé `☰ Modèle`, c'est-à-dire
+ * caché : une question qu'on se pose en permanence ne se range pas.
+ *
+ * Les niveaux sont une rangée de boutons, et c'est **le seul** endroit où l'on
+ * change d'étage — il y avait aussi une liste déroulante « Niveau » juste
+ * au-dessus, deux commandes pour une décision. Seul le niveau dessiné est
+ * déplié : un objet d'un autre étage ne peut pas s'afficher sur le plan sans
+ * changer le plan d'abord, et un arbre qui parcourrait tout le projet
+ * listerait mille murs que personne n'a demandés.
  */
 export function ProjectTree({
   project,
@@ -31,6 +53,10 @@ export function ProjectTree({
   onSelectLevel,
   onSelectObject,
   onFrameObject,
+  onOpenDocuments,
+  libraries,
+  onOpenLibrary,
+  onSearch,
 }: ProjectTreeProps) {
   const levels = project.building.levels;
   const active = levels.find(({ id }) => id === levelId) ?? levels[0];
@@ -43,93 +69,92 @@ export function ProjectTree({
    * missing from both. What belongs to the project rather than to a floor —
    * the networks, the ground — has its own section further down.
    */
+  /*
+   * Les familles vides ne sont pas listées.
+   *
+   * « Toitures (0) », « Cotes (0) », « Annotations (0) » : cinq rangées pour
+   * dire que rien n'existe, au-dessus des outils qu'elles repoussaient sous la
+   * ligne de flottaison. Un arbre dit ce que le bâtiment a ; ce qu'il n'a pas
+   * se voit à ce qu'on ne le trouve pas, et se crée avec un outil.
+   */
   const families =
     active === undefined
       ? []
       : listedFamilies(project, active.id).filter(
-          ({ scope }) => scope === 'LEVEL',
+          ({ scope, objects }) => scope === 'LEVEL' && objects.length > 0,
         );
+  const views = project.drawingViews ?? [];
+  const sheets = project.sheets ?? [];
 
   return (
     <nav className="project-tree" aria-label="Arborescence du projet">
-      <p className="panel-label">Projet</p>
-      <details open>
-        <summary>Site</summary>
-        <ul>
-          <li>
-            <span className="tree-fact">
-              Nord {project.site.northAngleDeg}°
-            </span>
-          </li>
-          <li>
-            <span className="tree-fact">
-              {project.site.climateProfileId === undefined
-                ? 'Aucun climat désigné'
-                : `Climat ${project.site.climateProfileId}`}
-            </span>
-          </li>
-        </ul>
-      </details>
-      <details open>
-        <summary>Bâtiment</summary>
-        <ul>
-          {levels.map((level) => (
-            <li key={level.id}>
-              <button
-                type="button"
-                className={level.id === active?.id ? 'tree-active' : undefined}
-                aria-current={level.id === active?.id ? 'true' : undefined}
-                onClick={() => onSelectLevel(level.id)}
-              >
-                {level.name}
-              </button>
-              {level.id === active?.id && (
-                <ul>
-                  {families.map(({ label, objects }) => (
-                    <li key={label}>
-                      <details>
-                        <summary>
-                          {label} <small>({objects.length})</small>
-                        </summary>
-                        <ul>
-                          {objects
-                            .slice(0, LISTED_PER_FAMILY)
-                            .map(({ objectId, label: name }) => (
-                              <li key={objectId}>
-                                <button
-                                  type="button"
-                                  className={
-                                    selection.includes(objectId)
-                                      ? 'tree-active'
-                                      : undefined
-                                  }
-                                  onClick={() => onSelectObject(objectId)}
-                                  onDoubleClick={() => onFrameObject(objectId)}
-                                >
-                                  {name}
-                                </button>
-                              </li>
-                            ))}
-                          {objects.length > LISTED_PER_FAMILY && (
-                            <li>
-                              <span className="tree-fact">
-                                et {objects.length - LISTED_PER_FAMILY} autre(s)
-                                — cherchez-les avec Ctrl+K
-                              </span>
-                            </li>
-                          )}
-                        </ul>
-                      </details>
+      {/* Le panneau dit déjà « Bâtiment » au-dessus : le répéter ici volerait
+          une rangée pour ne rien apprendre. Les niveaux se nomment eux-mêmes. */}
+      <div className="tree-levels" role="group" aria-label="Niveaux">
+        {levels.map((level) => (
+          <button
+            key={level.id}
+            type="button"
+            className={level.id === active?.id ? 'tree-active' : undefined}
+            aria-current={level.id === active?.id ? 'true' : undefined}
+            onClick={() => onSelectLevel(level.id)}
+          >
+            {level.name}
+          </button>
+        ))}
+      </div>
+      <ul className="tree-families">
+        {families.map(({ label, objects }) => (
+          <li key={label}>
+            <details>
+              <summary>
+                {label} <small>({objects.length})</small>
+              </summary>
+              <ul>
+                {objects
+                  .slice(0, LISTED_PER_FAMILY)
+                  .map(({ objectId, label: name }) => (
+                    <li key={objectId}>
+                      <button
+                        type="button"
+                        className={
+                          selection.includes(objectId)
+                            ? 'tree-active'
+                            : undefined
+                        }
+                        onClick={() => onSelectObject(objectId)}
+                        onDoubleClick={() => onFrameObject(objectId)}
+                      >
+                        {name}
+                      </button>
                     </li>
                   ))}
-                </ul>
-              )}
-            </li>
-          ))}
-        </ul>
-      </details>
-      <details>
-        <summary>Terrain</summary>
+                {objects.length > LISTED_PER_FAMILY && (
+                  <li>
+                    <button
+                      type="button"
+                      className="link"
+                      onClick={() => onSearch(label)}
+                    >
+                      et {objects.length - LISTED_PER_FAMILY} autre(s) —
+                      chercher
+                    </button>
+                  </li>
+                )}
+              </ul>
+            </details>
+          </li>
+        ))}
+      </ul>
+      <details className="tree-section">
+        <summary>
+          Terrain{' '}
+          <small>
+            (nord {project.site.northAngleDeg}°
+            {project.site.climateProfileId === undefined ? ', sans climat' : ''}
+            )
+          </small>
+        </summary>
         <ul>
           <li>
             {project.site.parcelBoundary === undefined ? (
@@ -163,8 +188,10 @@ export function ProjectTree({
           ))}
         </ul>
       </details>
-      <details>
-        <summary>Systèmes</summary>
+      <details className="tree-section">
+        <summary>
+          Systèmes <small>({(project.systems ?? []).length})</small>
+        </summary>
         <ul>
           {(project.systems ?? []).length === 0 && (
             <li>
@@ -225,6 +252,61 @@ export function ProjectTree({
               </details>
             </li>
           ))}
+        </ul>
+      </details>
+      {libraries.length > 0 && (
+        <details className="tree-section">
+          <summary>
+            Bibliothèques <small>({libraries.length})</small>
+          </summary>
+          <ul>
+            {libraries.map(({ id, label }) => (
+              <li key={id}>
+                <button type="button" onClick={() => onOpenLibrary(id)}>
+                  {label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+      {/*
+       * Ce que le projet produit est dans le projet, et se trouve là où l'on
+       * cherche le reste. Une vue enregistrée était atteignable par une
+       * destination et par rien d'autre : il fallait savoir qu'elle existait.
+       */}
+      <details className="tree-section">
+        <summary>
+          Vues et feuilles{' '}
+          <small>
+            ({views.length} vue(s) · {sheets.length} feuille(s))
+          </small>
+        </summary>
+        <ul>
+          {views.length === 0 && sheets.length === 0 && (
+            <li>
+              <span className="tree-fact">Rien d’enregistré</span>
+            </li>
+          )}
+          {views.map((view) => (
+            <li key={view.id}>
+              <span className="tree-fact">
+                {view.name} <small>1:{view.scaleDenominator}</small>
+              </span>
+            </li>
+          ))}
+          {sheets.map((sheet) => (
+            <li key={sheet.id}>
+              <span className="tree-fact">
+                {sheet.number} · {sheet.title}
+              </span>
+            </li>
+          ))}
+          <li>
+            <button type="button" className="link" onClick={onOpenDocuments}>
+              Ouvrir les vues et les feuilles
+            </button>
+          </li>
         </ul>
       </details>
     </nav>

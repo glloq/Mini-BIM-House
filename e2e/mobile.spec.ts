@@ -31,6 +31,37 @@ test('keeps the stage visible and reaches every destination', async ({
   await expect(page.locator('#workspace-sidebar')).not.toBeInViewport();
 });
 
+test('keeps the plan and the commands on one row, and lifts the panel from the bottom', async ({
+  page,
+}) => {
+  await page.goto('/');
+  // « House Technical Designer » prenait la moitié d'un écran de 390 px et
+  // poussait hors du bord les deux boutons qui ouvrent tout le reste.
+  const header = page.locator('.app-header');
+  await expect(header.locator('h1')).toBeHidden();
+  await expect(
+    header.getByRole('button', { name: 'Panneau', exact: true }),
+  ).toBeInViewport();
+  // Une seule rangée : ce qui ne tient pas défile, rien ne descend.
+  expect((await header.boundingBox())!.height).toBeLessThan(56);
+
+  // Le panneau monte du bas et laisse le plan au-dessus de lui : un tiroir
+  // latéral de 20 rem recouvrirait les deux tiers du dessin.
+  const sidebar = page.locator('#workspace-sidebar');
+  await page.getByRole('button', { name: 'Panneau', exact: true }).click();
+  await expect(sidebar).toBeInViewport();
+  const sheet = (await sidebar.boundingBox())!;
+  const viewport = page.viewportSize()!;
+  expect(sheet.y).toBeGreaterThan(viewport.height * 0.3);
+  expect(sheet.y + sheet.height).toBeGreaterThanOrEqual(viewport.height - 1);
+
+  // Et « Affichage » reste au bord plutôt que d'être coupé en deux.
+  await page.keyboard.press('Escape');
+  await expect(
+    page.getByRole('button', { name: /^Affichage/u }),
+  ).toBeInViewport();
+});
+
 test('opens the context panel as a drawer and closes it', async ({ page }) => {
   await page.goto('/');
   const sidebar = page.locator('#workspace-sidebar');

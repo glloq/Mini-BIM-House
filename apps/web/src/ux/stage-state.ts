@@ -25,12 +25,12 @@ import {
 } from './creation-stages.js';
 import type { UiTarget } from './ui-target.js';
 import type { WorkflowGroup } from './workflow-steps.js';
-import type { LegacyWorkspaceTab } from './workspaces.js';
+import type { DestinationId } from './destinations.js';
 
 export interface ShellNavigation {
   readonly stage: CreationStageId;
   /** Ce qui était ouvert dans chaque étape, pour y revenir tel qu'on l'a laissé. */
-  readonly tabs: Readonly<Record<CreationStageId, LegacyWorkspaceTab>>;
+  readonly tabs: Readonly<Record<CreationStageId, DestinationId>>;
   /** Le métier lu dans chaque étape qui en propose plusieurs. */
   readonly domains: Readonly<Partial<Record<CreationStageId, DesignDomainId>>>;
 }
@@ -39,12 +39,12 @@ export const DEFAULT_SHELL_NAVIGATION: ShellNavigation = {
   stage: 'BUILDING',
   tabs: Object.fromEntries(
     CREATION_STAGES.map((stage) => [stage, defaultTabOfStage(stage)]),
-  ) as Readonly<Record<CreationStageId, LegacyWorkspaceTab>>,
+  ) as Readonly<Record<CreationStageId, DestinationId>>,
   domains: {},
 };
 
 /** Ce qui est ouvert en ce moment. */
-export function activeTab(navigation: ShellNavigation): LegacyWorkspaceTab {
+export function activeTab(navigation: ShellNavigation): DestinationId {
   return navigation.tabs[navigation.stage];
 }
 
@@ -76,12 +76,19 @@ export function goToStage(
  * L'étape suit de la destination plutôt que l'inverse : une entrée de palette
  * dit « Quantités » sans avoir à savoir que les quantités se lisent dans
  * Vérifier.
+ *
+ * Mais **on ne quitte pas une étape qui offre déjà la destination**. Le plan
+ * est offert par sept étapes sur neuf ; sans cette règle, cliquer « Plan »
+ * depuis Bâtiment renvoyait dans Terrain, qui est simplement la première de la
+ * liste à le proposer.
  */
 export function goToTab(
   navigation: ShellNavigation,
-  tab: LegacyWorkspaceTab,
+  tab: DestinationId,
 ): ShellNavigation {
-  const stage = stageOfTab(tab);
+  const stage = tabsOfStage(navigation.stage).includes(tab)
+    ? navigation.stage
+    : stageOfTab(tab);
   return { ...navigation, stage, tabs: { ...navigation.tabs, [stage]: tab } };
 }
 
@@ -125,15 +132,15 @@ export function navigationFor(
  */
 export function isTabActive(
   navigation: ShellNavigation,
-  tab: LegacyWorkspaceTab,
+  tab: DestinationId,
 ): boolean {
   return activeTab(navigation) === tab;
 }
 
-/** Les destinations d'une étape, dans l'ordre où le panneau les liste. */
+/** Tout ce qu'une étape ouvre : ses destinations et ses bibliothèques. */
 export function destinationsOf(
   stage: CreationStageId,
-): readonly LegacyWorkspaceTab[] {
+): readonly DestinationId[] {
   return tabsOfStage(stage);
 }
 

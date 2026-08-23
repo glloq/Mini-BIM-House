@@ -14,13 +14,15 @@ import { loadDemoProject } from '../demo-project.js';
 import { EDITOR_TOOLS } from '../editor/tool-registry.js';
 import { workflowEntries } from '../workflow/workflow-registry.js';
 import { LAYER_PRESETS } from '@house-technical-designer/view-query';
-import { CREATION_STAGES, creationStage } from './creation-stages.js';
+import {
+  CREATION_STAGES,
+  creationStage,
+  librariesOfStage,
+} from './creation-stages.js';
+import { editsFor } from '../editor/object-editors.js';
 import { DEFAULT_SHELL_NAVIGATION, destinationsOf } from './stage-state.js';
 import { WORKFLOW_GROUPS } from './workflow-steps.js';
-import {
-  LEGACY_WORKSPACE_LABELS,
-  LEGACY_WORKSPACE_TABS,
-} from './workspaces.js';
+import { DESTINATION_LABELS, DESTINATIONS } from './destinations.js';
 
 const demo = loadDemoProject();
 if (demo.status === 'ERROR') throw new Error(demo.message);
@@ -62,11 +64,11 @@ describe('the eighteen acceptance criteria', () => {
   it('2. no library, quantity, scenario or check is a primary destination', () => {
     const labels = CREATION_STAGES.map((id) => creationStage(id).label);
     for (const forbidden of [
-      LEGACY_WORKSPACE_LABELS.materials,
-      LEGACY_WORKSPACE_LABELS.assemblies,
-      LEGACY_WORKSPACE_LABELS.quantities,
-      LEGACY_WORKSPACE_LABELS.scenarios,
-      LEGACY_WORKSPACE_LABELS.checks,
+      DESTINATION_LABELS.materials,
+      DESTINATION_LABELS.assemblies,
+      DESTINATION_LABELS.quantities,
+      DESTINATION_LABELS.scenarios,
+      DESTINATION_LABELS.checks,
     ])
       expect(labels).not.toContain(forbidden);
   });
@@ -196,7 +198,8 @@ describe('the eighteen acceptance criteria', () => {
       'editor/tool-icons.tsx',
       'editor/ContextToolBar.tsx',
       'checks/IssueCenter.tsx',
-      'visibility/VisibilityPopover.tsx',
+      'visibility/DisplayPanel.tsx',
+      'shell/ViewBar.tsx',
       'workflow/WorkflowGuide.tsx',
     ])
       expect(code(path), path).not.toMatch(/#[0-9a-f]{3,8}\b/iu);
@@ -221,13 +224,50 @@ describe('the eighteen acceptance criteria', () => {
     expect(LAYER_PRESETS.length).toBeGreaterThan(0);
   });
 
+  it('opens a library from the field that designates a fiche', () => {
+    /*
+     * Une bibliothèque est un catalogue qu'on consulte, pas un lieu où l'on
+     * va. Changer l'assemblage d'un mur demandait de quitter le plan, de
+     * trouver la fiche, puis de revenir.
+     *
+     * Tout champ dont les options sont des fiches du projet doit donc savoir
+     * laquelle ouvrir : un champ qui l'oublie renvoie la personne chercher
+     * elle-même.
+     */
+    const wall = house.building.levels[0]!.walls[0]!;
+    const assembly = editsFor(house, wall.id).find(
+      ({ id }) => id === 'assemblyId',
+    );
+    expect(assembly?.library).toBe('assemblies');
+
+    const component = (house.building.levels[0]!.components ?? [])[0];
+    expect(component).toBeDefined();
+    const fiche = editsFor(house, component!.id).find(
+      ({ id }) => id === 'definitionId',
+    );
+    expect(fiche?.library).toBe('equipment');
+
+    // Et les quatre bibliothèques restent atteignables sans sélection : elles
+    // sont rangées avec ce qu'on cherche, dans l'arborescence.
+    const offered = new Set(
+      CREATION_STAGES.flatMap((stage) => [...librariesOfStage(stage)]),
+    );
+    for (const library of [
+      'materials',
+      'assemblies',
+      'openings',
+      'equipment',
+    ] as const)
+      expect(offered.has(library), library).toBe(true);
+  });
+
   it('names every trade it offers, so a sub-stage never says a bare id', () => {
     for (const id of DESIGN_DOMAIN_IDS)
       expect(designDomain(id).label).not.toBe(id);
   });
 
   it('leaves every one of the thirteen destinations reachable', () => {
-    for (const tab of LEGACY_WORKSPACE_TABS) {
+    for (const tab of DESTINATIONS) {
       const stages = CREATION_STAGES.filter((stage) =>
         destinationsOf(stage).includes(tab),
       );

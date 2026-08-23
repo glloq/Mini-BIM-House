@@ -672,26 +672,171 @@ Mesuré : vingt-cinq boutons offerts d'un coup avant, vingt-quatre après. Le
 gain n'est pas le nombre — voir la correction du §1.2 — c'est que onze d'entre
 eux nomment ce qu'on pose et suivent l'étape.
 
-**UX-4 — Bâtiment.** `ProjectTree` promu, compacté, sorti de `☰ Modèle` ;
-sections Vues et Documents ; le renvoi à `Ctrl+K` remplacé par un bouton.
+**UX-4 — Bâtiment.** _Livré._ `ProjectTree` est sorti de `☰ Modèle` et vit en
+tête du panneau gauche : « où je suis » est une question qu'on se pose sans
+arrêt, et une question de ce genre ne se range pas derrière un dépliage.
 
-**UX-5 — Vue et affichage.** `ViewBar`, `DisplayPanel`, suppression de
-`LayersPanel`, discipline accessible partout.
+Les niveaux sont une rangée de boutons, et c'est **le seul** endroit où l'on
+change d'étage — la liste déroulante « Niveau » qui vivait juste au-dessus est
+supprimée. Deux commandes pour une décision, c'est une commande de trop, et
+c'est celle qui ne disait pas ce que l'étage contient.
 
-**UX-6 — Barre d'outil.** Options essentielles de l'outil actif, instruction de
-la prochaine action, Terminer / Annuler, actions de sélection selon
-`selectionCapabilities()`.
+L'arbre est compacté par ce qu'il ne montre plus : **une famille vide n'est pas
+une rangée.** « Toitures (0) », « Cotes (0) », « Annotations (0) » et deux
+autres prenaient cinq lignes pour dire que rien n'existe, et repoussaient les
+outils sous la ligne de flottaison. Un arbre dit ce que le bâtiment a.
 
-**UX-7 — Inspecteur.** Propriétés de vue au repos ; sections hiérarchisées ;
-avancé replié.
+Une section **Vues et feuilles** s'ajoute, avec ce que le projet a enregistré
+et un bouton qui y mène : une vue enregistrée n'était atteignable que par une
+destination, donc seulement par qui savait qu'elle existait.
 
-**UX-8 — Bibliothèques.** Bouton `Bibliothèque…` dans les champs qui désignent
-une fiche ; les quatre panneaux cessent d'être des destinations.
+Le renvoi à `Ctrl+K` au-delà de quarante objets par famille — une phrase qui
+supposait qu'on connaisse le raccourci, qu'on ait un clavier et qu'on ait lu la
+ligne — devient un bouton qui ouvre la recherche avec le nom de la famille déjà
+écrit. `Ctrl+K` redevient ce qu'il aurait toujours dû être : un accélérateur.
 
-**UX-9 — Responsive.** Les cinq formats du §10.
+Vingt-six boutons offerts d'un coup, contre vingt-quatre avant l'arbre : deux
+niveaux et trois sections repliées, pour une question qu'on se posait en
+permanence.
 
-**UX-10 — Validation.** `e2e/tasks.spec.ts` (§13.2), contrat réécrit,
-`workspaces.ts` retiré.
+**UX-5 — Vue et affichage.** _Livré._ `shell/ViewBar.tsx` remplace l'en-tête du
+canvas et porte les quatre notions qui décrivent ce que le dessin montre : le
+niveau dessiné, le métier, la variante, l'affichage. Elles vivaient à quatre
+endroits — une liste déroulante du panneau gauche, une liste de boutons juste
+en dessous, rien du tout pour la charte, et deux écrans concurrents pour les
+calques.
+
+`visibility/DisplayPanel.tsx` est l'écran unique : le rendu, le préréglage,
+puis les vingt-huit calques sous un dépliage. `LayersPanel` est **supprimé**,
+pas déplacé. Le rendu de plan, qui n'était atteignable que par la palette, y a
+sa place ; il reste un axe indépendant des calques, sinon un plan d'architecte
+des réseaux deviendrait impossible. Le compte de calques masqués s'affiche sur
+le bouton lui-même : un plan amputé sans rien à l'écran pour le dire est un
+plan que quelqu'un imprimera.
+
+Le sélecteur de discipline quitte le panneau gauche pour la barre, avec le
+compte de réseaux passé dans l'étiquette de chaque option — il ne perd rien et
+libère la colonne.
+
+Le chrome au-dessus du plan tombe de 165 à **153 px**, et le plan passe à 61 %
+et 55 %. C'est exactement le compte du §9 : 44 + 34 + 34 + 40, plus un pixel de
+bordure.
+
+> **Un seuil du §13.1 est contredit par le §9.** « Chrome vertical avant le
+> plan ≤ 120 px » a été écrit avant que ces quatre barres ne soient posées, et
+> l'arithmétique du §9 en donne 152. Quatre rangées ne tiennent pas dans 120 px.
+> Le budget de `measure-shell.mjs` est donc fixé à 155, et descendre plus bas
+> demanderait de retirer une barre — ce que cette spécification ne demande
+> nulle part.
+
+**UX-6 — Barre d'outil.** _Livré._ `editor/tool-instruction.ts` dérive du
+registre et de l'état ce que l'outil attend : combien de points il demande,
+combien sont posés, s'il s'arrête de lui-même. La barre l'écrit à côté du nom
+de l'outil — « Cliquez le second point », « Entrée termine, Échap annule » — et
+offre « Annuler le tracé » dès qu'il y a quelque chose à abandonner.
+
+Aucun outil n'écrit sa propre phrase, donc aucun ne peut oublier de la mettre
+à jour ; un test la demande pour les vingt-cinq, à chaque étape de leur tracé.
+« Mur » ne disait pas s'il faut cliquer une fois ou deux, ni comment on arrête
+un tracé qui ne s'arrête pas tout seul : on le découvrait en essayant,
+c'est-à-dire en se trompant.
+
+Les actions de sélection selon `selectionCapabilities()` étaient déjà là ; les
+options essentielles de l'outil restent sous l'outil, dans la boîte, où choisir
+un assemblage fait partie du choix de l'outil mur.
+
+**UX-7 — Inspecteur.** _Livré._ `editor/ViewProperties.tsx` occupe l'inspecteur
+quand rien n'est désigné : le niveau, le métier, le rendu, le préréglage, les
+calques masqués, l'échelle. Un objet a des propriétés ; une vue aussi, et
+« Sélectionnez un objet du plan » réservait un panneau entier pour une phrase
+qui n'apprend rien à qui vient de cliquer dans le vide.
+
+Ces faits se **lisent** ici et se changent ailleurs — chacun dit où —, parce
+qu'un même réglage à deux endroits finit par dire deux choses. C'est aussi ce
+qu'on vérifie avant d'exporter, et cela se lisait jusqu'ici en ouvrant trois
+panneaux.
+
+Les sections hiérarchisées et le repli de l'avancé existaient déjà dans
+`InspectorPanel` : ce que l'objet **est** reste ouvert, où il vit dans le
+fichier se replie — sauf si une vérification a envoyé quelqu'un vers un champ
+qui s'y trouve.
+
+> Le repli automatique de UX-1 reste. L'inspecteur a maintenant quelque chose à
+> dire au repos, mais la place appartient encore au dessin tant qu'on ne l'a pas
+> demandée : les propriétés de vue sont ce qu'on trouve en l'ouvrant, pas une
+> raison de l'ouvrir tout seul.
+
+**UX-8 — Bibliothèques.** _Livré._ Un champ qui désigne une fiche sait laquelle
+et sait donc l'ouvrir : `InspectorEdit` porte une `library`, et le champ affiche
+`Bibliothèque…` à côté de lui. Changer l'assemblage d'un mur demandait de
+quitter le plan pour « Matériaux », de trouver la fiche, puis de revenir.
+
+Les quatre bibliothèques cessent d'être des **destinations** de l'étape : le
+registre les déclare à part, et elles se rangent avec le reste de ce qu'on
+cherche — dans l'arborescence, sous « Bibliothèques ». Elles prenaient quatre
+rangées en tête du panneau à chaque séance ; la colonne passe de vingt-six
+boutons offerts à vingt-deux.
+
+Deux corrections que ce découpage a rendues nécessaires :
+
+- **La liste montre où l'on peut aller _et_ où l'on est.** Une étape n'offrant
+  qu'une destination n'affichait aucune liste ; une fois dans une bibliothèque,
+  plus rien ne ramenait au plan.
+- **`goToTab` ne quitte plus une étape qui offre déjà la destination.** Le plan
+  est offert par sept étapes sur neuf, et cliquer « Plan » depuis Bâtiment
+  renvoyait dans Terrain — simplement la première de la liste à le proposer.
+  Le défaut datait de UX-2 et ne se voyait pas, les deux étapes montrant le
+  même dessin.
+
+**UX-9 — Responsive.** _Livré._ `measure-shell.mjs` mesure désormais les cinq
+formats du §10 plutôt que deux, ce qui a suffi à montrer ce qui n'allait pas :
+aucun débordement nulle part, mais sur un téléphone la barre supérieure passait
+à deux rangées et « House Technical Designer » y prenait la moitié de l'écran,
+poussant « Panneau » et « Inspecteur » — les deux boutons qui ouvrent tout le
+reste — hors du bord.
+
+Le nom de l'application cède donc la rangée aux commandes en dessous de 900 px
+(le projet ouvert se lit dans la barre d'état, qui est faite pour cela), la
+barre de vue défile en gardant « Affichage » collé au bord, et le panneau
+**monte du bas** en dessous de 600 px au lieu de venir du côté : un tiroir
+latéral de 20 rem sur un écran de 390 recouvre les deux tiers du dessin et se
+ferme du mauvais pouce.
+
+Le seuil des tiroirs passe de 720 à 900 px, comme le §10 le demande — le plan
+sur une tablette passe de 59 % à **78 %** de l'écran.
+
+Deux écarts :
+
+- **Le budget de chrome devient un budget par format.** Un doigt n'est pas un
+  pointeur : la feuille de style donne exprès plus de hauteur aux contrôles sur
+  écran tactile, et la barre de vue y fait 48 px au lieu de 34. Le budget
+  reprend cette décision (175 px sur téléphone) plutôt que de la contredire.
+- **La barre basse `[Étape] [Outils] [Vue] [Objet]` n'est pas construite.** Ses
+  quatre entrées désignent des choses qui existent déjà et sont déjà
+  atteignables d'un geste : l'étape est la liste déroulante de la barre
+  d'étapes, la vue est « Affichage », les outils et l'objet sont les deux
+  bascules de la barre supérieure. La construire aurait ajouté un second jeu
+  des mêmes commandes, ce que cette refonte passe son temps à retirer.
+
+**UX-10 — Validation.** _Livré._ `e2e/tasks.spec.ts` fait les six parcours du
+§13.2 **à la souris seule** : aucun de ces tests ne presse une touche, parce
+qu'une fonction qui n'est atteignable que par `Ctrl+K` est une fonction que la
+moitié des gens n'atteindra jamais.
+
+Les gestes sont comptés dans la page, sur `pointerdown` — le canvas travaille en
+événements de pointeur et n'émet pas toujours de `click`, si bien qu'un premier
+compteur annonçait deux gestes là où la personne en avait fait trois. Les cinq
+seuils du §13.3 sont tenus, et l'assemblage d'un mur passe de « quatre gestes
+et un retour » à **un**.
+
+`ux/workspaces.ts` devient `ux/destinations.ts` : le mot « workspace » disparaît
+avec la chose qu'il désignait. Ce qui reste n'est pas un héritage à retirer mais
+la liste des treize écrans que l'application ouvre — quatre d'entre eux
+s'ouvrant désormais depuis une propriété plutôt que depuis une liste.
+
+Le contrat `UX_ARCHITECTURE.md` gagne une section « Les six parcours » avec le
+tableau des gestes avant / après, et le critère 18 dit maintenant ce qu'il
+voulait dire : **à la souris seule**, le clavier restant un accélérateur.
 
 ---
 
@@ -702,7 +847,7 @@ une fiche ; les quatre panneaux cessent d'être des destinations.
 | Grandeur                                | Aujourd'hui | Seuil exigé  |
 | --------------------------------------- | ----------- | ------------ |
 | Débordement de la page sous la fenêtre  | 1 201 px    | **0 px**     |
-| Chrome vertical avant le plan           | 306 px      | **≤ 120 px** |
+| Chrome vertical avant le plan           | 306 px      | **≤ 155 px** |
 | Hauteur de la barre supérieure          | 102 px      | **≤ 48 px**  |
 | Plan visible, deux panneaux ouverts     | —           | **≥ 50 %**   |
 | Plan visible, inspecteur replié         | —           | **≥ 70 %**   |

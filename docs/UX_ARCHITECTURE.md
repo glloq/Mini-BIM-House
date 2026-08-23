@@ -202,7 +202,10 @@ seule ; la barre supérieure tient sur une rangée, jamais deux.
 
 **Aucune zone ne réserve de place pour rien.** L'inspecteur ne prend ses
 280 px qu'à partir du moment où quelque chose est désigné ; tant que rien ne
-l'a jamais été, il vaut zéro pixel et le dessin a la largeur. Le repli est
+l'a jamais été, il vaut zéro pixel et le dessin a la largeur. Ouvert sans
+sélection, il montre **les propriétés de la vue** — niveau, métier, rendu,
+préréglage, calques masqués, échelle — parce qu'un objet a des propriétés et
+une vue aussi. Elles s'y lisent et se changent ailleurs, chacune disant où. Le repli est
 collant : il vaut jusqu'à la première sélection et plus jamais après, sinon la
 fenêtre respirerait à chaque Échap. Ensuite c'est le bouton « Inspecteur » qui
 décide, et lui seul.
@@ -224,6 +227,13 @@ avait choisi le mode simple n'apprenait jamais que l'autre outil existait.
 Ce qu'un outil laisse décider avant de dessiner se trouve **sous l'outil**,
 dans le panneau contextuel : choisir un assemblage fait partie du choix de
 l'outil mur, ce n'est pas une course séparée en haut de la fenêtre.
+
+**Un outil dit ce qu'il attend.** La barre au-dessus du dessin écrit la
+prochaine action — « Cliquez le second point », « Entrée termine, Échap
+annule » — et offre d'abandonner le tracé dès qu'il y a quelque chose à
+abandonner. La phrase est **dérivée** du registre et de l'état par
+`editor/tool-instruction.ts` : aucun outil ne l'écrit, donc aucun ne peut
+oublier de la mettre à jour, et un test la réclame pour les vingt-cinq.
 
 **La boîte à outils propose ce que l'étape demande.**
 `apps/web/src/editor/toolbox.ts` déclare, par étape et par sous-étape, des
@@ -252,15 +262,40 @@ Une discipline hors périmètre n'est pas proposée — sauf si le projet en tie
 déjà des objets. Le compte de réseaux est affiché à côté de chaque discipline :
 c'est la différence entre « rien à voir » et « rien de tracé ».
 
-**La visibilité** se choisit dans un popover sur le plan, par préréglage. Neuf
-fois sur dix la question est « montre-moi l'électricité », et un préréglage y
-répond en un clic ; les vingt calques restent un dépliage plus bas — ils sont le
-moteur, et le moteur n'a pas à être l'interface. Le popover dit combien de
-calques sont masqués, pour que personne n'imprime un plan amputé sans l'avoir su.
+**Ce que le plan montre se lit et se change contre le plan**, dans la barre de
+vue : le niveau dessiné, le métier, la variante, l'affichage. Ce sont quatre
+notions distinctes qu'on a longtemps confondues sous le mot « vue », et elles
+décrivent toutes le dessin — elles sont donc à côté de lui, sur une rangée. On
+change d'étage dans l'arborescence, jamais ici : la barre le nomme.
 
-**Le navigateur de modèle** passe derrière `☰ Modèle`. Trouver un objet n'est
-pas une façon de travailler : on l'ouvre quand le plan ne suffit pas, et il se
-replie le reste du temps pour laisser le panneau aux outils.
+**L'affichage** a un seul écran, `DisplayPanel` : le rendu (comment c'est
+dessiné), le préréglage (quoi afficher), puis les vingt-huit calques sous un
+dépliage. `LayersPanel` a été supprimé, pas déplacé — deux interfaces pour une
+question sont deux réponses qui finissent par diverger. Neuf fois sur dix la
+question est « montre-moi l'électricité », et un préréglage y répond en un
+clic ; les calques sont le moteur, et le moteur n'a pas à être l'interface.
+
+Le rendu et les calques restent **deux axes indépendants** : les mélanger
+interdirait un plan d'architecte des réseaux. Le compte de calques masqués est
+sur le bouton d'affichage lui-même, pour que personne n'imprime un plan amputé
+sans l'avoir su.
+
+**Le navigateur de bâtiment** est en tête du panneau gauche, en permanence.
+« Où je suis et ce qu'il y a dedans » est une question qu'on se pose sans
+arrêt ; elle a longtemps été rangée derrière un dépliage nommé `☰ Modèle`,
+c'est-à-dire cachée à qui ne savait pas déjà.
+
+Les niveaux y sont une rangée de boutons, et c'est **le seul** endroit où l'on
+change d'étage : une liste déroulante « Niveau » faisait la même chose ailleurs,
+sans dire ce que l'étage contient. Seul le niveau dessiné est déplié, et **une
+famille vide n'est pas une rangée** — un arbre dit ce que le bâtiment a, pas ce
+qu'il n'a pas. Les vues enregistrées et les feuilles y ont leur section : ce que
+le projet produit se trouve là où l'on cherche le reste.
+
+Au-delà de quarante objets par famille, un bouton ouvre la recherche avec le nom
+de la famille déjà écrit. La phrase qui renvoyait à `Ctrl+K` supposait qu'on
+connaisse le raccourci, qu'on ait un clavier et qu'on ait lu la ligne :
+**`Ctrl+K` est un accélérateur, jamais le seul chemin** — critère 18.
 
 ## 8 ter. Le compteur de vérifications
 
@@ -275,6 +310,12 @@ nombre que personne ne pourrait étayer.
 
 Il ne bloque rien : un compteur rouge est une information sur le modèle, pas un
 refus de laisser le modèle être ce qu'il est.
+
+**Une bibliothèque n'est pas un lieu.** On ne « va » pas dans les matériaux :
+on les ouvre parce qu'un mur en désigne un. Tout champ dont les options sont
+des fiches du projet porte une `library` et affiche `Bibliothèque…` à côté de
+lui ; les quatre panneaux sont déclarés à part des destinations de l'étape et
+se rangent dans l'arborescence, avec le reste de ce qu'on cherche.
 
 ## 8 quater. Les catalogues et Vérifier
 
@@ -319,15 +360,29 @@ dire, et rien n'en est jamais écrit dans le bâtiment.
 
 ## 10. Responsive
 
-| Largeur      | Comportement         |
-| ------------ | -------------------- |
-| ≥ 1400 px    | Disposition complète |
-| 1000–1400 px | Inspecteur réduit    |
-| 800–1000 px  | Panneaux en tiroirs  |
-| < 800 px     | Consultation seule   |
+| Largeur      | Comportement                                    |
+| ------------ | ----------------------------------------------- |
+| ≥ 1400 px    | Disposition complète                            |
+| 1000–1400 px | Inspecteur réduit                               |
+| 900–1000 px  | Panneaux en tiroirs                             |
+| 600–900 px   | Tiroirs latéraux ; le plan garde le cadre       |
+| < 600 px     | Le panneau monte du bas ; le plan garde l'écran |
 
 Ne pas détruire le desktop BIM pour un téléphone qui ne dessinera jamais de
-plan.
+plan — et ne pas non plus lui donner le desktop rétréci. **Les trois colonnes
+ne sont jamais empilées** : ce qui ne tient pas devient temporaire.
+
+En dessous de 900 px, le nom de l'application cède sa rangée aux commandes : il
+prenait la moitié d'un écran de 390 px et poussait hors du bord les deux
+boutons qui ouvrent tout le reste. Le projet ouvert se lit dans la barre
+d'état, qui est faite pour cela. En dessous de 600 px, le panneau est une
+feuille montante et non un tiroir latéral : vingt rem sur un écran de 390
+recouvrent les deux tiers du dessin.
+
+`scripts/measure-shell.mjs` mesure les cinq formats. Le budget de chrome y est
+**par format** : un doigt n'est pas un pointeur, les contrôles tactiles sont
+plus hauts exprès, et le budget reprend cette décision plutôt que de la
+contredire.
 
 ## 11. Clavier
 
@@ -366,8 +421,31 @@ chaque PR est « relue contre » est un contrat que personne ne relit.
 15. Divulgation progressive partout ; aucun mode « expert » séparé.
 16. Aucun composant métier ne code une couleur en dur.
 17. Aucun contrôle n'est affiché pour une capacité qui n'existe pas encore.
-18. Chaque outil du panneau contextuel est atteignable au clavier via la
-    palette.
+18. Chaque outil du panneau contextuel est atteignable **à la souris seule** —
+    et au clavier via la palette, qui est un accélérateur et jamais le seul
+    chemin. `e2e/tasks.spec.ts` fait les six parcours sans presser une touche.
+
+## 12 bis. Les six parcours
+
+Un contrat qui décrit des écrans ne dit rien de ce qu'on peut faire avec.
+`e2e/tasks.spec.ts` vérifie six tâches, du premier geste au dernier, **à la
+souris seule** : tracer une maison neuve, passer de l'architecture à
+l'électricité, changer de niveau et de discipline, atteindre l'assemblage d'un
+mur, ouvrir un constat sur l'objet dont il parle, enregistrer une vue et
+exporter.
+
+Il compte aussi les gestes, parce qu'un seuil qu'on ne mesure pas n'est pas un
+seuil. Ils sont comptés dans la page, sur `pointerdown` : le canvas travaille en
+événements de pointeur et n'émet pas toujours de `click`, si bien qu'un
+compteur de clics annonçait deux gestes là où la personne en avait fait trois.
+
+| Tâche                           | Avant      | Maintenant |
+| ------------------------------- | ---------- | ---------- |
+| Changer de niveau               | 2          | **1**      |
+| Changer de discipline           | 3          | **2**      |
+| Masquer une famille d'objets    | 3          | **2**      |
+| Atteindre l'assemblage d'un mur | 4 + retour | **1**      |
+| Premier mur d'un projet neuf    | 5          | **3**      |
 
 ## 13. Le plan
 

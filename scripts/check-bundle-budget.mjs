@@ -121,8 +121,13 @@ export const BUDGETS = {
    * premier panneau du premier écran. Aucune bibliothèque d'icônes n'est
    * installée pour autant : ce sont des `<svg>` en ligne, en `currentColor`,
    * et la plus légère des bibliothèques aurait coûté davantage.
+   *
+   * Puis un de plus : la barre de vue, l'écran d'affichage unique et la phrase
+   * qui dit ce que l'outil attend. Un demi-kio de moins serait revenu à
+   * laisser quelqu'un découvrir en se trompant qu'un mur continu se termine
+   * par Entrée.
    */
-  initialGzipBytes: 276 * 1024,
+  initialGzipBytes: 277 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -195,8 +200,12 @@ export const BUDGETS = {
    * Et quatre avec la boîte à outils, pour la même raison et par le même
    * montant : les icônes sont le premier panneau du premier écran, donc rien
    * d'elles ne pouvait passer derrière une frontière paresseuse.
+   *
+   * Et un avec la barre de vue et l'instruction de l'outil. Le panneau
+   * d'affichage, lui, se charge encore à la demande : on ne l'ouvre pas pour
+   * dessiner un mur.
    */
-  totalGzipBytes: 447 * 1024,
+  totalGzipBytes: 448 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */
