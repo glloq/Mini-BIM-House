@@ -148,8 +148,12 @@ export const BUDGETS = {
    *
    * Et un avec Mesurer, Fusionner et les pans de toiture : trois gestes du
    * plan, donc trois gestes du premier écran.
+   *
+   * Et un avec ce que le plan écrit tout seul — cotes intérieures et pente
+   * des évacuations. C'est le dessin lui-même : il n'y a pas d'endroit plus
+   * tôt où le mettre.
    */
-  initialGzipBytes: 284 * 1024,
+  initialGzipBytes: 285 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -254,8 +258,12 @@ export const BUDGETS = {
    * Et un avec la vue d'ensemble des études, qui se charge avec l'écran
    * qu'elle ouvre — « où en est ma maison » est une autre question que
    * « qu'est-ce qui cloche », et elle méritait sa page.
+   *
+   * Et un avec ce que le plan écrit tout seul : les cotes intérieures et la
+   * pente des évacuations. Une évacuation horizontale est une évacuation qui
+   * ne s'écoule pas, et c'est la seule chose qu'un plan doit crier.
    */
-  totalGzipBytes: 463 * 1024,
+  totalGzipBytes: 464 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

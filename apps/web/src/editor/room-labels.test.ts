@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { loadDemoProject } from '../demo-project.js';
-import { areaLabel, roomLabels } from './room-labels.js';
+import {
+  areaLabel,
+  measureLabel,
+  roomLabels,
+  roomMeasures,
+} from './room-labels.js';
 
 function house() {
   const loaded = loadDemoProject();
@@ -51,5 +56,58 @@ describe('what the plan writes on a closed contour', () => {
     const big = roomLabels(house(), undefined, { minimumAreaM2: 1 }).length;
     expect(roomLabels(house(), undefined, { minimumAreaM2: 1000 })).toEqual([]);
     expect(big).toBeGreaterThan(0);
+  });
+});
+
+describe('the dimensions a plan carries without being asked', () => {
+  it('writes a length the way a plan writes it', () => {
+    expect(measureLabel(4000)).toBe('4,00 m');
+    expect(measureLabel(3245)).toBe('3,25 m');
+  });
+
+  it('carries two per named room, and none in « Aucune »', () => {
+    const project = house();
+    const auto = roomMeasures(project, undefined, { mode: 'AUTO' });
+    const named = roomLabels(project, undefined).filter(
+      ({ spaceId }) => spaceId !== undefined,
+    );
+    expect(auto).toHaveLength(named.length * 2);
+    expect(auto.filter(({ axis }) => axis === 'X')).toHaveLength(named.length);
+    expect(roomMeasures(project, undefined, { mode: 'NONE' })).toEqual([]);
+  });
+
+  it('leaves an unrecognised contour alone in « Auto »', () => {
+    /*
+     * Un contour que personne n'a encore reconnu n'est pas encore une pièce :
+     * il porte sa surface, pour qu'on puisse la voir, mais pas ses cotes.
+     * « Toutes » les donne à qui les veut.
+     */
+    const project = house();
+    const ground = project.building.levels[0]!;
+    const roomless = {
+      ...project,
+      building: {
+        ...project.building,
+        levels: [{ ...ground, spaces: [] }],
+        zones: [],
+      },
+    };
+    expect(roomMeasures(roomless, ground.id, { mode: 'AUTO' })).toEqual([]);
+    expect(
+      roomMeasures(roomless, ground.id, { mode: 'ALL' }).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it('measures only what is selected in « Sélection »', () => {
+    const project = house();
+    const first = roomLabels(project, undefined).find(
+      ({ spaceId }) => spaceId !== undefined,
+    )!;
+    const measures = roomMeasures(project, undefined, {
+      mode: 'SELECTION',
+      selection: [first.spaceId!],
+    });
+    expect(measures).toHaveLength(2);
+    expect(roomMeasures(project, undefined, { mode: 'SELECTION' })).toEqual([]);
   });
 });

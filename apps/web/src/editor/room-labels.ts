@@ -83,3 +83,94 @@ export function roomLabels(
       };
     });
 }
+
+export interface RoomMeasure {
+  readonly id: string;
+  /** Les deux bouts de la cote, dans le modèle. */
+  readonly from: Point2D;
+  readonly to: Point2D;
+  readonly lengthMm: number;
+  readonly axis: 'X' | 'Y';
+}
+
+/** La longueur, écrite comme une cote de plan. */
+export function measureLabel(lengthMm: number): string {
+  return `${(lengthMm / 1000).toFixed(2).replace('.', ',')} m`;
+}
+
+/**
+ * Les cotes qu'un plan porte sans qu'on les pose.
+ *
+ * Deux par contour : sa largeur et sa profondeur, prises sur ce que les murs
+ * enferment — c'est-à-dire à l'intérieur, comme un plan d'architecte les
+ * porte. Ce ne sont pas des objets du projet : elles se relisent à chaque
+ * dessin et ne s'enregistrent jamais, exactement comme les surfaces.
+ *
+ * Ce qu'elles ne prétendent pas être : une cotation. Une pièce en L n'a ni
+ * largeur ni profondeur, et ces deux traits en donnent une lecture
+ * rectangulaire. L'outil Cotation reste là pour dire ce qu'on veut vraiment
+ * dire.
+ */
+export function roomMeasures(
+  project: Project,
+  levelId: string | undefined,
+  options: {
+    readonly mode?: 'NONE' | 'SELECTION' | 'AUTO' | 'ALL';
+    readonly selection?: readonly string[];
+    readonly minimumAreaM2?: number;
+  } = {},
+): readonly RoomMeasure[] {
+  const mode = options.mode ?? 'AUTO';
+  if (mode === 'NONE') return [];
+  const selected = new Set(options.selection ?? []);
+  const measures: RoomMeasure[] = [];
+  for (const label of roomLabels(project, levelId, options)) {
+    if (mode === 'SELECTION' && !selected.has(label.spaceId ?? '')) continue;
+    // En automatique, seules les pièces nommées portent leurs cotes : un
+    // contour que personne n'a encore reconnu n'est pas encore une pièce.
+    if (mode === 'AUTO' && label.spaceId === undefined) continue;
+    const outline = outlineOf(project, levelId, label);
+    if (outline === undefined) continue;
+    const xs = outline.map(({ x }) => x);
+    const ys = outline.map(({ y }) => y);
+    const left = Math.min(...xs);
+    const right = Math.max(...xs);
+    const top = Math.min(...ys);
+    const bottom = Math.max(...ys);
+    measures.push(
+      {
+        id: `${label.id}-x`,
+        from: { x: left, y: top },
+        to: { x: right, y: top },
+        lengthMm: right - left,
+        axis: 'X',
+      },
+      {
+        id: `${label.id}-y`,
+        from: { x: left, y: top },
+        to: { x: left, y: bottom },
+        lengthMm: bottom - top,
+        axis: 'Y',
+      },
+    );
+  }
+  return measures;
+}
+
+/** Le contour d'une étiquette, retrouvé dans la détection. */
+function outlineOf(
+  project: Project,
+  levelId: string | undefined,
+  label: RoomLabel,
+): readonly Point2D[] | undefined {
+  const level =
+    levelId === undefined
+      ? project.building.levels[0]
+      : project.building.levels.find(({ id }) => id === levelId);
+  if (level === undefined) return undefined;
+  return detectRooms(project, level.id).find(
+    (room) =>
+      room.existingSpaceId === label.spaceId &&
+      Math.abs(room.areaM2 - label.areaM2) < 1e-6,
+  )?.polygon.outer;
+}

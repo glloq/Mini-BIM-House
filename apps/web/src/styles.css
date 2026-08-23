@@ -1018,6 +1018,64 @@ button.icon {
   height: auto;
 }
 /*
+ * La pente d'une évacuation, écrite sur elle.
+ *
+ * Discrète quand elle va, marquée quand elle ne va pas : une évacuation
+ * horizontale est une évacuation qui ne s'écoule pas, et c'est la seule chose
+ * qu'un plan doit crier.
+ */
+.run-slope {
+  position: absolute;
+  padding: 0 0.2rem;
+  transform: translate(-50%, -50%);
+  border-radius: 0.2rem;
+  background: var(--surface-raised);
+  color: var(--ink-soft);
+  font-size: 0.6rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.run-slope-flat {
+  border: 1px solid var(--accent);
+  color: var(--ink-strong);
+  font-weight: 700;
+}
+/*
+ * Les cotes intérieures, le long du contour qu'elles mesurent.
+ *
+ * Un trait fin et un nombre : ce que porte un plan d'architecte. Elles ne
+ * répondent pas au pointeur — on vise ce qu'elles mesurent, pas elles.
+ */
+.room-measure {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.room-measure-x {
+  height: 0;
+  border-top: 1px solid var(--line);
+}
+.room-measure-y {
+  width: 0;
+  flex-direction: column;
+  border-left: 1px solid var(--line);
+}
+.room-measure-value {
+  padding: 0 0.2rem;
+  border-radius: 0.2rem;
+  background: var(--surface-raised);
+}
+.room-measure-y .room-measure-value {
+  writing-mode: vertical-rl;
+}
+/*
  * Ce que chaque contour fermé porte, écrit dessus.
  *
  * Posée au centre du contour et centrée sur lui : c'est une étiquette de plan,

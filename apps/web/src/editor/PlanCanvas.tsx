@@ -30,7 +30,13 @@ import { editsFor, familyOf, gripsFor } from './object-editors.js';
 import { pickToleranceMm } from './pick-tolerance.js';
 import { DynamicInput } from './DynamicInput.js';
 import { TemporaryDimensions } from './TemporaryDimensions.js';
-import { areaLabel, roomLabels } from './room-labels.js';
+import {
+  areaLabel,
+  measureLabel,
+  roomLabels,
+  roomMeasures,
+} from './room-labels.js';
+import { runSlopes, slopeLabel } from './run-slopes.js';
 import { TEMPORARY_EDIT_IDS } from './temporary-edits.js';
 import { draftedMeasures } from './typed-values.js';
 import { carriedGeometry } from './ghost-geometry.js';
@@ -507,6 +513,43 @@ export function PlanCanvas({
         ? []
         : roomLabels(project, editor.levelId),
     [editor.dimensionMode, editor.levelId, project],
+  );
+
+  /*
+   * Les cotes qu'un plan porte sans qu'on les pose.
+   *
+   * Prises sur ce que les murs enferment — à l'intérieur, comme un plan
+   * d'architecte les porte. Elles ne remplacent pas la cotation : une pièce en
+   * L n'a ni largeur ni profondeur, et ces deux traits en donnent une lecture
+   * rectangulaire. L'outil Cotation reste là pour dire ce qu'on veut dire.
+   */
+  /*
+   * La pente d'une évacuation, écrite sur elle.
+   *
+   * Une évacuation horizontale est une évacuation qui ne s'écoule pas, et
+   * rien ne le disait sur le plan : il fallait sélectionner le tronçon et
+   * lire une propriété, alors que c'est en le traçant qu'on veut le savoir.
+   */
+  const slopes = useMemo(
+    () =>
+      editor.dimensionMode === 'NONE'
+        ? []
+        : runSlopes(
+            project,
+            editor.dimensionMode === 'SELECTION'
+              ? { selection: editor.selection }
+              : {},
+          ),
+    [editor.dimensionMode, editor.selection, project],
+  );
+
+  const measures = useMemo(
+    () =>
+      roomMeasures(project, editor.levelId, {
+        mode: editor.dimensionMode,
+        selection: editor.selection,
+      }),
+    [editor.dimensionMode, editor.levelId, editor.selection, project],
   );
 
   useEffect(() => {
@@ -1167,6 +1210,44 @@ export function PlanCanvas({
           dangerouslySetInnerHTML={{ __html: rendered.markup }}
         />
       )}
+      {slopes.map((slope) => {
+        const at = modelToScreen(editor.camera, slope.at);
+        return (
+          <span
+            key={slope.id}
+            className={slope.tooFlat ? 'run-slope run-slope-flat' : 'run-slope'}
+            style={{ left: `${at.x}px`, top: `${at.y}px` }}
+            title={
+              slope.tooFlat
+                ? 'Une évacuation horizontale est une évacuation qui ne s’écoule pas.'
+                : undefined
+            }
+          >
+            {slopeLabel(slope.slopePercent)}
+          </span>
+        );
+      })}
+      {measures.map((measure) => {
+        const from = modelToScreen(editor.camera, measure.from);
+        const to = modelToScreen(editor.camera, measure.to);
+        return (
+          <span
+            key={measure.id}
+            className={`room-measure room-measure-${measure.axis.toLowerCase()}`}
+            style={{
+              left: `${Math.min(from.x, to.x)}px`,
+              top: `${Math.min(from.y, to.y)}px`,
+              ...(measure.axis === 'X'
+                ? { width: `${Math.abs(to.x - from.x)}px` }
+                : { height: `${Math.abs(to.y - from.y)}px` }),
+            }}
+          >
+            <span className="room-measure-value">
+              {measureLabel(measure.lengthMm)}
+            </span>
+          </span>
+        );
+      })}
       {labels.map((label) => {
         const at = modelToScreen(editor.camera, label.at);
         return (

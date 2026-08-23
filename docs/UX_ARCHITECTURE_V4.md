@@ -876,19 +876,19 @@ dessin de cet onglet :
 Rien dans les tableaux ci-dessus n'est laissé en « à voir ». Voici les onze
 manques, avec ce que chacun coûte.
 
-| #   | Manque                                                                | Ce qu'il demande                                                                                                                                | Poids |
-| --- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| 1   | ~~Outil **Mesurer**~~ — _livré_                                       | un vingt-sixième outil qui lit et n'écrit rien : il rend une phrase et rend la main                                                             | petit |
-| 2   | ~~**Face de référence** au tracé~~ — _livré_                          | les trois outils l'offrent ; le parcours d'un rectangle est normalisé, pour que « faces intérieures » ne dépende pas du sens du glissement      | petit |
-| 3   | **Cotes intérieures** et modes de cotation                            | le mode est dans la barre d'état depuis V4-6 ; restent ce qu'il fait dessiner et `detectRooms`, qui mesure encore les axes plutôt que les faces | moyen |
-| 4   | ~~**Étiquette de surface** flottante et « + Créer pièce »~~ — _livré_ | `detectRooms` fournissait déjà le contour et l'aire ; restait à les écrire là où on les cherche                                                 | moyen |
-| 5   | ~~**Types de maison** et **formes initiales**~~ — _livré_             | les formes existaient ; les types créent la pile d'un clic, et l'emprise est cotée à l'intérieur                                                | moyen |
-| 6   | ~~**Pans de toiture** posés d'un coup~~ — _livré_                     | les pignons vont sur les côtés les plus courts ; l'inspecteur garde le dernier mot côté par côté                                                | petit |
-| 7   | **Pente visible** sur une évacuation                                  | du dessin, et une lecture de `slopePercent` déjà stocké                                                                                         | petit |
-| 8   | ~~**Natures d'aménagement extérieur**~~ — _livré_                     | `SiteObstacleKind` en tient quatre de plus : allée, stationnement, voirie, terrasse                                                             | petit |
-| 9   | **Clôture, haie, portail**                                            | soit des natures d'obstacle linéaires, soit des familles de catalogue — à décider avant d'écrire                                                | moyen |
-| 10  | ~~**Fusionner deux pièces**~~ — _livré_                               | retirer la cloison qui sépare, et relire du modèle le contour qui reste                                                                         | moyen |
-| 11  | **La maison comme objet déplaçable**                                  | une sélection « tout le bâti » et une transformation qui la porte, pour `TERRAIN › Implantation`                                                | gros  |
+| #   | Manque                                                                | Ce qu'il demande                                                                                                                           | Poids |
+| --- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----- |
+| 1   | ~~Outil **Mesurer**~~ — _livré_                                       | un vingt-sixième outil qui lit et n'écrit rien : il rend une phrase et rend la main                                                        | petit |
+| 2   | ~~**Face de référence** au tracé~~ — _livré_                          | les trois outils l'offrent ; le parcours d'un rectangle est normalisé, pour que « faces intérieures » ne dépende pas du sens du glissement | petit |
+| 3   | ~~**Cotes intérieures** et modes de cotation~~ — _livré_              | le mode est dans la barre d'état ; il fait écrire au plan la largeur et la profondeur de ce que les murs enferment                         | moyen |
+| 4   | ~~**Étiquette de surface** flottante et « + Créer pièce »~~ — _livré_ | `detectRooms` fournissait déjà le contour et l'aire ; restait à les écrire là où on les cherche                                            | moyen |
+| 5   | ~~**Types de maison** et **formes initiales**~~ — _livré_             | les formes existaient ; les types créent la pile d'un clic, et l'emprise est cotée à l'intérieur                                           | moyen |
+| 6   | ~~**Pans de toiture** posés d'un coup~~ — _livré_                     | les pignons vont sur les côtés les plus courts ; l'inspecteur garde le dernier mot côté par côté                                           | petit |
+| 7   | ~~**Pente visible** sur une évacuation~~ — _livré_                    | `routeFall` la calculait déjà ; une évacuation en dessous d'un pour cent est marquée                                                       | petit |
+| 8   | ~~**Natures d'aménagement extérieur**~~ — _livré_                     | `SiteObstacleKind` en tient quatre de plus : allée, stationnement, voirie, terrasse                                                        | petit |
+| 9   | **Clôture, haie, portail**                                            | soit des natures d'obstacle linéaires, soit des familles de catalogue — à décider avant d'écrire                                           | moyen |
+| 10  | ~~**Fusionner deux pièces**~~ — _livré_                               | retirer la cloison qui sépare, et relire du modèle le contour qui reste                                                                    | moyen |
+| 11  | **La maison comme objet déplaçable**                                  | une sélection « tout le bâti » et une transformation qui la porte, pour `TERRAIN › Implantation`                                           | gros  |
 
 Aucun de ces onze n'est un préalable à la navigation : les sept onglets et les
 headers peuvent être construits sur ce qui existe, et chaque manque se comble
@@ -927,10 +927,10 @@ Ils viennent de V2 et de V3, ils ont tenu, et ils tiennent encore :
 | **V4-4**  | _Livré._ Le registre des headers — §5 à §10 écrits en données            | V4-3      |
 | **V4-5**  | _Livré._ Inspecteur à la sélection, bouton devenu épingle                | V4-3      |
 | **V4-6**  | _Livré._ Barre d'état : grille en cm, ortho, cotes, échelle, curseur     | V4-1      |
-| **V4-7**  | _Partiel._ Face de référence au tracé ; les cotes intérieures suivent    | V4-4      |
+| **V4-7**  | _Livré._ Face de référence au tracé, et cotes intérieures automatiques   | V4-4      |
 | **V4-8**  | _Livré._ Surfaces écrites sur le plan, et « + Créer pièce » au contour   | V4-4      |
 | **V4-9**  | _Livré._ Types de maison, et l'emprise cotée à l'intérieur               | V4-2      |
-| **V4-10** | _Partiel._ Outil Mesurer et pans de toiture ; la pente reste à dessiner  | V4-4      |
+| **V4-10** | _Livré._ Outil Mesurer, pans de toiture, pente visible                   | V4-4      |
 | **V4-11** | _Livré._ `ÉTUDES › Vue d'ensemble` : une ligne par métier, deux surfaces | V4-2      |
 | **V4-12** | _Livré._ Natures d'extérieur nommées, et deux pièces qu'on réunit        | V4-4      |
 
