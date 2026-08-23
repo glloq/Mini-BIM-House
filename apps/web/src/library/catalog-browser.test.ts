@@ -102,13 +102,25 @@ describe('browsing the nomenclature', () => {
     ]);
   });
 
-  it('says plainly when a family has nothing to place', () => {
-    // Nothing anywhere: no fiche of it in any of the six registries.
-    const view = catalogFamilyView('EAVE', entriesByFamily, known)!;
-    expect(view.entries).toEqual([]);
-    expect(view.axes.find(({ axis }) => axis === 'GENERIC_DATA')?.value).toBe(
-      'NONE',
+  it('has nothing left to say « rien du tout » about', () => {
+    // This used to be « says plainly when a family has nothing to place », and
+    // its subject was the eave: a family of the assembly registry that shipped
+    // nothing, because a ridge is a length and the registry only knew how to
+    // hold a stack of materials. CG-01 and CG-02 closed that, and with it the
+    // last of the five hundred and twenty-seven.
+    //
+    // The assertion is worth more the other way round: every family the
+    // application offers has something behind it, and the day one does not,
+    // this fails and names it.
+    const held = new Set(
+      installedCatalog().summaries.flatMap(({ familyId }) =>
+        familyId === undefined ? [] : [familyId],
+      ),
     );
+    const empty = FAMILY_REGISTRY.filter(({ id }) => !held.has(id)).map(
+      ({ id }) => id,
+    );
+    expect(empty).toEqual([]);
   });
 
   it('separates « nothing exists » from « nothing to place here »', () => {

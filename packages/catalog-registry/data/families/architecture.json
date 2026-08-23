@@ -718,9 +718,11 @@
       "calculators": ["rainwater", "thermal"],
       "propertySchema": "ROOF_PART",
       "status": {
-        "MODEL": "PARTIAL"
+        "MODEL": "READY",
+        "QUANTITIES": "PARTIAL"
       },
-      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+      "hint": "Se décrit au mètre linéaire ; sa longueur est déduite du contour de la toiture, et le métré ne la compte pas encore.",
+      "category": "ROOF_PART"
     },
     {
       "id": "HIP",
@@ -731,9 +733,11 @@
       "calculators": ["rainwater", "thermal"],
       "propertySchema": "ROOF_PART",
       "status": {
-        "MODEL": "PARTIAL"
+        "MODEL": "READY",
+        "QUANTITIES": "PARTIAL"
       },
-      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+      "hint": "Se décrit au mètre linéaire ; sa longueur est déduite du contour de la toiture, et le métré ne la compte pas encore.",
+      "category": "ROOF_PART"
     },
     {
       "id": "VALLEY",
@@ -744,9 +748,11 @@
       "calculators": ["rainwater", "thermal"],
       "propertySchema": "ROOF_PART",
       "status": {
-        "MODEL": "PARTIAL"
+        "MODEL": "READY",
+        "QUANTITIES": "PARTIAL"
       },
-      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+      "hint": "Se décrit au mètre linéaire ; sa longueur est déduite du contour de la toiture, et le métré ne la compte pas encore.",
+      "category": "ROOF_PART"
     },
     {
       "id": "EAVE",
@@ -757,9 +763,11 @@
       "calculators": ["rainwater", "thermal"],
       "propertySchema": "ROOF_PART",
       "status": {
-        "MODEL": "PARTIAL"
+        "MODEL": "READY",
+        "QUANTITIES": "PARTIAL"
       },
-      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+      "hint": "Se décrit au mètre linéaire ; sa longueur est déduite du contour de la toiture, et le métré ne la compte pas encore.",
+      "category": "ROOF_PART"
     },
     {
       "id": "VERGE",
@@ -770,9 +778,11 @@
       "calculators": ["rainwater", "thermal"],
       "propertySchema": "ROOF_PART",
       "status": {
-        "MODEL": "PARTIAL"
+        "MODEL": "READY",
+        "QUANTITIES": "PARTIAL"
       },
-      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+      "hint": "Se décrit au mètre linéaire ; sa longueur est déduite du contour de la toiture, et le métré ne la compte pas encore.",
+      "category": "ROOF_PART"
     },
     {
       "id": "FLASHING",
@@ -783,35 +793,67 @@
       "calculators": ["rainwater", "thermal"],
       "propertySchema": "ROOF_PART",
       "status": {
-        "MODEL": "NONE"
+        "MODEL": "READY",
+        "QUANTITIES": "PARTIAL"
       },
-      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+      "hint": "Se décrit au mètre linéaire ; sa longueur est déduite du contour de la toiture, et le métré ne la compte pas encore.",
+      "category": "ROOF_PART"
     },
     {
       "id": "ROOF_WINDOW",
       "label": "Fenêtre de toit",
       "domain": "ARCHITECTURE",
-      "registry": "ASSEMBLY",
+      "registry": "OPENING",
       "priority": 2,
-      "calculators": ["rainwater", "thermal"],
-      "propertySchema": "ROOF_PART",
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WINDOW",
       "status": {
-        "MODEL": "NONE"
+        "MODEL": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "NONE"
       },
-      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+      "hint": "Le contrat est celui d’une menuiserie — Uw, facteur solaire, vantail. Une ouverture n’a encore pour hôte qu’un mur : voir CG-09.",
+      "category": "WINDOW",
+      "placement": {
+        "allowedHosts": ["ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["OPENING"]
     },
     {
       "id": "SKYLIGHT",
       "label": "Lanterneau",
       "domain": "ARCHITECTURE",
-      "registry": "ASSEMBLY",
+      "registry": "OPENING",
       "priority": 2,
-      "calculators": ["rainwater", "thermal"],
-      "propertySchema": "ROOF_PART",
+      "calculators": [
+        "thermal",
+        "lighting",
+        "acoustics",
+        "cost",
+        "environmental"
+      ],
+      "propertySchema": "WINDOW",
       "status": {
-        "MODEL": "NONE"
+        "MODEL": "NONE",
+        "CALCULATION": "PARTIAL",
+        "QUANTITIES": "NONE"
       },
-      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+      "hint": "Le contrat est celui d’une menuiserie — Uw, facteur solaire, vantail. Une ouverture n’a encore pour hôte qu’un mur : voir CG-09.",
+      "category": "WINDOW",
+      "placement": {
+        "allowedHosts": ["ROOF"],
+        "levelRequired": true,
+        "rotationAllowed": false
+      },
+      "clearances": ["OPENING"]
     },
     {
       "id": "CHIMNEY_OPENING",
@@ -822,9 +864,11 @@
       "calculators": ["rainwater", "thermal"],
       "propertySchema": "ROOF_PART",
       "status": {
-        "MODEL": "NONE"
+        "MODEL": "READY",
+        "QUANTITIES": "PARTIAL"
       },
-      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+      "hint": "Se décrit au mètre linéaire ; sa longueur est déduite du contour de la toiture, et le métré ne la compte pas encore.",
+      "category": "ROOF_PART"
     },
     {
       "id": "VENT_OUTLET",
@@ -835,9 +879,11 @@
       "calculators": ["rainwater", "thermal"],
       "propertySchema": "ROOF_PART",
       "status": {
-        "MODEL": "NONE"
+        "MODEL": "READY",
+        "QUANTITIES": "PARTIAL"
       },
-      "hint": "Déduit du contour de la toiture pour les lignes ; les accessoires restent à modéliser."
+      "hint": "Se décrit au mètre linéaire ; sa longueur est déduite du contour de la toiture, et le métré ne la compte pas encore.",
+      "category": "ROOF_PART"
     }
   ]
 }

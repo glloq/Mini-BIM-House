@@ -12,9 +12,9 @@ Un écart écrit ici n'est pas une dette oubliée : les familles concernées se
 mesurent `MISSING` sur l'axe `GENERIC_DATA`, l'interface le dit, et ce document
 explique ce que le chiffre veut dire.
 
-## CG-01 — les éléments de structure ne sont pas des empilements
+## CG-01 — les éléments de structure n'étaient pas des empilements
 
-**Registre** `ASSEMBLY` · **13 familles** · vague 1
+**Registre** `ASSEMBLY` · **13 familles** · vague 1 · **résolu**
 
 `STRUCTURAL_COLUMN`, `STRUCTURAL_BEAM`, `LINTEL`, `POST`, `JOIST`, `RAFTER`,
 `PURLIN`, `TRUSS`, `STRIP_FOOTING`, `PAD_FOOTING`, `RAFT`, `PILE`,
@@ -36,15 +36,40 @@ béton de 0,20 m. Ce serait accepté par la porte, dessiné par l'interface, et 
 par le calcul thermique comme une paroi de 0,20 m de béton — un mur qui n'existe
 pas, avec une surface qui n'existe pas.
 
-**Ce qui manque** : soit un `properties` dans la fiche d'assemblage, avec le
+**Ce qui manquait** : soit un `properties` dans la fiche d'assemblage, avec le
 même mécanisme de schéma et d'unités que les autres registres, soit un registre
 propre aux éléments linéaires. La première option est plus petite et réutilise
 tout ce qui existe ; la seconde dit plus honnêtement qu'un poteau et un mur ne
-sont pas la même sorte d'objet. C'est une décision de format, pas de fiche.
+sont pas la même sorte d'objet.
 
-## CG-02 — les points singuliers de toiture ne sont pas des parois
+**Tranché pour la première, avec ce qui la rend sûre.** Un `properties` dans la
+fiche, gouverné par le schéma que la famille nomme — exactement comme une fiche
+d'équipement — et surtout un **discriminant** : `form` vaut `LAYERED`,
+`PROFILED` ou `LINEAR`. La forme n'est pas choisie par la fiche mais déduite de
+la catégorie de sa famille : une fiche qui choisirait sa propre forme pourrait
+décrire un mur comme une section et être lue comme tel.
 
-**Registre** `ASSEMBLY` · **10 familles** · vague 2
+Trois règles, à la porte :
+
+- une fiche `LAYERED` a des couches et **ne peut pas** porter de `properties` —
+  ses couches disent tout, et un second endroit pour le dire est une seconde
+  réponse qui cesse d'être d'accord ;
+- une fiche `PROFILED` ou `LINEAR` a des `properties` validées par son schéma et
+  **ne peut pas** porter de couches ;
+- **un mur, une dalle, une toiture ne peuvent être faits que d'une fiche
+  `LAYERED`**, et l'importeur refuse le reste. C'est la règle qui compte : sans
+  elle, le poteau écrit comme « une couche de béton de 0,20 m » serait accepté,
+  dessiné, et lu par le calcul thermique comme une paroi qui n'existe pas.
+
+Deux catégories d'assemblage ont été ajoutées — `STRUCTURAL_MEMBER` et
+`ROOF_PART` — et les treize familles ont leur fiche générique : poteau béton
+20 × 20, poutre 20 × 40, linteau, montant 45 × 145, solive 75 × 220, chevron
+63 × 100, panne 100 × 225, ferme, semelle filante, semelle isolée, radier, pieu
+Ø 400, longrine.
+
+## CG-02 — les points singuliers de toiture n'étaient pas des parois
+
+**Registre** `ASSEMBLY` · **10 familles** · vague 2 · **résolu**
 
 `RIDGE`, `HIP`, `VALLEY`, `EAVE`, `VERGE`, `FLASHING`, `ROOF_WINDOW`,
 `SKYLIGHT`, `CHIMNEY_OPENING`, `VENT_OUTLET`.
@@ -58,11 +83,24 @@ Les familles portent déjà l'indication : « déduit du contour de la toiture p
 les lignes ; les accessoires restent à modéliser ». Ce qui reste à modéliser,
 c'est exactement ce que ce format ne sait pas porter.
 
-**Ce qui manque** : la même chose que CG-01 — un porteur de propriétés dans la
-fiche — plus une décision sur `ROOF_WINDOW` et `SKYLIGHT`, qui sont
-vraisemblablement des **ouvertures** rangées dans le registre des assemblages :
-une fenêtre de toit a un Uw, un facteur solaire et un vantail, c'est-à-dire le
-contrat `OPENING`, pas celui d'une paroi.
+**Résolu par la même chose que CG-01** : la forme `LINEAR`, et huit fiches
+génériques — faîtage et arêtier à sec en tuile, noue, égout et solin
+métalliques, rive à rabat, souche maçonnée, sortie de toit ventilée. Un faîtage
+déclare de quoi il est fait ; sa longueur reste `DERIVED`, déduite du contour de
+la toiture, parce que c'est un résultat du modèle et pas une donnée qu'on pose.
+
+Et la décision demandée sur `ROOF_WINDOW` et `SKYLIGHT` : **ce sont des
+menuiseries**. Leur contrat est celui d'`OPENING` — Uw, facteur solaire, vantail
+— et rien de celui d'une paroi. Les deux familles ont changé de registre et ont
+leur fiche. Ce qu'elles ne peuvent pas encore faire, c'est être posées : voir
+CG-09.
+
+**Avec CG-01 et CG-02, les 527 familles de la nomenclature portent toutes au
+moins une fiche générique.** C'était l'objectif de la troisième étape de la
+feuille de route ; les vingt-trois qui manquaient étaient exactement celles-ci,
+et ce n'était pas un trou de remplissage mais un trou de format. Un test le
+vérifie désormais dans l'autre sens : il échoue en nommant la première famille
+qui redeviendrait vide.
 
 ## CG-04 — le vocabulaire des catégories d'équipement était trop court
 
@@ -279,6 +317,30 @@ Corollaire relevé au passage : plusieurs familles n'ont **que** `PHYSICAL` et
 ne peuvent donc déclarer aucun dégagement. Une trappe de ramonage, dont la
 fonction unique est d'être ouverte, n'a pas le droit de dire l'accès qu'elle
 demande ; une barrette de coupure de terre non plus.
+
+## CG-09 — une ouverture n'a pour hôte qu'un mur
+
+**Modèle** · **2 familles** · issu de CG-02
+
+`Opening.hostElementId` est un `WallId`, et rien d'autre. La validation, le
+dessin en plan, la coupe, l'enveloppe thermique et le métré lisent tous cette
+hypothèse : une baie appartient à un mur, on la repère par une abscisse le long
+du mur et une hauteur d'allège.
+
+Une fenêtre de toit ne se décrit pas ainsi. Elle est posée dans un pan incliné,
+son abscisse court sur une surface inclinée, sa surface déperditive appartient à
+la toiture et non à un mur, et son dessin en plan est une projection.
+
+`ROOF_WINDOW` et `SKYLIGHT` sont maintenant des familles du registre `OPENING`
+avec leur fiche — Uw 1,3 et 1,6, facteur solaire 0,52 et 0,55 — et leur
+`placement.allowedHosts` dit `ROOF`, ce qu'aucune commande ne sait honorer. Leur
+`status.MODEL` vaut donc `NONE`, ce qui est la vraie réponse : la donnée existe,
+la pose n'existe pas.
+
+**Ce qui manque** : que `hostElementId` accepte une toiture, et avec lui les
+quarante-six endroits qui supposent un mur. Ce n'est pas une extension de
+format, c'est une extension du modèle géométrique — la même famille de travail
+que les lucarnes et les chiens-assis — et elle se décide comme telle.
 
 ## CG-08 — vingt familles décrivent le même objet depuis deux métiers
 

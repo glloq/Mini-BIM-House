@@ -23,8 +23,7 @@
           "category",
           "name",
           "version",
-          "provenance",
-          "layers"
+          "provenance"
         ],
         "additionalProperties": false,
         "properties": {
@@ -43,6 +42,8 @@
               "FLOOR",
               "CEILING",
               "PARTITION",
+              "STRUCTURAL_MEMBER",
+              "ROOF_PART",
               "OTHER"
             ]
           },
@@ -109,6 +110,29 @@
                   "type": "boolean"
                 }
               }
+            }
+          },
+          "form": {
+            "enum": [
+              "LAYERED",
+              "PROFILED",
+              "LINEAR"
+            ]
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
             }
           }
         }

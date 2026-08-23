@@ -1,6 +1,11 @@
 import { assemblyId, assemblyLayerId } from './assemblies.js';
 import { materialId } from '@house-technical-designer/materials';
-import type { Assembly, AssemblyCategory, LayerRole } from './types.js';
+import type {
+  Assembly,
+  AssemblyCategory,
+  AssemblyForm,
+  LayerRole,
+} from './types.js';
 
 /**
  * The build-ups a project can start from.
@@ -32,14 +37,24 @@ export interface RawAssemblyEntry {
     readonly url?: string;
     readonly validAt?: string;
   };
+  /**
+   * How this entry describes itself: a stack, a section, or a length.
+   *
+   * Absent means `LAYERED`. Every entry written before the registry had to
+   * hold anything but a wall is one, and spelling the default out in
+   * thirty-five files is a migration nobody asked for.
+   */
+  readonly form?: string;
   /** Exterior to interior, for anything vertical. The order is the build-up. */
-  readonly layers: readonly {
+  readonly layers?: readonly {
     readonly id: string;
     readonly materialId: string;
     readonly thicknessM: number;
     readonly role?: string;
     readonly ventilated?: boolean;
   }[];
+  /** What a profiled or linear entry says, governed by its family's schema. */
+  readonly properties?: Readonly<Record<string, string | number | boolean>>;
 }
 
 interface CatalogFile {
@@ -99,7 +114,9 @@ export function assemblySnapshot(entry: RawAssemblyEntry): Assembly {
     },
     name: entry.name,
     category: entry.category as AssemblyCategory,
-    layers: entry.layers.map((layer) => ({
+    ...(entry.form === undefined ? {} : { form: entry.form as AssemblyForm }),
+    ...(entry.properties === undefined ? {} : { properties: entry.properties }),
+    layers: (entry.layers ?? []).map((layer) => ({
       id: assemblyLayerId(layer.id),
       materialId: materialId(layer.materialId),
       thicknessM: layer.thicknessM,

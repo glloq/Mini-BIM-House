@@ -42,6 +42,14 @@ import {
 } from './library-model.js';
 import { DraftField } from '../DraftField.js';
 
+/**
+ * The build-ups somebody composes here.
+ *
+ * Not every category of the registry: a column and a ridge are entries of the
+ * same registry and are not build-ups — one has a section, the other a length,
+ * and neither is composed layer by layer. They are offered where they are
+ * placed, not where a wall is written.
+ */
 const CATEGORIES: readonly AssemblyCategory[] = [
   'WALL',
   'ROOF',
@@ -57,6 +65,8 @@ const CATEGORY_LABELS: Readonly<Record<AssemblyCategory, string>> = {
   FLOOR: 'Plancher',
   CEILING: 'Plafond',
   PARTITION: 'Cloison',
+  STRUCTURAL_MEMBER: 'Élément de structure',
+  ROOF_PART: 'Point singulier de toiture',
   OTHER: 'Autre',
 };
 
@@ -175,7 +185,7 @@ export function AssembliesPanel({
               // nothing. One transaction, so undoing puts back one decision
               // and a refusal anywhere refuses the whole thing.
               const wanted = materialsAnAssemblyNeeds(
-                entry.layers,
+                entry.layers ?? [],
                 new Set(materials.map(({ id }) => String(id))),
               );
               // The reference, not a guess at it: an entry is known by

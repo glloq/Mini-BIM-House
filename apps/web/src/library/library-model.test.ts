@@ -35,7 +35,7 @@ describe('taking a build-up out of the catalogue', () => {
     const wall = rawGenericAssemblyEntries().find(
       ({ id }) => id === 'generic-wall-double-brick-veneer',
     )!;
-    const wanted = materialsAnAssemblyNeeds(wall.layers, held);
+    const wanted = materialsAnAssemblyNeeds(wall.layers!, held);
     expect(wanted.length).toBeGreaterThan(0);
     for (const id of wanted) expect(held.has(id)).toBe(false);
     // And what the project already holds is not asked for twice, however many
@@ -43,8 +43,8 @@ describe('taking a build-up out of the catalogue', () => {
     expect(new Set(wanted).size).toBe(wanted.length);
     expect(
       materialsAnAssemblyNeeds(
-        wall.layers,
-        new Set(wall.layers.map((l) => l.materialId)),
+        wall.layers!,
+        new Set(wall.layers!.map((l) => l.materialId)),
       ),
     ).toEqual([]);
   });
@@ -56,7 +56,7 @@ describe('taking a build-up out of the catalogue', () => {
     const held = new Set(
       (project().materialLibrary?.materials ?? []).map(({ id }) => String(id)),
     );
-    expect(materialsAnAssemblyNeeds(starter.layers, held)).toEqual([]);
+    expect(materialsAnAssemblyNeeds(starter.layers!, held)).toEqual([]);
   });
 });
 

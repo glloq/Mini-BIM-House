@@ -6,6 +6,7 @@ import {
 } from './property-schemas.js';
 import { validateProvenance, type ProvenanceCandidate } from './provenance.js';
 import { hasCapability } from './capabilities.js';
+import { assemblyFormOfCategory } from '@house-technical-designer/assemblies';
 
 /**
  * A material as its data file states it, before anything has been checked.
@@ -51,12 +52,14 @@ export interface AssemblyEntryCandidate {
   readonly name: string;
   readonly version?: string;
   readonly provenance?: ProvenanceCandidate;
-  readonly layers: readonly {
+  readonly form?: string;
+  readonly layers?: readonly {
     readonly id: string;
     readonly materialId: string;
     readonly thicknessM: number;
     readonly role?: string;
   }[];
+  readonly properties?: Readonly<Record<string, PropertyValue>>;
 }
 
 export interface MaterialIssue {
@@ -188,9 +191,51 @@ export function validateAssemblyEntry(
       );
   }
 
-  if (entry.layers.length === 0) at('layers', 'a build-up has layers');
+  // Which of the three descriptions this entry is allowed to use, decided by
+  // the family's category and never by the entry: an entry choosing its own
+  // form could describe a wall as a section and be read as one.
+  const schema =
+    family?.propertySchema === undefined
+      ? undefined
+      : known.schema(family.propertySchema);
+  const wanted = assemblyFormOfCategory(family?.category ?? '');
+  const stated = entry.form ?? 'LAYERED';
+  if (stated !== wanted)
+    at(
+      'form',
+      `${family?.id ?? 'this family'} is described as ${wanted}, and this entry says ${stated}`,
+    );
+  const layers = entry.layers ?? [];
+  if (wanted === 'LAYERED') {
+    if (entry.properties !== undefined)
+      at(
+        'properties',
+        'a build-up says what it is with its layers; a second place to say it is a second answer',
+      );
+  } else {
+    if (layers.length > 0)
+      at(
+        'layers',
+        `a ${wanted === 'PROFILED' ? 'profiled member has a section' : 'linear part has a length'}, not a stack of materials`,
+      );
+    if (schema === undefined)
+      at(
+        'familyId',
+        `${family?.id ?? 'this family'} names no property schema, so nothing can check what it states`,
+      );
+    else
+      for (const issue of validateProperties(
+        schema,
+        entry.properties ?? {},
+        'DEFINITION',
+      ))
+        at(`properties/${issue.path}`, issue.message);
+  }
+
+  if (wanted === 'LAYERED' && layers.length === 0)
+    at('layers', 'a build-up has layers');
   const seen = new Set<string>();
-  for (const [index, layer] of entry.layers.entries()) {
+  for (const [index, layer] of layers.entries()) {
     const where = `layers/${index}`;
     if (seen.has(layer.id)) at(where, `${layer.id} is declared more than once`);
     seen.add(layer.id);

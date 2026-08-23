@@ -111,7 +111,9 @@ if (absent.length > 0) {
 
 // What those build-ups are made of, and nothing more.
 const used = new Set(
-  entries.flatMap(({ layers }) => layers.map(({ materialId }) => materialId)),
+  entries.flatMap(({ layers }) =>
+    (layers ?? []).map(({ materialId }) => materialId),
+  ),
 );
 const materials = rawGenericMaterialEntries().filter(({ id }) => used.has(id));
 const missing = [...used].filter(
@@ -178,7 +180,7 @@ console.log(
 );
 for (const entry of entries)
   console.log(
-    `  ${entry.id.padEnd(40)} ${entry.layers
+    `  ${entry.id.padEnd(40)} ${(entry.layers ?? [])
       .reduce((total, { thicknessM }) => total + thicknessM, 0)
       .toFixed(3)} m`,
   );
