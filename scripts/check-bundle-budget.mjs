@@ -90,9 +90,24 @@ export const BUDGETS = {
    * of filling cost the first payload four hundred bytes, and the seventh will
    * cost none.
    *
+   * Raised by ten kio for the graphic charter of the fourteenth audit. The
+   * plan is no longer drawn from a table of thirty roles: a rule resolver
+   * reads what the scene already said about each object, a second charter
+   * states two palettes and the paper widths of a house rather than of a
+   * schema, rooms carry a canonical use, openings carry the drawing their
+   * family calls for, placed things carry the footprint their fiche declares,
+   * and a label is placed where it fits rather than at the average of the
+   * corners. All of it is the drawing, and the drawing is what the first visit
+   * loads — a plan that appears after a second panel would not be a plan.
+   *
+   * Two kio of the ten are the eighteen emprises themselves. They are data in
+   * `data/symbols`, found by the same discovery as every other catalogue, and
+   * they travel with the editor because a bath has to be drawn as a bath
+   * before anything else has been asked for.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 260 * 1024,
+  initialGzipBytes: 270 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -154,8 +169,12 @@ export const BUDGETS = {
    * roof planes never reached the bill of materials, the cost total or the
    * carbon total, and the total did not say it was missing half the building —
    * it gave a figure.
+   *
+   * And ten more with the initial payload, for the same reason and by the same
+   * amount: what the fourteenth audit added to the drawing is the drawing, so
+   * none of it could be moved behind a lazy boundary.
    */
-  totalGzipBytes: 431 * 1024,
+  totalGzipBytes: 441 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

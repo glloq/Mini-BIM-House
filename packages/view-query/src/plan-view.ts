@@ -1316,6 +1316,10 @@ function fixturePrimitives(
   metadata: ScenePrimitive['metadata'],
   scale: number,
 ): readonly PrimitiveDraft[] | undefined {
+  // The family decides first — that is where the emprises are — and what the
+  // fiche itself names comes next: a schematic glyph says something is here,
+  // which is more than the mark said. Only a model-space glyph is stretched to
+  // the declared width; a schematic one keeps its size on the sheet.
   const symbolId =
     architecturalFixtureSymbol(definition?.familyId) ??
     definition?.rendering?.symbols?.find(
