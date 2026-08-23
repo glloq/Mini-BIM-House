@@ -17,15 +17,14 @@ describe('bill of materials', () => {
     // material on two floors two lines rather than one.
     const insulation = report.lines.find(
       (line) =>
-        line.materialId === 'material-insulation' &&
+        line.materialId === 'generic-eps' &&
         line.levelName === 'Rez-de-chaussée',
     )!;
     expect(insulation.lot).toBe('INSULATION');
     expect(
       report.lines.some(
         (line) =>
-          line.materialId === 'material-insulation' &&
-          line.levelName === 'Étage',
+          line.materialId === 'generic-eps' && line.levelName === 'Étage',
       ),
     ).toBe(true);
     expect(insulation.netVolumeM3).toBeGreaterThan(0);
@@ -35,7 +34,7 @@ describe('bill of materials', () => {
   it('applies the declared waste allowance to the purchase quantity', () => {
     const report = buildBom(demo());
     const masonry = report.lines.find(
-      (line) => line.materialId === 'material-masonry',
+      (line) => line.materialId === 'generic-concrete-block',
     )!;
     expect(masonry.wasteFactor).toBeCloseTo(0.05, 9);
     expect(masonry.purchaseVolumeM3).toBeCloseTo(masonry.netVolumeM3 * 1.05, 9);
@@ -44,9 +43,9 @@ describe('bill of materials', () => {
   it('derives mass, cost and carbon from the project settings', () => {
     const report = buildBom(demo());
     const masonry = report.lines.find(
-      (line) => line.materialId === 'material-masonry',
+      (line) => line.materialId === 'generic-concrete-block',
     )!;
-    expect(masonry.massKg).toBeCloseTo(masonry.netVolumeM3 * 1800, 6);
+    expect(masonry.massKg).toBeCloseTo(masonry.netVolumeM3 * 1300, 6);
     expect(masonry.cost).toBeCloseTo(masonry.purchaseVolumeM3 * 185, 6);
     expect(masonry.carbonKgCo2e).toBeCloseTo(masonry.netVolumeM3 * 255, 6);
     expect(report.totalCost).toBeGreaterThan(0);
@@ -63,18 +62,19 @@ describe('bill of materials', () => {
           ...base.calculationSettings!.cost!,
           settings: {
             ...base.calculationSettings!.cost!.settings,
-            unitPriceByMaterial: { 'material-masonry': 185 },
+            unitPriceByMaterial: { 'generic-concrete-block': 185 },
           },
         },
       },
     };
     const report = buildBom(stripped);
     expect(report.lines.length).toBeGreaterThan(0);
-    expect(report.missingPrices).toEqual(['material-insulation']);
+    // Everything the house is made of except the one still priced.
+    expect(report.missingPrices).toContain('generic-eps');
+    expect(report.missingPrices).not.toContain('generic-concrete-block');
     expect(report.totalCost).toBeUndefined();
     expect(
-      report.lines.find((line) => line.materialId === 'material-insulation')
-        ?.cost,
+      report.lines.find((line) => line.materialId === 'generic-eps')?.cost,
     ).toBeUndefined();
   });
 

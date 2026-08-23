@@ -16,7 +16,10 @@ function file() {
   return result.file;
 }
 
-const DRAFT = { assemblyId: 'assembly-exterior', role: 'EXTERIOR' } as const;
+const DRAFT = {
+  assemblyId: 'generic-wall-block-external-insulation',
+  role: 'EXTERIOR',
+} as const;
 
 let counter = 0;
 const newId = (prefix: string): string => `${prefix}-run-${(counter += 1)}`;

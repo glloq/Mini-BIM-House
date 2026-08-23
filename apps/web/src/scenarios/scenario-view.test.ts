@@ -90,7 +90,7 @@ describe('varying what was pointed at', () => {
     expect(target.path).toBe(
       'building/levels/ground/walls/wall-south/assemblyId',
     );
-    expect(target.currentValue).toBe('assembly-exterior');
+    expect(target.currentValue).toBe('generic-wall-block-external-insulation');
   });
 
   it('says nothing for a property the file does not store', () => {
@@ -160,7 +160,7 @@ describe('varying what was pointed at', () => {
       'wall-south',
       editOf(source, 'wall-south', 'assemblyId'),
     )!;
-    const override = scenarioOverride(target, 'assembly-partition')!;
+    const override = scenarioOverride(target, 'generic-partition-stud')!;
     const dispatcher = new ProjectCommandDispatcher(source);
     expect(
       dispatcher.dispatch(new SetScenarioOverrideCommand('variant', override))
@@ -182,18 +182,18 @@ describe('varying what was pointed at', () => {
     dispatcher.dispatch(
       new SetScenarioOverrideCommand(
         'variant',
-        scenarioOverride(target, 'assembly-partition')!,
+        scenarioOverride(target, 'generic-partition-stud')!,
       ),
     );
     dispatcher.dispatch(
       new SetScenarioOverrideCommand(
         'variant',
-        scenarioOverride(target, 'assembly-exterior')!,
+        scenarioOverride(target, 'generic-wall-block-external-insulation')!,
       ),
     );
     expect(dispatcher.project.scenarios?.[0]?.overrides).toHaveLength(1);
     expect(dispatcher.project.scenarios?.[0]?.overrides[0]?.value).toBe(
-      'assembly-exterior',
+      'generic-wall-block-external-insulation',
     );
   });
 
@@ -204,7 +204,7 @@ describe('varying what was pointed at', () => {
         new SetScenarioOverrideCommand('variant', {
           path: 'building/levels/ground/walls/nowhere/assemblyId',
           operation: 'SET',
-          value: 'assembly-exterior',
+          value: 'generic-wall-block-external-insulation',
         }),
       ).status,
     ).toBe('REJECTED');
@@ -234,7 +234,7 @@ describe('seeing what a variant changes', () => {
     dispatcher.dispatch(
       new SetScenarioOverrideCommand(
         'variant',
-        scenarioOverride(target, 'assembly-partition')!,
+        scenarioOverride(target, 'generic-partition-stud')!,
       ),
     );
     const applied = applyProjectScenario(dispatcher.project, 'variant');

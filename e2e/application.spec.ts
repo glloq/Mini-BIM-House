@@ -686,7 +686,7 @@ test('creates a partition as a partition, not as an exterior wall', async ({
   await chooseTool(page, 'Mur');
   // Choosing a partition assembly proposes the matching role rather than
   // leaving every drawn wall in the thermal envelope.
-  await page.getByLabel('Assemblage').selectOption('assembly-partition');
+  await page.getByLabel('Assemblage').selectOption('generic-partition-stud');
   await expect(page.getByLabel('Rôle')).toHaveValue('PARTITION');
 
   const canvas = page.locator('.plan-canvas');
@@ -1549,6 +1549,99 @@ test('creates a project on a page, storey by storey', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+/**
+ * The whole cycle, from an empty page back to a file on disk.
+ *
+ * Créer, sauvegarder, fermer, rouvrir, modifier, recalculer, exporter. Every
+ * one of these steps is covered somewhere on its own, and each of them passing
+ * says nothing about the one that matters: that what came back out of the file
+ * is the thing that went in, and that changing it afterwards still moves the
+ * numbers. A project that survives a round trip but stops recalculating is a
+ * project the application has quietly turned into a picture.
+ */
+test('creates, saves, closes, reopens, changes, recomputes and exports', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+
+  // Créer — a house of its own, not the demonstration one.
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Nouveau projet' }).click();
+  const creation = page.getByRole('main', { name: 'De quoi s’agit-il ?' });
+  await creation.getByLabel('Nom du projet').fill('Maison du cycle');
+  await creation.getByRole('button', { name: 'Le bâtiment' }).click();
+  await creation.getByRole('button', { name: '+ Étage' }).click();
+  await creation.getByRole('button', { name: 'Le lieu' }).click();
+  await creation.getByText('Coordonnées précises').click();
+  await creation.getByLabel('Latitude (°)').fill('45.75');
+  await creation.getByLabel('Longitude (°)').fill('4.85');
+  await creation.getByRole('button', { name: 'Créer le projet' }).click();
+  await expect(page.getByRole('status')).toContainText('2 niveau(x)');
+
+  // Something to compute on: four walls enclosing a rectangle.
+  await openDestination(page, 'Plan');
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  await chooseTool(page, 'Murs rectangle');
+  await canvas.click({ position: { x: 120, y: 120 } });
+  await canvas.click({ position: { x: 420, y: 320 } });
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  await expect(walls).toHaveCount(4);
+
+  // Sauvegarder — the container the application writes.
+  const first = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  const saved = await (await first).path();
+  expect(saved).not.toBeNull();
+  await expect(page.getByRole('status')).toContainText('.houseproj');
+
+  // Fermer — a reload with the local snapshot thrown away is as close to
+  // closing the application as a browser gets.
+  await page.reload();
+  const prompt = page.getByRole('alertdialog');
+  if ((await prompt.count()) > 0)
+    await prompt.getByRole('button', { name: 'Ignorer et supprimer' }).click();
+  await expect(page.getByRole('status')).toContainText('Nouveau projet');
+  await expect(walls).toHaveCount(0);
+
+  // Rouvrir — and the house is the one that was saved, name and all.
+  await page.setInputFiles('input[type="file"]', saved);
+  await expect(page.getByRole('status')).toContainText('chargé et validé');
+  await expect(walls).toHaveCount(4);
+  await openDestination(page, 'Projet');
+  await expect(page.getByLabel('Nom du projet')).toHaveValue('Maison du cycle');
+
+  // The quantities of the house as it came back.
+  await openDestination(page, 'Quantités');
+  const rows = page.locator('.library-table tbody tr');
+  await expect(rows.first()).toBeVisible();
+  const before = await rows.allTextContents();
+
+  // Modifier — a fifth wall across the middle.
+  await openDestination(page, 'Plan');
+  await canvas.scrollIntoViewIfNeeded();
+  await chooseTool(page, 'Mur');
+  await canvas.click({ position: { x: 140, y: 220 } });
+  await canvas.click({ position: { x: 400, y: 220 } });
+  await expect(walls).toHaveCount(5);
+
+  // Recalculer — the nomenclature is not the one of the house before the wall.
+  await openDestination(page, 'Quantités');
+  await expect(rows.first()).toBeVisible();
+  await expect
+    .poll(async () => (await rows.allTextContents()).join('|'), {
+      timeout: 20_000,
+    })
+    .not.toBe(before.join('|'));
+
+  // Exporter — a document, out of the application and onto the disk.
+  const second = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Exporter en CSV' }).click();
+  expect((await second).suggestedFilename()).toContain('nomenclature');
+
+  expect(errors).toEqual([]);
+});
+
 test('shows nothing above the plan until something is being done', async ({
   page,
 }) => {
@@ -1872,8 +1965,9 @@ test('creates a scenario, states what it changes and compares it', async ({
 
   // The change is chosen by what it means, never by a path into the file.
   const target = page.getByLabel('Valeur modifiée');
+  // Named by what the layer is made of, not by the identifier the file uses.
   const insulation = await target
-    .locator('option', { hasText: 'épaisseur de material-insulation' })
+    .locator('option', { hasText: 'épaisseur de Polystyrène expansé PSE' })
     .first()
     .getAttribute('value');
   await target.selectOption(insulation);
@@ -1883,7 +1977,7 @@ test('creates a scenario, states what it changes and compares it', async ({
     'Ajouter un changement au scénario',
   );
   const change = page.locator('.library-table tbody tr').first();
-  await expect(change).toContainText('0.2');
+  await expect(change).toContainText('0.14');
   await expect(change).toContainText('0.3');
 
   // And the comparison reflects it.
@@ -3018,7 +3112,7 @@ test('builds a variant by pointing at the plan', async ({ page }) => {
   );
 
   // Changing a property states what the variant does differently.
-  await page.getByLabel('Assemblage').selectOption('assembly-partition');
+  await page.getByLabel('Assemblage').selectOption('generic-partition-stud');
   await expect(page.getByRole('status')).toContainText('Scénario');
 
   // And the drawing says which objects it changed.

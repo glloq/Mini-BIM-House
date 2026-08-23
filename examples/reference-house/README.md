@@ -10,6 +10,11 @@ continuent de réussir en n'ayant rien à vérifier. Elle décrit donc :
 
 - **deux niveaux** de 80 m² reliés par un escalier, une enveloppe isolée, des
   ouvertures, des dalles et une toiture posée sur le niveau qu'elle couvre ;
+- **cinq compositions et onze matériaux venus du catalogue** — mur de parpaing
+  isolé par l'extérieur, cloison sur ossature, dalle sur terre-plein, plancher
+  intermédiaire bois, rampant isolé — et non plus deux matériaux et trois
+  compositions écrits pour ce fichier seul : la thermique, les métrés et le
+  dessin des couches tournent sur ce que l'application livre ;
 - **un terrain** avec ses limites, un arbre et une maison voisine, tous deux de
   hauteur connue, donc capables de porter une ombre ;
 - **trente et un objets posés** tirés du catalogue — pompe à chaleur, ballon
@@ -21,7 +26,8 @@ continuent de réussir en n'ayant rien à vérifier. Elle décrit donc :
 - **dix-neuf fiches d'équipement et trois fiches de menuiserie** venues du
   catalogue installé, avec leur `familyId`, leur version, leurs ports, leurs
   dégagements et leur provenance : la maison de référence est faite de ce que
-  l'utilisateur peut choisir, et non de valeurs écrites pour elle seule ;
+  l'utilisateur peut choisir, et non de valeurs écrites pour elle seule — un
+  test l'exige, fiche par fiche ;
 - **quatre réseaux** qui montent à l'étage : eau, évacuation, ventilation,
   électricité, chacun connecté port à port, et **chaque tronçon nomme le
   produit dont il est fait** ;

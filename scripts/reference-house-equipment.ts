@@ -179,16 +179,58 @@ const PRICES: Readonly<Record<string, number>> = {
   'generic-entrance-door': 890,
   'generic-internal-door': 180,
 };
-const prices = Object.fromEntries(
-  [...HELD.map(({ id }) => id), ...OPENINGS].map((id) => {
-    const price = PRICES[id];
-    if (price === undefined) {
-      console.error(`Aucun prix de démonstration pour ${id}`);
-      process.exit(1);
-    }
-    return [id, price];
-  }),
-);
+/**
+ * And what it costs to put each of them in.
+ *
+ * A separate table because it is a separate question: the price of a thing is
+ * a supplier's, the price of installing it is a trade's, and a project that
+ * states one without the other reports a total that is not one. This one was
+ * left naming `equipment-vmc` and `equipment-pv` long after those entries
+ * ceased to exist — a table nobody reads any more, still being read.
+ */
+const LABOUR: Readonly<Record<string, number>> = {
+  'generic-air-water-heat-pump': 1400,
+  'generic-heating-buffer-tank': 260,
+  'generic-circulator-pump': 120,
+  'generic-radiator': 95,
+  'generic-towel-radiator': 110,
+  'generic-dhw-tank': 340,
+  'generic-balanced-ventilation-unit': 260,
+  'generic-air-terminal': 18,
+  'generic-rainwater-tank': 850,
+  'generic-washbasin': 140,
+  'generic-shower-tray': 220,
+  'generic-wc': 160,
+  'generic-kitchen-sink': 150,
+  'generic-distribution-board': 180,
+  'generic-miniature-circuit-breaker': 14,
+  'generic-socket': 22,
+  'generic-led-luminaire': 25,
+  'generic-pv-array': 900,
+  'generic-inverter': 300,
+  'generic-battery-rack': 400,
+  'generic-window-casement-double': 160,
+  'generic-entrance-door': 220,
+  'generic-internal-door': 90,
+};
+
+const named = [...HELD.map(({ id }) => id), ...OPENINGS];
+const figures = (
+  table: Readonly<Record<string, number>>,
+  what: string,
+): Record<string, number> =>
+  Object.fromEntries(
+    named.map((id) => {
+      const figure = table[id];
+      if (figure === undefined) {
+        console.error(`Aucun ${what} de démonstration pour ${id}`);
+        process.exit(1);
+      }
+      return [id, figure];
+    }),
+  );
+const prices = figures(PRICES, 'prix');
+const labour = figures(LABOUR, 'coût de pose');
 
 const settings = (
   held.project as unknown as {
@@ -196,6 +238,7 @@ const settings = (
   }
 ).calculationSettings;
 settings['cost']!.settings['unitPriceByEquipment'] = prices;
+settings['cost']!.settings['labourPriceByEquipment'] = labour;
 settings['photovoltaic']!.settings['roofId'] = 'roof-south';
 settings['battery']!.settings['initialSoc'] = 0.5;
 

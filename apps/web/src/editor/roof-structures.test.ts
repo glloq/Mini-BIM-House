@@ -85,7 +85,7 @@ describe('describing a roof by its outline', () => {
       'ground',
       SQUARE,
       {
-        assemblyId: 'assembly-exterior',
+        assemblyId: 'generic-wall-block-external-insulation',
         slopeDeg: 35,
         overhangMm: 0,
         fromWalls: false,

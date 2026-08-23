@@ -54,6 +54,18 @@ export function buildingScenarioTargets(
     label: `${assembly.name} (${assembly.id})`,
   }));
 
+  // A layer is named by what it is made of, and the project knows what that
+  // is called. Reading the identifier out loud was tolerable while the
+  // materials were called « material-insulation »; a catalogue calls them
+  // « generic-eps », and nobody comparing two insulation thicknesses should
+  // have to know that.
+  const materialNames = new Map(
+    (project.materialLibrary?.materials ?? []).map(({ id, name }) => [
+      id as string,
+      name,
+    ]),
+  );
+
   for (const level of project.building.levels) {
     for (const wall of level.walls) {
       targets.push({
@@ -80,7 +92,9 @@ export function buildingScenarioTargets(
     for (const layer of assembly.layers)
       targets.push({
         path: `assemblies/${assembly.id}/layers/${layer.id}/thicknessM`,
-        label: `${assembly.name} — épaisseur de ${layer.materialId}`,
+        label: `${assembly.name} — épaisseur de ${
+          materialNames.get(layer.materialId) ?? layer.materialId
+        }`,
         group: 'Assemblages',
         unit: 'm',
         currentValue: String(layer.thicknessM),

@@ -119,7 +119,7 @@
                 ]
               },
               "referenceSide": "CENTER",
-              "assemblyId": "assembly-exterior",
+              "assemblyId": "generic-wall-block-external-insulation",
               "baseOffsetMm": 0,
               "heightMode": "EXPLICIT",
               "heightMm": 2600,
@@ -142,7 +142,7 @@
                 ]
               },
               "referenceSide": "CENTER",
-              "assemblyId": "assembly-exterior",
+              "assemblyId": "generic-wall-block-external-insulation",
               "baseOffsetMm": 0,
               "heightMode": "EXPLICIT",
               "heightMm": 2600,
@@ -165,7 +165,7 @@
                 ]
               },
               "referenceSide": "CENTER",
-              "assemblyId": "assembly-exterior",
+              "assemblyId": "generic-wall-block-external-insulation",
               "baseOffsetMm": 0,
               "heightMode": "EXPLICIT",
               "heightMm": 2600,
@@ -188,7 +188,7 @@
                 ]
               },
               "referenceSide": "CENTER",
-              "assemblyId": "assembly-exterior",
+              "assemblyId": "generic-wall-block-external-insulation",
               "baseOffsetMm": 0,
               "heightMode": "EXPLICIT",
               "heightMm": 2600,
@@ -211,7 +211,7 @@
                 ]
               },
               "referenceSide": "CENTER",
-              "assemblyId": "assembly-partition",
+              "assemblyId": "generic-partition-stud",
               "baseOffsetMm": 0,
               "heightMode": "EXPLICIT",
               "heightMm": 2600,
@@ -234,7 +234,7 @@
                 ]
               },
               "referenceSide": "CENTER",
-              "assemblyId": "assembly-partition",
+              "assemblyId": "generic-partition-stud",
               "baseOffsetMm": 0,
               "heightMode": "EXPLICIT",
               "heightMm": 2600,
@@ -301,7 +301,7 @@
                   }
                 ]
               },
-              "assemblyId": "assembly-horizontal",
+              "assemblyId": "generic-floor-slab-on-ground",
               "elevationOffsetMm": 0,
               "role": "FLOOR"
             }
@@ -812,7 +812,7 @@
                 ]
               },
               "referenceSide": "CENTER",
-              "assemblyId": "assembly-exterior",
+              "assemblyId": "generic-wall-block-external-insulation",
               "baseOffsetMm": 0,
               "heightMode": "EXPLICIT",
               "heightMm": 2500,
@@ -835,7 +835,7 @@
                 ]
               },
               "referenceSide": "CENTER",
-              "assemblyId": "assembly-exterior",
+              "assemblyId": "generic-wall-block-external-insulation",
               "baseOffsetMm": 0,
               "heightMode": "EXPLICIT",
               "heightMm": 2500,
@@ -858,7 +858,7 @@
                 ]
               },
               "referenceSide": "CENTER",
-              "assemblyId": "assembly-exterior",
+              "assemblyId": "generic-wall-block-external-insulation",
               "baseOffsetMm": 0,
               "heightMode": "EXPLICIT",
               "heightMm": 2500,
@@ -881,7 +881,7 @@
                 ]
               },
               "referenceSide": "CENTER",
-              "assemblyId": "assembly-exterior",
+              "assemblyId": "generic-wall-block-external-insulation",
               "baseOffsetMm": 0,
               "heightMode": "EXPLICIT",
               "heightMm": 2500,
@@ -904,7 +904,7 @@
                 ]
               },
               "referenceSide": "CENTER",
-              "assemblyId": "assembly-partition",
+              "assemblyId": "generic-partition-stud",
               "baseOffsetMm": 0,
               "heightMode": "EXPLICIT",
               "heightMm": 2500,
@@ -982,7 +982,7 @@
                   }
                 ]
               },
-              "assemblyId": "assembly-horizontal",
+              "assemblyId": "generic-floor-intermediate-timber",
               "elevationOffsetMm": 0,
               "role": "FLOOR"
             }
@@ -1012,7 +1012,7 @@
                   }
                 ]
               },
-              "assemblyId": "assembly-horizontal",
+              "assemblyId": "generic-roof-timber-insulated",
               "slopeDeg": 30,
               "azimuthDeg": 270,
               "baseElevationMm": 5400
@@ -1041,7 +1041,7 @@
                   }
                 ]
               },
-              "assemblyId": "assembly-horizontal",
+              "assemblyId": "generic-roof-timber-insulated",
               "slopeDeg": 30,
               "azimuthDeg": 90,
               "baseElevationMm": 5400
@@ -1339,14 +1339,384 @@
     "materialLibrary": {
       "materials": [
         {
-          "id": "material-insulation",
-          "name": "Isolant générique de démonstration",
+          "id": "generic-concrete",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-concrete",
+            "version": "1.0.0"
+          },
+          "name": "Béton armé",
           "kind": "GENERIC",
+          "category": "STRUCTURE",
           "properties": {
-            "lambdaWmK": 0.04,
-            "densityKgM3": 45,
+            "lambdaWmK": 2.3,
+            "densityKgM3": 2400,
+            "specificHeatJKgK": 1000,
+            "mu": 130,
+            "acousticAbsorption": {
+              "125": 0.01,
+              "250": 0.01,
+              "500": 0.02,
+              "1000": 0.02,
+              "2000": 0.02,
+              "4000": 0.03
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-concrete-block",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-concrete-block",
+            "version": "1.0.0"
+          },
+          "name": "Parpaing de béton",
+          "kind": "GENERIC",
+          "category": "MASONRY",
+          "properties": {
+            "lambdaWmK": 1.05,
+            "densityKgM3": 1300,
+            "specificHeatJKgK": 1000,
+            "mu": 60,
+            "acousticAbsorption": {
+              "125": 0.02,
+              "250": 0.03,
+              "500": 0.04,
+              "1000": 0.05,
+              "2000": 0.05,
+              "4000": 0.06
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-softwood",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-softwood",
+            "version": "1.0.0"
+          },
+          "name": "Bois résineux",
+          "kind": "GENERIC",
+          "category": "WOOD",
+          "properties": {
+            "lambdaWmK": 0.13,
+            "densityKgM3": 500,
+            "specificHeatJKgK": 1600,
+            "mu": 50,
+            "acousticAbsorption": {
+              "125": 0.15,
+              "250": 0.11,
+              "500": 0.1,
+              "1000": 0.07,
+              "2000": 0.06,
+              "4000": 0.07
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-osb",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-osb",
+            "version": "1.0.0"
+          },
+          "name": "Panneau OSB",
+          "kind": "GENERIC",
+          "category": "WOOD",
+          "properties": {
+            "lambdaWmK": 0.13,
+            "densityKgM3": 650,
+            "specificHeatJKgK": 1700,
+            "mu": 200,
+            "acousticAbsorption": {
+              "125": 0.1,
+              "250": 0.1,
+              "500": 0.08,
+              "1000": 0.08,
+              "2000": 0.08,
+              "4000": 0.08
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-gypsum-board",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-gypsum-board",
+            "version": "1.0.0"
+          },
+          "name": "Plaque de plâtre",
+          "kind": "GENERIC",
+          "category": "FINISH",
+          "properties": {
+            "lambdaWmK": 0.25,
+            "densityKgM3": 900,
+            "specificHeatJKgK": 1000,
+            "mu": 10,
+            "acousticAbsorption": {
+              "125": 0.15,
+              "250": 0.1,
+              "500": 0.06,
+              "1000": 0.04,
+              "2000": 0.04,
+              "4000": 0.05
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-glass-wool",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-glass-wool",
+            "version": "1.0.0"
+          },
+          "name": "Laine de verre",
+          "kind": "GENERIC",
+          "category": "INSULATION",
+          "properties": {
+            "lambdaWmK": 0.035,
+            "densityKgM3": 20,
             "specificHeatJKgK": 1030,
-            "mu": 1.3,
+            "mu": 1,
+            "acousticAbsorption": {
+              "125": 0.2,
+              "250": 0.45,
+              "500": 0.7,
+              "1000": 0.85,
+              "2000": 0.9,
+              "4000": 0.9
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-rock-wool",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-rock-wool",
+            "version": "1.0.0"
+          },
+          "name": "Laine de roche",
+          "kind": "GENERIC",
+          "category": "INSULATION",
+          "properties": {
+            "lambdaWmK": 0.037,
+            "densityKgM3": 40,
+            "specificHeatJKgK": 1030,
+            "mu": 1,
+            "acousticAbsorption": {
+              "125": 0.25,
+              "250": 0.5,
+              "500": 0.75,
+              "1000": 0.9,
+              "2000": 0.95,
+              "4000": 0.95
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-wood-fibre",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-wood-fibre",
+            "version": "1.0.0"
+          },
+          "name": "Fibre de bois",
+          "kind": "GENERIC",
+          "category": "INSULATION",
+          "properties": {
+            "lambdaWmK": 0.042,
+            "densityKgM3": 160,
+            "specificHeatJKgK": 2100,
+            "mu": 5,
             "acousticAbsorption": {
               "125": 0.15,
               "250": 0.35,
@@ -1356,67 +1726,174 @@
               "4000": 0.8
             }
           },
-          "provenance": {
-            "sourceType": "OTHER",
-            "sourceReference": "Fixture PR-069 — valeur de démonstration"
-          },
-          "category": "INSULATION",
           "sources": [
             {
               "property": "lambdaWmK",
               "sourceType": "STANDARD",
-              "reference": "Generic mineral wool, demonstration value"
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
             },
             {
               "property": "mu",
               "sourceType": "STANDARD",
-              "reference": "Generic mineral wool, demonstration value"
+              "reference": "ISO 10456 typical design values for building materials"
             },
             {
               "property": "acousticAbsorption",
-              "sourceType": "STANDARD",
-              "reference": "Generic porous absorber, demonstration value"
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
             }
           ]
         },
         {
-          "id": "material-masonry",
-          "name": "Maçonnerie générique",
+          "id": "generic-eps",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-eps",
+            "version": "1.0.0"
+          },
+          "name": "Polystyrène expansé PSE",
           "kind": "GENERIC",
+          "category": "INSULATION",
           "properties": {
-            "lambdaWmK": 0.8,
-            "densityKgM3": 1800,
-            "specificHeatJKgK": 1000,
-            "mu": 15,
+            "lambdaWmK": 0.038,
+            "densityKgM3": 20,
+            "specificHeatJKgK": 1450,
+            "mu": 60,
             "acousticAbsorption": {
-              "125": 0.02,
-              "250": 0.02,
-              "500": 0.03,
-              "1000": 0.04,
-              "2000": 0.05,
-              "4000": 0.05
+              "125": 0.05,
+              "250": 0.07,
+              "500": 0.1,
+              "1000": 0.12,
+              "2000": 0.12,
+              "4000": 0.12
             }
           },
-          "provenance": {
-            "sourceType": "OTHER",
-            "sourceReference": "Fixture PR-069 — valeur de démonstration"
-          },
-          "category": "MASONRY",
           "sources": [
             {
               "property": "lambdaWmK",
               "sourceType": "STANDARD",
-              "reference": "Generic masonry, demonstration value"
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
             },
             {
               "property": "mu",
               "sourceType": "STANDARD",
-              "reference": "Generic masonry, demonstration value"
+              "reference": "ISO 10456 typical design values for building materials"
             },
             {
               "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-xps",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-xps",
+            "version": "1.0.0"
+          },
+          "name": "Polystyrène extrudé XPS",
+          "kind": "GENERIC",
+          "category": "INSULATION",
+          "properties": {
+            "lambdaWmK": 0.034,
+            "densityKgM3": 33,
+            "specificHeatJKgK": 1450,
+            "mu": 150,
+            "acousticAbsorption": {
+              "125": 0.04,
+              "250": 0.05,
+              "500": 0.06,
+              "1000": 0.08,
+              "2000": 0.08,
+              "4000": 0.08
+            }
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
               "sourceType": "STANDARD",
-              "reference": "Generic hard surface, demonstration value"
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "acousticAbsorption",
+              "sourceType": "GENERIC",
+              "reference": "Typical published absorption coefficients for this family of surfaces"
+            }
+          ]
+        },
+        {
+          "id": "generic-air-cavity",
+          "catalogRef": {
+            "registry": "MATERIAL",
+            "id": "generic-air-cavity",
+            "version": "1.0.0"
+          },
+          "name": "Lame d’air non ventilée",
+          "kind": "GENERIC",
+          "category": "AIR",
+          "properties": {
+            "lambdaWmK": 0.025,
+            "densityKgM3": 1.2,
+            "specificHeatJKgK": 1005,
+            "mu": 1
+          },
+          "sources": [
+            {
+              "property": "lambdaWmK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "densityKgM3",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "specificHeatJKgK",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
+            },
+            {
+              "property": "mu",
+              "sourceType": "STANDARD",
+              "reference": "ISO 10456 typical design values for building materials"
             }
           ]
         }
@@ -1424,47 +1901,152 @@
     },
     "assemblies": [
       {
-        "id": "assembly-exterior",
-        "name": "Mur extérieur de référence",
+        "id": "generic-wall-block-external-insulation",
+        "catalogRef": {
+          "registry": "ASSEMBLY",
+          "id": "generic-wall-block-external-insulation",
+          "version": "1.0.0"
+        },
+        "name": "Mur en blocs béton isolé par l’extérieur",
         "category": "WALL",
         "layers": [
           {
-            "id": "layer-masonry",
-            "materialId": "material-masonry",
-            "thicknessM": 0.2,
-            "role": "STRUCTURE"
+            "id": "finish",
+            "materialId": "generic-eps",
+            "thicknessM": 0.14,
+            "role": "INSULATION"
           },
           {
-            "id": "layer-insulation",
-            "materialId": "material-insulation",
+            "id": "structure",
+            "materialId": "generic-concrete-block",
             "thicknessM": 0.2,
-            "role": "INSULATION"
+            "role": "STRUCTURAL"
+          },
+          {
+            "id": "lining",
+            "materialId": "generic-gypsum-board",
+            "thicknessM": 0.013,
+            "role": "FINISH"
           }
         ]
       },
       {
-        "id": "assembly-partition",
-        "name": "Cloison de référence",
-        "category": "PARTITION",
+        "id": "generic-roof-timber-insulated",
+        "catalogRef": {
+          "registry": "ASSEMBLY",
+          "id": "generic-roof-timber-insulated",
+          "version": "1.0.0"
+        },
+        "name": "Toiture bois isolée entre chevrons",
+        "category": "ROOF",
         "layers": [
           {
-            "id": "layer-partition",
-            "materialId": "material-masonry",
-            "thicknessM": 0.1,
-            "role": "STRUCTURE"
+            "id": "sarking",
+            "materialId": "generic-wood-fibre",
+            "thicknessM": 0.06,
+            "role": "INSULATION"
+          },
+          {
+            "id": "insulation",
+            "materialId": "generic-glass-wool",
+            "thicknessM": 0.3,
+            "role": "INSULATION"
+          },
+          {
+            "id": "lining",
+            "materialId": "generic-gypsum-board",
+            "thicknessM": 0.013,
+            "role": "FINISH"
           }
         ]
       },
       {
-        "id": "assembly-horizontal",
-        "name": "Plancher et toiture de référence",
+        "id": "generic-floor-slab-on-ground",
+        "catalogRef": {
+          "registry": "ASSEMBLY",
+          "id": "generic-floor-slab-on-ground",
+          "version": "1.0.0"
+        },
+        "name": "Dallage sur terre-plein isolé sous dalle",
         "category": "FLOOR",
         "layers": [
           {
-            "id": "layer-horizontal-insulation",
-            "materialId": "material-insulation",
-            "thicknessM": 0.25,
+            "id": "insulation",
+            "materialId": "generic-xps",
+            "thicknessM": 0.1,
             "role": "INSULATION"
+          },
+          {
+            "id": "slab",
+            "materialId": "generic-concrete",
+            "thicknessM": 0.15,
+            "role": "STRUCTURAL"
+          }
+        ]
+      },
+      {
+        "id": "generic-partition-stud",
+        "catalogRef": {
+          "registry": "ASSEMBLY",
+          "id": "generic-partition-stud",
+          "version": "1.0.0"
+        },
+        "name": "Cloison sur ossature métallique",
+        "category": "PARTITION",
+        "layers": [
+          {
+            "id": "board-a",
+            "materialId": "generic-gypsum-board",
+            "thicknessM": 0.013,
+            "role": "FINISH"
+          },
+          {
+            "id": "insulation",
+            "materialId": "generic-rock-wool",
+            "thicknessM": 0.045,
+            "role": "INSULATION"
+          },
+          {
+            "id": "board-b",
+            "materialId": "generic-gypsum-board",
+            "thicknessM": 0.013,
+            "role": "FINISH"
+          }
+        ]
+      },
+      {
+        "id": "generic-floor-intermediate-timber",
+        "catalogRef": {
+          "registry": "ASSEMBLY",
+          "id": "generic-floor-intermediate-timber",
+          "version": "1.0.0"
+        },
+        "name": "Plancher intermédiaire bois",
+        "category": "FLOOR",
+        "layers": [
+          {
+            "id": "deck",
+            "materialId": "generic-osb",
+            "thicknessM": 0.022,
+            "role": "STRUCTURAL"
+          },
+          {
+            "id": "joists",
+            "materialId": "generic-softwood",
+            "thicknessM": 0.22,
+            "role": "STRUCTURAL"
+          },
+          {
+            "id": "cavity",
+            "materialId": "generic-air-cavity",
+            "thicknessM": 0.05,
+            "role": "AIR_GAP"
+          },
+          {
+            "id": "ceiling",
+            "materialId": "generic-gypsum-board",
+            "thicknessM": 0.013,
+            "role": "FINISH"
           }
         ]
       }
@@ -5619,7 +6201,7 @@
         "methodId": "co2-mass-balance-v1",
         "precisionTarget": "ENGINEERING",
         "settings": {
-          "co2GenerationM3sPerOccupant": 4.7e-06,
+          "co2GenerationM3sPerOccupant": 0.0000047,
           "initialConcentrationPpm": 500,
           "durationHours": 8,
           "occupantsByCategory": {
@@ -5733,16 +6315,43 @@
         "settings": {
           "currency": "EUR",
           "unitPriceByMaterial": {
-            "material-masonry": 185,
-            "material-insulation": 95
+            "generic-concrete": 180,
+            "generic-concrete-block": 185,
+            "generic-softwood": 620,
+            "generic-osb": 480,
+            "generic-gypsum-board": 320,
+            "generic-glass-wool": 95,
+            "generic-rock-wool": 130,
+            "generic-wood-fibre": 210,
+            "generic-eps": 110,
+            "generic-xps": 165,
+            "generic-air-cavity": 0
           },
           "wasteFactorByMaterial": {
-            "material-masonry": 0.05,
-            "material-insulation": 0.1
+            "generic-concrete": 0.03,
+            "generic-concrete-block": 0.05,
+            "generic-softwood": 0.1,
+            "generic-osb": 0.08,
+            "generic-gypsum-board": 0.08,
+            "generic-glass-wool": 0.1,
+            "generic-rock-wool": 0.1,
+            "generic-wood-fibre": 0.1,
+            "generic-eps": 0.1,
+            "generic-xps": 0.1,
+            "generic-air-cavity": 0
           },
           "labourPriceByMaterial": {
-            "material-masonry": 95,
-            "material-insulation": 45
+            "generic-concrete": 120,
+            "generic-concrete-block": 95,
+            "generic-softwood": 260,
+            "generic-osb": 180,
+            "generic-gypsum-board": 210,
+            "generic-glass-wool": 45,
+            "generic-rock-wool": 45,
+            "generic-wood-fibre": 55,
+            "generic-eps": 40,
+            "generic-xps": 40,
+            "generic-air-cavity": 0
           },
           "unitPriceByProduct": {
             "pipe-multilayer-16x2.0": 4.2,
@@ -5794,14 +6403,29 @@
             "generic-internal-door": 180
           },
           "labourPriceByEquipment": {
-            "equipment-luminaire": 25,
-            "equipment-vmc": 260,
-            "equipment-dhw-tank": 340,
-            "equipment-pv": 900,
-            "equipment-inverter": 300,
-            "equipment-battery": 400,
-            "generic-window": 160,
-            "generic-door": 220
+            "generic-air-water-heat-pump": 1400,
+            "generic-heating-buffer-tank": 260,
+            "generic-circulator-pump": 120,
+            "generic-radiator": 95,
+            "generic-towel-radiator": 110,
+            "generic-dhw-tank": 340,
+            "generic-balanced-ventilation-unit": 260,
+            "generic-air-terminal": 18,
+            "generic-rainwater-tank": 850,
+            "generic-washbasin": 140,
+            "generic-shower-tray": 220,
+            "generic-wc": 160,
+            "generic-kitchen-sink": 150,
+            "generic-distribution-board": 180,
+            "generic-miniature-circuit-breaker": 14,
+            "generic-socket": 22,
+            "generic-led-luminaire": 25,
+            "generic-pv-array": 900,
+            "generic-inverter": 300,
+            "generic-battery-rack": 400,
+            "generic-window-casement-double": 160,
+            "generic-entrance-door": 220,
+            "generic-internal-door": 90
           }
         }
       },
@@ -5815,8 +6439,17 @@
           "validAt": "2026-01-01",
           "declarationSource": "Generic demonstration data — not a manufacturer declaration",
           "gwpPerUnitByMaterial": {
-            "material-masonry": 255,
-            "material-insulation": 140
+            "generic-concrete": 300,
+            "generic-concrete-block": 255,
+            "generic-softwood": 60,
+            "generic-osb": 90,
+            "generic-gypsum-board": 180,
+            "generic-glass-wool": 140,
+            "generic-rock-wool": 160,
+            "generic-wood-fibre": 40,
+            "generic-eps": 190,
+            "generic-xps": 240,
+            "generic-air-cavity": 0
           }
         }
       }

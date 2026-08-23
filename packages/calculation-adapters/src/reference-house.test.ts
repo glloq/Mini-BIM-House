@@ -223,10 +223,13 @@ describe('PR-069 reference house', () => {
     const baseline = loaded.file.project;
     const changed = structuredClone(baseline);
     const exterior = changed.assemblies!.find(
-      ({ id }) => id === 'assembly-exterior',
+      ({ id }) => id === 'generic-wall-block-external-insulation',
     )!;
+    // Its insulating layer, whatever the build-up calls it: the catalogue's
+    // external wall names it « finish », because the insulation is on the
+    // outside and it is what one sees.
     const insulation = exterior.layers.find(
-      ({ id }) => id === 'layer-insulation',
+      ({ role }) => role === 'INSULATION',
     )!;
     (insulation as { thicknessM: number }).thicknessM *= 2;
 

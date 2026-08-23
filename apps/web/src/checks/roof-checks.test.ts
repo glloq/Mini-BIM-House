@@ -22,7 +22,7 @@ function roofOn(outer: readonly { x: number; y: number }[]): Roof {
       slopeDeg: 35,
       overhangMm: 0,
     })),
-    assemblyId: assemblyId('assembly-horizontal'),
+    assemblyId: assemblyId('generic-roof-timber-insulated'),
     baseElevationMm: 2500,
   };
 }

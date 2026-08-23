@@ -35,7 +35,8 @@
     "validate:docs": "node scripts/validation-report.mjs --check",
     "test:coverage": "vitest run --coverage",
     "catalog:starter": "vite-node scripts/starter-library.ts",
-    "reference:equipment": "vite-node scripts/reference-house-equipment.ts"
+    "reference:equipment": "vite-node scripts/reference-house-equipment.ts",
+    "reference:envelope": "vite-node scripts/reference-house-envelope.ts"
   },
   "engines": {
     "node": ">=22.0.0"

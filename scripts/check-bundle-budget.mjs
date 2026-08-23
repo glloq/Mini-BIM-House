@@ -130,14 +130,18 @@ export const BUDGETS = {
    * And three more for the reference house, which is made of catalogue fiches
    * now: nineteen equipment fiches and three menuiseries with their ports,
    * their clearances, their sources and their performance curves, and thirty
-   * and one objects standing somewhere in the building instead of nine. It is
-   * a fixture, and it travels with the application because the demonstration
+   * and three objects standing somewhere in the building instead of nine, and
+   * an envelope of five catalogue build-ups made of eleven catalogue materials
+   * in place of three compositions written for that file alone. It is a
+   * fixture, and it travels with the application because the demonstration
    * project is the application's front door. What it buys is that every module
    * is exercised by a house made of what a user can actually choose — the day
-   * it was rebuilt from fiches, three modules stopped finding anything, which
-   * is exactly the failure a demonstration project exists to catch.
+   * it was rebuilt from fiches, three modules stopped finding anything, and
+   * the day its envelope was, the takeoff went looking for prices nobody had
+   * declared. That is exactly the failure a demonstration project exists to
+   * catch.
    */
-  totalGzipBytes: 426 * 1024,
+  totalGzipBytes: 428 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */
