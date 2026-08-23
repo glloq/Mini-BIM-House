@@ -117,8 +117,33 @@ export interface EditorState {
   /** The rubber band being dragged, while one is. */
   readonly selectionBox?: { readonly from: Point2D; readonly to: Point2D };
   readonly cursorModel?: Point2D;
+  /** Quelles cotes le plan écrit tout seul. */
+  readonly dimensionMode: DimensionMode;
   readonly directInput: DirectInput;
 }
+
+/**
+ * Ce que le plan cote sans qu'on le lui demande.
+ *
+ * Un plan d'architecte porte ses cotes ; le nôtre ne portait que celles qu'on
+ * avait posées une par une, si bien qu'un mur tracé n'avait pas de longueur
+ * écrite tant que personne ne l'avait cotée. Quatre réponses possibles, et
+ * c'est une décision de vue : elle vit dans l'éditeur, jamais dans le fichier.
+ *
+ * - `NONE` — rien que les cotes posées à la main.
+ * - `SELECTION` — celles-là, plus ce qui est désigné.
+ * - `AUTO` — celles-là, plus les cotes intérieures principales.
+ * - `ALL` — tout ce que le dessin sait mesurer.
+ */
+export const DIMENSION_MODES = ['NONE', 'SELECTION', 'AUTO', 'ALL'] as const;
+export type DimensionMode = (typeof DIMENSION_MODES)[number];
+
+export const DIMENSION_MODE_LABELS: Readonly<Record<DimensionMode, string>> = {
+  NONE: 'Aucune',
+  SELECTION: 'Sélection',
+  AUTO: 'Auto',
+  ALL: 'Toutes',
+};
 
 export interface EditorViewport {
   readonly widthPx: number;
@@ -150,6 +175,7 @@ export function createEditorState(viewport: EditorViewport): EditorState {
     presetId: 'architecture',
     pendingPoints: [],
     pendingPicks: [],
+    dimensionMode: 'AUTO',
     directInput: {},
   };
 }
@@ -197,6 +223,7 @@ export type EditorAction =
   | { readonly type: 'FINISH_RUN' }
   | { readonly type: 'CANCEL' }
   | { readonly type: 'SET_SNAP'; readonly snap: Partial<SnapSettings> }
+  | { readonly type: 'SET_DIMENSION_MODE'; readonly mode: DimensionMode }
   | { readonly type: 'SET_DIRECT_INPUT'; readonly input: DirectInputPatch }
   | { readonly type: 'TOGGLE_LAYER'; readonly layerId: string }
   | { readonly type: 'SHOW_LAYERS'; readonly layerIds: readonly string[] }
@@ -440,6 +467,8 @@ export function editorReducer(
         return { ...rest, activeTool: 'SELECT', directInput: {} };
       return { ...rest, selection: [] };
     }
+    case 'SET_DIMENSION_MODE':
+      return { ...state, dimensionMode: action.mode };
     case 'SET_SNAP':
       return { ...state, snap: { ...state.snap, ...action.snap } };
     case 'SET_DIRECT_INPUT':

@@ -919,20 +919,20 @@ Ils viennent de V2 et de V3, ils ont tenu, et ils tiennent encore :
 
 ## 13. Plan d'implémentation
 
-| Lot       | Ce qu'il fait                                                             | Dépend de |
-| --------- | ------------------------------------------------------------------------- | --------- |
-| **V4-1**  | _Livré._ Sept onglets ; Structure et Énergie fondues, Vérifier → Études   | —         |
-| **V4-2**  | _Livré._ Sous-parties : une rangée, une seule ouverte, le métier suit     | V4-1      |
-| **V4-3**  | _Livré._ Header du plan : outils contre le dessin, `+`, bandeau flottant  | V4-2      |
-| **V4-4**  | _Livré._ Le registre des headers — §5 à §10 écrits en données             | V4-3      |
-| **V4-5**  | _Livré._ Inspecteur à la sélection, bouton devenu épingle                 | V4-3      |
-| **V4-6**  | Barre d'état : niveau, grille en mm, snap, ortho, cotes, échelle, curseur | V4-1      |
-| **V4-7**  | Face de référence au tracé, et cotes intérieures (manques 2 et 3)         | V4-4      |
-| **V4-8**  | Étiquettes de surface dans le plan, et « + Créer pièce » (manque 4)       | V4-4      |
-| **V4-9**  | `PROJET › Maison` : types de bâtiment et formes initiales (manque 5)      | V4-2      |
-| **V4-10** | Outil Mesurer, pans de toiture, pente visible (manques 1, 6, 7)           | V4-4      |
-| **V4-11** | `ÉTUDES › Vue d'ensemble` (§9.1)                                          | V4-2      |
-| **V4-12** | Natures d'extérieur et fusion de pièces (manques 8, 9, 10)                | V4-4      |
+| Lot       | Ce qu'il fait                                                            | Dépend de |
+| --------- | ------------------------------------------------------------------------ | --------- |
+| **V4-1**  | _Livré._ Sept onglets ; Structure et Énergie fondues, Vérifier → Études  | —         |
+| **V4-2**  | _Livré._ Sous-parties : une rangée, une seule ouverte, le métier suit    | V4-1      |
+| **V4-3**  | _Livré._ Header du plan : outils contre le dessin, `+`, bandeau flottant | V4-2      |
+| **V4-4**  | _Livré._ Le registre des headers — §5 à §10 écrits en données            | V4-3      |
+| **V4-5**  | _Livré._ Inspecteur à la sélection, bouton devenu épingle                | V4-3      |
+| **V4-6**  | _Livré._ Barre d'état : grille en cm, ortho, cotes, échelle, curseur     | V4-1      |
+| **V4-7**  | Face de référence au tracé, et cotes intérieures (manques 2 et 3)        | V4-4      |
+| **V4-8**  | Étiquettes de surface dans le plan, et « + Créer pièce » (manque 4)      | V4-4      |
+| **V4-9**  | `PROJET › Maison` : types de bâtiment et formes initiales (manque 5)     | V4-2      |
+| **V4-10** | Outil Mesurer, pans de toiture, pente visible (manques 1, 6, 7)          | V4-4      |
+| **V4-11** | `ÉTUDES › Vue d'ensemble` (§9.1)                                         | V4-2      |
+| **V4-12** | Natures d'extérieur et fusion de pièces (manques 8, 9, 10)               | V4-4      |
 
 Le manque 11 — la maison comme objet — n'est dans aucun lot : il se décide à
 part, parce qu'il touche le modèle et pas l'écran.

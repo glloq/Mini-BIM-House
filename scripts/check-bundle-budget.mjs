@@ -234,8 +234,13 @@ export const BUDGETS = {
    * savent poser — un bouton qui ne peut rien poser est une promesse, et une
    * maison de démonstration qui n'en tient aucune est une démonstration de
    * boutons absents.
+   *
+   * Et un avec la barre d'état du §1 : le pas de grille en centimètres,
+   * l'orthogonal sorti des réglages, le mode de cotation et l'échelle en
+   * rapport. Sept cellules qu'on lit sans arrêt valent mieux que cinq qu'il
+   * faut traduire.
    */
-  totalGzipBytes: 460 * 1024,
+  totalGzipBytes: 461 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */
