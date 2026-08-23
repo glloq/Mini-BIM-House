@@ -91,9 +91,28 @@ export function rawGenericAssemblyEntries(): readonly RawAssemblyEntry[] {
   return FILES.flatMap(({ assemblies }) => assemblies);
 }
 
-/** What the catalogue files themselves are: their shape has a version too. */
+/**
+ * What the catalogue files themselves are: their shape has a version too.
+ *
+ * 1.1.0 since the registry stopped being able to hold only stacks: an entry
+ * may now state a `form` and the `properties` that go with it, which is how a
+ * column says it has a section and a ridge says it has a length. Every 1.0.0
+ * entry is still a valid 1.1.0 entry — a build-up that says nothing about its
+ * form is layered, which is what all thirty-five of them were.
+ *
+ * Read from the files rather than written here, and every file has to agree:
+ * one that lagged behind would be read as the shape of all of them.
+ */
 export const GENERIC_ASSEMBLY_FORMAT_VERSION =
   FILES[0]?.formatVersion ?? '1.0.0';
+
+/** The files that do not state the version the rest of them state. */
+export function assembliesOutOfFormat(): readonly string[] {
+  return assemblyCatalogSources().filter(
+    (_, index) =>
+      FILES[index]?.formatVersion !== GENERIC_ASSEMBLY_FORMAT_VERSION,
+  );
+}
 
 /**
  * One build-up, as a project holds it.

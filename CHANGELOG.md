@@ -5,6 +5,88 @@ fichier `.houseproj` porte sa propre version, indépendante de celle de
 l'application : `schemaVersion` dit ce qu'un fichier contient, la version de
 l'application dit ce qui l'a écrit.
 
+## 0.4.0-beta.1 — non publiée
+
+**La maison de référence est faite de fiches, les quatre derniers écarts de
+contrat sont refermés, et les moteurs ont été interrogés un par un.** Les 527
+familles de la nomenclature portent toutes une fiche générique ; le métré
+compte enfin les planchers et la toiture. Format de fiche d'assemblage en
+1.1.0 — la première évolution délibérée depuis le gel.
+
+### Ajouté
+
+- **la maison de référence est faite du catalogue**, enveloppe comprise : vingt
+  fiches d'équipement, trois menuiseries, cinq compositions et les onze
+  matériaux dont elles sont faites, tous passés par les constructeurs que
+  l'interface appelle. Trente-trois objets posés au lieu de neuf.
+- **le cycle complet est un test de bout en bout** : créer un projet sur la page
+  de création, tracer, sauvegarder, fermer, rouvrir, modifier, recalculer,
+  exporter. Chaque étape était couverte seule ; aucune ne disait que ce qui
+  ressort du fichier est ce qui y est entré.
+- **vingt et une fiches** pour les familles que le registre des assemblages ne
+  savait pas décrire : treize éléments de structure et huit points singuliers de
+  toiture. Avec elles, **les 527 familles ont toutes une référence générique**.
+- **vingt et un mots** au vocabulaire des catégories d'équipement, pour les 201
+  familles qui répondaient `OTHER` — mobilier, vanne, raccord, prise de terre,
+  cheminement de câbles, compteur, électroménager, réseau de données…
+- **douze produits de conduit de fumée** — simple paroi et tubage flexible en
+  six diamètres — pour que le tronçon droit n'existe plus dans deux registres.
+- **`docs/ENGINE_AUDIT.md`** : ce que chaque moteur a été interrogé sur, et ce
+  qu'il a répondu, y compris ce qui n'est toujours pas compté et pourquoi.
+
+### Corrigé
+
+- **le métré comptait les murs et rien d'autre.** La dalle sur terre-plein, le
+  plancher intermédiaire et les deux pans de toiture n'atteignaient ni la
+  nomenclature, ni le coût, ni le carbone : le total ne disait pas qu'il lui
+  manquait la moitié du bâtiment, il donnait un chiffre.
+- **deux vocabulaires pour une idée.** Les adaptateurs demandent
+  `PHOTOVOLTAIC`, une fiche répond `PV_MODULE` : le jour où la maison a été
+  refaite depuis le catalogue, trois modules n'ont plus rien trouvé. Même chose
+  pour `installedPowerWp`/`peakPowerWp` et `ratedAcPowerW`/`nominalAcPowerW`.
+- **un groupe de ventilation double flux au-dessus d'un réseau simple flux.**
+  Les deux le disaient dans leur `systemType`, et personne ne les comparait.
+- **un lavabo se tenait deux mètres en dehors de la pièce qu'il déclarait.**
+  Rien ne le refusait : le comptage, la demande d'eau et le dessin lisent tous
+  `spaceId`, et seul le dessin aurait montré le désaccord.
+- **la zone chauffée ne rassemblait que le rez-de-chaussée**, alors que l'étage
+  a ses radiateurs.
+- **`labourPriceByEquipment` nommait des équipements disparus** : une table que
+  plus personne ne lisait, et que le module lisait toujours.
+- **les outils sortaient de leur colonne.** Un `<select>` listant ce que le
+  projet contient élargissait son groupe, et « Sèche-serviettes eau chaude » a
+  glissé la palette sous le dessin, où plus rien n'était cliquable.
+- **un scénario proposait « épaisseur de material-insulation ».** Le projet
+  connaît le nom du matériau.
+
+### Modifié
+
+- **Catalog Format 1.1.0 pour les assemblages.** Une fiche peut déclarer une
+  `form` — `LAYERED`, `PROFILED`, `LINEAR` — et les `properties` qui vont avec :
+  un poteau a une section, un faîtage une longueur. La forme est déduite de la
+  catégorie de la famille, jamais choisie par la fiche, et **un mur, une dalle
+  ou une toiture ne peuvent être faits que d'une fiche en couches** — sans quoi
+  un poteau écrit comme « une couche de béton de 0,20 m » serait lu par le
+  calcul thermique comme une paroi qui n'existe pas.
+- **dix-huit familles ont quitté le service** au lieu d'être supprimées, chacune
+  en disant ce qui la remplace et pourquoi. Le cycle de vie existait depuis
+  CAT-01 et rien ne le consultait ; le sélecteur et le navigateur le lisent
+  maintenant.
+- **trente familles renommées** parce qu'un mot de métier était partagé par deux
+  métiers : té d'eau et té de gaine, purgeur de distribution et purgeur de
+  chauffage, clapet anti-retour d'eau, d'évacuation et d'air.
+- **`ROOF_WINDOW` et `SKYLIGHT` quittent le registre des assemblages** pour
+  celui des menuiseries : leur contrat est celui d'une ouverture — Uw, facteur
+  solaire, vantail — et jamais celui d'une paroi.
+
+### Écarts de contrat
+
+**Les huit écrits dans [`docs/CONTRACT_GAPS.md`](docs/CONTRACT_GAPS.md) sont
+refermés.** Un neuvième est ouvert et assumé : `CG-09` — une ouverture n'a pour
+hôte qu'un mur, dans quarante-six endroits du code, si bien qu'une fenêtre de
+toit a sa fiche et ne peut pas être posée. C'est une extension du modèle
+géométrique, pas du format.
+
 ## 0.3.0-beta.13 — non publiée
 
 **Les six vagues de remplissage, et le catalogue branché sur le projet.** Le

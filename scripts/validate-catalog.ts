@@ -40,7 +40,11 @@ import {
   validateSchemas,
 } from '@house-technical-designer/catalog-registry';
 import { rawGenericMaterialEntries } from '@house-technical-designer/materials/catalog';
-import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies/catalog';
+import {
+  GENERIC_ASSEMBLY_FORMAT_VERSION,
+  assembliesOutOfFormat,
+  rawGenericAssemblyEntries,
+} from '@house-technical-designer/assemblies/catalog';
 import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
 
 const MANIFEST_PATH = 'packages/catalog-registry/data/manifest.json';
@@ -118,11 +122,21 @@ const sections: readonly Section[] = [
     title: 'Assemblages',
     counted: rawGenericAssemblyEntries().length,
     noun: 'compositions',
-    issues: validateAssemblyCatalog().map(({ entryId, path, message }) => ({
-      subject: entryId,
-      path,
-      message,
-    })),
+    issues: [
+      ...validateAssemblyCatalog().map(({ entryId, path, message }) => ({
+        subject: entryId,
+        path,
+        message,
+      })),
+      // The shape of these files has a version, and it is read from the first
+      // of them. One file lagging behind would be read as the shape of all of
+      // them, silently.
+      ...assembliesOutOfFormat().map((source) => ({
+        subject: source,
+        path: 'formatVersion',
+        message: `states a format version the other files do not: they say ${GENERIC_ASSEMBLY_FORMAT_VERSION}`,
+      })),
+    ],
   },
   {
     // The last of the seven registries to live in TypeScript, and the only one
