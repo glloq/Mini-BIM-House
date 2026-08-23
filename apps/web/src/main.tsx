@@ -164,6 +164,8 @@ import { TopBar } from './shell/TopBar.js';
 import { PrimaryRail } from './shell/PrimaryRail.js';
 import { ContextPanel } from './shell/ContextPanel.js';
 import { ShellStatusBar } from './shell/ShellStatusBar.js';
+import { ProjectMenu } from './shell/ProjectMenu.js';
+
 import {
   activeTab as activeTabOf,
   DEFAULT_SHELL_NAVIGATION,
@@ -202,6 +204,29 @@ import {
   transformObjectsCommand,
 } from './editor/editing-commands.js';
 import type { GeometryEdit } from './editor/grips.js';
+
+/**
+ * Le fichier, replié.
+ *
+ * Six boutons permanents pour six gestes qu'on fait une fois par séance ;
+ * l'ordre est celui d'une séance : on ouvre, on enregistre, on exporte.
+ */
+const PROJECT_MENU_ITEMS = [
+  { id: 'NEW', label: 'Nouveau projet' },
+  { id: 'OPEN', label: 'Ouvrir…' },
+  { id: 'DEMO', label: 'Maison de démonstration' },
+  {
+    id: 'SAVE',
+    label: 'Sauvegarder',
+    hint: 'Projet et jeux climatiques dans un seul fichier',
+  },
+  {
+    id: 'EXPORT_JSON',
+    label: 'Exporter le JSON',
+    hint: 'Le projet seul, en JSON lisible',
+  },
+  { id: 'EXPORT_SVG', label: 'Exporter le SVG' },
+] as const;
 
 /**
  * Workspaces loaded when they are opened.
@@ -752,7 +777,30 @@ function App() {
     [activeLevelId, runCommand],
   );
 
-  const columns = gridColumns(layout);
+  /**
+   * Un inspecteur qui n'a rien à dire ne réserve pas sa largeur.
+   *
+   * Deux cent quatre-vingts pixels tenus en permanence pour afficher
+   * « Sélectionnez un objet » : sur un portable, un sixième de la fenêtre pour
+   * une phrase. Au repos il ne prend rien.
+   *
+   * Le repli est **collant** : il vaut jusqu'à ce qu'on désigne un objet, et
+   * plus jamais après. Un panneau qui se rouvrirait à chaque sélection et se
+   * refermerait à chaque Échap ferait respirer la fenêtre — et la colonne
+   * qu'il rend au dessin, le dessin la rendrait aussitôt. On l'ouvre une fois
+   * ; ensuite c'est le bouton « Inspecteur » qui décide, et lui seul.
+   */
+  const inspectorHasSubject =
+    tab !== 'plan' ||
+    editor.selection.length > 0 ||
+    inspectedProperty !== undefined;
+  const [inspectorEngaged, setInspectorEngaged] = useState(false);
+  useEffect(() => {
+    if (inspectorHasSubject) setInspectorEngaged(true);
+  }, [inspectorHasSubject]);
+  const inspectorShown =
+    layout.inspectorShown && (inspectorEngaged || inspectorHasSubject);
+  const columns = gridColumns({ ...layout, inspectorShown });
 
   const changeLayout = useCallback((patch: Partial<WorkspaceLayout>): void => {
     setLayout((current) => {
@@ -2030,13 +2078,47 @@ function App() {
       </Suspense>
     );
 
+  /**
+   * Ce que le menu Projet déclenche, par identifiant.
+   *
+   * Le menu ne connaît que des libellés ; ce qu'ils font reste ici, où vivent
+   * déjà le fichier courant et l'historique.
+   */
+  const runProjectMenuAction = (id: string): void => {
+    if (id === 'NEW') replaceProject('Nouveau projet', () => setCreating(true));
+    else if (id === 'OPEN')
+      replaceProject('Ouvrir un projet', () => importInput.current?.click());
+    else if (id === 'DEMO')
+      replaceProject('Maison de démonstration', () => {
+        void (async () => {
+          const { demoClimateDatasets, loadDemoProject } = await demoProject();
+          const demo = loadDemoProject();
+          if (demo.status === 'ERROR') {
+            setMessage(demo.message);
+            return;
+          }
+          setClimate(demoClimateDatasets());
+          adopt(demo.file, 'Maison de démonstration chargée.');
+        })();
+      });
+    else if (id === 'SAVE') void saveContainer();
+    else if (id === 'EXPORT_JSON') saveProject();
+    else if (id === 'EXPORT_SVG') {
+      const artifact = exportProjectPlan(file, {
+        ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
+        layers: editor.layers,
+      });
+      download(artifact.content, artifact.fileName, artifact.mediaType);
+    }
+  };
+
   return (
     <AppShell
       columns={columns}
       contextPanelHidden={!layout.sidebarShown}
       drawerOpen={menuOpen}
       onCloseDrawer={() => setMenuOpen(false)}
-      inspectorHidden={!layout.inspectorShown}
+      inspectorHidden={!inspectorShown}
       topBar={
         <TopBar
           eyebrow="Mini BIM local-first"
@@ -2066,11 +2148,12 @@ function App() {
               <button
                 type="button"
                 className="secondary panel-toggle"
-                aria-pressed={layout.inspectorShown}
+                aria-pressed={inspectorShown}
                 title="Afficher ou masquer l’inspecteur"
-                onClick={() =>
-                  changeLayout({ inspectorShown: !layout.inspectorShown })
-                }
+                onClick={() => {
+                  setInspectorEngaged(true);
+                  changeLayout({ inspectorShown: !inspectorShown });
+                }}
               >
                 Inspecteur
               </button>
@@ -2081,74 +2164,17 @@ function App() {
                 Rétablir
               </button>
               <button
+                type="button"
                 className="secondary"
-                onClick={() =>
-                  replaceProject('Nouveau projet', () => setCreating(true))
-                }
+                title="Chercher un outil, une pièce, une commande (Ctrl+K)"
+                onClick={() => setPaletteOpen(true)}
               >
-                Nouveau projet
+                Rechercher
               </button>
-              <button
-                className="secondary"
-                onClick={() =>
-                  replaceProject('Ouvrir un projet', () =>
-                    importInput.current?.click(),
-                  )
-                }
-              >
-                Ouvrir
-              </button>
-              <button
-                className="secondary"
-                onClick={() =>
-                  replaceProject('Maison de démonstration', () => {
-                    void (async () => {
-                      const { demoClimateDatasets, loadDemoProject } =
-                        await demoProject();
-                      const demo = loadDemoProject();
-                      if (demo.status === 'ERROR') {
-                        setMessage(demo.message);
-                        return;
-                      }
-                      setClimate(demoClimateDatasets());
-                      adopt(demo.file, 'Maison de démonstration chargée.');
-                    })();
-                  })
-                }
-              >
-                Maison de démonstration
-              </button>
-              <button
-                className="secondary"
-                title="Projet et jeux climatiques dans un seul fichier"
-                onClick={() => void saveContainer()}
-              >
-                Sauvegarder
-              </button>
-              <button
-                className="secondary"
-                title="Le projet seul, en JSON lisible"
-                onClick={saveProject}
-              >
-                Exporter le JSON
-              </button>
-              <button
-                onClick={() => {
-                  const artifact = exportProjectPlan(file, {
-                    ...(activeLevelId === undefined
-                      ? {}
-                      : { levelId: activeLevelId }),
-                    layers: editor.layers,
-                  });
-                  download(
-                    artifact.content,
-                    artifact.fileName,
-                    artifact.mediaType,
-                  );
-                }}
-              >
-                Exporter SVG
-              </button>
+              <ProjectMenu
+                items={PROJECT_MENU_ITEMS}
+                onSelect={runProjectMenuAction}
+              />
               <input
                 ref={importInput}
                 hidden
@@ -2332,18 +2358,14 @@ function App() {
         <>
           {tab === 'plan' && (
             <section className="canvas-panel panel" id="plan">
-              <header className="panel-heading">
-                <div>
-                  <p className="panel-label">Vue active</p>
-                  <h2>
-                    Plan ·{' '}
-                    {levels.find(({ id }) => id === activeLevelId)?.name ??
-                      'aucun niveau'}
-                    {activeDomain !== undefined &&
-                      navigation.workspace === 'SYSTEMS' &&
-                      ` · ${designDomainLabel(activeDomain)}`}
-                  </h2>
-                </div>
+              <header className="panel-heading canvas-heading">
+                <h2>
+                  {levels.find(({ id }) => id === activeLevelId)?.name ??
+                    'aucun niveau'}
+                  {activeDomain !== undefined &&
+                    navigation.workspace === 'SYSTEMS' &&
+                    ` · ${designDomainLabel(activeDomain)}`}
+                </h2>
                 {(file.project.scenarios ?? []).length > 0 && (
                   <label className="canvas-mode">
                     Variante
@@ -2589,7 +2611,7 @@ function App() {
         </>
       }
       inspectorSeparator={
-        layout.inspectorShown ? (
+        inspectorShown ? (
           <PanelSeparator
             label="Redimensionner l’inspecteur"
             widthPx={layout.inspectorPx}

@@ -564,11 +564,43 @@ qu'elle-même.
 | UX-9  | Responsive                                     | P14         | contrat §10                 |
 | UX-10 | E2E par tâche, contrat v2                      | —           | critères 1, 2, 3, 18        |
 
-**UX-1 — Coque compacte.** `height: 100dvh`, `overflow: hidden`, chaque panneau
-défile chez lui ; barre supérieure sur une rangée ; en-tête de canvas supprimé ;
-barre d'état sur une rangée ; inspecteur qui se replie quand il n'a rien à dire.
-Aucun changement fonctionnel. _Livre aussi `scripts/measure-shell.mjs`, qui
-produit le tableau du §13 — les critères deviennent une commande._
+**UX-1 — Coque compacte.** _Livré._ `height: 100dvh`, `overflow: hidden`, chaque
+panneau défile chez lui ; barre supérieure sur une rangée, les six gestes de
+fichier repliés sous « Fichier ▾ » ; en-tête de canvas d'une rangée ; barre
+d'état d'une rangée, les sept réglages d'accrochage sous « Réglages » ;
+inspecteur qui ne réserve rien tant que rien n'a été désigné. Aucun changement
+fonctionnel : tout reste atteignable à la souris seule. Livre aussi
+`scripts/measure-shell.mjs`, qui produit le tableau du §13 — les critères
+deviennent une commande, branchée sur l'intégration continue.
+
+Mesuré avant / après, la maison de démonstration chargée :
+
+| Mesure                       | Avant     | Après    | Budget |
+| ---------------------------- | --------- | -------- | ------ |
+| Débordement sous la fenêtre  | 1 201 px  | **0**    | 0      |
+| Barre supérieure             | 102 / 144 | **44**   | 48     |
+| Chrome avant le premier plan | 292 / 335 | **131**  | 140    |
+| Plan visible (1600 × 900)    | 31 %      | **60 %** | —      |
+| Plan visible (1280 × 800)    | 26 %      | **54 %** | 50 %   |
+
+Les 70 % du §13.1 demandent le panneau gauche contextuel : cent quarante-trois
+boutons y attendent toujours, et c'est UX-3 qui les trie.
+
+Deux décisions que la mise en œuvre a imposées et que la spécification n'avait
+pas prévues :
+
+- **Le repli de l'inspecteur est collant.** Le §6 le dit continu — replié dès
+  que rien n'est sélectionné. Continu, il rouvrait à chaque sélection et
+  refermait à chaque Échap : la colonne rendue au dessin, le dessin la rendait
+  aussitôt, et le plan se rezoomait sous le pointeur qui venait de désigner un
+  mur — précisément ce que la règle 3 du §6 interdit. Il vaut donc jusqu'à la
+  première sélection, et plus jamais après. UX-7 met des propriétés de vue au
+  repos, après quoi la question ne se pose plus : l'inspecteur aura toujours
+  quelque chose à dire.
+- **Le menu s'appelle « Fichier », pas « Projet ».** Le §7.1 dit « Menu
+  **Projet** » ; mais `PrimaryRail` a déjà un espace « Projet », et deux choses
+  du même nom sont une chose de trop. Quand le rail disparaîtra (UX-2), le nom
+  restera juste : ce menu porte sur le fichier, pas sur le projet.
 
 **UX-2 — Étapes.** `ux/creation-stages.ts`, `StageBar`, étape active dans l'état
 de la coque, guide de progression compact et masquable branché sur

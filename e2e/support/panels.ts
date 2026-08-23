@@ -34,3 +34,19 @@ export async function hidePlacedComponents(page: Page): Promise<void> {
   const placed = page.getByRole('checkbox', { name: 'Équipements posés' });
   if (await placed.isChecked()) await placed.uncheck();
 }
+
+/**
+ * L'inspecteur, ouvert avant de mesurer le dessin.
+ *
+ * Tant que rien n'a jamais été désigné, l'inspecteur ne réserve pas ses 280 px
+ * — c'est le repli automatique de UX-1. Il s'ouvre à la première sélection, et
+ * le canvas rétrécit d'autant : un test qui relève une position dans le plan,
+ * clique, puis reclique au même endroit cliquerait deux fois sur deux dessins
+ * différents. L'ouvrir d'abord fige la mise en page, comme le ferait quelqu'un
+ * qui veut voir les propriétés sous les yeux avant de choisir un objet.
+ */
+export async function openInspector(page: Page): Promise<void> {
+  const toggle = page.getByRole('button', { name: 'Inspecteur', exact: true });
+  if ((await toggle.getAttribute('aria-pressed')) === 'true') return;
+  await toggle.click();
+}

@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import { fileAction } from './support/file-menu.js';
+
 import { openDestination } from './support/navigation.js';
 
 /**
@@ -56,7 +58,7 @@ test('scrolls a wide table instead of overflowing the screen', async ({
   page,
 }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Maison de démonstration' }).click();
+  await fileAction(page, 'Maison de démonstration');
   await openDestination(page, 'Quantités');
   const scroller = page.locator('.table-scroll').first();
   await expect(scroller).toBeVisible();

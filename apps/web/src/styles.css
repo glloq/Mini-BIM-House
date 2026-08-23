@@ -65,16 +65,129 @@ button.secondary {
  * background instead of plan. What limits the drawing now is the panels beside
  * it, and their width is the user's decision.
  */
+/*
+ * La coque tient dans la fenêtre.
+ *
+ * Rien ne le disait : chaque panneau prenait la hauteur de son contenu — 1 891
+ * px pour la colonne de gauche — et la page défilait de 1 200 px sous la ligne
+ * de flottaison. Le plan mesurait 1 356 px de haut dans une fenêtre de 900 : on
+ * ne voyait pas le dessin entier sans faire défiler le document, ce qu'aucun
+ * logiciel de dessin ne demande. Ici la coque est haute comme la fenêtre, et ce
+ * sont les panneaux qui défilent chez eux.
+ */
 .workspace {
-  width: calc(100% - 2rem);
-  margin: auto;
-  padding: 1.25rem 0 2rem;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
+.shell-body {
+  min-height: 0;
+  flex: 1;
+}
+.workspace-grid {
+  min-height: 0;
+  height: 100%;
+}
+/* Un panneau défile chez lui plutôt que d'allonger la page. */
+.sidebar,
+.inspector,
+.canvas-panel {
+  min-height: 0;
+}
+.sidebar,
+.inspector {
+  overflow-y: auto;
+}
+/*
+ * Rien ne se pose au-dessus de rien.
+ *
+ * Les marges basses des en-têtes s'additionnaient à celles des panneaux :
+ * 292 px de chrome au-dessus du dessin, dont une bonne moitié en vide.
+ */
 .app-header,
-.actions,
-.panel-heading,
+.app-header .actions,
+.canvas-panel > .panel-heading {
+  margin-bottom: 0;
+}
+/*
+ * Une rangée, et une seule.
+ *
+ * Le titre était réglé en clamp(1.5rem, 3vw, 2.25rem) au-dessus de onze
+ * boutons qui passaient à la ligne : 102 px sur un écran de bureau, 144 sur un
+ * portable, pour dire un nom que personne ne relit. Ce qui ne tient pas sur la
+ * rangée descend dans le menu « Projet » — jamais sur une deuxième rangée.
+ */
 .app-header {
-  margin-bottom: 1rem;
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 0.75rem;
+  border-bottom: 1px solid #dce4df;
+  gap: 0.75rem;
+}
+.app-header .eyebrow {
+  display: none;
+}
+.app-header h1 {
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.app-header > .actions {
+  display: flex;
+  min-width: 0;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin-left: auto;
+  gap: 0.3rem;
+  overflow-x: auto;
+}
+.app-header > .actions button {
+  padding: 0.28rem 0.6rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+/*
+ * Le menu du fichier.
+ *
+ * Il s'ouvre sous son bouton et se referme dès qu'on regarde ailleurs : un
+ * menu qu'il faut penser à fermer est un panneau déguisé.
+ */
+.project-menu {
+  position: relative;
+  display: inline-flex;
+}
+.project-menu-list {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.3rem);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 14rem;
+  padding: 0.25rem;
+  gap: 0.1rem;
+  box-shadow: 0 12px 28px rgba(20, 40, 32, 0.18);
+}
+.project-menu-list button {
+  justify-content: flex-start;
+  padding: 0.35rem 0.55rem;
+  border: none;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  white-space: nowrap;
+}
+.project-menu-list button:hover,
+.project-menu-list button:focus-visible {
+  background: #eef4f0;
 }
 h1,
 h2,
@@ -107,7 +220,7 @@ h2 {
     220px 6px minmax(0, 1fr) 6px 280px
   );
   gap: 0.5rem;
-  min-height: 680px;
+  padding: 0 0.5rem 0.5rem;
 }
 /*
  * The edge between a panel and the drawing.
@@ -183,6 +296,36 @@ h2 {
 .canvas-panel header {
   padding: 1rem 1.2rem;
   border-bottom: 1px solid #dce4df;
+}
+/*
+ * L'en-tête du dessin : une rangée.
+ *
+ * « Vue active » au-dessus de « Plan · Rez-de-chaussée » prenait 140 px pour
+ * répéter le nom de l'onglet ouvert. Le niveau se lit, la variante et la
+ * visibilité s'atteignent : le reste était de la décoration.
+ */
+.canvas-panel > .canvas-heading {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  gap: 0.6rem;
+}
+.canvas-panel > .canvas-heading h2 {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.canvas-panel > .canvas-heading > .visibility-anchor {
+  margin-left: auto;
+}
+.canvas-panel > .canvas-heading button {
+  padding: 0.24rem 0.55rem;
+  font-size: 0.78rem;
 }
 .scale-chip {
   padding: 0.45rem 0.7rem;
@@ -783,7 +926,10 @@ button.icon {
 /* Plan canvas: the semantic scene rendered by the drawing engine. */
 .plan-canvas {
   position: relative;
-  min-height: 460px;
+  /* Le plan prend ce qui reste de la colonne, et jamais moins que de quoi
+     dessiner : c'est lui qui donne sa hauteur à la coque, pas l'inverse. */
+  flex: 1;
+  min-height: 240px;
   overflow: hidden;
   border: 1px solid #d7e0da;
   border-radius: 0.9rem;
@@ -1495,16 +1641,43 @@ legend {
  */
 .status-bar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.35rem 0.9rem;
   align-items: center;
-  margin-top: 0.6rem;
-  padding: 0.45rem 0.7rem;
+  margin-top: 0.3rem;
+  padding: 0.25rem 0.6rem;
   border: 1px solid #e0e8e4;
   border-radius: 0.6rem;
   background: rgba(255, 255, 255, 0.75);
   color: #41544a;
   font-size: 0.76rem;
+  overflow-x: auto;
+}
+/* Les réglages d'accrochage s'ouvrent au-dessus de la barre, pas dedans. */
+.status-snaps {
+  position: relative;
+}
+.status-snaps > summary {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.status-snaps-list {
+  position: absolute;
+  z-index: 40;
+  bottom: calc(100% + 0.35rem);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 12rem;
+  padding: 0.5rem 0.6rem;
+  gap: 0.3rem;
+  box-shadow: 0 12px 28px rgba(20, 40, 32, 0.18);
+}
+.status-snaps-list .status-number {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
 }
 .status-cell {
   display: inline-flex;

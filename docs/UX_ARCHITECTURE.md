@@ -165,6 +165,29 @@ travaillés — et chacune reste modifiable ensuite.
 Les panneaux sont redimensionnables et repliables ; un double-clic sur un
 séparateur rétablit la largeur par défaut.
 
+**La coque tient dans la fenêtre.** `.workspace` fait `100dvh` et ne défile
+pas : ce sont les panneaux qui défilent chez eux. La page mesurait 2 101 px
+pour une fenêtre de 900, et le plan ne se voyait pas en entier sans faire
+défiler le document. `scripts/measure-shell.mjs` mesure ce que la coque coûte à
+l'écran et `npm run measure:shell -- --check` refuse qu'elle regrossisse ; les
+budgets sont dans `SHELL_BUDGETS`, et chaque resserrement dit pourquoi.
+
+**Ce qu'on fait au fichier est un menu, pas six boutons.** Nouveau, ouvrir, la
+maison de démonstration, sauvegarder et les deux exports vivent sous
+« Fichier ▾ » (`shell/ProjectMenu.tsx`). Ils restent atteignables à la souris
+seule ; la barre supérieure tient sur une rangée, jamais deux.
+
+**Aucune zone ne réserve de place pour rien.** L'inspecteur ne prend ses
+280 px qu'à partir du moment où quelque chose est désigné ; tant que rien ne
+l'a jamais été, il vaut zéro pixel et le dessin a la largeur. Le repli est
+collant : il vaut jusqu'à la première sélection et plus jamais après, sinon la
+fenêtre respirerait à chaque Échap. Ensuite c'est le bouton « Inspecteur » qui
+décide, et lui seul.
+
+Les sept réglages d'accrochage de la barre d'état (cinq cases, le pas de
+grille, le pas angulaire) sont repliés sous « Réglages » : on les règle une
+fois, et ils faisaient passer la barre à deux rangées.
+
 Trois niveaux de densité seulement — Navigation, Groupe, Action. Pas
 d'imbrication plus profonde. Une recherche apparaît dès qu'une catégorie dépasse
 une dizaine d'entrées.

@@ -1,9 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
+import { fileAction } from './support/file-menu.js';
+
 import { openDestination } from './support/navigation.js';
 import {
   hidePlacedComponents,
+  openInspector,
   openLayerEditor,
   openModelTree,
 } from './support/panels.js';
@@ -27,7 +30,7 @@ function watchConsole(page: Page): string[] {
 
 async function loadDemo(page: Page): Promise<void> {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Maison de démonstration' }).click();
+  await fileAction(page, 'Maison de démonstration');
   await expect(page.getByRole('status')).toContainText('démonstration');
 }
 
@@ -241,7 +244,7 @@ test('compares a scenario against the project', async ({ page }) => {
 test('saves the project and reloads it unchanged', async ({ page }) => {
   await loadDemo(page);
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await fileAction(page, 'Sauvegarder');
   const file = await download;
   const path = await file.path();
   expect(path).not.toBeNull();
@@ -264,7 +267,7 @@ test('carries the climate with the project in one file', async ({ page }) => {
   );
 
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await fileAction(page, 'Sauvegarder');
   const saved = await (await download).path();
   await expect(page.getByRole('status')).toContainText('.houseproj');
   await expect(page.getByRole('status')).toContainText('climatiques');
@@ -490,7 +493,7 @@ test('sizes a duct and a terminal from the network inspector', async ({
 
   // What was typed is what the file carries.
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
+  await fileAction(page, 'Exporter le JSON');
   const saved = JSON.parse(
     await readFile(await (await download).path(), 'utf8'),
   ) as {
@@ -643,7 +646,7 @@ test('measures between two wall corners and keeps the cote in the project', asyn
 
   // A dimension is a project fact: it survives a save and a reload.
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await fileAction(page, 'Sauvegarder');
   const file = await download;
   await page.reload();
   await page.setInputFiles('input[type="file"]', await file.path());
@@ -658,7 +661,7 @@ test('exports the plan it draws, not a simplified redrawing of it', async ({
   await loadDemo(page);
   const exportSvg = async (): Promise<string> => {
     const download = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Exporter SVG' }).click();
+    await fileAction(page, 'Exporter le SVG');
     const file = await download;
     expect(file.suggestedFilename()).toContain('rez-de-chaussee');
     return readFile(await file.path(), 'utf8');
@@ -697,6 +700,10 @@ test('creates a partition as a partition, not as an exterior wall', async ({
   page,
 }) => {
   await loadDemo(page);
+  // La maison de référence est équipée : la pompe à chaleur se dessine
+  // par-dessus la cloison qu'on vient de tracer, et c'est elle que le clic
+  // prendrait.
+  await hidePlacedComponents(page);
   await chooseTool(page, 'Mur');
   // Choosing a partition assembly proposes the matching role rather than
   // leaving every drawn wall in the thermal envelope.
@@ -704,12 +711,30 @@ test('creates a partition as a partition, not as an exterior wall', async ({
   await expect(page.getByLabel('Rôle')).toHaveValue('PARTITION');
 
   const canvas = page.locator('.plan-canvas');
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  const wallIds = async (): Promise<readonly string[]> =>
+    walls.evaluateAll((nodes) =>
+      nodes.map((node) => node.getAttribute('id') ?? ''),
+    );
+  const before = await wallIds();
   await canvas.click({ position: { x: 120, y: 380 } });
   await canvas.click({ position: { x: 420, y: 380 } });
   await expect(page.getByRole('status')).toContainText('Ajouter un mur');
 
+  // Où cliquer se lit sur le mur tel qu'il a été dessiné : combien de pixels
+  // prend un mètre dépend de la taille du canvas, qui est une décision de mise
+  // en page et non un fait du mur.
   await chooseTool(page, 'Sélection');
-  await canvas.click({ position: { x: 270, y: 380 } });
+  const drawn = (await wallIds()).find((id) => !before.includes(id));
+  expect(drawn).toBeDefined();
+  const shape = (await page.locator(`[id="${drawn!}"]`).boundingBox())!;
+  const frame = (await canvas.boundingBox())!;
+  await canvas.click({
+    position: {
+      x: shape.x - frame.x + shape.width / 2,
+      y: shape.y - frame.y + shape.height / 2,
+    },
+  });
   await expect(page.locator('.inspector-subject')).toContainText('PARTITION');
 });
 
@@ -897,6 +922,8 @@ test('reaches tools, workspaces and objects from the command palette', async ({
 test('carries a selection across the plan by dragging it', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  // La mise en page se fige avant qu'on relève une position dans le plan.
+  await openInspector(page);
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   const frame = (await canvas.boundingBox())!;
@@ -961,25 +988,34 @@ test('remembers how wide the panels were made', async ({ page }) => {
     .toBeGreaterThan(before);
   const widened = (await sidebar.boundingBox())!.width;
 
-  // Hiding the inspector gives the drawing its width.
+  // Rien n'est sélectionné : l'inspecteur s'est replié tout seul et a rendu sa
+  // largeur au dessin. Le bouton « Inspecteur » l'épingle ouvert pour qui veut
+  // l'avoir sous les yeux d'abord.
   const canvas = page.locator('.canvas-panel');
-  const plan = (await canvas.boundingBox())!.width;
-  await page.getByRole('button', { name: 'Inspecteur', exact: true }).click();
   await expect(page.locator('#inventory')).toBeHidden();
+  const plan = (await canvas.boundingBox())!.width;
+  const inspectorToggle = page.getByRole('button', {
+    name: 'Inspecteur',
+    exact: true,
+  });
+  await inspectorToggle.click();
+  await expect(page.locator('#inventory')).toBeVisible();
   await expect
     .poll(async () => (await canvas.boundingBox())!.width)
-    .toBeGreaterThan(plan);
+    .toBeLessThan(plan);
 
-  // Both decisions survive a reload: they are preferences of the person, kept
-  // in the browser and never in the project.
+  // Le refermer est une préférence : elle survit au rechargement, comme la
+  // largeur du panneau gauche. Elle est dans le navigateur, jamais dans le
+  // projet.
+  await inspectorToggle.click();
+  await expect(page.locator('#inventory')).toBeHidden();
+
   await page.reload();
-  await expect(
-    page.getByRole('button', { name: 'Maison de démonstration' }),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Fichier' })).toBeVisible();
   await expect(page.locator('#inventory')).toBeHidden();
   expect((await sidebar.boundingBox())!.width).toBeCloseTo(widened, 0);
 
-  await page.getByRole('button', { name: 'Inspecteur', exact: true }).click();
+  await inspectorToggle.click();
   await expect(page.locator('#inventory')).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -1435,7 +1471,7 @@ test('chooses which contour a slab is built from', async ({ page }) => {
   // The saved project is the proof: the slab carries the polygon of the
   // contour that was chosen, not of the first one detected.
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
+  await fileAction(page, 'Exporter le JSON');
   const saved = JSON.parse(
     await readFile(await (await download).path(), 'utf8'),
   ) as {
@@ -1471,7 +1507,7 @@ test('asks before replacing a project that has unexported changes', async ({
   await canvas.click({ position: { x: 420, y: 380 } });
   await expect(page.locator('.save-state')).not.toHaveText('Enregistré');
 
-  await page.getByRole('button', { name: 'Nouveau projet' }).click();
+  await fileAction(page, 'Nouveau projet');
   const prompt = page.getByRole('alertdialog');
   await expect(prompt).toContainText('n’ont pas été exportées');
   // Cancelling keeps the work.
@@ -1480,7 +1516,7 @@ test('asks before replacing a project that has unexported changes', async ({
     7,
   );
 
-  await page.getByRole('button', { name: 'Nouveau projet' }).click();
+  await fileAction(page, 'Nouveau projet');
   await page
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Continuer sans exporter' })
@@ -1503,7 +1539,7 @@ test('refuses to write a container without the climate the project names', async
   );
   await expect(page.getByRole('status')).toContainText('chargé et validé');
 
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await fileAction(page, 'Sauvegarder');
   const refusal = page.getByRole('alertdialog');
   await expect(refusal).toContainText('reference-temperate');
   await expect(refusal).toContainText('Importez ce jeu de données');
@@ -1520,7 +1556,7 @@ test('refuses to write a container without the climate the project names', async
 test('creates a project on a page, storey by storey', async ({ page }) => {
   const errors = watchConsole(page);
   await page.goto('/');
-  await page.getByRole('button', { name: 'Nouveau projet' }).click();
+  await fileAction(page, 'Nouveau projet');
   const creation = page.getByRole('main', { name: 'De quoi s’agit-il ?' });
   await expect(creation).toBeVisible();
   // A page, not a modal: nothing of the application is left half-usable behind
@@ -1580,7 +1616,7 @@ test('creates, saves, closes, reopens, changes, recomputes and exports', async (
 
   // Créer — a house of its own, not the demonstration one.
   await page.goto('/');
-  await page.getByRole('button', { name: 'Nouveau projet' }).click();
+  await fileAction(page, 'Nouveau projet');
   const creation = page.getByRole('main', { name: 'De quoi s’agit-il ?' });
   await creation.getByLabel('Nom du projet').fill('Maison du cycle');
   await creation.getByRole('button', { name: 'Le bâtiment' }).click();
@@ -1604,7 +1640,7 @@ test('creates, saves, closes, reopens, changes, recomputes and exports', async (
 
   // Sauvegarder — the container the application writes.
   const first = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await fileAction(page, 'Sauvegarder');
   const saved = await (await first).path();
   expect(saved).not.toBeNull();
   await expect(page.getByRole('status')).toContainText('.houseproj');
@@ -1734,7 +1770,7 @@ test('narrows the design scope without losing anything', async ({ page }) => {
 test('draws the starting footprint with ordinary walls', async ({ page }) => {
   const errors = watchConsole(page);
   await page.goto('/');
-  await page.getByRole('button', { name: 'Nouveau projet' }).click();
+  await fileAction(page, 'Nouveau projet');
   const creation = page.getByRole('main', { name: 'De quoi s’agit-il ?' });
   // « Page blanche » lands on the plan with nothing in the way; « être
   // guidé » lands in Projet with the guide open. The mode decides what
@@ -1863,7 +1899,7 @@ test('names the project, its site and its calculation settings', async ({
 
   // The saved project carries all three.
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
+  await fileAction(page, 'Exporter le JSON');
   const saved = JSON.parse(
     await readFile(await (await download).path(), 'utf8'),
   ) as {
@@ -1898,7 +1934,7 @@ test('chooses the octave bands the acoustic study covers', async ({ page }) => {
   );
 
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
+  await fileAction(page, 'Exporter le JSON');
   const saved = JSON.parse(
     await readFile(await (await download).path(), 'utf8'),
   ) as {
@@ -1919,7 +1955,7 @@ test('chooses the octave bands the acoustic study covers', async ({ page }) => {
   await bands.getByRole('checkbox', { name: '500 Hz' }).uncheck();
   await bands.getByRole('checkbox', { name: '1000 Hz' }).uncheck();
   const second = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Exporter le JSON' }).click();
+  await fileAction(page, 'Exporter le JSON');
   const cleared = JSON.parse(
     await readFile(await (await second).path(), 'utf8'),
   ) as {
@@ -2573,7 +2609,7 @@ test('an emptied equipment field is gone after a save and a reload', async ({
   await expect(page.getByLabel('Pertes à l’arrêt')).toHaveCount(0);
 
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await fileAction(page, 'Sauvegarder');
   const saved = await (await download).path();
   expect(saved).not.toBeNull();
 
@@ -2602,6 +2638,8 @@ test('acts on an object from a menu opened where the object is', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  // La mise en page se fige avant qu'on relève une position dans le plan.
+  await openInspector(page);
   await hidePlacedComponents(page);
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
@@ -2661,6 +2699,8 @@ test('offers the objects stacked under one point, one after the other', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  // La mise en page se fige avant qu'on relève une position dans le plan.
+  await openInspector(page);
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   const box = (await canvas.boundingBox())!;
@@ -2700,6 +2740,8 @@ test('offers the objects stacked under one point, one after the other', async ({
 test('restricts what a click may take to one family', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  // La mise en page se fige avant qu'on relève une position dans le plan.
+  await openInspector(page);
   const canvas = page.locator('.plan-canvas');
   const filter = page.getByLabel('Filtrer sur');
   await expect(filter).toHaveValue('ALL');
