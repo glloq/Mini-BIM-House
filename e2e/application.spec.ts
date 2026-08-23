@@ -142,9 +142,14 @@ test('draws the reference house with real walls, openings and rooms', async ({
   await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
     6,
   );
+  // Trois ouvertures, et ce qu'il faut pour les lire : la porte donne sa
+  // réservation, son vantail et son arc ; chaque fenêtre donne sa réservation,
+  // son dormant et son vitrage. Une fenêtre était un trait tiré en travers de
+  // la maçonnerie, sans le dormant qui la rend posée dans le trou.
   await expect(
     page.locator('[data-layer="architecture.openings"] > *'),
-  ).toHaveCount(7);
+  ).toHaveCount(9);
+  await expect(page.locator('[data-role="OPENING_REVEAL"]')).toHaveCount(3);
   await expect(
     page.locator('[data-layer="architecture.spaces"] > *'),
   ).toHaveCount(4);
@@ -660,12 +665,14 @@ test('exports the plan it draws, not a simplified redrawing of it', async ({
   };
 
   const architecture = await exportSvg();
-  // The layered walls, the cut openings and the rooms are all in the file,
-  // and the sheet names its scale.
-  expect(architecture).toContain('architecture.wall-layers');
+  // The cut openings and the rooms are all in the file, and the sheet names
+  // its scale.
   expect(architecture).toContain('architecture.openings');
   expect(architecture).toContain('architecture.spaces');
   expect(architecture).toContain('1:50');
+  // Le plan d'architecte montre un mur, pas sa composition : trois bandes de
+  // couleur dans chaque mur enterrent ce que ce dessin existe pour montrer.
+  expect(architecture).not.toContain('architecture.wall-layers');
   // An exported drawing carries no interaction state.
   expect(architecture).not.toContain('data-state');
   // The architecture view does not draw the plumbing, and neither does its
@@ -674,6 +681,13 @@ test('exports the plan it draws, not a simplified redrawing of it', async ({
 
   await openLayerEditor(page);
 
+  // Un modèle, deux dessins, un interrupteur de calque : la composition du mur
+  // est le sujet de la vue « Matériaux ».
+  await page.getByLabel('Vue disciplinaire').selectOption('materials');
+  const materials = await exportSvg();
+  expect(materials).toContain('architecture.wall-layers');
+
+  await openLayerEditor(page);
   await page.getByLabel('Vue disciplinaire').selectOption('plumbing');
   const plumbing = await exportSvg();
   expect(plumbing).toContain('water.pipes');
