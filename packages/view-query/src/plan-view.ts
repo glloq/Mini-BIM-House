@@ -42,7 +42,11 @@ import type {
   Point2D,
   Polygon2D,
 } from '@house-technical-designer/geometry';
-import { offsetPolyline } from '@house-technical-designer/geometry';
+import {
+  boundingBox2D,
+  interiorLabelPoint,
+  offsetPolyline,
+} from '@house-technical-designer/geometry';
 import {
   defaultVisibility,
   visibleDisciplines,
@@ -574,9 +578,28 @@ function measuredEnd(
   return point;
 }
 
+/**
+ * The paper the room's name and its area take, at any scale.
+ *
+ * The engine draws in paper millimetres, so a room that is too small for two
+ * lines at 1:100 is too small for two lines, full stop — the decision is made
+ * once, here, and holds for every scale the same drawing goes out at.
+ */
+const LABEL_NAME_PAPER_MM = 2.8;
+const LABEL_AREA_PAPER_MM = 2.1;
+/** Baseline to baseline, name to area. */
+const LABEL_LINE_PAPER_MM = 3.4;
+/** Average advance of a sans-serif glyph, as a fraction of its size. */
+const LABEL_GLYPH_RATIO = 0.58;
+
+function labelWidthPaperMm(text: string, sizePaperMm: number): number {
+  return text.length * sizePaperMm * LABEL_GLYPH_RATIO;
+}
+
 function spacePrimitives(
   space: Space,
   level: Level,
+  scale: number,
 ): readonly PrimitiveDraft[] {
   // The project's one answer about a room's outline: stated, or worked out
   // from the walls that enclose it. The plan used to read `manualPolygon` and
@@ -586,8 +609,8 @@ function spacePrimitives(
   if (polygon === undefined || resolved.floorAreaM2 === undefined) return [];
   const areaM2 = resolved.floorAreaM2;
   const heightM = level.defaultStoreyHeightMm / 1000;
-  const anchor = centroid(polygon);
-  return [
+  const graphicCategory = spaceGraphicCategory(space.category);
+  const drafts: PrimitiveDraft[] = [
     {
       id: `space:${space.id}`,
       sourceObjectId: space.id,
@@ -602,27 +625,83 @@ function spacePrimitives(
         // The model's own word for the use, and the canonical one a charter
         // can style: « CHAMBRE », « Bedroom » and « SLEEPING » are one colour
         // on a plan, and the plan must not be the place that learns it.
-        graphicCategory: spaceGraphicCategory(space.category),
+        graphicCategory,
         areaM2: Number(areaM2.toFixed(2)),
         volumeM3: Number((areaM2 * heightM).toFixed(2)),
         heightM,
       },
     },
-    {
-      id: `space-label:${space.id}`,
-      sourceObjectId: space.id,
-      semanticRole: 'ANNOTATION',
-      geometry: {
-        kind: 'TEXT',
-        anchor,
-        text: `${space.name}\n${areaM2.toFixed(2)} m²`,
-      },
-      layer: 'architecture.space-labels',
-      zIndex: 60,
-      discipline: 'ARCHITECTURE',
-      metadata: { name: space.name, areaM2: Number(areaM2.toFixed(2)) },
-    },
   ];
+
+  // Where the name goes: the point furthest from the walls, not the average of
+  // the outline's corners — which is inside a rectangle and outside an L.
+  const placement = interiorLabelPoint(polygon);
+  const box = boundingBox2D(polygon.outer);
+  if (box === undefined) return drafts;
+  const anchor = placement?.point ?? centroid(polygon);
+  const reach =
+    placement?.clearance ??
+    Math.min(box.max.x - box.min.x, box.max.y - box.min.y) / 2;
+  // Width across the room at the anchor, height from the inscribed circle: a
+  // corridor holds its name on one line and has no room to stack a second.
+  const availableWidthPaperMm =
+    (placement?.horizontalSpan ?? box.max.x - box.min.x) / scale;
+  const availableHeightPaperMm = (reach * 2) / scale;
+
+  const areaText = `${areaM2.toFixed(2)} m²`;
+  const nameWidthPaperMm = labelWidthPaperMm(space.name, LABEL_NAME_PAPER_MM);
+  const areaWidthPaperMm = labelWidthPaperMm(areaText, LABEL_AREA_PAPER_MM);
+  const fitsName =
+    availableHeightPaperMm >= LABEL_NAME_PAPER_MM &&
+    availableWidthPaperMm >= nameWidthPaperMm;
+  // A cupboard gets its name or nothing; a name that spills into the room next
+  // door is worse than a room left unnamed.
+  if (!fitsName) return drafts;
+  const fitsArea =
+    availableHeightPaperMm >= LABEL_LINE_PAPER_MM + LABEL_AREA_PAPER_MM &&
+    availableWidthPaperMm >= areaWidthPaperMm;
+
+  const baseline = (offsetPaperMm: number): Point2D => ({
+    x: anchor.x,
+    y: anchor.y + offsetPaperMm * scale,
+  });
+  drafts.push({
+    id: `space-label-name:${space.id}`,
+    sourceObjectId: space.id,
+    semanticRole: 'ANNOTATION',
+    geometry: {
+      kind: 'TEXT',
+      anchor: baseline(fitsArea ? -1 : 1),
+      text: space.name,
+    },
+    layer: 'architecture.space-labels',
+    zIndex: 60,
+    discipline: 'ARCHITECTURE',
+    metadata: { labelPart: 'NAME', name: space.name, graphicCategory },
+  });
+  if (!fitsArea) return drafts;
+  // Two primitives rather than one text holding a newline: SVG draws no line
+  // break, and « CH 1 » and « 9.72 m² » are two levels of one annotation, not
+  // one string in one size.
+  drafts.push({
+    id: `space-label-area:${space.id}`,
+    sourceObjectId: space.id,
+    semanticRole: 'ANNOTATION',
+    geometry: {
+      kind: 'TEXT',
+      anchor: baseline(LABEL_LINE_PAPER_MM - 1),
+      text: areaText,
+    },
+    layer: 'architecture.space-labels',
+    zIndex: 60,
+    discipline: 'ARCHITECTURE',
+    metadata: {
+      labelPart: 'AREA',
+      areaM2: Number(areaM2.toFixed(2)),
+      graphicCategory,
+    },
+  });
+  return drafts;
 }
 
 const NETWORK_LAYERS: Readonly<
@@ -1422,7 +1501,9 @@ export function buildPlanView(
       );
     }
     for (const space of level.spaces)
-      drafts.push(...spacePrimitives(space, level));
+      drafts.push(
+        ...spacePrimitives(space, level, options.scale ?? DEFAULT_SCALE),
+      );
     for (const annotation of level.annotations)
       if (isDimension(annotation))
         drafts.push(...dimensionPrimitives(annotation, level, issues));

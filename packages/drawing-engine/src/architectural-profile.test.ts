@@ -140,6 +140,34 @@ describe('the clean architectural charter', () => {
     expect(ARCHITECTURAL_CLEAN_SCREEN.styles.tokens.symbol?.fill).toBe('none');
   });
 
+  it('sets a room name and its area in two levels, not one', () => {
+    const profile = ARCHITECTURAL_CLEAN_SCREEN.profile;
+    const label = (labelPart: string): Drawn => ({
+      semanticRole: 'ANNOTATION',
+      layer: 'architecture.space-labels',
+      metadata: { labelPart },
+    });
+    expect(resolveGraphicToken(profile, label('NAME'))).toBe(
+      'space-label-name',
+    );
+    expect(resolveGraphicToken(profile, label('AREA'))).toBe(
+      'space-label-area',
+    );
+    const name = ARCHITECTURAL_CLEAN_SCREEN.styles.tokens['space-label-name']!;
+    const area = ARCHITECTURAL_CLEAN_SCREEN.styles.tokens['space-label-area']!;
+    expect(name.fontSizePaperMm!).toBeGreaterThan(area.fontSizePaperMm!);
+    expect(name.fontWeight).toBe(600);
+    expect(name.textAnchor).toBe('middle');
+    expect(area.textAnchor).toBe('middle');
+    // A note that is not a room label keeps the plain annotation style.
+    expect(
+      resolveGraphicToken(profile, {
+        semanticRole: 'ANNOTATION',
+        layer: 'annotation.notes',
+      }),
+    ).toBe('annotation');
+  });
+
   it('tells a window pane from the wall it sits in', () => {
     expect(
       resolveGraphicToken(ARCHITECTURAL_CLEAN_SCREEN.profile, {

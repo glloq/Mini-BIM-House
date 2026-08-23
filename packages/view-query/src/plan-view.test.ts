@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
 import { entityId } from '@house-technical-designer/core-domain';
 import type { ScenePrimitive } from '@house-technical-designer/drawing-engine';
+import { polygonContains } from '@house-technical-designer/geometry';
 import { buildPlanView, previewWallFaces } from './plan-view.js';
 import {
   LAYER_PRESETS,
@@ -12,6 +13,48 @@ import {
 } from './layers.js';
 
 const levelId = entityId<'Level'>('ground');
+
+/** The fixture's one room, given another outline. */
+function withRoomOutline(
+  base: Project,
+  outer: readonly { readonly x: number; readonly y: number }[],
+): Project {
+  const level = base.building.levels[0]!;
+  return {
+    ...base,
+    building: {
+      ...base.building,
+      levels: [
+        {
+          ...level,
+          spaces: level.spaces.map((space) => ({
+            ...space,
+            boundaryMode: 'MANUAL' as const,
+            manualPolygon: { outer: [...outer] },
+          })),
+        },
+      ],
+    },
+  };
+}
+
+const withLShapedRoom = (base: Project): Project =>
+  withRoomOutline(base, [
+    { x: 0, y: 0 },
+    { x: 6000, y: 0 },
+    { x: 6000, y: 2000 },
+    { x: 2000, y: 2000 },
+    { x: 2000, y: 6000 },
+    { x: 0, y: 6000 },
+  ]);
+
+const withClosetRoom = (base: Project): Project =>
+  withRoomOutline(base, [
+    { x: 0, y: 0 },
+    { x: 1000, y: 0 },
+    { x: 1000, y: 400 },
+    { x: 0, y: 400 },
+  ]);
 
 function project(): Project {
   return {
@@ -387,10 +430,48 @@ describe('plan view spaces and networks', () => {
       volumeM3: 60,
       heightM: 2.5,
     });
-    const label = find(primitives, 'space-label:living')!;
-    expect(label.geometry.kind).toBe('TEXT');
-    if (label.geometry.kind === 'TEXT')
-      expect(label.geometry.text).toContain('Séjour');
+    // Two primitives, not one string holding a newline: SVG draws no line
+    // break, so « Séjour\n24.00 m² » came out as one run of text.
+    const name = find(primitives, 'space-label-name:living')!;
+    const area = find(primitives, 'space-label-area:living')!;
+    expect(name.metadata).toMatchObject({ labelPart: 'NAME' });
+    expect(area.metadata).toMatchObject({ labelPart: 'AREA' });
+    if (name.geometry.kind !== 'TEXT' || area.geometry.kind !== 'TEXT') return;
+    expect(name.geometry.text).toBe('Séjour');
+    expect(area.geometry.text).toBe('24.00 m²');
+    expect(name.geometry.anchor.x).toBe(area.geometry.anchor.x);
+    expect(name.geometry.anchor.y).toBeLessThan(area.geometry.anchor.y);
+  });
+
+  it('places the name where the room is, not at the average of its corners', () => {
+    // The average of an L's corners falls in the notch, so the room's name
+    // used to land in the corridor next door.
+    const ell = withLShapedRoom(project());
+    const { primitives } = buildPlanView(ell);
+    const name = find(primitives, 'space-label-name:living')!;
+    const fill = find(primitives, 'space:living')!;
+    if (name.geometry.kind !== 'TEXT' || fill.geometry.kind !== 'POLYGON')
+      return;
+    expect(polygonContains(fill.geometry.polygon, name.geometry.anchor)).toBe(
+      true,
+    );
+  });
+
+  it('writes the area only where there is room for a second line', () => {
+    // A cupboard gets its name or nothing: a label spilling into the room next
+    // door is worse than a room left unnamed.
+    const closet = withClosetRoom(project());
+    const near = buildPlanView(closet, { scale: 50 }).primitives;
+    expect(find(near, 'space-label-area:living')).toBeDefined();
+    // At 1:100 the same closet has half the paper: the name still fits, the
+    // second line no longer does.
+    const far = buildPlanView(closet, { scale: 100 }).primitives;
+    expect(find(far, 'space-label-name:living')).toBeDefined();
+    expect(find(far, 'space-label-area:living')).toBeUndefined();
+    // At 1:200 nothing fits, and nothing is written rather than written out
+    // into the room next door.
+    const distant = buildPlanView(closet, { scale: 200 }).primitives;
+    expect(find(distant, 'space-label-name:living')).toBeUndefined();
   });
 
   it('routes each network onto its discipline layer', () => {

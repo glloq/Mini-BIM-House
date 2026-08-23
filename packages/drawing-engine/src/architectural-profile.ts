@@ -279,6 +279,26 @@ function architecturalStyles(mode: GraphicOutputMode): SvgStyleCatalog {
       fontSizePaperMm: 2.5,
       textAnchor: 'middle',
     },
+    // A room's name and its area are two levels of one annotation. Set in one
+    // weight, the reader works out which is which; set in two, they do not.
+    'space-label-name': {
+      stroke: 'none',
+      fill: palette.textPrimary,
+      strokeWidthPaperMm: 0,
+      fontFamily: 'sans-serif',
+      fontSizePaperMm: 2.8,
+      fontWeight: 600,
+      textAnchor: 'middle',
+    },
+    'space-label-area': {
+      stroke: 'none',
+      fill: palette.textSecondary,
+      strokeWidthPaperMm: 0,
+      fontFamily: 'sans-serif',
+      fontSizePaperMm: 2.1,
+      fontWeight: 400,
+      textAnchor: 'middle',
+    },
     dimension: {
       stroke: palette.textSecondary,
       fill: 'none',
@@ -355,6 +375,14 @@ const architecturalRules: readonly GraphicStyleRule[] = [
   {
     match: { semanticRole: 'OPENING', metadata: { part: 'GLAZING' } },
     token: 'opening-glazing',
+  },
+  {
+    match: { semanticRole: 'ANNOTATION', metadata: { labelPart: 'NAME' } },
+    token: 'space-label-name',
+  },
+  {
+    match: { semanticRole: 'ANNOTATION', metadata: { labelPart: 'AREA' } },
+    token: 'space-label-area',
   },
   ...SPACE_TOKENS.map((category) => ({
     match: {
