@@ -22,4 +22,5 @@
 - Typecheck: `npm run typecheck`
 - Tests: `npm test`
 - Schema validation: `npm run validate:schemas`
+- README screenshot (after building the web app): `npm run docs:screenshots`
 - Build: `npm run build`
