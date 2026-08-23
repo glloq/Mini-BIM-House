@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
 import { entityId } from '@house-technical-designer/core-domain';
+import { materialId } from '@house-technical-designer/materials';
 import {
   genericMaterial,
   genericMaterialCatalog,
-  materialId,
-} from '@house-technical-designer/materials';
+} from '@house-technical-designer/materials/catalog';
 import { serializedTotalThicknessM } from '@house-technical-designer/assemblies';
 import { ProjectCommandDispatcher } from './project-commands.js';
 import {

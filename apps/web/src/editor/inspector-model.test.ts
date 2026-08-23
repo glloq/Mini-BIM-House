@@ -31,7 +31,8 @@ describe('inspector', () => {
       'Références',
     ]);
     expect(fieldValue(subject, 'Géométrie', 'Longueur')).toBe('10.00 m');
-    expect(fieldValue(subject, 'Géométrie', 'Épaisseur')).toBe('400 mm');
+    // The build-up the catalogue ships: 140 of PSE, 200 of block, 13 of board.
+    expect(fieldValue(subject, 'Géométrie', 'Épaisseur')).toBe('353 mm');
     expect(fieldValue(subject, 'Thermique', 'Résistance R')).toMatch(
       /m²·K\/W$/,
     );

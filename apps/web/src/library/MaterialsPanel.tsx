@@ -10,9 +10,13 @@ import type {
 } from '@house-technical-designer/materials';
 import {
   createCustomMaterialFromDraft,
-  genericMaterialCatalog,
   materialId as toMaterialId,
 } from '@house-technical-designer/materials';
+import {
+  materialSnapshot,
+  type RawMaterialEntry,
+} from '@house-technical-designer/materials/catalog';
+import { CatalogPicker } from '../catalog/CatalogPicker.js';
 import {
   AddMaterialCommand,
   ImportMaterialsCommand,
@@ -76,10 +80,7 @@ export function MaterialsPanel({
     [project],
   );
   const selected = rows.find(({ material }) => material.id === selectedId);
-  const catalogueMissing = useMemo(() => {
-    const known = new Set(takenIds);
-    return genericMaterialCatalog().filter(({ id }) => !known.has(id));
-  }, [takenIds]);
+  const held = useMemo(() => new Set(takenIds), [takenIds]);
 
   function createMaterial(): void {
     const name = 'Nouveau matériau';
@@ -108,17 +109,16 @@ export function MaterialsPanel({
           <h2 id="materials-heading">Matériaux</h2>
         </div>
         <div className="actions">
-          {catalogueMissing.length > 0 && (
-            <button
-              type="button"
-              className="secondary"
-              onClick={() =>
-                onCommand(new ImportMaterialsCommand(catalogueMissing))
-              }
-            >
-              Importer le catalogue générique ({catalogueMissing.length})
-            </button>
-          )}
+          <CatalogPicker
+            registry="MATERIAL"
+            taken={held}
+            label="Ajouter depuis le catalogue"
+            onPick={(_summary, body) => {
+              const material = materialSnapshot(body as RawMaterialEntry);
+              onCommand(new ImportMaterialsCommand([material]));
+              onSelect(material.id);
+            }}
+          />
           <button type="button" onClick={createMaterial}>
             Nouveau matériau
           </button>

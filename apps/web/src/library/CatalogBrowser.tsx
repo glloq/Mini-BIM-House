@@ -77,6 +77,16 @@ export function CatalogBrowser({
     () => catalogRows(summariesByFamily, known, filter),
     [summariesByFamily, known, filter],
   );
+  // The families still in service, counted from the nomenclature rather than
+  // typed here: it read 518 for weeks after the registry had moved on.
+  const inService = useMemo(
+    () =>
+      FAMILY_REGISTRY.filter(
+        ({ lifecycle }) => (lifecycle ?? 'ACTIVE') === 'ACTIVE',
+      ).length,
+    [],
+  );
+  const retired = FAMILY_REGISTRY.length - inService;
   const open = useMemo(
     () =>
       openId === undefined
@@ -145,11 +155,18 @@ export function CatalogBrowser({
       </div>
 
       <p className="hint">
-        {/* The total is the nomenclature's, not a number typed here: it was
-            518 for weeks after the registry had moved on. */}
-        {rows.length} famille(s) sur {FAMILY_REGISTRY.length}.{' '}
+        {/* Of the families in service: one that has left it is offered to
+            nobody, and counting it in the denominator would make « toutes »
+            a number the list can never reach. */}
+        {rows.length} famille(s) sur {inService}.{' '}
         {rows.length > SHOWN ? `Les ${SHOWN} premières :` : ''}
       </p>
+      {retired > 0 && (
+        <p className="hint">
+          {retired} famille(s) ont quitté le service : chacune dit ce qui la
+          remplace, et les projets qui les portent s’ouvrent toujours.
+        </p>
+      )}
       <ul className="catalog-list">
         {rows.slice(0, SHOWN).map((row) => (
           <li key={row.familyId}>

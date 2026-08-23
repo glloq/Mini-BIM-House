@@ -3,8 +3,8 @@ import type {
   ProjectFile,
 } from '@house-technical-designer/core-domain';
 import { entityId, isHostType } from '@house-technical-designer/core-domain';
-import { genericMaterialCatalog } from '@house-technical-designer/materials';
-import { genericAssemblyCatalog } from '@house-technical-designer/assemblies';
+import { genericMaterialCatalog } from '@house-technical-designer/materials/catalog';
+import { genericAssemblyCatalog } from '@house-technical-designer/assemblies/catalog';
 import { genericOpeningTypes } from '@house-technical-designer/opening-catalog';
 import { equipmentSnapshot } from '@house-technical-designer/equipment-catalog';
 import { NETWORK_PRODUCT_REGISTRY } from '@house-technical-designer/network-products';

@@ -15,9 +15,9 @@ import {
   type CatalogSummary,
 } from './index.js';
 import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
-import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
+import { rawGenericMaterialEntries } from '@house-technical-designer/materials/catalog';
 import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
-import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies';
+import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies/catalog';
 import { NETWORK_PRODUCT_REGISTRY } from '@house-technical-designer/network-products';
 import { rawGenericSymbolEntries } from '@house-technical-designer/drawing-engine';
 

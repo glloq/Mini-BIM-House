@@ -1,0 +1,253 @@
+{
+  "formatVersion": "1.1.0",
+  "assemblies": [
+    {
+      "id": "generic-column-concrete",
+      "familyId": "STRUCTURAL_COLUMN",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Poteau béton armé 20 × 20",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-concrete",
+        "section": "RECTANGULAR",
+        "widthMm": 200,
+        "heightMm": 200,
+        "structuralRole": "VERTICAL_LOAD_BEARING",
+        "fireRating": "R60"
+      }
+    },
+    {
+      "id": "generic-beam-concrete",
+      "familyId": "STRUCTURAL_BEAM",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Poutre béton armé 20 × 40",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-concrete",
+        "section": "RECTANGULAR",
+        "widthMm": 200,
+        "heightMm": 400,
+        "structuralRole": "HORIZONTAL_LOAD_BEARING",
+        "fireRating": "R60"
+      }
+    },
+    {
+      "id": "generic-lintel-concrete",
+      "familyId": "LINTEL",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Linteau béton préfabriqué 15 × 20",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-concrete",
+        "section": "RECTANGULAR",
+        "widthMm": 150,
+        "heightMm": 200,
+        "structuralRole": "LINTEL",
+        "fireRating": "R60"
+      }
+    },
+    {
+      "id": "generic-post-timber",
+      "familyId": "POST",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Montant bois 45 × 145",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-softwood",
+        "section": "RECTANGULAR",
+        "widthMm": 45,
+        "heightMm": 145,
+        "structuralRole": "VERTICAL_LOAD_BEARING"
+      }
+    },
+    {
+      "id": "generic-joist-timber",
+      "familyId": "JOIST",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Solive bois 75 × 220",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-softwood",
+        "section": "RECTANGULAR",
+        "widthMm": 75,
+        "heightMm": 220,
+        "structuralRole": "HORIZONTAL_LOAD_BEARING"
+      }
+    },
+    {
+      "id": "generic-rafter-timber",
+      "familyId": "RAFTER",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Chevron bois 63 × 100",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-softwood",
+        "section": "RECTANGULAR",
+        "widthMm": 63,
+        "heightMm": 100,
+        "structuralRole": "ROOF_FRAMING"
+      }
+    },
+    {
+      "id": "generic-purlin-timber",
+      "familyId": "PURLIN",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Panne bois 100 × 225",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-softwood",
+        "section": "RECTANGULAR",
+        "widthMm": 100,
+        "heightMm": 225,
+        "structuralRole": "ROOF_FRAMING"
+      }
+    },
+    {
+      "id": "generic-truss-timber",
+      "familyId": "TRUSS",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Ferme industrialisée bois 36 × 97",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-softwood",
+        "section": "RECTANGULAR",
+        "widthMm": 36,
+        "heightMm": 97,
+        "structuralRole": "ROOF_FRAMING"
+      }
+    },
+    {
+      "id": "generic-strip-footing",
+      "familyId": "STRIP_FOOTING",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Semelle filante béton 50 × 25",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-concrete",
+        "section": "RECTANGULAR",
+        "widthMm": 500,
+        "heightMm": 250,
+        "structuralRole": "FOUNDATION"
+      }
+    },
+    {
+      "id": "generic-pad-footing",
+      "familyId": "PAD_FOOTING",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Semelle isolée béton 80 × 80 × 40",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-concrete",
+        "section": "RECTANGULAR",
+        "widthMm": 800,
+        "heightMm": 400,
+        "structuralRole": "FOUNDATION"
+      }
+    },
+    {
+      "id": "generic-raft-slab",
+      "familyId": "RAFT",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Radier béton armé 25 cm",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-concrete",
+        "section": "SLAB",
+        "heightMm": 250,
+        "structuralRole": "FOUNDATION"
+      }
+    },
+    {
+      "id": "generic-pile-concrete",
+      "familyId": "PILE",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Pieu béton foré Ø 400",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-concrete",
+        "section": "CIRCULAR",
+        "diameterMm": 400,
+        "structuralRole": "FOUNDATION"
+      }
+    },
+    {
+      "id": "generic-ground-beam",
+      "familyId": "GROUND_BEAM",
+      "category": "STRUCTURAL_MEMBER",
+      "form": "PROFILED",
+      "name": "Longrine béton armé 20 × 50",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Sections courantes de la construction résidentielle française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-concrete",
+        "section": "RECTANGULAR",
+        "widthMm": 200,
+        "heightMm": 500,
+        "structuralRole": "FOUNDATION"
+      }
+    }
+  ]
+}

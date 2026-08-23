@@ -2079,6 +2079,25 @@ button.ghost:disabled {
   gap: 0.6rem;
   margin-bottom: 0.75rem;
 }
+/*
+ * The tools stay inside their column, whatever the project is called.
+ *
+ * A grid item is `min-width: auto` by default, so the widest thing inside a
+ * group sets the width of the group — and one of those things is a list of
+ * what the project holds. The day the reference house was furnished from the
+ * catalogue, « Sèche-serviettes eau chaude » made the column a third wider
+ * than the panel and slid the tools under the drawing, where nothing could be
+ * clicked. What a name is long is not a layout decision.
+ */
+.tools-panel > *,
+.tools-panel .context-group,
+.tools-panel .tools-advanced {
+  min-width: 0;
+}
+.tools-panel select,
+.tools-panel input {
+  max-width: 100%;
+}
 .tools-panel button {
   border: 0;
   background: none;
@@ -2399,4 +2418,69 @@ button.ghost:disabled {
     display: block;
     overflow-x: auto;
   }
+}
+
+/* Le sélecteur de catalogue : la seule porte d'entrée d'une fiche vers un
+   projet. Une liste de lignes, jamais de fiches, et un compte qui dit ce
+   qu'elle ne montre pas plutôt que de laisser croire qu'elle montre tout. */
+.catalog-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: min(28rem, 100%);
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.catalog-picker-head {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.catalog-picker-head label {
+  flex: 1;
+}
+
+.catalog-picker-head input {
+  width: 100%;
+}
+
+.catalog-picker-count {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.catalog-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 18rem;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.catalog-picker-list button {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.catalog-picker-list button:hover:not(:disabled) {
+  background: var(--surface-sunken);
+}
+
+.catalog-picker-meta {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  white-space: nowrap;
 }

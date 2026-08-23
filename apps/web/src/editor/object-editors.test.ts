@@ -207,15 +207,20 @@ describe('taking an object back off the plan', () => {
   });
 
   it('lets the domain refuse what something else still holds', () => {
-    // Every room of the reference house belongs to the heated zone; deleting
-    // one would leave the zone naming a room that no longer exists.
+    // Six things name the living room: a luminaire, a radiator and a socket
+    // standing in it, the heated zone that gathers it, an air inlet and a
+    // lighting point that serve it. Deleting it would leave every one of them
+    // pointing at nothing. The refusal names the first of them and counts the
+    // rest, rather than saying « impossible ».
     const project = demo();
     const room = removalCommandFor(project, 'ground', 'space-living')!;
     const dispatcher = new ProjectCommandDispatcher(project);
     const refused = dispatcher.dispatch(room);
     expect(refused.status).toBe('REJECTED');
     if (refused.status !== 'REJECTED') return;
-    expect(refused.errors.join(' ')).toContain('une pièce qu’elle rassemble');
+    const said = refused.errors.join(' ');
+    expect(said).toContain('la pièce où il est');
+    expect(said).toContain('autre(s)');
   });
 
   it('lets the domain refuse a wall something still hangs on', () => {

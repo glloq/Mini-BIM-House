@@ -1,6 +1,6 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "33e3e147b626f3a3",
+  "releaseId": "b4df760b2a627c73",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
@@ -58,9 +58,9 @@
         "packages/opening-catalog/data/solar-protection.json",
         "packages/opening-catalog/data/window.json"
       ],
-      "entryCount": 34,
+      "entryCount": 36,
       "formatVersion": "1.0.0",
-      "fingerprint": "e2d3de032f02e081"
+      "fingerprint": "323e33093035ebc1"
     },
     {
       "registry": "ASSEMBLY",
@@ -68,12 +68,14 @@
         "packages/assemblies/data/ceiling.json",
         "packages/assemblies/data/floor.json",
         "packages/assemblies/data/generic.json",
+        "packages/assemblies/data/roof-parts.json",
         "packages/assemblies/data/roof.json",
+        "packages/assemblies/data/structure.json",
         "packages/assemblies/data/wall.json"
       ],
-      "entryCount": 35,
+      "entryCount": 56,
       "formatVersion": "1.0.0",
-      "fingerprint": "c09d61d7a461cbb2"
+      "fingerprint": "b3a318b3bb81c6d5"
     },
     {
       "registry": "NETWORK_PRODUCT",
@@ -81,9 +83,9 @@
         "packages/network-products/data/generic.json",
         "packages/network-products/data/wave3.json"
       ],
-      "entryCount": 83,
+      "entryCount": 95,
       "formatVersion": "1.0.0",
-      "fingerprint": "0181db32d88c52a2"
+      "fingerprint": "0aad378c2264ef96"
     },
     {
       "registry": "SYMBOL",

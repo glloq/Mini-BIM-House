@@ -79,6 +79,15 @@
       ],
       "@house-technical-designer/rule-engine": [
         "./packages/rule-engine/src/index.ts"
+      ],
+      "@house-technical-designer/catalog-registry/starter": [
+        "./packages/catalog-registry/src/starter-library-data.ts"
+      ],
+      "@house-technical-designer/materials/catalog": [
+        "./packages/materials/src/generic-catalog.ts"
+      ],
+      "@house-technical-designer/assemblies/catalog": [
+        "./packages/assemblies/src/generic-catalog.ts"
       ]
     },
     "noFallthroughCasesInSwitch": true,
@@ -90,6 +99,7 @@
     "strict": true,
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true
   }
 }

@@ -153,7 +153,7 @@ describe('laying a slab', () => {
           { x: 4000, y: 24_000 },
         ],
         {
-          assemblyId: 'assembly-horizontal',
+          assemblyId: 'generic-floor-slab-on-ground',
           role: 'TERRACE',
           fromRoom: false,
         },
@@ -170,7 +170,11 @@ describe('laying a slab', () => {
         file(),
         'ground',
         [{ x: 2500, y: 2000 }],
-        { assemblyId: 'assembly-horizontal', role: 'FLOOR', fromRoom: true },
+        {
+          assemblyId: 'generic-floor-slab-on-ground',
+          role: 'FLOOR',
+          fromRoom: true,
+        },
         newId('slab'),
       ),
     );
@@ -187,7 +191,11 @@ describe('laying a slab', () => {
           { x: 0, y: 0 },
           { x: 1000, y: 0 },
         ],
-        { assemblyId: 'assembly-horizontal', role: 'FLOOR', fromRoom: false },
+        {
+          assemblyId: 'generic-floor-slab-on-ground',
+          role: 'FLOOR',
+          fromRoom: false,
+        },
         newId('slab'),
       ).status,
     ).toBe('ERROR');

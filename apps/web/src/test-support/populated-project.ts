@@ -99,7 +99,7 @@ export function populatedProject(): Project {
                 slopeDeg: 35,
                 overhangMm: 400,
               })),
-              assemblyId: assemblyId('assembly-horizontal'),
+              assemblyId: assemblyId('generic-roof-timber-insulated'),
               baseElevationMm: 2500,
             },
           ],

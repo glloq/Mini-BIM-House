@@ -109,7 +109,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "MOUNTING",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -137,7 +137,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "MOUNTING"
     },
     {
       "id": "GROUND_MOUNT",
@@ -164,7 +164,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "MOUNTING"
     },
     {
       "id": "OPTIMIZER",
@@ -526,7 +526,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SENSOR",
+      "category": "METER",
       "optionalPorts": ["CONTROL", "EARTH"]
     },
     {
@@ -554,7 +554,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SENSOR",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -644,7 +644,7 @@
     },
     {
       "id": "BATTERY_RACK",
-      "label": "Armoire",
+      "label": "Armoire batterie de stockage",
       "domain": "STORAGE",
       "registry": "EQUIPMENT",
       "priority": 5,
@@ -694,7 +694,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -897,7 +897,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
@@ -919,7 +919,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR", "FUEL_PELLET"]
     },
     {
@@ -941,7 +941,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
@@ -963,7 +963,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR", "FUEL_PELLET"]
     },
     {
@@ -985,7 +985,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
@@ -1007,7 +1007,7 @@
         "MODEL": "NONE"
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
-      "category": "OTHER",
+      "category": "STOVE",
       "optionalPorts": ["COMBUSTION_AIR"]
     },
     {
@@ -1028,7 +1028,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1049,7 +1049,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1070,8 +1070,11 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
-      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
+      "category": "FLUE_COMPONENT",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "FLUE_PIPE",
+      "retiredReason": "un tronçon droit se compte au mètre : c’est un produit de réseau, et le métré le comptait deux fois"
     },
     {
       "id": "INSULATED_FLUE",
@@ -1091,8 +1094,11 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
-      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
+      "category": "FLUE_COMPONENT",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "FLUE_PIPE",
+      "retiredReason": "un tronçon droit se compte au mètre : c’est un produit de réseau, et le métré le comptait deux fois"
     },
     {
       "id": "FLEXIBLE_LINER",
@@ -1112,8 +1118,11 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
-      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
+      "category": "FLUE_COMPONENT",
+      "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "FLUE_PIPE",
+      "retiredReason": "un tubage se compte au mètre : c’est un produit de réseau, et le métré le comptait deux fois"
     },
     {
       "id": "FLUE_ELBOW",
@@ -1133,7 +1142,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1154,7 +1163,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1175,7 +1184,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1196,7 +1205,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1217,7 +1226,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1238,12 +1247,12 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR", "COMBUSTION_AIR_SOURCE"]
     },
     {
       "id": "CHIMNEY_TERMINAL",
-      "label": "Sortie de toit",
+      "label": "Terminal de conduit de fumée",
       "domain": "FLUE",
       "registry": "EQUIPMENT",
       "priority": 6,
@@ -1259,7 +1268,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1280,7 +1289,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["COMBUSTION_AIR_SOURCE"]
     },
     {
@@ -1301,7 +1310,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER"
+      "category": "FLUE_COMPONENT"
     },
     {
       "id": "COMBUSTION_AIR_DUCT",
@@ -1321,7 +1330,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER"
+      "category": "FLUE_COMPONENT"
     },
     {
       "id": "EXTERNAL_AIR_TERMINAL",
@@ -1341,7 +1350,7 @@
       "status": {
         "MODEL": "NONE"
       },
-      "category": "OTHER",
+      "category": "FLUE_COMPONENT",
       "optionalPorts": ["FLUE_GAS_INLET"]
     }
   ]

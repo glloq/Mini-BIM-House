@@ -8,9 +8,11 @@ import {
   ProjectEditorCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
-import { genericMaterialCatalog } from '@house-technical-designer/materials';
-import { genericAssemblyCatalog } from '@house-technical-designer/assemblies';
-import { genericOpeningTypes } from '@house-technical-designer/opening-catalog';
+// The basket, not the shelf. Importing the three catalogues here put every
+// material, build-up and menuiserie in the first payload the browser fetches —
+// because creating a project is something the application must be able to do
+// before anything is loaded, and a blank project was handed all of them.
+import { STARTER_LIBRARY } from '@house-technical-designer/catalog-registry/starter';
 import {
   exportSemanticSceneToSvg,
   GENERIC_TECHNICAL_PRINT,
@@ -195,9 +197,13 @@ function dispatchResult(
  * build-up is data: it belongs in the assembly catalogue, where a gate reads
  * it, where its layers are checked to name materials that exist, and where
  * somebody can add a fifth without touching the application at all.
+ *
+ * Then a project was handed all thirty-five of them, which is the other
+ * mistake: a basket is not a shelf. Six now — one per kind of surface a house
+ * shell is made of — and the rest is picked from the catalogue.
  */
 export function starterAssemblies() {
-  return genericAssemblyCatalog();
+  return STARTER_LIBRARY.assemblies;
 }
 
 export function createBlankProject(now: string): ProjectFile {
@@ -232,12 +238,12 @@ export function createBlankProject(now: string): ProjectFile {
         ],
         zones: [],
       },
-      materialLibrary: { materials: genericMaterialCatalog() },
+      materialLibrary: { materials: STARTER_LIBRARY.materials },
       assemblies: starterAssemblies(),
       // The models a window can be. The pointer existed and the catalogue did
       // not, so every opening was drawn with a transmittance nobody had
       // stated.
-      openingTypes: genericOpeningTypes(),
+      openingTypes: STARTER_LIBRARY.openingTypes,
       equipment: [],
       systems: [],
       scenarios: [],

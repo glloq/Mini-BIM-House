@@ -4,6 +4,7 @@ import type {
   ProjectFile,
 } from '@house-technical-designer/core-domain';
 import { networkProduct } from '@house-technical-designer/network-products';
+import { isLayeredAssembly } from '@house-technical-designer/assemblies';
 import {
   ENTITY_FAMILIES,
   connectionRefusalBetween,
@@ -430,9 +431,37 @@ export function validateProjectReferences(
   const materials = new Set(
     file.project.materialLibrary?.materials.map(({ id }) => id) ?? [],
   );
-  const assemblies = new Set(
-    file.project.assemblies?.map(({ id }) => id) ?? [],
+  const stated = new Set<string>(
+    (file.project.assemblies ?? []).map(({ id }) => String(id)),
   );
+  /**
+   * The build-ups a wall, a slab or a roof may be made of.
+   *
+   * The registry holds three kinds of thing now: stacks, sections and
+   * lengths. Only a stack has two faces and something between them, and only a
+   * stack is what a paroi is made of. A wall naming a column would draw, would
+   * cost, and would be read by the thermal calculation as whatever its zero
+   * layers add up to — a wall of nothing, insulating nothing, reported by no
+   * one. CG-01 named that outcome before it could happen; this refuses it.
+   */
+  const layered = new Set<string>(
+    (file.project.assemblies ?? [])
+      .filter((entry) => isLayeredAssembly(entry))
+      .map(({ id }) => String(id)),
+  );
+  const paroi = (at: string, id: string, what: string): void => {
+    const assemblyId = String(id);
+    if (!layered.has(assemblyId) && !stated.has(assemblyId))
+      issues.push({
+        path: at,
+        message: `references unknown assembly ${assemblyId}`,
+      });
+    else if (!layered.has(assemblyId))
+      issues.push({
+        path: at,
+        message: `${what} is made of a build-up, and ${assemblyId} is not one: it describes a section or a length`,
+      });
+  };
   file.project.building.levels.forEach((level, levelIndex) => {
     const base = `/project/building/levels/${levelIndex}`;
     const levelWalls = new Set(level.walls.map(({ id }) => id));
@@ -452,11 +481,11 @@ export function validateProjectReferences(
             path: `${base}/${collection}/${index}/levelId`,
             message: `is stored on level ${level.id} but declares level ${element.levelId}`,
           });
-        if (!assemblies.has(element.assemblyId))
-          issues.push({
-            path: `${base}/${collection}/${index}/assemblyId`,
-            message: `references unknown assembly ${element.assemblyId}`,
-          });
+        paroi(
+          `${base}/${collection}/${index}/assemblyId`,
+          element.assemblyId,
+          `a ${collection.slice(0, -1)}`,
+        );
       });
     // A wall built to a storey above holds that storey's identifier and no
     // height of its own: naming a level the project does not hold leaves a
@@ -609,11 +638,7 @@ export function validateProjectReferences(
           path: `${path}/levelId`,
           message: `is stored on level ${level.id} but declares level ${roof.levelId}`,
         });
-      if (!assemblies.has(roof.assemblyId))
-        issues.push({
-          path: `${path}/assemblyId`,
-          message: `references unknown assembly ${roof.assemblyId}`,
-        });
+      paroi(`${path}/assemblyId`, roof.assemblyId, 'a roof structure');
     });
     // A stair joins two storeys; one that names a storey the project does not
     // hold is a stair whose rise nothing can answer.

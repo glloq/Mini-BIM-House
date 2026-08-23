@@ -26,6 +26,16 @@ export interface CatalogFilter {
   readonly wave?: number;
   /** Only the families somebody can actually place something from today. */
   readonly withGenericData?: boolean;
+  /**
+   * Whether the families that have left service are listed too.
+   *
+   * They are not, by default. A retired family still opens the projects that
+   * hold it — that is the whole point of retiring rather than deleting — and
+   * offering it beside the family that replaced it is how a duplicate comes
+   * back the day after it was merged. Somebody reading the nomenclature to
+   * understand it can still ask for them.
+   */
+  readonly withRetired?: boolean;
 }
 
 export interface CatalogRow {
@@ -37,6 +47,9 @@ export interface CatalogRow {
   /** Between 0 and 1, every axis weighing the same. */
   readonly progress: number;
   readonly entryCount: number;
+  /** What replaces this family, when it has left service. */
+  readonly replacedBy?: string;
+  readonly retiredReason?: string;
 }
 
 /**
@@ -55,6 +68,11 @@ export function catalogRows(
 ): readonly CatalogRow[] {
   const needle = (filter.search ?? '').trim().toLowerCase();
   return FAMILY_REGISTRY.filter((family) => {
+    if (
+      filter.withRetired !== true &&
+      (family.lifecycle ?? 'ACTIVE') !== 'ACTIVE'
+    )
+      return false;
     if (filter.domain !== undefined && family.domain !== filter.domain)
       return false;
     if (filter.wave !== undefined && family.priority !== filter.wave)
@@ -76,6 +94,12 @@ export function catalogRows(
       wave: family.priority,
       progress: completeness(familyStatus(family.id, known)),
       entryCount: (summariesByFamily[family.id] ?? []).length,
+      ...(family.replacedBy === undefined
+        ? {}
+        : { replacedBy: family.replacedBy }),
+      ...(family.retiredReason === undefined
+        ? {}
+        : { retiredReason: family.retiredReason }),
     }))
     .sort(
       (first, second) =>

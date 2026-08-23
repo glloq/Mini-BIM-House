@@ -377,6 +377,45 @@ describe('references the rest of the project relies on', () => {
     ).toBe(true);
   });
 
+  it('refuses a wall made of something that is not a build-up', () => {
+    // The assembly registry holds three kinds of thing: stacks, sections and
+    // lengths. A wall made of a column would draw, would cost, and would be
+    // read by the thermal calculation as whatever its zero layers add up to —
+    // a wall of nothing, insulating nothing, reported by no one.
+    const held = file([level]);
+    const profiled = {
+      ...held,
+      project: {
+        ...held.project,
+        assemblies: [
+          ...held.project.assemblies,
+          {
+            id: 'poteau',
+            name: 'Poteau béton',
+            category: 'STRUCTURAL_MEMBER',
+            form: 'PROFILED',
+            layers: [],
+            properties: { material: 'material', widthMm: 200, heightMm: 200 },
+          },
+        ],
+        building: {
+          ...held.project.building,
+          levels: [
+            {
+              ...level,
+              walls: [
+                { ...wall('wall-ground', 'ground'), assemblyId: 'poteau' },
+              ],
+            },
+          ],
+        },
+      },
+    };
+    expect(issues(profiled)).toContain(
+      '/project/building/levels/0/walls/0/assemblyId a wall is made of a build-up, and poteau is not one: it describes a section or a length',
+    );
+  });
+
   it('refuses a zone naming a room the project does not hold', () => {
     const zoned = {
       ...file([level]),

@@ -77,9 +77,22 @@ export const BUDGETS = {
    * complete at five hundred and twenty-seven; the waves still to come add
    * fiches, and fiches are not loaded here.
    *
+   * And back down to 260 once a new project stopped being handed the shelf.
+   * The three catalogues were in this payload for one reason: creating a blank
+   * project copied all of them into it, and creating a project is something
+   * the application must be able to do before anything is loaded. A basket of
+   * twenty-two entries replaced them, and taking the catalogue off the barrels
+   * of `materials` and `assemblies` took the rest — importing a package for
+   * `materialId` used to pull every fiche its tree holds, because the eager
+   * glob runs on import and nothing tree-shakes a hundred JSON files away.
+   *
+   * What this number now protects is worth more than the kilobytes: six waves
+   * of filling cost the first payload four hundred bytes, and the seventh will
+   * cost none.
+   *
    * A budget is a decision, not a measurement. This one was taken knowingly.
    */
-  initialGzipBytes: 266 * 1024,
+  initialGzipBytes: 260 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -104,8 +117,45 @@ export const BUDGETS = {
    * of it landed on demand: the initial payload moved by less than one, which
    * is the whole point of the split and the reason this budget is counted in
    * two numbers rather than one.
+   *
+   * And two more when the catalogues left the first payload: what leaves it
+   * has to land somewhere, and it landed on demand. That is the trade this
+   * budget exists to make visible — the total went up by two kilobytes, the
+   * download a first visit pays for went down by seven.
+   *
+   * And four more for the pickers: choosing a fiche instead of importing a
+   * catalogue is a search box, a list of rows and a menuiseries panel that had
+   * no home. All three land on demand, in the workspace that asks.
+   *
+   * And three more for the reference house, which is made of catalogue fiches
+   * now: nineteen equipment fiches and three menuiseries with their ports,
+   * their clearances, their sources and their performance curves, and thirty
+   * and three objects standing somewhere in the building instead of nine, and
+   * an envelope of five catalogue build-ups made of eleven catalogue materials
+   * in place of three compositions written for that file alone. It is a
+   * fixture, and it travels with the application because the demonstration
+   * project is the application's front door. What it buys is that every module
+   * is exercised by a house made of what a user can actually choose — the day
+   * it was rebuilt from fiches, three modules stopped finding anything, and
+   * the day its envelope was, the takeoff went looking for prices nobody had
+   * declared. That is exactly the failure a demonstration project exists to
+   * catch.
+   *
+   * And two more for the last of the contract gaps: twenty-one fiches for the
+   * families the assembly registry could not describe — a column has a
+   * section, a ridge has a length — twelve flue products so that a straight
+   * section stops existing in two registries at once, and the retirement
+   * reasons of the families that left service. A catalogue that only grows is
+   * one nobody can correct; what a retirement costs is the sentence saying
+   * where to go instead, and it is worth its bytes.
+   *
+   * And one more so the takeoff counts the floors and the roof. It read the
+   * walls and nothing else: the ground slab, the intermediate floor and both
+   * roof planes never reached the bill of materials, the cost total or the
+   * carbon total, and the total did not say it was missing half the building —
+   * it gave a figure.
    */
-  totalGzipBytes: 416 * 1024,
+  totalGzipBytes: 431 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

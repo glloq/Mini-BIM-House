@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml/badge.svg)](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml)
 [![Licence AGPL-3.0-only](https://img.shields.io/badge/licence-AGPL--3.0--only-blue)](LICENSE)
-![Version 0.3.0-beta.12](https://img.shields.io/badge/version-0.3.0--beta.12-yellow)
+![Version 0.4.0-beta.1](https://img.shields.io/badge/version-0.4.0--beta.1-yellow)
 ![Statut bêta](https://img.shields.io/badge/statut-b%C3%AAta-yellow)
 
-> **Version 0.3.0-beta.12 — bêta.** L'application couvre le parcours complet et
+> **Version 0.4.0-beta.1 — bêta.** L'application couvre le parcours complet et
 > ses formats sont stabilisés ; l'interface peut encore bouger et plusieurs
 > sujets restent hors périmètre. Voir
 > [Ce que l'application ne fait pas](#ce-que-lapplication-ne-fait-pas), le
@@ -630,7 +630,7 @@ sans casser le noyau.
 
 # État du projet
 
-**Version 0.3.0-beta.12, bêta.** L'application couvre le parcours complet :
+**Version 0.4.0-beta.1, bêta.** L'application couvre le parcours complet :
 dessiner, composer, calculer, superposer, métrer, comparer, exporter. Ce qu'un
 fichier de projet promet d'une version à l'autre est écrit dans
 [`CHANGELOG.md`](CHANGELOG.md).
@@ -704,7 +704,7 @@ fichier de projet promet d'une version à l'autre est écrit dans
 
 ## Ce que l'application ne fait pas
 
-Cette liste décrit la `0.3.0-beta.12` telle qu'elle est aujourd'hui, et rien
+Cette liste décrit la `0.4.0-beta.1` telle qu'elle est aujourd'hui, et rien
 d'autre : ce qui y figure n'existe pas encore dans l'application.
 
 - **Toitures sur contour quelconque** : une toiture est décrite par son
@@ -815,6 +815,8 @@ Documents principaux :
 - [`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md) — état réel, chantier par chantier
 - [`docs/USER_GUIDE_MVP.md`](docs/USER_GUIDE_MVP.md) — parcours utilisateur
 - [`docs/PERFORMANCE_BASELINE.md`](docs/PERFORMANCE_BASELINE.md) — chiffres mesurés
+- [`docs/CONTRACT_GAPS.md`](docs/CONTRACT_GAPS.md) — ce que les contrats de données ne savent pas encore dire
+- [`docs/ENGINE_AUDIT.md`](docs/ENGINE_AUDIT.md) — ce que chaque moteur a été interrogé sur, et ce qu'il a répondu
 - [`docs/specifications/`](docs/specifications/)
 - [`docs/standards/`](docs/standards/)
 - [`docs/adr/`](docs/adr/)

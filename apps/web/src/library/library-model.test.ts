@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
 import { materialId } from '@house-technical-designer/materials';
+import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies/catalog';
 import { createBlankProject } from '../project-workspace.js';
 import { genericCatalog } from '@house-technical-designer/catalog-registry';
 import { genericEquipment } from '@house-technical-designer/equipment-catalog';
@@ -9,6 +10,7 @@ import {
   assemblyViews,
   duplicateMaterialDraft,
   materialCategories,
+  materialsAnAssemblyNeeds,
   materialRows,
   nextLibraryId,
   projectEquipmentFromCatalog,
@@ -21,6 +23,43 @@ function project(): Project {
   return createBlankProject('2026-08-19T00:00:00Z').project;
 }
 
+describe('taking a build-up out of the catalogue', () => {
+  it('names the materials the project would be missing', () => {
+    // A composition is made of materials. Taking it without them leaves layers
+    // pointing at nothing — a wall that draws, costs nothing and insulates
+    // nothing. The panel used to work only because the project had been handed
+    // every material there is.
+    const held = new Set(
+      (project().materialLibrary?.materials ?? []).map(({ id }) => String(id)),
+    );
+    const wall = rawGenericAssemblyEntries().find(
+      ({ id }) => id === 'generic-wall-double-brick-veneer',
+    )!;
+    const wanted = materialsAnAssemblyNeeds(wall.layers!, held);
+    expect(wanted.length).toBeGreaterThan(0);
+    for (const id of wanted) expect(held.has(id)).toBe(false);
+    // And what the project already holds is not asked for twice, however many
+    // layers name it.
+    expect(new Set(wanted).size).toBe(wanted.length);
+    expect(
+      materialsAnAssemblyNeeds(
+        wall.layers!,
+        new Set(wall.layers!.map((l) => l.materialId)),
+      ),
+    ).toEqual([]);
+  });
+
+  it('asks for nothing when the project already holds every layer', () => {
+    const starter = rawGenericAssemblyEntries().find(
+      ({ id }) => id === 'generic-partition-stud',
+    )!;
+    const held = new Set(
+      (project().materialLibrary?.materials ?? []).map(({ id }) => String(id)),
+    );
+    expect(materialsAnAssemblyNeeds(starter.layers!, held)).toEqual([]);
+  });
+});
+
 describe('material library view', () => {
   it('lists the project library with its deletion safety', () => {
     const rows = materialRows(project());
@@ -28,15 +67,26 @@ describe('material library view', () => {
     const insulation = rows.find(
       ({ material }) => material.id === 'generic-rock-wool',
     )!;
-    // Two starter build-ups use it, so deleting it is blocked.
+    // A starter build-up uses it, so deleting it is blocked.
     expect(insulation.deletable).toBe(false);
     expect(new Set(insulation.usedBy.map(({ kind }) => kind))).toEqual(
       new Set(['ASSEMBLY']),
     );
-    const unused = rows.find(
-      ({ material }) => material.id === 'generic-steel',
-    )!;
-    expect(unused.deletable).toBe(true);
+    // Every material a new project holds is used by one of its build-ups: the
+    // basket is what the build-ups are made of, not a shelf somebody might
+    // pick from one day. So the deletable case has to be a material the user
+    // added, which is the only kind there is.
+    expect(rows.every(({ deletable }) => !deletable)).toBe(true);
+    const added = materialRows({
+      ...project(),
+      materialLibrary: {
+        materials: [
+          ...(project().materialLibrary?.materials ?? []),
+          { ...insulation.material, id: materialId('mine'), name: 'Le mien' },
+        ],
+      },
+    }).find(({ material }) => material.id === 'mine')!;
+    expect(added.deletable).toBe(true);
   });
 
   it('reports the properties a material does not declare', () => {
@@ -63,9 +113,9 @@ describe('assembly library view', () => {
     const views = assemblyViews(project());
     const wall = views.find(
       ({ assembly }) =>
-        assembly.id === 'generic-wall-brick-internal-insulation',
+        assembly.id === 'generic-wall-block-external-insulation',
     )!;
-    expect(wall.totalThicknessMm).toBe(333);
+    expect(wall.totalThicknessMm).toBe(353);
     expect(wall.thermalResistanceM2KW).toBeGreaterThan(2.5);
     expect(wall.uValueWm2K).toBeCloseTo(1 / wall.thermalResistanceM2KW!, 9);
     expect(wall.missingConductivityLayerIds).toEqual([]);

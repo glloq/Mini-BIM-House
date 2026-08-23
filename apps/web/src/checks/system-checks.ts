@@ -127,11 +127,29 @@ const EMITTERS = [
   'PELLET_STOVE',
 ];
 
+/**
+ * The placed things one of these words names, whichever word names them.
+ *
+ * These checks ask by a mix of the old `kind` — `FAN`, `AHU` — and family
+ * identifiers — `STRING_INVERTER`, `THERMODYNAMIC_WATER_HEATER`. A fiche taken
+ * from the catalogue answers to three words: its family, its coarse category,
+ * and the `kind` a snapshot writes from that category. Asking by one of them
+ * and matching only that one is how a ventilation unit standing in the house
+ * came to be found by nothing.
+ */
 function ofKinds(
   byKind: Readonly<Record<string, readonly ResolvedPlacedEquipment[]>>,
   kinds: readonly string[],
 ): readonly ResolvedPlacedEquipment[] {
-  return kinds.flatMap((kind) => byKind[kind] ?? []);
+  const wanted = new Set(kinds);
+  return Object.values(byKind)
+    .flat()
+    .filter(
+      (placed) =>
+        wanted.has(placed.kind ?? '') ||
+        wanted.has(placed.catalogCategory ?? '') ||
+        wanted.has(placed.familyId ?? ''),
+    );
 }
 
 function heatingChecks(
@@ -162,6 +180,8 @@ function heatingChecks(
         'nominalHeatingPowerW',
         'usefulHeatingPowerW',
         'ratedPowerW',
+        // The word the catalogue uses, which is the property registry's.
+        'nominalHeatingCapacityW',
       );
       if (installedW === undefined)
         checks.push({
@@ -230,6 +250,8 @@ function heatingChecks(
         'nominalPowerW',
         'ratedPowerW',
         'heatingPowerW',
+        // The word the catalogue uses for an emitter's output.
+        'nominalOutputW',
       );
       if (emittedW === undefined)
         checks.push({
@@ -280,9 +302,46 @@ function ventilationChecks(
       extracted += number(node.properties.targetFlowM3h) ?? 0;
     }
   if (extracted <= 0) return [];
-  const fans = ofKinds(byKind, ['FAN', 'MECHANICAL_VENTILATION_UNIT', 'AHU']);
+  const fans = ofKinds(byKind, [
+    'FAN',
+    'MECHANICAL_VENTILATION_UNIT',
+    'VENTILATION_UNIT',
+    'AHU',
+  ]);
+  // What the group is, against what the drawing is. Both say it — the fiche in
+  // `systemType`, the network in its own — and nothing compared them: the
+  // house declared a double-flow unit while its drawing showed passive wall
+  // inlets and a single extract trunk, which is a simple-flux system. A
+  // balanced unit blows its supply air through ducts the house does not have.
+  const checks: CheckItem[] = [];
+  const drawn = new Set(
+    (project.systems ?? [])
+      .filter((system) => system.discipline === 'VENTILATION')
+      .flatMap((system) =>
+        typeof system.systemType === 'string' ? [system.systemType] : [],
+      ),
+  );
+  for (const one of fans) {
+    const stated = one.resolvedProperties['systemType'];
+    if (typeof stated !== 'string' || drawn.size === 0) continue;
+    if (drawn.has(stated)) continue;
+    checks.push({
+      id: `system:ventilation:type-mismatch:${one.instanceId}`,
+      status: 'FAIL',
+      source: 'CALCULATION',
+      title: 'Ventilation — le groupe posé n’est pas celui du réseau dessiné',
+      detail: `${label(one)} est un groupe ${stated} et le réseau est dessiné en ${[...drawn].join(', ')} : l'un souffle par des gaines que l'autre n'a pas.`,
+      fix: {
+        label: 'Voir sur le plan',
+        tab: 'plan',
+        objectIds: [one.instanceId],
+      },
+    });
+  }
+
   if (fans.length === 0)
     return [
+      ...checks,
       {
         id: 'system:ventilation:no-unit',
         status: 'UNKNOWN',
@@ -295,6 +354,7 @@ function ventilationChecks(
   const designFlow = summed(fans, 'designFlowM3h', 'nominalFlowM3h');
   if (designFlow === undefined)
     return [
+      ...checks,
       {
         id: 'system:ventilation:unit-flow-unknown',
         status: 'UNKNOWN',
@@ -304,8 +364,9 @@ function ventilationChecks(
         fix: { label: 'Ouvrir les équipements', tab: 'equipment' },
       },
     ];
-  if (designFlow >= extracted) return [];
+  if (designFlow >= extracted) return checks;
   return [
+    ...checks,
     {
       id: 'system:ventilation:unit-undersized',
       status: 'FAIL',
@@ -376,9 +437,9 @@ function solarChecks(
   const checks: CheckItem[] = [];
   const inverters = ofKinds(byKind, [
     'STRING_INVERTER',
+    'INVERTER',
     'HYBRID_INVERTER',
     'MICRO_INVERTER',
-    'INVERTER',
   ]);
   if (inverters.length === 0)
     checks.push({
@@ -390,7 +451,15 @@ function solarChecks(
       fix: { label: 'Ouvrir les équipements', tab: 'equipment' },
     });
   else {
-    const ratedW = summed(inverters, 'ratedAcPowerW', 'nominalPowerW');
+    // `nominalAcPowerW` is what an inverter fiche states; `ratedAcPowerW` is
+    // what projects written before the catalogue carry. Reading only the
+    // second is how a 5 kVA onduleur came to state no power at all.
+    const ratedW = summed(
+      inverters,
+      'ratedAcPowerW',
+      'nominalAcPowerW',
+      'nominalPowerW',
+    );
     // An inverter is normally smaller than the array it serves; only a gross
     // difference is worth a word, and the figure is shown either way.
     if (ratedW !== undefined && ratedW * 2 < installedWp)

@@ -1,0 +1,125 @@
+{
+  "formatVersion": "1.1.0",
+  "assemblies": [
+    {
+      "id": "generic-ridge-tile",
+      "familyId": "RIDGE",
+      "category": "ROOF_PART",
+      "form": "LINEAR",
+      "name": "Faîtage à sec en tuile",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Points singuliers courants de la couverture française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-clay-tile"
+      }
+    },
+    {
+      "id": "generic-hip-tile",
+      "familyId": "HIP",
+      "category": "ROOF_PART",
+      "form": "LINEAR",
+      "name": "Arêtier à sec en tuile",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Points singuliers courants de la couverture française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-clay-tile"
+      }
+    },
+    {
+      "id": "generic-valley-zinc",
+      "familyId": "VALLEY",
+      "category": "ROOF_PART",
+      "form": "LINEAR",
+      "name": "Noue métallique zinc",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Points singuliers courants de la couverture française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-metal-roofing"
+      }
+    },
+    {
+      "id": "generic-eave-zinc",
+      "familyId": "EAVE",
+      "category": "ROOF_PART",
+      "form": "LINEAR",
+      "name": "Égout avec bande de rive métallique",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Points singuliers courants de la couverture française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-metal-roofing"
+      }
+    },
+    {
+      "id": "generic-verge-tile",
+      "familyId": "VERGE",
+      "category": "ROOF_PART",
+      "form": "LINEAR",
+      "name": "Rive à rabat en tuile",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Points singuliers courants de la couverture française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-clay-tile"
+      }
+    },
+    {
+      "id": "generic-flashing-zinc",
+      "familyId": "FLASHING",
+      "category": "ROOF_PART",
+      "form": "LINEAR",
+      "name": "Solin métallique zinc",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Points singuliers courants de la couverture française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-metal-roofing"
+      }
+    },
+    {
+      "id": "generic-chimney-opening",
+      "familyId": "CHIMNEY_OPENING",
+      "category": "ROOF_PART",
+      "form": "LINEAR",
+      "name": "Souche de cheminée maçonnée",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Points singuliers courants de la couverture française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-concrete-block"
+      }
+    },
+    {
+      "id": "generic-vent-outlet",
+      "familyId": "VENT_OUTLET",
+      "category": "ROOF_PART",
+      "form": "LINEAR",
+      "name": "Sortie de toit ventilée",
+      "version": "1.0.0",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Points singuliers courants de la couverture française — ne provient d’aucun fabricant"
+      },
+      "properties": {
+        "material": "generic-clay-tile"
+      }
+    }
+  ]
+}

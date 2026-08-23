@@ -2,10 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { isDimension } from '@house-technical-designer/core-domain';
 import type { Project } from '@house-technical-designer/core-domain';
 import { entityId } from '@house-technical-designer/core-domain';
-import {
-  genericMaterial,
-  materialId,
-} from '@house-technical-designer/materials';
+import { materialId } from '@house-technical-designer/materials';
+import { genericMaterial } from '@house-technical-designer/materials/catalog';
 import { ProjectCommandDispatcher } from './project-commands.js';
 import {
   RemoveEquipmentCommand,

@@ -15,6 +15,8 @@
  * thirteen hundred tests; the integration gets it as a gate.
  */
 import { existsSync, readFileSync } from 'node:fs';
+import { starterLibrary } from '../packages/catalog-registry/src/starter-library.js';
+import { STARTER_LIBRARY } from '../packages/catalog-registry/src/starter-library-data.js';
 import {
   SYMBOL_LIBRARY_V1,
   rawGenericSymbolEntries,
@@ -37,8 +39,12 @@ import {
   validateRegistry,
   validateSchemas,
 } from '@house-technical-designer/catalog-registry';
-import { rawGenericMaterialEntries } from '@house-technical-designer/materials';
-import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies';
+import { rawGenericMaterialEntries } from '@house-technical-designer/materials/catalog';
+import {
+  GENERIC_ASSEMBLY_FORMAT_VERSION,
+  assembliesOutOfFormat,
+  rawGenericAssemblyEntries,
+} from '@house-technical-designer/assemblies/catalog';
 import { rawGenericOpeningEntries } from '@house-technical-designer/opening-catalog';
 
 const MANIFEST_PATH = 'packages/catalog-registry/data/manifest.json';
@@ -116,11 +122,21 @@ const sections: readonly Section[] = [
     title: 'Assemblages',
     counted: rawGenericAssemblyEntries().length,
     noun: 'compositions',
-    issues: validateAssemblyCatalog().map(({ entryId, path, message }) => ({
-      subject: entryId,
-      path,
-      message,
-    })),
+    issues: [
+      ...validateAssemblyCatalog().map(({ entryId, path, message }) => ({
+        subject: entryId,
+        path,
+        message,
+      })),
+      // The shape of these files has a version, and it is read from the first
+      // of them. One file lagging behind would be read as the shape of all of
+      // them, silently.
+      ...assembliesOutOfFormat().map((source) => ({
+        subject: source,
+        path: 'formatVersion',
+        message: `states a format version the other files do not: they say ${GENERIC_ASSEMBLY_FORMAT_VERSION}`,
+      })),
+    ],
   },
   {
     // The last of the seven registries to live in TypeScript, and the only one
@@ -195,6 +211,23 @@ else if (recorded.releaseId !== manifest.releaseId) {
     `✓ Manifeste — publication ${manifest.releaseId}, format ${manifest.catalogFormatVersion}`,
   );
 if (recorded?.releaseId !== manifest.releaseId) failed = true;
+
+// The basket a new project starts with is generated from the catalogue and
+// read from a file: a project must not be handed the shelf. What the file says
+// therefore has to be what the catalogue says, or the six build-ups somebody
+// starts with are six the catalogue corrected months ago.
+const basket = starterLibrary();
+const written = JSON.stringify(STARTER_LIBRARY);
+if (written === JSON.stringify(basket))
+  console.log(
+    `✓ Panier de départ — ${basket.materials.length} matériaux, ${basket.assemblies.length} compositions, ${basket.openingTypes.length} menuiseries`,
+  );
+else {
+  console.log(
+    '✗ Panier de départ — ne dit plus ce que le catalogue dit ; lancer npm run catalog:starter.',
+  );
+  failed = true;
+}
 
 if (failed) {
   console.error(

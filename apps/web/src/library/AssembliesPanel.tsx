@@ -9,8 +9,19 @@ import type {
   LayerRole,
 } from '@house-technical-designer/assemblies';
 import { materialId as toMaterialId } from '@house-technical-designer/materials';
+import { CatalogPicker } from '../catalog/CatalogPicker.js';
+import {
+  assemblySnapshot,
+  type RawAssemblyEntry,
+} from '@house-technical-designer/assemblies/catalog';
+import {
+  materialSnapshot,
+  type RawMaterialEntry,
+} from '@house-technical-designer/materials/catalog';
 import {
   AddAssemblyCommand,
+  ImportMaterialsCommand,
+  ProjectTransactionCommand,
   RemoveAssemblyCommand,
   UpdateAssemblyCommand,
   addAssemblyLayerCommand,
@@ -25,11 +36,20 @@ import {
 import {
   PREVIEW_SURFACE_RESISTANCES,
   assemblyViews,
+  materialsAnAssemblyNeeds,
   nextLibraryId,
   type AssemblyView,
 } from './library-model.js';
 import { DraftField } from '../DraftField.js';
 
+/**
+ * The build-ups somebody composes here.
+ *
+ * Not every category of the registry: a column and a ridge are entries of the
+ * same registry and are not build-ups — one has a section, the other a length,
+ * and neither is composed layer by layer. They are offered where they are
+ * placed, not where a wall is written.
+ */
 const CATEGORIES: readonly AssemblyCategory[] = [
   'WALL',
   'ROOF',
@@ -45,6 +65,8 @@ const CATEGORY_LABELS: Readonly<Record<AssemblyCategory, string>> = {
   FLOOR: 'Plancher',
   CEILING: 'Plafond',
   PARTITION: 'Cloison',
+  STRUCTURAL_MEMBER: 'Élément de structure',
+  ROOF_PART: 'Point singulier de toiture',
   OTHER: 'Autre',
 };
 
@@ -151,6 +173,57 @@ export function AssembliesPanel({
           <h2 id="assemblies-heading">Assemblages</h2>
         </div>
         <div className="actions">
+          <CatalogPicker
+            registry="ASSEMBLY"
+            taken={new Set(takenIds)}
+            label="Ajouter depuis le catalogue"
+            onPick={async (_summary, body, repository) => {
+              const entry = body as RawAssemblyEntry;
+              const assembly = assemblySnapshot(entry);
+              // One pick, several additions: a build-up is made of materials,
+              // and taking it without them would leave layers pointing at
+              // nothing. One transaction, so undoing puts back one decision
+              // and a refusal anywhere refuses the whole thing.
+              const wanted = materialsAnAssemblyNeeds(
+                entry.layers ?? [],
+                new Set(materials.map(({ id }) => String(id))),
+              );
+              // The reference, not a guess at it: an entry is known by
+              // `MATERIAL:identifiant@version`, and a version invented here
+              // would fetch nothing at all — silently, since the pick would
+              // simply do nothing.
+              const rows = new Map(
+                (repository.index.byRegistry.get('MATERIAL') ?? []).map(
+                  (row) => [row.id, row.ref],
+                ),
+              );
+              const brought = await Promise.all(
+                wanted.map(async (id) => {
+                  const ref = rows.get(id);
+                  if (ref === undefined)
+                    throw new RangeError(
+                      `matériau inconnu au catalogue : ${id}`,
+                    );
+                  return materialSnapshot(
+                    (await repository.entry(ref)) as RawMaterialEntry,
+                  );
+                }),
+              );
+              onCommand(
+                new ProjectTransactionCommand(
+                  `assembly:from-catalog:${assembly.id}`,
+                  `Ajouter ${assembly.name}`,
+                  [
+                    ...(brought.length === 0
+                      ? []
+                      : [new ImportMaterialsCommand(brought)]),
+                    new AddAssemblyCommand(assembly),
+                  ],
+                ),
+              );
+              onSelect(assembly.id);
+            }}
+          />
           <button
             type="button"
             onClick={createAssembly}

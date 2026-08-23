@@ -6,8 +6,7 @@
   "required": [
     "id",
     "name",
-    "category",
-    "layers"
+    "category"
   ],
   "properties": {
     "id": {
@@ -45,12 +44,14 @@
         "FLOOR",
         "CEILING",
         "PARTITION",
+        "STRUCTURAL_MEMBER",
+        "ROOF_PART",
         "OTHER"
       ]
     },
     "layers": {
       "type": "array",
-      "minItems": 1,
+      "minItems": 0,
       "items": {
         "type": "object",
         "required": [
@@ -84,6 +85,16 @@
     "metadata": {
       "type": "object",
       "additionalProperties": true
+    },
+    "form": {
+      "enum": [
+        "LAYERED",
+        "PROFILED",
+        "LINEAR"
+      ]
+    },
+    "properties": {
+      "type": "object"
     }
   },
   "additionalProperties": true

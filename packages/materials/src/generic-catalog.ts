@@ -176,26 +176,37 @@ function sourcesOf(entry: RawMaterialEntry): readonly MaterialSource[] {
 }
 
 /**
+ * One catalogue entry, as a project holds it.
+ *
+ * The single path from a fiche to a project. It was written inside the
+ * whole-catalogue function, which was enough while a project was handed the
+ * whole catalogue — and a project is not handed the whole catalogue any more:
+ * it takes what somebody picks. Two constructors for one idea is how the one
+ * nobody looks at quietly stops carrying a field.
+ */
+export function materialSnapshot(entry: RawMaterialEntry): Material {
+  return createMaterial({
+    id: materialId(entry.id),
+    // Where this copy came from, so a project can still say it.
+    catalogRef: {
+      registry: 'MATERIAL',
+      id: entry.id,
+      version: entry.version,
+    },
+    name: entry.name,
+    kind: 'GENERIC',
+    category: entry.category,
+    properties: propertiesOf(entry),
+    sources: sourcesOf(entry),
+  });
+}
+
+/**
  * Builds the generic catalogue. A fresh array is returned each time so callers
  * can copy entries into a project without sharing mutable references.
  */
 export function genericMaterialCatalog(): readonly Material[] {
-  return rawGenericMaterialEntries().map((entry) =>
-    createMaterial({
-      id: materialId(entry.id),
-      // Where this copy came from, so a project can still say it.
-      catalogRef: {
-        registry: 'MATERIAL',
-        id: entry.id,
-        version: entry.version,
-      },
-      name: entry.name,
-      kind: 'GENERIC',
-      category: entry.category,
-      properties: propertiesOf(entry),
-      sources: sourcesOf(entry),
-    }),
-  );
+  return rawGenericMaterialEntries().map(materialSnapshot);
 }
 
 /** Looks a catalogue entry up by identifier. */

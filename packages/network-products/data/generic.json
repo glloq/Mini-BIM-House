@@ -1271,6 +1271,222 @@
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
       }
+    },
+    {
+      "id": "flue-single-wall-80",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit simple paroi Ø80",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox simple paroi",
+        "innerDiameterMm": 80,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 240
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-single-wall-100",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit simple paroi Ø100",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox simple paroi",
+        "innerDiameterMm": 100,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 300
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-single-wall-125",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit simple paroi Ø125",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox simple paroi",
+        "innerDiameterMm": 125,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 375
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-single-wall-150",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit simple paroi Ø150",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox simple paroi",
+        "innerDiameterMm": 150,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 450
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-single-wall-180",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit simple paroi Ø180",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox simple paroi",
+        "innerDiameterMm": 180,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 540
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-single-wall-200",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Conduit simple paroi Ø200",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox simple paroi",
+        "innerDiameterMm": 200,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 600
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-flexible-80",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Tubage flexible Ø80",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox flexible double peau",
+        "innerDiameterMm": 80,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 50
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-flexible-100",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Tubage flexible Ø100",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox flexible double peau",
+        "innerDiameterMm": 100,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 50
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-flexible-125",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Tubage flexible Ø125",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox flexible double peau",
+        "innerDiameterMm": 125,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 50
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-flexible-150",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Tubage flexible Ø150",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox flexible double peau",
+        "innerDiameterMm": 150,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 50
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-flexible-180",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Tubage flexible Ø180",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox flexible double peau",
+        "innerDiameterMm": 180,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 50
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
+    },
+    {
+      "id": "flue-flexible-200",
+      "family": "FLUE_PIPE",
+      "domain": "FLUE",
+      "label": "Tubage flexible Ø200",
+      "version": "1.0.0",
+      "properties": {
+        "material": "Inox flexible double peau",
+        "innerDiameterMm": 200,
+        "temperatureClass": "T450",
+        "sootFireResistant": true,
+        "distanceToCombustibleMm": 50
+      },
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+      }
     }
   ]
 }

@@ -19,7 +19,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER"
+      "category": "DATA_DEVICE"
     },
     {
       "id": "FIBER_TERMINATION",
@@ -46,7 +46,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -68,7 +68,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER"
+      "category": "DATA_DEVICE"
     },
     {
       "id": "NETWORK_RACK",
@@ -94,7 +94,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC", "FIBER"]
     },
     {
@@ -121,7 +121,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER"
+      "category": "DATA_DEVICE"
     },
     {
       "id": "NETWORK_SWITCH",
@@ -148,7 +148,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["FIBER"]
     },
     {
@@ -176,7 +176,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["FIBER", "COAX", "WIRELESS"]
     },
     {
@@ -198,7 +198,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -220,7 +220,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC", "WIRELESS"]
     },
     {
@@ -248,7 +248,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -270,12 +270,12 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "DATA_TEMPERATURE_SENSOR",
-      "label": "Capteur de température",
+      "label": "Capteur de température ambiante",
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
@@ -411,7 +411,10 @@
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
       "category": "SENSOR",
-      "optionalPorts": ["ELECTRICAL_AC"]
+      "optionalPorts": ["ELECTRICAL_AC"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "DOOR_CONTACT",
+      "retiredReason": "un contact d’ouvrant est le même composant sur une porte et sur une fenêtre"
     },
     {
       "id": "MOTION_SENSOR",
@@ -467,11 +470,14 @@
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
       "category": "SENSOR",
-      "optionalPorts": ["ELECTRICAL_AC"]
+      "optionalPorts": ["ELECTRICAL_AC"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "PRESENCE_SENSOR",
+      "retiredReason": "un détecteur de présence est le même capteur, qu’il commande l’éclairage ou une automatisation"
     },
     {
       "id": "DATA_RELAY",
-      "label": "Relais",
+      "label": "Relais domotique",
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
@@ -488,7 +494,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["BUS", "CONTROL", "WIRELESS"]
     },
     {
@@ -510,7 +516,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["BUS", "WIRELESS"]
     },
     {
@@ -532,7 +538,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["BUS", "WIRELESS"]
     },
     {
@@ -554,7 +560,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -576,7 +582,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -598,7 +604,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -620,7 +626,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -642,7 +648,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
-      "category": "OTHER",
+      "category": "DATA_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -731,7 +737,10 @@
         "RULES": "NONE"
       },
       "category": "SENSOR",
-      "optionalPorts": ["ELECTRICAL_AC", "DRY_CONTACT", "BUS", "WIRELESS"]
+      "optionalPorts": ["ELECTRICAL_AC", "DRY_CONTACT", "BUS", "WIRELESS"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "CO2_SENSOR",
+      "retiredReason": "le dioxyde de carbone se mesure, il ne se détecte pas comme un danger : le monoxyde a sa propre famille"
     },
     {
       "id": "ALARM_PANEL",
@@ -752,7 +761,7 @@
         "MODEL": "PARTIAL",
         "RULES": "NONE"
       },
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["WIRELESS", "BUS", "ETHERNET", "DRY_CONTACT"]
     },
     {
@@ -780,7 +789,7 @@
         "MODEL": "PARTIAL",
         "RULES": "NONE"
       },
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -809,7 +818,10 @@
         "RULES": "NONE"
       },
       "category": "SENSOR",
-      "optionalPorts": ["ELECTRICAL_AC"]
+      "optionalPorts": ["ELECTRICAL_AC"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "MOTION_SENSOR",
+      "retiredReason": "un détecteur de mouvement infrarouge est le même appareil ; ce qu’il alimente est une affaire de réseau"
     },
     {
       "id": "DOOR_CONTACT",
@@ -852,7 +864,7 @@
         "MODEL": "PARTIAL",
         "RULES": "NONE"
       },
-      "category": "OTHER"
+      "category": "SAFETY_DEVICE"
     },
     {
       "id": "FIRE_BLANKET",
@@ -873,7 +885,7 @@
         "MODEL": "PARTIAL",
         "RULES": "NONE"
       },
-      "category": "OTHER"
+      "category": "SAFETY_DEVICE"
     },
     {
       "id": "SAFETY_EMERGENCY_LIGHT",
@@ -895,11 +907,14 @@
         "RULES": "NONE"
       },
       "category": "LUMINAIRE",
-      "optionalPorts": ["DRY_CONTACT", "BUS"]
+      "optionalPorts": ["DRY_CONTACT", "BUS"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "EMERGENCY_LIGHT",
+      "retiredReason": "un bloc autonome d’éclairage de sécurité est un luminaire, décrit une fois"
     },
     {
       "id": "EMERGENCY_STOP",
-      "label": "Arrêt d’urgence",
+      "label": "Arrêt d’urgence à champignon",
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
@@ -916,12 +931,12 @@
         "MODEL": "PARTIAL",
         "RULES": "NONE"
       },
-      "category": "OTHER",
+      "category": "SAFETY_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "ELECTRICAL_EMERGENCY_CUTOFF",
-      "label": "Coupure d’urgence",
+      "label": "Coupure d’urgence de branchement",
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
@@ -966,7 +981,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "METER",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "WATER_METER",
+      "retiredReason": "un compteur d’eau en regard reste un compteur d’eau"
     },
     {
       "id": "WATER_CHAMBER",
@@ -993,7 +1011,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "SITE_FEATURE"
     },
     {
       "id": "SEWER_CHAMBER",
@@ -1025,7 +1043,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "SITE_RAINWATER_CHAMBER",
@@ -1046,7 +1064,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "RAINWATER_DEVICE",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "RAINWATER_CHAMBER",
+      "retiredReason": "un regard pluvial appartient au réseau d’eaux pluviales, où qu’il soit posé"
     },
     {
       "id": "SITE_SEPTIC_TANK",
@@ -1078,7 +1099,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "DRAINAGE",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "SEPTIC_TANK",
+      "retiredReason": "une fosse toutes eaux est un ouvrage d’assainissement, et elle est toujours sur la parcelle"
     },
     {
       "id": "SITE_MICRO_TREATMENT_PLANT",
@@ -1111,7 +1135,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "DRAINAGE",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "MICRO_TREATMENT_PLANT",
+      "retiredReason": "même objet, même métier : l’assainissement non collectif"
     },
     {
       "id": "ELECTRICAL_SERVICE_BOX",
@@ -1166,7 +1193,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "METER",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "SERVICE_METER",
+      "retiredReason": "le compteur de concession est le compteur de branchement"
     },
     {
       "id": "SITE_EARTH_ROD",
@@ -1187,7 +1217,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "EARTHING_DEVICE",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "EARTH_ROD",
+      "retiredReason": "un piquet de terre est toujours enfoui ; le lot électricité en décrit la résistance, pas le plan de masse"
     },
     {
       "id": "OUTDOOR_HEAT_PUMP",
@@ -1273,7 +1306,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER",
+      "category": "SITE_FEATURE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -1295,12 +1328,12 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER",
+      "category": "SITE_FEATURE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
       "id": "SITE_DRAIN",
-      "label": "Drain",
+      "label": "Drain périphérique de fondation",
       "domain": "SITE",
       "registry": "EQUIPMENT",
       "priority": 6,
@@ -1317,7 +1350,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER"
+      "category": "DRAINAGE"
     },
     {
       "id": "SITE_EV_CHARGER",
@@ -1338,8 +1371,11 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "OTHER",
-      "optionalPorts": ["ETHERNET", "WIRELESS", "CONTROL"]
+      "category": "APPLIANCE",
+      "optionalPorts": ["ETHERNET", "WIRELESS", "CONTROL"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "EV_CHARGER",
+      "retiredReason": "une borne sur pied et une borne murale sont la même famille ; le support est une donnée de pose"
     },
     {
       "id": "SITE_EXTERIOR_SOCKET",
@@ -1360,7 +1396,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "SOCKET"
+      "category": "SOCKET",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "EXTERIOR_SOCKET",
+      "retiredReason": "une prise étanche est le même objet, dehors comme dedans : c’est son indice de protection qui le dit"
     },
     {
       "id": "SITE_EXTERIOR_LIGHT",
@@ -1382,7 +1421,10 @@
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
       "category": "LUMINAIRE",
-      "optionalPorts": ["CONTROL", "WIRELESS"]
+      "optionalPorts": ["CONTROL", "WIRELESS"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "EXTERIOR_LIGHT",
+      "retiredReason": "un luminaire extérieur est le même objet, qu’il soit décrit par le lot éclairage ou par le plan de masse"
     },
     {
       "id": "STRUCTURAL_COLUMN",
@@ -1397,7 +1439,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "STRUCTURAL_BEAM",
@@ -1412,7 +1455,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "LINTEL",
@@ -1427,7 +1471,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "POST",
@@ -1442,7 +1487,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "JOIST",
@@ -1457,7 +1503,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "RAFTER",
@@ -1472,7 +1519,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "PURLIN",
@@ -1487,7 +1535,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "TRUSS",
@@ -1502,7 +1551,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "STRIP_FOOTING",
@@ -1517,7 +1567,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "PAD_FOOTING",
@@ -1532,7 +1583,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "RAFT",
@@ -1547,7 +1599,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "PILE",
@@ -1562,7 +1615,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "GROUND_BEAM",
@@ -1577,7 +1631,8 @@
         "CALCULATION": "NONE",
         "QUANTITIES": "PARTIAL"
       },
-      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore."
+      "hint": "Se décrit et se dessine ; aucun calcul de structure ne le vérifie encore.",
+      "category": "STRUCTURAL_MEMBER"
     },
     {
       "id": "BED",
@@ -1597,7 +1652,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "SOFA",
@@ -1617,7 +1672,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "CHAIR",
@@ -1637,7 +1692,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "TABLE",
@@ -1657,7 +1712,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "DESK",
@@ -1677,11 +1732,11 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "WARDROBE",
-      "label": "Armoire",
+      "label": "Armoire de rangement",
       "domain": "FURNITURE",
       "registry": "EQUIPMENT",
       "priority": 1,
@@ -1697,7 +1752,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "CABINET",
@@ -1717,7 +1772,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "KITCHEN_CABINET",
@@ -1737,7 +1792,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "WORKTOP",
@@ -1757,7 +1812,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     },
     {
       "id": "SHELF",
@@ -1777,7 +1832,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Sans moteur technique, mais indispensable à l’implantation, aux circulations et aux collisions.",
-      "category": "OTHER"
+      "category": "FURNITURE"
     }
   ]
 }

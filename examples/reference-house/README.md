@@ -10,11 +10,25 @@ continuent de réussir en n'ayant rien à vérifier. Elle décrit donc :
 
 - **deux niveaux** de 80 m² reliés par un escalier, une enveloppe isolée, des
   ouvertures, des dalles et une toiture posée sur le niveau qu'elle couvre ;
+- **cinq compositions et onze matériaux venus du catalogue** — mur de parpaing
+  isolé par l'extérieur, cloison sur ossature, dalle sur terre-plein, plancher
+  intermédiaire bois, rampant isolé — et non plus deux matériaux et trois
+  compositions écrits pour ce fichier seul : la thermique, les métrés et le
+  dessin des couches tournent sur ce que l'application livre ;
 - **un terrain** avec ses limites, un arbre et une maison voisine, tous deux de
   hauteur connue, donc capables de porter une ombre ;
-- **des objets posés** — luminaires, groupe de ventilation, ballon d'eau chaude
-  — et non seulement des fiches de catalogue : trois radiateurs et un seul ne
-  sont pas la même maison ;
+- **trente et un objets posés** tirés du catalogue — pompe à chaleur, ballon
+  tampon, circulateur, cinq radiateurs, deux sèche-serviettes, groupe de
+  ventilation simple flux hygroréglable — celui que son réseau dessine,
+  ballon d'eau chaude, cinq appareils sanitaires, tableau, disjoncteur, prises,
+  luminaires, champ photovoltaïque, onduleur, batterie — chacun posé quelque
+  part et non seulement catalogué : trois radiateurs et un seul ne sont pas la
+  même maison ;
+- **dix-neuf fiches d'équipement et trois fiches de menuiserie** venues du
+  catalogue installé, avec leur `familyId`, leur version, leurs ports, leurs
+  dégagements et leur provenance : la maison de référence est faite de ce que
+  l'utilisateur peut choisir, et non de valeurs écrites pour elle seule — un
+  test l'exige, fiche par fiche ;
 - **quatre réseaux** qui montent à l'étage : eau, évacuation, ventilation,
   électricité, chacun connecté port à port, et **chaque tronçon nomme le
   produit dont il est fait** ;
@@ -34,6 +48,9 @@ chantier, et les prix ne proviennent d'aucun fournisseur. Les résultats calcul�
 ne sont jamais enregistrés dans le projet.
 
 Le test d'intégration charge et valide le fichier, vérifie qu'il tient toujours
-un objet de chaque famille, exécute les dix-sept adaptateurs de calcul, contrôle
-la conservation énergétique, sauvegarde puis recharge le projet, et exporte un
-plan SVG sémantique.
+un exemplaire de chaque chose dont une maison est faite — deux niveaux, un
+escalier, une toiture, un terrain, des objets posés sur les deux niveaux, quatre
+réseaux qui montent à l'étage, les cinq sortes de vue — et que chaque
+équipement vient bien du catalogue. Il exécute ensuite les dix-sept adaptateurs
+de calcul, contrôle la conservation énergétique, sauvegarde puis recharge le
+projet, et exporte un plan SVG sémantique.

@@ -40,7 +40,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SENSOR",
+      "category": "METER",
       "optionalPorts": ["EARTH", "CONTROL"]
     },
     {
@@ -208,12 +208,12 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SENSOR",
+      "category": "METER",
       "optionalPorts": ["EARTH", "CONTROL"]
     },
     {
       "id": "ELECTRICAL_SUB_METER",
-      "label": "Sous-compteur",
+      "label": "Sous-compteur électrique",
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
@@ -230,7 +230,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SENSOR",
+      "category": "METER",
       "optionalPorts": ["EARTH", "CONTROL"]
     },
     {
@@ -354,12 +354,12 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PROTECTION_DEVICE",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["CONTROL"]
     },
     {
       "id": "RELAY",
-      "label": "Relais",
+      "label": "Relais électrique",
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
@@ -375,7 +375,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PROTECTION_DEVICE",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["CONTROL"]
     },
     {
@@ -396,7 +396,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PROTECTION_DEVICE",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["CONTROL"]
     },
     {
@@ -417,7 +417,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PROTECTION_DEVICE",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["CONTROL"]
     },
     {
@@ -485,7 +485,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "CABLE_ROUTING",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -507,7 +507,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "CABLE_ROUTING",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -529,7 +529,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "CABLE_ROUTING",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -557,7 +557,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "CABLE_ROUTING",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -579,7 +579,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "CABLE_ROUTING",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -601,7 +601,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "CABLE_ROUTING",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -773,7 +773,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "CONTROL_DEVICE"
     },
     {
       "id": "DOUBLE_SWITCH",
@@ -801,7 +801,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "CONTROL_DEVICE"
     },
     {
       "id": "TWO_WAY_SWITCH",
@@ -829,7 +829,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "CONTROL_DEVICE"
     },
     {
       "id": "INTERMEDIATE_SWITCH",
@@ -861,7 +861,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "CONTROL_DEVICE"
     },
     {
       "id": "PUSH_BUTTON",
@@ -882,7 +882,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "CONTROL_DEVICE"
     },
     {
       "id": "DIMMER",
@@ -903,7 +903,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["CONTROL"]
     },
     {
@@ -932,7 +932,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["CONTROL"]
     },
     {
@@ -954,7 +954,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "APPLIANCE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -976,7 +976,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "APPLIANCE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -998,7 +998,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "APPLIANCE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -1020,7 +1020,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "APPLIANCE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -1042,7 +1042,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "APPLIANCE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -1064,7 +1064,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "APPLIANCE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -1086,7 +1086,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "APPLIANCE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -1108,7 +1108,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "APPLIANCE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -1130,7 +1130,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "APPLIANCE",
       "optionalPorts": ["EARTH"]
     },
     {
@@ -1173,7 +1173,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "EARTHING_DEVICE"
     },
     {
       "id": "EARTH_ROD",
@@ -1193,7 +1193,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "EARTHING_DEVICE"
     },
     {
       "id": "FOUNDATION_EARTH_LOOP",
@@ -1213,7 +1213,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "EARTHING_DEVICE"
     },
     {
       "id": "EARTH_BAR",
@@ -1239,7 +1239,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "EARTHING_DEVICE"
     },
     {
       "id": "MAIN_EARTHING_TERMINAL",
@@ -1265,7 +1265,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "EARTHING_DEVICE"
     },
     {
       "id": "PROTECTIVE_CONDUCTOR",
@@ -1291,7 +1291,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "EARTHING_DEVICE"
     },
     {
       "id": "EQUIPOTENTIAL_BONDING",
@@ -1317,7 +1317,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "EARTHING_DEVICE"
     },
     {
       "id": "BATHROOM_BONDING",
@@ -1343,7 +1343,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "EARTHING_DEVICE"
     },
     {
       "id": "SPD_EARTH_CONNECTION",
@@ -1369,7 +1369,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "EARTHING_DEVICE"
     },
     {
       "id": "CEILING_LIGHT",
@@ -1641,7 +1641,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "CONTROL_DEVICE"
     }
   ]
 }

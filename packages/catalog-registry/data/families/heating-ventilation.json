@@ -421,7 +421,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "HEAT_EXCHANGER",
       "optionalPorts": ["CONTROL"]
     },
     {
@@ -455,7 +455,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "HEAT_EXCHANGER",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -511,7 +511,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "BUFFER_TANK",
@@ -532,7 +532,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "VESSEL",
       "optionalPorts": ["PRIMARY_FLOW", "PRIMARY_RETURN"]
     },
     {
@@ -559,11 +559,11 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "HYDRAULIC_ACCESSORY"
     },
     {
       "id": "HEATING_EXPANSION_VESSEL",
-      "label": "Vase d’expansion",
+      "label": "Vase d’expansion de chauffage",
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -586,7 +586,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "VESSEL"
     },
     {
       "id": "SAFETY_VALVE",
@@ -613,7 +613,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "VALVE",
       "optionalPorts": ["WASTEWATER"]
     },
     {
@@ -635,11 +635,11 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "HYDRAULIC_ACCESSORY"
     },
     {
       "id": "HEATING_AIR_VENT",
-      "label": "Purgeur",
+      "label": "Purgeur d’air de chauffage",
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -662,7 +662,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "DIRT_SEPARATOR",
@@ -683,7 +683,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "HYDRAULIC_ACCESSORY"
     },
     {
       "id": "MAGNETIC_FILTER",
@@ -704,11 +704,11 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "HYDRAULIC_ACCESSORY"
     },
     {
       "id": "HEATING_ISOLATION_VALVE",
-      "label": "Vanne d’isolement",
+      "label": "Vanne d’isolement de chauffage",
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -725,7 +725,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "HEATING_CHECK_VALVE",
@@ -746,11 +746,11 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "HEATING_BALANCING_VALVE",
-      "label": "Vanne d’équilibrage",
+      "label": "Vanne d’équilibrage de chauffage",
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -767,7 +767,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "VALVE"
     },
     {
       "id": "THREE_WAY_VALVE",
@@ -794,7 +794,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "VALVE",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -823,7 +823,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "VALVE",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -1072,7 +1072,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "La géométrie des boucles, leur longueur et leur perte de charge sont dérivées, jamais saisies.",
-      "category": "SENSOR",
+      "category": "CONTROL_DEVICE",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -1218,7 +1218,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
-      "category": "OTHER",
+      "category": "FITTING",
       "optionalPorts": ["ELECTRICAL_AC", "CONDENSATE", "CONTROL"]
     },
     {
@@ -1249,7 +1249,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "CONDENSATE_DRAIN",
@@ -1270,7 +1270,7 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
-      "category": "OTHER",
+      "category": "HYDRAULIC_ACCESSORY",
       "optionalPorts": ["ELECTRICAL_AC"]
     },
     {
@@ -1508,7 +1508,7 @@
     },
     {
       "id": "VENTILATION_ELBOW",
-      "label": "Coude",
+      "label": "Coude de gaine",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -1546,11 +1546,11 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "VENTILATION_TEE",
-      "label": "Té",
+      "label": "Té de gaine",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -1586,11 +1586,11 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "Y_BRANCH",
-      "label": "Culotte",
+      "label": "Culotte de gaine",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -1626,11 +1626,11 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "VENTILATION_REDUCER",
-      "label": "Réduction",
+      "label": "Réduction de gaine",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -1668,7 +1668,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "TRANSITION",
@@ -1710,7 +1710,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "PLENUM",
@@ -1750,7 +1750,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "FITTING"
     },
     {
       "id": "DAMPER",
@@ -1792,7 +1792,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "AIR_ACCESSORY",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -1835,11 +1835,11 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "AIR_ACCESSORY"
     },
     {
       "id": "BACKDRAFT_DAMPER",
-      "label": "Clapet anti-retour",
+      "label": "Clapet anti-retour d’air",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -1877,7 +1877,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "AIR_ACCESSORY"
     },
     {
       "id": "FIRE_DAMPER",
@@ -1919,7 +1919,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "AIR_ACCESSORY",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -1962,11 +1962,11 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "AIR_ACCESSORY"
     },
     {
       "id": "VENTILATION_FILTER",
-      "label": "Filtre",
+      "label": "Filtre de ventilation",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -2004,7 +2004,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "AIR_ACCESSORY"
     },
     {
       "id": "HEATING_COIL",
@@ -2048,7 +2048,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "HEAT_EXCHANGER",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -2102,7 +2102,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER",
+      "category": "HEAT_EXCHANGER",
       "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
     },
     {
@@ -2124,7 +2124,7 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "OTHER"
+      "category": "AIR_ACCESSORY"
     }
   ]
 }

@@ -33,9 +33,19 @@ describe('browsing the nomenclature', () => {
     // of the nomenclature rather than written down, so that declaring a family
     // stays a data change.
     expect(FAMILY_REGISTRY.length).toBeGreaterThan(500);
-    expect(catalogRows(entriesByFamily, known).length).toBe(
-      FAMILY_REGISTRY.length,
+    const inService = FAMILY_REGISTRY.filter(
+      ({ lifecycle }) => (lifecycle ?? 'ACTIVE') === 'ACTIVE',
     );
+    expect(catalogRows(entriesByFamily, known).length).toBe(inService.length);
+    // The ones that left service still open the projects that hold them, and
+    // are offered to nobody starting a design — but somebody reading the
+    // nomenclature to understand it can still ask for them, and gets told what
+    // took their place.
+    const all = catalogRows(entriesByFamily, known, { withRetired: true });
+    expect(all.length).toBe(FAMILY_REGISTRY.length);
+    const retired = all.filter(({ replacedBy }) => replacedBy !== undefined);
+    expect(retired.length).toBe(FAMILY_REGISTRY.length - inService.length);
+    for (const row of retired) expect(row.retiredReason).toBeDefined();
   });
 
   it('narrows by trade, by wave and by word', () => {
@@ -72,9 +82,17 @@ describe('browsing the nomenclature', () => {
     });
     // The families somebody has written a fiche for — counted from the fiches,
     // so a filling wave answers this question differently without editing it.
+    const offerable = new Set(
+      FAMILY_REGISTRY.filter(
+        ({ lifecycle }) => (lifecycle ?? 'ACTIVE') === 'ACTIVE',
+      ).map(({ id }) => id),
+    );
     expect(placeable.length).toBe(
-      new Set(rawGenericEquipmentEntries().map(({ familyId }) => familyId))
-        .size,
+      new Set(
+        rawGenericEquipmentEntries()
+          .map(({ familyId }) => familyId)
+          .filter((id) => offerable.has(id)),
+      ).size,
     );
     expect(placeable.every(({ entryCount }) => entryCount > 0)).toBe(true);
   });
@@ -102,13 +120,29 @@ describe('browsing the nomenclature', () => {
     ]);
   });
 
-  it('says plainly when a family has nothing to place', () => {
-    // Nothing anywhere: no fiche of it in any of the six registries.
-    const view = catalogFamilyView('EAVE', entriesByFamily, known)!;
-    expect(view.entries).toEqual([]);
-    expect(view.axes.find(({ axis }) => axis === 'GENERIC_DATA')?.value).toBe(
-      'NONE',
+  it('has nothing left to say « rien du tout » about', () => {
+    // This used to be « says plainly when a family has nothing to place », and
+    // its subject was the eave: a family of the assembly registry that shipped
+    // nothing, because a ridge is a length and the registry only knew how to
+    // hold a stack of materials. CG-01 and CG-02 closed that, and with it the
+    // last of the five hundred and twenty-seven.
+    //
+    // The assertion is worth more the other way round: every family the
+    // application offers has something behind it, and the day one does not,
+    // this fails and names it.
+    const held = new Set(
+      installedCatalog().summaries.flatMap(({ familyId }) =>
+        familyId === undefined ? [] : [familyId],
+      ),
     );
+    // Of the families still in service: one that has left it is offered to
+    // nobody, and asking it for a fiche is asking a retired thing to be
+    // current.
+    const empty = FAMILY_REGISTRY.filter(
+      ({ id, lifecycle }) =>
+        (lifecycle ?? 'ACTIVE') === 'ACTIVE' && !held.has(id),
+    ).map(({ id }) => id);
+    expect(empty).toEqual([]);
   });
 
   it('separates « nothing exists » from « nothing to place here »', () => {

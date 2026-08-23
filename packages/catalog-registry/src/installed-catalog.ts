@@ -7,12 +7,12 @@ import {
   GENERIC_MATERIAL_FORMAT_VERSION,
   materialCatalogSources,
   rawGenericMaterialEntries,
-} from '@house-technical-designer/materials';
+} from '@house-technical-designer/materials/catalog';
 import {
   GENERIC_ASSEMBLY_FORMAT_VERSION,
   assemblyCatalogSources,
   rawGenericAssemblyEntries,
-} from '@house-technical-designer/assemblies';
+} from '@house-technical-designer/assemblies/catalog';
 import {
   GENERIC_OPENING_FORMAT_VERSION,
   openingCatalogSources,

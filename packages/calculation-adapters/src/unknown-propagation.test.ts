@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import type { Project } from '@house-technical-designer/core-domain';
+import { equipmentKindOf } from '@house-technical-designer/core-domain';
 import { loadProjectJson } from '@house-technical-designer/project-io';
 
 import { createProjectCalculationContext } from './project-context.js';
@@ -133,8 +134,15 @@ describe('what several panels add up to', () => {
     const stripped: Project = {
       ...project,
       equipment: (project.equipment ?? []).map((definition) => {
-        if (definition.kind !== 'PHOTOVOLTAIC') return definition;
-        const { installedPowerWp: _power, ...rest } = definition.properties;
+        if (equipmentKindOf(definition) !== 'PHOTOVOLTAIC') return definition;
+        // Both spellings: a fiche says `peakPowerWp` and a project written
+        // before the catalogue says `installedPowerWp`. Taking away one of
+        // them and leaving the other is taking away nothing.
+        const {
+          installedPowerWp: _power,
+          peakPowerWp: _peak,
+          ...rest
+        } = definition.properties;
         return { ...definition, properties: rest };
       }),
     };

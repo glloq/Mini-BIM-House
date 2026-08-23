@@ -12,9 +12,9 @@ Un écart écrit ici n'est pas une dette oubliée : les familles concernées se
 mesurent `MISSING` sur l'axe `GENERIC_DATA`, l'interface le dit, et ce document
 explique ce que le chiffre veut dire.
 
-## CG-01 — les éléments de structure ne sont pas des empilements
+## CG-01 — les éléments de structure n'étaient pas des empilements
 
-**Registre** `ASSEMBLY` · **13 familles** · vague 1
+**Registre** `ASSEMBLY` · **13 familles** · vague 1 · **résolu**
 
 `STRUCTURAL_COLUMN`, `STRUCTURAL_BEAM`, `LINTEL`, `POST`, `JOIST`, `RAFTER`,
 `PURLIN`, `TRUSS`, `STRIP_FOOTING`, `PAD_FOOTING`, `RAFT`, `PILE`,
@@ -36,15 +36,40 @@ béton de 0,20 m. Ce serait accepté par la porte, dessiné par l'interface, et 
 par le calcul thermique comme une paroi de 0,20 m de béton — un mur qui n'existe
 pas, avec une surface qui n'existe pas.
 
-**Ce qui manque** : soit un `properties` dans la fiche d'assemblage, avec le
+**Ce qui manquait** : soit un `properties` dans la fiche d'assemblage, avec le
 même mécanisme de schéma et d'unités que les autres registres, soit un registre
 propre aux éléments linéaires. La première option est plus petite et réutilise
 tout ce qui existe ; la seconde dit plus honnêtement qu'un poteau et un mur ne
-sont pas la même sorte d'objet. C'est une décision de format, pas de fiche.
+sont pas la même sorte d'objet.
 
-## CG-02 — les points singuliers de toiture ne sont pas des parois
+**Tranché pour la première, avec ce qui la rend sûre.** Un `properties` dans la
+fiche, gouverné par le schéma que la famille nomme — exactement comme une fiche
+d'équipement — et surtout un **discriminant** : `form` vaut `LAYERED`,
+`PROFILED` ou `LINEAR`. La forme n'est pas choisie par la fiche mais déduite de
+la catégorie de sa famille : une fiche qui choisirait sa propre forme pourrait
+décrire un mur comme une section et être lue comme tel.
 
-**Registre** `ASSEMBLY` · **10 familles** · vague 2
+Trois règles, à la porte :
+
+- une fiche `LAYERED` a des couches et **ne peut pas** porter de `properties` —
+  ses couches disent tout, et un second endroit pour le dire est une seconde
+  réponse qui cesse d'être d'accord ;
+- une fiche `PROFILED` ou `LINEAR` a des `properties` validées par son schéma et
+  **ne peut pas** porter de couches ;
+- **un mur, une dalle, une toiture ne peuvent être faits que d'une fiche
+  `LAYERED`**, et l'importeur refuse le reste. C'est la règle qui compte : sans
+  elle, le poteau écrit comme « une couche de béton de 0,20 m » serait accepté,
+  dessiné, et lu par le calcul thermique comme une paroi qui n'existe pas.
+
+Deux catégories d'assemblage ont été ajoutées — `STRUCTURAL_MEMBER` et
+`ROOF_PART` — et les treize familles ont leur fiche générique : poteau béton
+20 × 20, poutre 20 × 40, linteau, montant 45 × 145, solive 75 × 220, chevron
+63 × 100, panne 100 × 225, ferme, semelle filante, semelle isolée, radier, pieu
+Ø 400, longrine.
+
+## CG-02 — les points singuliers de toiture n'étaient pas des parois
+
+**Registre** `ASSEMBLY` · **10 familles** · vague 2 · **résolu**
 
 `RIDGE`, `HIP`, `VALLEY`, `EAVE`, `VERGE`, `FLASHING`, `ROOF_WINDOW`,
 `SKYLIGHT`, `CHIMNEY_OPENING`, `VENT_OUTLET`.
@@ -58,15 +83,28 @@ Les familles portent déjà l'indication : « déduit du contour de la toiture p
 les lignes ; les accessoires restent à modéliser ». Ce qui reste à modéliser,
 c'est exactement ce que ce format ne sait pas porter.
 
-**Ce qui manque** : la même chose que CG-01 — un porteur de propriétés dans la
-fiche — plus une décision sur `ROOF_WINDOW` et `SKYLIGHT`, qui sont
-vraisemblablement des **ouvertures** rangées dans le registre des assemblages :
-une fenêtre de toit a un Uw, un facteur solaire et un vantail, c'est-à-dire le
-contrat `OPENING`, pas celui d'une paroi.
+**Résolu par la même chose que CG-01** : la forme `LINEAR`, et huit fiches
+génériques — faîtage et arêtier à sec en tuile, noue, égout et solin
+métalliques, rive à rabat, souche maçonnée, sortie de toit ventilée. Un faîtage
+déclare de quoi il est fait ; sa longueur reste `DERIVED`, déduite du contour de
+la toiture, parce que c'est un résultat du modèle et pas une donnée qu'on pose.
 
-## CG-04 — le vocabulaire des catégories d'équipement est trop court
+Et la décision demandée sur `ROOF_WINDOW` et `SKYLIGHT` : **ce sont des
+menuiseries**. Leur contrat est celui d'`OPENING` — Uw, facteur solaire, vantail
+— et rien de celui d'une paroi. Les deux familles ont changé de registre et ont
+leur fiche. Ce qu'elles ne peuvent pas encore faire, c'est être posées : voir
+CG-09.
 
-**Registre** `EQUIPMENT` · **plus de deux cents familles** · toutes vagues
+**Avec CG-01 et CG-02, les 527 familles de la nomenclature portent toutes au
+moins une fiche générique.** C'était l'objectif de la troisième étape de la
+feuille de route ; les vingt-trois qui manquaient étaient exactement celles-ci,
+et ce n'était pas un trou de remplissage mais un trou de format. Un test le
+vérifie désormais dans l'autre sens : il échoue en nommant la première famille
+qui redeviendrait vide.
+
+## CG-04 — le vocabulaire des catégories d'équipement était trop court
+
+**Registre** `EQUIPMENT` · **201 familles** · toutes vagues · **résolu**
 
 Le mobilier d'abord — `BED`, `SOFA`, `CHAIR`, `TABLE`, `DESK`, `WARDROBE`,
 `CABINET`, `KITCHEN_CABINET`, `WORKTOP`, `SHELF` — puis, en vague 2, presque
@@ -95,9 +133,51 @@ compteurs sont en `SENSOR`.
 
 Cette liste est une énumération TypeScript, pas une donnée. L'allonger est une
 modification du format, ce qu'une PR de remplissage ne fait pas — d'où cette
-ligne plutôt qu'une valeur ajoutée en passant. Le jour où le format bouge,
-`FURNITURE`, `VALVE`, `FITTING`, `DRAINAGE` et `RAINWATER_DEVICE` sont les
-valeurs à ajouter, et ces familles les prendront.
+ligne plutôt qu'une valeur ajoutée en passant.
+
+**Le format a bougé, délibérément.** Vingt et un mots ont été ajoutés, chacun
+couvrant un groupe de familles qui existe :
+
+| catégorie             | ce qu'elle nomme                                               | familles |
+| --------------------- | -------------------------------------------------------------- | -------- |
+| `FITTING`             | ce qui change la direction, la section ou le nombre d'un tracé | 28       |
+| `VALVE`               | ce qui ouvre, ferme, limite ou mélange un débit                | 19       |
+| `RAINWATER_DEVICE`    | ce qui recueille, retient ou infiltre la pluie                 | 18       |
+| `CONTROL_DEVICE`      | ce qui commande                                                | 17       |
+| `DRAINAGE`            | ce qui emmène et traite ce qu'on rejette                       | 15       |
+| `DATA_DEVICE`         | ce qui transporte de l'information                             | 14       |
+| `FLUE_COMPONENT`      | ce qui évacue les fumées et amène l'air comburant              | 11       |
+| `APPLIANCE`           | l'électroménager et la recharge                                | 10       |
+| `EARTHING_DEVICE`     | ce qui met à la terre                                          | 10       |
+| `FURNITURE`           | ce qui meuble                                                  | 10       |
+| `METER`               | ce qui compte                                                  | 9        |
+| `SAFETY_DEVICE`       | ce qui alerte, surveille ou éteint                             | 8        |
+| `AIR_ACCESSORY`       | ce qui règle, atténue ou filtre un circuit d'air               | 7        |
+| `STOVE`               | ce qui brûle du bois dans la pièce qu'il chauffe               | 6        |
+| `CABLE_ROUTING`       | ce qui porte et abrite les câbles                              | 6        |
+| `HYDRAULIC_ACCESSORY` | ce qui sépare, purge ou filtre un circuit humide               | 5        |
+| `WATER_TREATMENT`     | ce qui traite l'eau avant qu'on la boive                       | 5        |
+| `HEAT_EXCHANGER`      | ce qui fait passer la chaleur d'un fluide à un autre           | 4        |
+| `VESSEL`              | ce qui tient un volume sous pression                           | 4        |
+| `SITE_FEATURE`        | ce qui est sur la parcelle et n'est pas un bâtiment            | 4        |
+| `MOUNTING`            | ce qui porte un module ou un capteur                           | 3        |
+
+Les deux rangements faits faute de mieux ont été défaits : **contacteur,
+télérupteur, minuterie et délesteur** quittent `PROTECTION_DEVICE` pour
+`CONTROL_DEVICE` — un contacteur ne protège rien — et **sept compteurs**
+quittent `SENSOR` pour `METER` : un compteur compte ce qui est passé, un
+capteur dit ce qui se passe, et la différence est celle entre une facture et
+une consigne.
+
+**Une seule famille reste en `OTHER`** : l'optimiseur photovoltaïque. Une
+catégorie pour un seul objet est un mot que personne ne cherchera ; le jour où
+l'électronique de puissance au niveau du module se décline, la liste
+s'allongera encore, délibérément, comme aujourd'hui.
+
+La décision famille par famille est dans `scripts/equipment-categories.ts`,
+qui la rejoue et échoue plutôt que de laisser une famille sans mot : c'est un
+script parce qu'un rangement de deux cents familles que personne ne peut
+relire est un rangement que personne ne peut vérifier.
 
 Le mobilier n'a pas non plus de symbole de plan, et cela n'est pas un écart de
 contrat : l'axe `PLAN_SYMBOL` le mesure déjà à `NONE`, ce qui est la bonne
@@ -238,9 +318,33 @@ ne peuvent donc déclarer aucun dégagement. Une trappe de ramonage, dont la
 fonction unique est d'être ouverte, n'a pas le droit de dire l'accès qu'elle
 demande ; une barrette de coupure de terre non plus.
 
-## CG-08 — vingt familles décrivent le même objet depuis deux métiers
+## CG-09 — une ouverture n'a pour hôte qu'un mur
 
-**Nomenclature** · **une vingtaine de paires**
+**Modèle** · **2 familles** · issu de CG-02
+
+`Opening.hostElementId` est un `WallId`, et rien d'autre. La validation, le
+dessin en plan, la coupe, l'enveloppe thermique et le métré lisent tous cette
+hypothèse : une baie appartient à un mur, on la repère par une abscisse le long
+du mur et une hauteur d'allège.
+
+Une fenêtre de toit ne se décrit pas ainsi. Elle est posée dans un pan incliné,
+son abscisse court sur une surface inclinée, sa surface déperditive appartient à
+la toiture et non à un mur, et son dessin en plan est une projection.
+
+`ROOF_WINDOW` et `SKYLIGHT` sont maintenant des familles du registre `OPENING`
+avec leur fiche — Uw 1,3 et 1,6, facteur solaire 0,52 et 0,55 — et leur
+`placement.allowedHosts` dit `ROOF`, ce qu'aucune commande ne sait honorer. Leur
+`status.MODEL` vaut donc `NONE`, ce qui est la vraie réponse : la donnée existe,
+la pose n'existe pas.
+
+**Ce qui manque** : que `hostElementId` accepte une toiture, et avec lui les
+quarante-six endroits qui supposent un mur. Ce n'est pas une extension de
+format, c'est une extension du modèle géométrique — la même famille de travail
+que les lucarnes et les chiens-assis — et elle se décide comme telle.
+
+## CG-08 — vingt familles décrivaient le même objet depuis deux métiers
+
+**Nomenclature** · **18 familles retirées, 30 renommées** · **résolu**
 
 `SAFETY_CO2_DETECTOR` et `CO2_SENSOR`, `SAFETY_MOTION_DETECTOR` et
 `MOTION_SENSOR`, `DOOR_CONTACT` et `WINDOW_SENSOR`, `SITE_EXTERIOR_LIGHT` et
@@ -252,15 +356,45 @@ l'assainissement, la pompe à chaleur extérieure du site et celle du chauffage�
 C'était invisible tant que personne n'avait écrit de fiche : deux familles
 vides ne se ressemblent pas. Maintenant chacune en a une, et elles se
 retrouvent côte à côte dans la même liste — trois paires portaient jusqu'au
-même nom, ce qui donnait au projet deux objets d'identifiant identique. Les
-noms ont été distingués et un test refuse la paire suivante ; la fusion des
-familles reste à décider.
+même nom, ce qui donnait au projet deux objets d'identifiant identique.
 
-Un cas plus lourd du même genre : **le conduit de fumée existe dans deux
-registres**. Les sections de conduit sont des équipements d'un mètre, alors que
-`FLUE_PIPE` est déjà une famille `NETWORK_PRODUCT` avec ses entrées. Un métré
-compterait deux fois le même mètre linéaire. Un tronçon devrait être un produit
-de réseau ; un coude, un té, une souche restent des équipements.
+**La règle qui tranche est celle que CG-06 avait déjà appliquée à neuf familles
+du domaine site : un lieu n'est pas une nature d'objet.** Un piquet de terre est
+un piquet de terre, que l'électricien le spécifie ou que le plan de masse le
+dessine ; une fosse toutes eaux ne devient pas autre chose parce qu'elle est
+dehors. `SITE_`, `SAFETY_` et `DATA_` étaient des préfixes de point de vue, et
+la famille qui survit est celle du métier qui spécifie l'objet. Là où être
+dehors compte, c'est `placement.allowedHosts` qui le dit, pas une seconde
+famille.
+
+**Rien n'est supprimé.** Le cycle de vie que le registre porte depuis CAT-01
+existait pour exactement cela et n'était consulté par rien : une famille quitte
+le service, dit ce qui la remplace et pourquoi, et les fichiers qui la portent
+continuent de s'ouvrir. Dix-huit familles sont retirées ; le sélecteur de
+catalogue et le navigateur ne les proposent plus, et le navigateur dit combien
+il y en a et ce qui les remplace.
+
+**Le conduit de fumée existait dans deux registres.** `SINGLE_WALL_FLUE`,
+`INSULATED_FLUE` et `FLEXIBLE_LINER` étaient des équipements d'un mètre, alors
+que `FLUE_PIPE` est une famille `NETWORK_PRODUCT` : un métré comptait deux fois
+le même mètre linéaire. Un tronçon droit est un produit de réseau — douze
+produits ont été ajoutés, simple paroi et tubage flexible en six diamètres,
+pour que rien ne se perde — et les trois familles d'équipement sont retirées. Un
+coude, un té, une souche restent des équipements : ils se comptent à l'unité.
+
+**Et le test refuse la paire suivante.** Il compare les libellés de toutes les
+familles en service et échoue en nommant celles qui se ressemblent. Il en a
+trouvé quinze de plus que l'inventaire écrit ici : une seule était un vrai
+doublon — `ROOF_WINDOW` était une copie de `WINDOW_ROOF`, que le registre des
+menuiseries déclarait déjà — et les quatorze autres étaient un mot de métier
+partagé par deux métiers. Un té d'eau et un té de gaine ne sont pas le même
+objet, et « té » tout court ne dit pas lequel on pose. Trente familles ont été
+renommées pour le dire : coude d'eau et coude de gaine, purgeur de distribution
+et purgeur de chauffage, clapet anti-retour d'eau, d'évacuation et d'air.
+
+Un second test exige que chaque famille retirée nomme un remplaçant qui existe,
+qui est lui-même en service, et dise pourquoi : un retrait sans destination est
+une impasse avec un motif joint.
 
 ## CG-03 — la nomenclature des matériaux n'avait pas de couverture
 

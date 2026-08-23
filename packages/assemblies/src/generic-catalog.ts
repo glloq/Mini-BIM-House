@@ -1,6 +1,11 @@
 import { assemblyId, assemblyLayerId } from './assemblies.js';
 import { materialId } from '@house-technical-designer/materials';
-import type { Assembly, AssemblyCategory, LayerRole } from './types.js';
+import type {
+  Assembly,
+  AssemblyCategory,
+  AssemblyForm,
+  LayerRole,
+} from './types.js';
 
 /**
  * The build-ups a project can start from.
@@ -32,14 +37,24 @@ export interface RawAssemblyEntry {
     readonly url?: string;
     readonly validAt?: string;
   };
+  /**
+   * How this entry describes itself: a stack, a section, or a length.
+   *
+   * Absent means `LAYERED`. Every entry written before the registry had to
+   * hold anything but a wall is one, and spelling the default out in
+   * thirty-five files is a migration nobody asked for.
+   */
+  readonly form?: string;
   /** Exterior to interior, for anything vertical. The order is the build-up. */
-  readonly layers: readonly {
+  readonly layers?: readonly {
     readonly id: string;
     readonly materialId: string;
     readonly thicknessM: number;
     readonly role?: string;
     readonly ventilated?: boolean;
   }[];
+  /** What a profiled or linear entry says, governed by its family's schema. */
+  readonly properties?: Readonly<Record<string, string | number | boolean>>;
 }
 
 interface CatalogFile {
@@ -76,13 +91,39 @@ export function rawGenericAssemblyEntries(): readonly RawAssemblyEntry[] {
   return FILES.flatMap(({ assemblies }) => assemblies);
 }
 
-/** What the catalogue files themselves are: their shape has a version too. */
+/**
+ * What the catalogue files themselves are: their shape has a version too.
+ *
+ * 1.1.0 since the registry stopped being able to hold only stacks: an entry
+ * may now state a `form` and the `properties` that go with it, which is how a
+ * column says it has a section and a ridge says it has a length. Every 1.0.0
+ * entry is still a valid 1.1.0 entry — a build-up that says nothing about its
+ * form is layered, which is what all thirty-five of them were.
+ *
+ * Read from the files rather than written here, and every file has to agree:
+ * one that lagged behind would be read as the shape of all of them.
+ */
 export const GENERIC_ASSEMBLY_FORMAT_VERSION =
   FILES[0]?.formatVersion ?? '1.0.0';
 
-/** The catalogue as the model holds it. */
-export function genericAssemblyCatalog(): readonly Assembly[] {
-  return rawGenericAssemblyEntries().map((entry) => ({
+/** The files that do not state the version the rest of them state. */
+export function assembliesOutOfFormat(): readonly string[] {
+  return assemblyCatalogSources().filter(
+    (_, index) =>
+      FILES[index]?.formatVersion !== GENERIC_ASSEMBLY_FORMAT_VERSION,
+  );
+}
+
+/**
+ * One build-up, as a project holds it.
+ *
+ * The single path from a fiche to a project, for the same reason a material
+ * has one: a project takes the build-ups somebody picks rather than being
+ * handed all of them, and « picked » and « started with » must not be two
+ * different copies of one idea.
+ */
+export function assemblySnapshot(entry: RawAssemblyEntry): Assembly {
+  return {
     id: assemblyId(entry.id),
     // Where this build-up came from, so a project can still say it.
     catalogRef: {
@@ -92,7 +133,9 @@ export function genericAssemblyCatalog(): readonly Assembly[] {
     },
     name: entry.name,
     category: entry.category as AssemblyCategory,
-    layers: entry.layers.map((layer) => ({
+    ...(entry.form === undefined ? {} : { form: entry.form as AssemblyForm }),
+    ...(entry.properties === undefined ? {} : { properties: entry.properties }),
+    layers: (entry.layers ?? []).map((layer) => ({
       id: assemblyLayerId(layer.id),
       materialId: materialId(layer.materialId),
       thicknessM: layer.thicknessM,
@@ -101,7 +144,12 @@ export function genericAssemblyCatalog(): readonly Assembly[] {
         ? {}
         : { ventilated: layer.ventilated }),
     })),
-  }));
+  };
+}
+
+/** The catalogue as the model holds it. */
+export function genericAssemblyCatalog(): readonly Assembly[] {
+  return rawGenericAssemblyEntries().map(assemblySnapshot);
 }
 
 /** The family of the master nomenclature one generic build-up belongs to. */

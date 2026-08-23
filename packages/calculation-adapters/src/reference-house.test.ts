@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { equipmentKindOf } from '@house-technical-designer/core-domain';
 import { CalculationOrchestrator } from '@house-technical-designer/calculation-core';
 import {
   createSemanticScene,
@@ -22,6 +23,20 @@ import { createProjectCalculationContext } from './project-context.js';
 import { buildProjectCalculationInputs } from './project-inputs.js';
 import type { Project } from '@house-technical-designer/core-domain';
 import { entityId } from '@house-technical-designer/core-domain';
+import type { Point2D } from '@house-technical-designer/geometry';
+
+/** Whether a point falls inside a polygon, by the even–odd rule. */
+function within(point: Point2D, outer: readonly Point2D[]): boolean {
+  let inside = false;
+  for (let index = 0; index < outer.length; index += 1) {
+    const a = outer[index]!;
+    const b = outer[(index + 1) % outer.length]!;
+    if (a.y > point.y === b.y > point.y) continue;
+    const crossing = a.x + ((point.y - a.y) * (b.x - a.x)) / (b.y - a.y);
+    if (point.x < crossing) inside = !inside;
+  }
+  return inside;
+}
 
 const fixturePath = fileURLToPath(
   new URL(
@@ -208,10 +223,13 @@ describe('PR-069 reference house', () => {
     const baseline = loaded.file.project;
     const changed = structuredClone(baseline);
     const exterior = changed.assemblies!.find(
-      ({ id }) => id === 'assembly-exterior',
+      ({ id }) => id === 'generic-wall-block-external-insulation',
     )!;
+    // Its insulating layer, whatever the build-up calls it: the catalogue's
+    // external wall names it « finish », because the insulation is on the
+    // outside and it is what one sees.
     const insulation = exterior.layers.find(
-      ({ id }) => id === 'layer-insulation',
+      ({ role }) => role === 'INSULATION',
     )!;
     (insulation as { thicknessM: number }).thicknessM *= 2;
 
@@ -246,8 +264,55 @@ describe('PR-069 reference house', () => {
     expect(project.site.parcelBoundary).toBeDefined();
     // Things placed, not only catalogued, and networks that reach both floors.
     const components = levels.flatMap(({ components }) => components ?? []);
+    const rooms = new Map<
+      string,
+      { readonly levelId: string; readonly outer: readonly Point2D[] }
+    >(
+      levels.flatMap(({ id: levelId, spaces }) =>
+        (spaces ?? []).flatMap((space) =>
+          space.boundaryMode === 'MANUAL'
+            ? [
+                [space.id, { levelId, outer: space.manualPolygon.outer }] as [
+                  string,
+                  { levelId: string; outer: readonly Point2D[] },
+                ],
+              ]
+            : [],
+        ),
+      ),
+    );
     expect(components.length).toBeGreaterThan(8);
     expect(new Set(components.map(({ levelId }) => levelId)).size).toBe(2);
+    // Made of what the user can choose. An equipment written for this file
+    // alone answers to no family, carries no version and states no source, and
+    // a house built out of such things proves nothing about the catalogue the
+    // application actually ships.
+    for (const definition of project.equipment ?? []) {
+      expect(definition.familyId, definition.id).toBeDefined();
+      expect(definition.version, definition.id).toBeDefined();
+      expect(definition.provenance, definition.id).toBeDefined();
+    }
+    for (const opening of project.openingTypes ?? []) {
+      expect(opening.familyId, opening.id).toBeDefined();
+      expect(opening.provenance, opening.id).toBeDefined();
+    }
+    // Every placement names a model the project holds.
+    const known = new Set((project.equipment ?? []).map(({ id }) => id));
+    for (const { id, definitionId } of components)
+      expect(definitionId === undefined || known.has(definitionId), id).toBe(
+        true,
+      );
+    // And stands in the room it says it stands in. A basin declaring the
+    // upstairs bathroom while sitting two metres outside it is a placement
+    // nothing refuses and everything believes: the room's fixture count, its
+    // water demand and its drawing all read `spaceId`, and only the drawing
+    // would have shown the disagreement.
+    for (const component of components) {
+      const room = rooms.get(component.spaceId ?? '');
+      if (room === undefined) continue;
+      expect(room.levelId, component.id).toBe(component.levelId);
+      expect(within(component.position, room.outer), component.id).toBe(true);
+    }
     for (const system of project.systems ?? []) {
       expect(
         system.nodes.some(({ levelId }) => levelId === 'first'),
@@ -268,6 +333,63 @@ describe('PR-069 reference house', () => {
       [...new Set((project.drawingViews ?? []).map(({ type }) => type))].sort(),
     ).toEqual(['ELEVATION', 'PLAN', 'ROOF', 'SECTION', 'SITE']);
     expect(project.sheets?.[0]?.viewports.length).toBeGreaterThan(1);
+  });
+
+  it('draws no run that leads nowhere and no network in two pieces', async () => {
+    // Three invariants nothing checked. A port a system declares and no run
+    // joins is a length of pipe somebody meant to draw; a port joined twice is
+    // a tee nobody modelled; and a network in two disconnected pieces computes
+    // both halves and reports one total. All three are silent: every module
+    // still returns a number.
+    const loaded = loadProjectJson(await readFile(fixturePath, 'utf8'));
+    expect(loaded.status).toBe('OK');
+    if (loaded.status !== 'OK') return;
+    for (const system of loaded.file.project.systems ?? []) {
+      const used = new Map<string, number>();
+      for (const edge of system.edges)
+        for (const port of [edge.fromPortId, edge.toPortId])
+          used.set(port, (used.get(port) ?? 0) + 1);
+      expect(
+        system.ports.filter(({ id }) => !used.has(id)).map(({ id }) => id),
+        `${system.id} : ports qu'aucun tronçon ne joint`,
+      ).toEqual([]);
+      expect(
+        [...used].filter(([, count]) => count > 1).map(([id]) => id),
+        `${system.id} : ports joints deux fois`,
+      ).toEqual([]);
+
+      // One piece. A node with no port at all is not a defect — a passive wall
+      // inlet and a door undercut are drawn and ducted to nothing — but a node
+      // that declares a port belongs to the run its ports are on.
+      const nodeOfPort = new Map(
+        system.ports.map((one) => [one.id, one.nodeId]),
+      );
+      const near = new Map<string, string[]>();
+      for (const edge of system.edges) {
+        const from = nodeOfPort.get(edge.fromPortId)!;
+        const to = nodeOfPort.get(edge.toPortId)!;
+        near.set(from, [...(near.get(from) ?? []), to]);
+        near.set(to, [...(near.get(to) ?? []), from]);
+      }
+      const ducted = system.nodes.filter(({ id }) =>
+        system.ports.some((one) => one.nodeId === id),
+      );
+      const seen = new Set<string>();
+      const queue = ducted[0] === undefined ? [] : [ducted[0].id];
+      for (const id of queue) seen.add(id);
+      while (queue.length > 0) {
+        const at = queue.shift()!;
+        for (const next of near.get(at) ?? [])
+          if (!seen.has(next)) {
+            seen.add(next);
+            queue.push(next);
+          }
+      }
+      expect(
+        ducted.filter(({ id }) => !seen.has(id)).map(({ id }) => id),
+        `${system.id} : réseau en deux morceaux`,
+      ).toEqual([]);
+    }
   });
 
   it('runs every module on the reference house', async () => {
@@ -296,8 +418,13 @@ describe('PR-069 reference house', () => {
     if (loaded.status !== 'OK') return;
     const baseline = loaded.file.project;
     const morePv = structuredClone(baseline);
-    const pv = morePv.equipment!.find(({ kind }) => kind === 'PHOTOVOLTAIC')!;
-    (pv.properties as { installedPowerWp: number }).installedPowerWp *= 2;
+    // Through the bridge, and by the word the catalogue uses: the house is
+    // made of fiches now, and a fiche says `PV_MODULE` and `peakPowerWp` where
+    // this test used to say `PHOTOVOLTAIC` and `installedPowerWp`.
+    const pv = morePv.equipment!.find(
+      (entry) => equipmentKindOf(entry) === 'PHOTOVOLTAIC',
+    )!;
+    (pv.properties as { peakPowerWp: number }).peakPowerWp *= 2;
     const basePv = await output(baseline, 'photovoltaic');
     const changedPv = await output(morePv, 'photovoltaic');
     expect((changedPv.generationWh as number[])[2]).toBeCloseTo(
@@ -307,7 +434,7 @@ describe('PR-069 reference house', () => {
 
     const largerBattery = structuredClone(baseline);
     const battery = largerBattery.equipment!.find(
-      ({ kind }) => kind === 'BATTERY',
+      (entry) => equipmentKindOf(entry) === 'BATTERY',
     )!;
     (battery.properties as { usableCapacityKWh: number }).usableCapacityKWh *=
       2;

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { genericAssemblyCatalog } from '@house-technical-designer/assemblies';
+import { genericAssemblyCatalog } from '@house-technical-designer/assemblies/catalog';
+import { STARTER_LIBRARY } from '@house-technical-designer/catalog-registry/starter';
 import { defaultVisibility } from '@house-technical-designer/view-query';
 import type { ProjectFile } from '@house-technical-designer/core-domain';
 import { loadProjectJson } from '@house-technical-designer/project-io';
@@ -35,19 +36,27 @@ describe('web project workspace', () => {
     const materials = file.project.materialLibrary!.materials;
     const assemblies = file.project.assemblies!;
     expect(materials.length).toBeGreaterThan(0);
-    // The build-ups come from the assembly catalogue now, not from a list
-    // written out in the application beside the code that draws them — so
-    // what a new project starts with is « everything the catalogue ships »,
-    // and a wave that adds ceilings adds them here without a code change.
+    // A basket, not a shelf. A new project used to be handed all thirty-five
+    // build-ups and all fifty-nine materials, none of them chosen by anybody,
+    // in a project where nothing is drawn yet — and the three catalogues went
+    // into the first payload with them. It starts with one build-up per kind
+    // of surface a house shell is made of; the rest is picked.
+    expect(assemblies).toHaveLength(STARTER_LIBRARY.assemblies.length);
+    expect(assemblies.length).toBeLessThan(genericAssemblyCatalog().length);
     expect(new Set(assemblies.map(({ category }) => category))).toEqual(
-      new Set(genericAssemblyCatalog().map(({ category }) => category)),
+      new Set(['WALL', 'PARTITION', 'FLOOR', 'ROOF', 'CEILING']),
     );
-    expect(assemblies).toHaveLength(genericAssemblyCatalog().length);
-    // Every starter layer points at a material the project actually carries.
+    // The materials are what those build-ups are made of: no more, so nothing
+    // is carried for nothing, and no less, so no layer names a material the
+    // project does not hold.
     const known = new Set(materials.map(({ id }) => id));
-    for (const assembly of assemblies)
-      for (const layer of assembly.layers)
-        expect(known.has(layer.materialId)).toBe(true);
+    expect(known).toEqual(
+      new Set(
+        assemblies.flatMap(({ layers }) =>
+          layers.map(({ materialId }) => materialId),
+        ),
+      ),
+    );
 
     const wall = addWallToProject(
       file,

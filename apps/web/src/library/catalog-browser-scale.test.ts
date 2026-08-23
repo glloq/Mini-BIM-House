@@ -45,7 +45,8 @@ const known = {
 
 describe('the catalogue panel with ten thousand entries behind it', () => {
   it('draws every row of the nomenclature without holding a fiche', () => {
-    const rows = catalogRows(byFamily, known);
+    // Every row the panel offers, which is every family still in service.
+    const rows = catalogRows(byFamily, known, { withRetired: true });
     expect(rows.length).toBe(FAMILY_REGISTRY.length);
     const counted = rows.reduce((total, row) => total + row.entryCount, 0);
     expect(counted).toBe(10_000);

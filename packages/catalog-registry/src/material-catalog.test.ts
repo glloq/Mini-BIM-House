@@ -13,12 +13,12 @@ import {
 import {
   materialCatalogSources,
   rawGenericMaterialEntries,
-} from '@house-technical-designer/materials';
+} from '@house-technical-designer/materials/catalog';
+import { ASSEMBLY_CATEGORIES } from '@house-technical-designer/assemblies';
 import {
-  ASSEMBLY_CATEGORIES,
   assemblyCatalogSources,
   rawGenericAssemblyEntries,
-} from '@house-technical-designer/assemblies';
+} from '@house-technical-designer/assemblies/catalog';
 
 const known = { family, schema: propertySchema };
 const materials = new Set(rawGenericMaterialEntries().map(({ id }) => id));
@@ -177,7 +177,7 @@ describe('the build-ups, and what they are made of', () => {
         materials,
       }).map(({ message }) => message),
     ).toEqual(['a build-up has layers']);
-    const twice = assembly().layers[0]!;
+    const twice = assembly().layers![0]!;
     expect(
       validateAssemblyEntry(assembly({ layers: [twice, twice] }), {
         ...known,
@@ -190,6 +190,14 @@ describe('the build-ups, and what they are made of', () => {
     const built = genericAssemblies();
     expect(built).toHaveLength(rawGenericAssemblyEntries().length);
     for (const entry of built) {
+      // A build-up has layers; a column has a section and a ridge a length,
+      // and asking either for a stack of materials is the confusion the form
+      // exists to prevent.
+      if ((entry.form ?? 'LAYERED') !== 'LAYERED') {
+        expect(entry.layers).toEqual([]);
+        expect(Object.keys(entry.properties ?? {}).length).toBeGreaterThan(0);
+        continue;
+      }
       expect(entry.layers.length).toBeGreaterThan(0);
       for (const layer of entry.layers)
         expect(materials.has(layer.materialId)).toBe(true);
