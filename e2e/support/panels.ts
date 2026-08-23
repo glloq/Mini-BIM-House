@@ -1,16 +1,23 @@
 import type { Page } from '@playwright/test';
 
 /**
- * The two parts of the context panel that are now folded away.
+ * Les parties du panneau de contexte qu'un test doit atteindre.
  *
- * The model tree is a way of finding an object rather than a way of working,
- * and the twenty layer checkboxes are the engine behind the visibility
- * presets. Both stay reachable — a test opens them the way a person does.
+ * Les vingt cases de calques sont le moteur derrière les presets de
+ * visibilité, et restent atteignables : un test les ouvre comme une personne
+ * le ferait. L'arborescence, elle, ne se range plus.
+ */
+/**
+ * L'arborescence est permanente : il n'y a plus rien à ouvrir.
+ *
+ * Elle vivait derrière « ☰ Modèle » ; une question qu'on se pose sans arrêt ne
+ * se range pas. Le helper reste pour que les tests disent encore ce qu'ils
+ * font — et pour attendre qu'elle soit là.
  */
 export async function openModelTree(page: Page): Promise<void> {
-  const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
-  if (await tree.isVisible()) return;
-  await page.getByText('☰ Modèle').click();
+  await page
+    .getByRole('navigation', { name: 'Arborescence du projet' })
+    .waitFor();
 }
 
 export async function openLayerEditor(page: Page): Promise<void> {

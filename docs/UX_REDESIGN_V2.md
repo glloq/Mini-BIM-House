@@ -672,8 +672,32 @@ Mesuré : vingt-cinq boutons offerts d'un coup avant, vingt-quatre après. Le
 gain n'est pas le nombre — voir la correction du §1.2 — c'est que onze d'entre
 eux nomment ce qu'on pose et suivent l'étape.
 
-**UX-4 — Bâtiment.** `ProjectTree` promu, compacté, sorti de `☰ Modèle` ;
-sections Vues et Documents ; le renvoi à `Ctrl+K` remplacé par un bouton.
+**UX-4 — Bâtiment.** _Livré._ `ProjectTree` est sorti de `☰ Modèle` et vit en
+tête du panneau gauche : « où je suis » est une question qu'on se pose sans
+arrêt, et une question de ce genre ne se range pas derrière un dépliage.
+
+Les niveaux sont une rangée de boutons, et c'est **le seul** endroit où l'on
+change d'étage — la liste déroulante « Niveau » qui vivait juste au-dessus est
+supprimée. Deux commandes pour une décision, c'est une commande de trop, et
+c'est celle qui ne disait pas ce que l'étage contient.
+
+L'arbre est compacté par ce qu'il ne montre plus : **une famille vide n'est pas
+une rangée.** « Toitures (0) », « Cotes (0) », « Annotations (0) » et deux
+autres prenaient cinq lignes pour dire que rien n'existe, et repoussaient les
+outils sous la ligne de flottaison. Un arbre dit ce que le bâtiment a.
+
+Une section **Vues et feuilles** s'ajoute, avec ce que le projet a enregistré
+et un bouton qui y mène : une vue enregistrée n'était atteignable que par une
+destination, donc seulement par qui savait qu'elle existait.
+
+Le renvoi à `Ctrl+K` au-delà de quarante objets par famille — une phrase qui
+supposait qu'on connaisse le raccourci, qu'on ait un clavier et qu'on ait lu la
+ligne — devient un bouton qui ouvre la recherche avec le nom de la famille déjà
+écrit. `Ctrl+K` redevient ce qu'il aurait toujours dû être : un accélérateur.
+
+Vingt-six boutons offerts d'un coup, contre vingt-quatre avant l'arbre : deux
+niveaux et trois sections repliées, pour une question qu'on se posait en
+permanence.
 
 **UX-5 — Vue et affichage.** `ViewBar`, `DisplayPanel`, suppression de
 `LayersPanel`, discipline accessible partout.

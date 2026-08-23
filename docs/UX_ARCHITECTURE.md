@@ -258,9 +258,22 @@ répond en un clic ; les vingt calques restent un dépliage plus bas — ils son
 moteur, et le moteur n'a pas à être l'interface. Le popover dit combien de
 calques sont masqués, pour que personne n'imprime un plan amputé sans l'avoir su.
 
-**Le navigateur de modèle** passe derrière `☰ Modèle`. Trouver un objet n'est
-pas une façon de travailler : on l'ouvre quand le plan ne suffit pas, et il se
-replie le reste du temps pour laisser le panneau aux outils.
+**Le navigateur de bâtiment** est en tête du panneau gauche, en permanence.
+« Où je suis et ce qu'il y a dedans » est une question qu'on se pose sans
+arrêt ; elle a longtemps été rangée derrière un dépliage nommé `☰ Modèle`,
+c'est-à-dire cachée à qui ne savait pas déjà.
+
+Les niveaux y sont une rangée de boutons, et c'est **le seul** endroit où l'on
+change d'étage : une liste déroulante « Niveau » faisait la même chose ailleurs,
+sans dire ce que l'étage contient. Seul le niveau dessiné est déplié, et **une
+famille vide n'est pas une rangée** — un arbre dit ce que le bâtiment a, pas ce
+qu'il n'a pas. Les vues enregistrées et les feuilles y ont leur section : ce que
+le projet produit se trouve là où l'on cherche le reste.
+
+Au-delà de quarante objets par famille, un bouton ouvre la recherche avec le nom
+de la famille déjà écrit. La phrase qui renvoyait à `Ctrl+K` supposait qu'on
+connaisse le raccourci, qu'on ait un clavier et qu'on ait lu la ligne :
+**`Ctrl+K` est un accélérateur, jamais le seul chemin** — critère 18.
 
 ## 8 ter. Le compteur de vérifications
 

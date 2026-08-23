@@ -417,7 +417,6 @@ function App() {
   /** Whether what is drawn is being chosen right now. */
   const [visibilityOpen, setVisibilityOpen] = useState(false);
   /** Whether the model tree is open; it is secondary, behind « ☰ Modèle ». */
-  const [navigatorOpen, setNavigatorOpen] = useState(false);
   /** The trade the plan is being read through, in Systèmes. */
   /*
    * Le métier lu en ce moment vit dans la navigation, pas à côté.
@@ -458,6 +457,8 @@ function App() {
   /** Whether the workspace navigation is open as a drawer on a narrow screen. */
   const [menuOpen, setMenuOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  /** Ce qu'on cherchait en ouvrant la palette, quand on le savait déjà. */
+  const [paletteQuery, setPaletteQuery] = useState('');
   // How wide the panels are is a preference of the person, kept in the browser
   // and never in the project.
   const [layout, setLayout] = useState<WorkspaceLayout>(() =>
@@ -1668,6 +1669,7 @@ function App() {
           dispatchEditor({ type: 'RESET_VIEW' });
           return;
         case 'palette.open':
+          setPaletteQuery('');
           setPaletteOpen(true);
       }
     },
@@ -2075,7 +2077,6 @@ function App() {
                   draft.startMode === 'GUIDED' ? 'PROJECT' : 'BUILDING',
                 ),
               );
-              setNavigatorOpen(false);
               const shape = draft.initialShape;
               if (shape === undefined || shape.kind === 'NONE') return;
               const built = initialShapeCommands(
@@ -2187,7 +2188,12 @@ function App() {
                 type="button"
                 className="secondary"
                 title="Chercher un outil, une pièce, une commande (Ctrl+K)"
-                onClick={() => setPaletteOpen(true)}
+                onClick={() => {
+                  // Un champ qui garde ce qu'on cherchait la fois d'avant est
+                  // un champ qu'il faut vider avant de s'en servir.
+                  setPaletteQuery('');
+                  setPaletteOpen(true);
+                }}
               >
                 Rechercher
               </button>
@@ -2227,24 +2233,6 @@ function App() {
             setMenuOpen(false);
           }}
         >
-          <label className="level-selector">
-            Niveau
-            <select
-              value={activeLevelId ?? ''}
-              onChange={(event) =>
-                dispatchEditor({
-                  type: 'SET_LEVEL',
-                  levelId: event.target.value,
-                })
-              }
-            >
-              {levels.map((level) => (
-                <option key={level.id} value={level.id}>
-                  {level.name}
-                </option>
-              ))}
-            </select>
-          </label>
           {navigation.stage === 'PROJECT' && (
             <WorkflowGuide project={file.project} onNavigate={navigateTo} />
           )}
@@ -2262,6 +2250,36 @@ function App() {
           )}
           {tab === 'plan' && (
             <>
+              {/*
+               * Où je suis, en permanence.
+               *
+               * L'arborescence était derrière un dépliage nommé « ☰ Modèle »,
+               * c'est-à-dire rangée : une question qu'on se pose sans arrêt ne
+               * se range pas. Elle est au-dessus des outils parce qu'on
+               * choisit l'étage avant de choisir le mur.
+               */}
+              <ProjectTree
+                project={file.project}
+                {...(activeLevelId === undefined
+                  ? {}
+                  : { levelId: activeLevelId })}
+                selection={editor.selection}
+                onSelectLevel={(levelId) =>
+                  dispatchEditor({ type: 'SET_LEVEL', levelId })
+                }
+                onSelectObject={(objectId) =>
+                  dispatchEditor({ type: 'SELECT', objectId })
+                }
+                onFrameObject={(objectId) => {
+                  dispatchEditor({ type: 'SELECT', objectId });
+                  zoomSelection();
+                }}
+                onOpenDocuments={() => setTab('documents')}
+                onSearch={(query) => {
+                  setPaletteQuery(query);
+                  setPaletteOpen(true);
+                }}
+              />
               <Toolbox
                 project={file.project}
                 stage={navigation.stage}
@@ -2279,35 +2297,6 @@ function App() {
                 }
                 onOpenLibrary={() => setTab('equipment')}
               />
-              {/*
-                The model tree is a way of finding an object, not a way of
-                working: it is opened when the plan is not enough, and folded
-                away the rest of the time so the tools have the panel.
-              */}
-              <details
-                className="model-navigator"
-                open={navigatorOpen}
-                onToggle={(event) => setNavigatorOpen(event.currentTarget.open)}
-              >
-                <summary>☰ Modèle</summary>
-                <ProjectTree
-                  project={file.project}
-                  {...(activeLevelId === undefined
-                    ? {}
-                    : { levelId: activeLevelId })}
-                  selection={editor.selection}
-                  onSelectLevel={(levelId) =>
-                    dispatchEditor({ type: 'SET_LEVEL', levelId })
-                  }
-                  onSelectObject={(objectId) =>
-                    dispatchEditor({ type: 'SELECT', objectId })
-                  }
-                  onFrameObject={(objectId) => {
-                    dispatchEditor({ type: 'SELECT', objectId });
-                    zoomSelection();
-                  }}
-                />
-              </details>
               {/*
                 Twenty checkboxes were the normal way of choosing what is
                 drawn. They are the engine; the presets are the interface, and
@@ -2797,6 +2786,7 @@ function App() {
 
           {paletteOpen && (
             <CommandPalette
+              initialQuery={paletteQuery}
               entries={paletteEntries}
               onClose={() => setPaletteOpen(false)}
             />

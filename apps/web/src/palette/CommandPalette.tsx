@@ -4,6 +4,14 @@ import { filterEntries, type PaletteEntry } from './palette-model.js';
 export interface CommandPaletteProps {
   readonly entries: readonly PaletteEntry[];
   readonly onClose: () => void;
+  /**
+   * Ce qu'on cherche déjà, quand on est arrivé ici en le sachant.
+   *
+   * L'arborescence s'arrête à quarante objets par famille et renvoie au reste
+   * par un bouton : ce bouton sait de quelle famille il parle, et le champ
+   * s'ouvre avec le mot déjà écrit plutôt que vide.
+   */
+  readonly initialQuery?: string;
 }
 
 /**
@@ -14,13 +22,21 @@ export interface CommandPaletteProps {
  * a few letters is the way out of that: tools, workspaces, levels, commands and
  * the objects of the storey being drawn all answer to the same field.
  */
-export function CommandPalette({ entries, onClose }: CommandPaletteProps) {
-  const [query, setQuery] = useState('');
+export function CommandPalette({
+  entries,
+  onClose,
+  initialQuery = '',
+}: CommandPaletteProps) {
+  const [query, setQuery] = useState(initialQuery);
   const [highlighted, setHighlighted] = useState(0);
   const input = useRef<HTMLInputElement>(null);
   const found = useMemo(() => filterEntries(entries, query), [entries, query]);
 
-  useEffect(() => input.current?.focus(), []);
+  useEffect(() => {
+    input.current?.focus();
+    // Le mot est déjà là : on le sélectionne, pour que taper le remplace.
+    input.current?.select();
+  }, []);
   // A new search starts at the top; keeping the old position would run whatever
   // happens to sit under an index the user never looked at.
   useEffect(() => setHighlighted(0), [query]);

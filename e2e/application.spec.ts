@@ -1606,12 +1606,12 @@ test('creates a project on a page, storey by storey', async ({ page }) => {
     'Maison des Lilas',
   );
   await expect(page.getByLabel('Latitude')).toHaveValue('48.85');
-  await expect(page.locator('.level-selector select option')).toHaveText([
-    'Sous-sol',
-    'Rez-de-chaussée',
-    'Étage',
-    'Combles',
-  ]);
+  // Les quatre niveaux sont dans l'arborescence, qui est le seul endroit où
+  // l'on change d'étage.
+  await openDestination(page, 'Plan');
+  await expect(
+    page.getByRole('group', { name: 'Niveaux' }).getByRole('button'),
+  ).toHaveText(['Sous-sol', 'Rez-de-chaussée', 'Étage', 'Combles']);
   expect(errors).toEqual([]);
 });
 
@@ -2280,15 +2280,58 @@ test('chooses what is drawn from a preset before a checkbox', async ({
   expect(errors).toEqual([]);
 });
 
-test('keeps the model tree behind a disclosure', async ({ page }) => {
+test('keeps the building navigator in front, and its lists folded', async ({
+  page,
+}) => {
   const errors = watchConsole(page);
   await loadDemo(page);
   const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
-  // Finding an object is not a way of working: the tree is opened when the
-  // plan is not enough, and folded away the rest of the time.
-  await expect(tree).toBeHidden();
-  await page.getByText('☰ Modèle').click();
+  // « Où je suis » est une question qu'on se pose sans arrêt : l'arborescence
+  // n'est plus derrière un dépliage nommé « ☰ Modèle ».
   await expect(tree).toBeVisible();
+  await expect(page.getByText('☰ Modèle')).toHaveCount(0);
+
+  // Les niveaux sont là, et c'est le seul endroit où l'on change d'étage.
+  const levels = tree.getByRole('group', { name: 'Niveaux' });
+  await expect(levels.getByRole('button')).toHaveCount(2);
+  await levels.getByRole('button', { name: 'Étage' }).click();
+  await expect(page.locator('.canvas-panel h2')).toContainText('Étage');
+
+  // Ce que l'étage contient se compte plutôt que se dérouler : une famille
+  // vide n'est pas une rangée, et les listes s'ouvrent à la demande.
+  const walls = tree.locator('summary').filter({ hasText: 'Murs' });
+  await expect(walls).toBeVisible();
+  await expect(
+    tree.locator('summary').filter({ hasText: 'Cotes' }),
+  ).toHaveCount(0);
+  await walls.click();
+  await expect(tree.getByRole('button').first()).toBeVisible();
+
+  // Ce que le projet produit se trouve là où l'on cherche le reste.
+  await expect(
+    tree.locator('summary').filter({ hasText: 'Vues et feuilles' }),
+  ).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('sends the tail of a long family to the search, by a button', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
+  // `Ctrl+K` était la seule issue au-delà de quarante objets, écrite dans une
+  // phrase : elle supposait qu'on connaisse le raccourci, qu'on ait un clavier
+  // et qu'on ait lu la ligne. C'est un bouton, et il sait ce qu'on cherche.
+  await tree.locator('summary').filter({ hasText: 'Composants' }).click();
+  await expect(tree.getByText(/Ctrl\+K/u)).toHaveCount(0);
+
+  // Vingt-trois composants : sous le seuil, donc pas de bouton ici. Le
+  // raccourci reste un accélérateur, jamais le seul chemin.
+  await page.getByRole('button', { name: 'Rechercher' }).click();
+  await expect(
+    page.getByRole('dialog', { name: 'Palette de commandes' }),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
 

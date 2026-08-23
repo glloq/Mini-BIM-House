@@ -1042,20 +1042,6 @@ button.icon {
   gap: 0.4rem;
   align-items: center;
 }
-.level-selector {
-  display: grid;
-  gap: 0.25rem;
-  margin-top: 1rem;
-  font-size: 0.72rem;
-  font-weight: 650;
-  color: #4a5d54;
-}
-.level-selector select {
-  border: 1px solid #cbd5cf;
-  border-radius: 0.5rem;
-  padding: 0.4rem 0.5rem;
-  background: #fff;
-}
 .inspector-subject {
   display: grid;
   gap: 0.85rem;
@@ -1760,9 +1746,45 @@ legend {
  * The project as a tree: the workspaces say what the user is doing, this says
  * what is in the building.
  */
+/*
+ * L'arborescence, permanente et compacte.
+ *
+ * Elle répond à « où je suis et ce qu'il y a dedans », question qu'on se pose
+ * sans arrêt : elle ne se range plus derrière un dépliage. Ce qui la rendait
+ * lourde n'était pas son contenu mais son interligne — seul le niveau dessiné
+ * est déplié, et le reste se compte plutôt que se déroule.
+ */
 .project-tree {
-  margin-bottom: 1rem;
-  font-size: 0.78rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.76rem;
+  min-width: 0;
+}
+/* Les niveaux : une rangée de boutons, et le seul endroit où l'on change
+   d'étage. Une liste déroulante « Niveau » faisait la même chose ailleurs. */
+.tree-levels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  margin-bottom: 0.25rem;
+}
+.tree-levels button {
+  width: auto;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  background: var(--surface);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.tree-levels button.tree-active {
+  border-color: var(--accent);
+}
+.tree-families {
+  padding-left: 0 !important;
+}
+.project-tree small {
+  color: var(--ink-soft);
+  font-weight: 500;
 }
 .project-tree ul {
   margin: 0.1rem 0 0.2rem;
@@ -2464,7 +2486,7 @@ button.ghost:disabled {
   color: var(--ink-strong);
 }
 .visibility-layers summary,
-.model-navigator > summary,
+.tree-section > summary,
 .layers-advanced > summary {
   padding: 0.35rem 0.6rem;
   color: var(--ink-soft);
@@ -2472,7 +2494,7 @@ button.ghost:disabled {
   font-weight: 750;
   cursor: pointer;
 }
-.model-navigator[open] > summary,
+.tree-section[open] > summary,
 .layers-advanced[open] > summary,
 .visibility-layers[open] summary {
   color: var(--ink-strong);
