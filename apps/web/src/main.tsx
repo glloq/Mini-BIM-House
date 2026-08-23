@@ -66,6 +66,7 @@ import { InspectorPanel } from './editor/InspectorPanel.js';
 import { ViewProperties } from './editor/ViewProperties.js';
 import { ContextToolBar } from './editor/ContextToolBar.js';
 import { Toolbox } from './editor/Toolbox.js';
+import { toolboxFor } from './editor/toolbox.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
 import { scenarioOverride } from './scenarios/scenario-changes.js';
@@ -167,14 +168,17 @@ import { workflowEntries } from './workflow/workflow-registry.js';
 import { AppShell } from './shell/AppShell.js';
 import { TopBar } from './shell/TopBar.js';
 import { StageBar } from './shell/StageBar.js';
+import { SectionBar, type SectionChoice } from './shell/SectionBar.js';
 import { ContextPanel } from './shell/ContextPanel.js';
 import { ShellStatusBar } from './shell/ShellStatusBar.js';
 import { ProjectMenu } from './shell/ProjectMenu.js';
 
 import {
   activeDomain as activeDomainOf,
+  activeSectionId,
   activeTab as activeTabOf,
   DEFAULT_SHELL_NAVIGATION,
+  goToSection,
   goToStage,
   goToTab,
   navigationFor,
@@ -856,6 +860,27 @@ function App() {
     () => designStateOf(file.project, activeLevelId),
     [activeLevelId, file.project],
   );
+
+  /**
+   * Les sous-parties de l'espace courant, telles que ce projet peut les servir.
+   *
+   * Lues dans la boîte à outils et non dans le registre des espaces : une
+   * sous-partie dont aucun outil n'est posable sur ce projet n'est pas une
+   * sous-partie, c'est une promesse.
+   */
+  const sectionChoices = useMemo<readonly SectionChoice[]>(
+    () =>
+      toolboxFor(file.project, navigation.stage, undefined, design).map(
+        (section) => ({
+          id: section.id,
+          label: section.label,
+          ...(section.domain === undefined ? {} : { domain: section.domain }),
+          toolCount: section.entries.length,
+        }),
+      ),
+    [design, file.project, navigation.stage],
+  );
+  const openSection = activeSectionId(navigation, sectionChoices);
 
   const changeLayout = useCallback((patch: Partial<WorkspaceLayout>): void => {
     setLayout((current) => {
@@ -2249,14 +2274,25 @@ function App() {
         />
       }
       stageBar={
-        <StageBar
-          stage={navigation.stage}
-          remaining={stageProgress}
-          onSelect={(stage) => {
-            setNavigation((current) => goToStage(current, stage));
-            setMenuOpen(false);
-          }}
-        />
+        <>
+          <StageBar
+            stage={navigation.stage}
+            remaining={stageProgress}
+            onSelect={(stage) => {
+              setNavigation((current) => goToStage(current, stage));
+              setMenuOpen(false);
+            }}
+          />
+          <SectionBar
+            stageLabel={creationStage(navigation.stage).label}
+            sections={sectionChoices}
+            {...(openSection === undefined ? {} : { activeId: openSection })}
+            onSelect={(section) => {
+              setNavigation((current) => goToSection(current, section));
+              setMenuOpen(false);
+            }}
+          />
+        </>
       }
       contextPanel={
         <ContextPanel
@@ -2317,6 +2353,7 @@ function App() {
                 project={file.project}
                 stage={navigation.stage}
                 design={design}
+                {...(openSection === undefined ? {} : { section: openSection })}
                 {...(activeDomain === undefined
                   ? {}
                   : { domain: activeDomain })}

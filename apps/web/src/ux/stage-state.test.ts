@@ -8,13 +8,16 @@ import {
 } from './creation-stages.js';
 import {
   activeDomain,
+  activeSectionId,
   activeTab,
   DEFAULT_SHELL_NAVIGATION,
   destinationsOf,
+  goToSection,
   goToStage,
   goToTab,
   isTabActive,
   navigationFor,
+  type ShellNavigation,
 } from './stage-state.js';
 import { DESTINATIONS } from './destinations.js';
 
@@ -128,5 +131,70 @@ describe('the nine stages and the thirteen destinations', () => {
     const navigation = goToTab(DEFAULT_SHELL_NAVIGATION, 'materials');
     const sent = navigationFor(navigation, { stage: 'BUILDING' });
     expect(activeTab(sent)).toBe('materials');
+  });
+});
+
+describe('the sub-part one is working in', () => {
+  const BUILDING = [
+    { id: 'building.walls', label: 'Murs', domain: 'ARCHITECTURE' as const },
+    {
+      id: 'building.openings',
+      label: 'Ouvertures',
+      domain: 'ARCHITECTURE' as const,
+    },
+    { id: 'structure.frame', label: 'Ossature', domain: 'STRUCTURE' as const },
+  ];
+
+  it('opens on the first one, and nothing at all without any', () => {
+    expect(activeSectionId(DEFAULT_SHELL_NAVIGATION, BUILDING)).toBe(
+      'building.walls',
+    );
+    expect(activeSectionId(DEFAULT_SHELL_NAVIGATION, [])).toBeUndefined();
+  });
+
+  it('remembers the one left open, per space', () => {
+    const openings = goToSection(DEFAULT_SHELL_NAVIGATION, BUILDING[1]!);
+    expect(activeSectionId(openings, BUILDING)).toBe('building.openings');
+    // Et repasser par ailleurs n'y touche pas : une rangée qui se remet à zéro
+    // à chaque aller-retour coûte plus de clics qu'elle n'en épargne.
+    const away = goToStage(openings, 'DOCUMENTS');
+    expect(activeSectionId(goToStage(away, 'BUILDING'), BUILDING)).toBe(
+      'building.openings',
+    );
+  });
+
+  it('makes choosing a sub-part choose its trade', () => {
+    // Dans Systèmes, « Eau » *est* la plomberie : deux gestes pour une seule
+    // décision sont un geste de trop.
+    const frame = goToSection(DEFAULT_SHELL_NAVIGATION, BUILDING[2]!);
+    expect(activeDomain(frame)).toBe('STRUCTURE');
+  });
+
+  it('follows the trade when the trade is chosen elsewhere', () => {
+    // La barre de vue et la rangée disent la même chose. Plutôt que de les
+    // synchroniser — deux sources qui se répondent finissent par se
+    // contredire — la sous-partie se dérive du métier lu.
+    const walls = goToSection(DEFAULT_SHELL_NAVIGATION, BUILDING[0]!);
+    const structural: ShellNavigation = {
+      ...walls,
+      domains: { ...walls.domains, BUILDING: 'STRUCTURE' },
+    };
+    expect(activeSectionId(structural, BUILDING)).toBe('structure.frame');
+  });
+
+  it('keeps a sub-part that names no trade whatever the trade is', () => {
+    const plain = [{ id: 'documents.annotation', label: 'Annotation' }];
+    const somewhere = goToSection(DEFAULT_SHELL_NAVIGATION, plain[0]!);
+    expect(activeSectionId(somewhere, plain)).toBe('documents.annotation');
+  });
+
+  it('never names a sub-part the space no longer offers', () => {
+    // Un projet qui perd son catalogue perd des sous-parties : celle qu'on
+    // avait ouverte ne doit pas rester désignée dans le vide.
+    const gone = goToSection(DEFAULT_SHELL_NAVIGATION, {
+      id: 'systems.solar',
+      domain: 'SOLAR',
+    });
+    expect(activeSectionId(gone, BUILDING)).toBe('building.walls');
   });
 });

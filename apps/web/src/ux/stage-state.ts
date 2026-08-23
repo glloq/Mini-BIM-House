@@ -4,8 +4,8 @@
  * La barre d'étapes choisit ce qu'on est en train de faire ; le panneau gauche
  * choisit ce qu'on regarde à l'intérieur. Garder le second par étape est ce qui
  * fait de la barre une barre et non un bouton de remise à zéro : quitter
- * Vérifier sur « Quantités » et y revenir doit revenir sur Quantités, sinon
- * neuf étapes coûteraient plus de clics que les treize destinations qu'elles
+ * Études sur « Quantités » et y revenir doit revenir sur Quantités, sinon
+ * sept espaces coûteraient plus de clics que les treize destinations qu'ils
  * remplacent.
  *
  * La discipline active se souvient elle aussi : elle appartient à l'étape qui
@@ -33,6 +33,8 @@ export interface ShellNavigation {
   readonly tabs: Readonly<Record<CreationStageId, DestinationId>>;
   /** Le métier lu dans chaque étape qui en propose plusieurs. */
   readonly domains: Readonly<Partial<Record<CreationStageId, DesignDomainId>>>;
+  /** La sous-partie ouverte dans chaque espace qui en a. */
+  readonly sections: Readonly<Partial<Record<CreationStageId, string>>>;
 }
 
 export const DEFAULT_SHELL_NAVIGATION: ShellNavigation = {
@@ -41,6 +43,7 @@ export const DEFAULT_SHELL_NAVIGATION: ShellNavigation = {
     CREATION_STAGES.map((stage) => [stage, defaultTabOfStage(stage)]),
   ) as Readonly<Record<CreationStageId, DestinationId>>,
   domains: {},
+  sections: {},
 };
 
 /** Ce qui est ouvert en ce moment. */
@@ -52,7 +55,7 @@ export function activeTab(navigation: ShellNavigation): DestinationId {
  * Le métier par lequel le plan se lit en ce moment.
  *
  * Celui qu'on lisait dans cette étape, sinon celui qu'elle propose d'abord.
- * Une étape sans métier — Projet, Vérifier, Documents — n'en a pas, et le plan
+ * Un espace sans métier — Projet, Études, Documents — n'en a pas, et le plan
  * s'y lit tel qu'il est.
  */
 export function activeDomain(
@@ -61,6 +64,65 @@ export function activeDomain(
   const remembered = navigation.domains[navigation.stage];
   if (remembered !== undefined) return remembered;
   return defaultDomainOfStage(navigation.stage);
+}
+
+/**
+ * La sous-partie ouverte, parmi celles qu'on lui donne.
+ *
+ * Deux choses la désignent et il n'y en a qu'une à l'écran : la rangée de
+ * sous-parties, et le sélecteur de discipline de la barre de vue. Plutôt que
+ * de les synchroniser — deux sources qui se répondent finissent par se
+ * contredire — la sous-partie **se dérive** : celle qu'on avait ouverte tant
+ * qu'elle parle du métier lu, sinon la première qui en parle.
+ *
+ * Les sous-parties viennent de la boîte à outils et non du registre des
+ * espaces : ce sont celles que le projet peut vraiment servir, catalogue
+ * compris. Un espace n'en a pas toujours, et n'en montre alors aucune.
+ */
+export function activeSectionId(
+  navigation: ShellNavigation,
+  sections: readonly {
+    readonly id: string;
+    readonly domain?: DesignDomainId;
+  }[],
+): string | undefined {
+  if (sections.length === 0) return undefined;
+  const domain = activeDomain(navigation);
+  const remembered = sections.find(
+    ({ id }) => id === navigation.sections[navigation.stage],
+  );
+  if (
+    remembered !== undefined &&
+    (remembered.domain === undefined || remembered.domain === domain)
+  )
+    return remembered.id;
+  const ofDomain = sections.find((section) => section.domain === domain);
+  return (ofDomain ?? remembered ?? sections[0])?.id;
+}
+
+/**
+ * Ouvrir une sous-partie.
+ *
+ * Quand elle nomme un métier, elle le devient : dans Systèmes, choisir « Eau »
+ * *est* choisir la plomberie, et deux gestes pour une décision sont un geste
+ * de trop.
+ */
+export function goToSection(
+  navigation: ShellNavigation,
+  section: { readonly id: string; readonly domain?: DesignDomainId },
+): ShellNavigation {
+  return {
+    ...navigation,
+    sections: { ...navigation.sections, [navigation.stage]: section.id },
+    ...(section.domain === undefined
+      ? {}
+      : {
+          domains: {
+            ...navigation.domains,
+            [navigation.stage]: section.domain,
+          },
+        }),
+  };
 }
 
 export function goToStage(
@@ -73,12 +135,12 @@ export function goToStage(
 /**
  * Ouvrir une destination, où qu'elle vive.
  *
- * L'étape suit de la destination plutôt que l'inverse : une entrée de palette
+ * L'espace suit de la destination plutôt que l'inverse : une entrée de palette
  * dit « Quantités » sans avoir à savoir que les quantités se lisent dans
- * Vérifier.
+ * Études.
  *
- * Mais **on ne quitte pas une étape qui offre déjà la destination**. Le plan
- * est offert par sept étapes sur neuf ; sans cette règle, cliquer « Plan »
+ * Mais **on ne quitte pas un espace qui offre déjà la destination**. Le plan
+ * est offert par six espaces sur sept ; sans cette règle, cliquer « Plan »
  * depuis Bâtiment renvoyait dans Terrain, qui est simplement la première de la
  * liste à le proposer.
  */
@@ -120,7 +182,12 @@ export function navigationFor(
     target.objectId === undefined
       ? navigation.tabs[stage]
       : defaultTabOfStage(stage);
-  return { stage, tabs: { ...navigation.tabs, [stage]: tab }, domains };
+  return {
+    ...navigation,
+    stage,
+    tabs: { ...navigation.tabs, [stage]: tab },
+    domains,
+  };
 }
 
 /**
@@ -152,7 +219,7 @@ export function activeStageLabel(navigation: ShellNavigation): string {
 /**
  * Ce qu'il reste à faire dans chaque étape.
  *
- * Les dix phases disent ce qu'il reste ; les neuf étapes disent ce qu'on fait.
+ * Les dix phases disent ce qu'il reste ; les sept espaces disent où l'on est.
  * Ce compte est le pont entre les deux : il met un nombre sur l'étape, et rien
  * d'autre. Ce n'est pas un barrage — on peut travailler dans une étape qui
  * n'affiche rien, et laisser une étape qui affiche cinq.

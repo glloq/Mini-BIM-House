@@ -1718,16 +1718,23 @@ test('shows nothing above the plan until something is being done', async ({
   await expect(bar).toHaveClass(/is-empty/u);
   await expect(bar.getByRole('button')).toHaveCount(0);
 
-  // Les outils vivent dans le panneau de contexte, groupés par sous-étape :
-  // ce que l'étape Bâtiment met sous la main, et non les vingt-cinq du
-  // registre.
+  // Les outils vivent dans le panneau de contexte, une sous-partie à la fois :
+  // ce que Bâtiment › Murs met sous la main, et non les vingt-cinq du
+  // registre ni les quatre sous-parties empilées.
   const tools = page.locator('.toolbox');
   await expect(
     tools.getByRole('region', { name: 'Outils · Murs' }),
   ).toBeVisible();
   await expect(
     tools.getByRole('region', { name: 'Outils · Ouvertures' }),
+  ).toHaveCount(0);
+  // Et elles sont à un clic, dans la rangée sous les sept espaces.
+  const parts = page.getByRole('navigation', { name: 'Sous-parties' });
+  await parts.getByRole('button', { name: 'Ouvertures', exact: true }).click();
+  await expect(
+    tools.getByRole('region', { name: 'Outils · Ouvertures' }),
   ).toBeVisible();
+  await parts.getByRole('button', { name: 'Murs', exact: true }).click();
   await chooseTool(page, 'Mur');
   await expect(bar).toContainText('Mur');
   // What the tool lets one decide before drawing sits under the tool itself,

@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { loadDemoProject } from './support/file-menu.js';
 import { openDestination, openStage } from './support/navigation.js';
+import { openSection } from './support/tools.js';
 import { openDisplayPanel, closeDisplayPanel } from './support/panels.js';
 
 /**
@@ -99,7 +100,12 @@ test('T1 — un projet neuf, quatre murs, une porte, une fenêtre, une pièce', 
   }
   await expect(walls).toHaveCount(4);
 
-  // Une porte et une fenêtre : deux entrées qui nomment ce qu'elles posent.
+  // Une porte et une fenêtre : deux entrées qui nomment ce qu'elles posent,
+  // dans la sous-partie qui les tient — un clic pour y aller, et le §14 en
+  // demande exactement un.
+  const beforePart = await clicksSoFar(page);
+  await openSection(page, 'Ouvertures');
+  expect((await clicksSoFar(page)) - beforePart).toBe(1);
   await toolbox.getByRole('button', { name: 'Porte', exact: true }).click();
   await canvas.click({ position: { x: 200, y: 80 } });
   await expect(page.getByRole('status')).toContainText('ouverture');
@@ -108,6 +114,7 @@ test('T1 — un projet neuf, quatre murs, une porte, une fenêtre, une pièce', 
   await expect(page.locator('[data-role^="OPENING"]').first()).toBeVisible();
 
   // Et la pièce que ces murs enferment.
+  await openSection(page, 'Pièces et niveaux');
   await toolbox.getByRole('button', { name: 'Pièce', exact: true }).click();
   await canvas.click({ position: { x: 200, y: 170 } });
   await expect(page.locator('[data-role="SPACE_FILL"]').first()).toBeVisible();
@@ -261,16 +268,18 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
    */
   await page.goto('/');
   const toolbox = page.locator('.toolbox');
+  await openSection(page, 'Ouvertures');
   const door = toolbox.getByRole('button', { name: 'Porte', exact: true });
 
   await expect(door).toContainText('Tracez d’abord un mur');
   await expect(door).toHaveAttribute('aria-description', /mur/);
   await expect(door).toHaveClass(/blocked/);
 
-  // Et la tuile est le geste : cliquer dessus prend l'outil qui débloque.
-  // Elle n'est donc pas désactivée — un bouton qu'on annonce inerte et qui
-  // agit ment à qui l'écoute.
+  // Et la tuile est le geste : cliquer dessus prend l'outil qui débloque,
+  // fût-il dans une autre sous-partie. Elle n'est donc pas désactivée — un
+  // bouton qu'on annonce inerte et qui agit ment à qui l'écoute.
   await door.click();
+  await openSection(page, 'Murs');
   await expect(
     toolbox.getByRole('button', { name: 'Mur', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
@@ -279,10 +288,12 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
   const canvas = page.locator('.plan-canvas');
   await canvas.click({ position: { x: 80, y: 80 } });
   await canvas.click({ position: { x: 320, y: 80 } });
+  await openSection(page, 'Ouvertures');
   await expect(door).not.toContainText('Tracez');
   await expect(door).not.toHaveClass(/blocked/);
 
   // Et là où rien ne débloque, le bouton est vraiment inerte, raison comprise.
+  await openSection(page, 'Pièces et niveaux');
   const stair = toolbox.getByRole('button', { name: 'Escalier', exact: true });
   await expect(stair).toBeDisabled();
   await expect(stair).toContainText('étage');

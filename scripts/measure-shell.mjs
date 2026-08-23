@@ -43,7 +43,7 @@ const FORMATS = [
    * décision prise ailleurs dans la feuille de style, et le budget la reprend
    * plutôt que de la contredire.
    */
-  { id: 'phone', label: '390 × 844', width: 390, height: 844, chromePx: 175 },
+  { id: 'phone', label: '390 × 844', width: 390, height: 844, chromePx: 197 },
 ];
 
 /**
@@ -72,8 +72,17 @@ export const SHELL_BUDGETS = {
    * arithmétique le contredit : quatre rangées ne tiennent pas dans 120 px.
    * Descendre plus bas demanderait d'en retirer une, ce que la spécification
    * ne demande pas.
+   *
+   * **V4-2 en ajoute 28** : la rangée des sous-parties. C'est une avance, pas
+   * une dépense — elle est ce qui permet à V4-3 de faire descendre les outils
+   * dans un header et de retirer le panneau gauche, que ces 28 px payent
+   * plusieurs fois. Le compte de boutons du panneau est déjà passé de 22 à 15
+   * en la posant. La cible de `docs/UX_ARCHITECTURE_V4.md` §14 est 146 px au
+   * repos, et c'est V4-3 qui la rend atteignable ; ce budget-ci redescend avec
+   * elle. Le relever aujourd'hui et le laisser en l'état serait la seule
+   * façon de se tromper.
    */
-  chromeAboveCanvasPx: 155,
+  chromeAboveCanvasPx: 182,
   topBarPx: 48,
   /**
    * Part de la fenêtre occupée par le plan.

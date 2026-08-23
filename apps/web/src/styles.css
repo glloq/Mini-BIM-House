@@ -2034,6 +2034,51 @@ legend {
   line-height: 1;
 }
 /* En dessous de 1 100 px, neuf libellés deviennent une liste déroulante. */
+/*
+ * Les parties de la partie, sous les sept espaces.
+ *
+ * Plus discrète que la barre au-dessus : on y change de sous-partie souvent,
+ * et deux rangées de la même force sont deux rangées qui se disputent. Elle
+ * commence par dire où l'on est, parce que « MURS » seul ne veut rien dire.
+ */
+.section-bar {
+  display: flex;
+  min-height: 28px;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.1rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+.section-place {
+  margin-right: 0.35rem;
+  color: var(--ink-soft);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.75;
+}
+.section-entry {
+  border: 0;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.4rem;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.section-entry:hover {
+  background: var(--surface);
+}
+.section-entry.active {
+  background: var(--accent-soft);
+  color: var(--ink-strong);
+  font-weight: 700;
+}
 .stage-compact {
   display: none;
 }

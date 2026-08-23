@@ -48,6 +48,15 @@ export interface ToolboxProps {
   readonly project: Project;
   readonly stage: CreationStageId;
   readonly domain?: DesignDomainId;
+  /**
+   * La sous-partie ouverte, quand la rangée en a désigné une.
+   *
+   * Une seule est montrée : l'espace dit de quelle partie de la maison on
+   * s'occupe, la rangée dit laquelle de ses parties, et la colonne montre ce
+   * qu'il faut pour celle-là. Absente, on retombe sur tout ce que l'espace
+   * propose — c'est ce que faisaient les neuf étapes.
+   */
+  readonly section?: string;
   /** Ce que la maison est, pour savoir quels outils servent vraiment. */
   readonly design: DesignState;
   readonly editor: EditorState;
@@ -70,6 +79,7 @@ export function Toolbox({
   project,
   stage,
   domain,
+  section,
   design,
   editor,
   dispatch,
@@ -78,7 +88,17 @@ export function Toolbox({
   onDraftsChange,
   onOpenLibrary,
 }: ToolboxProps) {
-  const sections = toolboxFor(project, stage, domain, design);
+  // La sous-partie est cherchée parmi toutes celles de l'espace, et non parmi
+  // celles que le métier laisse passer : « Ossature » nomme la structure, et
+  // la chercher à travers le filtre d'architecture reviendrait à la perdre au
+  // moment même où on la désigne.
+  const chosen = toolboxFor(project, stage, undefined, design).find(
+    ({ id }) => id === section,
+  );
+  const sections =
+    chosen === undefined
+      ? toolboxFor(project, stage, domain, design)
+      : [chosen];
   const common: ToolboxSection = {
     ...COMMON_SECTION,
     entries: COMMON_SECTION.entries.filter((candidate) =>
