@@ -2,17 +2,21 @@ import { describe, expect, it } from 'vitest';
 
 import { loadDemoProject } from '../demo-project.js';
 import { CREATION_STAGES, creationStage } from '../ux/creation-stages.js';
+import { EMPTY_DESIGN_STATE, type DesignState } from '../ux/design-state.js';
 import { TOOL_ICONS } from './tool-icons.js';
 import { draftKey } from './tool-options.js';
 import { EDITOR_TOOLS, toolById } from './tool-registry.js';
 import {
   COMMON_SECTION,
   allToolboxEntries,
+  availabilityOf,
   draftsForEntry,
   ficheOfFamily,
   missingFicheFamilies,
   sectionsOfStage,
   toolboxFor,
+  unblockingEntry,
+  type ToolboxEntry,
 } from './toolbox.js';
 
 const demo = loadDemoProject();
@@ -156,5 +160,136 @@ describe('what a stage puts under the hand', () => {
     const common = COMMON_SECTION.entries.map(({ toolId }) => toolId);
     for (const id of ['SELECT', 'DIMENSION', 'NOTE', 'ROTATE', 'MIRROR'])
       expect(common).toContain(id);
+  });
+});
+
+describe('what the house allows, tool by tool', () => {
+  const houseWith = (patch: Partial<DesignState>): DesignState => ({
+    ...EMPTY_DESIGN_STATE,
+    ...patch,
+  });
+  const findEntry = (id: string): ToolboxEntry => {
+    const found = allToolboxEntries().find((candidate) => candidate.id === id);
+    if (found === undefined) throw new Error(`entrée inconnue : ${id}`);
+    return found;
+  };
+  const gradeOf = (id: string, state: DesignState) =>
+    availabilityOf(findEntry(id), state);
+
+  it('leaves an entry that asks nothing exactly as it was', () => {
+    // Le contrat de compatibilité : vingt-cinq outils marchaient sans savoir
+    // répondre à la question, et ils doivent continuer.
+    const plain = gradeOf('building.wall', EMPTY_DESIGN_STATE);
+    expect(plain.enabled).toBe(true);
+    expect(plain.recommended).toBe(false);
+    expect(plain.requirement).toBeUndefined();
+  });
+
+  it('refuses a door before there is a wall, and says so', () => {
+    const empty = gradeOf('building.door', EMPTY_DESIGN_STATE);
+    expect(empty.enabled).toBe(false);
+    expect(empty.requirement?.reason).toContain('mur');
+    expect(gradeOf('building.door', houseWith({ wallCount: 1 })).enabled).toBe(
+      true,
+    );
+  });
+
+  it('offers the gesture that unblocks, when a tool is the gesture', () => {
+    // Un outil grisé en silence est une panne ; un outil grisé qui dit ce
+    // qu'il attend et donne l'outil qui y mène est une leçon.
+    const blocked = gradeOf('building.door', EMPTY_DESIGN_STATE);
+    expect(unblockingEntry(blocked.requirement)?.id).toBe('building.wall');
+    // Un étage se pose dans le menu du projet : la raison reste, le geste non.
+    const stair = gradeOf('building.stair', EMPTY_DESIGN_STATE);
+    expect(stair.requirement?.reason).toContain('étage');
+    expect(unblockingEntry(stair.requirement)).toBeUndefined();
+  });
+
+  it('names an entry that exists for every gesture it promises', () => {
+    // Une raison qui pointe une entrée disparue serait pire qu'aucune raison.
+    for (const candidate of allToolboxEntries()) {
+      if (candidate.requires?.entryId === undefined) continue;
+      expect(
+        unblockingEntry(candidate.requires),
+        `${candidate.id} → ${candidate.requires.entryId}`,
+      ).toBeDefined();
+    }
+  });
+
+  it('writes a reason for every condition it enforces', () => {
+    for (const candidate of allToolboxEntries())
+      if (candidate.enabledWhen !== undefined)
+        expect(candidate.requires?.reason, candidate.id).toBeTruthy();
+  });
+
+  it('recommends the room when a contour has none', () => {
+    const closed = houseWith({
+      wallCount: 4,
+      closedContours: [{ areaM2: 12 }],
+      contoursWithoutSpace: 1,
+    });
+    expect(gradeOf('building.space', closed).recommended).toBe(true);
+    expect(
+      gradeOf('building.space', houseWith({ wallCount: 4 })).recommended,
+    ).toBe(false);
+  });
+
+  it('recommends the roof once, and stops once it is drawn', () => {
+    const closed = houseWith({
+      wallCount: 4,
+      closedContours: [{ areaM2: 12 }],
+    });
+    expect(gradeOf('building.roof', closed).recommended).toBe(true);
+    expect(
+      gradeOf('building.roof', { ...closed, roofSurfaceCount: 1 }).recommended,
+    ).toBe(false);
+  });
+
+  it('never recommends what it will not let anyone take', () => {
+    // Recommander un outil qu'on ne peut pas prendre serait recommander une
+    // déception : les trois degrés sont ordonnés, pas indépendants.
+    for (const candidate of allToolboxEntries())
+      for (const state of [
+        EMPTY_DESIGN_STATE,
+        houseWith({ levelCount: 1, wallCount: 4 }),
+        houseWith({
+          levelCount: 2,
+          wallCount: 8,
+          closedContours: [{ areaM2: 12 }],
+          slabCount: 1,
+          networkCount: 1,
+        }),
+      ]) {
+        const grade = availabilityOf(candidate, state);
+        if (grade.recommended) expect(grade.enabled, candidate.id).toBe(true);
+      }
+  });
+
+  it('keeps every tool of the registry reachable whatever the house', () => {
+    // L'invariant de UX-3 sous la nouvelle règle : `visibleWhen` retire d'une
+    // liste, jamais du programme. Une maison vide doit encore mener partout.
+    const reachable = new Set(
+      allToolboxEntries()
+        .filter(
+          (candidate) => candidate.visibleWhen?.(EMPTY_DESIGN_STATE) !== false,
+        )
+        .map(({ toolId }) => toolId),
+    );
+    for (const tool of EDITOR_TOOLS)
+      expect(reachable.has(tool.id), tool.id).toBe(true);
+  });
+
+  it('proposes a stage without knowing the house, exactly as before', () => {
+    // L'état est facultatif : les appels qui l'ignorent voient tout.
+    const blind = toolboxFor(project, 'BUILDING', undefined);
+    const empty = toolboxFor(
+      project,
+      'BUILDING',
+      undefined,
+      EMPTY_DESIGN_STATE,
+    );
+    expect(empty.flatMap(({ entries }) => entries).length).toBe(
+      blind.flatMap(({ entries }) => entries).length,
+    );
   });
 });

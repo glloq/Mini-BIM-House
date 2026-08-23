@@ -126,8 +126,13 @@ export const BUDGETS = {
    * qui dit ce que l'outil attend. Un demi-kio de moins serait revenu à
    * laisser quelqu'un découvrir en se trompant qu'un mur continu se termine
    * par Entrée.
+   *
+   * Puis deux avec les prédicats de disponibilité : ce que la maison est, lu
+   * du modèle, et la raison écrite de chaque outil qui ne sert pas encore. Ces
+   * phrases sont la fonction — les abréger reviendrait à griser des boutons en
+   * silence, ce qui est précisément la panne qu'on répare.
    */
-  initialGzipBytes: 277 * 1024,
+  initialGzipBytes: 279 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -204,8 +209,13 @@ export const BUDGETS = {
    * Et un avec la barre de vue et l'instruction de l'outil. Le panneau
    * d'affichage, lui, se charge encore à la demande : on ne l'ouvre pas pour
    * dessiner un mur.
+   *
+   * Et un avec les prédicats de disponibilité : l'état dérivé et les raisons
+   * partent dans le même chargement que la boîte à outils, faute de quoi la
+   * première grille de l'écran serait grise sans un mot pendant qu'un morceau
+   * arrive.
    */
-  totalGzipBytes: 448 * 1024,
+  totalGzipBytes: 449 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

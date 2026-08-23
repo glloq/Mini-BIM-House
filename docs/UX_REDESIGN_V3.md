@@ -116,7 +116,7 @@ export interface ToolboxEntry {
   /** Mise en avant : c'est ce qu'il y a de plus utile à faire maintenant. */
   readonly recommendedWhen?: DesignPredicate;
   /** Pourquoi elle est inerte, et ce qu'il faut faire d'abord. */
-  readonly requires?: { readonly reason: string; readonly fix?: ToolboxFix };
+  readonly requires?: { readonly reason: string; readonly entryId?: string };
 }
 ```
 
@@ -156,6 +156,15 @@ Solaire      enabled     roofSurfaceCount > 0
 **Un bouton inerte explique toujours pourquoi**, et propose le geste qui le
 débloque. Un outil grisé en silence est une panne ; un outil grisé qui dit
 « ajoutez un étage » et offre le bouton pour le faire est une leçon.
+
+En pratique, le geste est la tuile elle-même : quand `entryId` nomme une entrée,
+cliquer « Porte » sans mur tracé prend l'outil Mur, et l'infobulle le dit avant
+le clic. Une tuile qui agit n'est donc jamais annoncée désactivée — un bouton
+qu'on dit inerte et qui répond ment à qui l'écoute. Là où rien ne débloque dans
+la boîte — un étage se pose dans le menu du projet — le bouton est réellement
+`disabled`, et il garde sa raison, écrite sous son nom et lue par
+`aria-description`. La raison reste hors du nom accessible : « Porte » doit
+rester « Porte » pour qui la cherche.
 
 > **Ce que cette règle ne fait jamais** : empêcher. `visibleWhen` ne retire
 > jamais un outil de « Tous les outils », ni de la recherche, ni de la palette.

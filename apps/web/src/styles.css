@@ -2121,6 +2121,45 @@ legend {
   background: var(--accent-soft);
   color: var(--ink-strong);
 }
+/*
+ * Trois degrés, trois aspects.
+ *
+ * La recommandée porte un point et le trait de l'accent : c'est la suite
+ * normale du travail, pas une obligation. L'inerte prend la ligne entière et
+ * s'explique — elle a plus à dire qu'un nom, et elle est de toute façon en
+ * bas de la grille.
+ */
+.toolbox-entry.recommended {
+  position: relative;
+  border-color: var(--accent);
+  color: var(--ink-strong);
+}
+.toolbox-entry .entry-flag {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.25rem;
+  color: var(--accent);
+  font-size: 0.5rem;
+  line-height: 1;
+}
+.toolbox-entry.blocked {
+  min-height: 0;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  grid-column: 1 / -1;
+  border-style: dashed;
+  color: var(--ink-soft);
+  text-align: left;
+}
+.toolbox-entry.blocked .tool-icon {
+  opacity: 0.55;
+}
+.toolbox-entry .entry-reason {
+  font-weight: 500;
+  font-size: 0.62rem;
+  opacity: 0.85;
+}
 .tool-icon {
   flex: none;
 }

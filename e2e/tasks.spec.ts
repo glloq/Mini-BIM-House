@@ -248,3 +248,42 @@ test('T6 — documents, une vue enregistrée, un export', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Exporter le SVG' }).click();
   expect((await download).suggestedFilename()).toMatch(/\.svg$/u);
 });
+
+test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
+  page,
+}) => {
+  /*
+   * Le contraire d'un bouton grisé en silence.
+   *
+   * Sur un projet neuf il n'y a pas de mur, donc pas de porte à poser. La
+   * question n'est pas de savoir si le bouton est inerte — c'est de savoir si
+   * la personne comprend ce qui manque, et si elle peut y aller de là.
+   */
+  await page.goto('/');
+  const toolbox = page.locator('.toolbox');
+  const door = toolbox.getByRole('button', { name: 'Porte', exact: true });
+
+  await expect(door).toContainText('Tracez d’abord un mur');
+  await expect(door).toHaveAttribute('aria-description', /mur/);
+  await expect(door).toHaveClass(/blocked/);
+
+  // Et la tuile est le geste : cliquer dessus prend l'outil qui débloque.
+  // Elle n'est donc pas désactivée — un bouton qu'on annonce inerte et qui
+  // agit ment à qui l'écoute.
+  await door.click();
+  await expect(
+    toolbox.getByRole('button', { name: 'Mur', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+
+  // Un mur tracé, et la porte n'a plus rien à expliquer.
+  const canvas = page.locator('.plan-canvas');
+  await canvas.click({ position: { x: 80, y: 80 } });
+  await canvas.click({ position: { x: 320, y: 80 } });
+  await expect(door).not.toContainText('Tracez');
+  await expect(door).not.toHaveClass(/blocked/);
+
+  // Et là où rien ne débloque, le bouton est vraiment inerte, raison comprise.
+  const stair = toolbox.getByRole('button', { name: 'Escalier', exact: true });
+  await expect(stair).toBeDisabled();
+  await expect(stair).toContainText('étage');
+});
