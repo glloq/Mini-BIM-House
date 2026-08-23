@@ -132,3 +132,104 @@ describe('SVG renderer', () => {
     ).toThrow('no token for semantic role');
   });
 });
+
+describe('what the charter decides beyond the semantic role', () => {
+  const ruled: GraphicProfile = {
+    ...profile,
+    styleRules: [
+      {
+        match: { semanticRole: 'WALL_CUT', metadata: { role: 'PARTITION' } },
+        token: 'partition',
+      },
+    ],
+  };
+  const ruledStyles: SvgStyleCatalog = {
+    ...styles,
+    tokens: {
+      ...styles.tokens,
+      partition: { stroke: '#345', fill: '#345', strokeWidthPaperMm: 0.35 },
+    },
+  };
+  const partitionScene: SemanticScene = {
+    viewId: view.id,
+    primitives: [
+      {
+        ...scene.primitives[1]!,
+        state: undefined,
+        metadata: { role: 'PARTITION' },
+      },
+    ],
+  };
+
+  it('draws a partition differently from a party wall without a new role', () => {
+    // The wall's role was in the scene already; only the renderer refused to
+    // read it, so a plasterboard partition weighed as much as a party wall.
+    expect(
+      renderSemanticSceneToSvg(partitionScene, view, ruled, ruledStyles),
+    ).toContain('stroke-width:17.5');
+    expect(
+      renderSemanticSceneToSvg(partitionScene, view, profile, ruledStyles),
+    ).toContain('stroke-width:25');
+  });
+
+  it('still names the role when no rule and no role token answers', () => {
+    expect(() =>
+      renderSemanticSceneToSvg(
+        partitionScene,
+        view,
+        { ...ruled, roleTokens: {}, styleRules: [] },
+        ruledStyles,
+      ),
+    ).toThrow('no token for semantic role');
+  });
+
+  it('rejects a rule pointing at a token the catalog does not hold', () => {
+    expect(() =>
+      renderSemanticSceneToSvg(partitionScene, view, ruled, styles),
+    ).toThrow('Unknown graphic token: partition');
+  });
+
+  it('writes the typographic and line-end properties a clean plan needs', () => {
+    const labelScene: SemanticScene = {
+      viewId: view.id,
+      primitives: [
+        {
+          id: 'label',
+          semanticRole: 'SPACE_FILL',
+          geometry: { kind: 'TEXT', anchor: { x: 10, y: 20 }, text: 'CH 1' },
+          layer: 'labels',
+          zIndex: 0,
+          discipline: 'ARCHITECTURE',
+        },
+      ],
+    };
+    const svg = renderSemanticSceneToSvg(labelScene, view, profile, {
+      ...styles,
+      tokens: {
+        ...styles.tokens,
+        space: {
+          fill: '#111',
+          fontSizePaperMm: 2.8,
+          fontWeight: 600,
+          textAnchor: 'middle',
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+        },
+      },
+    });
+    expect(svg).toContain('font-size:140');
+    expect(svg).toContain('font-weight:600');
+    expect(svg).toContain('text-anchor:middle');
+    expect(svg).toContain('stroke-linecap:round');
+    expect(svg).toContain('stroke-linejoin:round');
+  });
+
+  it('rejects a font weight no renderer could honour', () => {
+    expect(() =>
+      renderSemanticSceneToSvg(scene, view, profile, {
+        ...styles,
+        tokens: { ...styles.tokens, wall: { fontWeight: 5_000 } },
+      }),
+    ).toThrow('Font weight');
+  });
+});

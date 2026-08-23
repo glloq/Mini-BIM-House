@@ -4,6 +4,7 @@ import {
   type ObjectState,
   type SemanticRole,
 } from './scene.js';
+import { graphicStyleRuleSpecificity } from './style-resolver.js';
 import type { SvgStyle, SvgStyleCatalog } from './svg-renderer.js';
 
 export type GraphicOutputMode = 'SCREEN' | 'PRINT';
@@ -327,6 +328,19 @@ export function validateGraphicProfileBundle(
         `Graphic profile has no style for semantic role ${role}.`,
       );
   }
+  // A specialisation nobody can draw is worse than no specialisation: the
+  // renderer would fail on the one bedroom that happened to carry a category,
+  // long after the profile was written.
+  for (const [index, rule] of (bundle.profile.styleRules ?? []).entries()) {
+    if (graphicStyleRuleSpecificity(rule.match) === 0)
+      throw new TypeError(
+        `Graphic style rule ${index} states no condition, so it would replace every role.`,
+      );
+    if (bundle.styles.tokens[rule.token] === undefined)
+      throw new RangeError(
+        `Graphic style rule ${index} has no style for token ${rule.token}.`,
+      );
+  }
   for (const [token, style] of Object.entries(bundle.styles.tokens)) {
     validateProfileStyle(token, style);
   }
@@ -360,6 +374,13 @@ function validateProfileStyle(token: string, style: SvgStyle): void {
     ) === true
   )
     throw new RangeError(`Graphic token ${token} has an invalid dash pattern.`);
+  if (
+    typeof style.fontWeight === 'number' &&
+    (!Number.isFinite(style.fontWeight) ||
+      style.fontWeight < 1 ||
+      style.fontWeight > 1_000)
+  )
+    throw new RangeError(`Graphic token ${token} has an invalid font weight.`);
 }
 
 export const GENERIC_TECHNICAL_SCREEN = bundle('generic', 'SCREEN');

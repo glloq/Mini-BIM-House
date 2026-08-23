@@ -160,3 +160,63 @@ describe('the charters this version ships', () => {
       expect(() => validateGraphicProfileBundle(entry)).not.toThrow();
   });
 });
+
+describe('specialisations a charter may state', () => {
+  it('leaves the four charters of this version exactly as they were', () => {
+    // PR37 gives the charters the ability to specialise; it does not use it.
+    // Anything the four shipped profiles draw differently after this change is
+    // a regression, not a feature.
+    for (const entry of GRAPHIC_PROFILE_REGISTRY)
+      expect(entry.profile.styleRules ?? []).toEqual([]);
+  });
+
+  it('refuses a rule that would replace every role at once', () => {
+    expect(() =>
+      validateGraphicProfileBundle({
+        ...GENERIC_TECHNICAL_SCREEN,
+        profile: {
+          ...GENERIC_TECHNICAL_SCREEN.profile,
+          styleRules: [{ match: {}, token: 'wall-cut' }],
+        },
+      }),
+    ).toThrow('states no condition');
+  });
+
+  it('refuses a rule naming a token the charter cannot draw', () => {
+    expect(() =>
+      validateGraphicProfileBundle({
+        ...GENERIC_TECHNICAL_SCREEN,
+        profile: {
+          ...GENERIC_TECHNICAL_SCREEN.profile,
+          styleRules: [
+            {
+              match: {
+                semanticRole: 'SPACE_FILL',
+                metadata: { category: 'BEDROOM' },
+              },
+              token: 'space-bedroom',
+            },
+          ],
+        },
+      }),
+    ).toThrow('no style for token space-bedroom');
+  });
+
+  it('refuses a font weight no renderer could honour', () => {
+    expect(() =>
+      validateGraphicProfileBundle({
+        ...GENERIC_TECHNICAL_SCREEN,
+        styles: {
+          ...GENERIC_TECHNICAL_SCREEN.styles,
+          tokens: {
+            ...GENERIC_TECHNICAL_SCREEN.styles.tokens,
+            annotation: {
+              ...GENERIC_TECHNICAL_SCREEN.styles.tokens.annotation,
+              fontWeight: 0,
+            },
+          },
+        },
+      }),
+    ).toThrow('invalid font weight');
+  });
+});

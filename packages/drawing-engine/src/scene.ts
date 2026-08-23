@@ -114,12 +114,55 @@ export interface ScenePrimitive {
   >;
 }
 
+/** The value kinds a primitive may carry in its metadata. */
+export type GraphicMetadataValue = string | number | boolean | null;
+
+/**
+ * A condition on what a primitive *is*, and the token it should be drawn with.
+ *
+ * A semantic role alone says too little: every room was `SPACE_FILL` and every
+ * wall was `WALL_CUT`, so a bedroom, a garage and a boiler room all came out
+ * the same beige, and a party wall was as heavy as a plasterboard partition.
+ * The information was already in the scene — `category` on the room,
+ * `role` on the wall — and only the renderer was refusing to read it.
+ *
+ * A rule states what it matches; every stated criterion must hold. A criterion
+ * given a list matches any of its values, so `role: ['INTERIOR', 'PARTITION']`
+ * is one rule rather than two.
+ */
+export interface GraphicStyleRule {
+  readonly match: {
+    readonly semanticRole?: SemanticRole | readonly SemanticRole[];
+    readonly layer?: string | readonly string[];
+    readonly metadata?: Readonly<
+      Record<string, GraphicMetadataValue | readonly GraphicMetadataValue[]>
+    >;
+  };
+  readonly token: string;
+  /**
+   * What wins when two rules match, larger first.
+   *
+   * Left unstated it is the number of criteria the rule states, so a rule on a
+   * role *and* a category beats a rule on the role alone without anybody
+   * having to number them by hand.
+   */
+  readonly priority?: number;
+}
+
 export interface GraphicProfile {
   readonly id: GraphicProfileId;
   readonly name: string;
   readonly locale?: string;
   /** Maps semantic roles to versionable tokens, not SVG/CSS declarations. */
   readonly roleTokens: Readonly<Partial<Record<SemanticRole, string>>>;
+  /**
+   * Specialisations read before the role table, most specific first.
+   *
+   * The BIM says what the object is; the profile decides what it looks like.
+   * A profile that states no rule behaves exactly as it did before rules
+   * existed.
+   */
+  readonly styleRules?: readonly GraphicStyleRule[];
   /** Maps stable semantic symbol IDs to profile-specific definitions. */
   readonly symbolOverrides?: Readonly<Record<string, string>>;
   readonly minimumScreenStrokePx?: number;

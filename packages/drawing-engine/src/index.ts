@@ -2,6 +2,7 @@ export * from './analysis.js';
 export * from './graphic-profiles.js';
 export * from './pdf-print.js';
 export * from './scene.js';
+export * from './style-resolver.js';
 export * from './sheets.js';
 export * from './sheet-svg.js';
 export * from './symbols.js';
