@@ -93,6 +93,7 @@ describe('graphic profiles v1', () => {
     expect(() =>
       validateGraphicProfileBundle({
         id: 'incomplete',
+        family: 'incomplete',
         version: '1',
         mode: 'PRINT',
         profile: {
@@ -162,11 +163,15 @@ describe('the charters this version ships', () => {
 });
 
 describe('specialisations a charter may state', () => {
-  it('leaves the four charters of this version exactly as they were', () => {
-    // PR37 gives the charters the ability to specialise; it does not use it.
-    // Anything the four shipped profiles draw differently after this change is
-    // a regression, not a feature.
-    for (const entry of GRAPHIC_PROFILE_REGISTRY)
+  it('leaves the four technical charters exactly as they were', () => {
+    // The technical charters state no rule: anything they draw differently
+    // after the resolver exists is a regression, not a feature.
+    for (const entry of [
+      GENERIC_TECHNICAL_SCREEN,
+      GENERIC_TECHNICAL_PRINT,
+      FR_INITIAL_SCREEN,
+      FR_INITIAL_PRINT,
+    ])
       expect(entry.profile.styleRules ?? []).toEqual([]);
   });
 

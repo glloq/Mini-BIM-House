@@ -150,15 +150,10 @@ describe('what the charter decides beyond the semantic role', () => {
       partition: { stroke: '#345', fill: '#345', strokeWidthPaperMm: 0.35 },
     },
   };
+  const { state: _selected, ...unselectedWall } = scene.primitives[1]!;
   const partitionScene: SemanticScene = {
     viewId: view.id,
-    primitives: [
-      {
-        ...scene.primitives[1]!,
-        state: undefined,
-        metadata: { role: 'PARTITION' },
-      },
-    ],
+    primitives: [{ ...unselectedWall, metadata: { role: 'PARTITION' } }],
   };
 
   it('draws a partition differently from a party wall without a new role', () => {

@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { genericAssemblyCatalog } from '@house-technical-designer/assemblies/catalog';
 import { STARTER_LIBRARY } from '@house-technical-designer/catalog-registry/starter';
-import { defaultVisibility } from '@house-technical-designer/view-query';
+import {
+  LAYER_PRESETS,
+  defaultVisibility,
+  presetVisibility,
+} from '@house-technical-designer/view-query';
 import type { ProjectFile } from '@house-technical-designer/core-domain';
 import { loadProjectJson } from '@house-technical-designer/project-io';
 import { readFileSync } from 'node:fs';
@@ -118,9 +122,16 @@ describe('web project workspace', () => {
     });
     expect(artifact.content).toContain('data-role="WALL_CUT"');
     expect(artifact.content).not.toContain('data-state');
-    // The sheet is the plan the user sees: the wall carries its material
-    // layers, and the file says which level and scale it was drawn at.
-    expect(artifact.content).toContain('architecture.wall-layers');
+    // The architectural sheet shows a wall, not its build-up; the materials
+    // sheet shows the build-up. One model, two drawings, one layer switch.
+    expect(artifact.content).not.toContain('architecture.wall-layers');
+    expect(
+      exportProjectPlan(populated, {
+        layers: presetVisibility(
+          LAYER_PRESETS.find(({ id }) => id === 'materials')!,
+        ),
+      }).content,
+    ).toContain('architecture.wall-layers');
     expect(artifact.content).toContain('1:50');
     expect(artifact.fileName).toContain('rez-de-chaussee');
     expect(

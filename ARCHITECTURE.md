@@ -833,6 +833,28 @@ Deux interdits :
 
 Le BIM décrit ce qu'est l'objet ; la charte décide de son apparence.
 
+### 11.6 Chartes et calques : deux questions distinctes
+
+Une charte répond à « comment dessiner ? », un preset de calques à « quoi
+afficher ? ». Les deux axes se combinent librement :
+
+```text
+Plan architectural + calques Architecture
+Plan architectural + calques Électricité
+Plan technique     + calques Matériaux
+```
+
+Chartes livrées :
+
+| Charte              | Pour                                       |
+| ------------------- | ------------------------------------------ |
+| Technique générique | lire un réseau, une coupe, un détail       |
+| Technique FR        | idem, conventions françaises               |
+| Plan architectural  | lire une maison : murs, pièces, ouvertures |
+
+`architecture.wall-layers` n'est plus visible par défaut : la composition d'un
+mur est le sujet du preset « Matériaux », pas celui du plan architectural.
+
 ---
 
 ## 12. Conventions graphiques et normalisation

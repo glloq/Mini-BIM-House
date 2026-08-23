@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { graphicProfileId, type GraphicProfile } from './scene.js';
+import {
+  graphicProfileId,
+  type GraphicProfile,
+  type ScenePrimitive,
+} from './scene.js';
 import {
   graphicStyleRuleSpecificity,
   resolveGraphicToken,
@@ -16,14 +20,15 @@ const base: GraphicProfile = {
   },
 };
 
+type Drawn = Pick<ScenePrimitive, 'semanticRole' | 'layer' | 'metadata'>;
+
 const space = (
-  metadata?: Record<string, string | number | boolean | null>,
-): { semanticRole: 'SPACE_FILL'; layer: string; metadata?: typeof metadata } =>
-  ({
-    semanticRole: 'SPACE_FILL',
-    layer: 'architecture.spaces',
-    ...(metadata === undefined ? {} : { metadata }),
-  }) as const;
+  metadata?: Readonly<Record<string, string | number | boolean | null>>,
+): Drawn => ({
+  semanticRole: 'SPACE_FILL',
+  layer: 'architecture.spaces',
+  ...(metadata === undefined ? {} : { metadata }),
+});
 
 describe('the token a charter draws a primitive with', () => {
   it('falls back on the role when the charter states no rule', () => {

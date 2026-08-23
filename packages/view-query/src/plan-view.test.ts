@@ -221,8 +221,24 @@ describe('plan view walls', () => {
     expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(300, 6);
   });
 
+  it('keeps the make-up of a wall out of the architectural plan', () => {
+    // Three bands of colour in every wall bury what the architectural drawing
+    // exists to show. The build-up belongs to the materials drawing, and the
+    // layer is where the two are told apart.
+    const architectural = buildPlanView(project());
+    expect(
+      architectural.primitives.filter(
+        ({ layer }) => layer === 'architecture.wall-layers',
+      ),
+    ).toEqual([]);
+  });
+
   it('draws one band per assembly layer, carrying its material and role', () => {
-    const { primitives } = buildPlanView(project());
+    const { primitives } = buildPlanView(project(), {
+      layers: presetVisibility(
+        LAYER_PRESETS.find(({ id }) => id === 'materials')!,
+      ),
+    });
     const bands = primitives.filter(
       ({ layer }) => layer === 'architecture.wall-layers',
     );

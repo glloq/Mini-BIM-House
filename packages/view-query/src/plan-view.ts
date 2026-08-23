@@ -35,6 +35,7 @@ import {
   createSemanticScene,
   drawingViewId,
   graphicProfileId,
+  spaceGraphicCategory,
 } from '@house-technical-designer/drawing-engine';
 import type {
   BoundingBox2D,
@@ -598,6 +599,10 @@ function spacePrimitives(
       metadata: {
         name: space.name,
         category: space.category,
+        // The model's own word for the use, and the canonical one a charter
+        // can style: « CHAMBRE », « Bedroom » and « SLEEPING » are one colour
+        // on a plan, and the plan must not be the place that learns it.
+        graphicCategory: spaceGraphicCategory(space.category),
         areaM2: Number(areaM2.toFixed(2)),
         volumeM3: Number((areaM2 * heightM).toFixed(2)),
         heightM,
