@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { loadDemoProject } from './support/file-menu.js';
 import { openDestination, openStage } from './support/navigation.js';
-import { openSection } from './support/tools.js';
+import { openSection, revealAllTools } from './support/tools.js';
 import { openDisplayPanel, closeDisplayPanel } from './support/panels.js';
 
 /**
@@ -114,7 +114,7 @@ test('T1 — un projet neuf, quatre murs, une porte, une fenêtre, une pièce', 
   await expect(page.locator('[data-role^="OPENING"]').first()).toBeVisible();
 
   // Et la pièce que ces murs enferment.
-  await openSection(page, 'Pièces et niveaux');
+  await openSection(page, 'Pièces');
   await toolbox.getByRole('button', { name: 'Pièce', exact: true }).click();
   await canvas.click({ position: { x: 200, y: 170 } });
   await expect(page.locator('[data-role="SPACE_FILL"]').first()).toBeVisible();
@@ -287,9 +287,31 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
   await expect(door).not.toContainText('Tracez');
   await expect(door).not.toHaveClass(/blocked/);
 
-  // Et là où rien ne débloque, le bouton est vraiment inerte, raison comprise.
-  await openSection(page, 'Pièces et niveaux');
-  const stair = toolbox.getByRole('button', { name: 'Escalier', exact: true });
-  await expect(stair).toBeDisabled();
-  await expect(stair).toContainText('étage');
+  // Et là où rien ne débloque dans la rangée, le bouton est vraiment inerte,
+  // raison comprise : un réseau se crée ailleurs que dans la boîte à outils.
+  await openStage(page, 'Systèmes');
+  await openSection(page, 'Eau');
+  const run = toolbox.getByRole('button', {
+    name: 'Tracer un tronçon',
+    exact: true,
+  });
+  await expect(run).toBeDisabled();
+  await expect(run).toContainText('réseau');
+
+  /*
+   * Et une question qui ne se pose pas ne se pose pas.
+   *
+   * Sur une maison d'un seul niveau il n'y a pas d'escalier à dessiner : la
+   * sous-partie est absente, pas grisée — il n'y a rien à expliquer. L'outil,
+   * lui, reste atteignable sous « + », comme les vingt-quatre autres.
+   */
+  await openStage(page, 'Bâtiment');
+  const parts = page.getByRole('navigation', { name: 'Sous-parties' });
+  await expect(
+    parts.getByRole('button', { name: 'Escalier', exact: true }),
+  ).toHaveCount(0);
+  await revealAllTools(page);
+  await expect(
+    toolbox.getByRole('button', { name: 'Escalier', exact: true }),
+  ).toBeVisible();
 });

@@ -135,8 +135,14 @@ export const BUDGETS = {
    * Et un avec le header du plan. Il rend bien plus qu'il ne prend : la coque
    * passe de 153 à 116 px au-dessus du dessin, et la colonne de gauche de
    * vingt-deux boutons à deux.
+   *
+   * Et deux avec le registre des headers : trente-sept sous-parties au lieu de
+   * douze, et cent soixante entrées au lieu de quatre-vingts. Ce sont les
+   * boutons eux-mêmes ; le catalogue qu'ils nomment, lui, reste à la demande —
+   * un projet neuf l'installe depuis l'assistant de création, qui se charge
+   * quand on le demande.
    */
-  initialGzipBytes: 280 * 1024,
+  initialGzipBytes: 282 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -222,8 +228,14 @@ export const BUDGETS = {
    * Et un avec le header du plan : la rangée des sous-parties, la rangée
    * d'outils et le bandeau d'options sont le premier écran, et le premier
    * écran ne se charge pas en deux fois.
+   *
+   * Et dix avec le registre des headers et la maison de démonstration, qui
+   * tient désormais les trente-quatre fiches supplémentaires que ses boutons
+   * savent poser — un bouton qui ne peut rien poser est une promesse, et une
+   * maison de démonstration qui n'en tient aucune est une démonstration de
+   * boutons absents.
    */
-  totalGzipBytes: 450 * 1024,
+  totalGzipBytes: 460 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

@@ -26,6 +26,7 @@ import type {
   NewProjectLevelDraft,
 } from '../ux/new-project-draft.js';
 import { createBlankProject } from '../project-workspace.js';
+import { starterEquipment } from '../editor/starter-equipment.js';
 import {
   DEFAULT_LEVEL_STACK,
   levelStackIssues,
@@ -254,6 +255,13 @@ export function projectFromNewDraft(
     ...blank,
     project: {
       ...blank.project,
+      // Les fiches que les headers savent poser, et rien d'autre : un projet
+      // neuf n'a pas à porter les quatre cents du catalogue générique pour
+      // poser un lit, ni à répondre « allez chercher » à qui vient de cliquer
+      // « Lit ». Elles arrivent ici, dans l'assistant, qui se charge à la
+      // demande — le premier écran de quelqu'un qui ouvre un fichier existant
+      // n'a pas à les porter non plus.
+      equipment: [...starterEquipment()],
       metadata: {
         ...blank.project.metadata,
         name: draft.metadata.name.trim(),

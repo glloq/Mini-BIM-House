@@ -41,11 +41,7 @@ import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
 import { ToolIcon } from './tool-icons.js';
 import { ToolOptions } from './ToolOptions.js';
 import type { ToolDrafts } from './tool-options.js';
-import {
-  EDITOR_TOOLS,
-  toolById,
-  type EditorToolDefinition,
-} from './tool-registry.js';
+import { toolById, type EditorToolDefinition } from './tool-registry.js';
 import type { DesignState } from '../ux/design-state.js';
 
 import {
@@ -53,6 +49,7 @@ import {
   availabilityOf,
   draftsForEntry,
   entryAvailable,
+  leftoverTools,
   missingFicheFamilies,
   toolboxFor,
   unblockingEntry,
@@ -132,13 +129,16 @@ export function ToolHeader({
     ),
   };
   const entries = sections.flatMap(({ entries: held }) => held);
-  const offered = new Set(
-    [...entries, ...common.entries].map(({ toolId }) => toolId),
-  );
   // Ce que la sous-partie ne propose pas reste à un dépliage, sur le même
   // écran : une sous-partie filtre ce qui est proposé, elle ne restreint
-  // jamais ce qui est possible.
-  const others = EDITOR_TOOLS.filter((tool) => !offered.has(tool.id));
+  // jamais ce qui est possible. Le calcul vit dans le registre, où un test le
+  // tient : les deux ensembles réunis font le registre entier.
+  const others = leftoverTools(
+    project,
+    stage,
+    chosen === undefined ? domain : undefined,
+    design,
+  ).filter((tool) => !entries.some(({ toolId }) => toolId === tool.id));
   const [moreOpen, setMoreOpen] = useState(false);
   const active = toolById(editor.activeTool);
 

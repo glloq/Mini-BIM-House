@@ -2375,7 +2375,7 @@ test('reads every trade in the space that draws it, solar included', async ({
   // dessine là où les murs se dessinent.
   await openStage(page, 'Bâtiment');
   await expect(
-    parts.getByRole('button', { name: 'Ossature', exact: true }),
+    parts.getByRole('button', { name: 'Structure', exact: true }),
   ).toHaveCount(1);
   expect(errors).toEqual([]);
 });

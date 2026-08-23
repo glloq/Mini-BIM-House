@@ -246,6 +246,9 @@ export function createBlankProject(now: string): ProjectFile {
       // not, so every opening was drawn with a transmittance nobody had
       // stated.
       openingTypes: STARTER_LIBRARY.openingTypes,
+      // Vide, et rempli par l'assistant de création : les fiches viennent du
+      // catalogue générique, qui pèse soixante-dix kio et n'a rien à faire
+      // dans le premier chargement de quelqu'un qui ouvre un fichier existant.
       equipment: [],
       systems: [],
       scenarios: [],
