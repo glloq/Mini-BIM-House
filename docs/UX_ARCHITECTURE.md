@@ -5,9 +5,14 @@ maquette : il décrit ce que l'interface a le droit d'être. Toute PR qui touche
 à l'interface est relue contre les dix-huit critères de la dernière section.
 
 > **Ce contrat décrit la coque telle qu'elle est aujourd'hui.**
-> [`UX_REDESIGN_V3.md`](UX_REDESIGN_V3.md) spécifie la passe suivante : une
-> interface pilotée par **l'état réel de la maison** et non plus seulement par
-> l'étape et le métier.
+> [`UX_ARCHITECTURE_V4.md`](UX_ARCHITECTURE_V4.md) est l'**architecture de
+> référence** vers laquelle elle va : sept espaces, une rangée de sous-parties,
+> un header d'outils de trois à huit boutons, et pas de panneau permanent. Elle
+> reprend l'acquis de V3 — l'état réel de la maison décide de ce qui est utile —
+> et abandonne la couche de guidage que V3 avait commencé à construire.
+> [`UX_REDESIGN_V3.md`](UX_REDESIGN_V3.md) reste lisible comme journal de
+> décision : une interface pilotée par **l'état réel de la maison** et non plus
+> seulement par l'étape et le métier.
 > [`UX_REDESIGN_V2.md`](UX_REDESIGN_V2.md) spécifie celle qu'elle devient, en
 > dix PR. UX-1 (coque verrouillée sur la fenêtre) et UX-2 (navigation par
 > étapes de création) sont livrées ; restent la boîte à outils filtrée par

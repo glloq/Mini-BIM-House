@@ -17,6 +17,7 @@ Chaque sujet n'a qu'un seul document, et il se trouve ici :
 | Les vagues de remplissage                | [`CATALOG_WAVES.md`](CATALOG_WAVES.md)                           |
 | Ce que chaque moteur a répondu           | [`ENGINE_AUDIT.md`](ENGINE_AUDIT.md)                             |
 | Contrat d'interface en vigueur           | [`UX_ARCHITECTURE.md`](UX_ARCHITECTURE.md)                       |
+| **Architecture UX de référence**         | [`UX_ARCHITECTURE_V4.md`](UX_ARCHITECTURE_V4.md)                 |
 | Refonte de l'interface, PR par PR        | [`UX_REDESIGN_V2.md`](UX_REDESIGN_V2.md)                         |
 | Ce que l'interface doit savoir du projet | [`UX_REDESIGN_V3.md`](UX_REDESIGN_V3.md)                         |
 
