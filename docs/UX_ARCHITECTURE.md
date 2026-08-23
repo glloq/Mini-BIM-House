@@ -5,11 +5,12 @@ maquette : il décrit ce que l'interface a le droit d'être. Toute PR qui touche
 à l'interface est relue contre les dix-huit critères de la dernière section.
 
 > **Ce contrat décrit la coque actuelle, à cinq espaces.**
-> [`UX_REFONTE_V2.md`](UX_REFONTE_V2.md) spécifie celle qui la remplace — trois
-> modes, un navigateur permanent, une barre de vue et un seul système
-> d'affichage. Chaque PR de ce plan met à jour ici la section qu'elle change, en
-> même temps que le code et les tests : les deux documents ne doivent jamais
-> dire deux choses différentes en même temps.
+> [`UX_REDESIGN_V2.md`](UX_REDESIGN_V2.md) spécifie celle qui la remplace : une
+> coque verrouillée sur la fenêtre, une navigation par étapes de conception, une
+> boîte à outils filtrée par l'étape, un navigateur de bâtiment permanent et un
+> seul système d'affichage. Chaque PR de ce plan met à jour ici la section
+> qu'elle change, en même temps que le code et les tests : les deux documents ne
+> doivent jamais dire deux choses différentes en même temps.
 
 ## 1. Trois niveaux qu'on ne mélange jamais
 

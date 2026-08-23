@@ -17,7 +17,7 @@ Chaque sujet n'a qu'un seul document, et il se trouve ici :
 | Les vagues de remplissage         | [`CATALOG_WAVES.md`](CATALOG_WAVES.md)                           |
 | Ce que chaque moteur a répondu    | [`ENGINE_AUDIT.md`](ENGINE_AUDIT.md)                             |
 | Contrat d'interface en vigueur    | [`UX_ARCHITECTURE.md`](UX_ARCHITECTURE.md)                       |
-| Refonte de la coque, PR par PR    | [`UX_REFONTE_V2.md`](UX_REFONTE_V2.md)                           |
+| Refonte de l'interface, PR par PR | [`UX_REDESIGN_V2.md`](UX_REDESIGN_V2.md)                         |
 
 Les copies de `specifications/` et `standards/` qui existaient à la racine du
 dépôt ont été supprimées : elles étaient identiques à celles-ci, et deux
