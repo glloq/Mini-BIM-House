@@ -14,12 +14,14 @@ import {
 // before anything is loaded, and a blank project was handed all of them.
 import { STARTER_LIBRARY } from '@house-technical-designer/catalog-registry/starter';
 import {
+  ARCHITECTURAL_CLEAN_PRINT,
   exportSemanticSceneToSvg,
-  GENERIC_TECHNICAL_PRINT,
+  graphicProfileForMode,
   type DrawingView,
 } from '@house-technical-designer/drawing-engine';
 import {
   buildPlanView,
+  type DimensionDisplayMode,
   type LayerVisibility,
 } from '@house-technical-designer/view-query';
 
@@ -286,6 +288,16 @@ export interface PlanExportOptions {
   readonly layers: LayerVisibility;
   /** Drawing scale denominator: 50 means 1:50. */
   readonly scale?: number;
+  /**
+   * The charter the sheet is drawn with, on paper.
+   *
+   * A screen charter has no business here — colour that separates five
+   * networks on a screen becomes five indistinguishable greys on paper — so
+   * whatever is named is paired with its printed counterpart.
+   */
+  readonly graphicProfileId?: string;
+  /** What the sheet dimensions. Its own dimensions when unstated. */
+  readonly dimensions?: DimensionDisplayMode;
 }
 
 /**
@@ -302,6 +314,11 @@ export function exportProjectPlan(
   file: ProjectFile,
   options: PlanExportOptions,
 ) {
+  const charter =
+    (options.graphicProfileId === undefined
+      ? undefined
+      : graphicProfileForMode(options.graphicProfileId, 'PRINT')) ??
+    ARCHITECTURAL_CLEAN_PRINT;
   const level =
     options.levelId === undefined
       ? file.project.building.levels[0]
@@ -310,15 +327,18 @@ export function exportProjectPlan(
     ...(level === undefined ? {} : { levelId: level.id }),
     layers: options.layers,
     ...(options.scale === undefined ? {} : { scale: options.scale }),
-    graphicProfileId: GENERIC_TECHNICAL_PRINT.profile.id,
+    ...(options.dimensions === undefined
+      ? {}
+      : { dimensions: options.dimensions }),
+    graphicProfileId: charter.profile.id,
   });
   const levelSuffix =
     level === undefined ? '' : `-${safeFileStem(level.name).toLowerCase()}`;
   return exportSemanticSceneToSvg({
     view: plan.view,
     scene: plan.scene,
-    profile: GENERIC_TECHNICAL_PRINT.profile,
-    styles: GENERIC_TECHNICAL_PRINT.styles,
+    profile: charter.profile,
+    styles: charter.styles,
     fileName: `${safeFileStem(file.project.metadata.name)}${levelSuffix}-plan.svg`,
     metadata: {
       title: `${file.project.metadata.name} — ${level?.name ?? 'plan'} — 1:${plan.view.scale}`,

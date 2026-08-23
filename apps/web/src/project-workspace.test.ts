@@ -215,3 +215,36 @@ describe('application version', () => {
     );
   });
 });
+
+describe('the charter a sheet is drawn with', () => {
+  const populated = (): ProjectFile =>
+    createBlankProject('2026-08-19T00:00:00Z');
+
+  it('prints a plan of a house as a plan of a house', () => {
+    // The export named the technical charter itself, so every sheet the
+    // application produced was the one you read to find a duct.
+    expect(
+      exportProjectPlan(populated(), { layers: defaultVisibility() }).content,
+    ).toContain('architectural-clean-print');
+  });
+
+  it('prints a screen charter with its own printed counterpart', () => {
+    // Colour that separates five networks on a screen becomes five
+    // indistinguishable greys on paper.
+    expect(
+      exportProjectPlan(populated(), {
+        layers: defaultVisibility(),
+        graphicProfileId: 'generic-technical-screen',
+      }).content,
+    ).toContain('generic-technical-print');
+  });
+
+  it('falls back on the plan of a house for a charter it does not ship', () => {
+    expect(
+      exportProjectPlan(populated(), {
+        layers: defaultVisibility(),
+        graphicProfileId: 'charte-agence',
+      }).content,
+    ).toContain('architectural-clean-print');
+  });
+});

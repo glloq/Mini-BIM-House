@@ -77,6 +77,17 @@ export interface PlanViewIssue {
   readonly message: string;
 }
 
+/**
+ * How much of a plan's dimensioning is drawn.
+ *
+ * The dimensions a project holds are objects somebody placed; the overall
+ * width and depth of a building are neither placed nor stored, because they
+ * are true of whatever the walls happen to be today. Asking for them is a
+ * property of the drawing, and what comes back is graphic information derived
+ * on the spot — never an object written back into the model.
+ */
+export type DimensionDisplayMode = 'NONE' | 'PROJECT' | 'PROJECT_AND_OVERALL';
+
 export interface PlanViewOptions {
   readonly levelId?: string;
   /** Drawing scale denominator: 50 means 1:50. */
@@ -85,6 +96,8 @@ export interface PlanViewOptions {
   readonly selection?: readonly string[];
   readonly hoveredId?: string;
   readonly graphicProfileId?: string;
+  /** What the drawing dimensions. Its own dimensions when unstated. */
+  readonly dimensions?: DimensionDisplayMode;
   /** Extra primitives merged into the scene, such as an analysis overlay. */
   readonly extraPrimitives?: readonly ScenePrimitive[];
   /** Model-space padding around the drawn content, in millimetres. */
@@ -775,6 +788,124 @@ function dimensionPrimitives(
           y: (firstOffset.y + secondOffset.y) / 2,
         },
         text: label,
+      },
+      zIndex: 71,
+    },
+  ];
+}
+
+/** How far outside the building the overall dimensions are drawn. */
+const OVERALL_DIMENSION_OFFSET_MM = 900;
+
+/**
+ * The width and the depth of what is built, measured off the walls.
+ *
+ * Not objects: nothing is written back into the project. They are true of
+ * whatever the walls are today, and a stored copy of them would be a second
+ * answer to a question the walls already answer.
+ */
+function overallDimensionPrimitives(
+  level: Level,
+  assemblies: ReadonlyMap<string, Assembly>,
+): readonly PrimitiveDraft[] {
+  const corners: Point2D[] = [];
+  for (const wall of level.walls) {
+    const assembly = assemblies.get(wall.assemblyId);
+    if (assembly === undefined) continue;
+    corners.push(...deriveWallFaces(wall, assembly).footprint.outer);
+  }
+  const box = boundingBox2D(corners);
+  if (box === undefined) return [];
+  const widthMm = box.max.x - box.min.x;
+  const depthMm = box.max.y - box.min.y;
+  if (widthMm <= 0 || depthMm <= 0) return [];
+  const gap = OVERALL_DIMENSION_OFFSET_MM;
+  return [
+    ...overallRun(
+      'width',
+      { x: box.min.x, y: box.max.y },
+      { x: box.max.x, y: box.max.y },
+      { x: 0, y: gap },
+      widthMm,
+    ),
+    ...overallRun(
+      'depth',
+      { x: box.min.x, y: box.min.y },
+      { x: box.min.x, y: box.max.y },
+      { x: -gap, y: 0 },
+      depthMm,
+    ),
+  ];
+}
+
+function overallRun(
+  axis: string,
+  first: Point2D,
+  second: Point2D,
+  offset: Point2D,
+  valueMm: number,
+): readonly PrimitiveDraft[] {
+  const moved = (point: Point2D): Point2D => ({
+    x: point.x + offset.x,
+    y: point.y + offset.y,
+  });
+  const firstOffset = moved(first);
+  const secondOffset = moved(second);
+  const shared = {
+    layer: 'annotation.dimensions',
+    discipline: 'ARCHITECTURE' as const,
+    metadata: {
+      dimensionType: axis === 'width' ? 'HORIZONTAL' : 'VERTICAL',
+      valueMm: Number(valueMm.toFixed(1)),
+      // Graphic information derived from the walls, not an object the project
+      // holds: a reader of the scene can tell the two apart.
+      derived: true,
+      overallAxis: axis.toUpperCase(),
+    },
+  };
+  return [
+    {
+      ...shared,
+      id: `dimension-overall:${axis}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: { points: [firstOffset, secondOffset], closed: false },
+      },
+      zIndex: 70,
+    },
+    {
+      ...shared,
+      id: `dimension-overall-witness-first:${axis}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: { points: [first, firstOffset], closed: false },
+      },
+      zIndex: 70,
+    },
+    {
+      ...shared,
+      id: `dimension-overall-witness-second:${axis}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: { points: [second, secondOffset], closed: false },
+      },
+      zIndex: 70,
+    },
+    {
+      ...shared,
+      id: `dimension-overall-label:${axis}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'TEXT',
+        anchor: {
+          x: (firstOffset.x + secondOffset.x) / 2,
+          y: (firstOffset.y + secondOffset.y) / 2,
+        },
+        text: `${(valueMm / 1000).toFixed(2)} m`,
+        ...(axis === 'depth' ? { rotationDeg: -90 } : {}),
       },
       zIndex: 71,
     },
@@ -1828,11 +1959,15 @@ export function buildPlanView(
       drafts.push(
         ...spacePrimitives(space, level, options.scale ?? DEFAULT_SCALE),
       );
+    const dimensionMode = options.dimensions ?? 'PROJECT';
     for (const annotation of level.annotations)
-      if (isDimension(annotation))
-        drafts.push(...dimensionPrimitives(annotation, level, issues));
-      else if (isTextNote(annotation))
+      if (isDimension(annotation)) {
+        if (dimensionMode !== 'NONE')
+          drafts.push(...dimensionPrimitives(annotation, level, issues));
+      } else if (isTextNote(annotation))
         drafts.push(...textNotePrimitives(annotation));
+    if (dimensionMode === 'PROJECT_AND_OVERALL')
+      drafts.push(...overallDimensionPrimitives(level, assemblies));
     drafts.push(...slabAndRoofPrimitives(level));
     drafts.push(
       ...componentPrimitives(level, equipment, options.scale ?? DEFAULT_SCALE),

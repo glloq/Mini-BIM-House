@@ -1210,3 +1210,83 @@ describe('placed fixtures', () => {
     expect(drawn[0]!.id).toBe('component:fixture');
   });
 });
+
+describe('what a plan dimensions', () => {
+  /** The fixture, plus one cote somebody placed. */
+  function withDimension(base: Project): Project {
+    const level = base.building.levels[0]!;
+    return {
+      ...base,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            annotations: [
+              {
+                id: entityId<'Dimension'>('cote-sud'),
+                kind: 'DIMENSION',
+                type: 'HORIZONTAL',
+                first: {
+                  kind: 'WALL_ENDPOINT',
+                  wallId: entityId<'Wall'>('wall-south'),
+                  endpoint: 'START',
+                },
+                second: {
+                  kind: 'WALL_ENDPOINT',
+                  wallId: entityId<'Wall'>('wall-south'),
+                  endpoint: 'END',
+                },
+                offsetMm: 500,
+              },
+            ] as unknown as typeof level.annotations,
+          },
+        ],
+      },
+    };
+  }
+
+  const dimensionIds = (project: Project, mode?: string): readonly string[] =>
+    buildPlanView(
+      project,
+      mode === undefined
+        ? {}
+        : { dimensions: mode as 'NONE' | 'PROJECT' | 'PROJECT_AND_OVERALL' },
+    )
+      .primitives.filter(({ layer }) => layer === 'annotation.dimensions')
+      .map(({ id }) => id);
+
+  it("draws the project's own dimensions when nobody says otherwise", () => {
+    const placed = withDimension(project());
+    expect(dimensionIds(placed).join(' ')).toContain('dimension:cote-sud');
+    expect(dimensionIds(placed).join(' ')).not.toContain('overall');
+  });
+
+  it('draws none when the drawing asks for none', () => {
+    expect(dimensionIds(withDimension(project()), 'NONE')).toEqual([]);
+  });
+
+  it('measures the building itself when the drawing asks for it', () => {
+    const ids = dimensionIds(withDimension(project()), 'PROJECT_AND_OVERALL');
+    expect(ids).toContain('dimension-overall:width');
+    expect(ids).toContain('dimension-overall:depth');
+    expect(ids.join(' ')).toContain('dimension:cote-sud');
+  });
+
+  it('derives the overall run from the walls rather than storing it', () => {
+    // True of whatever the walls are today; a stored copy would be a second
+    // answer to a question the walls already answer.
+    const before = project();
+    const label = buildPlanView(before, {
+      dimensions: 'PROJECT_AND_OVERALL',
+    }).primitives.find(({ id }) => id === 'dimension-overall-label:width')!;
+    expect(label.metadata).toMatchObject({ derived: true });
+    if (label.geometry.kind !== 'TEXT') return;
+    // Two walls, 6 m and 4 m, 300 mm thick: 6.15 m across the outer faces.
+    expect(label.geometry.text).toBe('6.15 m');
+    // Nothing was written back into the project.
+    expect(before.building.levels[0]!.annotations).toEqual(
+      project().building.levels[0]!.annotations,
+    );
+  });
+});

@@ -855,6 +855,10 @@ Chartes livrées :
 `architecture.wall-layers` n'est plus visible par défaut : la composition d'un
 mur est le sujet du preset « Matériaux », pas celui du plan architectural.
 
+La vue reçoit sa charte, elle ne la choisit pas : `PlanCanvas` prend un
+`graphicProfileId`, l'espace de travail décide du défaut (« Construire » lit une
+maison, « Systèmes » lit un réseau), et une vue enregistrée garde la sienne.
+
 ---
 
 ## 12. Conventions graphiques et normalisation

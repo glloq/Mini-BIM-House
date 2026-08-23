@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Project } from '@house-technical-designer/core-domain';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import {
-  GENERIC_TECHNICAL_SCREEN,
+  ARCHITECTURAL_CLEAN_SCREEN,
+  graphicProfileBundle,
   renderSemanticSceneToSvg,
   type ScenePrimitive,
 } from '@house-technical-designer/drawing-engine';
@@ -108,6 +109,14 @@ export interface PlanCanvasProps {
    * that means for the project is decided where the commands live.
    */
   readonly onEditGeometry?: (edit: GeometryEdit) => void;
+  /**
+   * The charter the drawing is drawn with.
+   *
+   * The canvas used to name one itself, so every drawing in the application
+   * was the technical charter whatever it was being read for. A view receives
+   * its charter; it does not choose it.
+   */
+  readonly graphicProfileId?: string;
   /** Analysis values projected onto the drawing, when one is selected. */
   readonly overlay?: AnalysisOverlay;
   /** Which groups of clearance zones the user has asked to see. */
@@ -150,9 +159,16 @@ export function PlanCanvas({
   onCommand,
   onObjectMenu,
   selectableFamily,
+  graphicProfileId,
   overlay,
   clearanceGroups = [],
 }: PlanCanvasProps) {
+  // A charter the application does not ship is not a reason to draw nothing:
+  // the drawing falls back on the one a plan of a house is read with.
+  const charter =
+    (graphicProfileId === undefined
+      ? undefined
+      : graphicProfileBundle(graphicProfileId)) ?? ARCHITECTURAL_CLEAN_SCREEN;
   const container = useRef<HTMLDivElement>(null);
   const panOrigin = useRef<{ x: number; y: number } | undefined>(undefined);
   /** The handle being dragged, and where it started. */
@@ -338,7 +354,7 @@ export function PlanCanvas({
           ? {}
           : { hoveredId: editor.hoveredId }),
         extraPrimitives: preview,
-        graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
+        graphicProfileId: charter.profile.id,
       }),
     [
       project,
@@ -347,6 +363,7 @@ export function PlanCanvas({
       editor.selection,
       editor.hoveredId,
       preview,
+      charter,
     ],
   );
 
@@ -416,7 +433,7 @@ export function PlanCanvas({
           ? []
           : overlayPrimitives(base.primitives, overlay)),
       ],
-      graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
+      graphicProfileId: charter.profile.id,
     });
   }, [
     base,
@@ -429,6 +446,7 @@ export function PlanCanvas({
     editor.selection,
     editor.hoveredId,
     preview,
+    charter,
   ]);
 
   /**
@@ -443,8 +461,8 @@ export function PlanCanvas({
       const markup = renderSemanticSceneToSvg(
         plan.scene,
         plan.view,
-        GENERIC_TECHNICAL_SCREEN.profile,
-        GENERIC_TECHNICAL_SCREEN.styles,
+        charter.profile,
+        charter.styles,
         { includeInteractionStates: true, includeSemanticGroups: true },
       );
       return plan.scene.primitives.length === 0
@@ -456,7 +474,7 @@ export function PlanCanvas({
         message: error instanceof Error ? error.message : String(error),
       };
     }
-  }, [plan]);
+  }, [plan, charter]);
 
   const segments = useMemo(
     () => snapSegments(project, editor.levelId),
