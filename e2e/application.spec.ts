@@ -2144,10 +2144,11 @@ test('suggests what is left without ever standing in the way', async ({
   await expect(guide).toBeVisible();
   await expect(guide).toContainText('une suggestion, jamais une condition');
 
-  // Les dix phases sont ici et nulle part ailleurs : la barre d'étapes en
-  // compte neuf, qui disent ce qu'on fait et non ce qu'il reste à faire.
+  // Les dix phases sont ici et nulle part ailleurs : la barre en compte sept,
+  // qui disent de quelle partie de la maison on s'occupe, et non ce qu'il
+  // reste à faire.
   const bar = page.getByRole('navigation', { name: 'Étapes de création' });
-  await expect(bar.getByRole('button')).toHaveCount(9);
+  await expect(bar.getByRole('button')).toHaveCount(7);
   await expect(guide).toContainText('Architecture');
   await expect(guide).toContainText('Technique');
 
@@ -2338,27 +2339,28 @@ test('names an entry by what it places, and pre-fills its fiche', async ({
   expect(errors).toEqual([]);
 });
 
-test('reads a trade in the stage that draws it, Énergie included', async ({
+test('reads every trade in the space that draws it, solar included', async ({
   page,
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
   const canvas = page.locator('.plan-canvas');
 
-  // Le solaire et le stockage se dessinent dans Énergie, pas dans Systèmes :
-  // les neuf étapes ont réparti les seize métiers, et aucune n'a le droit d'en
-  // perdre un en route.
-  await openStage(page, 'Énergie');
+  // Le solaire et le stockage sont des spécialités de Systèmes, comme
+  // l'électricité : un onglet Énergie séparé demandait de savoir d'avance
+  // qu'un panneau ne se pose pas là où se pose une prise.
+  await openStage(page, 'Systèmes');
   const trade = page.locator('.view-bar').getByLabel('Discipline');
   await expect(trade).toBeVisible();
   await trade.selectOption('SOLAR');
   await expect(canvas).toBeVisible();
-
-  // Et Systèmes ne les propose plus : un métier revendiqué par deux étapes est
-  // un métier qu'on cherchera dans la mauvaise.
-  await openStage(page, 'Systèmes');
-  await expect(trade.locator('option[value="SOLAR"]')).toHaveCount(0);
   await expect(trade.locator('option[value="ELECTRICAL"]')).toHaveCount(1);
+  await expect(trade.locator('option[value="STORAGE"]')).toHaveCount(1);
+
+  // Et la structure est une sous-partie du bâtiment : ce qui porte les murs se
+  // dessine là où les murs se dessinent.
+  await openStage(page, 'Bâtiment');
+  await expect(trade.locator('option[value="STRUCTURE"]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
 

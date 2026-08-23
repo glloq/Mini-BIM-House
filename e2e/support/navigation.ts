@@ -9,8 +9,8 @@ import type { Page } from '@playwright/test';
  * cesserait de prouver ce que ce réarrangement doit prouver, c'est-à-dire que
  * chacune reste atteignable.
  *
- * En dessous de 1 100 px la barre d'étapes est une liste déroulante ; au-dessus
- * ce sont neuf boutons. Les deux répondent à la même demande.
+ * En dessous de 1 100 px la barre est une liste déroulante ; au-dessus ce sont
+ * sept boutons. Les deux répondent à la même demande.
  */
 /**
  * Les bibliothèques ne sont pas des destinations.
@@ -35,10 +35,10 @@ const STAGE_OF: Readonly<Record<string, string>> = {
   Menuiseries: 'Bâtiment',
   Équipements: 'Aménagement',
   Réseaux: 'Systèmes',
-  Calculs: 'Vérifier',
-  Quantités: 'Vérifier',
-  Scénarios: 'Vérifier',
-  Vérifications: 'Vérifier',
+  Calculs: 'Études',
+  Quantités: 'Études',
+  Scénarios: 'Études',
+  Vérifications: 'Études',
   'Vues et feuilles': 'Documents',
 };
 

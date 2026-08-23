@@ -1,15 +1,16 @@
 /**
- * Ce qu'on est en train de faire, sur une rangée, toujours au même endroit.
+ * Les sept parties de la maison, sur une rangée, toujours au même endroit.
  *
- * Un rail vertical de cinq espaces disait « où je travaille » ; neuf étapes
- * disent « ce que je fais », et elles se lisent dans l'ordre d'un chantier —
- * ce qui n'oblige personne à le suivre. Une étape ne mène nulle part : la
- * barre reste au-dessus du même dessin, et changer d'étape change ce qu'on a
- * sous la main, jamais ce qu'on a le droit de faire.
+ * Un rail vertical de cinq espaces disait « où je travaille » ; sept onglets
+ * disent de quelle partie de la maison on s'occupe, et ils se lisent dans
+ * l'ordre où on la décrit — ce qui n'oblige personne à le suivre. Un onglet ne
+ * mène nulle part : la barre reste au-dessus du même dessin, et en changer
+ * change ce qu'on a sous la main, jamais ce qu'on a le droit de faire.
  *
- * En dessous de 1 100 px elle se réduit à l'étape courante et à une liste
- * déroulante : neuf libellés ne tiennent pas sur une rangée étroite, et une
- * barre qui passe à deux rangées est la moitié d'une barre d'outils perdue.
+ * En dessous de 1 100 px elle se réduit à l'onglet courant et à une liste
+ * déroulante : sept libellés tiennent mieux que neuf, mais pas sur une rangée
+ * étroite, et une barre qui passe à deux rangées est la moitié d'une barre
+ * d'outils perdue.
  */
 import {
   CREATION_STAGES,

@@ -57,8 +57,8 @@ function code(path: string): string {
  * assertion lives elsewhere.
  */
 describe('the eighteen acceptance criteria', () => {
-  it('1. the primary navigation holds exactly nine entries', () => {
-    expect(CREATION_STAGES).toHaveLength(9);
+  it('1. the primary navigation holds exactly seven entries', () => {
+    expect(CREATION_STAGES).toHaveLength(7);
   });
 
   it('2. no library, quantity, scenario or check is a primary destination', () => {

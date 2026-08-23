@@ -351,8 +351,6 @@ const STAGE_SECTIONS: Readonly<
         ),
       ],
     },
-  ],
-  STRUCTURE: [
     {
       id: 'structure.frame',
       label: 'Ossature',
@@ -839,10 +837,8 @@ const STAGE_SECTIONS: Readonly<
         ),
       ],
     },
-  ],
-  ENERGY: [
     {
-      id: 'energy.solar',
+      id: 'systems.solar',
       label: 'Solaire',
       domain: 'SOLAR',
       entries: [
@@ -883,7 +879,7 @@ const STAGE_SECTIONS: Readonly<
       ],
     },
     {
-      id: 'energy.storage',
+      id: 'systems.storage',
       label: 'Stockage',
       domain: 'STORAGE',
       entries: [

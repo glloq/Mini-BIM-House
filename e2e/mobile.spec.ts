@@ -20,10 +20,10 @@ test('keeps the stage visible and reaches every destination', async ({
   await expect(bar).toBeInViewport();
   await expect(bar.getByLabel('Étape de création')).toBeVisible();
 
-  // Une étape est un geste, et elle s'ouvre sur ce à quoi elle sert — pour
-  // Vérifier, le plan dont les résultats parlent.
-  await openStage(page, 'Vérifier');
-  await expect(page.locator('.plan-canvas')).toBeVisible();
+  // Un onglet s'ouvre sur ce à quoi il sert — pour Études, la vue d'ensemble
+  // de ce que le bâtiment dessiné donne.
+  await openStage(page, 'Études');
+  await expect(page.getByText('Vérifications').first()).toBeVisible();
 
   // A destination inside a stage is the stage, then the drawer.
   await openDestination(page, 'Matériaux');

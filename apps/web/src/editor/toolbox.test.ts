@@ -148,10 +148,17 @@ describe('what a stage puts under the hand', () => {
     expect(water.map(({ id }) => id)).toEqual(['systems.water']);
   });
 
+  it('narrows Bâtiment to its structural sub-part', () => {
+    // La structure est une sous-partie du bâtiment depuis les sept espaces :
+    // c'est ce qui porte les murs qu'on vient de tracer, pas un autre métier.
+    const bearing = toolboxFor(project, 'BUILDING', 'STRUCTURE');
+    expect(bearing.map(({ id }) => id)).toEqual(['structure.frame']);
+  });
+
   it('shows the whole stage when the trade has nothing of its own', () => {
     // Mieux vaut tout ce que l'étape offre que rien du tout : un métier sans
     // section déclarée ne doit pas vider la colonne.
-    expect(toolboxFor(project, 'BUILDING', 'STRUCTURE').length).toBe(
+    expect(toolboxFor(project, 'BUILDING', 'FURNITURE').length).toBe(
       sectionsOfStage('BUILDING').length,
     );
   });

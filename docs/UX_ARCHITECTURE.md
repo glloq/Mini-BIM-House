@@ -34,49 +34,55 @@ devenue un onglet, un outil devenu une destination, un résultat devenu un lieu.
 Une **étape de création** n'est aucun des trois : c'est ce qu'on est en train
 de faire, et elle ne fait que filtrer ce qui est proposé.
 
-## 2. Neuf étapes de création, pas treize destinations
+## 2. Sept espaces, pas treize destinations
 
 ```
-PROJECT | SITE | BUILDING | STRUCTURE | FITTING | SYSTEMS | ENERGY | CHECKS | DOCUMENTS
-   P       T        B          R          A         S         E        V         D
+PROJET | TERRAIN | BÂTIMENT | AMÉNAGEMENT | SYSTÈMES | ÉTUDES | DOCUMENTS
+   P       T          B           A            S         E        D
 ```
 
 `apps/web/src/ux/creation-stages.ts` les gèle. Cinq espaces répondaient à « où
 je travaille » ; ils demandaient à quelqu'un qui pose une prise de savoir
-d'avance qu'une prise se pose dans « Systèmes ». Les neuf étapes répondent à la
-question qu'on se pose vraiment en dessinant — je suis en train de faire le
-bâtiment, la structure, les réseaux — et se lisent dans l'ordre d'un chantier,
-ce qui n'oblige personne à le suivre.
+d'avance qu'une prise se pose dans « Systèmes ». Neuf étapes ont répondu à
+« ce que je suis en train de faire », et deux d'entre elles demandaient encore
+de savoir d'avance où quelque chose se dessine : un poteau était dans Structure
+et pas dans Bâtiment, un panneau dans Énergie et pas dans Systèmes. Ce sont les
+deux qui ont fusionné.
 
-**Une étape filtre ce qui est proposé. Elle ne restreint jamais ce qui est
-possible.** On revient en arrière, on saute une étape, on pose l'électricité
-avant la toiture. La recherche et la palette donnent accès à tout, depuis
-n'importe où. Rien ne se valide, rien ne se verrouille, et l'étape active est
-un état d'écran : elle n'entre jamais dans le fichier projet.
+Sept, parce que sept est le nombre de parties qu'une maison a quand on la
+décrit à quelqu'un. Aucun huitième onglet ne sera ajouté ; une fonction
+nouvelle trouve sa sous-partie. Voir
+[`UX_ARCHITECTURE_V4.md`](UX_ARCHITECTURE_V4.md) §1.
 
-La barre d'étapes ne contient jamais **Matériaux**, **Assemblages**,
-**Quantités** ni **Scénarios** : ce sont des outils et des résultats, et un
-outil n'est pas une chose qu'on est en train de faire. Ils réapparaissent
-comme destinations de l'étape à laquelle ils appartiennent — le registre dit
-laquelle, et un test refuse qu'une des treize destinations devienne
-inatteignable.
+**Un espace filtre ce qui est proposé. Il ne restreint jamais ce qui est
+possible.** On revient en arrière, on en saute un, on pose l'électricité avant
+la toiture. La recherche et la palette donnent accès à tout, depuis n'importe
+où. Rien ne se valide, rien ne se verrouille, et l'espace actif est un état
+d'écran : il n'entre jamais dans le fichier projet.
 
-Une **sous-étape** est ce qu'on fait à l'intérieur de l'étape. Dans Systèmes
+La barre ne contient jamais **Matériaux**, **Assemblages**, **Quantités** ni
+**Scénarios** : ce sont des outils et des résultats, et un outil n'est pas une
+partie de la maison. Ils réapparaissent comme destinations de l'espace auquel
+ils appartiennent — le registre dit lequel, et un test refuse qu'une des treize
+destinations devienne inatteignable.
+
+Une **sous-partie** est ce qu'on fait à l'intérieur de l'espace. Dans Systèmes
 elle **est** une discipline : la choisir change le métier par lequel le plan se
-lit. Ailleurs c'est un groupe d'outils. La distinction est portée par le
-registre, jamais par un composant.
+lit. Dans Bâtiment, `Structure` est les deux à la fois — un groupe d'outils qui
+nomme un métier. Ailleurs c'est un groupe d'outils. La distinction est portée
+par le registre, jamais par un composant.
 
 ## 3. Les dix phases sont un moteur, pas dix onglets
 
 Projet, Terrain, Bâtiment, Architecture, Construction, Aménagement, Technique, Énergie, Vérifications, Documents
 sont les dix groupes de
 `apps/web/src/ux/workflow-steps.ts`. Ils alimentent le guide et **n'apparaissent
-jamais comme navigation** : chaque phase est portée par exactement une étape,
+jamais comme navigation** : chaque phase est portée par exactement un espace,
 et un test le vérifie — sinon « il reste des murs à tracer » se lirait à deux
 endroits.
 
-> Les étapes = ce que je suis en train de faire. Les phases = ce qu'il reste
-> éventuellement à faire.
+> Les espaces = la partie de la maison dont je m'occupe. Les phases = ce qu'il
+> reste éventuellement à faire.
 
 L'état d'une étape est **dérivé du modèle**, à chaque lecture.
 `stepCompleted = true` n'est jamais écrit dans le projet : un drapeau dit que
