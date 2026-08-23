@@ -192,6 +192,14 @@ export interface EditorToolDefinition {
    */
   readonly drawsWalls?: true;
   /**
+   * Un outil qui lit et n'écrit rien.
+   *
+   * Mesurer une distance ne change pas la maison : il n'y a pas de commande à
+   * créer, pas d'annulation à empiler, et rien à valider. L'application dit ce
+   * qu'elle a mesuré et rend la main.
+   */
+  readonly reads?: true;
+  /**
    * Whether the tool keeps taking points until the user says it is finished.
    *
    * A wall between two points is two clicks and everyone knows when it ends. A
@@ -737,6 +745,19 @@ export const EDITOR_TOOLS = [
         ],
         fallback: () => 'POINTS',
       },
+      {
+        key: 'pans',
+        kind: 'SELECT',
+        label: 'Pans',
+        hint: 'Les pignons se posent sur les côtés les plus courts ; l’inspecteur les change ensuite un par un.',
+        choices: () => [
+          { value: '0', label: 'Tous les côtés' },
+          { value: '4', label: '4 pans' },
+          { value: '2', label: '2 pans' },
+          { value: '1', label: '1 pan' },
+        ],
+        fallback: () => '0',
+      },
     ],
     createCommand: (context) =>
       addRoofStructureCommand(
@@ -748,6 +769,9 @@ export const EDITOR_TOOLS = [
           slopeDeg: context.optionNumber('slopeDeg') ?? 35,
           overhangMm: context.optionNumber('overhangMm') ?? 400,
           fromWalls: context.option('outline') === 'WALLS',
+          ...(context.option('pans') === '0'
+            ? {}
+            : { pans: Number(context.option('pans')) as 1 | 2 | 4 }),
         },
         context.newId('roof'),
       ),
@@ -1315,6 +1339,17 @@ export const EDITOR_TOOLS = [
         newId: context.newId,
       });
     },
+  },
+  {
+    id: 'MEASURE',
+    group: 'ANNOTATION',
+    label: 'Mesurer',
+    hint: 'Mesurer entre deux points, sans rien poser',
+    shortcutId: 'tool.measure',
+    requiredPoints: 2,
+    reads: true,
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
   },
   {
     id: 'DIMENSION',

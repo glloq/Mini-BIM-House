@@ -453,6 +453,45 @@ export function addStairCommand(
  * the shape is guessed at creation, because the two-sided roof and the hipped
  * roof have the same outline and only the user knows which was meant.
  */
+/**
+ * Quels côtés sont des pans, et quels côtés sont des pignons.
+ *
+ * Les pignons sont pris sur les côtés les plus courts, parce que c'est ainsi
+ * qu'une charpente est posée : le faîtage suit la longueur. Sur un contour qui
+ * n'est pas un rectangle, « deux pans » prend les deux plus courts côtés et
+ * laisse le reste en pans — ce qui est faux pour une maison en L, et c'est
+ * pourquoi l'inspecteur garde le dernier mot côté par côté.
+ */
+function roofEdges(
+  outline: readonly Point2D[],
+  draft: {
+    readonly slopeDeg: number;
+    readonly overhangMm: number;
+    readonly pans?: 1 | 2 | 4;
+  },
+): readonly {
+  readonly kind: 'SLOPED' | 'GABLE';
+  readonly slopeDeg: number;
+  readonly overhangMm: number;
+}[] {
+  const lengths = outline.map((point, index) => {
+    const next = outline[(index + 1) % outline.length]!;
+    return { index, length: Math.hypot(next.x - point.x, next.y - point.y) };
+  });
+  const gables = new Set<number>();
+  const wanted = draft.pans === undefined ? 0 : outline.length - draft.pans;
+  if (wanted > 0)
+    for (const { index } of [...lengths]
+      .sort((a, b) => a.length - b.length)
+      .slice(0, wanted))
+      gables.add(index);
+  return outline.map((_, index) => ({
+    kind: gables.has(index) ? ('GABLE' as const) : ('SLOPED' as const),
+    slopeDeg: draft.slopeDeg,
+    overhangMm: draft.overhangMm,
+  }));
+}
+
 export function addRoofStructureCommand(
   file: ProjectFile,
   levelId: string | undefined,
@@ -462,6 +501,18 @@ export function addRoofStructureCommand(
     readonly slopeDeg: number;
     readonly overhangMm: number;
     readonly fromWalls: boolean;
+    /**
+     * Combien de pans, quand on le dit d'un mot.
+     *
+     * Le nombre de pans n'est pas une propriété de la toiture : c'est la
+     * nature de chacun de ses côtés. « Deux pans » veut dire que les deux
+     * côtés les plus courts sont des pignons, « un pan » que trois le sont.
+     * L'inspecteur les change ensuite un par un, comme avant.
+     *
+     * Absent, tous les côtés sont des pans — c'est ce que la toiture faisait
+     * jusqu'ici, et une croupe sur quatre côtés reste une croupe.
+     */
+    readonly pans?: 1 | 2 | 4;
   },
   roofId: string,
 ): EditingCommandResult {
@@ -492,11 +543,7 @@ export function addRoofStructureCommand(
     command: new AddRoofStructureCommand(level.id, {
       id: roofId,
       footprint: { outer: outline.map((point) => ({ ...point })) },
-      edges: outline.map(() => ({
-        kind: 'SLOPED' as const,
-        slopeDeg: draft.slopeDeg,
-        overhangMm: draft.overhangMm,
-      })),
+      edges: roofEdges(outline, draft),
       assemblyId: draft.assemblyId,
       baseElevationMm: level.elevationMm + level.defaultStoreyHeightMm,
     }),

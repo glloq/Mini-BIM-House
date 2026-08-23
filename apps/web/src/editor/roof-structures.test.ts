@@ -175,3 +175,69 @@ describe('a described roof as an object of the editor', () => {
     ).toBeDefined();
   });
 });
+
+describe('how many pans a roof is asked for', () => {
+  const square = [
+    { x: 0, y: 0 },
+    { x: 10_000, y: 0 },
+    { x: 10_000, y: 6_000 },
+    { x: 0, y: 6_000 },
+  ];
+
+  function edges(pans?: 1 | 2 | 4) {
+    const source = file();
+    const level = source.project.building.levels[0]!;
+    const assemblyId = (source.project.assemblies ?? []).find(
+      ({ category }) => category === 'ROOF',
+    )!.id;
+    const result = addRoofStructureCommand(
+      source,
+      level.id,
+      square,
+      {
+        assemblyId,
+        slopeDeg: 35,
+        overhangMm: 400,
+        fromWalls: false,
+        ...(pans === undefined ? {} : { pans }),
+      },
+      'roof-pans',
+    );
+    if (result.status !== 'OK') throw new Error(result.message);
+    const dispatcher = new ProjectCommandDispatcher(source.project);
+    const outcome = dispatcher.dispatch(result.command);
+    if (outcome.status !== 'APPLIED')
+      throw new Error(
+        outcome.status === 'REJECTED'
+          ? outcome.errors.join(' ')
+          : outcome.status,
+      );
+    return (dispatcher.project.building.levels[0]!.roofStructures ?? []).at(-1)!
+      .edges;
+  }
+
+  it('leaves every side a pan when nobody said otherwise', () => {
+    // C'est ce que la toiture faisait avant qu'on sache compter les pans, et
+    // une croupe sur quatre côtés reste une croupe.
+    expect(edges().every(({ kind }) => kind === 'SLOPED')).toBe(true);
+  });
+
+  it('puts the gables on the short sides for a two-pan roof', () => {
+    /*
+     * Le nombre de pans n'est pas une propriété de la toiture : c'est la
+     * nature de chacun de ses côtés. Les pignons vont sur les côtés courts
+     * parce que c'est ainsi qu'une charpente est posée — le faîtage suit la
+     * longueur.
+     */
+    const kinds = edges(2).map(({ kind }) => kind);
+    expect(kinds.filter((kind) => kind === 'GABLE')).toHaveLength(2);
+    // Les côtés courts du rectangle sont les deuxième et quatrième.
+    expect(kinds[1]).toBe('GABLE');
+    expect(kinds[3]).toBe('GABLE');
+  });
+
+  it('leaves a single pan when a single pan is what was asked for', () => {
+    expect(edges(1).filter(({ kind }) => kind === 'GABLE')).toHaveLength(3);
+    expect(edges(4).filter(({ kind }) => kind === 'GABLE')).toHaveLength(0);
+  });
+});

@@ -19,6 +19,7 @@ export type ShortcutCommandId =
   | 'tool.column'
   | 'tool.beam'
   | 'tool.site'
+  | 'tool.measure'
   | 'tool.dimension'
   | 'tool.note'
   | 'tool.network'
@@ -89,6 +90,9 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
   },
   { id: 'tool.site', label: 'Terrain', key: 'g', group: 'Outils' },
   { id: 'tool.component', label: 'Composant', key: 'k', group: 'Outils' },
+  // « h » comme « combien » : les lettres évidentes étaient prises, et une
+  // mesure se prend assez souvent pour mériter la sienne.
+  { id: 'tool.measure', label: 'Mesurer', key: 'h', group: 'Outils' },
   { id: 'tool.dimension', label: 'Cotation', key: 'd', group: 'Outils' },
   { id: 'tool.note', label: 'Annotation', key: 'n', group: 'Outils' },
   { id: 'tool.network', label: 'Réseau', key: 'r', group: 'Outils' },

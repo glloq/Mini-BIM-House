@@ -38,8 +38,9 @@ describe('the V4 specification speaks the model’s language', () => {
   const toolIds = new Set<string>(EDITOR_TOOLS.map(({ id }) => id));
   // Ce que le document nomme et que le code n'a pas encore, écrit noir sur
   // blanc en §11 : la spécification a le droit de nommer ce qu'elle demande,
-  // à condition de le dire. Le jour où l'outil existe, cette liste maigrit.
-  const PLANNED = new Set(['MEASURE']);
+  // à condition de le dire. Elle est vide depuis que « Mesurer » existe, et
+  // c'est ce qu'on veut qu'elle reste.
+  const PLANNED = new Set<string>();
   const families = new Set(
     genericEquipmentCatalog()
       .map(({ familyId }) => familyId)

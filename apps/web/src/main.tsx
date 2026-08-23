@@ -1229,6 +1229,28 @@ function App() {
       // to it: a new tool is a new entry in the registry, not another branch
       // here.
       const tool = toolDefinition(editor.activeTool);
+      /*
+       * Un outil qui lit rend son résultat et rend la main.
+       *
+       * Mesurer ne change pas la maison : il n'y a pas de commande à créer,
+       * rien à empiler dans l'historique, et rien à annuler. Ce qu'il produit
+       * est une phrase, et la phrase va là où vont les autres.
+       */
+      if (tool.reads === true) {
+        const from = points[0];
+        const to = points[points.length - 1];
+        if (from !== undefined && to !== undefined) {
+          const dx = to.x - from.x;
+          const dy = to.y - from.y;
+          const lengthM = Math.hypot(dx, dy) / 1000;
+          const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
+          setMessage(
+            `${tool.label} — ${lengthM.toFixed(2).replace('.', ',')} m à ${angleDeg.toFixed(0)}°`,
+          );
+        }
+        dispatchEditor({ type: 'CANCEL' });
+        return;
+      }
       const result = tool.createCommand?.({
         file: session.current.file,
         ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),

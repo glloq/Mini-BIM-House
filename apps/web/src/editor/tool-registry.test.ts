@@ -43,6 +43,13 @@ function context(
   };
 }
 
+/** Les outils qui ramassent des clics et qui en font quelque chose. */
+function toolsWithPoints() {
+  return EDITOR_TOOLS.filter(
+    (tool) => tool.requiredPoints > 0 && toolDefinition(tool.id).reads !== true,
+  );
+}
+
 describe('the tools the editor offers', () => {
   it('answers every question about a tool from its own declaration', () => {
     // These four answers used to live in four separate switch statements, so a
@@ -101,9 +108,12 @@ describe('the tools the editor offers', () => {
   });
 
   it('asks for clicks only from tools that do something with them', () => {
-    for (const tool of EDITOR_TOOLS)
+    // Un outil qui lit — mesurer — prend des points et n'écrit rien. C'est la
+    // seule raison acceptable de ne pas avoir de commande, et elle est
+    // déclarée plutôt que devinée.
+    for (const tool of toolsWithPoints())
       expect(
-        tool.requiredPoints === 0 || tool.createCommand !== undefined,
+        toolDefinition(tool.id).createCommand !== undefined,
         `${tool.id} collects points`,
       ).toBe(true);
   });

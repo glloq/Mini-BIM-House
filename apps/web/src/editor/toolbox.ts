@@ -571,6 +571,26 @@ const STAGE_SECTIONS: Readonly<
           },
         ),
         entry(
+          'building.roof-2',
+          'ROOF',
+          '2 pans',
+          'Deux pans, pignons sur les côtés courts',
+          'ROOF',
+          { outline: 'WALLS', pans: '2' },
+          undefined,
+          HAS_CONTOUR,
+        ),
+        entry(
+          'building.roof-1',
+          'ROOF',
+          '1 pan',
+          'Un seul pan, trois pignons',
+          'ROOF',
+          { outline: 'WALLS', pans: '1' },
+          undefined,
+          HAS_CONTOUR,
+        ),
+        entry(
           'building.roof-free',
           'ROOF',
           'Pan libre',
@@ -1608,6 +1628,13 @@ export const COMMON_SECTION: ToolboxSection = {
   id: 'common',
   label: 'Communs',
   entries: [
+    entry(
+      'common.measure',
+      'MEASURE',
+      'Mesurer',
+      'Mesurer une distance sans rien poser',
+      'DIMENSION',
+    ),
     entry(
       'common.select',
       'SELECT',
