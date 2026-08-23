@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { ProjectCommandDispatcher } from '@house-technical-designer/editor-core';
+import { previewWallFaces } from '@house-technical-designer/view-query';
 
 import { loadDemoProject } from '../demo-project.js';
+import { RECTANGLE_REFERENCE_OPTIONS } from './domain-options.js';
 import { addWallRectangleCommand } from './editing-commands.js';
 
 /**
@@ -112,5 +114,45 @@ describe('what a rectangle of walls is drawn against', () => {
       drawn('CENTER', TEN_BY_EIGHT),
     ];
     expect(level.length).toBe(4);
+  });
+});
+
+describe('which side of the path the wall body lands on', () => {
+  /*
+   * La convention, fixée plutôt que devinée.
+   *
+   * `referenceSide` nomme la face que le tracé représente ; la géométrie, elle,
+   * parle de gauche et de droite du sens de parcours. Les deux se rejoignent
+   * par une convention d'offset qu'aucun des deux fichiers n'énonce, et se
+   * tromper d'un cran met les cotes intérieures dehors.
+   *
+   * Pour un tracé qui descend l'écran, la face « gauche » est du côté des x
+   * décroissants. C'est de là que découle tout le reste : sur le rectangle
+   * normalisé — coin haut-gauche, puis vers le bas — l'intérieur est à droite
+   * du parcours, donc `RIGHT` est la face intérieure ; sur le contour d'une
+   * emprise de départ, qui tourne dans l'autre sens, c'est `LEFT`.
+   */
+  it('puts the left face on the decreasing side of a downward run', () => {
+    const faces = previewWallFaces(
+      [
+        { x: 0, y: 0 },
+        { x: 0, y: 8000 },
+      ],
+      300,
+    );
+    expect(faces).toBeDefined();
+    expect(faces!.outer[0]).toEqual({ x: -150, y: 0 });
+  });
+
+  it('names the interior face of a normalised rectangle « RIGHT »', () => {
+    // Le rectangle part du coin haut-gauche et descend : l'intérieur est donc
+    // à droite du parcours, et c'est ce mot-là que l'option montre.
+    expect(RECTANGLE_REFERENCE_OPTIONS).toContainEqual({
+      value: 'RIGHT',
+      label: 'Faces intérieures',
+    });
+    const walls = drawn('RIGHT', TEN_BY_EIGHT);
+    expect(walls[0]!.path.points[0]).toEqual({ x: 0, y: 0 });
+    expect(walls[0]!.path.points[1]).toEqual({ x: 0, y: 8000 });
   });
 });

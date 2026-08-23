@@ -243,8 +243,12 @@ export const BUDGETS = {
    * l'orthogonal sorti des réglages, le mode de cotation et l'échelle en
    * rapport. Sept cellules qu'on lit sans arrêt valent mieux que cinq qu'il
    * faut traduire.
+   *
+   * Et un avec les types de maison. Cinq listes de niveaux et deux fonctions
+   * qui les lisent dans les deux sens : un kio pour ne plus commencer un
+   * projet en empilant des étages à la main.
    */
-  totalGzipBytes: 461 * 1024,
+  totalGzipBytes: 462 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

@@ -882,7 +882,7 @@ manques, avec ce que chacun coûte.
 | 2   | ~~**Face de référence** au tracé~~ — _livré_                          | les trois outils l'offrent ; le parcours d'un rectangle est normalisé, pour que « faces intérieures » ne dépende pas du sens du glissement      | petit |
 | 3   | **Cotes intérieures** et modes de cotation                            | le mode est dans la barre d'état depuis V4-6 ; restent ce qu'il fait dessiner et `detectRooms`, qui mesure encore les axes plutôt que les faces | moyen |
 | 4   | ~~**Étiquette de surface** flottante et « + Créer pièce »~~ — _livré_ | `detectRooms` fournissait déjà le contour et l'aire ; restait à les écrire là où on les cherche                                                 | moyen |
-| 5   | **Types de maison** et **formes initiales**                           | une commande qui crée n niveaux, une autre qui trace un contour coté                                                                            | moyen |
+| 5   | ~~**Types de maison** et **formes initiales**~~ — _livré_             | les formes existaient ; les types créent la pile d'un clic, et l'emprise est cotée à l'intérieur                                                | moyen |
 | 6   | **Pans de toiture** posés d'un coup                                   | une commande qui met `GABLE` sur les côtés désignés d'un contour                                                                                | petit |
 | 7   | **Pente visible** sur une évacuation                                  | du dessin, et une lecture de `slopePercent` déjà stocké                                                                                         | petit |
 | 8   | **Natures d'aménagement extérieur**                                   | étendre `SiteObstacleKind` : allée, parking, voirie, terrasse, piscine                                                                          | petit |
@@ -929,7 +929,7 @@ Ils viennent de V2 et de V3, ils ont tenu, et ils tiennent encore :
 | **V4-6**  | _Livré._ Barre d'état : grille en cm, ortho, cotes, échelle, curseur     | V4-1      |
 | **V4-7**  | _Partiel._ Face de référence au tracé ; les cotes intérieures suivent    | V4-4      |
 | **V4-8**  | _Livré._ Surfaces écrites sur le plan, et « + Créer pièce » au contour   | V4-4      |
-| **V4-9**  | `PROJET › Maison` : types de bâtiment et formes initiales (manque 5)     | V4-2      |
+| **V4-9**  | _Livré._ Types de maison, et l'emprise cotée à l'intérieur               | V4-2      |
 | **V4-10** | Outil Mesurer, pans de toiture, pente visible (manques 1, 6, 7)          | V4-4      |
 | **V4-11** | `ÉTUDES › Vue d'ensemble` (§9.1)                                         | V4-2      |
 | **V4-12** | Natures d'extérieur et fusion de pièces (manques 8, 9, 10)               | V4-4      |

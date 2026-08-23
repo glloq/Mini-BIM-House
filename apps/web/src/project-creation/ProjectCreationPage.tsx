@@ -28,6 +28,7 @@ import {
 } from '../ux/new-project-draft.js';
 import { DomainPicker } from './DomainPicker.js';
 import { LevelStackEditor } from './LevelStackEditor.js';
+import { HOUSE_PRESETS, presetOfStack, presetStack } from './level-stack.js';
 import {
   DEFAULT_NEW_PROJECT_DRAFT,
   newProjectIssues,
@@ -211,6 +212,49 @@ export function ProjectCreationPage({
         {step === 'BUILDING' && (
           <>
             <h2>Les niveaux</h2>
+            {/*
+             * Le type de maison d'abord, la pile ensuite.
+             *
+             * « Plain-pied », « R+1 » sont ce que quelqu'un dit quand on lui
+             * demande ce qu'il construit. L'éditeur sait tout faire — deux
+             * sous-sols, une mezzanine, des combles — et c'est exactement
+             * pourquoi il ne peut pas être la première question : personne ne
+             * commence par empiler.
+             *
+             * Rien n'est stocké : choisir « R+1 » crée deux niveaux, et
+             * supprimer l'étage redonne un plain-pied sans que rien ne
+             * proteste. Ce qui compte est ce que la maison a.
+             */}
+            <fieldset className="creation-choices">
+              <legend>Type de bâtiment</legend>
+              {HOUSE_PRESETS.map((preset) => (
+                <label key={preset.id} className="creation-choice compact">
+                  <input
+                    type="radio"
+                    name="house-preset"
+                    value={preset.id}
+                    checked={presetOfStack(draft.levels)?.id === preset.id}
+                    onChange={() =>
+                      setDraft((current) => ({
+                        ...current,
+                        levels: presetStack(preset),
+                      }))
+                    }
+                  />
+                  <span>{preset.label}</span>
+                </label>
+              ))}
+              <label className="creation-choice compact">
+                <input
+                  type="radio"
+                  name="house-preset"
+                  value="CUSTOM"
+                  checked={presetOfStack(draft.levels) === undefined}
+                  readOnly
+                />
+                <span>Personnalisé</span>
+              </label>
+            </fieldset>
             <p className="hint">
               Chaque niveau a sa hauteur. Les altitudes se déduisent de la pile
               et se corrigent ensuite depuis « Niveaux et pièces ».

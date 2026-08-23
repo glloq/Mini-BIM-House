@@ -159,6 +159,15 @@ export interface InitialBuildingShape {
   readonly depthMm?: number;
   /** The arm of an L, T or U, in millimetres. */
   readonly wingMm?: number;
+  /**
+   * Ce que les dimensions mesurent.
+   *
+   * Un plan d'architecte est coté à l'intérieur, et quelqu'un qui dit « dix
+   * mètres par huit » parle presque toujours de la pièce, pas du dehors. Le
+   * contour tracé devient donc la face intérieure des murs, sauf mention
+   * contraire. Absent, c'est l'intérieur.
+   */
+  readonly measuredOn?: 'INTERIOR' | 'EXTERIOR';
 }
 
 export interface NewProjectMetadataDraft {

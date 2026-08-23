@@ -38,6 +38,80 @@ export const DEFAULT_LEVEL_STACK: readonly NewProjectLevelDraft[] = [
   },
 ];
 
+/**
+ * Les maisons qu'on décrit d'un mot.
+ *
+ * « Plain-pied », « R+1 », « sous-sol + RDC » sont ce que quelqu'un dit quand
+ * on lui demande ce qu'il construit. L'éditeur de pile sait tout faire — deux
+ * sous-sols, une mezzanine, des combles — et c'est exactement pourquoi il ne
+ * peut pas être la première question : personne ne commence par empiler.
+ *
+ * Ce ne sont pas des types stockés. Choisir « R+1 » **crée deux niveaux**, et
+ * rien ne s'en souvient ensuite : supprimer l'étage redonne une maison de
+ * plain-pied, et rien ne proteste. Ce qui compte est ce que la maison a.
+ */
+export interface HousePreset {
+  readonly id: string;
+  readonly label: string;
+  readonly levels: readonly LevelDraftKind[];
+}
+
+export const HOUSE_PRESETS: readonly HousePreset[] = [
+  { id: 'FLAT', label: 'Plain-pied', levels: ['GROUND'] },
+  { id: 'R1', label: 'R+1', levels: ['GROUND', 'STOREY'] },
+  { id: 'R2', label: 'R+2', levels: ['GROUND', 'STOREY', 'STOREY'] },
+  {
+    id: 'BASEMENT_R0',
+    label: 'Sous-sol + RDC',
+    levels: ['BASEMENT', 'GROUND'],
+  },
+  {
+    id: 'BASEMENT_R1',
+    label: 'Sous-sol + R+1',
+    levels: ['BASEMENT', 'GROUND', 'STOREY'],
+  },
+];
+
+/**
+ * La pile qu'un type de maison décrit.
+ *
+ * Les noms suivent ceux de l'éditeur — « Étage », « Étage 2 » — parce que
+ * c'est la même pile, faite d'un clic au lieu de trois.
+ */
+export function presetStack(
+  preset: HousePreset,
+): readonly NewProjectLevelDraft[] {
+  const stack: NewProjectLevelDraft[] = [];
+  for (const kind of preset.levels)
+    stack.push({
+      id: `${preset.id.toLowerCase()}-${stack.length}`,
+      name: nextLevelName(stack, kind),
+      kind,
+      heightMm: DEFAULT_HEIGHT_MM[kind],
+    });
+  return stack;
+}
+
+/**
+ * Le type qui décrit cette pile, quand l'un d'eux la décrit.
+ *
+ * Dérivé, jamais stocké : une pile modifiée à la main cesse d'être un type, et
+ * c'est « Personnalisé » — pas une erreur, une autre réponse.
+ */
+export function presetOfStack(
+  stack: readonly NewProjectLevelDraft[],
+): HousePreset | undefined {
+  return HOUSE_PRESETS.find(
+    (preset) =>
+      preset.levels.length === stack.length &&
+      preset.levels.every(
+        (kind, index) =>
+          kind === stack[index]?.kind &&
+          stack[index]?.heightMm === DEFAULT_HEIGHT_MM[kind],
+      ),
+  );
+}
+
 /** Whether this kind sits below the ground floor. */
 export function isBelowGround(kind: LevelDraftKind): boolean {
   return kind === 'BASEMENT';
