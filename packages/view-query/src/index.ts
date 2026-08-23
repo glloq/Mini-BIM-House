@@ -1,3 +1,4 @@
+export * from './fixture-symbols.js';
 export * from './layers.js';
 export * from './opening-representation.js';
 export * from './plan-view.js';

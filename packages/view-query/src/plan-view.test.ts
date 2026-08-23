@@ -1097,3 +1097,116 @@ describe('openings', () => {
     expect(find(drawn, 'opening-glazing:entry-door')).toBeUndefined();
   });
 });
+
+/**
+ * Les équipements posés, dessinés comme ce qu'ils sont.
+ *
+ * Every placed thing was the same three-hundred-millimetre square: a bathroom
+ * held three identical squares and said nothing about whether anybody could
+ * stand in it.
+ */
+describe('placed fixtures', () => {
+  function withComponent(
+    definition: Record<string, unknown> | undefined,
+    definitionId?: string,
+  ): Project {
+    const base = project();
+    const level = base.building.levels[0]!;
+    return {
+      ...base,
+      ...(definition === undefined
+        ? {}
+        : {
+            equipment: [definition] as unknown as NonNullable<
+              Project['equipment']
+            >,
+          }),
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            components: [
+              {
+                id: entityId<'ComponentInstance'>('fixture'),
+                type: 'COMPONENT_INSTANCE',
+                levelId,
+                category: 'SANITARY',
+                ...(definitionId === undefined ? {} : { definitionId }),
+                position: { x: 3_000, y: 2_000 },
+                elevationMm: 0,
+                rotationDeg: 0,
+              },
+            ],
+          },
+        ],
+      },
+    };
+  }
+
+  const bathtub = {
+    id: 'generic-bathtub',
+    familyId: 'BATHTUB',
+    kind: 'SANITARY',
+    catalogKind: 'GENERIC',
+    name: 'Baignoire',
+    dimensions: { widthMm: 1_700, depthMm: 700, heightMm: 600 },
+  };
+
+  const drawnFor = (project: Project): readonly ScenePrimitive[] =>
+    buildPlanView(project).primitives.filter(
+      ({ sourceObjectId }) => sourceObjectId === 'fixture',
+    );
+
+  it('draws a bath at the size the catalogue says it is', () => {
+    const drawn = drawnFor(withComponent(bathtub, 'generic-bathtub'));
+    expect(drawn.length).toBeGreaterThan(1);
+    const outline = drawn[0]!;
+    if (outline.geometry.kind !== 'POLYGON') return;
+    const xs = outline.geometry.polygon.outer.map(({ x }) => x);
+    const ys = outline.geometry.polygon.outer.map(({ y }) => y);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(1_700, 6);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(700, 6);
+  });
+
+  it('turns the fixture with the thing it stands for', () => {
+    const base = withComponent(bathtub, 'generic-bathtub');
+    const level = base.building.levels[0]!;
+    const turned = {
+      ...base,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            components: level.components!.map((component) => ({
+              ...component,
+              rotationDeg: 90,
+            })),
+          },
+        ],
+      },
+    };
+    const outline = drawnFor(turned)[0]!;
+    if (outline.geometry.kind !== 'POLYGON') return;
+    const xs = outline.geometry.polygon.outer.map(({ x }) => x);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(700, 6);
+  });
+
+  it('keeps the trade a placed thing belongs to', () => {
+    const drawn = drawnFor(withComponent(bathtub, 'generic-bathtub'));
+    for (const primitive of drawn) {
+      expect(primitive.discipline).toBe('WATER');
+      expect(primitive.layer).toBe('components.placed');
+      expect(primitive.metadata).toMatchObject({ category: 'SANITARY' });
+    }
+  });
+
+  it('still marks a thing whose model says nothing about its shape', () => {
+    // An unknown thing is drawn, as it always was: the mark says something is
+    // here, which is all it ever said.
+    const drawn = drawnFor(withComponent(undefined));
+    expect(drawn).toHaveLength(1);
+    expect(drawn[0]!.id).toBe('component:fixture');
+  });
+});

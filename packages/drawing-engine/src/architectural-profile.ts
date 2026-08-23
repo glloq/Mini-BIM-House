@@ -415,6 +415,18 @@ const architecturalRules: readonly GraphicStyleRule[] = [
     match: { semanticRole: 'ANNOTATION', metadata: { labelPart: 'AREA' } },
     token: 'space-label-area',
   },
+  {
+    // On a plan of a house, a bath, a cooker and a radiator are furniture:
+    // drawn, and drawn behind the building. The networks keep their own
+    // colours, because a drawing showing a duct is being read for the duct.
+    match: {
+      layer: 'components.placed',
+      metadata: {
+        category: ['SANITARY', 'APPLIANCE', 'FURNITURE', 'HEATING', 'OTHER'],
+      },
+    },
+    token: 'symbol',
+  },
   ...SPACE_TOKENS.map((category) => ({
     match: {
       semanticRole: 'SPACE_FILL' as const,

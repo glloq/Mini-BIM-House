@@ -1,5 +1,7 @@
 import type {
+  ComponentInstance,
   Dimension,
+  EquipmentDefinition,
   Level,
   Opening,
   Project,
@@ -36,7 +38,9 @@ import {
   createSemanticScene,
   drawingViewId,
   graphicProfileId,
+  placeSymbol,
   spaceGraphicCategory,
+  SYMBOL_LIBRARY_V1,
 } from '@house-technical-designer/drawing-engine';
 import type {
   BoundingBox2D,
@@ -48,6 +52,7 @@ import {
   interiorLabelPoint,
   offsetPolyline,
 } from '@house-technical-designer/geometry';
+import { architecturalFixtureSymbol } from './fixture-symbols.js';
 import {
   isGlazedRepresentation,
   openingRepresentation,
@@ -1103,43 +1108,128 @@ const COMPONENT_ROLES: Readonly<Record<string, SemanticRole>> = {
   PHOTOVOLTAIC: 'ELECTRICAL_PV',
 };
 
-function componentPrimitives(level: Level): readonly PrimitiveDraft[] {
-  return (level.components ?? []).map((component) => {
+function componentPrimitives(
+  level: Level,
+  equipment: ReadonlyMap<string, EquipmentDefinition>,
+  scale: number,
+): readonly PrimitiveDraft[] {
+  return (level.components ?? []).flatMap((component) => {
+    const discipline = disciplineOfComponent(component.category);
+    const metadata: ScenePrimitive['metadata'] = {
+      category: component.category,
+      ...(component.definitionId === undefined
+        ? {}
+        : { definitionId: component.definitionId }),
+      ...(component.spaceId === undefined
+        ? {}
+        : { spaceId: component.spaceId }),
+    };
+    const definition =
+      component.definitionId === undefined
+        ? undefined
+        : equipment.get(component.definitionId);
+    const drawn = fixturePrimitives(
+      component,
+      definition,
+      discipline,
+      metadata,
+      scale,
+    );
+    if (drawn !== undefined) return drawn;
+    // Nothing in the catalogue draws this one: the mark says something is
+    // here, which is all it ever said.
     const half = COMPONENT_MARK_MM / 2;
     const radians = (component.rotationDeg * Math.PI) / 180;
-    const corner = (dx: number, dy: number) => ({
+    const corner = (dx: number, dy: number): Point2D => ({
       x: component.position.x + dx * Math.cos(radians) - dy * Math.sin(radians),
       y: component.position.y + dx * Math.sin(radians) + dy * Math.cos(radians),
     });
-    return {
-      id: `component:${component.id}`,
-      sourceObjectId: component.id,
-      semanticRole: COMPONENT_ROLES[component.category] ?? 'SYMBOL',
-      geometry: {
-        kind: 'POLYGON' as const,
-        polygon: {
-          outer: [
-            corner(-half, -half),
-            corner(half, -half),
-            corner(half, half),
-            corner(-half, half),
-          ],
+    return [
+      {
+        id: `component:${component.id}`,
+        sourceObjectId: component.id,
+        semanticRole: COMPONENT_ROLES[component.category] ?? 'SYMBOL',
+        geometry: {
+          kind: 'POLYGON' as const,
+          polygon: {
+            outer: [
+              corner(-half, -half),
+              corner(half, -half),
+              corner(half, half),
+              corner(-half, half),
+            ],
+          },
         },
+        layer: 'components.placed',
+        zIndex: 45,
+        discipline,
+        metadata,
       },
-      layer: 'components.placed',
-      zIndex: 45,
-      discipline: disciplineOfComponent(component.category),
-      metadata: {
-        category: component.category,
-        ...(component.definitionId === undefined
-          ? {}
-          : { definitionId: component.definitionId }),
-        ...(component.spaceId === undefined
-          ? {}
-          : { spaceId: component.spaceId }),
-      },
-    };
+    ];
   });
+}
+
+/**
+ * The thing itself, drawn at the size it is.
+ *
+ * A bath drawn six millimetres on the sheet is a dot at 1:50 and a dot at
+ * 1:100: it says a bath is here and nothing about whether anybody can get past
+ * it. The glyph is chosen by the family and stretched to the entry's own
+ * width, so what the plan shows is the footprint the catalogue declares.
+ */
+function fixturePrimitives(
+  component: ComponentInstance,
+  definition: EquipmentDefinition | undefined,
+  discipline: Discipline,
+  metadata: ScenePrimitive['metadata'],
+  scale: number,
+): readonly PrimitiveDraft[] | undefined {
+  const symbolId =
+    architecturalFixtureSymbol(definition?.familyId) ??
+    definition?.rendering?.symbols?.find(
+      ({ viewType }) => viewType === undefined || viewType === 'PLAN',
+    )?.symbolId;
+  if (symbolId === undefined) return undefined;
+  const symbol = SYMBOL_LIBRARY_V1.definitions[symbolId];
+  if (symbol === undefined) return undefined;
+  const glyphWidthMm = symbol.viewBox.max.x - symbol.viewBox.min.x;
+  const widthMm = definition?.dimensions?.widthMm;
+  const modelScale =
+    symbol.scaleRules.space === 'MODEL_SPACE' &&
+    widthMm !== undefined &&
+    Number.isFinite(widthMm) &&
+    widthMm > 0 &&
+    glyphWidthMm > 0
+      ? widthMm / glyphWidthMm
+      : 1;
+  return placeSymbol(symbol, {
+    id: `component:${component.id}`,
+    symbolId,
+    position: component.position,
+    // A model-space glyph is already in millimetres. A schematic one is drawn
+    // in paper millimetres, so it takes the drawing's scale and comes out the
+    // same size on the sheet whatever the sheet says.
+    drawingScale: scale,
+    rotationDeg: component.rotationDeg,
+    modelScale,
+    sourceObjectId: component.id,
+    layer: 'components.placed',
+    zIndex: 45,
+  }).map((primitive) => ({
+    id: primitive.id,
+    sourceObjectId: component.id,
+    // The trade a placed thing belongs to still decides its role, as it did
+    // when every one of them was a square: what changed is its shape, not
+    // which drawing it is read on.
+    semanticRole: COMPONENT_ROLES[component.category] ?? primitive.semanticRole,
+    geometry: primitive.geometry,
+    layer: 'components.placed',
+    zIndex: 45,
+    // The discipline of a placed thing is what the thing is, which its own
+    // category says; a glyph shared by two trades does not decide it.
+    discipline,
+    metadata: { ...metadata, ...primitive.metadata },
+  }));
 }
 
 /**
@@ -1696,6 +1786,9 @@ export function buildPlanView(
   // The family the project's own copy of a catalogue entry declares: what says
   // whether a door swings, slides or folds, and a plan that ignores it draws a
   // quarter-circle across a metre of room a sliding door never sweeps.
+  const equipment = new Map(
+    (project.equipment ?? []).map((entry) => [entry.id, entry]),
+  );
   const openingFamilies = new Map(
     (project.openingTypes ?? [])
       .filter(({ familyId }) => familyId !== undefined)
@@ -1741,7 +1834,9 @@ export function buildPlanView(
       else if (isTextNote(annotation))
         drafts.push(...textNotePrimitives(annotation));
     drafts.push(...slabAndRoofPrimitives(level));
-    drafts.push(...componentPrimitives(level));
+    drafts.push(
+      ...componentPrimitives(level, equipment, options.scale ?? DEFAULT_SCALE),
+    );
     drafts.push(...stairPrimitives(level));
     drafts.push(...roofStructurePrimitives(level));
     drafts.push(...structurePrimitives(level));

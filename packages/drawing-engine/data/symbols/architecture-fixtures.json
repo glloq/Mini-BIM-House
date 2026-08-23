@@ -1,0 +1,1918 @@
+{
+  "formatVersion": "1.0.0",
+  "id": "generic-technical-symbols",
+  "version": "1.0.0",
+  "licence": "AGPL-3.0-only",
+  "symbols": [
+    {
+      "id": "architecture.fixture.wc",
+      "name": "WC",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -185.0,
+          "y": -350.0
+        },
+        "max": {
+          "x": 185.0,
+          "y": 350.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -185.0,
+              "y": -350.0
+            },
+            {
+              "x": 185.0,
+              "y": -350.0
+            },
+            {
+              "x": 185.0,
+              "y": -190.0
+            },
+            {
+              "x": -185.0,
+              "y": -190.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": 175.0,
+              "y": 90.0
+            },
+            {
+              "x": 161.7,
+              "y": 170.4
+            },
+            {
+              "x": 123.7,
+              "y": 238.5
+            },
+            {
+              "x": 67.0,
+              "y": 284.0
+            },
+            {
+              "x": 0.0,
+              "y": 300.0
+            },
+            {
+              "x": -67.0,
+              "y": 284.0
+            },
+            {
+              "x": -123.7,
+              "y": 238.5
+            },
+            {
+              "x": -161.7,
+              "y": 170.4
+            },
+            {
+              "x": -175.0,
+              "y": 90.0
+            },
+            {
+              "x": -161.7,
+              "y": 9.6
+            },
+            {
+              "x": -123.7,
+              "y": -58.5
+            },
+            {
+              "x": -67.0,
+              "y": -104.0
+            },
+            {
+              "x": -0.0,
+              "y": -120.0
+            },
+            {
+              "x": 67.0,
+              "y": -104.0
+            },
+            {
+              "x": 123.7,
+              "y": -58.5
+            },
+            {
+              "x": 161.7,
+              "y": 9.6
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -100,
+            "y": -190
+          },
+          "end": {
+            "x": 100,
+            "y": -190
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 700
+      }
+    },
+    {
+      "id": "architecture.fixture.washbasin",
+      "name": "Lavabo",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -300.0,
+          "y": -240.0
+        },
+        "max": {
+          "x": 300.0,
+          "y": 240.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -300.0,
+              "y": -240.0
+            },
+            {
+              "x": 300.0,
+              "y": -240.0
+            },
+            {
+              "x": 300.0,
+              "y": 240.0
+            },
+            {
+              "x": -300.0,
+              "y": 240.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": 210.0,
+              "y": 30.0
+            },
+            {
+              "x": 194.0,
+              "y": 87.4
+            },
+            {
+              "x": 148.5,
+              "y": 136.1
+            },
+            {
+              "x": 80.4,
+              "y": 168.6
+            },
+            {
+              "x": 0.0,
+              "y": 180.0
+            },
+            {
+              "x": -80.4,
+              "y": 168.6
+            },
+            {
+              "x": -148.5,
+              "y": 136.1
+            },
+            {
+              "x": -194.0,
+              "y": 87.4
+            },
+            {
+              "x": -210.0,
+              "y": 30.0
+            },
+            {
+              "x": -194.0,
+              "y": -27.4
+            },
+            {
+              "x": -148.5,
+              "y": -76.1
+            },
+            {
+              "x": -80.4,
+              "y": -108.6
+            },
+            {
+              "x": -0.0,
+              "y": -120.0
+            },
+            {
+              "x": 80.4,
+              "y": -108.6
+            },
+            {
+              "x": 148.5,
+              "y": -76.1
+            },
+            {
+              "x": 194.0,
+              "y": -27.4
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": -180
+          },
+          "radius": 35,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 600
+      }
+    },
+    {
+      "id": "architecture.fixture.double-washbasin",
+      "name": "Lavabo double",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -600.0,
+          "y": -250.0
+        },
+        "max": {
+          "x": 600.0,
+          "y": 250.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -600.0,
+              "y": -250.0
+            },
+            {
+              "x": 600.0,
+              "y": -250.0
+            },
+            {
+              "x": 600.0,
+              "y": 250.0
+            },
+            {
+              "x": -600.0,
+              "y": 250.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -100.0,
+              "y": 30.0
+            },
+            {
+              "x": -114.5,
+              "y": 85.5
+            },
+            {
+              "x": -155.6,
+              "y": 132.5
+            },
+            {
+              "x": -217.3,
+              "y": 164.0
+            },
+            {
+              "x": -290.0,
+              "y": 175.0
+            },
+            {
+              "x": -362.7,
+              "y": 164.0
+            },
+            {
+              "x": -424.4,
+              "y": 132.5
+            },
+            {
+              "x": -465.5,
+              "y": 85.5
+            },
+            {
+              "x": -480.0,
+              "y": 30.0
+            },
+            {
+              "x": -465.5,
+              "y": -25.5
+            },
+            {
+              "x": -424.4,
+              "y": -72.5
+            },
+            {
+              "x": -362.7,
+              "y": -104.0
+            },
+            {
+              "x": -290.0,
+              "y": -115.0
+            },
+            {
+              "x": -217.3,
+              "y": -104.0
+            },
+            {
+              "x": -155.6,
+              "y": -72.5
+            },
+            {
+              "x": -114.5,
+              "y": -25.5
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": 480.0,
+              "y": 30.0
+            },
+            {
+              "x": 465.5,
+              "y": 85.5
+            },
+            {
+              "x": 424.4,
+              "y": 132.5
+            },
+            {
+              "x": 362.7,
+              "y": 164.0
+            },
+            {
+              "x": 290.0,
+              "y": 175.0
+            },
+            {
+              "x": 217.3,
+              "y": 164.0
+            },
+            {
+              "x": 155.6,
+              "y": 132.5
+            },
+            {
+              "x": 114.5,
+              "y": 85.5
+            },
+            {
+              "x": 100.0,
+              "y": 30.0
+            },
+            {
+              "x": 114.5,
+              "y": -25.5
+            },
+            {
+              "x": 155.6,
+              "y": -72.5
+            },
+            {
+              "x": 217.3,
+              "y": -104.0
+            },
+            {
+              "x": 290.0,
+              "y": -115.0
+            },
+            {
+              "x": 362.7,
+              "y": -104.0
+            },
+            {
+              "x": 424.4,
+              "y": -72.5
+            },
+            {
+              "x": 465.5,
+              "y": -25.5
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": -290,
+            "y": -190
+          },
+          "radius": 35,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 290,
+            "y": -190
+          },
+          "radius": 35,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 1200
+      }
+    },
+    {
+      "id": "architecture.fixture.basin",
+      "name": "Vasque",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -275.0,
+          "y": -225.0
+        },
+        "max": {
+          "x": 275.0,
+          "y": 225.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -275.0,
+              "y": -225.0
+            },
+            {
+              "x": 275.0,
+              "y": -225.0
+            },
+            {
+              "x": 275.0,
+              "y": 225.0
+            },
+            {
+              "x": -275.0,
+              "y": 225.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 20
+          },
+          "radius": 180,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": -175
+          },
+          "radius": 35,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 550
+      }
+    },
+    {
+      "id": "architecture.fixture.bathtub",
+      "name": "Baignoire",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -850.0,
+          "y": -350.0
+        },
+        "max": {
+          "x": 850.0,
+          "y": 350.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -850.0,
+              "y": -350.0
+            },
+            {
+              "x": 850.0,
+              "y": -350.0
+            },
+            {
+              "x": 850.0,
+              "y": 350.0
+            },
+            {
+              "x": -850.0,
+              "y": 350.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -780.0,
+              "y": -260.0
+            },
+            {
+              "x": 780.0,
+              "y": -260.0
+            },
+            {
+              "x": 780.0,
+              "y": 300.0
+            },
+            {
+              "x": -780.0,
+              "y": 300.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": -680,
+            "y": 20
+          },
+          "radius": 40,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 1700
+      }
+    },
+    {
+      "id": "architecture.fixture.shower",
+      "name": "Douche",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -450.0,
+          "y": -450.0
+        },
+        "max": {
+          "x": 450.0,
+          "y": 450.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -450.0,
+              "y": -450.0
+            },
+            {
+              "x": 450.0,
+              "y": -450.0
+            },
+            {
+              "x": 450.0,
+              "y": 450.0
+            },
+            {
+              "x": -450.0,
+              "y": 450.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -450,
+            "y": -450
+          },
+          "end": {
+            "x": 450,
+            "y": 450
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -450,
+            "y": 450
+          },
+          "end": {
+            "x": 450,
+            "y": -450
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 45,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 900
+      }
+    },
+    {
+      "id": "architecture.fixture.kitchen-sink",
+      "name": "Évier",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -300.0,
+          "y": -250.0
+        },
+        "max": {
+          "x": 300.0,
+          "y": 250.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -300.0,
+              "y": -250.0
+            },
+            {
+              "x": 300.0,
+              "y": -250.0
+            },
+            {
+              "x": 300.0,
+              "y": 250.0
+            },
+            {
+              "x": -300.0,
+              "y": 250.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -220.0,
+              "y": -150.0
+            },
+            {
+              "x": 220.0,
+              "y": -150.0
+            },
+            {
+              "x": 220.0,
+              "y": 210.0
+            },
+            {
+              "x": -220.0,
+              "y": 210.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 30
+          },
+          "radius": 40,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": -190
+          },
+          "radius": 35,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 600
+      }
+    },
+    {
+      "id": "architecture.fixture.double-sink",
+      "name": "Évier deux bacs",
+      "version": "1.0.0",
+      "semanticType": "SANITARY_FIXTURE",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -600.0,
+          "y": -300.0
+        },
+        "max": {
+          "x": 600.0,
+          "y": 300.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -600.0,
+              "y": -300.0
+            },
+            {
+              "x": 600.0,
+              "y": -300.0
+            },
+            {
+              "x": 600.0,
+              "y": 300.0
+            },
+            {
+              "x": -600.0,
+              "y": 300.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -540.0,
+              "y": -180.0
+            },
+            {
+              "x": -60.0,
+              "y": -180.0
+            },
+            {
+              "x": -60.0,
+              "y": 240.0
+            },
+            {
+              "x": -540.0,
+              "y": 240.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": 60.0,
+              "y": -180.0
+            },
+            {
+              "x": 540.0,
+              "y": -180.0
+            },
+            {
+              "x": 540.0,
+              "y": 240.0
+            },
+            {
+              "x": 60.0,
+              "y": 240.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": -300,
+            "y": 30
+          },
+          "radius": 40,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 300,
+            "y": 30
+          },
+          "radius": 40,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": -230
+          },
+          "radius": 35,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 1200
+      }
+    },
+    {
+      "id": "architecture.fixture.hob",
+      "name": "Plaque de cuisson",
+      "version": "1.0.0",
+      "semanticType": "APPLIANCE",
+      "discipline": "OTHER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -300.0,
+          "y": -260.0
+        },
+        "max": {
+          "x": 300.0,
+          "y": 260.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -300.0,
+              "y": -260.0
+            },
+            {
+              "x": 300.0,
+              "y": -260.0
+            },
+            {
+              "x": 300.0,
+              "y": 260.0
+            },
+            {
+              "x": -300.0,
+              "y": 260.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": -140,
+            "y": -110
+          },
+          "radius": 80,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 140,
+            "y": -110
+          },
+          "radius": 80,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": -140,
+            "y": 110
+          },
+          "radius": 80,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 140,
+            "y": 110
+          },
+          "radius": 80,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 600
+      }
+    },
+    {
+      "id": "architecture.fixture.dishwasher",
+      "name": "Lave-vaisselle",
+      "version": "1.0.0",
+      "semanticType": "APPLIANCE",
+      "discipline": "OTHER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -300.0,
+          "y": -300.0
+        },
+        "max": {
+          "x": 300.0,
+          "y": 300.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -300.0,
+              "y": -300.0
+            },
+            {
+              "x": 300.0,
+              "y": -300.0
+            },
+            {
+              "x": 300.0,
+              "y": 300.0
+            },
+            {
+              "x": -300.0,
+              "y": 300.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -250.0,
+              "y": -250.0
+            },
+            {
+              "x": 250.0,
+              "y": -250.0
+            },
+            {
+              "x": 250.0,
+              "y": 250.0
+            },
+            {
+              "x": -250.0,
+              "y": 250.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -200,
+            "y": 250
+          },
+          "end": {
+            "x": 200,
+            "y": 250
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 600
+      }
+    },
+    {
+      "id": "architecture.fixture.washing-machine",
+      "name": "Lave-linge",
+      "version": "1.0.0",
+      "semanticType": "APPLIANCE",
+      "discipline": "OTHER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -300.0,
+          "y": -300.0
+        },
+        "max": {
+          "x": 300.0,
+          "y": 300.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -300.0,
+              "y": -300.0
+            },
+            {
+              "x": 300.0,
+              "y": -300.0
+            },
+            {
+              "x": 300.0,
+              "y": 300.0
+            },
+            {
+              "x": -300.0,
+              "y": 300.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 190,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -200,
+            "y": 250
+          },
+          "end": {
+            "x": 200,
+            "y": 250
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 600
+      }
+    },
+    {
+      "id": "architecture.fixture.dhw-tank",
+      "name": "Ballon d'eau chaude",
+      "version": "1.0.0",
+      "semanticType": "DHW_TANK",
+      "discipline": "WATER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -300.0,
+          "y": -300.0
+        },
+        "max": {
+          "x": 300.0,
+          "y": 300.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 300,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 240,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -120,
+            "y": 0
+          },
+          "end": {
+            "x": 120,
+            "y": 0
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 600
+      }
+    },
+    {
+      "id": "architecture.fixture.heat-pump-indoor",
+      "name": "PAC — module intérieur",
+      "version": "1.0.0",
+      "semanticType": "HEAT_PUMP",
+      "discipline": "HEATING",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -300.0,
+          "y": -200.0
+        },
+        "max": {
+          "x": 300.0,
+          "y": 200.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -300.0,
+              "y": -200.0
+            },
+            {
+              "x": 300.0,
+              "y": -200.0
+            },
+            {
+              "x": 300.0,
+              "y": 200.0
+            },
+            {
+              "x": -300.0,
+              "y": 200.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -180,
+            "y": -200
+          },
+          "end": {
+            "x": -180,
+            "y": 200
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 180,
+            "y": -200
+          },
+          "end": {
+            "x": 180,
+            "y": 200
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 110,
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 600
+      }
+    },
+    {
+      "id": "architecture.fixture.heat-pump-outdoor",
+      "name": "PAC — unité extérieure",
+      "version": "1.0.0",
+      "semanticType": "HEAT_PUMP",
+      "discipline": "HEATING",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -450.0,
+          "y": -175.0
+        },
+        "max": {
+          "x": 450.0,
+          "y": 175.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -450.0,
+              "y": -175.0
+            },
+            {
+              "x": 450.0,
+              "y": -175.0
+            },
+            {
+              "x": 450.0,
+              "y": 175.0
+            },
+            {
+              "x": -450.0,
+              "y": 175.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": -200,
+            "y": 0
+          },
+          "radius": 140,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 150,
+            "y": -175
+          },
+          "end": {
+            "x": 150,
+            "y": 175
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 280,
+            "y": -175
+          },
+          "end": {
+            "x": 280,
+            "y": 175
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 410,
+            "y": -175
+          },
+          "end": {
+            "x": 410,
+            "y": 175
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 900
+      }
+    },
+    {
+      "id": "architecture.fixture.ventilation-unit",
+      "name": "Centrale VMC",
+      "version": "1.0.0",
+      "semanticType": "VENTILATION_UNIT",
+      "discipline": "VENTILATION",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -300.0,
+          "y": -250.0
+        },
+        "max": {
+          "x": 300.0,
+          "y": 250.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -300.0,
+              "y": -250.0
+            },
+            {
+              "x": 300.0,
+              "y": -250.0
+            },
+            {
+              "x": 300.0,
+              "y": 250.0
+            },
+            {
+              "x": -300.0,
+              "y": 250.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": 0
+          },
+          "radius": 150,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -300,
+            "y": -120
+          },
+          "end": {
+            "x": -420,
+            "y": -120
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -300,
+            "y": 120
+          },
+          "end": {
+            "x": -420,
+            "y": 120
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 600
+      }
+    },
+    {
+      "id": "architecture.fixture.distribution-board",
+      "name": "Tableau électrique",
+      "version": "1.0.0",
+      "semanticType": "DISTRIBUTION_BOARD",
+      "discipline": "ELECTRICAL",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -300.0,
+          "y": -80.0
+        },
+        "max": {
+          "x": 300.0,
+          "y": 80.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -300.0,
+              "y": -80.0
+            },
+            {
+              "x": 300.0,
+              "y": -80.0
+            },
+            {
+              "x": 300.0,
+              "y": 80.0
+            },
+            {
+              "x": -300.0,
+              "y": 80.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -200,
+            "y": -80
+          },
+          "end": {
+            "x": -200,
+            "y": 80
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 0,
+            "y": -80
+          },
+          "end": {
+            "x": 0,
+            "y": 80
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 200,
+            "y": -80
+          },
+          "end": {
+            "x": 200,
+            "y": 80
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 600
+      }
+    },
+    {
+      "id": "architecture.fixture.radiator",
+      "name": "Radiateur",
+      "version": "1.0.0",
+      "semanticType": "RADIATOR",
+      "discipline": "HEATING",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -500.0,
+          "y": -55.0
+        },
+        "max": {
+          "x": 500.0,
+          "y": 55.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -500.0,
+              "y": -55.0
+            },
+            {
+              "x": 500.0,
+              "y": -55.0
+            },
+            {
+              "x": 500.0,
+              "y": 55.0
+            },
+            {
+              "x": -500.0,
+              "y": 55.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -333,
+            "y": -55
+          },
+          "end": {
+            "x": -333,
+            "y": 55
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -167,
+            "y": -55
+          },
+          "end": {
+            "x": -167,
+            "y": 55
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 0,
+            "y": -55
+          },
+          "end": {
+            "x": 0,
+            "y": 55
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 167,
+            "y": -55
+          },
+          "end": {
+            "x": 167,
+            "y": 55
+          },
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": 333,
+            "y": -55
+          },
+          "end": {
+            "x": 333,
+            "y": 55
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 1000
+      }
+    },
+    {
+      "id": "architecture.fixture.stove",
+      "name": "Poêle",
+      "version": "1.0.0",
+      "semanticType": "HEAT_PUMP",
+      "discipline": "HEATING",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Emprises de mobilier sanitaire et technique dessinées pour cette application — dimensions courantes, ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -300.0,
+          "y": -250.0
+        },
+        "max": {
+          "x": 300.0,
+          "y": 250.0
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -300.0,
+              "y": -250.0
+            },
+            {
+              "x": 300.0,
+              "y": -250.0
+            },
+            {
+              "x": 300.0,
+              "y": 250.0
+            },
+            {
+              "x": -300.0,
+              "y": 250.0
+            }
+          ],
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": -60
+          },
+          "radius": 180,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "CIRCLE",
+          "center": {
+            "x": 0,
+            "y": -60
+          },
+          "radius": 70,
+          "role": "SYMBOL"
+        },
+        {
+          "kind": "LINE",
+          "start": {
+            "x": -160,
+            "y": 190
+          },
+          "end": {
+            "x": 160,
+            "y": 190
+          },
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 600
+      }
+    }
+  ]
+}
