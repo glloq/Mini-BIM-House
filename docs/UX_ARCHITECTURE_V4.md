@@ -931,7 +931,7 @@ Ils viennent de V2 et de V3, ils ont tenu, et ils tiennent encore :
 | **V4-8**  | _Livré._ Surfaces écrites sur le plan, et « + Créer pièce » au contour   | V4-4      |
 | **V4-9**  | _Livré._ Types de maison, et l'emprise cotée à l'intérieur               | V4-2      |
 | **V4-10** | _Partiel._ Outil Mesurer et pans de toiture ; la pente reste à dessiner  | V4-4      |
-| **V4-11** | `ÉTUDES › Vue d'ensemble` (§9.1)                                         | V4-2      |
+| **V4-11** | _Livré._ `ÉTUDES › Vue d'ensemble` : une ligne par métier, deux surfaces | V4-2      |
 | **V4-12** | Natures d'extérieur et fusion de pièces (manques 8, 9, 10)               | V4-4      |
 
 Le manque 11 — la maison comme objet — n'est dans aucun lot : il se décide à

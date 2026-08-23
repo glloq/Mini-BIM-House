@@ -247,8 +247,12 @@ export const BUDGETS = {
    * Et un avec les types de maison. Cinq listes de niveaux et deux fonctions
    * qui les lisent dans les deux sens : un kio pour ne plus commencer un
    * projet en empilant des étages à la main.
+   *
+   * Et un avec la vue d'ensemble des études, qui se charge avec l'écran
+   * qu'elle ouvre — « où en est ma maison » est une autre question que
+   * « qu'est-ce qui cloche », et elle méritait sa page.
    */
-  totalGzipBytes: 462 * 1024,
+  totalGzipBytes: 463 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

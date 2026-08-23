@@ -1221,6 +1221,67 @@ button.icon {
 }
 
 /* Calculation dashboard. */
+/*
+ * La vue d'ensemble : une ligne par métier, trois états.
+ *
+ * Elle passe avant la liste des constats parce qu'elle répond à une autre
+ * question — « où en est ma maison » et non « qu'est-ce qui cloche ».
+ */
+.study-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: var(--surface);
+}
+.study-lines {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 0.1rem 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  list-style: none;
+}
+.study-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+}
+.study-line-label {
+  color: var(--ink-strong);
+  font-weight: 600;
+}
+.study-line-state {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.study-line.GAP .study-line-state {
+  color: var(--ink-strong);
+  font-weight: 700;
+}
+.study-figures {
+  display: flex;
+  margin: 0;
+  gap: 1.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.5rem;
+}
+.study-figures dt {
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+}
+.study-figures dd {
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 .dashboard-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
