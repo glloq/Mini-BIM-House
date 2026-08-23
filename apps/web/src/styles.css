@@ -2079,6 +2079,25 @@ button.ghost:disabled {
   gap: 0.6rem;
   margin-bottom: 0.75rem;
 }
+/*
+ * The tools stay inside their column, whatever the project is called.
+ *
+ * A grid item is `min-width: auto` by default, so the widest thing inside a
+ * group sets the width of the group — and one of those things is a list of
+ * what the project holds. The day the reference house was furnished from the
+ * catalogue, « Sèche-serviettes eau chaude » made the column a third wider
+ * than the panel and slid the tools under the drawing, where nothing could be
+ * clicked. What a name is long is not a layout decision.
+ */
+.tools-panel > *,
+.tools-panel .context-group,
+.tools-panel .tools-advanced {
+  min-width: 0;
+}
+.tools-panel select,
+.tools-panel input {
+  max-width: 100%;
+}
 .tools-panel button {
   border: 0;
   background: none;

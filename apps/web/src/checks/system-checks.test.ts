@@ -3,7 +3,10 @@ import type {
   ComponentInstance,
   Project,
 } from '@house-technical-designer/core-domain';
-import { entityId } from '@house-technical-designer/core-domain';
+import {
+  entityId,
+  equipmentKindOf,
+} from '@house-technical-designer/core-domain';
 import { demoClimateDatasets, loadDemoProject } from '../demo-project.js';
 import { runProjectCalculations } from '../calculations/calculation-runner.js';
 import { systemChecks } from './system-checks.js';
@@ -21,6 +24,43 @@ async function checksOf(project: Project) {
 
 function idsOf(checks: readonly { readonly id: string }[]): readonly string[] {
   return checks.map(({ id }) => id);
+}
+
+/**
+ * The reference house with its heating taken out.
+ *
+ * These checks used to lean on the fixture *lacking* a generator, which is a
+ * premise that holds only until somebody finishes the fixture — and somebody
+ * did: the reference house is made of catalogue fiches now and has a heat pump,
+ * a buffer tank, a circulator and five radiators. A test whose subject is « a
+ * house nobody has heated yet » has to build that house rather than hope the
+ * main one stays unfinished.
+ */
+function withoutHeating(project: Project): Project {
+  const removed = new Set(
+    (project.equipment ?? [])
+      .filter(
+        (entry) =>
+          equipmentKindOf(entry) === 'RADIATOR' ||
+          (entry.familyId ?? '').includes('HEAT_PUMP') ||
+          (entry.familyId ?? '').startsWith('HEATING'),
+      )
+      .map(({ id }) => id),
+  );
+  return {
+    ...project,
+    equipment: (project.equipment ?? []).filter(({ id }) => !removed.has(id)),
+    building: {
+      ...project.building,
+      levels: project.building.levels.map((level) => ({
+        ...level,
+        components: (level.components ?? []).filter(
+          ({ definitionId }) =>
+            definitionId === undefined || !removed.has(definitionId),
+        ),
+      })),
+    },
+  };
 }
 
 /** The reference house with one more thing standing in it. */
@@ -81,7 +121,7 @@ describe('what the house needs against what is standing in it', () => {
     // The reference house computes a heating load and holds no generator. That
     // is not « conforme » and not « non conforme »: it is unknown, and the two
     // are never merged.
-    const checks = await checksOf(demo());
+    const checks = await checksOf(withoutHeating(demo()));
     const generator = checks.find(
       ({ id }) => id === 'system:heating:no-generator',
     )!;
@@ -92,7 +132,7 @@ describe('what the house needs against what is standing in it', () => {
 
   it('does not report eight cold rooms in a house with no heating drawn', async () => {
     // One finding that matters, not eight that bury it.
-    const checks = await checksOf(demo());
+    const checks = await checksOf(withoutHeating(demo()));
     expect(
       checks.filter(({ id }) => id.startsWith('system:heating:room-')),
     ).toEqual([]);
@@ -101,7 +141,7 @@ describe('what the house needs against what is standing in it', () => {
   it('compares the generator posed with the load computed', async () => {
     const small = await checksOf(
       withEquipment(
-        demo(),
+        withoutHeating(demo()),
         {
           id: 'equipment-tiny-pump',
           kind: 'HEAT_PUMP',
@@ -118,7 +158,7 @@ describe('what the house needs against what is standing in it', () => {
 
     const big = await checksOf(
       withEquipment(
-        demo(),
+        withoutHeating(demo()),
         {
           id: 'equipment-pump',
           kind: 'HEAT_PUMP',
@@ -134,7 +174,7 @@ describe('what the house needs against what is standing in it', () => {
   it('says so when a generator is posed and states no power', async () => {
     const checks = await checksOf(
       withEquipment(
-        demo(),
+        withoutHeating(demo()),
         { id: 'equipment-pump', kind: 'HEAT_PUMP', properties: {} },
         [{ id: 'component-pump', levelId: 'ground', category: 'HEATING' }],
       ),
@@ -150,7 +190,7 @@ describe('what the house needs against what is standing in it', () => {
     // decision rather than an unstarted drawing.
     const checks = await checksOf(
       withEquipment(
-        demo(),
+        withoutHeating(demo()),
         {
           id: 'equipment-radiator',
           kind: 'RADIATOR',
@@ -177,7 +217,7 @@ describe('what the house needs against what is standing in it', () => {
   it('reports a room whose emitter is smaller than its load', async () => {
     const checks = await checksOf(
       withEquipment(
-        demo(),
+        withoutHeating(demo()),
         {
           id: 'equipment-radiator',
           kind: 'RADIATOR',
@@ -201,14 +241,27 @@ describe('what the house needs against what is standing in it', () => {
   });
 
   it('compares the ventilation unit with what its terminals ask', async () => {
-    // The reference house extracts 105 m³/h through a 75 m³/h unit: the two
-    // figures were both computed and never put side by side.
-    const checks = await checksOf(demo());
-    const unit = checks.find(
+    const project = demo();
+    // The reference house's own group is a 250 m³/h double-flow unit and its
+    // extract terminals ask 105 m³/h: the comparison holds and nothing is said.
+    expect(idsOf(await checksOf(project))).not.toContain(
+      'system:ventilation:unit-undersized',
+    );
+    const small = {
+      ...project,
+      equipment: (project.equipment ?? []).map((entry) =>
+        equipmentKindOf(entry) === 'VENTILATION_UNIT'
+          ? { ...entry, properties: { ...entry.properties, designFlowM3h: 60 } }
+          : entry,
+      ),
+    };
+    const unit = (await checksOf(small)).find(
       ({ id }) => id === 'system:ventilation:unit-undersized',
     )!;
     expect(unit.status).toBe('FAIL');
+    // The two figures it compared are both in the finding.
     expect(unit.detail).toContain('105');
+    expect(unit.detail).toContain('60');
   });
 
   it('says which circuit would trip, and stays quiet when none would', async () => {
@@ -254,7 +307,7 @@ describe('what the house needs against what is standing in it', () => {
         levels: project.building.levels.map((level) => ({
           ...level,
           components: (level.components ?? []).filter(
-            ({ definitionId }) => definitionId !== 'equipment-inverter',
+            ({ definitionId }) => definitionId !== 'generic-inverter',
           ),
         })),
       },
@@ -272,10 +325,10 @@ describe('what the house needs against what is standing in it', () => {
     const checks = await checksOf({
       ...project,
       equipment: (project.equipment ?? []).map((entry) =>
-        entry.id === 'equipment-inverter'
+        entry.id === 'generic-inverter'
           ? {
               ...entry,
-              properties: { ...entry.properties, ratedAcPowerW: 600 },
+              properties: { ...entry.properties, nominalAcPowerW: 600 },
             }
           : entry,
       ),

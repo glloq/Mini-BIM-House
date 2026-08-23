@@ -2,7 +2,11 @@ import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
 import { openDestination } from './support/navigation.js';
-import { openLayerEditor, openModelTree } from './support/panels.js';
+import {
+  hidePlacedComponents,
+  openLayerEditor,
+  openModelTree,
+} from './support/panels.js';
 import { chooseTool } from './support/tools.js';
 
 /**
@@ -514,6 +518,7 @@ test('reshapes a wall after drawing it, instead of redrawing it', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  await hidePlacedComponents(page);
   const canvas = page.locator('.plan-canvas');
   const canvasBox = (await canvas.boundingBox())!;
   // Scinder, décaler, joindre et ajuster sont des outils de productivité CAO :
@@ -1103,6 +1108,7 @@ test('offsets, joins and aligns walls from the plan', async ({ page }) => {
 test('draws a wall of a typed length, at the cursor', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  await hidePlacedComponents(page);
   const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
   await expect(walls).toHaveCount(6);
   const wallIds = async (): Promise<readonly string[]> =>
@@ -1330,7 +1336,10 @@ test('reaches a column and a component through the project tree', async ({
 
   await chooseTool(page, 'Composant');
   await page.getByLabel('Catégorie').selectOption('HEATING');
-  await page.getByLabel('Nom').fill('Radiateur séjour');
+  // A name the reference house does not already hold: the tree lists what is
+  // in the project, and two lines reading the same thing prove nothing about
+  // which one was clicked.
+  await page.getByLabel('Nom').fill('Radiateur d’essai');
   await canvas.click({
     position: { x: box.width * 0.3, y: box.height * 0.35 },
   });
@@ -1346,9 +1355,9 @@ test('reaches a column and a component through the project tree', async ({
   await expect(page.locator('.inspector-subject h3')).toContainText('Poteau');
 
   await tree.getByText(/^Composants/).click();
-  await tree.getByRole('button', { name: 'Radiateur séjour' }).click();
+  await tree.getByRole('button', { name: 'Radiateur d’essai' }).click();
   await expect(page.locator('.inspector-subject h3')).toContainText(
-    'Radiateur séjour',
+    'Radiateur d’essai',
   );
   expect(errors).toEqual([]);
 });
@@ -2142,15 +2151,19 @@ test('puts what the house needs beside what is standing in it', async ({
   await openDestination(page, 'Vérifications');
   const findings = page.locator('.alert-list li');
   await expect(findings.first()).toBeVisible();
-  // The reference house computes a heating load and holds no generator: not
-  // « non conforme », not silence — « je ne peux pas savoir », with the figure.
-  const heating = findings.filter({ hasText: 'aucun générateur posé' });
-  await expect(heating).toHaveCount(1);
-  await expect(heating).toContainText('kW');
-  // And its ventilation unit is smaller than the sum of its extract terminals.
+  // The reference house is heated — a heat pump, five radiators and two towel
+  // rails — and the landing is the one room nothing emits into. That is the
+  // comparison this panel exists to make, and it names the room and the two
+  // figures rather than saying « non conforme ».
+  const landing = findings.filter({ hasText: 'Palier' });
+  await expect(landing).toHaveCount(1);
+  await expect(landing).toContainText('W');
+  // Nothing is said about the rooms that are heated, and nothing about the
+  // ventilation unit, which holds what its extract terminals ask.
+  await expect(findings.filter({ hasText: 'Chambre 1' })).toHaveCount(0);
   await expect(
     findings.filter({ hasText: 'ne tient pas les bouches' }),
-  ).toHaveCount(1);
+  ).toHaveCount(0);
   // Nothing here claims compliance; that is a rule pack's business.
   await expect(page.locator('.library-panel')).not.toContainText(
     'est conforme',
@@ -2438,7 +2451,9 @@ test('an emptied equipment field is gone after a save and a reload', async ({
   await loadDemo(page);
   await openDestination(page, 'Équipements');
   await page
-    .getByRole('button', { name: 'equipment-dhw-tank', exact: true })
+    // The list names a thing by its name once the fiche gives it one, and
+    // falls back to the identifier only when nothing does.
+    .getByRole('button', { name: 'Ballon d’eau chaude sanitaire', exact: true })
     .click();
 
   const loss = page.getByLabel('Pertes à l’arrêt');
@@ -2465,7 +2480,9 @@ test('an emptied equipment field is gone after a save and a reload', async ({
   await expect(page.getByRole('status')).toContainText('chargé et validé');
   await openDestination(page, 'Équipements');
   await page
-    .getByRole('button', { name: 'equipment-dhw-tank', exact: true })
+    // The list names a thing by its name once the fiche gives it one, and
+    // falls back to the identifier only when nothing does.
+    .getByRole('button', { name: 'Ballon d’eau chaude sanitaire', exact: true })
     .click();
   await expect(page.getByLabel('Volume de ballon')).toHaveValue('200');
   await expect(page.getByLabel('Pertes à l’arrêt')).toHaveCount(0);
@@ -2477,6 +2494,7 @@ test('acts on an object from a menu opened where the object is', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  await hidePlacedComponents(page);
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   const box = (await canvas.boundingBox())!;
@@ -2662,7 +2680,10 @@ test('places a thing in the building, as an object of the editor', async ({
   await loadDemo(page);
   await chooseTool(page, 'Composant');
   await page.getByLabel('Catégorie').selectOption('HEATING');
-  await page.getByLabel('Nom').fill('Radiateur séjour');
+  // A name the reference house does not already hold: the tree lists what is
+  // in the project, and two lines reading the same thing prove nothing about
+  // which one was clicked.
+  await page.getByLabel('Nom').fill('Radiateur d’essai');
 
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
@@ -2679,7 +2700,7 @@ test('places a thing in the building, as an object of the editor', async ({
     position: { x: box.width * 0.3, y: box.height * 0.35 },
   });
   const title = page.locator('.inspector-subject h3');
-  await expect(title).toContainText('Radiateur séjour');
+  await expect(title).toContainText('Radiateur d’essai');
   // What the catalogue knows stays with the catalogue.
   await expect(page.locator('.inspector-subject')).toContainText(
     'ne renvoie à aucun modèle',

@@ -15,6 +15,7 @@ import {
   allRoofPlanes,
   placedEquipment,
   placedEquipmentByFamily,
+  equipmentKindOf,
   placedEquipmentByKind,
   placedEquipmentBySpace,
   envelopeByRoom,
@@ -439,7 +440,17 @@ export function createProjectCalculationContext(
     systems,
     networksByDiscipline: groupBy(systems, ({ discipline }) => discipline),
     equipment,
-    equipmentByKind: groupBy(equipment, ({ kind }) => kind),
+    // Same bridge as a placed object's, so a fiche is the same thing whether
+    // it is standing in the building or sitting in the library.
+    equipmentByKind: groupBy(
+      equipment,
+      (entry) =>
+        equipmentKindOf(
+          entry.category === undefined
+            ? entry
+            : { ...entry, catalogCategory: entry.category },
+        ) ?? '',
+    ),
     openingTypes: project.openingTypes ?? [],
     networkProducts: project.networkProducts ?? [],
     placedEquipment: placed,
@@ -476,14 +487,34 @@ export function createProjectCalculationContext(
 }
 
 /** Reads a finite numeric equipment property, recording where it came from. */
+/**
+ * The word an adapter asks a figure by, and the words a fiche answers with.
+ *
+ * A third vocabulary gap of the same family as `kind`: the photovoltaic module
+ * asks for `installedPowerWp`, and the catalogue — which speaks the property
+ * registry — states `peakPowerWp`. Both name the same watts. One explicit
+ * table, so that the day somebody folds the two together it is a decision and
+ * not a rename nobody noticed.
+ */
+const EQUIPMENT_PROPERTY_ALIASES: Readonly<Record<string, readonly string[]>> =
+  {
+    installedPowerWp: ['peakPowerWp'],
+  };
+
 export function equipmentNumber(
   context: ProjectCalculationContext,
   equipment: EquipmentDefinition | undefined,
   property: string,
   moduleId: string,
 ): number | undefined {
-  const value: JsonValue | undefined = equipment?.properties[property];
-  if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
-  context.settings.note(moduleId, property, 'EQUIPMENT', equipment!.id);
-  return value;
+  for (const name of [
+    property,
+    ...(EQUIPMENT_PROPERTY_ALIASES[property] ?? []),
+  ]) {
+    const value: JsonValue | undefined = equipment?.properties[name];
+    if (typeof value !== 'number' || !Number.isFinite(value)) continue;
+    context.settings.note(moduleId, property, 'EQUIPMENT', equipment!.id);
+    return value;
+  }
+  return undefined;
 }

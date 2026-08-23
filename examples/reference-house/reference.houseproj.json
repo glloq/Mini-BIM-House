@@ -251,7 +251,7 @@
               "sillHeightMm": 0,
               "widthMm": 900,
               "heightMm": 2100,
-              "definitionId": "generic-door"
+              "definitionId": "generic-entrance-door"
             },
             {
               "id": "opening-living",
@@ -262,7 +262,7 @@
               "sillHeightMm": 900,
               "widthMm": 1800,
               "heightMm": 1200,
-              "definitionId": "generic-window"
+              "definitionId": "generic-window-casement-double"
             },
             {
               "id": "opening-bedroom",
@@ -273,7 +273,7 @@
               "sillHeightMm": 900,
               "widthMm": 1400,
               "heightMm": 1200,
-              "definitionId": "generic-window"
+              "definitionId": "generic-window-casement-double"
             }
           ],
           "slabs": [
@@ -452,7 +452,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "ground",
               "category": "LIGHTING",
-              "definitionId": "equipment-luminaire",
+              "definitionId": "generic-led-luminaire",
               "name": "Plafonnier séjour",
               "position": {
                 "x": 2500,
@@ -467,7 +467,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "ground",
               "category": "LIGHTING",
-              "definitionId": "equipment-luminaire",
+              "definitionId": "generic-led-luminaire",
               "name": "Plafonnier cuisine",
               "position": {
                 "x": 7500,
@@ -482,7 +482,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "ground",
               "category": "LIGHTING",
-              "definitionId": "equipment-luminaire",
+              "definitionId": "generic-led-luminaire",
               "name": "Plafonnier chambre",
               "position": {
                 "x": 2500,
@@ -497,7 +497,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "ground",
               "category": "LIGHTING",
-              "definitionId": "equipment-luminaire",
+              "definitionId": "generic-led-luminaire",
               "name": "Plafonnier salle de bain",
               "position": {
                 "x": 7500,
@@ -512,7 +512,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "ground",
               "category": "VENTILATION",
-              "definitionId": "equipment-vmc",
+              "definitionId": "generic-balanced-ventilation-unit",
               "name": "Groupe VMC",
               "position": {
                 "x": 9500,
@@ -526,7 +526,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "ground",
               "category": "SANITARY",
-              "definitionId": "equipment-dhw-tank",
+              "definitionId": "generic-dhw-tank",
               "name": "Ballon ECS",
               "position": {
                 "x": 9200,
@@ -541,21 +541,24 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "ground",
               "category": "ELECTRICAL",
-              "definitionId": "equipment-battery",
+              "definitionId": "generic-battery-rack",
               "name": "Batterie",
               "position": {
                 "x": 9200,
                 "y": 900
               },
               "elevationMm": 0,
-              "rotationDeg": 0
+              "rotationDeg": 0,
+              "properties": {
+                "initialSoc": 0.5
+              }
             },
             {
               "id": "component-inverter",
               "type": "COMPONENT_INSTANCE",
               "levelId": "ground",
               "category": "ELECTRICAL",
-              "definitionId": "equipment-inverter",
+              "definitionId": "generic-inverter",
               "name": "Onduleur",
               "position": {
                 "x": 9200,
@@ -563,6 +566,226 @@
               },
               "elevationMm": 1200,
               "rotationDeg": 0
+            },
+            {
+              "id": "component-heat-pump",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-air-water-heat-pump",
+              "name": "Pompe à chaleur air/eau",
+              "position": {
+                "x": 500,
+                "y": 6500
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0
+            },
+            {
+              "id": "component-buffer-tank",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-heating-buffer-tank",
+              "name": "Ballon tampon",
+              "position": {
+                "x": 1200,
+                "y": 6200
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0
+            },
+            {
+              "id": "component-circulator",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-circulator-pump",
+              "name": "Circulateur de chauffage",
+              "position": {
+                "x": 1500,
+                "y": 6000
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0
+            },
+            {
+              "id": "component-radiator-living",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-radiator",
+              "name": "Radiateur séjour",
+              "position": {
+                "x": 2500,
+                "y": 600
+              },
+              "elevationMm": 150,
+              "rotationDeg": 0,
+              "spaceId": "space-living"
+            },
+            {
+              "id": "component-radiator-kitchen",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-radiator",
+              "name": "Radiateur cuisine",
+              "position": {
+                "x": 6800,
+                "y": 600
+              },
+              "elevationMm": 150,
+              "rotationDeg": 0,
+              "spaceId": "space-kitchen"
+            },
+            {
+              "id": "component-radiator-bedroom",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-radiator",
+              "name": "Radiateur chambre",
+              "position": {
+                "x": 2500,
+                "y": 4400
+              },
+              "elevationMm": 150,
+              "rotationDeg": 0,
+              "spaceId": "space-bedroom"
+            },
+            {
+              "id": "component-kitchen-sink",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "SANITARY",
+              "definitionId": "generic-kitchen-sink",
+              "name": "Évier",
+              "position": {
+                "x": 7000,
+                "y": 1000
+              },
+              "elevationMm": 850,
+              "rotationDeg": 0,
+              "spaceId": "space-kitchen"
+            },
+            {
+              "id": "component-washbasin",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "SANITARY",
+              "definitionId": "generic-washbasin",
+              "name": "Lavabo",
+              "position": {
+                "x": 7000,
+                "y": 4600
+              },
+              "elevationMm": 850,
+              "rotationDeg": 0,
+              "spaceId": "space-bathroom"
+            },
+            {
+              "id": "component-shower",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "SANITARY",
+              "definitionId": "generic-shower-tray",
+              "name": "Receveur de douche",
+              "position": {
+                "x": 7800,
+                "y": 5200
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-bathroom"
+            },
+            {
+              "id": "component-wc",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "SANITARY",
+              "definitionId": "generic-wc",
+              "name": "WC",
+              "position": {
+                "x": 6400,
+                "y": 5200
+              },
+              "elevationMm": 0,
+              "rotationDeg": 0,
+              "spaceId": "space-bathroom"
+            },
+            {
+              "id": "component-board",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "ELECTRICAL",
+              "definitionId": "generic-distribution-board",
+              "name": "Tableau de répartition",
+              "position": {
+                "x": 600,
+                "y": 5600
+              },
+              "elevationMm": 1200,
+              "rotationDeg": 0
+            },
+            {
+              "id": "component-breaker",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "ELECTRICAL",
+              "definitionId": "generic-miniature-circuit-breaker",
+              "name": "Disjoncteur divisionnaire",
+              "position": {
+                "x": 620,
+                "y": 5600
+              },
+              "elevationMm": 1300,
+              "rotationDeg": 0
+            },
+            {
+              "id": "component-socket-living",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "ELECTRICAL",
+              "definitionId": "generic-socket",
+              "name": "Prise séjour",
+              "position": {
+                "x": 3200,
+                "y": 300
+              },
+              "elevationMm": 300,
+              "rotationDeg": 0,
+              "spaceId": "space-living"
+            },
+            {
+              "id": "component-socket-kitchen",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "ELECTRICAL",
+              "definitionId": "generic-socket",
+              "name": "Prise cuisine",
+              "position": {
+                "x": 6600,
+                "y": 300
+              },
+              "elevationMm": 300,
+              "rotationDeg": 0,
+              "spaceId": "space-kitchen"
+            },
+            {
+              "id": "component-towel-rail-bathroom",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "ground",
+              "category": "HEATING",
+              "definitionId": "generic-towel-radiator",
+              "name": "Sèche-serviettes salle de bains",
+              "position": {
+                "x": 5400,
+                "y": 6800
+              },
+              "elevationMm": 300,
+              "rotationDeg": 0,
+              "spaceId": "space-bathroom"
             }
           ]
         },
@@ -698,7 +921,7 @@
               "sillHeightMm": 900,
               "widthMm": 1400,
               "heightMm": 1300,
-              "definitionId": "generic-window"
+              "definitionId": "generic-window-casement-double"
             },
             {
               "id": "opening-bedroom-two",
@@ -709,7 +932,7 @@
               "sillHeightMm": 900,
               "widthMm": 1400,
               "heightMm": 1300,
-              "definitionId": "generic-window"
+              "definitionId": "generic-window-casement-double"
             },
             {
               "id": "opening-first-bath",
@@ -720,7 +943,7 @@
               "sillHeightMm": 1400,
               "widthMm": 800,
               "heightMm": 800,
-              "definitionId": "generic-window"
+              "definitionId": "generic-window-casement-double"
             },
             {
               "id": "opening-first-landing",
@@ -731,7 +954,7 @@
               "sillHeightMm": 0,
               "widthMm": 830,
               "heightMm": 2040,
-              "definitionId": "generic-door"
+              "definitionId": "generic-entrance-door"
             }
           ],
           "slabs": [
@@ -946,7 +1169,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "first",
               "category": "LIGHTING",
-              "definitionId": "equipment-luminaire",
+              "definitionId": "generic-led-luminaire",
               "name": "Plafonnier chambre 1",
               "position": {
                 "x": 2500,
@@ -961,7 +1184,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "first",
               "category": "LIGHTING",
-              "definitionId": "equipment-luminaire",
+              "definitionId": "generic-led-luminaire",
               "name": "Plafonnier chambre 2",
               "position": {
                 "x": 7500,
@@ -976,7 +1199,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "first",
               "category": "LIGHTING",
-              "definitionId": "equipment-luminaire",
+              "definitionId": "generic-led-luminaire",
               "name": "Plafonnier salle de bain",
               "position": {
                 "x": 2500,
@@ -991,7 +1214,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "first",
               "category": "LIGHTING",
-              "definitionId": "equipment-luminaire",
+              "definitionId": "generic-led-luminaire",
               "name": "Plafonnier palier",
               "position": {
                 "x": 7500,
@@ -1006,7 +1229,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "first",
               "category": "PHOTOVOLTAIC",
-              "definitionId": "equipment-pv",
+              "definitionId": "generic-pv-array",
               "name": "Champ photovoltaïque",
               "position": {
                 "x": 5000,
@@ -1015,6 +1238,81 @@
               "elevationMm": 2600,
               "rotationDeg": 0,
               "hostObjectId": "roof-south"
+            },
+            {
+              "id": "component-radiator-bedroom-one",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "first",
+              "category": "HEATING",
+              "definitionId": "generic-radiator",
+              "name": "Radiateur chambre 1",
+              "position": {
+                "x": 2500,
+                "y": 600
+              },
+              "elevationMm": 150,
+              "rotationDeg": 0,
+              "spaceId": "space-bedroom-one"
+            },
+            {
+              "id": "component-radiator-bedroom-two",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "first",
+              "category": "HEATING",
+              "definitionId": "generic-radiator",
+              "name": "Radiateur chambre 2",
+              "position": {
+                "x": 6800,
+                "y": 600
+              },
+              "elevationMm": 150,
+              "rotationDeg": 0,
+              "spaceId": "space-bedroom-two"
+            },
+            {
+              "id": "component-washbasin-first",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "first",
+              "category": "SANITARY",
+              "definitionId": "generic-washbasin",
+              "name": "Lavabo étage",
+              "position": {
+                "x": 1200,
+                "y": 4600
+              },
+              "elevationMm": 850,
+              "rotationDeg": 0,
+              "spaceId": "space-first-bath"
+            },
+            {
+              "id": "component-socket-bedroom-one",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "first",
+              "category": "ELECTRICAL",
+              "definitionId": "generic-socket",
+              "name": "Prise chambre 1",
+              "position": {
+                "x": 3200,
+                "y": 300
+              },
+              "elevationMm": 300,
+              "rotationDeg": 0,
+              "spaceId": "space-bedroom-one"
+            },
+            {
+              "id": "component-towel-rail-first-bath",
+              "type": "COMPONENT_INSTANCE",
+              "levelId": "first",
+              "category": "HEATING",
+              "definitionId": "generic-towel-radiator",
+              "name": "Sèche-serviettes salle de bain",
+              "position": {
+                "x": 700,
+                "y": 6800
+              },
+              "elevationMm": 300,
+              "rotationDeg": 0,
+              "spaceId": "space-first-bath"
             }
           ]
         }
@@ -1029,7 +1327,11 @@
             "space-living",
             "space-kitchen",
             "space-bedroom",
-            "space-bathroom"
+            "space-bathroom",
+            "space-bedroom-one",
+            "space-bedroom-two",
+            "space-first-bath",
+            "space-landing"
           ]
         }
       ]
@@ -1169,165 +1471,2335 @@
     ],
     "equipment": [
       {
-        "id": "equipment-pv",
-        "kind": "PHOTOVOLTAIC",
+        "id": "generic-air-water-heat-pump",
+        "familyId": "HEAT_PUMP_AIR_WATER_MONOBLOC",
+        "kind": "HEAT_PUMP",
         "catalogKind": "GENERIC",
-        "properties": {
-          "installedPowerWp": 4000,
-          "moduleCount": 10,
-          "moduleAreaM2": 1.9
+        "version": "1.1.0",
+        "name": "Pompe à chaleur air/eau",
+        "category": "HEAT_PUMP",
+        "dimensions": {
+          "widthMm": 1100,
+          "depthMm": 450,
+          "heightMm": 800
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "SERVICE",
+          "AIR_INTAKE",
+          "AIR_EXHAUST"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "PERFORMANCE_MAPPED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "flow",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": -400,
+              "y": 0,
+              "z": -350
+            }
+          },
+          {
+            "id": "return",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": 400,
+              "y": 0,
+              "z": -350
+            }
+          },
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 200,
+              "z": -350
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 1000,
+            "leftMm": 300,
+            "rightMm": 300,
+            "reason": "Accès à la façade technique et aux raccordements"
+          },
+          {
+            "zone": "SERVICE",
+            "frontMm": 1000,
+            "aboveMm": 500,
+            "reason": "Dépose du capot et de l’échangeur"
+          },
+          {
+            "zone": "AIR_INTAKE",
+            "backMm": 300,
+            "reason": "Reprise d’air sur l’évaporateur"
+          },
+          {
+            "zone": "AIR_EXHAUST",
+            "frontMm": 2000,
+            "reason": "Soufflage du ventilateur, sans obstacle ni recyclage"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
         },
         "sources": [
           {
-            "property": "installedPowerWp",
-            "sourceType": "USER",
-            "reference": "Reference project design choice"
-          }
-        ]
-      },
-      {
-        "id": "equipment-battery",
-        "kind": "BATTERY",
-        "catalogKind": "GENERIC",
-        "properties": {
-          "usableCapacityKWh": 5,
-          "minimumSoc": 0.1,
-          "maximumSoc": 0.95,
-          "initialSoc": 0.5,
-          "maxChargePowerKW": 2.5,
-          "maxDischargePowerKW": 2.5,
-          "chargeEfficiency": 0.95,
-          "dischargeEfficiency": 0.95
-        },
-        "sources": [
+            "property": "nominalHeatingCapacityW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
           {
-            "property": "usableCapacityKWh",
-            "sourceType": "USER",
-            "reference": "Reference project design choice"
-          }
-        ]
-      },
-      {
-        "id": "equipment-vmc",
-        "kind": "FAN",
-        "catalogKind": "GENERIC",
-        "properties": {
-          "designFlowM3h": 75,
-          "nominalPowerW": 22,
-          "systemType": "EXTRACT"
-        },
-        "sources": [
+            "property": "nominalCop",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
           {
-            "property": "nominalPowerW",
-            "sourceType": "USER",
-            "reference": "Generic single-flow extract unit"
+            "property": "minimumOutdoorTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maximumFlowTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "supplyVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
           }
-        ]
+        ],
+        "performanceCurves": [
+          {
+            "id": "cop-vs-outdoor-temperature",
+            "inputAxes": [
+              {
+                "id": "outdoorTemperatureC",
+                "unit": "°C"
+              }
+            ],
+            "output": "cop",
+            "outputUnit": "-",
+            "interpolation": "LINEAR",
+            "points": [
+              {
+                "inputs": [
+                  -15
+                ],
+                "output": 2
+              },
+              {
+                "inputs": [
+                  -7
+                ],
+                "output": 2.6
+              },
+              {
+                "inputs": [
+                  2
+                ],
+                "output": 3.4
+              },
+              {
+                "inputs": [
+                  7
+                ],
+                "output": 4.2
+              },
+              {
+                "inputs": [
+                  15
+                ],
+                "output": 5
+              }
+            ]
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "HEATING",
+              "symbolId": "symbol-heat-pump"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "heating.generation"
+        },
+        "properties": {
+          "nominalHeatingCapacityW": 8000,
+          "nominalCop": 4.2,
+          "minimumOutdoorTemperatureC": -20,
+          "maximumFlowTemperatureC": 60,
+          "supplyVoltageV": 230,
+          "name": "Pompe à chaleur air/eau"
+        }
       },
       {
-        "id": "equipment-dhw-tank",
-        "kind": "DHW_TANK",
+        "id": "generic-heating-buffer-tank",
+        "familyId": "BUFFER_TANK",
+        "kind": "OTHER",
         "catalogKind": "GENERIC",
-        "properties": {
-          "tankVolumeL": 200,
-          "usefulHeatingPowerW": 2000,
-          "standbyLossW": 45
+        "version": "1.1.0",
+        "name": "Ballon tampon",
+        "category": "OTHER",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 600,
+          "heightMm": 1400
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "primary-in",
+            "portTypeId": "PRIMARY_RETURN",
+            "position": {
+              "x": -300,
+              "y": 0,
+              "z": 500
+            }
+          },
+          {
+            "id": "primary-out",
+            "portTypeId": "PRIMARY_FLOW",
+            "position": {
+              "x": -300,
+              "y": 0,
+              "z": -500
+            }
+          },
+          {
+            "id": "flow",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": 300,
+              "y": 0,
+              "z": 500
+            }
+          },
+          {
+            "id": "return",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": 300,
+              "y": 0,
+              "z": -500
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès aux piquages, à la purge et à la vidange"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
         },
         "sources": [
           {
             "property": "tankVolumeL",
-            "sourceType": "USER",
-            "reference": "Reference project design choice"
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maxPressureBar",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maximumFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
           }
-        ]
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "heating.distribution"
+        },
+        "properties": {
+          "tankVolumeL": 200,
+          "maxPressureBar": 3,
+          "maximumFlowM3h": 3.5,
+          "name": "Ballon tampon"
+        }
       },
       {
-        "id": "equipment-rain-tank",
+        "id": "generic-circulator-pump",
+        "familyId": "CIRCULATOR",
+        "kind": "PUMP",
+        "catalogKind": "GENERIC",
+        "version": "1.2.0",
+        "name": "Circulateur de chauffage",
+        "category": "PUMP",
+        "dimensions": {
+          "widthMm": 180,
+          "depthMm": 130,
+          "heightMm": 180
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "PERFORMANCE_MAPPED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "in",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": -90,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "out",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": 90,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": -90,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 300,
+            "reason": "Accès à la boîte à bornes et au purgeur"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maximumHeadM",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maximumFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "supplyVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "performanceCurves": [
+          {
+            "id": "head-vs-flow",
+            "inputAxes": [
+              {
+                "id": "flowM3h",
+                "unit": "m³/h"
+              }
+            ],
+            "output": "headM",
+            "outputUnit": "m",
+            "interpolation": "LINEAR",
+            "points": [
+              {
+                "inputs": [
+                  0
+                ],
+                "output": 6
+              },
+              {
+                "inputs": [
+                  1
+                ],
+                "output": 5.2
+              },
+              {
+                "inputs": [
+                  2
+                ],
+                "output": 3.9
+              },
+              {
+                "inputs": [
+                  3
+                ],
+                "output": 2
+              },
+              {
+                "inputs": [
+                  3.5
+                ],
+                "output": 0
+              }
+            ]
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "HEATING",
+              "symbolId": "symbol-pump"
+            }
+          ],
+          "planFootprint": "SYMBOL_ONLY",
+          "layer": "heating.equipment"
+        },
+        "properties": {
+          "nominalPowerW": 45,
+          "maximumHeadM": 6,
+          "maximumFlowM3h": 3.5,
+          "supplyVoltageV": 230,
+          "name": "Circulateur de chauffage"
+        }
+      },
+      {
+        "id": "generic-radiator",
+        "familyId": "RADIATOR",
+        "kind": "RADIATOR",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Radiateur eau chaude",
+        "category": "RADIATOR",
+        "dimensions": {
+          "widthMm": 1000,
+          "depthMm": 100,
+          "heightMm": 600
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "CEILING"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "flow",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": -480,
+              "y": 0,
+              "z": -280
+            }
+          },
+          {
+            "id": "return",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": 480,
+              "y": 0,
+              "z": -280
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "leftMm": 100,
+            "rightMm": 100,
+            "belowMm": 100,
+            "reason": "Accès aux robinets et au té de réglage"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 150,
+            "reason": "Circulation de l’air devant l’émetteur"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalOutputW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalFlowTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalReturnTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalRoomTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "exponent",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "HEATING",
+              "symbolId": "symbol-radiator"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "heating.emitters"
+        },
+        "properties": {
+          "nominalOutputW": 1200,
+          "nominalFlowTemperatureC": 55,
+          "nominalReturnTemperatureC": 45,
+          "nominalRoomTemperatureC": 20,
+          "exponent": 1.3,
+          "name": "Radiateur eau chaude"
+        }
+      },
+      {
+        "id": "generic-towel-radiator",
+        "familyId": "TOWEL_RADIATOR",
+        "kind": "RADIATOR",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Sèche-serviettes eau chaude",
+        "category": "RADIATOR",
+        "dimensions": {
+          "widthMm": 500,
+          "depthMm": 100,
+          "heightMm": 1200
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "CEILING"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "flow",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": -250,
+              "y": 0,
+              "z": -600
+            }
+          },
+          {
+            "id": "return",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": 250,
+              "y": 0,
+              "z": -600
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "belowMm": 150,
+            "frontMm": 300,
+            "reason": "Accès aux robinets et purge de l’appareil"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 400,
+            "reason": "Dégagement devant l’échelle pour poser et prendre le linge"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalOutputW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "exponent",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "waterContentL",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalFlowTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalReturnTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalRoomTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "HEATING",
+              "symbolId": "symbol-radiator"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "heating.emitters"
+        },
+        "properties": {
+          "nominalOutputW": 600,
+          "exponent": 1.3,
+          "waterContentL": 4,
+          "nominalFlowTemperatureC": 55,
+          "nominalReturnTemperatureC": 45,
+          "nominalRoomTemperatureC": 20,
+          "name": "Sèche-serviettes eau chaude"
+        }
+      },
+      {
+        "id": "generic-dhw-tank",
+        "familyId": "ELECTRIC_DHW_TANK",
+        "kind": "DHW_TANK",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Ballon d’eau chaude sanitaire",
+        "category": "DHW_TANK",
+        "dimensions": {
+          "widthMm": 570,
+          "depthMm": 570,
+          "heightMm": 1500
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "SERVICE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -740
+            }
+          },
+          {
+            "id": "hot",
+            "portTypeId": "WATER_HOT",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 740
+            }
+          },
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 280,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès au groupe de sécurité et à la résistance"
+          },
+          {
+            "zone": "SERVICE",
+            "frontMm": 600,
+            "aboveMm": 300,
+            "reason": "Dépose de la résistance et de l’anode"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "tankVolumeL",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "usefulHeatingPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "standbyLossW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "storageTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "WATER",
+              "symbolId": "symbol-dhw-tank"
+            }
+          ],
+          "planFootprint": "CIRCLE",
+          "layer": "water.equipment"
+        },
+        "properties": {
+          "tankVolumeL": 200,
+          "usefulHeatingPowerW": 2000,
+          "standbyLossW": 45,
+          "storageTemperatureC": 60,
+          "name": "Ballon d’eau chaude sanitaire"
+        }
+      },
+      {
+        "id": "generic-balanced-ventilation-unit",
+        "familyId": "BALANCED_VENTILATION_UNIT",
+        "kind": "VENTILATION_UNIT",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "VMC double flux avec échangeur",
+        "category": "VENTILATION_UNIT",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 600,
+          "heightMm": 500
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL",
+          "SLAB",
+          "ROOF"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "AIR_INTAKE",
+          "AIR_EXHAUST"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "extract",
+            "portTypeId": "AIR_EXTRACT",
+            "position": {
+              "x": -300,
+              "y": -150,
+              "z": 0
+            }
+          },
+          {
+            "id": "exhaust",
+            "portTypeId": "AIR_EXHAUST",
+            "position": {
+              "x": 300,
+              "y": -150,
+              "z": 0
+            }
+          },
+          {
+            "id": "intake",
+            "portTypeId": "AIR_OUTSIDE",
+            "position": {
+              "x": 300,
+              "y": 150,
+              "z": 0
+            }
+          },
+          {
+            "id": "supply",
+            "portTypeId": "AIR_SUPPLY",
+            "position": {
+              "x": -300,
+              "y": 150,
+              "z": 0
+            }
+          },
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": -300,
+              "y": -150,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 500,
+            "belowMm": 400,
+            "reason": "Changement des filtres et de l’échangeur"
+          },
+          {
+            "zone": "AIR_INTAKE",
+            "frontMm": 300,
+            "reason": "Prise d’air neuf"
+          },
+          {
+            "zone": "AIR_EXHAUST",
+            "aboveMm": 500,
+            "reason": "Rejet d’air vicié, à distance de la prise d’air neuf"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "heatRecoveryEfficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maximumStaticPressurePa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "systemType",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "bypassAvailable",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "VENTILATION",
+              "symbolId": "symbol-ventilation-unit"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "ventilation.equipment"
+        },
+        "properties": {
+          "designFlowM3h": 250,
+          "nominalPowerW": 55,
+          "heatRecoveryEfficiency": 0.85,
+          "maximumStaticPressurePa": 200,
+          "systemType": "BALANCED",
+          "bypassAvailable": true,
+          "name": "VMC double flux avec échangeur"
+        }
+      },
+      {
+        "id": "generic-air-terminal",
+        "familyId": "EXTRACT_TERMINAL",
+        "kind": "AIR_TERMINAL",
+        "catalogKind": "GENERIC",
+        "version": "1.2.0",
+        "name": "Bouche d’extraction",
+        "category": "AIR_TERMINAL",
+        "dimensions": {
+          "widthMm": 125,
+          "depthMm": 125,
+          "heightMm": 60
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL",
+          "SLAB",
+          "ROOF"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "AIR_INTAKE",
+          "AIR_EXHAUST"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "duct",
+            "portTypeId": "AIR_EXTRACT_OUTLET",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -30
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 200,
+            "reason": "Dépose et nettoyage de la bouche"
+          },
+          {
+            "zone": "AIR_INTAKE",
+            "frontMm": 300,
+            "reason": "Veine d’aspiration, sans meuble devant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "targetFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "pressureDropPa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "airRole",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "VENTILATION",
+              "symbolId": "symbol-air-terminal"
+            }
+          ],
+          "planFootprint": "CIRCLE",
+          "layer": "ventilation.terminals"
+        },
+        "properties": {
+          "targetFlowM3h": 30,
+          "pressureDropPa": 60,
+          "airRole": "EXTRACT",
+          "name": "Bouche d’extraction"
+        }
+      },
+      {
+        "id": "generic-rainwater-tank",
+        "familyId": "RAINWATER_TANK",
         "kind": "RAINWATER_TANK",
         "catalogKind": "GENERIC",
-        "properties": {
-          "nominalVolumeL": 5000,
-          "initialVolumeL": 2500
+        "version": "1.1.0",
+        "name": "Cuve de récupération d’eau de pluie",
+        "category": "RAINWATER_TANK",
+        "dimensions": {
+          "widthMm": 2000,
+          "depthMm": 1500,
+          "heightMm": 1800
+        },
+        "allowedHosts": [
+          "ROOF",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "inlet",
+            "portTypeId": "RAINWATER_IN",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 800
+            }
+          },
+          {
+            "id": "overflow",
+            "portTypeId": "RAINWATER_OVERFLOW",
+            "position": {
+              "x": 900,
+              "y": 0,
+              "z": 700
+            }
+          },
+          {
+            "id": "outlet",
+            "portTypeId": "RAINWATER_OUT",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -800
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "aboveMm": 800,
+            "reason": "Ouverture du tampon de visite"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
         },
         "sources": [
           {
             "property": "nominalVolumeL",
-            "sourceType": "USER",
-            "reference": "Reference project design choice"
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "buried",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
           }
-        ]
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "RAINWATER",
+              "symbolId": "symbol-rainwater-tank"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "rainwater.equipment"
+        },
+        "properties": {
+          "nominalVolumeL": 5000,
+          "buried": true,
+          "name": "Cuve de récupération d’eau de pluie"
+        }
       },
       {
-        "id": "equipment-luminaire",
+        "id": "generic-washbasin",
+        "familyId": "WASHBASIN",
+        "kind": "SANITARY_FIXTURE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Lavabo",
+        "category": "SANITARY_FIXTURE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 450,
+          "heightMm": 850
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": -100,
+              "y": 0,
+              "z": -300
+            }
+          },
+          {
+            "id": "hot",
+            "portTypeId": "WATER_HOT",
+            "position": {
+              "x": 100,
+              "y": 0,
+              "z": -300
+            }
+          },
+          {
+            "id": "drain",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -400
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 550,
+            "reason": "Place de la personne devant l’appareil"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 1100,
+            "reason": "Approche d’un fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowLps",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "hotWaterFraction",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "minimumPressurePa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "WATER",
+              "symbolId": "symbol-washbasin"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "water.fixtures"
+        },
+        "properties": {
+          "designFlowLps": 0.2,
+          "hotWaterFraction": 0.5,
+          "dischargeUnits": 1,
+          "minimumPressurePa": 100000,
+          "name": "Lavabo"
+        }
+      },
+      {
+        "id": "generic-shower-tray",
+        "familyId": "SHOWER_TRAY",
+        "kind": "SANITARY_FIXTURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Receveur de douche 900 × 900",
+        "category": "SANITARY_FIXTURE",
+        "dimensions": {
+          "widthMm": 900,
+          "depthMm": 900,
+          "heightMm": 60
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "drain",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -30
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 700,
+            "reason": "Dégagement d’usage devant l’appareil"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowLps",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "trapDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "WATER",
+              "symbolId": "symbol-shower"
+            }
+          ],
+          "planFootprint": "SYMBOL_ONLY"
+        },
+        "properties": {
+          "designFlowLps": 0.2,
+          "dischargeUnits": 2,
+          "trapDiameterMm": 50,
+          "name": "Receveur de douche 900 × 900"
+        }
+      },
+      {
+        "id": "generic-wc",
+        "familyId": "WC",
+        "kind": "SANITARY_FIXTURE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "WC à réservoir",
+        "category": "SANITARY_FIXTURE",
+        "dimensions": {
+          "widthMm": 380,
+          "depthMm": 700,
+          "heightMm": 800
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -300
+            }
+          },
+          {
+            "id": "drain",
+            "portTypeId": "SOILWATER",
+            "position": {
+              "x": 0,
+              "y": 250,
+              "z": -350
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 600,
+            "leftMm": 200,
+            "rightMm": 200,
+            "reason": "Place de la personne assise"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "leftMm": 800,
+            "reason": "Transfert latéral depuis un fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowLps",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "hotWaterFraction",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "flushVolumeL",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "WATER",
+              "symbolId": "symbol-wc"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "water.fixtures"
+        },
+        "properties": {
+          "designFlowLps": 0.12,
+          "hotWaterFraction": 0,
+          "dischargeUnits": 4,
+          "flushVolumeL": 6,
+          "name": "WC à réservoir"
+        }
+      },
+      {
+        "id": "generic-kitchen-sink",
+        "familyId": "KITCHEN_SINK",
+        "kind": "SANITARY_FIXTURE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Évier de cuisine",
+        "category": "SANITARY_FIXTURE",
+        "dimensions": {
+          "widthMm": 800,
+          "depthMm": 600,
+          "heightMm": 900
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": -100,
+              "y": 0,
+              "z": -300
+            }
+          },
+          {
+            "id": "hot",
+            "portTypeId": "WATER_HOT",
+            "position": {
+              "x": 100,
+              "y": 0,
+              "z": -300
+            }
+          },
+          {
+            "id": "drain",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -450
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 700,
+            "reason": "Place de la personne devant l’évier"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 1100,
+            "reason": "Approche d’un fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowLps",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "hotWaterFraction",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "minimumPressurePa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "WATER",
+              "symbolId": "symbol-kitchen-sink"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "water.fixtures"
+        },
+        "properties": {
+          "designFlowLps": 0.2,
+          "hotWaterFraction": 0.5,
+          "dischargeUnits": 1,
+          "minimumPressurePa": 100000,
+          "name": "Évier de cuisine"
+        }
+      },
+      {
+        "id": "generic-distribution-board",
+        "familyId": "MAIN_DISTRIBUTION_BOARD",
+        "kind": "DISTRIBUTION_BOARD",
+        "catalogKind": "GENERIC",
+        "version": "1.2.0",
+        "name": "Tableau de répartition",
+        "category": "DISTRIBUTION_BOARD",
+        "dimensions": {
+          "widthMm": 350,
+          "depthMm": 100,
+          "heightMm": 450
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "ELECTRICAL_WORKING",
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "incoming",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 225
+            }
+          },
+          {
+            "id": "outgoing",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -225
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 225
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "ELECTRICAL_WORKING",
+            "frontMm": 700,
+            "leftMm": 300,
+            "rightMm": 300,
+            "reason": "Zone de travail devant un tableau sous tension"
+          },
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 700,
+            "reason": "Ouverture de la porte et repérage des circuits"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "rowCount",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "moduleCapacity",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ipRating",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-distribution-board"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.distribution"
+        },
+        "properties": {
+          "nominalVoltageV": 230,
+          "rowCount": 3,
+          "moduleCapacity": 39,
+          "ratedCurrentA": 63,
+          "ipRating": "IP30",
+          "name": "Tableau de répartition"
+        }
+      },
+      {
+        "id": "generic-miniature-circuit-breaker",
+        "familyId": "MCB",
+        "kind": "PROTECTION_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Disjoncteur divisionnaire",
+        "category": "PROTECTION_DEVICE",
+        "dimensions": {
+          "widthMm": 18,
+          "depthMm": 70,
+          "heightMm": 85
+        },
+        "allowedHosts": [
+          "DISTRIBUTION_BOARD"
+        ],
+        "requiredClearances": [],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "line",
+            "portTypeId": "ELECTRICAL_AC_INPUT",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 42
+            }
+          },
+          {
+            "id": "load",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -42
+            }
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "curve",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "breakingCapacityKA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-circuit-breaker"
+            }
+          ],
+          "planFootprint": "SYMBOL_ONLY",
+          "layer": "electrical.distribution"
+        },
+        "properties": {
+          "ratedCurrentA": 16,
+          "curve": "C",
+          "breakingCapacityKA": 4.5,
+          "name": "Disjoncteur divisionnaire"
+        }
+      },
+      {
+        "id": "generic-socket",
+        "familyId": "SOCKET_16A",
+        "kind": "SOCKET",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Prise de courant 16 A",
+        "category": "SOCKET",
+        "dimensions": {
+          "widthMm": 80,
+          "depthMm": 40,
+          "heightMm": 80
+        },
+        "allowedHosts": [
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": -20,
+              "z": 0
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": -20,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 100,
+            "reason": "Débattement de la fiche"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 500,
+            "reason": "Approche pour atteindre la prise"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "poleCount",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-socket"
+            }
+          ],
+          "planFootprint": "SYMBOL_ONLY",
+          "layer": "electrical.outlets"
+        },
+        "properties": {
+          "ratedCurrentA": 16,
+          "nominalVoltageV": 230,
+          "poleCount": 2,
+          "name": "Prise de courant 16 A"
+        }
+      },
+      {
+        "id": "generic-led-luminaire",
+        "familyId": "CEILING_LIGHT",
         "kind": "LUMINAIRE",
         "catalogKind": "GENERIC",
-        "properties": {
-          "name": "Plafonnier LED générique",
-          "luminousFluxLm": 1400,
-          "electricalPowerW": 12,
-          "colorTemperatureK": 3000
+        "version": "1.1.0",
+        "name": "Plafonnier LED",
+        "category": "LUMINAIRE",
+        "dimensions": {
+          "widthMm": 300,
+          "depthMm": 300,
+          "heightMm": 60
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 30
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "belowMm": 300,
+            "reason": "Dépose du luminaire depuis le dessous"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
         },
         "sources": [
           {
             "property": "luminousFluxLm",
-            "sourceType": "STANDARD",
-            "reference": "Generic LED ceiling luminaire, demonstration value"
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "electricalPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "colorTemperatureK",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "cri",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "powerFactor",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
           }
         ],
-        "name": "Plafonnier LED générique"
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-luminaire"
+            }
+          ],
+          "planFootprint": "CIRCLE",
+          "layer": "electrical.lighting"
+        },
+        "properties": {
+          "luminousFluxLm": 1400,
+          "electricalPowerW": 12,
+          "colorTemperatureK": 3000,
+          "cri": 80,
+          "powerFactor": 0.9,
+          "name": "Plafonnier LED"
+        }
       },
       {
-        "id": "equipment-inverter",
-        "kind": "STRING_INVERTER",
+        "id": "generic-pv-array",
+        "familyId": "PV_ARRAY",
+        "kind": "PV_MODULE",
         "catalogKind": "GENERIC",
-        "properties": {
-          "ratedAcPowerW": 3600,
-          "maximumDcPowerW": 5400,
-          "europeanEfficiency": 0.97
+        "version": "1.1.0",
+        "name": "Champ photovoltaïque",
+        "category": "PV_MODULE",
+        "dimensions": {
+          "widthMm": 6804,
+          "depthMm": 40,
+          "heightMm": 3444
+        },
+        "allowedHosts": [
+          "ROOF",
+          "SITE",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "dc",
+            "portTypeId": "PV_DC",
+            "position": {
+              "x": -3402,
+              "y": 0,
+              "z": -1722
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 3402,
+              "y": 0,
+              "z": -1722
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 500,
+            "leftMm": 400,
+            "rightMm": 400,
+            "reason": "Circulation de pose et de nettoyage en périphérie du champ"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
         },
         "sources": [
           {
-            "property": "ratedAcPowerW",
-            "sourceType": "USER",
-            "reference": "Reference project design choice"
+            "property": "peakPowerWp",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "moduleAreaM2",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "moduleEfficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "temperatureCoefficientPerK",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "openCircuitVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "shortCircuitCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
           }
-        ]
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-pv-module"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "solar.modules"
+        },
+        "properties": {
+          "peakPowerWp": 4800,
+          "moduleAreaM2": 23.4,
+          "moduleEfficiency": 0.205,
+          "temperatureCoefficientPerK": -0.0035,
+          "nominalVoltageV": 246,
+          "openCircuitVoltageV": 297,
+          "shortCircuitCurrentA": 20.8,
+          "name": "Champ photovoltaïque"
+        }
       },
       {
-        "id": "generic-window",
-        "kind": "WINDOW",
+        "id": "generic-inverter",
+        "familyId": "STRING_INVERTER",
+        "kind": "INVERTER",
         "catalogKind": "GENERIC",
-        "name": "Fenêtre double vitrage générique",
-        "properties": {
-          "uw": 1.3,
-          "gValue": 0.6,
-          "glazing": "DOUBLE",
-          "cavityGas": "ARGON",
-          "visibleTransmittance": 0.7
+        "version": "1.1.0",
+        "name": "Onduleur photovoltaïque",
+        "category": "INVERTER",
+        "dimensions": {
+          "widthMm": 400,
+          "depthMm": 180,
+          "heightMm": 550
+        },
+        "allowedHosts": [
+          "ROOF",
+          "SITE",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "PLAN_DRAWN",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "dc",
+            "portTypeId": "PV_DC_INPUT",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -275
+            }
+          },
+          {
+            "id": "ac",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 275
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 275
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "aboveMm": 300,
+            "belowMm": 300,
+            "reason": "Accès aux bornes et ventilation du dissipateur"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
         },
         "sources": [
           {
-            "property": "uw",
-            "sourceType": "STANDARD",
-            "reference": "Generic double glazing, demonstration value"
+            "property": "nominalAcPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maximumDcPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "europeanEfficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "mpptInputCount",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
           }
-        ]
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-inverter"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.equipment"
+        },
+        "properties": {
+          "nominalAcPowerW": 5000,
+          "maximumDcPowerW": 7500,
+          "europeanEfficiency": 0.97,
+          "mpptInputCount": 2,
+          "name": "Onduleur photovoltaïque"
+        }
       },
       {
-        "id": "generic-door",
-        "kind": "DOOR",
+        "id": "generic-battery-rack",
+        "familyId": "BATTERY_RACK",
+        "kind": "BATTERY",
         "catalogKind": "GENERIC",
-        "name": "Porte d’entrée générique",
-        "properties": {
-          "uw": 1.7
+        "version": "1.1.0",
+        "name": "Armoire batterie",
+        "category": "BATTERY",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 600,
+          "heightMm": 1400
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "THERMAL",
+          "FIRE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "dc",
+            "portTypeId": "BATTERY_DC",
+            "position": {
+              "x": 0,
+              "y": -300,
+              "z": -700
+            }
+          },
+          {
+            "id": "control",
+            "portTypeId": "CONTROL",
+            "position": {
+              "x": 150,
+              "y": -300,
+              "z": -700
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": -150,
+              "y": -300,
+              "z": -700
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 1000,
+            "reason": "Extraction des modules et accès au câblage de puissance"
+          },
+          {
+            "zone": "THERMAL",
+            "backMm": 150,
+            "aboveMm": 300,
+            "reason": "Dissipation des modules et circulation d’air dans l’armoire"
+          },
+          {
+            "zone": "FIRE",
+            "frontMm": 1000,
+            "leftMm": 1000,
+            "rightMm": 1000,
+            "aboveMm": 1000,
+            "reason": "Distance aux matériaux combustibles autour du stockage"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
         },
         "sources": [
           {
-            "property": "uw",
-            "sourceType": "STANDARD",
-            "reference": "Generic insulated entrance door, demonstration value"
+            "property": "usableCapacityKWh",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "minimumSoc",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maximumSoc",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maxChargePowerKW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maxDischargePowerKW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "chargeEfficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeEfficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "cycleLife",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalCapacityAh",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ipRating",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
           }
-        ]
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-battery"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.equipment"
+        },
+        "properties": {
+          "usableCapacityKWh": 25,
+          "minimumSoc": 0.1,
+          "maximumSoc": 0.95,
+          "maxChargePowerKW": 12.5,
+          "maxDischargePowerKW": 12.5,
+          "chargeEfficiency": 0.96,
+          "dischargeEfficiency": 0.96,
+          "cycleLife": 6000,
+          "nominalVoltageV": 51.2,
+          "nominalCapacityAh": 500,
+          "ipRating": "IP20",
+          "name": "Armoire batterie"
+        }
       }
     ],
     "systems": [
@@ -2173,7 +4645,7 @@
               "y": 500,
               "z": 2400
             },
-            "equipmentId": "equipment-vmc",
+            "equipmentId": "generic-balanced-ventilation-unit",
             "componentId": "component-vmc"
           },
           {
@@ -2553,7 +5025,7 @@
               "powerFactor": 0.95,
               "demandFactor": 1
             },
-            "equipmentId": "equipment-luminaire",
+            "equipmentId": "generic-led-luminaire",
             "componentId": "component-luminaire-living"
           },
           {
@@ -2569,7 +5041,7 @@
               "powerFactor": 0.95,
               "demandFactor": 1
             },
-            "equipmentId": "equipment-luminaire",
+            "equipmentId": "generic-led-luminaire",
             "componentId": "component-luminaire-kitchen"
           },
           {
@@ -2585,7 +5057,7 @@
               "powerFactor": 0.95,
               "demandFactor": 1
             },
-            "equipmentId": "equipment-luminaire",
+            "equipmentId": "generic-led-luminaire",
             "componentId": "component-luminaire-bedroom"
           },
           {
@@ -2601,7 +5073,7 @@
               "powerFactor": 0.95,
               "demandFactor": 1
             },
-            "equipmentId": "equipment-luminaire",
+            "equipmentId": "generic-led-luminaire",
             "componentId": "component-luminaire-bathroom"
           },
           {
@@ -2614,7 +5086,7 @@
             },
             "levelId": "first",
             "spaceId": "space-bedroom-one",
-            "equipmentId": "equipment-luminaire",
+            "equipmentId": "generic-led-luminaire",
             "componentId": "component-luminaire-bedroom-one",
             "properties": {
               "powerFactor": 0.95,
@@ -2631,7 +5103,7 @@
             },
             "levelId": "first",
             "spaceId": "space-bedroom-two",
-            "equipmentId": "equipment-luminaire",
+            "equipmentId": "generic-led-luminaire",
             "componentId": "component-luminaire-bedroom-two",
             "properties": {
               "powerFactor": 0.95,
@@ -2648,7 +5120,7 @@
             },
             "levelId": "first",
             "spaceId": "space-first-bath",
-            "equipmentId": "equipment-luminaire",
+            "equipmentId": "generic-led-luminaire",
             "componentId": "component-luminaire-first-bath",
             "properties": {
               "powerFactor": 0.95,
@@ -2665,7 +5137,7 @@
             },
             "levelId": "first",
             "spaceId": "space-landing",
-            "equipmentId": "equipment-luminaire",
+            "equipmentId": "generic-led-luminaire",
             "componentId": "component-luminaire-landing",
             "properties": {
               "powerFactor": 0.95,
@@ -3195,7 +5667,8 @@
         "methodId": "offline-pv-v1",
         "precisionTarget": "ESTIMATE",
         "settings": {
-          "performanceRatio": 0.8
+          "performanceRatio": 0.8,
+          "roofId": "roof-south"
         }
       },
       "battery": {
@@ -3204,7 +5677,8 @@
         "methodId": "battery-configuration-v1",
         "precisionTarget": "ENGINEERING",
         "settings": {
-          "offGrid": 0
+          "offGrid": 0,
+          "initialSoc": 0.5
         }
       },
       "energy-balance": {
@@ -3277,42 +5751,57 @@
             "waste-pipe-pvc-40": 3.1,
             "waste-pipe-pvc-50": 3.9,
             "waste-pipe-pvc-100": 7.5,
-            "duct-round-80": 4.0,
+            "duct-round-80": 4,
             "duct-round-125": 6.5,
             "cable-cu-3g1-5": 1.15,
             "cable-cu-3g2-5": 1.75
           },
           "labourPriceByProduct": {
-            "pipe-multilayer-16x2.0": 9.0,
-            "pipe-multilayer-20x2.0": 9.0,
-            "pipe-multilayer-26x3.0": 11.0,
-            "waste-pipe-pvc-40": 8.0,
-            "waste-pipe-pvc-50": 8.0,
-            "waste-pipe-pvc-100": 12.0,
-            "duct-round-80": 7.0,
-            "duct-round-125": 9.0,
+            "pipe-multilayer-16x2.0": 9,
+            "pipe-multilayer-20x2.0": 9,
+            "pipe-multilayer-26x3.0": 11,
+            "waste-pipe-pvc-40": 8,
+            "waste-pipe-pvc-50": 8,
+            "waste-pipe-pvc-100": 12,
+            "duct-round-80": 7,
+            "duct-round-125": 9,
             "cable-cu-3g1-5": 3.5,
             "cable-cu-3g2-5": 3.5
           },
           "unitPriceByEquipment": {
-            "equipment-luminaire": 38.0,
-            "equipment-vmc": 420.0,
-            "equipment-dhw-tank": 780.0,
-            "equipment-pv": 3400.0,
-            "equipment-inverter": 1250.0,
-            "equipment-battery": 3600.0,
-            "generic-window": 520.0,
-            "generic-door": 890.0
+            "generic-air-water-heat-pump": 8200,
+            "generic-heating-buffer-tank": 640,
+            "generic-circulator-pump": 320,
+            "generic-radiator": 210,
+            "generic-towel-radiator": 290,
+            "generic-dhw-tank": 780,
+            "generic-balanced-ventilation-unit": 420,
+            "generic-air-terminal": 24,
+            "generic-rainwater-tank": 1900,
+            "generic-washbasin": 180,
+            "generic-shower-tray": 260,
+            "generic-wc": 240,
+            "generic-kitchen-sink": 320,
+            "generic-distribution-board": 210,
+            "generic-miniature-circuit-breaker": 12,
+            "generic-socket": 9,
+            "generic-led-luminaire": 38,
+            "generic-pv-array": 3400,
+            "generic-inverter": 1250,
+            "generic-battery-rack": 3600,
+            "generic-window-casement-double": 520,
+            "generic-entrance-door": 890,
+            "generic-internal-door": 180
           },
           "labourPriceByEquipment": {
-            "equipment-luminaire": 25.0,
-            "equipment-vmc": 260.0,
-            "equipment-dhw-tank": 340.0,
-            "equipment-pv": 900.0,
-            "equipment-inverter": 300.0,
-            "equipment-battery": 400.0,
-            "generic-window": 160.0,
-            "generic-door": 220.0
+            "equipment-luminaire": 25,
+            "equipment-vmc": 260,
+            "equipment-dhw-tank": 340,
+            "equipment-pv": 900,
+            "equipment-inverter": 300,
+            "equipment-battery": 400,
+            "generic-window": 160,
+            "generic-door": 220
           }
         }
       },
@@ -3420,8 +5909,8 @@
         "properties": {
           "material": "MULTILAYER",
           "outerDiameterMm": 16,
-          "wallThicknessMm": 2.0,
-          "innerDiameterMm": 12.0,
+          "wallThicknessMm": 2,
+          "innerDiameterMm": 12,
           "roughnessMm": 0.007,
           "maxPressureBar": 10,
           "maxTemperatureC": 95
@@ -3440,8 +5929,8 @@
         "properties": {
           "material": "MULTILAYER",
           "outerDiameterMm": 20,
-          "wallThicknessMm": 2.0,
-          "innerDiameterMm": 16.0,
+          "wallThicknessMm": 2,
+          "innerDiameterMm": 16,
           "roughnessMm": 0.007,
           "maxPressureBar": 10,
           "maxTemperatureC": 95
@@ -3460,8 +5949,8 @@
         "properties": {
           "material": "MULTILAYER",
           "outerDiameterMm": 26,
-          "wallThicknessMm": 3.0,
-          "innerDiameterMm": 20.0,
+          "wallThicknessMm": 3,
+          "innerDiameterMm": 20,
           "roughnessMm": 0.007,
           "maxPressureBar": 10,
           "maxTemperatureC": 95
@@ -3480,8 +5969,8 @@
         "properties": {
           "material": "PVC",
           "outerDiameterMm": 100,
-          "wallThicknessMm": 3.0,
-          "innerDiameterMm": 94.0,
+          "wallThicknessMm": 3,
+          "innerDiameterMm": 94,
           "roughnessMm": 0.03,
           "maxPressureBar": 1,
           "maxTemperatureC": 70
@@ -3500,8 +5989,8 @@
         "properties": {
           "material": "PVC",
           "outerDiameterMm": 40,
-          "wallThicknessMm": 3.0,
-          "innerDiameterMm": 34.0,
+          "wallThicknessMm": 3,
+          "innerDiameterMm": 34,
           "roughnessMm": 0.03,
           "maxPressureBar": 1,
           "maxTemperatureC": 70
@@ -3520,8 +6009,8 @@
         "properties": {
           "material": "PVC",
           "outerDiameterMm": 50,
-          "wallThicknessMm": 3.0,
-          "innerDiameterMm": 44.0,
+          "wallThicknessMm": 3,
+          "innerDiameterMm": 44,
           "roughnessMm": 0.03,
           "maxPressureBar": 1,
           "maxTemperatureC": 70
@@ -3577,6 +6066,71 @@
             "height": 200
           }
         ]
+      }
+    ],
+    "openingTypes": [
+      {
+        "id": "generic-window-casement-double",
+        "familyId": "WINDOW_CASEMENT",
+        "category": "WINDOW",
+        "name": "Fenêtre à la française, double vitrage",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 1200,
+          "height": 1200,
+          "panelCount": 1,
+          "uw": 1.4,
+          "ug": 1.1,
+          "uf": 1.8,
+          "psiSpacer": 0.06,
+          "gValue": 0.6,
+          "visibleTransmittance": 0.78,
+          "rw": 32,
+          "glazing": "DOUBLE",
+          "cavityGas": "ARGON",
+          "frameDepth": 70,
+          "frameWidth": 60
+        }
+      },
+      {
+        "id": "generic-entrance-door",
+        "familyId": "DOOR_EXTERNAL",
+        "category": "DOOR",
+        "name": "Porte d’entrée isolée",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 900,
+          "height": 2150,
+          "leafCount": 1,
+          "uw": 1.4,
+          "rw": 32
+        }
+      },
+      {
+        "id": "generic-internal-door",
+        "familyId": "DOOR_INTERNAL",
+        "category": "DOOR",
+        "name": "Porte intérieure à âme alvéolaire",
+        "version": "1.0.0",
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "properties": {
+          "width": 830,
+          "height": 2040,
+          "leafCount": 1,
+          "uw": 2.4,
+          "rw": 22
+        }
       }
     ]
   },

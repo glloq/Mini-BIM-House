@@ -27,6 +27,7 @@ import type {
   ProjectSpaceCalculationElement,
 } from './project-context.js';
 import { equipmentNumber } from './project-context.js';
+import { equipmentKindOf } from '@house-technical-designer/core-domain';
 import type { MissingCalculationInput } from './calculation-settings.js';
 import type { ProjectCalculationModuleId } from './module-registry.js';
 import { PROJECT_CALCULATION_MODULE_IDS } from './module-registry.js';
@@ -1654,9 +1655,12 @@ function photovoltaicInput(
   // array moved.
   const hosted = new Set(
     context.placedEquipment
-      .filter(
-        ({ kind }) => kind === 'PHOTOVOLTAIC_MODULE' || kind === 'PHOTOVOLTAIC',
-      )
+      // Through the bridge, so a fiche taken from the catalogue is the same
+      // thing here as one written before it.
+      .filter((placed) => {
+        const held = equipmentKindOf(placed);
+        return held === 'PHOTOVOLTAIC_MODULE' || held === 'PHOTOVOLTAIC';
+      })
       .flatMap(({ hostObjectId }) =>
         hostObjectId === undefined ? [] : [hostObjectId],
       ),
@@ -1717,7 +1721,21 @@ function batteryInput(context: ProjectCalculationContext): CalculationJson {
   const battery =
     theOnlyPlaced(context, 'BATTERY', 'battery', 'battery', 'batteries') ??
     context.battery;
+  // What is standing, before what is catalogued: a state of charge is an
+  // instance property — the registry says so — so the fiche cannot state it and
+  // the battery in the building must. Reading only the definition asked a
+  // model to know something only a placement knows.
+  const placed = context.placedEquipment.find(
+    (entry) =>
+      equipmentKindOf(entry) === 'BATTERY' &&
+      (battery === undefined || entry.definitionId === battery.id),
+  );
   const read = (property: string): number | undefined => {
+    const own = placed?.resolvedProperties[property];
+    if (typeof own === 'number' && Number.isFinite(own)) {
+      settings.note('battery', property, 'EQUIPMENT', placed!.instanceId);
+      return own;
+    }
     const value = equipmentNumber(context, battery, property, 'battery');
     if (value === undefined)
       settings.reportMissing(

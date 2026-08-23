@@ -127,11 +127,29 @@ const EMITTERS = [
   'PELLET_STOVE',
 ];
 
+/**
+ * The placed things one of these words names, whichever word names them.
+ *
+ * These checks ask by a mix of the old `kind` — `FAN`, `AHU` — and family
+ * identifiers — `STRING_INVERTER`, `THERMODYNAMIC_WATER_HEATER`. A fiche taken
+ * from the catalogue answers to three words: its family, its coarse category,
+ * and the `kind` a snapshot writes from that category. Asking by one of them
+ * and matching only that one is how a ventilation unit standing in the house
+ * came to be found by nothing.
+ */
 function ofKinds(
   byKind: Readonly<Record<string, readonly ResolvedPlacedEquipment[]>>,
   kinds: readonly string[],
 ): readonly ResolvedPlacedEquipment[] {
-  return kinds.flatMap((kind) => byKind[kind] ?? []);
+  const wanted = new Set(kinds);
+  return Object.values(byKind)
+    .flat()
+    .filter(
+      (placed) =>
+        wanted.has(placed.kind ?? '') ||
+        wanted.has(placed.catalogCategory ?? '') ||
+        wanted.has(placed.familyId ?? ''),
+    );
 }
 
 function heatingChecks(
@@ -162,6 +180,8 @@ function heatingChecks(
         'nominalHeatingPowerW',
         'usefulHeatingPowerW',
         'ratedPowerW',
+        // The word the catalogue uses, which is the property registry's.
+        'nominalHeatingCapacityW',
       );
       if (installedW === undefined)
         checks.push({
@@ -230,6 +250,8 @@ function heatingChecks(
         'nominalPowerW',
         'ratedPowerW',
         'heatingPowerW',
+        // The word the catalogue uses for an emitter's output.
+        'nominalOutputW',
       );
       if (emittedW === undefined)
         checks.push({
@@ -280,7 +302,12 @@ function ventilationChecks(
       extracted += number(node.properties.targetFlowM3h) ?? 0;
     }
   if (extracted <= 0) return [];
-  const fans = ofKinds(byKind, ['FAN', 'MECHANICAL_VENTILATION_UNIT', 'AHU']);
+  const fans = ofKinds(byKind, [
+    'FAN',
+    'MECHANICAL_VENTILATION_UNIT',
+    'VENTILATION_UNIT',
+    'AHU',
+  ]);
   if (fans.length === 0)
     return [
       {
@@ -376,9 +403,9 @@ function solarChecks(
   const checks: CheckItem[] = [];
   const inverters = ofKinds(byKind, [
     'STRING_INVERTER',
+    'INVERTER',
     'HYBRID_INVERTER',
     'MICRO_INVERTER',
-    'INVERTER',
   ]);
   if (inverters.length === 0)
     checks.push({
@@ -390,7 +417,15 @@ function solarChecks(
       fix: { label: 'Ouvrir les équipements', tab: 'equipment' },
     });
   else {
-    const ratedW = summed(inverters, 'ratedAcPowerW', 'nominalPowerW');
+    // `nominalAcPowerW` is what an inverter fiche states; `ratedAcPowerW` is
+    // what projects written before the catalogue carry. Reading only the
+    // second is how a 5 kVA onduleur came to state no power at all.
+    const ratedW = summed(
+      inverters,
+      'ratedAcPowerW',
+      'nominalAcPowerW',
+      'nominalPowerW',
+    );
     // An inverter is normally smaller than the array it serves; only a gross
     // difference is worth a word, and the figure is shown either way.
     if (ratedW !== undefined && ratedW * 2 < installedWp)

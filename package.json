@@ -34,7 +34,8 @@
     "test:discovery": "vitest run --config vitest.discovery.config.ts",
     "validate:docs": "node scripts/validation-report.mjs --check",
     "test:coverage": "vitest run --coverage",
-    "catalog:starter": "vite-node scripts/starter-library.ts"
+    "catalog:starter": "vite-node scripts/starter-library.ts",
+    "reference:equipment": "vite-node scripts/reference-house-equipment.ts"
   },
   "engines": {
     "node": ">=22.0.0"

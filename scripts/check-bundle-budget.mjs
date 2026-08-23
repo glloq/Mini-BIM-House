@@ -126,8 +126,18 @@ export const BUDGETS = {
    * And four more for the pickers: choosing a fiche instead of importing a
    * catalogue is a search box, a list of rows and a menuiseries panel that had
    * no home. All three land on demand, in the workspace that asks.
+   *
+   * And three more for the reference house, which is made of catalogue fiches
+   * now: nineteen equipment fiches and three menuiseries with their ports,
+   * their clearances, their sources and their performance curves, and thirty
+   * and one objects standing somewhere in the building instead of nine. It is
+   * a fixture, and it travels with the application because the demonstration
+   * project is the application's front door. What it buys is that every module
+   * is exercised by a house made of what a user can actually choose — the day
+   * it was rebuilt from fiches, three modules stopped finding anything, which
+   * is exactly the failure a demonstration project exists to catch.
    */
-  totalGzipBytes: 422 * 1024,
+  totalGzipBytes: 426 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

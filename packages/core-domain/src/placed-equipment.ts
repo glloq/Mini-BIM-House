@@ -25,6 +25,15 @@ export interface ResolvedPlacedEquipment {
   readonly familyId?: string;
   /** What the catalogue calls this kind of thing: `RADIATOR`, `LUMINAIRE`. */
   readonly kind?: string;
+  /**
+   * The coarse grouping the fiche states, when it states one.
+   *
+   * `category` on this object is the *discipline* a plan reads — heating,
+   * sanitary, electrical. This is the other one: what the catalogue calls the
+   * thing. Both are needed, and conflating them is how a radiator came to be
+   * grouped under « chauffage » and found by nothing looking for radiators.
+   */
+  readonly catalogCategory?: string;
   readonly category: ComponentCategory;
   readonly name?: string;
   readonly levelId: string;
@@ -103,6 +112,9 @@ function resolveOne(
       ? {}
       : { familyId: definition.familyId }),
     ...(definition?.kind === undefined ? {} : { kind: definition.kind }),
+    ...(definition?.category === undefined
+      ? {}
+      : { catalogCategory: definition.category }),
     category: component.category,
     ...(name === undefined ? {} : { name }),
     levelId: component.levelId,
@@ -173,10 +185,51 @@ export function placedEquipmentByFamily(
   return grouped(placed, ({ familyId }) => familyId);
 }
 
+/**
+ * The word this application asks an equipment by, and the word a fiche answers.
+ *
+ * Two vocabularies for one idea. `kind` — `PHOTOVOLTAIC`, `LUMINAIRE`, `FAN` —
+ * is what the calculation adapters ask for, and it is what an equipment carried
+ * before `familyId` and a coarse `category` replaced it. The catalogue has
+ * spoken the new one ever since; nothing that reads equipment moved, so a
+ * project made of catalogue fiches grouped under `undefined` and every module
+ * reported the same thing: nobody has stated this.
+ *
+ * It went unseen because the one fixture that runs the modules predated the
+ * catalogue and still carried the old shape. The day it was rebuilt from
+ * fiches — which is what a reference house is for — three modules stopped
+ * finding anything.
+ *
+ * One explicit table, in one place, like the material loader's `MODEL_FIELD`.
+ * Folding the two into one is a format migration and a decision of its own;
+ * what must not happen meanwhile is that they silently disagree.
+ */
+const KIND_OF_CATEGORY: Readonly<Record<string, string>> = {
+  PV_MODULE: 'PHOTOVOLTAIC',
+  LUMINAIRE: 'LUMINAIRE',
+  FAN: 'FAN',
+  BATTERY: 'BATTERY',
+  DISTRIBUTION_BOARD: 'DISTRIBUTION_BOARD',
+};
+
+/** What an equipment is, whichever vocabulary states it. */
+export function equipmentKindOf(entry: {
+  readonly kind?: string;
+  readonly catalogCategory?: string;
+  readonly category?: string;
+}): string | undefined {
+  // A catalogue snapshot writes the coarse category into `kind` as well, so
+  // the word has to go through the table wherever it arrived from. A project
+  // written before the catalogue says `PHOTOVOLTAIC`, which the table does not
+  // hold and therefore does not touch.
+  const held = entry.kind ?? entry.catalogCategory;
+  return held === undefined ? undefined : (KIND_OF_CATEGORY[held] ?? held);
+}
+
 export function placedEquipmentByKind(
   placed: readonly ResolvedPlacedEquipment[],
 ): Readonly<Record<string, readonly ResolvedPlacedEquipment[]>> {
-  return grouped(placed, ({ kind }) => kind);
+  return grouped(placed, equipmentKindOf);
 }
 
 export function placedEquipmentBySpace(
