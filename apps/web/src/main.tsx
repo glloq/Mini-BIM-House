@@ -205,6 +205,7 @@ import {
   EMPTY_CLIPBOARD,
   clipboardCount,
   copyObjects,
+  addSpaceAtPointCommand,
   deleteObjectsCommand,
   duplicateObjectsCommand,
   pasteClipboardCommand,
@@ -1188,6 +1189,35 @@ function App() {
       runCommand(result.command);
     },
     [activeLevelId, editor.selection, runCommand],
+  );
+
+  /**
+   * Créer la pièce d'un contour fermé, depuis le contour lui-même.
+   *
+   * Le plan écrit la surface de ce que les murs enferment ; quand aucun espace
+   * ne le couvre, il porte aussi le geste qui en fait un. Aller prendre
+   * l'outil Pièce pour désigner ensuite un endroit qu'on est déjà en train de
+   * regarder est un détour que rien ne justifie.
+   */
+  const createRoomAt = useCallback(
+    (at: { x: number; y: number }) => {
+      const result = addSpaceAtPointCommand(
+        session.current.file,
+        activeLevelId,
+        at,
+        // Le modèle refuse une pièce sans nom, et il a raison : une pièce
+        // s'appelle quelque chose. « Pièce » est un nom de travail qu'on
+        // change dans l'inspecteur, pas un vide qu'on laisse.
+        { name: 'Pièce', category: 'OTHER' },
+        `space-${crypto.randomUUID()}`,
+      );
+      if (result.status === 'ERROR') {
+        setMessage(result.message);
+        return;
+      }
+      runCommand(result.command);
+    },
+    [activeLevelId, runCommand],
   );
 
   const commitPoints = useCallback(
@@ -2517,6 +2547,7 @@ function App() {
                   ? {}
                   : { overlay: drawnOverlay })}
                 clearanceGroups={clearanceGroups}
+                onCreateRoom={createRoomAt}
               />
               <StatusBar
                 editor={editor}

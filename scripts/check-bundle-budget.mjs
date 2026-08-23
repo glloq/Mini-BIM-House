@@ -141,8 +141,12 @@ export const BUDGETS = {
    * boutons eux-mêmes ; le catalogue qu'ils nomment, lui, reste à la demande —
    * un projet neuf l'installe depuis l'assistant de création, qui se charge
    * quand on le demande.
+   *
+   * Et un avec les étiquettes de surface : ce que les murs enferment, écrit
+   * sur le plan. C'est le premier écran, et la question « est-ce que c'est
+   * reconnu ? » se pose au premier contour fermé.
    */
-  initialGzipBytes: 282 * 1024,
+  initialGzipBytes: 283 * 1024,
   /**
    * Everything the build produces, gzipped.
    *

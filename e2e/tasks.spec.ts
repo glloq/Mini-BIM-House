@@ -315,3 +315,40 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
     toolbox.getByRole('button', { name: 'Escalier', exact: true }),
   ).toBeVisible();
 });
+
+test('T8 — un contour fermé dit sa surface, et propose d’en faire une pièce', async ({
+  page,
+}) => {
+  /*
+   * La question qu'on se pose en fermant quatre murs.
+   *
+   * « Est-ce que c'est reconnu ? » — et le plan est l'endroit où la poser. La
+   * surface était dans l'inspecteur, à une sélection de là ; un contour fermé
+   * sans pièce ne disait rien du tout.
+   */
+  await page.goto('/');
+  const canvas = page.locator('.plan-canvas');
+  const toolbox = page.locator('.tool-header');
+
+  await toolbox
+    .getByRole('button', { name: 'Murs rectangle', exact: true })
+    .click();
+  await canvas.click({ position: { x: 90, y: 90 } });
+  await canvas.click({ position: { x: 330, y: 260 } });
+  await expect(page.getByRole('status')).toContainText('mur');
+
+  // La surface est écrite sur le contour, et le geste qui en fait une pièce
+  // est là où le contour est.
+  const label = page.locator('.room-label').first();
+  await expect(label).toBeVisible();
+  await expect(label).toContainText('m²');
+  const create = label.getByRole('button', { name: '+ Créer pièce' });
+  await expect(create).toBeVisible();
+  await create.click();
+
+  // Et il n'a plus rien à proposer : le contour porte sa pièce.
+  await expect(page.locator('[data-role="SPACE_FILL"]').first()).toBeVisible();
+  await expect(
+    page.locator('.room-label').getByRole('button', { name: '+ Créer pièce' }),
+  ).toHaveCount(0);
+});
