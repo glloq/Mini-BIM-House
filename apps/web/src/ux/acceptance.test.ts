@@ -22,10 +22,7 @@ import {
 import { editsFor } from '../editor/object-editors.js';
 import { DEFAULT_SHELL_NAVIGATION, destinationsOf } from './stage-state.js';
 import { WORKFLOW_GROUPS } from './workflow-steps.js';
-import {
-  LEGACY_WORKSPACE_LABELS,
-  LEGACY_WORKSPACE_TABS,
-} from './workspaces.js';
+import { DESTINATION_LABELS, DESTINATIONS } from './destinations.js';
 
 const demo = loadDemoProject();
 if (demo.status === 'ERROR') throw new Error(demo.message);
@@ -67,11 +64,11 @@ describe('the eighteen acceptance criteria', () => {
   it('2. no library, quantity, scenario or check is a primary destination', () => {
     const labels = CREATION_STAGES.map((id) => creationStage(id).label);
     for (const forbidden of [
-      LEGACY_WORKSPACE_LABELS.materials,
-      LEGACY_WORKSPACE_LABELS.assemblies,
-      LEGACY_WORKSPACE_LABELS.quantities,
-      LEGACY_WORKSPACE_LABELS.scenarios,
-      LEGACY_WORKSPACE_LABELS.checks,
+      DESTINATION_LABELS.materials,
+      DESTINATION_LABELS.assemblies,
+      DESTINATION_LABELS.quantities,
+      DESTINATION_LABELS.scenarios,
+      DESTINATION_LABELS.checks,
     ])
       expect(labels).not.toContain(forbidden);
   });
@@ -270,7 +267,7 @@ describe('the eighteen acceptance criteria', () => {
   });
 
   it('leaves every one of the thirteen destinations reachable', () => {
-    for (const tab of LEGACY_WORKSPACE_TABS) {
+    for (const tab of DESTINATIONS) {
       const stages = CREATION_STAGES.filter((stage) =>
         destinationsOf(stage).includes(tab),
       );

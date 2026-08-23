@@ -16,7 +16,7 @@ import {
   isTabActive,
   navigationFor,
 } from './stage-state.js';
-import { LEGACY_WORKSPACE_TABS } from './workspaces.js';
+import { DESTINATIONS } from './destinations.js';
 
 describe('the nine stages and the thirteen destinations', () => {
   it('opens on the plan, which is what the application is for', () => {
@@ -34,7 +34,7 @@ describe('the nine stages and the thirteen destinations', () => {
   });
 
   it('reaches every destination through its stage', () => {
-    for (const tab of LEGACY_WORKSPACE_TABS) {
+    for (const tab of DESTINATIONS) {
       const navigation = goToTab(DEFAULT_SHELL_NAVIGATION, tab);
       const expected = tabsOfStage(DEFAULT_SHELL_NAVIGATION.stage).includes(tab)
         ? DEFAULT_SHELL_NAVIGATION.stage

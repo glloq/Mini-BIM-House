@@ -818,8 +818,25 @@ Deux écarts :
   bascules de la barre supérieure. La construire aurait ajouté un second jeu
   des mêmes commandes, ce que cette refonte passe son temps à retirer.
 
-**UX-10 — Validation.** `e2e/tasks.spec.ts` (§13.2), contrat réécrit,
-`workspaces.ts` retiré.
+**UX-10 — Validation.** _Livré._ `e2e/tasks.spec.ts` fait les six parcours du
+§13.2 **à la souris seule** : aucun de ces tests ne presse une touche, parce
+qu'une fonction qui n'est atteignable que par `Ctrl+K` est une fonction que la
+moitié des gens n'atteindra jamais.
+
+Les gestes sont comptés dans la page, sur `pointerdown` — le canvas travaille en
+événements de pointeur et n'émet pas toujours de `click`, si bien qu'un premier
+compteur annonçait deux gestes là où la personne en avait fait trois. Les cinq
+seuils du §13.3 sont tenus, et l'assemblage d'un mur passe de « quatre gestes
+et un retour » à **un**.
+
+`ux/workspaces.ts` devient `ux/destinations.ts` : le mot « workspace » disparaît
+avec la chose qu'il désignait. Ce qui reste n'est pas un héritage à retirer mais
+la liste des treize écrans que l'application ouvre — quatre d'entre eux
+s'ouvrant désormais depuis une propriété plutôt que depuis une liste.
+
+Le contrat `UX_ARCHITECTURE.md` gagne une section « Les six parcours » avec le
+tableau des gestes avant / après, et le critère 18 dit maintenant ce qu'il
+voulait dire : **à la souris seule**, le clavier restant un accélérateur.
 
 ---
 

@@ -22,7 +22,7 @@
 import type { DesignDomainId } from '@house-technical-designer/core-domain';
 
 import type { WorkflowGroup } from './workflow-steps.js';
-import type { LegacyWorkspaceTab } from './workspaces.js';
+import type { DestinationId } from './destinations.js';
 
 export const CREATION_STAGES = [
   'PROJECT',
@@ -75,7 +75,7 @@ export interface CreationStage {
    * Le plan y figure plusieurs fois, exprès : une étape n'est pas un endroit
    * où l'on va, c'est le même dessin avec d'autres outils devant soi.
    */
-  readonly destinations: readonly [LegacyWorkspaceTab, ...LegacyWorkspaceTab[]];
+  readonly destinations: readonly [DestinationId, ...DestinationId[]];
   /**
    * Les bibliothèques que cette étape consulte.
    *
@@ -84,7 +84,7 @@ export interface CreationStage {
    * reste de ce qu'on cherche — dans l'arborescence — et non en tête du
    * panneau, où elles prenaient quatre rangées à chaque séance.
    */
-  readonly libraries?: readonly LegacyWorkspaceTab[];
+  readonly libraries?: readonly DestinationId[];
 }
 
 const STAGE_DEFINITIONS = {
@@ -252,15 +252,13 @@ export function stageOfDomain(domain: DesignDomainId): CreationStageId {
  * Les bibliothèques comptent : une entrée de palette qui dit « Matériaux » doit
  * mener quelque part, même si aucune étape ne s'ouvre dessus.
  */
-export function stageOfTab(tab: LegacyWorkspaceTab): CreationStageId {
+export function stageOfTab(tab: DestinationId): CreationStageId {
   const found = CREATION_STAGES.find((id) => tabsOfStage(id).includes(tab));
   return found ?? 'BUILDING';
 }
 
 /** Tout ce qu'une étape ouvre : ses destinations et ses bibliothèques. */
-export function tabsOfStage(
-  stage: CreationStageId,
-): readonly LegacyWorkspaceTab[] {
+export function tabsOfStage(stage: CreationStageId): readonly DestinationId[] {
   const stageDefinition = CREATION_STAGE_REGISTRY[stage];
   return [
     ...stageDefinition.destinations,
@@ -271,14 +269,14 @@ export function tabsOfStage(
 /** Les destinations d'une étape, dans l'ordre où le panneau les liste. */
 export function destinationsOfStage(
   stage: CreationStageId,
-): readonly LegacyWorkspaceTab[] {
+): readonly DestinationId[] {
   return CREATION_STAGE_REGISTRY[stage].destinations;
 }
 
 /** Les bibliothèques d'une étape, rangées avec ce qu'on cherche. */
 export function librariesOfStage(
   stage: CreationStageId,
-): readonly LegacyWorkspaceTab[] {
+): readonly DestinationId[] {
   return CREATION_STAGE_REGISTRY[stage].libraries ?? [];
 }
 
@@ -288,7 +286,7 @@ export function librariesOfStage(
  * Sa première destination. Jamais rien : une étape qui s'ouvre sur du vide est
  * une étape qu'il faut expliquer.
  */
-export function defaultTabOfStage(stage: CreationStageId): LegacyWorkspaceTab {
+export function defaultTabOfStage(stage: CreationStageId): DestinationId {
   return CREATION_STAGE_REGISTRY[stage].destinations[0];
 }
 

@@ -43,7 +43,7 @@ import {
   stageOfTab,
   tabsOfStage,
 } from './creation-stages.js';
-import { LEGACY_WORKSPACE_TABS } from './workspaces.js';
+import { DESTINATIONS } from './destinations.js';
 
 describe('the nine creation stages', () => {
   it('are nine, in the order of a building site', () => {
@@ -81,12 +81,12 @@ describe('the nine creation stages', () => {
   });
 
   it('keep every one of the thirteen destinations reachable', () => {
-    for (const tab of LEGACY_WORKSPACE_TABS) {
+    for (const tab of DESTINATIONS) {
       const stage = stageOfTab(tab);
       expect(isCreationStage(stage)).toBe(true);
       expect(tabsOfStage(stage)).toContain(tab);
     }
-    expect(LEGACY_WORKSPACE_TABS.length).toBeGreaterThanOrEqual(13);
+    expect(DESTINATIONS.length).toBeGreaterThanOrEqual(13);
   });
 
   it('give every trade a stage to be designed in', () => {

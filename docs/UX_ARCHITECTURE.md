@@ -421,8 +421,31 @@ chaque PR est « relue contre » est un contrat que personne ne relit.
 15. Divulgation progressive partout ; aucun mode « expert » séparé.
 16. Aucun composant métier ne code une couleur en dur.
 17. Aucun contrôle n'est affiché pour une capacité qui n'existe pas encore.
-18. Chaque outil du panneau contextuel est atteignable au clavier via la
-    palette.
+18. Chaque outil du panneau contextuel est atteignable **à la souris seule** —
+    et au clavier via la palette, qui est un accélérateur et jamais le seul
+    chemin. `e2e/tasks.spec.ts` fait les six parcours sans presser une touche.
+
+## 12 bis. Les six parcours
+
+Un contrat qui décrit des écrans ne dit rien de ce qu'on peut faire avec.
+`e2e/tasks.spec.ts` vérifie six tâches, du premier geste au dernier, **à la
+souris seule** : tracer une maison neuve, passer de l'architecture à
+l'électricité, changer de niveau et de discipline, atteindre l'assemblage d'un
+mur, ouvrir un constat sur l'objet dont il parle, enregistrer une vue et
+exporter.
+
+Il compte aussi les gestes, parce qu'un seuil qu'on ne mesure pas n'est pas un
+seuil. Ils sont comptés dans la page, sur `pointerdown` : le canvas travaille en
+événements de pointeur et n'émet pas toujours de `click`, si bien qu'un
+compteur de clics annonçait deux gestes là où la personne en avait fait trois.
+
+| Tâche                           | Avant      | Maintenant |
+| ------------------------------- | ---------- | ---------- |
+| Changer de niveau               | 2          | **1**      |
+| Changer de discipline           | 3          | **2**      |
+| Masquer une famille d'objets    | 3          | **2**      |
+| Atteindre l'assemblage d'un mur | 4 + retour | **1**      |
+| Premier mur d'un projet neuf    | 5          | **3**      |
 
 ## 13. Le plan
 

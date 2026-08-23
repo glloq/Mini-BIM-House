@@ -18,15 +18,12 @@ import type { ReactNode } from 'react';
 import { creationStage } from '../ux/creation-stages.js';
 import { destinationsOfStage } from '../ux/creation-stages.js';
 import type { ShellNavigation } from '../ux/stage-state.js';
-import {
-  LEGACY_WORKSPACE_LABELS,
-  type LegacyWorkspaceTab,
-} from '../ux/workspaces.js';
+import { DESTINATION_LABELS, type DestinationId } from '../ux/destinations.js';
 
 export interface ContextPanelProps {
   readonly navigation: ShellNavigation;
-  readonly activeTab: LegacyWorkspaceTab;
-  readonly onSelectTab: (tab: LegacyWorkspaceTab) => void;
+  readonly activeTab: DestinationId;
+  readonly onSelectTab: (tab: DestinationId) => void;
   readonly children?: ReactNode;
 }
 
@@ -70,7 +67,7 @@ export function ContextPanel({
               aria-current={tab === activeTab ? 'page' : undefined}
               onClick={() => onSelectTab(tab)}
             >
-              {LEGACY_WORKSPACE_LABELS[tab]}
+              {DESTINATION_LABELS[tab]}
             </button>
           ))}
         </nav>

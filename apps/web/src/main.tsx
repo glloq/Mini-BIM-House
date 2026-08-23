@@ -193,10 +193,10 @@ import {
 } from './ux/view-profiles.js';
 import { isEmptyTarget, type UiTarget } from './ux/ui-target.js';
 import {
-  LEGACY_WORKSPACE_LABELS,
-  LEGACY_WORKSPACE_TABS,
-  type LegacyWorkspaceTab,
-} from './ux/workspaces.js';
+  DESTINATION_LABELS,
+  DESTINATIONS,
+  type DestinationId,
+} from './ux/destinations.js';
 import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import {
@@ -403,8 +403,7 @@ function App() {
   );
   const tab = activeTabOf(navigation);
   const setTab = useCallback(
-    (next: LegacyWorkspaceTab) =>
-      setNavigation((current) => goToTab(current, next)),
+    (next: DestinationId) => setNavigation((current) => goToTab(current, next)),
     [],
   );
   const [selectedMaterialId, setSelectedMaterialId] = useState<string>();
@@ -1795,9 +1794,9 @@ function App() {
           dispatchEditor({ type: 'SET_TOOL', tool: tool.id });
         },
       })),
-      ...LEGACY_WORKSPACE_TABS.map((entry) => ({
+      ...DESTINATIONS.map((entry) => ({
         id: `espace:${entry}`,
-        label: LEGACY_WORKSPACE_LABELS[entry],
+        label: DESTINATION_LABELS[entry],
         group: 'Espaces',
         hint: creationStage(stageOfTab(entry)).label,
         run: () => setTab(entry),
@@ -2290,13 +2289,13 @@ function App() {
                 onOpenDocuments={() => setTab('documents')}
                 libraries={librariesOfStage(navigation.stage).map((id) => ({
                   id,
-                  label: LEGACY_WORKSPACE_LABELS[id],
+                  label: DESTINATION_LABELS[id],
                 }))}
                 onOpenLibrary={(library) => {
                   // Sur un téléphone le panneau est un tiroir : ouvrir une
                   // destination le referme, sinon il reste devant ce qu'on
                   // vient d'ouvrir.
-                  setTab(library as LegacyWorkspaceTab);
+                  setTab(library as DestinationId);
                   setMenuOpen(false);
                 }}
                 onSearch={(query) => {
@@ -2677,7 +2676,7 @@ function App() {
                 ? {}
                 : { expandProperty: inspectedProperty })}
               onOpenLibrary={(library) => {
-                setTab(library as LegacyWorkspaceTab);
+                setTab(library as DestinationId);
                 setMenuOpen(false);
               }}
               onClear={() => dispatchEditor({ type: 'CLEAR_SELECTION' })}
