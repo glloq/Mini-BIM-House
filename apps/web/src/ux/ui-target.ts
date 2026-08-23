@@ -4,20 +4,21 @@
  * Six features already had to say « va là-bas » — une vérification, un calcul,
  * une recherche, l'arbre du projet, une quantité, un scénario — and each said
  * it differently, so each of them could reach a slightly different depth. A
- * check could open a workspace; it could not open the storey, select the
- * object and expand the property it was talking about, because nothing in the
+ * check could open a stage; it could not open the storey, select the object
+ * and expand the property it was talking about, because nothing in the
  * application could express that.
  *
  * A target expresses all of it, and everything unstated stays unstated: a
- * target with only a workspace asks for a workspace, not for a workspace plus
- * a guessed selection.
+ * target with only a stage asks for a stage, not for a stage plus a guessed
+ * selection.
  */
 import type { DesignDomainId } from '@house-technical-designer/core-domain';
 
-import type { PrimaryWorkspace } from './workspaces.js';
+import type { CreationStageId } from './creation-stages.js';
 
 export interface UiTarget {
-  readonly workspace?: PrimaryWorkspace;
+  /** L'étape de création à ouvrir : ce que la personne va être en train de faire. */
+  readonly stage?: CreationStageId;
   /** The technical discipline to read the plan through, in Systèmes. */
   readonly domain?: DesignDomainId;
   readonly levelId?: string;
@@ -26,7 +27,7 @@ export interface UiTarget {
   /**
    * The field the person is being sent to, as a path in the inspector.
    *
-   * `dimensions.heightMm` rather than « la hauteur » : a workspace is not an
+   * `dimensions.heightMm` rather than « la hauteur » : a stage is not an
    * answer, a field is.
    */
   readonly propertyPath?: string;
@@ -41,19 +42,18 @@ export interface UiTarget {
  * alone: re-selecting an object on the storey already open must not feel like
  * changing application.
  */
-export type UiTargetReach = 'NONE' | 'SELECTION' | 'LEVEL' | 'WORKSPACE';
+export type UiTargetReach = 'NONE' | 'SELECTION' | 'LEVEL' | 'STAGE';
 
 export interface UiLocation {
-  readonly workspace: PrimaryWorkspace;
+  readonly stage: CreationStageId;
   readonly domain?: DesignDomainId;
   readonly levelId?: string;
   readonly objectId?: string;
 }
 
 export function targetReach(from: UiLocation, to: UiTarget): UiTargetReach {
-  if (to.workspace !== undefined && to.workspace !== from.workspace)
-    return 'WORKSPACE';
-  if (to.domain !== undefined && to.domain !== from.domain) return 'WORKSPACE';
+  if (to.stage !== undefined && to.stage !== from.stage) return 'STAGE';
+  if (to.domain !== undefined && to.domain !== from.domain) return 'STAGE';
   if (to.levelId !== undefined && to.levelId !== from.levelId) return 'LEVEL';
   if (to.objectId !== undefined && to.objectId !== from.objectId)
     return 'SELECTION';
@@ -68,7 +68,7 @@ export function locationAfter(from: UiLocation, to: UiTarget): UiLocation {
   const levelId = to.levelId ?? from.levelId;
   const objectId = to.objectId ?? from.objectId;
   return {
-    workspace: to.workspace ?? from.workspace,
+    stage: to.stage ?? from.stage,
     ...(domain === undefined ? {} : { domain }),
     ...(levelId === undefined ? {} : { levelId }),
     ...(objectId === undefined ? {} : { objectId }),
@@ -84,7 +84,7 @@ export function locationAfter(from: UiLocation, to: UiTarget): UiLocation {
  */
 export function isEmptyTarget(target: UiTarget): boolean {
   return (
-    target.workspace === undefined &&
+    target.stage === undefined &&
     target.domain === undefined &&
     target.levelId === undefined &&
     target.objectId === undefined &&
@@ -96,7 +96,7 @@ export function isEmptyTarget(target: UiTarget): boolean {
 /** What a target is doing, in words, for a tooltip or a screen reader. */
 export function describeTarget(target: UiTarget): string {
   const parts: string[] = [];
-  if (target.workspace !== undefined) parts.push(`espace ${target.workspace}`);
+  if (target.stage !== undefined) parts.push(`étape ${target.stage}`);
   if (target.domain !== undefined) parts.push(`discipline ${target.domain}`);
   if (target.levelId !== undefined) parts.push(`niveau ${target.levelId}`);
   if (target.objectId !== undefined) parts.push(`objet ${target.objectId}`);

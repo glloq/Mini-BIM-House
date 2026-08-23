@@ -106,8 +106,23 @@ export const BUDGETS = {
    * before anything else has been asked for.
    *
    * A budget is a decision, not a measurement. This one was taken knowingly.
+   *
+   * Un kio de plus pour les neuf étapes de création. Le registre remplace les
+   * cinq espaces, qui pesaient déjà : ce que la refonte ajoute vraiment est le
+   * compte de ce qu'il reste à faire par étape, dérivé du modèle et affiché en
+   * permanence dans la barre. Un nombre qui dit « il reste trois choses dans
+   * Systèmes » se paie dans le premier chargement, parce que la barre est là
+   * dès le premier écran.
+   *
+   * Et cinq de plus pour la boîte à outils : cinquante-quatre dessins de vingt
+   * pixels, plus les entrées qui disent ce qu'on pose. Une colonne de vingt-cinq
+   * libellés se lit ligne à ligne ; une grille se balaie, et c'est l'icône qui
+   * fait la grille. Aucun de ces octets ne peut attendre — la boîte est le
+   * premier panneau du premier écran. Aucune bibliothèque d'icônes n'est
+   * installée pour autant : ce sont des `<svg>` en ligne, en `currentColor`,
+   * et la plus légère des bibliothèques aurait coûté davantage.
    */
-  initialGzipBytes: 270 * 1024,
+  initialGzipBytes: 276 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -173,8 +188,15 @@ export const BUDGETS = {
    * And ten more with the initial payload, for the same reason and by the same
    * amount: what the fourteenth audit added to the drawing is the drawing, so
    * none of it could be moved behind a lazy boundary.
+   *
+   * Et un de plus avec les neuf étapes : le registre des étapes et le compte
+   * de ce qu'il reste, tous deux dans la coque.
+   *
+   * Et quatre avec la boîte à outils, pour la même raison et par le même
+   * montant : les icônes sont le premier panneau du premier écran, donc rien
+   * d'elles ne pouvait passer derrière une frontière paresseuse.
    */
-  totalGzipBytes: 441 * 1024,
+  totalGzipBytes: 447 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

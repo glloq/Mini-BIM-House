@@ -36,91 +36,125 @@ import {
   isWorkflowStepId,
 } from './workflow-steps.js';
 import {
-  LEGACY_WORKSPACE_TABS,
-  PRIMARY_WORKSPACES,
-  isPrimaryWorkspace,
-  primaryWorkspace,
-  workspaceOfDomain,
-  workspaceOfLegacyTab,
-} from './workspaces.js';
+  CREATION_STAGES,
+  creationStage,
+  isCreationStage,
+  stageOfDomain,
+  stageOfTab,
+  tabsOfStage,
+} from './creation-stages.js';
+import { LEGACY_WORKSPACE_TABS } from './workspaces.js';
 
-describe('the five spaces', () => {
-  it('are five, and no more', () => {
-    expect(PRIMARY_WORKSPACES).toHaveLength(5);
-    expect([...PRIMARY_WORKSPACES]).toEqual([
+describe('the nine creation stages', () => {
+  it('are nine, in the order of a building site', () => {
+    expect(CREATION_STAGES).toHaveLength(9);
+    expect([...CREATION_STAGES]).toEqual([
       'PROJECT',
-      'BUILD',
+      'SITE',
+      'BUILDING',
+      'STRUCTURE',
+      'FITTING',
       'SYSTEMS',
-      'ANALYZE',
+      'ENERGY',
+      'CHECKS',
       'DOCUMENTS',
     ]);
   });
 
-  it('give each space a distinct one-letter accelerator', () => {
-    const shortcuts = PRIMARY_WORKSPACES.map(
-      (id) => primaryWorkspace(id).shortcut,
-    );
+  it('give each stage a distinct one-letter accelerator', () => {
+    const shortcuts = CREATION_STAGES.map((id) => creationStage(id).shortcut);
     expect(new Set(shortcuts).size).toBe(shortcuts.length);
     for (const shortcut of shortcuts) expect(shortcut).toHaveLength(1);
   });
 
-  it('never put a library, a quantity or a check in the primary rail', () => {
-    const labels = PRIMARY_WORKSPACES.map((id) => primaryWorkspace(id).label);
+  it('never put a library, a quantity or a check in the stage bar', () => {
+    // Une bibliothèque est un outil et un résultat n'est pas un lieu : ni
+    // l'un ni l'autre n'est une chose qu'on est en train de faire.
+    const labels = CREATION_STAGES.map((id) => creationStage(id).label);
     for (const forbidden of [
       'Matériaux',
       'Assemblages',
       'Quantités',
       'Scénarios',
-      'Vérifications',
     ])
       expect(labels).not.toContain(forbidden);
   });
 
-  it('keep every one of the eleven old destinations reachable', () => {
-    for (const tab of LEGACY_WORKSPACE_TABS)
-      expect(isPrimaryWorkspace(workspaceOfLegacyTab(tab))).toBe(true);
-    expect(LEGACY_WORKSPACE_TABS.length).toBeGreaterThanOrEqual(11);
+  it('keep every one of the thirteen destinations reachable', () => {
+    for (const tab of LEGACY_WORKSPACE_TABS) {
+      const stage = stageOfTab(tab);
+      expect(isCreationStage(stage)).toBe(true);
+      expect(tabsOfStage(stage)).toContain(tab);
+    }
+    expect(LEGACY_WORKSPACE_TABS.length).toBeGreaterThanOrEqual(13);
   });
 
-  it('give every trade a space to be designed in', () => {
-    for (const id of DESIGN_DOMAIN_IDS)
-      expect(isPrimaryWorkspace(workspaceOfDomain(id))).toBe(true);
-    expect(workspaceOfDomain('ELECTRICAL')).toBe('SYSTEMS');
-    expect(workspaceOfDomain('ARCHITECTURE')).toBe('BUILD');
-    expect(workspaceOfDomain('SITE')).toBe('PROJECT');
+  it('give every trade a stage to be designed in', () => {
+    for (const id of DESIGN_DOMAIN_IDS) {
+      const stage = stageOfDomain(id);
+      expect(isCreationStage(stage)).toBe(true);
+      expect(creationStage(stage).domains).toContain(id);
+    }
+    expect(stageOfDomain('ELECTRICAL')).toBe('SYSTEMS');
+    expect(stageOfDomain('ARCHITECTURE')).toBe('BUILDING');
+    expect(stageOfDomain('SITE')).toBe('SITE');
   });
 
-  it('refuses a space that does not exist', () => {
-    expect(isPrimaryWorkspace('MATERIALS')).toBe(false);
+  it('names every trade exactly once across the nine', () => {
+    // Deux étapes qui revendiquent le même métier, et « où se dessine
+    // l'électricité » redevient une question d'ordre de déclaration.
+    const claimed = CREATION_STAGES.flatMap((id) => [
+      ...creationStage(id).domains,
+    ]);
+    expect(new Set(claimed).size).toBe(claimed.length);
+    expect(new Set(claimed)).toEqual(new Set(DESIGN_DOMAIN_IDS));
+  });
+
+  it('makes a sub-stage of Systèmes a trade, and the others not', () => {
+    for (const section of creationStage('SYSTEMS').sections)
+      expect(section.domain).toBeDefined();
+    for (const section of creationStage('BUILDING').sections)
+      expect(section.domain).toBeUndefined();
+  });
+
+  it('gives every trade of a stage a name, so a picker never says a bare id', () => {
+    for (const stage of CREATION_STAGES)
+      for (const id of creationStage(stage).domains)
+        expect(designDomain(id).label).not.toBe(id);
+  });
+
+  it('refuses a stage that does not exist', () => {
+    expect(isCreationStage('MATERIALS')).toBe(false);
+    expect(isCreationStage('BUILD')).toBe(false);
   });
 });
 
 describe('a navigation target', () => {
   const here: UiLocation = {
-    workspace: 'BUILD',
+    stage: 'BUILDING',
     levelId: 'level-0',
     objectId: 'wall-1',
   };
 
   it('says how far it is going', () => {
     expect(targetReach(here, {})).toBe('NONE');
-    expect(targetReach(here, { workspace: 'BUILD' })).toBe('NONE');
+    expect(targetReach(here, { stage: 'BUILDING' })).toBe('NONE');
     expect(targetReach(here, { objectId: 'wall-1' })).toBe('NONE');
     expect(targetReach(here, { objectId: 'wall-2' })).toBe('SELECTION');
     expect(targetReach(here, { levelId: 'level-1' })).toBe('LEVEL');
-    expect(targetReach(here, { workspace: 'SYSTEMS' })).toBe('WORKSPACE');
-    expect(targetReach(here, { domain: 'ELECTRICAL' })).toBe('WORKSPACE');
+    expect(targetReach(here, { stage: 'SYSTEMS' })).toBe('STAGE');
+    expect(targetReach(here, { domain: 'ELECTRICAL' })).toBe('STAGE');
     expect(targetReach(here, { propertyPath: 'heightMm' })).toBe('SELECTION');
   });
 
   it('leaves unstated what it does not state', () => {
     expect(locationAfter(here, { objectId: 'wall-2' })).toEqual({
-      workspace: 'BUILD',
+      stage: 'BUILDING',
       levelId: 'level-0',
       objectId: 'wall-2',
     });
-    expect(locationAfter({ workspace: 'PROJECT' }, {})).toEqual({
-      workspace: 'PROJECT',
+    expect(locationAfter({ stage: 'PROJECT' }, {})).toEqual({
+      stage: 'PROJECT',
     });
   });
 
@@ -134,7 +168,7 @@ describe('a navigation target', () => {
     expect(describeTarget({})).toBe('nulle part');
     expect(
       describeTarget({
-        workspace: 'SYSTEMS',
+        stage: 'SYSTEMS',
         domain: 'ELECTRICAL',
         levelId: 'level-0',
         objectId: 'node-3',
@@ -142,7 +176,7 @@ describe('a navigation target', () => {
         overlayId: 'circuits',
       }),
     ).toBe(
-      'espace SYSTEMS, discipline ELECTRICAL, niveau level-0, objet node-3, propriété power.w, calque circuits',
+      'étape SYSTEMS, discipline ELECTRICAL, niveau level-0, objet node-3, propriété power.w, calque circuits',
     );
   });
 });
@@ -183,13 +217,17 @@ describe('the steps of the guide', () => {
   });
 
   it('are never a navigation destination', () => {
-    for (const group of WORKFLOW_GROUPS)
-      expect(isPrimaryWorkspace(group)).toBe(
-        (['PROJECT', 'DOCUMENTS'] as readonly string[]).includes(group),
-      );
-    // Only two names coincide, and they coincide as words rather than as
-    // places: the guide never adds an entry to the rail.
-    expect(PRIMARY_WORKSPACES.length).toBeLessThan(WORKFLOW_GROUPS.length);
+    // Les dix phases disent ce qu'il reste à faire ; les neuf étapes disent ce
+    // qu'on est en train de faire. Quelques noms coïncident — ils coïncident
+    // comme des mots, pas comme des lieux — et chaque phase est portée par
+    // exactement une étape, sinon « il reste des murs à tracer » se lirait à
+    // deux endroits.
+    const carried = CREATION_STAGES.flatMap((id) => [
+      ...creationStage(id).groups,
+    ]);
+    expect(new Set(carried).size).toBe(carried.length);
+    expect(new Set(carried)).toEqual(new Set(WORKFLOW_GROUPS));
+    expect(CREATION_STAGES.length).toBeLessThan(WORKFLOW_GROUPS.length);
   });
 
   it('have unique identifiers, each in a group that exists', () => {

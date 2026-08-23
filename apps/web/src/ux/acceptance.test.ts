@@ -14,16 +14,12 @@ import { loadDemoProject } from '../demo-project.js';
 import { EDITOR_TOOLS } from '../editor/tool-registry.js';
 import { workflowEntries } from '../workflow/workflow-registry.js';
 import { LAYER_PRESETS } from '@house-technical-designer/view-query';
-import {
-  DEFAULT_SHELL_NAVIGATION,
-  destinationsOf,
-} from './navigation-state.js';
+import { CREATION_STAGES, creationStage } from './creation-stages.js';
+import { DEFAULT_SHELL_NAVIGATION, destinationsOf } from './stage-state.js';
 import { WORKFLOW_GROUPS } from './workflow-steps.js';
 import {
   LEGACY_WORKSPACE_LABELS,
   LEGACY_WORKSPACE_TABS,
-  PRIMARY_WORKSPACES,
-  primaryWorkspace,
 } from './workspaces.js';
 
 const demo = loadDemoProject();
@@ -59,12 +55,12 @@ function code(path: string): string {
  * assertion lives elsewhere.
  */
 describe('the eighteen acceptance criteria', () => {
-  it('1. the primary navigation holds exactly five entries', () => {
-    expect(PRIMARY_WORKSPACES).toHaveLength(5);
+  it('1. the primary navigation holds exactly nine entries', () => {
+    expect(CREATION_STAGES).toHaveLength(9);
   });
 
   it('2. no library, quantity, scenario or check is a primary destination', () => {
-    const labels = PRIMARY_WORKSPACES.map((id) => primaryWorkspace(id).label);
+    const labels = CREATION_STAGES.map((id) => creationStage(id).label);
     for (const forbidden of [
       LEGACY_WORKSPACE_LABELS.materials,
       LEGACY_WORKSPACE_LABELS.assemblies,
@@ -75,11 +71,27 @@ describe('the eighteen acceptance criteria', () => {
       expect(labels).not.toContain(forbidden);
   });
 
-  it('3. the ten phases are nowhere in the navigation', () => {
+  /*
+   * Le critère 3 a changé de forme avec la refonte, et pas de fond.
+   *
+   * Il disait « les dix phases ne sont nulle part dans la navigation », ce qui
+   * valait tant que la navigation était cinq lieux. Elle est maintenant neuf
+   * étapes, et une étape est bien ce qu'on est en train de faire — mais elle
+   * ne verrouille rien, ne remplace jamais le plan, et n'est jamais écrite
+   * dans le projet. C'est cela qu'il faut tenir.
+   */
+  it('3. a stage constrains nothing, replaces no plan, and is never persisted', () => {
     expect(WORKFLOW_GROUPS).toHaveLength(10);
-    // Two names coincide as words — Projet, Documents — and as places they do
-    // not: the guide never adds an entry to the rail.
-    expect(PRIMARY_WORKSPACES.length).toBeLessThan(WORKFLOW_GROUPS.length);
+    expect(CREATION_STAGES.length).toBeLessThan(WORKFLOW_GROUPS.length);
+    // Le plan reste atteignable depuis toutes les étapes qui dessinent : une
+    // étape qui emmènerait loin du modèle serait un lieu, pas une étape.
+    for (const stage of CREATION_STAGES)
+      if (creationStage(stage).domains.length > 0)
+        expect(destinationsOf(stage), stage).toContain('plan');
+    // L'étape est un état d'écran. Rien de la navigation n'entre dans le
+    // fichier projet, ni le registre n'écrit quoi que ce soit.
+    expect(JSON.stringify(house)).not.toContain('stage');
+    expect(code('ux/stage-state.ts')).not.toMatch(/setItem|Command\(/u);
   });
 
   it('4. no step state is persisted', () => {
@@ -167,8 +179,8 @@ describe('the eighteen acceptance criteria', () => {
   });
 
   it('15. progressive disclosure, and no separate expert mode', () => {
-    expect(source('editor/ToolsPanel.tsx')).toContain('details');
-    for (const path of ['editor/ToolsPanel.tsx', 'editor/ContextToolBar.tsx'])
+    expect(source('editor/Toolbox.tsx')).toContain('details');
+    for (const path of ['editor/Toolbox.tsx', 'editor/ContextToolBar.tsx'])
       expect(code(path)).not.toContain('editorLevel');
   });
 
@@ -177,10 +189,11 @@ describe('the eighteen acceptance criteria', () => {
     // in a component is a colour nobody can change without reading the
     // component.
     for (const path of [
-      'shell/PrimaryRail.tsx',
+      'shell/StageBar.tsx',
       'shell/ContextPanel.tsx',
       'shell/ShellStatusBar.tsx',
-      'editor/ToolsPanel.tsx',
+      'editor/Toolbox.tsx',
+      'editor/tool-icons.tsx',
       'editor/ContextToolBar.tsx',
       'checks/IssueCenter.tsx',
       'visibility/VisibilityPopover.tsx',
@@ -208,18 +221,18 @@ describe('the eighteen acceptance criteria', () => {
     expect(LAYER_PRESETS.length).toBeGreaterThan(0);
   });
 
-  it('names every trade it offers, so a rail entry never says a bare id', () => {
+  it('names every trade it offers, so a sub-stage never says a bare id', () => {
     for (const id of DESIGN_DOMAIN_IDS)
       expect(designDomain(id).label).not.toBe(id);
   });
 
-  it('leaves every one of the eleven old destinations reachable', () => {
+  it('leaves every one of the thirteen destinations reachable', () => {
     for (const tab of LEGACY_WORKSPACE_TABS) {
-      const spaces = PRIMARY_WORKSPACES.filter((workspace) =>
-        destinationsOf(workspace).includes(tab),
+      const stages = CREATION_STAGES.filter((stage) =>
+        destinationsOf(stage).includes(tab),
       );
-      expect(spaces.length, tab).toBeGreaterThan(0);
+      expect(stages.length, tab).toBeGreaterThan(0);
     }
-    expect(DEFAULT_SHELL_NAVIGATION.workspace).toBe('BUILD');
+    expect(DEFAULT_SHELL_NAVIGATION.stage).toBe('BUILDING');
   });
 });

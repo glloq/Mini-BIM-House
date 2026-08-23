@@ -1,6 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
+import { fileAction } from './support/file-menu.js';
+
 import { DESTINATIONS, openDestination } from './support/navigation.js';
 
 /**
@@ -37,7 +39,7 @@ test('every workspace passes the automated accessibility rules', async ({
   page,
 }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Maison de démonstration' }).click();
+  await fileAction(page, 'Maison de démonstration');
   await expect(page.getByRole('status')).toContainText('démonstration');
 
   for (const destination of DESTINATIONS) {
@@ -54,7 +56,7 @@ test('every workspace passes the automated accessibility rules', async ({
 
 test('the command palette passes them too', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Maison de démonstration' }).click();
+  await fileAction(page, 'Maison de démonstration');
   await expect(page.getByRole('status')).toContainText('démonstration');
   // A panel only opened on demand is never seen by the audit of the
   // workspaces, and it is the one control that reaches all of them.

@@ -23,6 +23,7 @@ branche et sur chaque demande de fusion.
 - `npm run build` — `npm run build --workspaces --if-present`
 - `npm run check:bundle` — `node scripts/check-bundle-budget.mjs`
 - `npm run test:e2e:install` — `playwright install --with-deps chromium firefox webkit`
+- `npm run measure:shell` — `node scripts/measure-shell.mjs`
 - `npm run test:e2e` — `playwright test`
 
 ## Contrôle d'unité

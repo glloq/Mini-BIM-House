@@ -1,28 +1,31 @@
 import { expect, test } from '@playwright/test';
 
-import { openDestination } from './support/navigation.js';
+import { fileAction } from './support/file-menu.js';
+
+import { openDestination, openStage } from './support/navigation.js';
 
 /**
  * A phone loses the three-column layout, not the application.
  *
- * The five spaces stay visible as a row — they are the one thing that never
- * hides, on any screen. What becomes a drawer is the context panel, which
- * carries the level, the layers, the discipline view and the overlay.
+ * L'étape en cours reste visible : c'est la seule chose que la coque ne cache
+ * jamais, sur n'importe quel écran. Sur un téléphone elle le dit avec sa liste
+ * déroulante. Ce qui devient un tiroir est le panneau de contexte, qui porte
+ * le niveau, les calques, la vue disciplinaire et la superposition.
  */
-test('keeps the five spaces visible and reaches every destination', async ({
+test('keeps the stage visible and reaches every destination', async ({
   page,
 }) => {
   await page.goto('/');
-  const rail = page.getByRole('navigation', { name: 'Espaces de travail' });
-  await expect(rail).toBeInViewport();
-  await expect(rail.getByRole('button')).toHaveCount(5);
+  const bar = page.getByRole('navigation', { name: 'Étapes de création' });
+  await expect(bar).toBeInViewport();
+  await expect(bar.getByLabel('Étape de création')).toBeVisible();
 
-  // A space is one tap, and it opens on what that space is for — for
-  // Analyser, the plan the results are about.
-  await rail.getByRole('button', { name: 'Analyser', exact: true }).click();
+  // Une étape est un geste, et elle s'ouvre sur ce à quoi elle sert — pour
+  // Vérifier, le plan dont les résultats parlent.
+  await openStage(page, 'Vérifier');
   await expect(page.locator('.plan-canvas')).toBeVisible();
 
-  // A destination inside a space is the space, then the drawer.
+  // A destination inside a stage is the stage, then the drawer.
   await openDestination(page, 'Matériaux');
   await expect(page.locator('.library-table tbody tr').first()).toBeVisible();
   await expect(page.locator('#workspace-sidebar')).not.toBeInViewport();
@@ -56,7 +59,7 @@ test('scrolls a wide table instead of overflowing the screen', async ({
   page,
 }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Maison de démonstration' }).click();
+  await fileAction(page, 'Maison de démonstration');
   await openDestination(page, 'Quantités');
   const scroller = page.locator('.table-scroll').first();
   await expect(scroller).toBeVisible();

@@ -28,7 +28,7 @@ import {
   type WorkflowStepId,
   type WorkflowStepState,
 } from '../ux/workflow-steps.js';
-import { workspaceOfDomain } from '../ux/workspaces.js';
+import { stageOfDomain } from '../ux/creation-stages.js';
 
 const levels = (project: Project) => project.building.levels;
 const every = <T>(
@@ -42,10 +42,10 @@ function targetOf(id: WorkflowStepId): UiTarget {
   const domain = definition.domain;
   if (domain === undefined)
     return {
-      workspace: definition.group === 'DOCUMENTS' ? 'DOCUMENTS' : 'PROJECT',
+      stage: definition.group === 'DOCUMENTS' ? 'DOCUMENTS' : 'PROJECT',
     };
-  const workspace = workspaceOfDomain(domain);
-  return workspace === 'SYSTEMS' ? { workspace, domain } : { workspace };
+  const stage = stageOfDomain(domain);
+  return stage === 'SYSTEMS' ? { stage, domain } : { stage };
 }
 
 function go(id: WorkflowStepId, label: string): readonly WorkflowAction[] {
@@ -149,7 +149,7 @@ function appliesTo(
 ): boolean {
   const domain = WORKFLOW_STEP_BY_ID[id].domain;
   if (domain === undefined) return true;
-  if (workspaceOfDomain(domain) === 'SYSTEMS')
+  if (stageOfDomain(domain) === 'SYSTEMS')
     return technicalDomains(project).includes(domain);
   return domainEnabled(scope, domain);
 }

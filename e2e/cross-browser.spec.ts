@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { fileAction } from './support/file-menu.js';
+
 import { openDestination } from './support/navigation.js';
 
 /**
@@ -31,7 +33,7 @@ test('draws, calculates, saves and reopens on this engine', async ({
     'House Technical Designer',
   );
 
-  await page.getByRole('button', { name: 'Maison de démonstration' }).click();
+  await fileAction(page, 'Maison de démonstration');
   await expect(page.getByRole('status')).toContainText('démonstration');
   const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
   await expect(walls).toHaveCount(6);
@@ -51,7 +53,7 @@ test('draws, calculates, saves and reopens on this engine', async ({
   // The container is written with the compression the browser provides and
   // read back by the same reader: an engine without it would fail here.
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
+  await fileAction(page, 'Sauvegarder');
   const saved = await (await download).path();
   expect(saved).not.toBeNull();
   await expect(page.getByRole('status')).toContainText('.houseproj');
@@ -71,7 +73,7 @@ test('keeps a local snapshot across a reload on this engine', async ({
   page,
 }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Maison de démonstration' }).click();
+  await fileAction(page, 'Maison de démonstration');
   await expect(page.getByRole('status')).toContainText('démonstration');
   await page.getByRole('button', { name: 'Mur', exact: true }).click();
   const canvas = page.locator('.plan-canvas');

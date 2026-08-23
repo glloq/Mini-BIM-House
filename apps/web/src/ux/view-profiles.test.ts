@@ -21,8 +21,8 @@ describe('the drawings the application offers', () => {
   });
 
   it('draws a house as a house, and a network as a network', () => {
-    expect(defaultPlanRendering('BUILD').id).toBe('architectural');
-    expect(defaultPlanRendering('ANALYZE').id).toBe('architectural');
+    expect(defaultPlanRendering('BUILDING').id).toBe('architectural');
+    expect(defaultPlanRendering('CHECKS').id).toBe('architectural');
     expect(defaultPlanRendering('SYSTEMS').id).toBe('technical');
   });
 

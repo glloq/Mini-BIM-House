@@ -157,16 +157,16 @@ describe('the figures the documentation states', () => {
 
   it('keeps the interface contract in step with the code that holds it', async () => {
     // UX_ARCHITECTURE.md is the contract every interface PR is read against.
-    // A contract that names five spaces while the code holds six is not a
+    // A contract that names nine stages while the code holds ten is not a
     // contract, it is a description of a previous plan.
     const contract = readFileSync('docs/UX_ARCHITECTURE.md', 'utf8');
-    const { PRIMARY_WORKSPACES } =
-      await import('../apps/web/src/ux/workspaces.ts');
+    const { CREATION_STAGES } =
+      await import('../apps/web/src/ux/creation-stages.ts');
     const { WORKFLOW_GROUP_LABELS } =
       await import('../apps/web/src/ux/workflow-steps.ts');
     const { DESIGN_DOMAIN_IDS, PROJECT_INTENTS } =
       await import('../packages/core-domain/src/design-scope.ts');
-    expect(contract).toContain(PRIMARY_WORKSPACES.join(' | '));
+    expect(contract).toContain(CREATION_STAGES.join(' | '));
     // The contract lists the phases by name; a phase added to the engine and
     // not to the list would be a phase nobody agreed to.
     expect(contract).toContain(Object.values(WORKFLOW_GROUP_LABELS).join(', '));

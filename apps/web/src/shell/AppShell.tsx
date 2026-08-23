@@ -4,8 +4,8 @@
  * `App()` was two and a half thousand lines that held the state of the
  * project, the state of the editor, the import and export of files, and the
  * exact pixel each panel starts at. Pulling the arrangement out means the
- * rest can move without the layout moving with it — and it means the five
- * spaces are a rearrangement of what already exists rather than a rewrite of
+ * rest can move without the layout moving with it — and it means the nine
+ * stages are a rearrangement of what already exists rather than a rewrite of
  * it.
  *
  * Everything here is a slot. The shell decides where things are; it decides
@@ -15,7 +15,8 @@ import type { CSSProperties, ReactNode } from 'react';
 
 export interface AppShellProps {
   readonly topBar: ReactNode;
-  readonly rail: ReactNode;
+  /** L'étape en cours, sur une rangée sous la barre supérieure. */
+  readonly stageBar: ReactNode;
   readonly contextPanel: ReactNode;
   readonly contextSeparator: ReactNode;
   readonly canvas: ReactNode;
@@ -34,7 +35,7 @@ export interface AppShellProps {
 
 export function AppShell({
   topBar,
-  rail,
+  stageBar,
   contextPanel,
   contextSeparator,
   canvas,
@@ -51,9 +52,9 @@ export function AppShell({
   return (
     <main className="workspace">
       {topBar}
+      {stageBar}
       {overlays}
       <div className="shell-body">
-        {rail}
         <div
           className="workspace-grid"
           style={{ '--workspace-columns': columns } as CSSProperties}

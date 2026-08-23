@@ -15,7 +15,7 @@ import {
   FR_INITIAL_SCREEN,
   GENERIC_TECHNICAL_SCREEN,
 } from '@house-technical-designer/drawing-engine';
-import type { PrimaryWorkspace } from './workspaces.js';
+import type { CreationStageId } from './creation-stages.js';
 
 export interface PlanRenderingChoice {
   readonly id: string;
@@ -46,17 +46,17 @@ export const PLAN_RENDERINGS: readonly PlanRenderingChoice[] = [
 ];
 
 /**
- * Le rendu par défaut d’un espace de travail.
+ * Le rendu par défaut d’une étape de création.
  *
  * On construit une maison en la regardant comme une maison, et on pose une
  * gaine en regardant le dessin technique. « Documents » ne figure pas ici : une
  * vue enregistrée porte sa propre charte, et c’est elle qui décide.
  */
 export function defaultPlanRendering(
-  workspace: PrimaryWorkspace,
+  stage: CreationStageId,
 ): PlanRenderingChoice {
   const architectural = PLAN_RENDERINGS[0]!;
-  return workspace === 'SYSTEMS' ? PLAN_RENDERINGS[1]! : architectural;
+  return stage === 'SYSTEMS' ? PLAN_RENDERINGS[1]! : architectural;
 }
 
 /** Le rendu que désigne un identifiant, quand cette version le connaît. */

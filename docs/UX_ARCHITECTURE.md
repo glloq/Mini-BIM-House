@@ -4,47 +4,71 @@ Ce document est le contrat d'interface de Mini-BIM-House. Il ne décrit pas une
 maquette : il décrit ce que l'interface a le droit d'être. Toute PR qui touche
 à l'interface est relue contre les dix-huit critères de la dernière section.
 
-> **Ce contrat décrit la coque actuelle, à cinq espaces.**
-> [`UX_REFONTE_V2.md`](UX_REFONTE_V2.md) spécifie celle qui la remplace — trois
-> modes, un navigateur permanent, une barre de vue et un seul système
-> d'affichage. Chaque PR de ce plan met à jour ici la section qu'elle change, en
+> **Ce contrat décrit la coque telle qu'elle est aujourd'hui.**
+> [`UX_REDESIGN_V2.md`](UX_REDESIGN_V2.md) spécifie celle qu'elle devient, en
+> dix PR. UX-1 (coque verrouillée sur la fenêtre) et UX-2 (navigation par
+> étapes de création) sont livrées ; restent la boîte à outils filtrée par
+> l'étape, le navigateur de bâtiment permanent et le système d'affichage
+> unique. Chaque PR de ce plan met à jour ici la section qu'elle change, en
 > même temps que le code et les tests : les deux documents ne doivent jamais
 > dire deux choses différentes en même temps.
 
 ## 1. Trois niveaux qu'on ne mélange jamais
 
-| Niveau          | Ce que c'est                                                            | Où ça vit        |
-| --------------- | ----------------------------------------------------------------------- | ---------------- |
-| **Création**    | Une page plein écran, environ quatre étapes, avant que le projet existe | `/project/new`   |
-| **Navigation**  | Cinq espaces permanents, toujours là                                    | Le rail primaire |
-| **Progression** | Un guide contextuel, facultatif, qui recommande                         | `WorkflowGuide`  |
+| Niveau          | Ce que c'est                                                            | Où ça vit       |
+| --------------- | ----------------------------------------------------------------------- | --------------- |
+| **Création**    | Une page plein écran, environ quatre étapes, avant que le projet existe | `/project/new`  |
+| **Navigation**  | Neuf étapes de création, toujours là                                    | `StageBar`      |
+| **Progression** | Un guide contextuel, facultatif, qui recommande                         | `WorkflowGuide` |
 
-Les confondre est ce qui a produit onze destinations : une étape de chantier
+Les confondre est ce qui a produit treize destinations : une phase de chantier
 devenue un onglet, un outil devenu une destination, un résultat devenu un lieu.
+Une **étape de création** n'est aucun des trois : c'est ce qu'on est en train
+de faire, et elle ne fait que filtrer ce qui est proposé.
 
-## 2. Cinq espaces, pas onze
+## 2. Neuf étapes de création, pas treize destinations
 
 ```
-PROJECT | BUILD | SYSTEMS | ANALYZE | DOCUMENTS
-   P        B        S         A         D
+PROJECT | SITE | BUILDING | STRUCTURE | FITTING | SYSTEMS | ENERGY | CHECKS | DOCUMENTS
+   P       T        B          R          A         S         E        V         D
 ```
 
-`apps/web/src/ux/workspaces.ts` les gèle. Le rail primaire ne contient jamais
-**Matériaux**, **Assemblages**, **Quantités**, **Scénarios** ni
-**Vérifications** : ce sont des outils et des résultats, et un outil n'est pas
-un lieu. Ils réapparaissent comme contextes dans l'espace auquel ils
-appartiennent — `LEGACY_WORKSPACE_HOME` dit lequel, et un test refuse qu'une
-des onze anciennes destinations devienne inatteignable.
+`apps/web/src/ux/creation-stages.ts` les gèle. Cinq espaces répondaient à « où
+je travaille » ; ils demandaient à quelqu'un qui pose une prise de savoir
+d'avance qu'une prise se pose dans « Systèmes ». Les neuf étapes répondent à la
+question qu'on se pose vraiment en dessinant — je suis en train de faire le
+bâtiment, la structure, les réseaux — et se lisent dans l'ordre d'un chantier,
+ce qui n'oblige personne à le suivre.
 
-## 3. Les dix étapes sont un moteur, pas dix onglets
+**Une étape filtre ce qui est proposé. Elle ne restreint jamais ce qui est
+possible.** On revient en arrière, on saute une étape, on pose l'électricité
+avant la toiture. La recherche et la palette donnent accès à tout, depuis
+n'importe où. Rien ne se valide, rien ne se verrouille, et l'étape active est
+un état d'écran : elle n'entre jamais dans le fichier projet.
+
+La barre d'étapes ne contient jamais **Matériaux**, **Assemblages**,
+**Quantités** ni **Scénarios** : ce sont des outils et des résultats, et un
+outil n'est pas une chose qu'on est en train de faire. Ils réapparaissent
+comme destinations de l'étape à laquelle ils appartiennent — le registre dit
+laquelle, et un test refuse qu'une des treize destinations devienne
+inatteignable.
+
+Une **sous-étape** est ce qu'on fait à l'intérieur de l'étape. Dans Systèmes
+elle **est** une discipline : la choisir change le métier par lequel le plan se
+lit. Ailleurs c'est un groupe d'outils. La distinction est portée par le
+registre, jamais par un composant.
+
+## 3. Les dix phases sont un moteur, pas dix onglets
 
 Projet, Terrain, Bâtiment, Architecture, Construction, Aménagement, Technique, Énergie, Vérifications, Documents
 sont les dix groupes de
 `apps/web/src/ux/workflow-steps.ts`. Ils alimentent le guide et **n'apparaissent
-jamais dans la navigation**.
+jamais comme navigation** : chaque phase est portée par exactement une étape,
+et un test le vérifie — sinon « il reste des murs à tracer » se lirait à deux
+endroits.
 
-> Cinq espaces = où je travaille. Les étapes = ce qu'il reste éventuellement à
-> faire.
+> Les étapes = ce que je suis en train de faire. Les phases = ce qu'il reste
+> éventuellement à faire.
 
 L'état d'une étape est **dérivé du modèle**, à chaque lecture.
 `stepCompleted = true` n'est jamais écrit dans le projet : un drapeau dit que
@@ -118,16 +142,16 @@ interface UiTarget {
 Six fonctionnalités devaient déjà dire « va là-bas » — une vérification, un
 calcul, une recherche, l'arbre du projet, une quantité, un scénario — et chacune
 le disait autrement, donc chacune atteignait une profondeur différente. Une
-vérification pouvait ouvrir un espace ; elle ne pouvait pas ouvrir le niveau,
+vérification pouvait ouvrir une étape ; elle ne pouvait pas ouvrir le niveau,
 sélectionner l'objet et déplier la propriété dont elle parlait.
 
-Tout ce qui n'est pas énoncé reste non énoncé : une cible qui ne porte qu'un
-espace demande un espace, pas un espace plus une sélection devinée.
+Tout ce qui n'est pas énoncé reste non énoncé : une cible qui ne porte qu'une
+étape demande une étape, pas une étape plus une sélection devinée.
 
 `Afficher`, depuis l'Issue Center, doit faire sept choses : ouvrir le bon
 niveau, activer la bonne discipline, rétablir la visibilité, sélectionner
 l'objet, zoomer dessus, ouvrir l'inspecteur, déplier la propriété concernée.
-Un espace n'est pas une réponse ; un champ en est une.
+Une étape n'est pas une réponse ; un champ en est une.
 
 ## 7. La création de projet
 
@@ -154,8 +178,8 @@ travaillés — et chacune reste modifiable ensuite.
 
 | Zone           | Hauteur / largeur |
 | -------------- | ----------------- |
-| `TopBar`       | 48–52 px          |
-| `PrimaryRail`  | 52–60 px          |
+| `TopBar`       | 44 px             |
+| `StageBar`     | 34 px             |
 | `ContextPanel` | 280–320 px        |
 | `Inspector`    | 320–360 px        |
 | `StatusBar`    | 30–34 px          |
@@ -163,6 +187,29 @@ travaillés — et chacune reste modifiable ensuite.
 
 Les panneaux sont redimensionnables et repliables ; un double-clic sur un
 séparateur rétablit la largeur par défaut.
+
+**La coque tient dans la fenêtre.** `.workspace` fait `100dvh` et ne défile
+pas : ce sont les panneaux qui défilent chez eux. La page mesurait 2 101 px
+pour une fenêtre de 900, et le plan ne se voyait pas en entier sans faire
+défiler le document. `scripts/measure-shell.mjs` mesure ce que la coque coûte à
+l'écran et `npm run measure:shell -- --check` refuse qu'elle regrossisse ; les
+budgets sont dans `SHELL_BUDGETS`, et chaque resserrement dit pourquoi.
+
+**Ce qu'on fait au fichier est un menu, pas six boutons.** Nouveau, ouvrir, la
+maison de démonstration, sauvegarder et les deux exports vivent sous
+« Fichier ▾ » (`shell/ProjectMenu.tsx`). Ils restent atteignables à la souris
+seule ; la barre supérieure tient sur une rangée, jamais deux.
+
+**Aucune zone ne réserve de place pour rien.** L'inspecteur ne prend ses
+280 px qu'à partir du moment où quelque chose est désigné ; tant que rien ne
+l'a jamais été, il vaut zéro pixel et le dessin a la largeur. Le repli est
+collant : il vaut jusqu'à la première sélection et plus jamais après, sinon la
+fenêtre respirerait à chaque Échap. Ensuite c'est le bouton « Inspecteur » qui
+décide, et lui seul.
+
+Les sept réglages d'accrochage de la barre d'état (cinq cases, le pas de
+grille, le pas angulaire) sont repliés sous « Réglages » : on les règle une
+fois, et ils faisaient passer la barre à deux rangées.
 
 Trois niveaux de densité seulement — Navigation, Groupe, Action. Pas
 d'imbrication plus profonde. Une recherche apparaît dès qu'une catégorie dépasse
@@ -178,13 +225,28 @@ Ce qu'un outil laisse décider avant de dessiner se trouve **sous l'outil**,
 dans le panneau contextuel : choisir un assemblage fait partie du choix de
 l'outil mur, ce n'est pas une course séparée en haut de la fenêtre.
 
+**La boîte à outils propose ce que l'étape demande.**
+`apps/web/src/editor/toolbox.ts` déclare, par étape et par sous-étape, des
+**entrées** : un outil du registre plus ce qu'on aurait choisi juste après.
+« Porte » est l'outil ouverture avec le type déjà mis ; « WC » est l'outil
+composant avec la fiche déjà désignée. Le registre reste à vingt-cinq outils et
+continue de parler la langue du modèle ; la boîte parle celle de la personne.
+
+Une entrée nomme une **famille** de la nomenclature, jamais une fiche : la
+fiche est celle que le catalogue du projet tient, et une entrée dont la famille
+n'est pas installée n'est pas offerte. Une entrée qui ne change rien à son
+outil porte le nom de l'outil — deux noms pour une même chose sur un même écran
+font croire qu'il y en a deux. Ce que l'étape ne propose pas est sous « Tous
+les outils », sur le même écran : un test refuse qu'un outil du registre
+devienne inatteignable.
+
 ## 8 bis. Systèmes, la visibilité et le navigateur
 
 **Systèmes** n'est pas une autre application : c'est le même dessin, le même
 inspecteur et les mêmes outils, avec une discipline activée. Le plan y est donc
 la destination par défaut, et le navigateur de réseaux une seconde destination
-du même espace. Un espace qui vous sortirait du modèle pour vous montrer ses
-réseaux serait la disposition à onze destinations, sous cinq noms.
+de la même étape. Une étape qui vous sortirait du modèle pour vous montrer ses
+réseaux serait la disposition à treize destinations, sous neuf noms.
 
 Une discipline hors périmètre n'est pas proposée — sauf si le projet en tient
 déjà des objets. Le compte de réseaux est affiché à côté de chaque discipline :
@@ -214,7 +276,7 @@ nombre que personne ne pourrait étayer.
 Il ne bloque rien : un compteur rouge est une information sur le modèle, pas un
 refus de laisser le modèle être ce qu'il est.
 
-## 8 quater. Les catalogues et Analyser
+## 8 quater. Les catalogues et Vérifier
 
 Matériaux, assemblages, équipements et les cinq cents familles avaient chacun
 leur champ de recherche, leurs filtres et leur idée de ce qu'une recherche
@@ -225,8 +287,8 @@ et trois d'entre elles se tromperont le jour où l'on en corrige une.
 sans accents ni casse, mots dans n'importe quel ordre, filtre par métier, filtre
 par famille, et « il manque quelque chose » quand le catalogue sait le dire.
 
-**Analyser** ouvre sur le plan, comme Systèmes. Un résultat se lit contre le
-bâtiment dont il parle ; un espace qui vous sortirait du modèle pour vous
+**Vérifier** ouvre sur le plan, comme Systèmes. Un résultat se lit contre le
+bâtiment dont il parle ; une étape qui vous sortirait du modèle pour vous
 montrer un nombre rendrait le nombre plus difficile à croire, pas plus facile.
 
 Une **variante** est un mode du dessin, choisi au-dessus du plan, et non une
@@ -238,7 +300,7 @@ dire, et rien n'en est jamais écrit dans le bâtiment.
 - La couleur vient des variables CSS et des jetons, jamais des composants
   métier. L'interface est neutre ; la couleur de discipline vit dans le canvas
   et dans les icônes.
-- Typographie : 18–20 (titre d'espace), 12–13 (étiquette de groupe), 13–14
+- Typographie : 18–20 (titre d'étape), 12–13 (étiquette de groupe), 13–14
   (contenu), 12 (barre d'état).
 - Trois catégories de boutons — Primary, Secondary, Ghost — avec **un seul**
   bouton primaire dominant par panneau.
@@ -279,10 +341,11 @@ Chaque PR d'interface est relue contre cette liste. Dix-huit d'entre eux sont
 aussi des tests — `apps/web/src/ux/acceptance.test.ts` — parce qu'un contrat que
 chaque PR est « relue contre » est un contrat que personne ne relit.
 
-1. La navigation primaire compte exactement cinq entrées.
+1. La navigation primaire compte exactement neuf entrées.
 2. Aucune bibliothèque, quantité, scénario ni vérification n'est une
    destination primaire.
-3. Les dix phases de chantier n'apparaissent nulle part comme onglets.
+3. Une étape ne verrouille rien, ne remplace jamais le plan et n'est jamais
+   persistée. Chaque phase de chantier est portée par exactement une étape.
 4. L'état d'une étape est dérivé du projet ; aucun `stepCompleted` n'est
    persisté.
 5. Le guide recommande et ne bloque jamais une action.
@@ -307,6 +370,11 @@ chaque PR est « relue contre » est un contrat que personne ne relit.
     palette.
 
 ## 13. Le plan
+
+Les quatorze PR ci-dessous ont construit la coque à cinq espaces. Elles sont
+faites, et gardées ici parce qu'un plan qu'on efface une fois exécuté fait
+croire que l'interface est arrivée là toute seule. Le plan en cours est celui
+de [`UX_REDESIGN_V2.md`](UX_REDESIGN_V2.md) §12 : UX-1 et UX-2 sont livrées.
 
 | PR    | Objet                                                                | Risque |
 | ----- | -------------------------------------------------------------------- | ------ |

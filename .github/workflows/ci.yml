@@ -62,6 +62,9 @@ jobs:
       # growth a decision rather than a surprise.
       - run: npm run check:bundle
       - run: npm run test:e2e:install
+      # Ce que la coque coûte à l'écran, mesuré plutôt qu'estimé : une barre
+      # qui repasse à deux rangées ne se voit dans aucune revue de diff.
+      - run: npm run measure:shell -- --check
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()

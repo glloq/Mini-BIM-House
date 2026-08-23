@@ -28,7 +28,6 @@ import {
   designDomainLabel,
   domainOfDiscipline,
   projectEntities,
-  type DesignDomainId,
 } from '@house-technical-designer/core-domain';
 import {
   applyProjectScenario,
@@ -66,7 +65,7 @@ import type { ClearanceGroupId } from './editor/clearance-overlay.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { LayersPanel } from './editor/LayersPanel.js';
 import { ContextToolBar } from './editor/ContextToolBar.js';
-import { ToolsPanel } from './editor/ToolsPanel.js';
+import { Toolbox } from './editor/Toolbox.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
 import { scenarioOverride } from './scenarios/scenario-changes.js';
@@ -159,19 +158,25 @@ import {
 import { DisciplinePicker } from './systems/DisciplinePicker.js';
 import { technicalDomains } from './systems/discipline-scope.js';
 import { WorkflowGuide } from './workflow/WorkflowGuide.js';
+import { workflowEntries } from './workflow/workflow-registry.js';
 import { AppShell } from './shell/AppShell.js';
 import { TopBar } from './shell/TopBar.js';
-import { PrimaryRail } from './shell/PrimaryRail.js';
+import { StageBar } from './shell/StageBar.js';
 import { ContextPanel } from './shell/ContextPanel.js';
 import { ShellStatusBar } from './shell/ShellStatusBar.js';
+import { ProjectMenu } from './shell/ProjectMenu.js';
+
 import {
+  activeDomain as activeDomainOf,
   activeTab as activeTabOf,
   DEFAULT_SHELL_NAVIGATION,
+  goToStage,
   goToTab,
-  goToWorkspace,
   navigationFor,
+  remainingByStage,
   type ShellNavigation,
-} from './ux/navigation-state.js';
+} from './ux/stage-state.js';
+import { creationStage, stageOfTab } from './ux/creation-stages.js';
 import {
   PLAN_RENDERINGS,
   defaultPlanRendering,
@@ -181,8 +186,6 @@ import { isEmptyTarget, type UiTarget } from './ux/ui-target.js';
 import {
   LEGACY_WORKSPACE_LABELS,
   LEGACY_WORKSPACE_TABS,
-  primaryWorkspace,
-  workspaceOfLegacyTab,
   type LegacyWorkspaceTab,
 } from './ux/workspaces.js';
 import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
@@ -202,6 +205,29 @@ import {
   transformObjectsCommand,
 } from './editor/editing-commands.js';
 import type { GeometryEdit } from './editor/grips.js';
+
+/**
+ * Le fichier, replié.
+ *
+ * Six boutons permanents pour six gestes qu'on fait une fois par séance ;
+ * l'ordre est celui d'une séance : on ouvre, on enregistre, on exporte.
+ */
+const PROJECT_MENU_ITEMS = [
+  { id: 'NEW', label: 'Nouveau projet' },
+  { id: 'OPEN', label: 'Ouvrir…' },
+  { id: 'DEMO', label: 'Maison de démonstration' },
+  {
+    id: 'SAVE',
+    label: 'Sauvegarder',
+    hint: 'Projet et jeux climatiques dans un seul fichier',
+  },
+  {
+    id: 'EXPORT_JSON',
+    label: 'Exporter le JSON',
+    hint: 'Le projet seul, en JSON lisible',
+  },
+  { id: 'EXPORT_SVG', label: 'Exporter le SVG' },
+] as const;
 
 /**
  * Workspaces loaded when they are opened.
@@ -393,7 +419,14 @@ function App() {
   /** Whether the model tree is open; it is secondary, behind « ☰ Modèle ». */
   const [navigatorOpen, setNavigatorOpen] = useState(false);
   /** The trade the plan is being read through, in Systèmes. */
-  const [activeDomain, setActiveDomain] = useState<DesignDomainId>();
+  /*
+   * Le métier lu en ce moment vit dans la navigation, pas à côté.
+   *
+   * Il était un état séparé, et deux mémoires de la même chose finissent par
+   * ne plus dire la même : l'étape se souvient du métier qu'on y lisait, et
+   * c'est elle qu'on interroge.
+   */
+  const activeDomain = activeDomainOf(navigation);
 
   /**
    * Le rendu choisi pour le plan, quand quelqu’un en a choisi un.
@@ -406,7 +439,7 @@ function App() {
   const [renderingId, setRenderingId] = useState<string>();
   const rendering =
     (renderingId === undefined ? undefined : planRendering(renderingId)) ??
-    defaultPlanRendering(navigation.workspace);
+    defaultPlanRendering(navigation.stage);
 
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
@@ -752,7 +785,42 @@ function App() {
     [activeLevelId, runCommand],
   );
 
-  const columns = gridColumns(layout);
+  /**
+   * Un inspecteur qui n'a rien à dire ne réserve pas sa largeur.
+   *
+   * Deux cent quatre-vingts pixels tenus en permanence pour afficher
+   * « Sélectionnez un objet » : sur un portable, un sixième de la fenêtre pour
+   * une phrase. Au repos il ne prend rien.
+   *
+   * Le repli est **collant** : il vaut jusqu'à ce qu'on désigne un objet, et
+   * plus jamais après. Un panneau qui se rouvrirait à chaque sélection et se
+   * refermerait à chaque Échap ferait respirer la fenêtre — et la colonne
+   * qu'il rend au dessin, le dessin la rendrait aussitôt. On l'ouvre une fois
+   * ; ensuite c'est le bouton « Inspecteur » qui décide, et lui seul.
+   */
+  const inspectorHasSubject =
+    tab !== 'plan' ||
+    editor.selection.length > 0 ||
+    inspectedProperty !== undefined;
+  const [inspectorEngaged, setInspectorEngaged] = useState(false);
+  useEffect(() => {
+    if (inspectorHasSubject) setInspectorEngaged(true);
+  }, [inspectorHasSubject]);
+  const inspectorShown =
+    layout.inspectorShown && (inspectorEngaged || inspectorHasSubject);
+  const columns = gridColumns({ ...layout, inspectorShown });
+
+  /*
+   * Ce qu'il reste à faire, par étape, dérivé du modèle.
+   *
+   * Un nombre à côté d'un libellé, jamais un barrage : rien n'empêche de
+   * travailler dans une étape qui n'affiche rien, ni d'en quitter une qui
+   * affiche cinq. Il disparaît quand il n'y a plus rien à dire.
+   */
+  const stageProgress = useMemo(
+    () => remainingByStage(workflowEntries(file.project)),
+    [file.project],
+  );
 
   const changeLayout = useCallback((patch: Partial<WorkspaceLayout>): void => {
     setLayout((current) => {
@@ -1647,7 +1715,7 @@ function App() {
       const levelId = target.levelId ?? entity?.levelId;
       if (levelId !== undefined) dispatchEditor({ type: 'SET_LEVEL', levelId });
       if (target.domain !== undefined) {
-        setActiveDomain(target.domain);
+        // `navigationFor` a déjà retenu le métier dans son étape.
         // The discipline a target names is read on the plan by showing its
         // layer: a network the layers hide is a network nobody was taken to.
         const network = (project.systems ?? []).find(
@@ -1704,7 +1772,7 @@ function App() {
         id: `espace:${entry}`,
         label: LEGACY_WORKSPACE_LABELS[entry],
         group: 'Espaces',
-        hint: primaryWorkspace(workspaceOfLegacyTab(entry)).label,
+        hint: creationStage(stageOfTab(entry)).label,
         run: () => setTab(entry),
       })),
       ...SHORTCUTS.filter(
@@ -1885,7 +1953,7 @@ function App() {
       }
       if (objectId !== undefined && fix.objectIds !== undefined) {
         navigateTo({
-          workspace: workspaceOfLegacyTab(fix.tab),
+          stage: stageOfTab(fix.tab),
           objectId,
           ...(fix.propertyPath === undefined
             ? {}
@@ -2002,9 +2070,9 @@ function App() {
                * mode that changed the BIM would be a second kind of project.
                */
               setNavigation((current) =>
-                goToWorkspace(
+                goToStage(
                   current,
-                  draft.startMode === 'GUIDED' ? 'PROJECT' : 'BUILD',
+                  draft.startMode === 'GUIDED' ? 'PROJECT' : 'BUILDING',
                 ),
               );
               setNavigatorOpen(false);
@@ -2030,13 +2098,47 @@ function App() {
       </Suspense>
     );
 
+  /**
+   * Ce que le menu Projet déclenche, par identifiant.
+   *
+   * Le menu ne connaît que des libellés ; ce qu'ils font reste ici, où vivent
+   * déjà le fichier courant et l'historique.
+   */
+  const runProjectMenuAction = (id: string): void => {
+    if (id === 'NEW') replaceProject('Nouveau projet', () => setCreating(true));
+    else if (id === 'OPEN')
+      replaceProject('Ouvrir un projet', () => importInput.current?.click());
+    else if (id === 'DEMO')
+      replaceProject('Maison de démonstration', () => {
+        void (async () => {
+          const { demoClimateDatasets, loadDemoProject } = await demoProject();
+          const demo = loadDemoProject();
+          if (demo.status === 'ERROR') {
+            setMessage(demo.message);
+            return;
+          }
+          setClimate(demoClimateDatasets());
+          adopt(demo.file, 'Maison de démonstration chargée.');
+        })();
+      });
+    else if (id === 'SAVE') void saveContainer();
+    else if (id === 'EXPORT_JSON') saveProject();
+    else if (id === 'EXPORT_SVG') {
+      const artifact = exportProjectPlan(file, {
+        ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
+        layers: editor.layers,
+      });
+      download(artifact.content, artifact.fileName, artifact.mediaType);
+    }
+  };
+
   return (
     <AppShell
       columns={columns}
       contextPanelHidden={!layout.sidebarShown}
       drawerOpen={menuOpen}
       onCloseDrawer={() => setMenuOpen(false)}
-      inspectorHidden={!layout.inspectorShown}
+      inspectorHidden={!inspectorShown}
       topBar={
         <TopBar
           eyebrow="Mini BIM local-first"
@@ -2066,11 +2168,12 @@ function App() {
               <button
                 type="button"
                 className="secondary panel-toggle"
-                aria-pressed={layout.inspectorShown}
+                aria-pressed={inspectorShown}
                 title="Afficher ou masquer l’inspecteur"
-                onClick={() =>
-                  changeLayout({ inspectorShown: !layout.inspectorShown })
-                }
+                onClick={() => {
+                  setInspectorEngaged(true);
+                  changeLayout({ inspectorShown: !inspectorShown });
+                }}
               >
                 Inspecteur
               </button>
@@ -2081,74 +2184,17 @@ function App() {
                 Rétablir
               </button>
               <button
+                type="button"
                 className="secondary"
-                onClick={() =>
-                  replaceProject('Nouveau projet', () => setCreating(true))
-                }
+                title="Chercher un outil, une pièce, une commande (Ctrl+K)"
+                onClick={() => setPaletteOpen(true)}
               >
-                Nouveau projet
+                Rechercher
               </button>
-              <button
-                className="secondary"
-                onClick={() =>
-                  replaceProject('Ouvrir un projet', () =>
-                    importInput.current?.click(),
-                  )
-                }
-              >
-                Ouvrir
-              </button>
-              <button
-                className="secondary"
-                onClick={() =>
-                  replaceProject('Maison de démonstration', () => {
-                    void (async () => {
-                      const { demoClimateDatasets, loadDemoProject } =
-                        await demoProject();
-                      const demo = loadDemoProject();
-                      if (demo.status === 'ERROR') {
-                        setMessage(demo.message);
-                        return;
-                      }
-                      setClimate(demoClimateDatasets());
-                      adopt(demo.file, 'Maison de démonstration chargée.');
-                    })();
-                  })
-                }
-              >
-                Maison de démonstration
-              </button>
-              <button
-                className="secondary"
-                title="Projet et jeux climatiques dans un seul fichier"
-                onClick={() => void saveContainer()}
-              >
-                Sauvegarder
-              </button>
-              <button
-                className="secondary"
-                title="Le projet seul, en JSON lisible"
-                onClick={saveProject}
-              >
-                Exporter le JSON
-              </button>
-              <button
-                onClick={() => {
-                  const artifact = exportProjectPlan(file, {
-                    ...(activeLevelId === undefined
-                      ? {}
-                      : { levelId: activeLevelId }),
-                    layers: editor.layers,
-                  });
-                  download(
-                    artifact.content,
-                    artifact.fileName,
-                    artifact.mediaType,
-                  );
-                }}
-              >
-                Exporter SVG
-              </button>
+              <ProjectMenu
+                items={PROJECT_MENU_ITEMS}
+                onSelect={runProjectMenuAction}
+              />
               <input
                 ref={importInput}
                 hidden
@@ -2162,11 +2208,12 @@ function App() {
           }
         />
       }
-      rail={
-        <PrimaryRail
-          workspace={navigation.workspace}
-          onSelect={(workspace) => {
-            setNavigation((current) => goToWorkspace(current, workspace));
+      stageBar={
+        <StageBar
+          stage={navigation.stage}
+          remaining={stageProgress}
+          onSelect={(stage) => {
+            setNavigation((current) => goToStage(current, stage));
             setMenuOpen(false);
           }}
         />
@@ -2198,26 +2245,39 @@ function App() {
               ))}
             </select>
           </label>
-          {navigation.workspace === 'PROJECT' && (
+          {navigation.stage === 'PROJECT' && (
             <WorkflowGuide project={file.project} onNavigate={navigateTo} />
           )}
-          {navigation.workspace === 'SYSTEMS' && (
+          {/*
+           * Le sélecteur n'apparaît que là où il y a un choix : une étape qui
+           * ne propose qu'un métier n'a pas de métier à choisir.
+           */}
+          {creationStage(navigation.stage).domains.length > 1 && (
             <DisciplinePicker
               project={file.project}
+              stage={navigation.stage}
               {...(activeDomain === undefined ? {} : { activeDomain })}
               onSelect={(domain) => navigateTo({ domain })}
             />
           )}
           {tab === 'plan' && (
             <>
-              <ToolsPanel
+              <Toolbox
                 project={file.project}
+                stage={navigation.stage}
+                {...(activeDomain === undefined
+                  ? {}
+                  : { domain: activeDomain })}
                 editor={editor}
                 dispatch={dispatchEditor}
                 drafts={toolDrafts}
                 onDraftChange={(key, value) =>
                   setToolDrafts((current) => ({ ...current, [key]: value }))
                 }
+                onDraftsChange={(prefilled) =>
+                  setToolDrafts((current) => ({ ...current, ...prefilled }))
+                }
+                onOpenLibrary={() => setTab('equipment')}
               />
               {/*
                 The model tree is a way of finding an object, not a way of
@@ -2332,18 +2392,14 @@ function App() {
         <>
           {tab === 'plan' && (
             <section className="canvas-panel panel" id="plan">
-              <header className="panel-heading">
-                <div>
-                  <p className="panel-label">Vue active</p>
-                  <h2>
-                    Plan ·{' '}
-                    {levels.find(({ id }) => id === activeLevelId)?.name ??
-                      'aucun niveau'}
-                    {activeDomain !== undefined &&
-                      navigation.workspace === 'SYSTEMS' &&
-                      ` · ${designDomainLabel(activeDomain)}`}
-                  </h2>
-                </div>
+              <header className="panel-heading canvas-heading">
+                <h2>
+                  {levels.find(({ id }) => id === activeLevelId)?.name ??
+                    'aucun niveau'}
+                  {activeDomain !== undefined &&
+                    navigation.stage === 'SYSTEMS' &&
+                    ` · ${designDomainLabel(activeDomain)}`}
+                </h2>
                 {(file.project.scenarios ?? []).length > 0 && (
                   <label className="canvas-mode">
                     Variante
@@ -2589,7 +2645,7 @@ function App() {
         </>
       }
       inspectorSeparator={
-        layout.inspectorShown ? (
+        inspectorShown ? (
           <PanelSeparator
             label="Redimensionner l’inspecteur"
             widthPx={layout.inspectorPx}
