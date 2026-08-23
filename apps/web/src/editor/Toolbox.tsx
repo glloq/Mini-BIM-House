@@ -29,12 +29,17 @@ import {
   toolById,
   type EditorToolDefinition,
 } from './tool-registry.js';
+import type { DesignState } from '../ux/design-state.js';
+
 import {
   COMMON_SECTION,
+  availabilityOf,
   draftsForEntry,
   entryAvailable,
   missingFicheFamilies,
   toolboxFor,
+  unblockingEntry,
+  type ToolboxAvailability,
   type ToolboxEntry,
   type ToolboxSection,
 } from './toolbox.js';
@@ -43,6 +48,8 @@ export interface ToolboxProps {
   readonly project: Project;
   readonly stage: CreationStageId;
   readonly domain?: DesignDomainId;
+  /** Ce que la maison est, pour savoir quels outils servent vraiment. */
+  readonly design: DesignState;
   readonly editor: EditorState;
   readonly dispatch: (action: EditorAction) => void;
   readonly drafts: ToolDrafts;
@@ -63,6 +70,7 @@ export function Toolbox({
   project,
   stage,
   domain,
+  design,
   editor,
   dispatch,
   drafts,
@@ -70,7 +78,7 @@ export function Toolbox({
   onDraftsChange,
   onOpenLibrary,
 }: ToolboxProps) {
-  const sections = toolboxFor(project, stage, domain);
+  const sections = toolboxFor(project, stage, domain, design);
   const common: ToolboxSection = {
     ...COMMON_SECTION,
     entries: COMMON_SECTION.entries.filter((candidate) =>
@@ -89,6 +97,24 @@ export function Toolbox({
   const [othersOpen, setOthersOpen] = useState(false);
   const holdsActive = others.some(({ id }) => id === editor.activeTool);
   const active = toolById(editor.activeTool);
+
+  /*
+   * Les recommandées d'abord.
+   *
+   * L'ordre du registre est celui d'un chantier ; celui de l'écran est celui
+   * de ce qui reste à faire. Trier plutôt que masquer : la personne retrouve
+   * ses outils au même endroit, avec le plus utile en tête.
+   */
+  const ordered = (entries: readonly ToolboxEntry[]): ToolboxAvailability[] => {
+    const graded = entries.map((candidate) =>
+      availabilityOf(candidate, design),
+    );
+    return [
+      ...graded.filter(({ recommended }) => recommended),
+      ...graded.filter(({ recommended, enabled }) => !recommended && enabled),
+      ...graded.filter(({ enabled }) => !enabled),
+    ];
+  };
 
   const choose = (candidate: ToolboxEntry): void => {
     dispatch({ type: 'SET_TOOL', tool: candidate.toolId as EditorTool });
@@ -120,11 +146,11 @@ export function Toolbox({
         >
           <p className="context-group-label">{section.label}</p>
           <div className="toolbox-grid">
-            {section.entries.map((candidate) => (
+            {ordered(section.entries).map((available) => (
               <EntryButton
-                key={candidate.id}
-                entry={candidate}
-                active={candidate.toolId === editor.activeTool}
+                key={available.entry.id}
+                available={available}
+                active={available.entry.toolId === editor.activeTool}
                 onChoose={choose}
               />
             ))}
@@ -147,11 +173,11 @@ export function Toolbox({
       <section className="toolbox-section" aria-label="Outils · Communs">
         <p className="context-group-label">{common.label}</p>
         <div className="toolbox-grid">
-          {common.entries.map((candidate) => (
+          {ordered(common.entries).map((available) => (
             <EntryButton
-              key={candidate.id}
-              entry={candidate}
-              active={candidate.toolId === editor.activeTool}
+              key={available.entry.id}
+              available={available}
+              active={available.entry.toolId === editor.activeTool}
               onChoose={choose}
             />
           ))}
@@ -181,26 +207,68 @@ export function Toolbox({
   );
 }
 
+/**
+ * Une entrée, et ce qu'elle vaut devant cette maison-là.
+ *
+ * Une entrée qui ne sert pas encore dit **pourquoi**, écrit sous son nom : un
+ * bouton grisé en silence est une panne, et la personne le prend pour un
+ * défaut du programme plutôt que pour une étape qui lui manque.
+ *
+ * Quand la condition se règle avec un outil, la tuile *est* le geste qui
+ * débloque : cliquer « Porte » sans mur tracé prend l'outil Mur. Elle n'est
+ * donc pas désactivée — un bouton qu'on annonce inerte et qui agit ment à qui
+ * l'écoute — seulement marquée et expliquée. C'est là où rien ne débloque
+ * — un étage se pose dans le menu du projet — que le bouton est vraiment
+ * `disabled`, et il garde sa raison.
+ */
 function EntryButton({
-  entry,
+  available,
   active,
   onChoose,
 }: {
-  readonly entry: ToolboxEntry;
+  readonly available: ToolboxAvailability;
   readonly active: boolean;
   readonly onChoose: (entry: ToolboxEntry) => void;
 }) {
+  const { entry, enabled, recommended, requirement } = available;
   const tool = toolById(entry.toolId);
+  const unblock = enabled ? undefined : unblockingEntry(requirement);
+  const classes = ['toolbox-entry'];
+  if (active) classes.push('active');
+  if (recommended) classes.push('recommended');
+  if (!enabled) classes.push('blocked');
   return (
     <button
       type="button"
-      className={active ? 'toolbox-entry active' : 'toolbox-entry'}
+      className={classes.join(' ')}
       aria-pressed={active}
-      title={`${entry.hint}${shortcut(tool?.shortcutId)}`}
-      onClick={() => onChoose(entry)}
+      {...(requirement === undefined
+        ? {}
+        : { 'aria-description': requirement.reason })}
+      {...(unblock === undefined ? { disabled: !enabled } : {})}
+      title={
+        requirement === undefined
+          ? `${entry.hint}${shortcut(tool?.shortcutId)}`
+          : unblock === undefined
+            ? `${entry.label} — ${requirement.reason}`
+            : `${entry.label} — ${requirement.reason} Cliquez pour prendre « ${unblock.label} ».`
+      }
+      onClick={() => onChoose(unblock ?? entry)}
     >
       <ToolIcon icon={entry.icon} />
       <span>{entry.label}</span>
+      {recommended && (
+        <span className="entry-flag" aria-hidden="true">
+          ●
+        </span>
+      )}
+      {requirement !== undefined && (
+        // Hors du nom accessible : « Porte » doit rester « Porte » pour qui
+        // la cherche. La raison passe par `aria-description`, juste au-dessus.
+        <span className="entry-reason" aria-hidden="true">
+          {requirement.reason}
+        </span>
+      )}
     </button>
   );
 }

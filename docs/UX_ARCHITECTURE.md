@@ -5,6 +5,9 @@ maquette : il décrit ce que l'interface a le droit d'être. Toute PR qui touche
 à l'interface est relue contre les dix-huit critères de la dernière section.
 
 > **Ce contrat décrit la coque telle qu'elle est aujourd'hui.**
+> [`UX_REDESIGN_V3.md`](UX_REDESIGN_V3.md) spécifie la passe suivante : une
+> interface pilotée par **l'état réel de la maison** et non plus seulement par
+> l'étape et le métier.
 > [`UX_REDESIGN_V2.md`](UX_REDESIGN_V2.md) spécifie celle qu'elle devient, en
 > dix PR. UX-1 (coque verrouillée sur la fenêtre) et UX-2 (navigation par
 > étapes de création) sont livrées ; restent la boîte à outils filtrée par

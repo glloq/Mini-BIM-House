@@ -4,20 +4,21 @@
 
 Chaque sujet n'a qu'un seul document, et il se trouve ici :
 
-| Sujet                             | Document                                                         |
-| --------------------------------- | ---------------------------------------------------------------- |
-| Présentation, démo, prise en main | [`README.md`](../README.md)                                      |
-| Architecture logicielle           | [`ARCHITECTURE.md`](../ARCHITECTURE.md)                          |
-| État réel de l'implémentation     | [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md)           |
-| Plan d'implémentation, PR par PR  | [`IMPLEMENTATION_PLAN.md`](../IMPLEMENTATION_PLAN.md)            |
-| Spécifications et normes          | [`specifications/`](specifications/), [`standards/`](standards/) |
-| Décisions structurantes           | [`adr/`](adr/)                                                   |
-| Contrats machine-lisibles         | [`schemas/`](../schemas/)                                        |
-| Ce que le format ne sait pas dire | [`CONTRACT_GAPS.md`](CONTRACT_GAPS.md)                           |
-| Les vagues de remplissage         | [`CATALOG_WAVES.md`](CATALOG_WAVES.md)                           |
-| Ce que chaque moteur a répondu    | [`ENGINE_AUDIT.md`](ENGINE_AUDIT.md)                             |
-| Contrat d'interface en vigueur    | [`UX_ARCHITECTURE.md`](UX_ARCHITECTURE.md)                       |
-| Refonte de l'interface, PR par PR | [`UX_REDESIGN_V2.md`](UX_REDESIGN_V2.md)                         |
+| Sujet                                    | Document                                                         |
+| ---------------------------------------- | ---------------------------------------------------------------- |
+| Présentation, démo, prise en main        | [`README.md`](../README.md)                                      |
+| Architecture logicielle                  | [`ARCHITECTURE.md`](../ARCHITECTURE.md)                          |
+| État réel de l'implémentation            | [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md)           |
+| Plan d'implémentation, PR par PR         | [`IMPLEMENTATION_PLAN.md`](../IMPLEMENTATION_PLAN.md)            |
+| Spécifications et normes                 | [`specifications/`](specifications/), [`standards/`](standards/) |
+| Décisions structurantes                  | [`adr/`](adr/)                                                   |
+| Contrats machine-lisibles                | [`schemas/`](../schemas/)                                        |
+| Ce que le format ne sait pas dire        | [`CONTRACT_GAPS.md`](CONTRACT_GAPS.md)                           |
+| Les vagues de remplissage                | [`CATALOG_WAVES.md`](CATALOG_WAVES.md)                           |
+| Ce que chaque moteur a répondu           | [`ENGINE_AUDIT.md`](ENGINE_AUDIT.md)                             |
+| Contrat d'interface en vigueur           | [`UX_ARCHITECTURE.md`](UX_ARCHITECTURE.md)                       |
+| Refonte de l'interface, PR par PR        | [`UX_REDESIGN_V2.md`](UX_REDESIGN_V2.md)                         |
+| Ce que l'interface doit savoir du projet | [`UX_REDESIGN_V3.md`](UX_REDESIGN_V3.md)                         |
 
 Les copies de `specifications/` et `standards/` qui existaient à la racine du
 dépôt ont été supprimées : elles étaient identiques à celles-ci, et deux

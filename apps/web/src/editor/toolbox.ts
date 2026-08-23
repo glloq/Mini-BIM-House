@@ -28,10 +28,32 @@ import type {
 } from '@house-technical-designer/core-domain';
 
 import type { CreationStageId } from '../ux/creation-stages.js';
+import type { DesignState } from '../ux/design-state.js';
 
 import { draftKey, type ToolDrafts } from './tool-options.js';
 import { toolById, type EditorToolDefinition } from './tool-registry.js';
 import type { ToolIconId } from './tool-icons.js';
+
+/**
+ * Une question posée à l'état de la maison.
+ *
+ * Elle lit, et c'est le registre qui dit ce que la réponse veut dire :
+ * proposer, permettre, ou mettre en avant.
+ */
+export type DesignPredicate = (state: DesignState) => boolean;
+
+/**
+ * Ce qu'il faut avoir fait avant, et le geste qui y mène.
+ *
+ * Un outil grisé en silence est une panne. Un outil grisé qui dit « ajoutez un
+ * étage » et offre le bouton pour le faire est une leçon — et c'est la seule
+ * façon honnête de retirer un bouton de la route de quelqu'un.
+ */
+export interface ToolboxRequirement {
+  readonly reason: string;
+  /** L'entrée qui débloque, quand c'en est une. */
+  readonly entryId?: string;
+}
 
 export interface ToolboxEntry {
   readonly id: string;
@@ -49,7 +71,35 @@ export interface ToolboxEntry {
    * ici. Une entrée dont la famille n'est pas installée n'est pas proposée.
    */
   readonly family?: string;
+  /**
+   * Absente tant que c'est faux.
+   *
+   * Ne retire jamais l'outil de « Tous les outils », ni de la recherche, ni de
+   * la palette : une étape filtre ce qui est proposé, elle ne restreint jamais
+   * ce qui est possible.
+   */
+  readonly visibleWhen?: DesignPredicate;
+  /** Présente mais inerte, avec sa raison écrite. */
+  readonly enabledWhen?: DesignPredicate;
+  /** Mise en avant : c'est la suite normale du travail. */
+  readonly recommendedWhen?: DesignPredicate;
+  readonly requires?: ToolboxRequirement;
 }
+
+/** Ce que l'entrée vaut ici et maintenant. */
+export interface ToolboxAvailability {
+  readonly entry: ToolboxEntry;
+  readonly enabled: boolean;
+  readonly recommended: boolean;
+  /** Pourquoi elle est inerte, quand elle l'est. */
+  readonly requirement?: ToolboxRequirement;
+}
+
+/** Ce qu'une entrée demande à la maison, quand elle demande quelque chose. */
+type EntryNeeds = Pick<
+  ToolboxEntry,
+  'visibleWhen' | 'enabledWhen' | 'recommendedWhen' | 'requires'
+>;
 
 export interface ToolboxSection {
   readonly id: string;
@@ -67,6 +117,7 @@ const entry = (
   icon: ToolIconId,
   options?: Readonly<Record<string, string>>,
   family?: string,
+  needs: EntryNeeds = {},
 ): ToolboxEntry => ({
   id,
   toolId,
@@ -75,7 +126,34 @@ const entry = (
   icon,
   ...(options === undefined ? {} : { options }),
   ...(family === undefined ? {} : { family }),
+  ...needs,
 });
+
+/*
+ * Ce que chaque outil demande à la maison.
+ *
+ * Écrit à côté des entrées qui le portent, et jamais dans un composant :
+ * ajouter un outil est une ligne, et savoir quand il sert en fait partie.
+ */
+const HAS_WALL: EntryNeeds = {
+  enabledWhen: (state) => state.wallCount > 0,
+  requires: { reason: 'Tracez d’abord un mur.', entryId: 'building.wall' },
+};
+const TWO_LEVELS: EntryNeeds = {
+  enabledWhen: (state) => state.levelCount >= 2,
+  requires: { reason: 'Ajoutez un étage avant de poser un escalier.' },
+};
+const HAS_CONTOUR: EntryNeeds = {
+  enabledWhen: (state) => state.closedContours.length > 0,
+  requires: {
+    reason: 'Fermez d’abord un contour de murs.',
+    entryId: 'building.wall',
+  },
+};
+const HAS_NETWORK: EntryNeeds = {
+  enabledWhen: (state) => state.networkCount > 0,
+  requires: { reason: 'Créez d’abord un réseau dans « Réseaux ».' },
+};
 
 /** Poser une fiche du catalogue : l'outil composant, sa catégorie, sa famille. */
 const place = (
@@ -85,8 +163,9 @@ const place = (
   icon: ToolIconId,
   category: string,
   family: string,
+  needs: EntryNeeds = {},
 ): ToolboxEntry =>
-  entry(id, 'COMPONENT', label, hint, icon, { category }, family);
+  entry(id, 'COMPONENT', label, hint, icon, { category }, family, needs);
 
 /**
  * Les sections de chaque étape, dans l'ordre où on les rencontre en dessinant.
@@ -189,6 +268,8 @@ const STAGE_SECTIONS: Readonly<
           'Poser une porte dans un mur',
           'DOOR',
           { openingType: 'DOOR' },
+          undefined,
+          HAS_WALL,
         ),
         entry(
           'building.window',
@@ -197,6 +278,8 @@ const STAGE_SECTIONS: Readonly<
           'Poser une fenêtre dans un mur',
           'WINDOW',
           { openingType: 'WINDOW' },
+          undefined,
+          HAS_WALL,
         ),
         entry(
           'building.void',
@@ -205,6 +288,8 @@ const STAGE_SECTIONS: Readonly<
           'Percer un passage dans un mur',
           'VOID',
           { openingType: 'VOID' },
+          undefined,
+          HAS_WALL,
         ),
       ],
     },
@@ -219,6 +304,14 @@ const STAGE_SECTIONS: Readonly<
           'Pièce',
           'Nommer une pièce en pointant dedans',
           'SPACE',
+          undefined,
+          undefined,
+          {
+            // Un contour fermé qui ne porte pas de pièce est exactement le
+            // travail qui reste entre « les murs sont tracés » et « les pièces
+            // sont nommées ».
+            recommendedWhen: (state) => state.contoursWithoutSpace > 0,
+          },
         ),
         entry(
           'building.slab',
@@ -226,6 +319,9 @@ const STAGE_SECTIONS: Readonly<
           'Dalle',
           'Tracer un plancher ou une terrasse',
           'SLAB',
+          undefined,
+          undefined,
+          HAS_CONTOUR,
         ),
         entry(
           'building.stair',
@@ -233,6 +329,9 @@ const STAGE_SECTIONS: Readonly<
           'Escalier',
           'Poser un escalier entre deux niveaux',
           'STAIR',
+          undefined,
+          undefined,
+          TWO_LEVELS,
         ),
         entry(
           'building.roof',
@@ -240,6 +339,15 @@ const STAGE_SECTIONS: Readonly<
           'Toiture',
           'Tracer un pan de toiture',
           'ROOF',
+          undefined,
+          undefined,
+          {
+            ...HAS_CONTOUR,
+            // Une maison qui a son emprise et pas encore de toit : c'est là
+            // que la toiture devient la suite normale du travail.
+            recommendedWhen: (state) =>
+              state.closedContours.length > 0 && state.roofSurfaceCount === 0,
+          },
         ),
       ],
     },
@@ -279,6 +387,8 @@ const STAGE_SECTIONS: Readonly<
           'Une dalle qui porte',
           'SLAB',
           { role: 'FLOOR' },
+          undefined,
+          HAS_CONTOUR,
         ),
         entry(
           'structure.hole',
@@ -286,6 +396,15 @@ const STAGE_SECTIONS: Readonly<
           'Trémie',
           'Percer une dalle',
           'SLAB_HOLE',
+          undefined,
+          undefined,
+          {
+            enabledWhen: (state) => state.slabCount > 0,
+            requires: {
+              reason: 'Posez une dalle avant d’y percer une trémie.',
+              entryId: 'structure.slab',
+            },
+          },
         ),
       ],
     },
@@ -408,6 +527,10 @@ const STAGE_SECTIONS: Readonly<
           'Tracer un tronçon',
           'Tracer une canalisation sur le réseau actif',
           'PIPE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
       ],
     },
@@ -422,6 +545,10 @@ const STAGE_SECTIONS: Readonly<
           'Tracer un tronçon',
           'Tracer une évacuation',
           'PIPE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
         entry(
           'waste.branch',
@@ -429,6 +556,10 @@ const STAGE_SECTIONS: Readonly<
           'Dériver',
           'Brancher sur une évacuation existante',
           'BRANCH',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
         entry(
           'waste.node',
@@ -436,6 +567,10 @@ const STAGE_SECTIONS: Readonly<
           'Réseau',
           'Poser un nœud d’évacuation',
           'NODE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
       ],
     },
@@ -458,6 +593,10 @@ const STAGE_SECTIONS: Readonly<
           'Tracer un tronçon',
           'Tracer une descente ou un collecteur',
           'PIPE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
       ],
     },
@@ -504,6 +643,10 @@ const STAGE_SECTIONS: Readonly<
           'Tracer un tronçon',
           'Tracer une boucle de chauffage',
           'PIPE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
       ],
     },
@@ -534,6 +677,10 @@ const STAGE_SECTIONS: Readonly<
           'Tracer un tronçon',
           'Tracer une gaine',
           'DUCT',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
       ],
     },
@@ -572,6 +719,10 @@ const STAGE_SECTIONS: Readonly<
           'Tracer un tronçon',
           'Tracer un circuit',
           'CABLE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
       ],
     },
@@ -594,6 +745,10 @@ const STAGE_SECTIONS: Readonly<
           'Tracer un tronçon',
           'Tracer un circuit d’éclairage',
           'CABLE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
       ],
     },
@@ -608,6 +763,10 @@ const STAGE_SECTIONS: Readonly<
           'Tracer un tronçon',
           'Tracer un conduit de fumée',
           'DUCT',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
         entry(
           'flue.node',
@@ -615,6 +774,10 @@ const STAGE_SECTIONS: Readonly<
           'Réseau',
           'Poser un élément de conduit',
           'NODE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
       ],
     },
@@ -629,6 +792,10 @@ const STAGE_SECTIONS: Readonly<
           'Tracer un tronçon',
           'Tracer un câble de données',
           'CABLE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
         entry(
           'data.node',
@@ -636,6 +803,10 @@ const STAGE_SECTIONS: Readonly<
           'Réseau',
           'Poser une prise ou un équipement réseau',
           'NODE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
       ],
     },
@@ -650,6 +821,10 @@ const STAGE_SECTIONS: Readonly<
           'Réseau',
           'Poser un détecteur ou un organe de sécurité',
           'NODE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
         entry(
           'safety.route',
@@ -657,6 +832,10 @@ const STAGE_SECTIONS: Readonly<
           'Tracer un tronçon',
           'Tracer une liaison de sécurité',
           'CABLE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
       ],
     },
@@ -674,6 +853,13 @@ const STAGE_SECTIONS: Readonly<
           'PV',
           'PHOTOVOLTAIC',
           'PV_ARRAY',
+          {
+            enabledWhen: (state) => state.roofSurfaceCount > 0,
+            requires: {
+              reason: 'Dessinez la toiture avant d’y poser des panneaux.',
+              entryId: 'building.roof',
+            },
+          },
         ),
         place(
           'energy.inverter',
@@ -689,6 +875,10 @@ const STAGE_SECTIONS: Readonly<
           'Tracer un tronçon',
           'Tracer une liaison photovoltaïque',
           'CABLE',
+
+          undefined,
+          undefined,
+          HAS_NETWORK,
         ),
       ],
     },
@@ -815,6 +1005,21 @@ export function allToolboxEntries(): readonly ToolboxEntry[] {
   ];
 }
 
+/**
+ * L'entrée qui débloque celle-ci, quand il y en a une.
+ *
+ * Une raison écrite dit ce qui manque ; celle-ci offre le geste. Toutes les
+ * conditions n'en ont pas — « ajoutez un étage » se règle dans le menu du
+ * projet, pas dans la boîte à outils — et une condition sans geste reste une
+ * raison, ce qui vaut toujours mieux qu'un bouton muet.
+ */
+export function unblockingEntry(
+  requirement: ToolboxRequirement | undefined,
+): ToolboxEntry | undefined {
+  if (requirement?.entryId === undefined) return undefined;
+  return allToolboxEntries().find(({ id }) => id === requirement.entryId);
+}
+
 /** La fiche que le catalogue installé propose pour une famille, s'il en tient une. */
 export function ficheOfFamily(
   project: Project,
@@ -838,6 +1043,30 @@ export function entryAvailable(
 }
 
 /**
+ * Ce que l'entrée vaut devant cette maison-là.
+ *
+ * Trois degrés et pas un de plus : recommandée, active, inerte. Une entrée qui
+ * ne demande rien est active et jamais recommandée — c'est le comportement
+ * qu'avaient les vingt-cinq outils avant qu'on sache poser la question.
+ */
+export function availabilityOf(
+  candidate: ToolboxEntry,
+  state: DesignState,
+): ToolboxAvailability {
+  const enabled = candidate.enabledWhen?.(state) ?? true;
+  return {
+    entry: candidate,
+    enabled,
+    // Rien n'est mis en avant tant que rien ne le permet : recommander un
+    // outil qu'on ne peut pas prendre serait recommander une déception.
+    recommended: enabled && (candidate.recommendedWhen?.(state) ?? false),
+    ...(enabled || candidate.requires === undefined
+      ? {}
+      : { requirement: candidate.requires }),
+  };
+}
+
+/**
  * Ce que l'étape propose ici et maintenant.
  *
  * Filtré par le métier lu quand l'étape en propose plusieurs — les dix
@@ -848,6 +1077,7 @@ export function toolboxFor(
   project: Project,
   stage: CreationStageId,
   domain: DesignDomainId | undefined,
+  state?: DesignState,
 ): readonly ToolboxSection[] {
   const sections = sectionsOfStage(stage);
   const narrowed =
@@ -863,8 +1093,12 @@ export function toolboxFor(
   return chosen
     .map((section) => ({
       ...section,
-      entries: section.entries.filter((candidate) =>
-        entryAvailable(project, candidate),
+      entries: section.entries.filter(
+        (candidate) =>
+          entryAvailable(project, candidate) &&
+          // `visibleWhen` retire de la liste ; il ne retire jamais de « Tous
+          // les outils », ni de la recherche, ni de la palette.
+          (state === undefined || (candidate.visibleWhen?.(state) ?? true)),
       ),
     }))
     .filter((section) => section.entries.length > 0);

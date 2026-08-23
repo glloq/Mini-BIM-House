@@ -186,6 +186,7 @@ import {
   librariesOfStage,
   stageOfTab,
 } from './ux/creation-stages.js';
+import { designStateOf } from './ux/design-state.js';
 import {
   PLAN_RENDERINGS,
   defaultPlanRendering,
@@ -845,6 +846,15 @@ function App() {
   const stageProgress = useMemo(
     () => remainingByStage(workflowEntries(file.project)),
     [file.project],
+  );
+
+  /**
+   * Ce que la maison est, pas ce que l'on a cliqué : les prédicats de la
+   * boîte à outils lisent cet état plutôt que des drapeaux d'étape.
+   */
+  const design = useMemo(
+    () => designStateOf(file.project, activeLevelId),
+    [activeLevelId, file.project],
   );
 
   const changeLayout = useCallback((patch: Partial<WorkspaceLayout>): void => {
@@ -2306,6 +2316,7 @@ function App() {
               <Toolbox
                 project={file.project}
                 stage={navigation.stage}
+                design={design}
                 {...(activeDomain === undefined
                   ? {}
                   : { domain: activeDomain })}
