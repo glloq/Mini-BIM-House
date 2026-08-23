@@ -225,7 +225,7 @@ const STAGE_SECTIONS: Readonly<
           'Allée',
           'Tracer une allée ou un accès',
           'SITE',
-          { target: 'OBSTACLE', kind: 'OTHER', name: 'Allée' },
+          { target: 'OBSTACLE', kind: 'PATH' },
         ),
         entry(
           'site.parking',
@@ -233,7 +233,7 @@ const STAGE_SECTIONS: Readonly<
           'Stationnement',
           'Tracer une aire de stationnement',
           'SITE',
-          { target: 'OBSTACLE', kind: 'OTHER', name: 'Stationnement' },
+          { target: 'OBSTACLE', kind: 'PARKING' },
         ),
       ],
     },
@@ -425,6 +425,22 @@ const STAGE_SECTIONS: Readonly<
             // travail qui reste entre « les murs sont tracés » et « les pièces
             // sont nommées ».
             recommendedWhen: (state) => state.contoursWithoutSpace > 0,
+          },
+        ),
+        entry(
+          'building.merge',
+          'MERGE_SPACES',
+          'Fusionner',
+          'Réunir deux pièces en retirant ce qui les sépare',
+          'SPACE',
+          undefined,
+          undefined,
+          {
+            enabledWhen: (state) => state.spaceCount >= 2,
+            requires: {
+              reason: 'Il faut deux pièces pour en réunir deux.',
+              entryId: 'building.space',
+            },
           },
         ),
         entry(

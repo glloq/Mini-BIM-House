@@ -885,9 +885,9 @@ manques, avec ce que chacun coûte.
 | 5   | ~~**Types de maison** et **formes initiales**~~ — _livré_             | les formes existaient ; les types créent la pile d'un clic, et l'emprise est cotée à l'intérieur                                                | moyen |
 | 6   | ~~**Pans de toiture** posés d'un coup~~ — _livré_                     | les pignons vont sur les côtés les plus courts ; l'inspecteur garde le dernier mot côté par côté                                                | petit |
 | 7   | **Pente visible** sur une évacuation                                  | du dessin, et une lecture de `slopePercent` déjà stocké                                                                                         | petit |
-| 8   | **Natures d'aménagement extérieur**                                   | étendre `SiteObstacleKind` : allée, parking, voirie, terrasse, piscine                                                                          | petit |
+| 8   | ~~**Natures d'aménagement extérieur**~~ — _livré_                     | `SiteObstacleKind` en tient quatre de plus : allée, stationnement, voirie, terrasse                                                             | petit |
 | 9   | **Clôture, haie, portail**                                            | soit des natures d'obstacle linéaires, soit des familles de catalogue — à décider avant d'écrire                                                | moyen |
-| 10  | **Fusionner deux pièces**                                             | une commande de domaine ; aujourd'hui on supprime la cloison                                                                                    | moyen |
+| 10  | ~~**Fusionner deux pièces**~~ — _livré_                               | retirer la cloison qui sépare, et relire du modèle le contour qui reste                                                                         | moyen |
 | 11  | **La maison comme objet déplaçable**                                  | une sélection « tout le bâti » et une transformation qui la porte, pour `TERRAIN › Implantation`                                                | gros  |
 
 Aucun de ces onze n'est un préalable à la navigation : les sept onglets et les
@@ -932,7 +932,7 @@ Ils viennent de V2 et de V3, ils ont tenu, et ils tiennent encore :
 | **V4-9**  | _Livré._ Types de maison, et l'emprise cotée à l'intérieur               | V4-2      |
 | **V4-10** | _Partiel._ Outil Mesurer et pans de toiture ; la pente reste à dessiner  | V4-4      |
 | **V4-11** | _Livré._ `ÉTUDES › Vue d'ensemble` : une ligne par métier, deux surfaces | V4-2      |
-| **V4-12** | Natures d'extérieur et fusion de pièces (manques 8, 9, 10)               | V4-4      |
+| **V4-12** | _Livré._ Natures d'extérieur nommées, et deux pièces qu'on réunit        | V4-4      |
 
 Le manque 11 — la maison comme objet — n'est dans aucun lot : il se décide à
 part, parce qu'il touche le modèle et pas l'écran.

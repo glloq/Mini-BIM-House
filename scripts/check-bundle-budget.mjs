@@ -145,8 +145,11 @@ export const BUDGETS = {
    * Et un avec les étiquettes de surface : ce que les murs enferment, écrit
    * sur le plan. C'est le premier écran, et la question « est-ce que c'est
    * reconnu ? » se pose au premier contour fermé.
+   *
+   * Et un avec Mesurer, Fusionner et les pans de toiture : trois gestes du
+   * plan, donc trois gestes du premier écran.
    */
-  initialGzipBytes: 283 * 1024,
+  initialGzipBytes: 284 * 1024,
   /**
    * Everything the build produces, gzipped.
    *

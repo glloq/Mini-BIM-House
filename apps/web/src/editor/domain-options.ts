@@ -174,6 +174,10 @@ export const SITE_OBSTACLE_OPTIONS = optionsFrom<SiteObstacleKind>(
     BUILDING: 'Bâtiment voisin',
     TREE: 'Arbre',
     EXCLUSION: 'Zone exclue',
+    PATH: 'Allée',
+    PARKING: 'Stationnement',
+    ROAD: 'Voirie',
+    TERRACE: 'Terrasse',
     OTHER: 'Autre',
   },
 );

@@ -41,6 +41,13 @@ PROJET | TERRAIN | BÂTIMENT | AMÉNAGEMENT | SYSTÈMES | ÉTUDES | DOCUMENTS
    P       T          B           A            S         E        D
 ```
 
+Ce que le registre en dit, dans sa langue — et ce qu'un test compare à ce
+document, pour qu'un espace ajouté au code et pas ici reste impossible :
+
+```
+PROJECT | SITE | BUILDING | FITTING | SYSTEMS | CHECKS | DOCUMENTS
+```
+
 `apps/web/src/ux/creation-stages.ts` les gèle. Cinq espaces répondaient à « où
 je travaille » ; ils demandaient à quelqu'un qui pose une prise de savoir
 d'avance qu'une prise se pose dans « Systèmes ». Neuf étapes ont répondu à

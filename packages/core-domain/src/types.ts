@@ -63,11 +63,22 @@ export interface GeoLocation {
  * A neighbouring building, a tree and a zone that must stay clear all cast
  * shade, take room and change where things can go — and none of them behaves
  * like the others when the sun is computed. The kind belongs to the obstacle.
+ *
+ * Les quatre premiers ombrent ; les quatre suivants tiennent le sol. Une
+ * allée, une aire de stationnement, une voirie et une terrasse ne portent
+ * aucune ombre et ne se dessinent pas comme un arbre — mais elles occupent le
+ * terrain, comptent dans l'imperméabilisation, et il fallait bien les mettre
+ * quelque part. Elles étaient « Autre, nommé Allée » : le modèle ne savait pas
+ * qu'une allée était une allée, et aucun calcul ne pouvait le lui apprendre.
  */
 export const SITE_OBSTACLE_KINDS = [
   'BUILDING',
   'TREE',
   'EXCLUSION',
+  'PATH',
+  'PARKING',
+  'ROAD',
+  'TERRACE',
   'OTHER',
 ] as const;
 export type SiteObstacleKind = (typeof SITE_OBSTACLE_KINDS)[number];

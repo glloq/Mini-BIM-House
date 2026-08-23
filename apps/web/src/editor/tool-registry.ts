@@ -27,6 +27,7 @@ import {
   placeComponentCommand,
   punchSlabHoleCommand,
   joinWallsCommand,
+  mergeSpacesCommand,
   offsetWallCommand,
   splitWallCommand,
   transformObjectsCommand,
@@ -1338,6 +1339,28 @@ export const EDITOR_TOOLS = [
         nodeId: context.newId('node'),
         newId: context.newId,
       });
+    },
+  },
+  {
+    id: 'MERGE_SPACES',
+    // Une opération sur ce qui est déjà là, comme scinder et joindre : réunir
+    // deux pièces retire un mur, ce n'est pas dessiner une pièce de plus.
+    group: 'MODIFICATION',
+    label: 'Fusionner',
+    hint: 'Réunir deux pièces en retirant ce qui les sépare',
+    shortcutId: 'tool.mergeSpaces',
+    requiredPoints: 2,
+    createCommand: (context) => {
+      const [from, to] = context.points;
+      if (from === undefined || to === undefined)
+        return { status: 'ERROR', message: 'Deux points sont attendus.' };
+      return mergeSpacesCommand(
+        context.file,
+        context.levelId,
+        from,
+        to,
+        context.newId('space'),
+      );
     },
   },
   {

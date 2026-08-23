@@ -34,7 +34,10 @@ import {
   MoveWallCommand,
   MoveWallPointCommand,
   ProjectEditorCommand,
+  ProjectCommandDispatcher,
   ProjectTransactionCommand,
+  RemoveSpaceCommand,
+  type DetectedRoom,
   SetParcelBoundaryCommand,
   SetWallPathCommand,
   SplitWallCommand,
@@ -683,6 +686,110 @@ export function addSpaceAtPointCommand(
       category: draft.category,
       polygon: found.polygon,
     }),
+  };
+}
+
+/**
+ * Réunir deux pièces en une.
+ *
+ * Deux pièces sont séparées par ce qui les sépare : une cloison. Les réunir
+ * n'est donc pas une opération sur les pièces, c'est **retirer la cloison** —
+ * après quoi les murs n'enferment plus qu'un contour, et ce contour n'a besoin
+ * que d'une pièce.
+ *
+ * Le contour d'arrivée n'est pas deviné : la cloison est retirée sur une copie
+ * du projet, et c'est la détection qui dit ce que les murs enferment alors. On
+ * ne calcule pas une union de polygones dont le modèle saurait déjà la réponse.
+ *
+ * Tout part en une seule commande : deux pièces à moitié fusionnées — la
+ * cloison retirée, deux espaces qui se recouvrent — seraient un état que
+ * personne n'a demandé et qu'il faudrait défaire en quatre fois.
+ */
+export function mergeSpacesCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  from: Point2D,
+  to: Point2D,
+  spaceId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const rooms = detectRooms(file.project, level.id);
+  const first = rooms.find((room) => pointInPolygon(from, room.polygon.outer));
+  const second = rooms.find((room) => pointInPolygon(to, room.polygon.outer));
+  if (first === undefined || second === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Désignez deux contours fermés par les murs.',
+    };
+  if (first === second)
+    return { status: 'ERROR', message: 'Ces deux points sont la même pièce.' };
+  /*
+   * Lequel des murs communs est celui qui sépare.
+   *
+   * Les deux contours en citent plusieurs : sur un rectangle coupé en deux,
+   * les murs du haut et du bas courent d'un bout à l'autre et appartiennent
+   * donc aux deux pièces. Les retirer tous ouvrirait la maison.
+   *
+   * Le séparateur est celui dont le retrait laisse **un seul contour qui
+   * contient les deux points**. On ne le devine pas : on essaie, et c'est la
+   * détection qui tranche — la même qui dessine les pièces.
+   */
+  const shared = first.sourceWallIds.filter((id) =>
+    second.sourceWallIds.includes(id),
+  );
+  if (shared.length === 0)
+    return {
+      status: 'ERROR',
+      message: 'Ces deux pièces ne partagent aucun mur : rien à retirer.',
+    };
+  let removal: ProjectCommand | undefined;
+  let merged: DetectedRoom | undefined;
+  for (const wallId of shared) {
+    const command = removalCommandFor(file.project, level.id, wallId);
+    if (command === undefined) continue;
+    const dispatcher = new ProjectCommandDispatcher(file.project);
+    if (dispatcher.dispatch(command).status !== 'APPLIED') continue;
+    const candidate = detectRooms(dispatcher.project, level.id).find((room) =>
+      pointInPolygon(from, room.polygon.outer),
+    );
+    if (candidate === undefined || !pointInPolygon(to, candidate.polygon.outer))
+      continue;
+    removal = command;
+    merged = candidate;
+    break;
+  }
+  if (removal === undefined || merged === undefined)
+    return {
+      status: 'ERROR',
+      message:
+        'Aucun mur commun ne sépare ces deux pièces sans ouvrir le reste.',
+    };
+  const removals = [removal];
+  const kept = level.spaces.find(({ id }) => id === first.existingSpaceId);
+  const dropped = level.spaces.filter(
+    ({ id }) => id === first.existingSpaceId || id === second.existingSpaceId,
+  );
+  return {
+    status: 'OK',
+    command: new ProjectTransactionCommand(
+      `merge-spaces:${spaceId}`,
+      'Réunir deux pièces',
+      [
+        ...removals,
+        ...dropped.map((space) => new RemoveSpaceCommand(level.id, space.id)),
+        new AddSpaceCommand(level.id, {
+          id: spaceId,
+          // La pièce qui reste garde le nom de la première désignée : c'est
+          // celle qu'on a montrée en premier, et un nom inventé serait un nom
+          // que personne n'a choisi.
+          name: kept?.name ?? 'Pièce',
+          category: kept?.category ?? 'OTHER',
+          polygon: merged.polygon,
+        }),
+      ],
+    ),
   };
 }
 

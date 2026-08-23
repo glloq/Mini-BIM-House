@@ -20,6 +20,7 @@ export type ShortcutCommandId =
   | 'tool.beam'
   | 'tool.site'
   | 'tool.measure'
+  | 'tool.mergeSpaces'
   | 'tool.dimension'
   | 'tool.note'
   | 'tool.network'
@@ -93,6 +94,7 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
   // « h » comme « combien » : les lettres évidentes étaient prises, et une
   // mesure se prend assez souvent pour mériter la sienne.
   { id: 'tool.measure', label: 'Mesurer', key: 'h', group: 'Outils' },
+  { id: 'tool.mergeSpaces', label: 'Fusionner', key: 'q', group: 'Outils' },
   { id: 'tool.dimension', label: 'Cotation', key: 'd', group: 'Outils' },
   { id: 'tool.note', label: 'Annotation', key: 'n', group: 'Outils' },
   { id: 'tool.network', label: 'Réseau', key: 'r', group: 'Outils' },

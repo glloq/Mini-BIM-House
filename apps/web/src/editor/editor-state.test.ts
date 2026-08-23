@@ -283,7 +283,10 @@ describe('keyboard shortcuts', () => {
     ).toBe('edit.redo');
     expect(resolveShortcut(key({ key: 's', metaKey: true }))).toBe('file.save');
     expect(resolveShortcut(key({ key: 'Delete' }))).toBe('edit.delete');
-    expect(resolveShortcut(key({ key: 'q' }))).toBeUndefined();
+    // L'alphabet est plein : une touche libre se cherche désormais ailleurs
+    // que dans les lettres, et c'est un fait qu'il vaut mieux voir ici que
+    // découvrir en donnant deux fois la même.
+    expect(resolveShortcut(key({ key: '&' }))).toBeUndefined();
   });
 
   it('never lets a modified chord fall through to its bare binding', () => {

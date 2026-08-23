@@ -6770,99 +6770,6 @@
         }
       },
       {
-        "id": "generic-buried-rainwater-tank-5000l",
-        "familyId": "SITE_RAINWATER_TANK",
-        "kind": "RAINWATER_TANK",
-        "catalogKind": "GENERIC",
-        "version": "1.0.0",
-        "name": "Cuve de récupération enterrée 5 000 L",
-        "category": "RAINWATER_TANK",
-        "dimensions": {
-          "widthMm": 2200,
-          "depthMm": 1600,
-          "heightMm": 1800
-        },
-        "allowedHosts": [
-          "SITE"
-        ],
-        "requiredClearances": [
-          "MAINTENANCE",
-          "SERVICE"
-        ],
-        "capabilities": [
-          "PLACEABLE",
-          "CONNECTABLE",
-          "CLEARANCE_ZONED",
-          "CALCULATED"
-        ],
-        "ports": [
-          {
-            "id": "inlet",
-            "portTypeId": "RAINWATER_IN",
-            "position": {
-              "x": -1100,
-              "y": 0,
-              "z": 700
-            }
-          },
-          {
-            "id": "outlet",
-            "portTypeId": "RAINWATER_OUT",
-            "position": {
-              "x": 0,
-              "y": 0,
-              "z": 900
-            }
-          },
-          {
-            "id": "overflow",
-            "portTypeId": "RAINWATER_OVERFLOW",
-            "position": {
-              "x": 1100,
-              "y": 0,
-              "z": 650
-            }
-          }
-        ],
-        "clearances": [
-          {
-            "zone": "MAINTENANCE",
-            "aboveMm": 1000,
-            "reason": "Ouverture du tampon et descente dans la cuve"
-          }
-        ],
-        "provenance": {
-          "type": "GENERIC",
-          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-        },
-        "sources": [
-          {
-            "property": "capacityL",
-            "sourceType": "GENERIC",
-            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-          },
-          {
-            "property": "buriedDepthMm",
-            "sourceType": "GENERIC",
-            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-          }
-        ],
-        "rendering": {
-          "symbols": [
-            {
-              "discipline": "OTHER",
-              "symbolId": "symbol-rainwater-tank"
-            }
-          ],
-          "planFootprint": "RECTANGLE"
-        },
-        "properties": {
-          "capacityL": 5000,
-          "buriedDepthMm": 1000,
-          "name": "Cuve de récupération enterrée 5 000 L"
-        }
-      },
-      {
         "id": "generic-public-sewer-connection",
         "familyId": "PUBLIC_SEWER_CONNECTION",
         "kind": "DRAINAGE",
@@ -11637,7 +11544,7 @@
         "methodId": "co2-mass-balance-v1",
         "precisionTarget": "ENGINEERING",
         "settings": {
-          "co2GenerationM3sPerOccupant": 0.0000047,
+          "co2GenerationM3sPerOccupant": 4.7e-06,
           "initialConcentrationPpm": 500,
           "durationHours": 8,
           "occupantsByCategory": {
