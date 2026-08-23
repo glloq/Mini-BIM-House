@@ -4,6 +4,7 @@ import {
   CREATION_STAGES,
   defaultTabOfStage,
   stageOfTab,
+  tabsOfStage,
 } from './creation-stages.js';
 import {
   activeDomain,
@@ -23,10 +24,22 @@ describe('the nine stages and the thirteen destinations', () => {
     expect(activeTab(DEFAULT_SHELL_NAVIGATION)).toBe('plan');
   });
 
+  it('stays where it is when the stage already offers the destination', () => {
+    // Le plan est offert par sept étapes sur neuf. Sans cette règle, cliquer
+    // « Plan » depuis Bâtiment renverrait dans Terrain, qui est simplement la
+    // première de la liste à le proposer.
+    const site = goToStage(DEFAULT_SHELL_NAVIGATION, 'SITE');
+    expect(goToTab(site, 'plan').stage).toBe('SITE');
+    expect(goToTab(DEFAULT_SHELL_NAVIGATION, 'plan').stage).toBe('BUILDING');
+  });
+
   it('reaches every destination through its stage', () => {
     for (const tab of LEGACY_WORKSPACE_TABS) {
       const navigation = goToTab(DEFAULT_SHELL_NAVIGATION, tab);
-      expect(navigation.stage).toBe(stageOfTab(tab));
+      const expected = tabsOfStage(DEFAULT_SHELL_NAVIGATION.stage).includes(tab)
+        ? DEFAULT_SHELL_NAVIGATION.stage
+        : stageOfTab(tab);
+      expect(navigation.stage).toBe(expected);
       expect(activeTab(navigation)).toBe(tab);
       expect(isTabActive(navigation, tab)).toBe(true);
       expect(destinationsOf(navigation.stage)).toContain(tab);

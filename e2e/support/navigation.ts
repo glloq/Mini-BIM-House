@@ -12,6 +12,20 @@ import type { Page } from '@playwright/test';
  * En dessous de 1 100 px la barre d'étapes est une liste déroulante ; au-dessus
  * ce sont neuf boutons. Les deux répondent à la même demande.
  */
+/**
+ * Les bibliothèques ne sont pas des destinations.
+ *
+ * On ne « va » pas dans les matériaux : on les ouvre parce qu'un mur en
+ * désigne un, ou on les cherche dans l'arborescence, avec le reste de ce qu'on
+ * cherche. Elles ne sont donc plus en tête du panneau.
+ */
+const LIBRARIES: readonly string[] = [
+  'Matériaux',
+  'Assemblages',
+  'Menuiseries',
+  'Équipements',
+];
+
 const STAGE_OF: Readonly<Record<string, string>> = {
   Projet: 'Projet',
   'Niveaux et pièces': 'Projet',
@@ -53,6 +67,28 @@ export async function openDestination(
   // already there. Both have to answer the same request.
   const toggle = page.getByRole('button', { name: 'Panneau', exact: true });
   if (await toggle.isVisible()) await toggle.click();
+  if (LIBRARIES.includes(label)) {
+    const tree = page.getByRole('navigation', {
+      name: 'Arborescence du projet',
+    });
+    // L'arborescence vit sur le plan : venir d'une autre bibliothèque veut
+    // dire y revenir d'abord. Le panneau montre où l'on est, donc « Plan » est
+    // là pour cela.
+    if (!(await tree.isVisible()))
+      await page
+        .locator('#workspace-sidebar')
+        .getByRole('button', { name: 'Plan', exact: true })
+        .click();
+    const entry = tree.getByRole('button', { name: label, exact: true });
+    if (!(await entry.isVisible()))
+      await tree
+        .locator('summary')
+        .filter({ hasText: 'Bibliothèques' })
+        .click();
+    // Choisir une bibliothèque referme le tiroir tout seul, sur un téléphone.
+    await entry.click();
+    return;
+  }
   const entry = page
     .locator('#workspace-sidebar')
     .getByRole('button', { name: label, exact: true });

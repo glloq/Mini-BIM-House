@@ -2192,6 +2192,49 @@ test('reads the same plan through one discipline at a time', async ({
   expect(errors).toEqual([]);
 });
 
+test('opens a library from the property that designates a fiche', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  // Changer l'assemblage d'un mur demandait de quitter le plan pour
+  // « Matériaux », de trouver la fiche, puis de revenir. Une bibliothèque est
+  // un catalogue qu'on consulte, pas un lieu où l'on va.
+  const canvas = page.locator('.plan-canvas');
+  const at = await page.evaluate(() => {
+    const wall = document
+      .querySelector('[id="wall:wall-south"]')!
+      .getBoundingClientRect();
+    const frame = document
+      .querySelector('.plan-canvas')!
+      .getBoundingClientRect();
+    return {
+      x: wall.x - frame.x + wall.width / 2,
+      y: wall.y - frame.y + wall.height / 2,
+    };
+  });
+  await canvas.click({ position: at });
+  // Quel mur exactement n'a pas d'importance : ce qui compte est qu'un mur ait
+  // un assemblage, et que le champ qui le désigne sache l'ouvrir.
+  const inspector = page.locator('.inspector-subject');
+  await expect(inspector).toContainText('Mur');
+
+  const field = inspector.locator('.inspector-edit', {
+    hasText: 'Assemblage',
+  });
+  await field.getByRole('button', { name: 'Bibliothèque…' }).click();
+  await expect(page.locator('.assembly-list li').first()).toBeVisible();
+
+  // Et elles restent atteignables sans sélection, rangées avec ce qu'on
+  // cherche plutôt qu'en tête du panneau.
+  await openDestination(page, 'Plan');
+  const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
+  await tree.locator('summary').filter({ hasText: 'Bibliothèques' }).click();
+  await tree.getByRole('button', { name: 'Matériaux', exact: true }).click();
+  await expect(page.locator('.library-table tbody tr').first()).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test('shows what the plan shows when nothing is selected', async ({ page }) => {
   const errors = watchConsole(page);
   await loadDemo(page);

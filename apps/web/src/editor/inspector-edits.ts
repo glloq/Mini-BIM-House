@@ -105,6 +105,15 @@ export interface InspectorEdit {
    * the object and the identifier; the ones that are not say so.
    */
   readonly scenarioPath?: string;
+  /**
+   * La bibliothèque où se choisit ce que ce champ désigne.
+   *
+   * Changer l'assemblage d'un mur demandait de quitter le plan pour
+   * « Matériaux », de trouver la fiche, puis de revenir : une bibliothèque
+   * était une destination alors que c'est un catalogue qu'on consulte. Le
+   * champ qui désigne une fiche sait laquelle, et sait donc l'ouvrir.
+   */
+  readonly library?: 'materials' | 'assemblies' | 'openings' | 'equipment';
   readonly apply: (value: string) => ProjectCommand | undefined;
 }
 
@@ -205,6 +214,7 @@ function wallEdits(
     {
       id: 'assemblyId',
       semanticId: 'wall.assemblyId',
+      library: 'assemblies',
       label: 'Assemblage',
       control: {
         kind: 'SELECT',
@@ -401,6 +411,7 @@ export function openingEditsFor(
           // every window in every project was an unknown.
           id: 'definitionId',
           semanticId: 'opening.definitionId',
+          library: 'openings',
           label: 'Menuiserie',
           control: {
             kind: 'SELECT',
@@ -560,6 +571,7 @@ export function slabEditsFor(
         {
           id: 'assemblyId',
           semanticId: 'slab.assemblyId',
+          library: 'assemblies',
           label: 'Assemblage',
           control: {
             kind: 'SELECT',
@@ -889,6 +901,7 @@ export function componentEditsFor(
       {
         id: 'definitionId',
         semanticId: 'component.definitionId',
+        library: 'equipment',
         label: 'Modèle catalogue',
         control: {
           kind: 'SELECT',
@@ -1226,6 +1239,7 @@ export function structureEditsFor(
       {
         id: 'materialId',
         semanticId: 'structure.materialId',
+        library: 'materials',
         label: 'Matériau',
         control: {
           kind: 'SELECT',

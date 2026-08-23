@@ -26,6 +26,8 @@ export interface InspectorPanelProps {
    * d'un panneau entier pour le dire.
    */
   readonly atRest?: ReactNode;
+  /** Ouvrir la bibliothèque qu'un champ désigne, sans quitter le plan. */
+  readonly onOpenLibrary?: (library: string) => void;
   readonly onClear: () => void;
   readonly onCommand: (command: ProjectCommand) => boolean;
   readonly onMessage: (message: string) => void;
@@ -64,6 +66,7 @@ export function InspectorPanel({
   selection,
   expandProperty,
   atRest,
+  onOpenLibrary,
   onClear,
   onCommand,
   onMessage,
@@ -92,6 +95,7 @@ export function InspectorPanel({
                 key={edit.id}
                 edit={edit}
                 mixed={!edit.uniform}
+                {...(onOpenLibrary === undefined ? {} : { onOpenLibrary })}
                 onApply={(applied, value) => {
                   const command = applied.apply(value);
                   if (command === undefined) {
@@ -203,6 +207,7 @@ export function InspectorPanel({
               key={edit.id}
               edit={edit}
               onApply={applyEdit}
+              {...(onOpenLibrary === undefined ? {} : { onOpenLibrary })}
               targeted={
                 expandProperty !== undefined &&
                 (matches(edit.id, expandProperty) ||

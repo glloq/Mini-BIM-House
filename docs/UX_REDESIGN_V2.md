@@ -766,8 +766,27 @@ qui s'y trouve.
 > demandée : les propriétés de vue sont ce qu'on trouve en l'ouvrant, pas une
 > raison de l'ouvrir tout seul.
 
-**UX-8 — Bibliothèques.** Bouton `Bibliothèque…` dans les champs qui désignent
-une fiche ; les quatre panneaux cessent d'être des destinations.
+**UX-8 — Bibliothèques.** _Livré._ Un champ qui désigne une fiche sait laquelle
+et sait donc l'ouvrir : `InspectorEdit` porte une `library`, et le champ affiche
+`Bibliothèque…` à côté de lui. Changer l'assemblage d'un mur demandait de
+quitter le plan pour « Matériaux », de trouver la fiche, puis de revenir.
+
+Les quatre bibliothèques cessent d'être des **destinations** de l'étape : le
+registre les déclare à part, et elles se rangent avec le reste de ce qu'on
+cherche — dans l'arborescence, sous « Bibliothèques ». Elles prenaient quatre
+rangées en tête du panneau à chaque séance ; la colonne passe de vingt-six
+boutons offerts à vingt-deux.
+
+Deux corrections que ce découpage a rendues nécessaires :
+
+- **La liste montre où l'on peut aller _et_ où l'on est.** Une étape n'offrant
+  qu'une destination n'affichait aucune liste ; une fois dans une bibliothèque,
+  plus rien ne ramenait au plan.
+- **`goToTab` ne quitte plus une étape qui offre déjà la destination.** Le plan
+  est offert par sept étapes sur neuf, et cliquer « Plan » depuis Bâtiment
+  renvoyait dans Terrain — simplement la première de la liste à le proposer.
+  Le défaut datait de UX-2 et ne se voyait pas, les deux étapes montrant le
+  même dessin.
 
 **UX-9 — Responsive.** Les cinq formats du §10.
 

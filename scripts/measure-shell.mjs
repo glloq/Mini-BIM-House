@@ -81,8 +81,13 @@ export const SHELL_BUDGETS = {
    * dizaine d'entrées qui nomment ce qu'on pose — Porte, Fenêtre, WC, Prise —
    * et qui suivent l'étape, plus neuf communs. Le budget est ici pour
    * empêcher la colonne de regrossir.
+   *
+   * UX-4 en ajoute deux — les niveaux, pour une question qu'on se posait en
+   * permanence — et UX-8 en retire quatre : les bibliothèques ne sont plus des
+   * destinations en tête du panneau, elles se rangent avec ce qu'on cherche.
+   * Vingt-deux.
    */
-  leftColumnButtons: 30,
+  leftColumnButtons: 26,
   /** Zones qui réservent de la place sans rien montrer. */
   emptyReservedZones: 0,
 };

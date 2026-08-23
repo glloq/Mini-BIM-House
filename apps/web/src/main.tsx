@@ -181,7 +181,11 @@ import {
   remainingByStage,
   type ShellNavigation,
 } from './ux/stage-state.js';
-import { creationStage, stageOfTab } from './ux/creation-stages.js';
+import {
+  creationStage,
+  librariesOfStage,
+  stageOfTab,
+} from './ux/creation-stages.js';
 import {
   PLAN_RENDERINGS,
   defaultPlanRendering,
@@ -2284,6 +2288,17 @@ function App() {
                   zoomSelection();
                 }}
                 onOpenDocuments={() => setTab('documents')}
+                libraries={librariesOfStage(navigation.stage).map((id) => ({
+                  id,
+                  label: LEGACY_WORKSPACE_LABELS[id],
+                }))}
+                onOpenLibrary={(library) => {
+                  // Sur un téléphone le panneau est un tiroir : ouvrir une
+                  // destination le referme, sinon il reste devant ce qu'on
+                  // vient d'ouvrir.
+                  setTab(library as LegacyWorkspaceTab);
+                  setMenuOpen(false);
+                }}
                 onSearch={(query) => {
                   setPaletteQuery(query);
                   setPaletteOpen(true);
@@ -2661,6 +2676,10 @@ function App() {
               {...(inspectedProperty === undefined
                 ? {}
                 : { expandProperty: inspectedProperty })}
+              onOpenLibrary={(library) => {
+                setTab(library as LegacyWorkspaceTab);
+                setMenuOpen(false);
+              }}
               onClear={() => dispatchEditor({ type: 'CLEAR_SELECTION' })}
               onCommand={runCommand}
               onMessage={setMessage}

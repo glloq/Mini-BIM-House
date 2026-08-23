@@ -76,12 +76,19 @@ export function goToStage(
  * L'étape suit de la destination plutôt que l'inverse : une entrée de palette
  * dit « Quantités » sans avoir à savoir que les quantités se lisent dans
  * Vérifier.
+ *
+ * Mais **on ne quitte pas une étape qui offre déjà la destination**. Le plan
+ * est offert par sept étapes sur neuf ; sans cette règle, cliquer « Plan »
+ * depuis Bâtiment renvoyait dans Terrain, qui est simplement la première de la
+ * liste à le proposer.
  */
 export function goToTab(
   navigation: ShellNavigation,
   tab: LegacyWorkspaceTab,
 ): ShellNavigation {
-  const stage = stageOfTab(tab);
+  const stage = tabsOfStage(navigation.stage).includes(tab)
+    ? navigation.stage
+    : stageOfTab(tab);
   return { ...navigation, stage, tabs: { ...navigation.tabs, [stage]: tab } };
 }
 
@@ -130,7 +137,7 @@ export function isTabActive(
   return activeTab(navigation) === tab;
 }
 
-/** Les destinations d'une étape, dans l'ordre où le panneau les liste. */
+/** Tout ce qu'une étape ouvre : ses destinations et ses bibliothèques. */
 export function destinationsOf(
   stage: CreationStageId,
 ): readonly LegacyWorkspaceTab[] {

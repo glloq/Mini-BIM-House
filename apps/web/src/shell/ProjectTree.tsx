@@ -13,6 +13,12 @@ export interface ProjectTreeProps {
   readonly onFrameObject: (objectId: string) => void;
   /** Opens a saved view or a sheet, by the destination that holds it. */
   readonly onOpenDocuments: () => void;
+  /** Les bibliothèques que l'étape consulte, et comment on les ouvre. */
+  readonly libraries: readonly {
+    readonly id: string;
+    readonly label: string;
+  }[];
+  readonly onOpenLibrary: (library: string) => void;
   /**
    * Cherche dans le projet, avec ce qu'on cherche déjà écrit.
    *
@@ -48,6 +54,8 @@ export function ProjectTree({
   onSelectObject,
   onFrameObject,
   onOpenDocuments,
+  libraries,
+  onOpenLibrary,
   onSearch,
 }: ProjectTreeProps) {
   const levels = project.building.levels;
@@ -246,6 +254,22 @@ export function ProjectTree({
           ))}
         </ul>
       </details>
+      {libraries.length > 0 && (
+        <details className="tree-section">
+          <summary>
+            Bibliothèques <small>({libraries.length})</small>
+          </summary>
+          <ul>
+            {libraries.map(({ id, label }) => (
+              <li key={id}>
+                <button type="button" onClick={() => onOpenLibrary(id)}>
+                  {label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
       {/*
        * Ce que le projet produit est dans le projet, et se trouve là où l'on
        * cherche le reste. Une vue enregistrée était atteignable par une

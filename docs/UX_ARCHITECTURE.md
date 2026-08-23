@@ -311,6 +311,12 @@ nombre que personne ne pourrait étayer.
 Il ne bloque rien : un compteur rouge est une information sur le modèle, pas un
 refus de laisser le modèle être ce qu'il est.
 
+**Une bibliothèque n'est pas un lieu.** On ne « va » pas dans les matériaux :
+on les ouvre parce qu'un mur en désigne un. Tout champ dont les options sont
+des fiches du projet porte une `library` et affiche `Bibliothèque…` à côté de
+lui ; les quatre panneaux sont déclarés à part des destinations de l'étape et
+se rangent dans l'arborescence, avec le reste de ce qu'on cherche.
+
 ## 8 quater. Les catalogues et Vérifier
 
 Matériaux, assemblages, équipements et les cinq cents familles avaient chacun

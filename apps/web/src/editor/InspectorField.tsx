@@ -13,6 +13,13 @@ export interface InspectorFieldProps {
   readonly mixed?: boolean;
   /** Whether someone was sent here to look at this exact property. */
   readonly targeted?: boolean;
+  /**
+   * Ouvrir la bibliothèque où se choisit ce que ce champ désigne.
+   *
+   * Changer l'assemblage d'un mur demandait de quitter le plan, de trouver la
+   * fiche, puis de revenir. Le champ sait de quelle bibliothèque il parle.
+   */
+  readonly onOpenLibrary?: (library: string) => void;
 }
 
 /**
@@ -28,6 +35,7 @@ export function InspectorField({
   onApply,
   mixed = false,
   targeted = false,
+  onOpenLibrary,
 }: InspectorFieldProps) {
   const initial = mixed
     ? ''
@@ -104,6 +112,15 @@ export function InspectorField({
             if (event.key === 'Escape') setDraft(initial);
           }}
         />
+      )}
+      {edit.library !== undefined && onOpenLibrary !== undefined && (
+        <button
+          type="button"
+          className="link"
+          onClick={() => onOpenLibrary(edit.library!)}
+        >
+          Bibliothèque…
+        </button>
       )}
       {edit.hint !== undefined && <small className="hint">{edit.hint}</small>}
     </div>

@@ -14,7 +14,12 @@ import { loadDemoProject } from '../demo-project.js';
 import { EDITOR_TOOLS } from '../editor/tool-registry.js';
 import { workflowEntries } from '../workflow/workflow-registry.js';
 import { LAYER_PRESETS } from '@house-technical-designer/view-query';
-import { CREATION_STAGES, creationStage } from './creation-stages.js';
+import {
+  CREATION_STAGES,
+  creationStage,
+  librariesOfStage,
+} from './creation-stages.js';
+import { editsFor } from '../editor/object-editors.js';
 import { DEFAULT_SHELL_NAVIGATION, destinationsOf } from './stage-state.js';
 import { WORKFLOW_GROUPS } from './workflow-steps.js';
 import {
@@ -220,6 +225,43 @@ describe('the eighteen acceptance criteria', () => {
     expect(main).toContain('technicalDomains(file.project).map');
     expect(main).toContain('LAYER_PRESETS.map');
     expect(LAYER_PRESETS.length).toBeGreaterThan(0);
+  });
+
+  it('opens a library from the field that designates a fiche', () => {
+    /*
+     * Une bibliothèque est un catalogue qu'on consulte, pas un lieu où l'on
+     * va. Changer l'assemblage d'un mur demandait de quitter le plan, de
+     * trouver la fiche, puis de revenir.
+     *
+     * Tout champ dont les options sont des fiches du projet doit donc savoir
+     * laquelle ouvrir : un champ qui l'oublie renvoie la personne chercher
+     * elle-même.
+     */
+    const wall = house.building.levels[0]!.walls[0]!;
+    const assembly = editsFor(house, wall.id).find(
+      ({ id }) => id === 'assemblyId',
+    );
+    expect(assembly?.library).toBe('assemblies');
+
+    const component = (house.building.levels[0]!.components ?? [])[0];
+    expect(component).toBeDefined();
+    const fiche = editsFor(house, component!.id).find(
+      ({ id }) => id === 'definitionId',
+    );
+    expect(fiche?.library).toBe('equipment');
+
+    // Et les quatre bibliothèques restent atteignables sans sélection : elles
+    // sont rangées avec ce qu'on cherche, dans l'arborescence.
+    const offered = new Set(
+      CREATION_STAGES.flatMap((stage) => [...librariesOfStage(stage)]),
+    );
+    for (const library of [
+      'materials',
+      'assemblies',
+      'openings',
+      'equipment',
+    ] as const)
+      expect(offered.has(library), library).toBe(true);
   });
 
   it('names every trade it offers, so a sub-stage never says a bare id', () => {

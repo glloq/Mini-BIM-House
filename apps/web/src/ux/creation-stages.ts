@@ -76,6 +76,15 @@ export interface CreationStage {
    * où l'on va, c'est le même dessin avec d'autres outils devant soi.
    */
   readonly destinations: readonly [LegacyWorkspaceTab, ...LegacyWorkspaceTab[]];
+  /**
+   * Les bibliothèques que cette étape consulte.
+   *
+   * Ce ne sont pas des destinations : on ne « va » pas dans les matériaux, on
+   * les ouvre parce qu'un mur en désigne un. Elles sont donc rangées avec le
+   * reste de ce qu'on cherche — dans l'arborescence — et non en tête du
+   * panneau, où elles prenaient quatre rangées à chaque séance.
+   */
+  readonly libraries?: readonly LegacyWorkspaceTab[];
 }
 
 const STAGE_DEFINITIONS = {
@@ -115,7 +124,8 @@ const STAGE_DEFINITIONS = {
       { id: 'building.stairs', label: 'Escaliers' },
       { id: 'building.roof', label: 'Toiture' },
     ],
-    destinations: ['plan', 'materials', 'assemblies', 'openings'],
+    destinations: ['plan'],
+    libraries: ['materials', 'assemblies', 'openings'],
   },
   STRUCTURE: {
     id: 'STRUCTURE',
@@ -130,7 +140,7 @@ const STAGE_DEFINITIONS = {
       { id: 'structure.beams', label: 'Poutres' },
       { id: 'structure.holes', label: 'Trémies' },
     ],
-    destinations: ['plan', 'assemblies'],
+    destinations: ['plan'],
   },
   FITTING: {
     id: 'FITTING',
@@ -140,7 +150,8 @@ const STAGE_DEFINITIONS = {
     groups: ['FITTING'],
     domains: ['FURNITURE'],
     sections: [],
-    destinations: ['plan', 'equipment'],
+    destinations: ['plan'],
+    libraries: ['equipment'],
   },
   SYSTEMS: {
     id: 'SYSTEMS',
@@ -235,19 +246,40 @@ export function stageOfDomain(domain: DesignDomainId): CreationStageId {
   return found ?? 'BUILDING';
 }
 
-/** L'étape où vit une destination, pour qui la nomme sans savoir où elle est. */
+/**
+ * L'étape où vit une destination, pour qui la nomme sans savoir où elle est.
+ *
+ * Les bibliothèques comptent : une entrée de palette qui dit « Matériaux » doit
+ * mener quelque part, même si aucune étape ne s'ouvre dessus.
+ */
 export function stageOfTab(tab: LegacyWorkspaceTab): CreationStageId {
-  const found = CREATION_STAGES.find((id) =>
-    CREATION_STAGE_REGISTRY[id].destinations.includes(tab),
-  );
+  const found = CREATION_STAGES.find((id) => tabsOfStage(id).includes(tab));
   return found ?? 'BUILDING';
 }
 
-/** Les destinations d'une étape, dans l'ordre où le panneau les liste. */
+/** Tout ce qu'une étape ouvre : ses destinations et ses bibliothèques. */
 export function tabsOfStage(
   stage: CreationStageId,
 ): readonly LegacyWorkspaceTab[] {
+  const stageDefinition = CREATION_STAGE_REGISTRY[stage];
+  return [
+    ...stageDefinition.destinations,
+    ...(stageDefinition.libraries ?? []),
+  ];
+}
+
+/** Les destinations d'une étape, dans l'ordre où le panneau les liste. */
+export function destinationsOfStage(
+  stage: CreationStageId,
+): readonly LegacyWorkspaceTab[] {
   return CREATION_STAGE_REGISTRY[stage].destinations;
+}
+
+/** Les bibliothèques d'une étape, rangées avec ce qu'on cherche. */
+export function librariesOfStage(
+  stage: CreationStageId,
+): readonly LegacyWorkspaceTab[] {
+  return CREATION_STAGE_REGISTRY[stage].libraries ?? [];
 }
 
 /**
