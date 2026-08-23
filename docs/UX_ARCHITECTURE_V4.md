@@ -916,7 +916,7 @@ Ils viennent de V2 et de V3, ils ont tenu, et ils tiennent encore :
 
 | Lot       | Ce qu'il fait                                                             | Dépend de |
 | --------- | ------------------------------------------------------------------------- | --------- |
-| **V4-1**  | Sept onglets : `CreationStage` → `WorkspaceTab`, et la table de §1.1      | —         |
+| **V4-1**  | _Livré._ Sept onglets ; Structure et Énergie fondues, Vérifier → Études   | —         |
 | **V4-2**  | Sous-parties : une rangée, l'état d'écran, le clavier                     | V4-1      |
 | **V4-3**  | Header d'outils : trois zones, seconde ligne conditionnelle, `+`          | V4-2      |
 | **V4-4**  | Le registre des headers — les tableaux §5 à §10, écrits en données        | V4-3      |
