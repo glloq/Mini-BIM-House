@@ -213,7 +213,7 @@
     },
     {
       "id": "ELECTRICAL_SUB_METER",
-      "label": "Sous-compteur",
+      "label": "Sous-compteur électrique",
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,
@@ -359,7 +359,7 @@
     },
     {
       "id": "RELAY",
-      "label": "Relais",
+      "label": "Relais électrique",
       "domain": "ELECTRICAL",
       "registry": "EQUIPMENT",
       "priority": 3,

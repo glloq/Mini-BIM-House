@@ -193,7 +193,7 @@
     },
     {
       "id": "WYE",
-      "label": "Culotte",
+      "label": "Culotte d’évacuation",
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -242,7 +242,7 @@
     },
     {
       "id": "WASTE_REDUCER",
-      "label": "Réduction",
+      "label": "Réduction d’évacuation",
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -325,7 +325,7 @@
     },
     {
       "id": "BACKWATER_VALVE",
-      "label": "Clapet anti-retour",
+      "label": "Clapet anti-retour d’évacuation",
       "domain": "WASTEWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -524,7 +524,7 @@
     },
     {
       "id": "VALLEY_GUTTER",
-      "label": "Noue",
+      "label": "Chéneau de noue",
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -589,7 +589,7 @@
     },
     {
       "id": "ROOF_DRAIN",
-      "label": "Naissance",
+      "label": "Naissance de descente pluviale",
       "domain": "RAINWATER",
       "registry": "EQUIPMENT",
       "priority": 2,

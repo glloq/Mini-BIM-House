@@ -741,7 +741,7 @@
     },
     {
       "id": "VALLEY",
-      "label": "Noue",
+      "label": "Noue de toiture",
       "domain": "ARCHITECTURE",
       "registry": "ASSEMBLY",
       "priority": 2,
@@ -825,7 +825,10 @@
         "levelRequired": true,
         "rotationAllowed": false
       },
-      "clearances": ["OPENING"]
+      "clearances": ["OPENING"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "WINDOW_ROOF",
+      "retiredReason": "le registre des menuiseries déclarait déjà la fenêtre de toit ; celle-ci en était une copie rangée chez les assemblages"
     },
     {
       "id": "SKYLIGHT",
@@ -872,7 +875,7 @@
     },
     {
       "id": "VENT_OUTLET",
-      "label": "Sortie de toit",
+      "label": "Sortie de toit ventilée",
       "domain": "ARCHITECTURE",
       "registry": "ASSEMBLY",
       "priority": 2,

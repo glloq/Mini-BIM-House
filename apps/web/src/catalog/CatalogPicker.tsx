@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   foldForSearch,
   installedCatalog,
+  isOfferable,
   type CatalogRepository,
   type CatalogSummary,
 } from '@house-technical-designer/catalog-registry';
@@ -62,6 +63,11 @@ export function CatalogPicker({
     const needle = foldForSearch(text.trim());
     return held.filter(
       (summary) =>
+        // A retired record still opens the files that hold it, and is offered
+        // to nobody starting a design. The lifecycle existed for exactly that
+        // and nothing consulted it: seventeen families left service and went
+        // on being proposed beside the ones that replaced them.
+        isOfferable(summary.lifecycle ?? 'ACTIVE') &&
         !taken.has(summary.id) &&
         (needle === '' || foldForSearch(summary.label).includes(needle)),
     );

@@ -33,9 +33,19 @@ describe('browsing the nomenclature', () => {
     // of the nomenclature rather than written down, so that declaring a family
     // stays a data change.
     expect(FAMILY_REGISTRY.length).toBeGreaterThan(500);
-    expect(catalogRows(entriesByFamily, known).length).toBe(
-      FAMILY_REGISTRY.length,
+    const inService = FAMILY_REGISTRY.filter(
+      ({ lifecycle }) => (lifecycle ?? 'ACTIVE') === 'ACTIVE',
     );
+    expect(catalogRows(entriesByFamily, known).length).toBe(inService.length);
+    // The ones that left service still open the projects that hold them, and
+    // are offered to nobody starting a design — but somebody reading the
+    // nomenclature to understand it can still ask for them, and gets told what
+    // took their place.
+    const all = catalogRows(entriesByFamily, known, { withRetired: true });
+    expect(all.length).toBe(FAMILY_REGISTRY.length);
+    const retired = all.filter(({ replacedBy }) => replacedBy !== undefined);
+    expect(retired.length).toBe(FAMILY_REGISTRY.length - inService.length);
+    for (const row of retired) expect(row.retiredReason).toBeDefined();
   });
 
   it('narrows by trade, by wave and by word', () => {
@@ -72,9 +82,17 @@ describe('browsing the nomenclature', () => {
     });
     // The families somebody has written a fiche for — counted from the fiches,
     // so a filling wave answers this question differently without editing it.
+    const offerable = new Set(
+      FAMILY_REGISTRY.filter(
+        ({ lifecycle }) => (lifecycle ?? 'ACTIVE') === 'ACTIVE',
+      ).map(({ id }) => id),
+    );
     expect(placeable.length).toBe(
-      new Set(rawGenericEquipmentEntries().map(({ familyId }) => familyId))
-        .size,
+      new Set(
+        rawGenericEquipmentEntries()
+          .map(({ familyId }) => familyId)
+          .filter((id) => offerable.has(id)),
+      ).size,
     );
     expect(placeable.every(({ entryCount }) => entryCount > 0)).toBe(true);
   });
@@ -117,9 +135,13 @@ describe('browsing the nomenclature', () => {
         familyId === undefined ? [] : [familyId],
       ),
     );
-    const empty = FAMILY_REGISTRY.filter(({ id }) => !held.has(id)).map(
-      ({ id }) => id,
-    );
+    // Of the families still in service: one that has left it is offered to
+    // nobody, and asking it for a fiche is asking a retired thing to be
+    // current.
+    const empty = FAMILY_REGISTRY.filter(
+      ({ id, lifecycle }) =>
+        (lifecycle ?? 'ACTIVE') === 'ACTIVE' && !held.has(id),
+    ).map(({ id }) => id);
     expect(empty).toEqual([]);
   });
 

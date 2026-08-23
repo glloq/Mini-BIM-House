@@ -1,6 +1,6 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "bcd500bfbc19bdb1",
+  "releaseId": "b4df760b2a627c73",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
@@ -60,7 +60,7 @@
       ],
       "entryCount": 36,
       "formatVersion": "1.0.0",
-      "fingerprint": "ef078cf95a38e739"
+      "fingerprint": "323e33093035ebc1"
     },
     {
       "registry": "ASSEMBLY",
@@ -83,9 +83,9 @@
         "packages/network-products/data/generic.json",
         "packages/network-products/data/wave3.json"
       ],
-      "entryCount": 83,
+      "entryCount": 95,
       "formatVersion": "1.0.0",
-      "fingerprint": "0181db32d88c52a2"
+      "fingerprint": "0aad378c2264ef96"
     },
     {
       "registry": "SYMBOL",

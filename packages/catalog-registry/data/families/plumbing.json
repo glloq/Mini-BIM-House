@@ -502,7 +502,7 @@
     },
     {
       "id": "FILTER",
-      "label": "Filtre",
+      "label": "Filtre d’eau",
       "domain": "PLUMBING",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -707,7 +707,7 @@
     },
     {
       "id": "TEE",
-      "label": "Té",
+      "label": "Té d’eau",
       "domain": "PLUMBING",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -733,7 +733,7 @@
     },
     {
       "id": "ELBOW",
-      "label": "Coude",
+      "label": "Coude d’eau",
       "domain": "PLUMBING",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -785,7 +785,7 @@
     },
     {
       "id": "REDUCER",
-      "label": "Réduction",
+      "label": "Réduction d’eau",
       "domain": "PLUMBING",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -811,7 +811,7 @@
     },
     {
       "id": "ISOLATION_VALVE",
-      "label": "Vanne d’isolement",
+      "label": "Vanne d’isolement d’eau",
       "domain": "PLUMBING",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -837,7 +837,7 @@
     },
     {
       "id": "CHECK_VALVE",
-      "label": "Clapet anti-retour",
+      "label": "Clapet anti-retour d’eau",
       "domain": "PLUMBING",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -863,7 +863,7 @@
     },
     {
       "id": "BALANCING_VALVE",
-      "label": "Vanne d’équilibrage",
+      "label": "Vanne d’équilibrage d’eau",
       "domain": "PLUMBING",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -915,7 +915,7 @@
     },
     {
       "id": "AIR_VENT",
-      "label": "Purgeur",
+      "label": "Purgeur d’air de distribution",
       "domain": "PLUMBING",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -965,7 +965,7 @@
     },
     {
       "id": "SUB_METER",
-      "label": "Sous-compteur",
+      "label": "Sous-compteur d’eau",
       "domain": "PLUMBING",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -1203,7 +1203,7 @@
     },
     {
       "id": "EXPANSION_VESSEL",
-      "label": "Vase d’expansion",
+      "label": "Vase d’expansion sanitaire",
       "domain": "PLUMBING",
       "registry": "EQUIPMENT",
       "priority": 2,
@@ -1268,7 +1268,7 @@
     },
     {
       "id": "TEMPERATURE_SENSOR",
-      "label": "Sonde de température",
+      "label": "Sonde de température de circuit",
       "domain": "PLUMBING",
       "registry": "EQUIPMENT",
       "priority": 2,

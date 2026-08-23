@@ -140,8 +140,16 @@ export const BUDGETS = {
    * the day its envelope was, the takeoff went looking for prices nobody had
    * declared. That is exactly the failure a demonstration project exists to
    * catch.
+   *
+   * And two more for the last of the contract gaps: twenty-one fiches for the
+   * families the assembly registry could not describe — a column has a
+   * section, a ridge has a length — twelve flue products so that a straight
+   * section stops existing in two registries at once, and the retirement
+   * reasons of the families that left service. A catalogue that only grows is
+   * one nobody can correct; what a retirement costs is the sentence saying
+   * where to go instead, and it is worth its bytes.
    */
-  totalGzipBytes: 428 * 1024,
+  totalGzipBytes: 430 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

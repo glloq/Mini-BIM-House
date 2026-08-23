@@ -342,9 +342,9 @@ quarante-six endroits qui supposent un mur. Ce n'est pas une extension de
 format, c'est une extension du modèle géométrique — la même famille de travail
 que les lucarnes et les chiens-assis — et elle se décide comme telle.
 
-## CG-08 — vingt familles décrivent le même objet depuis deux métiers
+## CG-08 — vingt familles décrivaient le même objet depuis deux métiers
 
-**Nomenclature** · **une vingtaine de paires**
+**Nomenclature** · **18 familles retirées, 30 renommées** · **résolu**
 
 `SAFETY_CO2_DETECTOR` et `CO2_SENSOR`, `SAFETY_MOTION_DETECTOR` et
 `MOTION_SENSOR`, `DOOR_CONTACT` et `WINDOW_SENSOR`, `SITE_EXTERIOR_LIGHT` et
@@ -356,15 +356,45 @@ l'assainissement, la pompe à chaleur extérieure du site et celle du chauffage�
 C'était invisible tant que personne n'avait écrit de fiche : deux familles
 vides ne se ressemblent pas. Maintenant chacune en a une, et elles se
 retrouvent côte à côte dans la même liste — trois paires portaient jusqu'au
-même nom, ce qui donnait au projet deux objets d'identifiant identique. Les
-noms ont été distingués et un test refuse la paire suivante ; la fusion des
-familles reste à décider.
+même nom, ce qui donnait au projet deux objets d'identifiant identique.
 
-Un cas plus lourd du même genre : **le conduit de fumée existe dans deux
-registres**. Les sections de conduit sont des équipements d'un mètre, alors que
-`FLUE_PIPE` est déjà une famille `NETWORK_PRODUCT` avec ses entrées. Un métré
-compterait deux fois le même mètre linéaire. Un tronçon devrait être un produit
-de réseau ; un coude, un té, une souche restent des équipements.
+**La règle qui tranche est celle que CG-06 avait déjà appliquée à neuf familles
+du domaine site : un lieu n'est pas une nature d'objet.** Un piquet de terre est
+un piquet de terre, que l'électricien le spécifie ou que le plan de masse le
+dessine ; une fosse toutes eaux ne devient pas autre chose parce qu'elle est
+dehors. `SITE_`, `SAFETY_` et `DATA_` étaient des préfixes de point de vue, et
+la famille qui survit est celle du métier qui spécifie l'objet. Là où être
+dehors compte, c'est `placement.allowedHosts` qui le dit, pas une seconde
+famille.
+
+**Rien n'est supprimé.** Le cycle de vie que le registre porte depuis CAT-01
+existait pour exactement cela et n'était consulté par rien : une famille quitte
+le service, dit ce qui la remplace et pourquoi, et les fichiers qui la portent
+continuent de s'ouvrir. Dix-huit familles sont retirées ; le sélecteur de
+catalogue et le navigateur ne les proposent plus, et le navigateur dit combien
+il y en a et ce qui les remplace.
+
+**Le conduit de fumée existait dans deux registres.** `SINGLE_WALL_FLUE`,
+`INSULATED_FLUE` et `FLEXIBLE_LINER` étaient des équipements d'un mètre, alors
+que `FLUE_PIPE` est une famille `NETWORK_PRODUCT` : un métré comptait deux fois
+le même mètre linéaire. Un tronçon droit est un produit de réseau — douze
+produits ont été ajoutés, simple paroi et tubage flexible en six diamètres,
+pour que rien ne se perde — et les trois familles d'équipement sont retirées. Un
+coude, un té, une souche restent des équipements : ils se comptent à l'unité.
+
+**Et le test refuse la paire suivante.** Il compare les libellés de toutes les
+familles en service et échoue en nommant celles qui se ressemblent. Il en a
+trouvé quinze de plus que l'inventaire écrit ici : une seule était un vrai
+doublon — `ROOF_WINDOW` était une copie de `WINDOW_ROOF`, que le registre des
+menuiseries déclarait déjà — et les quatorze autres étaient un mot de métier
+partagé par deux métiers. Un té d'eau et un té de gaine ne sont pas le même
+objet, et « té » tout court ne dit pas lequel on pose. Trente familles ont été
+renommées pour le dire : coude d'eau et coude de gaine, purgeur de distribution
+et purgeur de chauffage, clapet anti-retour d'eau, d'évacuation et d'air.
+
+Un second test exige que chaque famille retirée nomme un remplaçant qui existe,
+qui est lui-même en service, et dise pourquoi : un retrait sans destination est
+une impasse avec un motif joint.
 
 ## CG-03 — la nomenclature des matériaux n'avait pas de couverture
 

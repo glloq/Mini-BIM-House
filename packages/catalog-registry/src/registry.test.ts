@@ -789,3 +789,44 @@ describe('the room a thing needs around it', () => {
     expect(exhaust?.reason).toBeDefined();
   });
 });
+
+describe('one object, one family', () => {
+  it('never offers two families of the same name', () => {
+    // CG-08: it was invisible while nobody had written a fiche — two empty
+    // families do not look alike. Once each had one they turned up side by
+    // side in the same list, and three pairs came down to the same name, which
+    // gave a project two objects of the same identifier.
+    //
+    // What survives a merge is the family whose trade specifies the object; a
+    // place — `SITE_` — and a viewpoint — `SAFETY_`, `DATA_` — are not natures
+    // of object. This fails the day the next pair is written, and names it.
+    const byLabel = new Map<string, string[]>();
+    for (const family of FAMILY_REGISTRY) {
+      if ((family.lifecycle ?? 'ACTIVE') !== 'ACTIVE') continue;
+      const key = family.label.trim().toLowerCase();
+      byLabel.set(key, [...(byLabel.get(key) ?? []), family.id]);
+    }
+    const shared = [...byLabel.entries()]
+      .filter(([, ids]) => ids.length > 1)
+      .map(([label, ids]) => `${label} : ${ids.join(', ')}`);
+    expect(shared).toEqual([]);
+  });
+
+  it('says what replaces every family that left service, and why', () => {
+    const retired = FAMILY_REGISTRY.filter(
+      ({ lifecycle }) => (lifecycle ?? 'ACTIVE') !== 'ACTIVE',
+    );
+    expect(retired.length).toBeGreaterThan(0);
+    const held = new Set(FAMILY_REGISTRY.map(({ id }) => id));
+    for (const family of retired) {
+      // A retirement that does not say where to go instead is a dead end with
+      // a reason attached.
+      expect(family.replacedBy, family.id).toBeDefined();
+      expect(held.has(family.replacedBy!), family.id).toBe(true);
+      expect(family.retiredReason, family.id).toBeDefined();
+      // And the replacement is itself in service, or the trail ends nowhere.
+      const to = FAMILY_REGISTRY.find(({ id }) => id === family.replacedBy)!;
+      expect(to.lifecycle ?? 'ACTIVE', family.id).toBe('ACTIVE');
+    }
+  });
+});

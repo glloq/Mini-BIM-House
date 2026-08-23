@@ -244,7 +244,7 @@
     },
     {
       "id": "generic-roof-window-double",
-      "familyId": "ROOF_WINDOW",
+      "familyId": "WINDOW_ROOF",
       "category": "WINDOW",
       "name": "Fenêtre de toit, double vitrage",
       "version": "1.0.0",

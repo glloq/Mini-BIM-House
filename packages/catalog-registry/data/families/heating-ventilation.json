@@ -563,7 +563,7 @@
     },
     {
       "id": "HEATING_EXPANSION_VESSEL",
-      "label": "Vase d’expansion",
+      "label": "Vase d’expansion de chauffage",
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -639,7 +639,7 @@
     },
     {
       "id": "HEATING_AIR_VENT",
-      "label": "Purgeur",
+      "label": "Purgeur d’air de chauffage",
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -708,7 +708,7 @@
     },
     {
       "id": "HEATING_ISOLATION_VALVE",
-      "label": "Vanne d’isolement",
+      "label": "Vanne d’isolement de chauffage",
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -750,7 +750,7 @@
     },
     {
       "id": "HEATING_BALANCING_VALVE",
-      "label": "Vanne d’équilibrage",
+      "label": "Vanne d’équilibrage de chauffage",
       "domain": "HEATING",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -1508,7 +1508,7 @@
     },
     {
       "id": "VENTILATION_ELBOW",
-      "label": "Coude",
+      "label": "Coude de gaine",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -1550,7 +1550,7 @@
     },
     {
       "id": "VENTILATION_TEE",
-      "label": "Té",
+      "label": "Té de gaine",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -1590,7 +1590,7 @@
     },
     {
       "id": "Y_BRANCH",
-      "label": "Culotte",
+      "label": "Culotte de gaine",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -1630,7 +1630,7 @@
     },
     {
       "id": "VENTILATION_REDUCER",
-      "label": "Réduction",
+      "label": "Réduction de gaine",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -1839,7 +1839,7 @@
     },
     {
       "id": "BACKDRAFT_DAMPER",
-      "label": "Clapet anti-retour",
+      "label": "Clapet anti-retour d’air",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,
@@ -1966,7 +1966,7 @@
     },
     {
       "id": "VENTILATION_FILTER",
-      "label": "Filtre",
+      "label": "Filtre de ventilation",
       "domain": "VENTILATION",
       "registry": "EQUIPMENT",
       "priority": 4,

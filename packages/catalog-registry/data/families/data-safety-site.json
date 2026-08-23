@@ -275,7 +275,7 @@
     },
     {
       "id": "DATA_TEMPERATURE_SENSOR",
-      "label": "Capteur de température",
+      "label": "Capteur de température ambiante",
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
@@ -411,7 +411,10 @@
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
       "category": "SENSOR",
-      "optionalPorts": ["ELECTRICAL_AC"]
+      "optionalPorts": ["ELECTRICAL_AC"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "DOOR_CONTACT",
+      "retiredReason": "un contact d’ouvrant est le même composant sur une porte et sur une fenêtre"
     },
     {
       "id": "MOTION_SENSOR",
@@ -467,11 +470,14 @@
       },
       "hint": "Les ports existent ; la discipline DATA du réseau reste à ouvrir.",
       "category": "SENSOR",
-      "optionalPorts": ["ELECTRICAL_AC"]
+      "optionalPorts": ["ELECTRICAL_AC"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "PRESENCE_SENSOR",
+      "retiredReason": "un détecteur de présence est le même capteur, qu’il commande l’éclairage ou une automatisation"
     },
     {
       "id": "DATA_RELAY",
-      "label": "Relais",
+      "label": "Relais domotique",
       "domain": "DATA",
       "registry": "EQUIPMENT",
       "priority": 6,
@@ -731,7 +737,10 @@
         "RULES": "NONE"
       },
       "category": "SENSOR",
-      "optionalPorts": ["ELECTRICAL_AC", "DRY_CONTACT", "BUS", "WIRELESS"]
+      "optionalPorts": ["ELECTRICAL_AC", "DRY_CONTACT", "BUS", "WIRELESS"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "CO2_SENSOR",
+      "retiredReason": "le dioxyde de carbone se mesure, il ne se détecte pas comme un danger : le monoxyde a sa propre famille"
     },
     {
       "id": "ALARM_PANEL",
@@ -809,7 +818,10 @@
         "RULES": "NONE"
       },
       "category": "SENSOR",
-      "optionalPorts": ["ELECTRICAL_AC"]
+      "optionalPorts": ["ELECTRICAL_AC"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "MOTION_SENSOR",
+      "retiredReason": "un détecteur de mouvement infrarouge est le même appareil ; ce qu’il alimente est une affaire de réseau"
     },
     {
       "id": "DOOR_CONTACT",
@@ -895,11 +907,14 @@
         "RULES": "NONE"
       },
       "category": "LUMINAIRE",
-      "optionalPorts": ["DRY_CONTACT", "BUS"]
+      "optionalPorts": ["DRY_CONTACT", "BUS"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "EMERGENCY_LIGHT",
+      "retiredReason": "un bloc autonome d’éclairage de sécurité est un luminaire, décrit une fois"
     },
     {
       "id": "EMERGENCY_STOP",
-      "label": "Arrêt d’urgence",
+      "label": "Arrêt d’urgence à champignon",
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
@@ -921,7 +936,7 @@
     },
     {
       "id": "ELECTRICAL_EMERGENCY_CUTOFF",
-      "label": "Coupure d’urgence",
+      "label": "Coupure d’urgence de branchement",
       "domain": "SAFETY",
       "registry": "EQUIPMENT",
       "priority": 6,
@@ -966,7 +981,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "METER"
+      "category": "METER",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "WATER_METER",
+      "retiredReason": "un compteur d’eau en regard reste un compteur d’eau"
     },
     {
       "id": "WATER_CHAMBER",
@@ -1046,7 +1064,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "RAINWATER_DEVICE"
+      "category": "RAINWATER_DEVICE",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "RAINWATER_CHAMBER",
+      "retiredReason": "un regard pluvial appartient au réseau d’eaux pluviales, où qu’il soit posé"
     },
     {
       "id": "SITE_SEPTIC_TANK",
@@ -1078,7 +1099,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "DRAINAGE"
+      "category": "DRAINAGE",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "SEPTIC_TANK",
+      "retiredReason": "une fosse toutes eaux est un ouvrage d’assainissement, et elle est toujours sur la parcelle"
     },
     {
       "id": "SITE_MICRO_TREATMENT_PLANT",
@@ -1111,7 +1135,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "DRAINAGE"
+      "category": "DRAINAGE",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "MICRO_TREATMENT_PLANT",
+      "retiredReason": "même objet, même métier : l’assainissement non collectif"
     },
     {
       "id": "ELECTRICAL_SERVICE_BOX",
@@ -1166,7 +1193,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "METER"
+      "category": "METER",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "SERVICE_METER",
+      "retiredReason": "le compteur de concession est le compteur de branchement"
     },
     {
       "id": "SITE_EARTH_ROD",
@@ -1187,7 +1217,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "EARTHING_DEVICE"
+      "category": "EARTHING_DEVICE",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "EARTH_ROD",
+      "retiredReason": "un piquet de terre est toujours enfoui ; le lot électricité en décrit la résistance, pas le plan de masse"
     },
     {
       "id": "OUTDOOR_HEAT_PUMP",
@@ -1300,7 +1333,7 @@
     },
     {
       "id": "SITE_DRAIN",
-      "label": "Drain",
+      "label": "Drain périphérique de fondation",
       "domain": "SITE",
       "registry": "EQUIPMENT",
       "priority": 6,
@@ -1339,7 +1372,10 @@
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
       "category": "APPLIANCE",
-      "optionalPorts": ["ETHERNET", "WIRELESS", "CONTROL"]
+      "optionalPorts": ["ETHERNET", "WIRELESS", "CONTROL"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "EV_CHARGER",
+      "retiredReason": "une borne sur pied et une borne murale sont la même famille ; le support est une donnée de pose"
     },
     {
       "id": "SITE_EXTERIOR_SOCKET",
@@ -1360,7 +1396,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "SOCKET"
+      "category": "SOCKET",
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "EXTERIOR_SOCKET",
+      "retiredReason": "une prise étanche est le même objet, dehors comme dedans : c’est son indice de protection qui le dit"
     },
     {
       "id": "SITE_EXTERIOR_LIGHT",
@@ -1382,7 +1421,10 @@
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
       "category": "LUMINAIRE",
-      "optionalPorts": ["CONTROL", "WIRELESS"]
+      "optionalPorts": ["CONTROL", "WIRELESS"],
+      "lifecycle": "DEPRECATED",
+      "replacedBy": "EXTERIOR_LIGHT",
+      "retiredReason": "un luminaire extérieur est le même objet, qu’il soit décrit par le lot éclairage ou par le plan de masse"
     },
     {
       "id": "STRUCTURAL_COLUMN",
@@ -1694,7 +1736,7 @@
     },
     {
       "id": "WARDROBE",
-      "label": "Armoire",
+      "label": "Armoire de rangement",
       "domain": "FURNITURE",
       "registry": "EQUIPMENT",
       "priority": 1,
