@@ -499,11 +499,14 @@ h2 {
 .drawer-backdrop {
   display: none;
 }
-@media (max-width: 720px) {
-  .app-header,
-  .actions {
-    flex-wrap: wrap;
-  }
+@media (max-width: 900px) {
+  /*
+   * La barre supérieure garde sa rangée, sur un téléphone aussi.
+   *
+   * Elle passait à la ligne en dessous de 720 px — treize pixels de plus et le
+   * titre seul sur sa rangée — ce qui défait exactement la règle que UX-1 a
+   * posée. Ce qui ne tient pas défile ; rien ne descend.
+   */
   .workspace-grid {
     grid-template-columns: 1fr;
   }
@@ -514,6 +517,28 @@ h2 {
      drawer already does. */
   .panel-toggle {
     display: none;
+  }
+  /*
+   * Le nom de l'application cède la rangée aux commandes.
+   *
+   * « House Technical Designer » prenait la moitié d'un écran de 390 px et
+   * poussait « Panneau » et « Inspecteur » hors du bord : les deux boutons qui
+   * ouvrent tout le reste. Le projet ouvert se lit en bas, dans la barre
+   * d'état, qui est faite pour cela.
+   */
+  .app-header h1 {
+    display: none;
+  }
+  /* La barre de vue défile plutôt que de rogner, et « Affichage » reste au
+     bord : un bouton coupé en deux est un bouton qu'on n'ose pas presser. */
+  .canvas-panel > .view-bar {
+    overflow-x: auto;
+  }
+  .canvas-panel > .view-bar > .view-bar-end {
+    position: sticky;
+    right: 0;
+    padding-left: 0.4rem;
+    background: var(--surface-raised);
   }
   .drawer-backdrop {
     display: block;
@@ -556,6 +581,31 @@ h2 {
   }
   .library-table {
     min-width: 32rem;
+  }
+}
+
+/*
+ * En dessous de 600 px, le panneau monte du bas.
+ *
+ * Un tiroir latéral de 20 rem sur un écran de 390 recouvre les deux tiers du
+ * dessin et se ferme du mauvais pouce. Une feuille montante laisse le plan
+ * au-dessus d'elle, se referme d'un geste vers le bas, et tient la moitié de
+ * l'écran — ce que le §10 demande.
+ */
+@media (max-width: 600px) {
+  .sidebar {
+    inset: auto 0 0 0;
+    width: auto;
+    max-height: 60vh;
+    border-radius: 1rem 1rem 0 0;
+    transform: translateY(102%);
+  }
+  .sidebar.open {
+    transform: none;
+  }
+  /* L'inspecteur aussi : deux feuilles, jamais deux colonnes empilées. */
+  .inspector {
+    max-height: 50vh;
   }
 }
 

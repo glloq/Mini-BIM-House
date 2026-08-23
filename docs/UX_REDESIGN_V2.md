@@ -788,7 +788,35 @@ Deux corrections que ce découpage a rendues nécessaires :
   Le défaut datait de UX-2 et ne se voyait pas, les deux étapes montrant le
   même dessin.
 
-**UX-9 — Responsive.** Les cinq formats du §10.
+**UX-9 — Responsive.** _Livré._ `measure-shell.mjs` mesure désormais les cinq
+formats du §10 plutôt que deux, ce qui a suffi à montrer ce qui n'allait pas :
+aucun débordement nulle part, mais sur un téléphone la barre supérieure passait
+à deux rangées et « House Technical Designer » y prenait la moitié de l'écran,
+poussant « Panneau » et « Inspecteur » — les deux boutons qui ouvrent tout le
+reste — hors du bord.
+
+Le nom de l'application cède donc la rangée aux commandes en dessous de 900 px
+(le projet ouvert se lit dans la barre d'état, qui est faite pour cela), la
+barre de vue défile en gardant « Affichage » collé au bord, et le panneau
+**monte du bas** en dessous de 600 px au lieu de venir du côté : un tiroir
+latéral de 20 rem sur un écran de 390 recouvre les deux tiers du dessin et se
+ferme du mauvais pouce.
+
+Le seuil des tiroirs passe de 720 à 900 px, comme le §10 le demande — le plan
+sur une tablette passe de 59 % à **78 %** de l'écran.
+
+Deux écarts :
+
+- **Le budget de chrome devient un budget par format.** Un doigt n'est pas un
+  pointeur : la feuille de style donne exprès plus de hauteur aux contrôles sur
+  écran tactile, et la barre de vue y fait 48 px au lieu de 34. Le budget
+  reprend cette décision (175 px sur téléphone) plutôt que de la contredire.
+- **La barre basse `[Étape] [Outils] [Vue] [Objet]` n'est pas construite.** Ses
+  quatre entrées désignent des choses qui existent déjà et sont déjà
+  atteignables d'un geste : l'étape est la liste déroulante de la barre
+  d'étapes, la vue est « Affichage », les outils et l'objet sont les deux
+  bascules de la barre supérieure. La construire aurait ajouté un second jeu
+  des mêmes commandes, ce que cette refonte passe son temps à retirer.
 
 **UX-10 — Validation.** `e2e/tasks.spec.ts` (§13.2), contrat réécrit,
 `workspaces.ts` retiré.

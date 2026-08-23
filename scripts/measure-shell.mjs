@@ -23,10 +23,27 @@ import { chromium } from '@playwright/test';
 
 const DIST = 'apps/web/dist';
 
-/** Les formats mesurés : un écran de bureau, un portable ordinaire. */
+/**
+ * Les cinq formats du §10, plus le portable ordinaire.
+ *
+ * Le mobile n'est pas le bureau rétréci : ce qui compte à 390 px n'est pas ce
+ * qui compte à 1 600, et une mesure qui ne regarde que le large ne voit pas la
+ * coque s'empiler.
+ */
 const FORMATS = [
-  { id: 'desktop', label: '1600 × 900', width: 1600, height: 900 },
+  { id: 'wide', label: '1600 × 900', width: 1600, height: 900 },
   { id: 'laptop', label: '1280 × 800', width: 1280, height: 800 },
+  { id: 'small-laptop', label: '1024 × 768', width: 1024, height: 768 },
+  { id: 'tablet', label: '820 × 1180', width: 820, height: 1180 },
+  /*
+   * Un doigt n'est pas un pointeur.
+   *
+   * Sur un écran tactile les contrôles sont plus hauts, exprès : la barre de
+   * vue y fait 48 px et non 34. Ce n'est pas un défaut à corriger, c'est une
+   * décision prise ailleurs dans la feuille de style, et le budget la reprend
+   * plutôt que de la contredire.
+   */
+  { id: 'phone', label: '390 × 844', width: 390, height: 844, chromePx: 175 },
 ];
 
 /**
@@ -263,9 +280,10 @@ for (const shell of measured) {
     at(
       `la barre supérieure fait ${shell.topBarPx} px ; le budget est de ${SHELL_BUDGETS.topBarPx}.`,
     );
-  if (shell.chromeAboveCanvasPx > SHELL_BUDGETS.chromeAboveCanvasPx)
+  const chromeBudget = shell.chromePx ?? SHELL_BUDGETS.chromeAboveCanvasPx;
+  if (shell.chromeAboveCanvasPx > chromeBudget)
     at(
-      `${shell.chromeAboveCanvasPx} px de chrome avant le plan ; le budget est de ${SHELL_BUDGETS.chromeAboveCanvasPx}.`,
+      `${shell.chromeAboveCanvasPx} px de chrome avant le plan ; le budget est de ${chromeBudget}.`,
     );
   if (shell.canvasShare < SHELL_BUDGETS.minimumCanvasShare)
     at(

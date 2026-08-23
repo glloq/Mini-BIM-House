@@ -360,15 +360,29 @@ dire, et rien n'en est jamais écrit dans le bâtiment.
 
 ## 10. Responsive
 
-| Largeur      | Comportement         |
-| ------------ | -------------------- |
-| ≥ 1400 px    | Disposition complète |
-| 1000–1400 px | Inspecteur réduit    |
-| 800–1000 px  | Panneaux en tiroirs  |
-| < 800 px     | Consultation seule   |
+| Largeur      | Comportement                                    |
+| ------------ | ----------------------------------------------- |
+| ≥ 1400 px    | Disposition complète                            |
+| 1000–1400 px | Inspecteur réduit                               |
+| 900–1000 px  | Panneaux en tiroirs                             |
+| 600–900 px   | Tiroirs latéraux ; le plan garde le cadre       |
+| < 600 px     | Le panneau monte du bas ; le plan garde l'écran |
 
 Ne pas détruire le desktop BIM pour un téléphone qui ne dessinera jamais de
-plan.
+plan — et ne pas non plus lui donner le desktop rétréci. **Les trois colonnes
+ne sont jamais empilées** : ce qui ne tient pas devient temporaire.
+
+En dessous de 900 px, le nom de l'application cède sa rangée aux commandes : il
+prenait la moitié d'un écran de 390 px et poussait hors du bord les deux
+boutons qui ouvrent tout le reste. Le projet ouvert se lit dans la barre
+d'état, qui est faite pour cela. En dessous de 600 px, le panneau est une
+feuille montante et non un tiroir latéral : vingt rem sur un écran de 390
+recouvrent les deux tiers du dessin.
+
+`scripts/measure-shell.mjs` mesure les cinq formats. Le budget de chrome y est
+**par format** : un doigt n'est pas un pointeur, les contrôles tactiles sont
+plus hauts exprès, et le budget reprend cette décision plutôt que de la
+contredire.
 
 ## 11. Clavier
 
