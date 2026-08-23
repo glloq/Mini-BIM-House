@@ -4,6 +4,13 @@ Ce document est le contrat d'interface de Mini-BIM-House. Il ne décrit pas une
 maquette : il décrit ce que l'interface a le droit d'être. Toute PR qui touche
 à l'interface est relue contre les dix-huit critères de la dernière section.
 
+> **Ce contrat décrit la coque actuelle, à cinq espaces.**
+> [`UX_REFONTE_V2.md`](UX_REFONTE_V2.md) spécifie celle qui la remplace — trois
+> modes, un navigateur permanent, une barre de vue et un seul système
+> d'affichage. Chaque PR de ce plan met à jour ici la section qu'elle change, en
+> même temps que le code et les tests : les deux documents ne doivent jamais
+> dire deux choses différentes en même temps.
+
 ## 1. Trois niveaux qu'on ne mélange jamais
 
 | Niveau          | Ce que c'est                                                            | Où ça vit        |
