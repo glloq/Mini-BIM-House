@@ -1,7 +1,6 @@
 # House Technical Designer
-[`test en ligne`]([docs/DATA_REGISTRIES.m](https://glloq.github.io/Mini-BIM-House/)).
 
-
+[**Essayer en ligne**](https://glloq.github.io/Mini-BIM-House/)
 
 [![CI](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml/badge.svg)](https://github.com/glloq/Mini-BIM-House/actions/workflows/ci.yml)
 [![Licence AGPL-3.0-only](https://img.shields.io/badge/licence-AGPL--3.0--only-blue)](LICENSE)
