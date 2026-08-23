@@ -109,7 +109,7 @@ button.secondary {
  */
 .app-header,
 .app-header .actions,
-.canvas-panel > .panel-heading {
+.canvas-panel > .view-bar {
   margin-bottom: 0;
 }
 /*
@@ -297,20 +297,22 @@ h2 {
   border-bottom: 1px solid #dce4df;
 }
 /*
- * L'en-tête du dessin : une rangée.
+ * La barre de vue : une rangée, contre le plan.
  *
  * « Vue active » au-dessus de « Plan · Rez-de-chaussée » prenait 140 px pour
- * répéter le nom de l'onglet ouvert. Le niveau se lit, la variante et la
- * visibilité s'atteignent : le reste était de la décoration.
+ * répéter le nom de l'onglet ouvert ; une rangée suffisait. Elle porte
+ * maintenant les quatre notions qui décrivent ce que le dessin montre — le
+ * niveau, le métier, la variante, l'affichage — et l'en-tête du canvas n'a
+ * plus de raison d'exister à côté d'elle.
  */
-.canvas-panel > .canvas-heading {
+.canvas-panel > .view-bar {
   display: flex;
-  min-height: 36px;
+  min-height: 34px;
   align-items: center;
-  padding: 0.2rem 0.6rem;
+  padding: 0.15rem 0.6rem;
   gap: 0.6rem;
 }
-.canvas-panel > .canvas-heading h2 {
+.canvas-panel > .view-bar h2 {
   margin: 0;
   font-size: 0.86rem;
   font-weight: 700;
@@ -319,10 +321,10 @@ h2 {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.canvas-panel > .canvas-heading > .visibility-anchor {
+.canvas-panel > .view-bar > .view-bar-end {
   margin-left: auto;
 }
-.canvas-panel > .canvas-heading button {
+.canvas-panel > .view-bar button {
   padding: 0.24rem 0.55rem;
   font-size: 0.78rem;
 }
@@ -2397,15 +2399,18 @@ button.ghost:disabled {
   /* One line, always the same height, whatever it carries. A strip that grows
      when something is selected moves the drawing under the pointer, and a plan
      that jumps is a plan nobody can aim at. What does not fit scrolls. */
-  height: 2.6rem;
+  height: 2.5rem;
   flex-wrap: nowrap;
   overflow-x: auto;
   align-items: center;
   gap: 0.5rem 0.75rem;
-  margin-bottom: 0.5rem;
-  padding: 0.35rem 0.6rem;
+  /* Contre le dessin, sans marge : huit pixels de fond entre une barre et le
+     plan qu'elle commande sont huit pixels que le plan n'a pas. */
+  margin-bottom: 0;
+  padding: 0.3rem 0.6rem;
   border: 1px solid var(--line);
-  border-radius: 0.7rem;
+  border-radius: 0.7rem 0.7rem 0 0;
+  border-bottom: 0;
   background: var(--surface-raised);
 }
 .context-tool-bar > * {
@@ -2456,7 +2461,7 @@ button.ghost:disabled {
 .visibility-anchor {
   position: relative;
 }
-.visibility-popover {
+.display-panel {
   position: absolute;
   z-index: 20;
   top: calc(100% + 0.35rem);
@@ -2615,26 +2620,41 @@ button.ghost:disabled {
 }
 
 /*
- * The variant, above the plan.
+ * Les choix de la barre de vue.
  *
- * A variant is a mode of the drawing, not a destination: choosing one changes
- * what the plan shows and what an edit means, and nothing of it is ever
- * written into the building.
+ * Le métier et la variante sont des modes du dessin, jamais des destinations :
+ * en choisir un change ce que le plan montre et ce qu'une modification veut
+ * dire, et rien n'en est jamais écrit dans le bâtiment.
  */
-.canvas-mode {
+.view-choice {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
+  color: var(--ink-soft);
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--ink-soft);
+  white-space: nowrap;
 }
-.canvas-mode select {
+.view-choice select {
+  padding: 0.15rem 0.4rem;
   border: 1px solid var(--line);
-  border-radius: 0.5rem;
-  padding: 0.2rem 0.45rem;
+  border-radius: 0.45rem;
   background: var(--surface);
   font-weight: 500;
+}
+/* Combien de calques sont masqués, à côté du bouton qui les découvre. */
+.view-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  margin-left: 0.3rem;
+  padding: 0 0.2rem;
+  border-radius: 0.6rem;
+  background: var(--accent-soft);
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 /*

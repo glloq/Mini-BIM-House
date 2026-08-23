@@ -63,7 +63,6 @@ import { ClearanceControl } from './editor/ClearanceControl.js';
 import { clearanceReport } from '@house-technical-designer/core-domain';
 import type { ClearanceGroupId } from './editor/clearance-overlay.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
-import { LayersPanel } from './editor/LayersPanel.js';
 import { ContextToolBar } from './editor/ContextToolBar.js';
 import { Toolbox } from './editor/Toolbox.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
@@ -155,7 +154,12 @@ import {
   saveLayout,
   type WorkspaceLayout,
 } from './shell/workspace-layout.js';
-import { DisciplinePicker } from './systems/DisciplinePicker.js';
+import {
+  domainsOfStage,
+  networksOfDomain,
+} from './systems/discipline-scope.js';
+import { ViewBar } from './shell/ViewBar.js';
+import { hiddenLayerCount } from './visibility/display-count.js';
 import { technicalDomains } from './systems/discipline-scope.js';
 import { WorkflowGuide } from './workflow/WorkflowGuide.js';
 import { workflowEntries } from './workflow/workflow-registry.js';
@@ -283,9 +287,8 @@ const ChecksPanel = lazy(async () => ({
 const IssueCenter = lazy(async () => ({
   default: (await import('./checks/IssueCenter.js')).IssueCenter,
 }));
-const VisibilityPopover = lazy(async () => ({
-  default: (await import('./visibility/VisibilityPopover.js'))
-    .VisibilityPopover,
+const DisplayPanel = lazy(async () => ({
+  default: (await import('./visibility/DisplayPanel.js')).DisplayPanel,
 }));
 const ProjectCreationPage = lazy(async () => ({
   default: (await import('./project-creation/ProjectCreationPage.js'))
@@ -415,7 +418,7 @@ function App() {
   /** The property someone was sent to look at, when they were sent to one. */
   const [inspectedProperty, setInspectedProperty] = useState<string>();
   /** Whether what is drawn is being chosen right now. */
-  const [visibilityOpen, setVisibilityOpen] = useState(false);
+  const [displayOpen, setDisplayOpen] = useState(false);
   /** Whether the model tree is open; it is secondary, behind « ☰ Modèle ». */
   /** The trade the plan is being read through, in Systèmes. */
   /*
@@ -818,6 +821,23 @@ function App() {
    * travailler dans une étape qui n'affiche rien, ni d'en quitter une qui
    * affiche cinq. Il disparaît quand il n'y a plus rien à dire.
    */
+  /*
+   * Les métiers que l'étape propose, comptés.
+   *
+   * La barre de vue est le seul endroit où l'on choisit un métier : le compte
+   * de réseaux part donc dans l'étiquette de chaque option, pour que la
+   * différence entre « rien à voir » et « rien de tracé » n'y perde rien.
+   */
+  const disciplineChoices = useMemo(
+    () =>
+      domainsOfStage(file.project, navigation.stage).map((id) => ({
+        id,
+        networks: networksOfDomain(file.project, id),
+      })),
+    [file.project, navigation.stage],
+  );
+  const hiddenLayers = useMemo(() => hiddenLayerCount(editor), [editor]);
+
   const stageProgress = useMemo(
     () => remainingByStage(workflowEntries(file.project)),
     [file.project],
@@ -2236,18 +2256,6 @@ function App() {
           {navigation.stage === 'PROJECT' && (
             <WorkflowGuide project={file.project} onNavigate={navigateTo} />
           )}
-          {/*
-           * Le sélecteur n'apparaît que là où il y a un choix : une étape qui
-           * ne propose qu'un métier n'a pas de métier à choisir.
-           */}
-          {creationStage(navigation.stage).domains.length > 1 && (
-            <DisciplinePicker
-              project={file.project}
-              stage={navigation.stage}
-              {...(activeDomain === undefined ? {} : { activeDomain })}
-              onSelect={(domain) => navigateTo({ domain })}
-            />
-          )}
           {tab === 'plan' && (
             <>
               {/*
@@ -2297,15 +2305,6 @@ function App() {
                 }
                 onOpenLibrary={() => setTab('equipment')}
               />
-              {/*
-                Twenty checkboxes were the normal way of choosing what is
-                drawn. They are the engine; the presets are the interface, and
-                the engine stays reachable for the tenth time in ten.
-              */}
-              <details className="layers-advanced">
-                <summary>Calques (avancé)</summary>
-                <LayersPanel editor={editor} dispatch={dispatchEditor} />
-              </details>
               {(file.project.scenarios ?? []).length > 0 && (
                 <section
                   className="overlay-control"
@@ -2381,57 +2380,49 @@ function App() {
         <>
           {tab === 'plan' && (
             <section className="canvas-panel panel" id="plan">
-              <header className="panel-heading canvas-heading">
-                <h2>
-                  {levels.find(({ id }) => id === activeLevelId)?.name ??
-                    'aucun niveau'}
-                  {activeDomain !== undefined &&
-                    navigation.stage === 'SYSTEMS' &&
-                    ` · ${designDomainLabel(activeDomain)}`}
-                </h2>
-                {(file.project.scenarios ?? []).length > 0 && (
-                  <label className="canvas-mode">
-                    Variante
-                    <select
-                      value={scenarioMode ?? ''}
-                      onChange={(event) =>
-                        setScenarioMode(
-                          event.target.value === ''
-                            ? undefined
-                            : event.target.value,
-                        )
-                      }
+              <ViewBar
+                levelName={
+                  levels.find(({ id }) => id === activeLevelId)?.name ??
+                  'aucun niveau'
+                }
+                domains={disciplineChoices}
+                {...(activeDomain === undefined ? {} : { activeDomain })}
+                onDomain={(domain) => navigateTo({ domain })}
+                scenarios={file.project.scenarios ?? []}
+                {...(scenarioMode === undefined
+                  ? {}
+                  : { scenarioId: scenarioMode })}
+                onScenario={setScenarioMode}
+                display={
+                  <div className="visibility-anchor">
+                    <button
+                      type="button"
+                      className="secondary"
+                      aria-expanded={displayOpen}
+                      aria-haspopup="dialog"
+                      onClick={() => setDisplayOpen((open) => !open)}
                     >
-                      <option value="">Le projet lui-même</option>
-                      {(file.project.scenarios ?? []).map((scenario) => (
-                        <option key={scenario.id} value={scenario.id}>
-                          {scenario.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                )}
-                <div className="visibility-anchor">
-                  <button
-                    type="button"
-                    className="secondary"
-                    aria-expanded={visibilityOpen}
-                    aria-haspopup="dialog"
-                    onClick={() => setVisibilityOpen((open) => !open)}
-                  >
-                    Visibilité
-                  </button>
-                  {visibilityOpen && (
-                    <Suspense fallback={null}>
-                      <VisibilityPopover
-                        editor={editor}
-                        dispatch={dispatchEditor}
-                        onClose={() => setVisibilityOpen(false)}
-                      />
-                    </Suspense>
-                  )}
-                </div>
-              </header>
+                      Affichage
+                      {hiddenLayers > 0 && (
+                        <span className="view-badge" aria-hidden="true">
+                          {hiddenLayers}
+                        </span>
+                      )}
+                    </button>
+                    {displayOpen && (
+                      <Suspense fallback={null}>
+                        <DisplayPanel
+                          editor={editor}
+                          dispatch={dispatchEditor}
+                          renderingId={rendering.id}
+                          onRendering={setRenderingId}
+                          onClose={() => setDisplayOpen(false)}
+                        />
+                      </Suspense>
+                    )}
+                  </div>
+                }
+              />
               <ContextToolBar
                 project={file.project}
                 editor={editor}

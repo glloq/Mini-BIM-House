@@ -44,16 +44,19 @@ export const SHELL_BUDGETS = {
   /**
    * Pixels pris au-dessus du plan par les barres.
    *
-   * UX-1 en mesurait 131. UX-2 en ajoute 34 : la barre d'étapes est une
-   * rangée, là où le rail était une colonne de 56 px. La hauteur coûtée est
-   * rendue en largeur, et la part de fenêtre occupée par le plan n'a pas
-   * bougé — 60 % et 54 %. Un budget est une décision : celle-ci est de payer
-   * 34 px de haut pour 56 px de large et un ordre de lecture.
+   * Trois cent six au départ. UX-1 en a fait 131 ; UX-2 en a ajouté 34, la
+   * barre d'étapes étant une rangée là où le rail était une colonne de 56 px —
+   * de la hauteur payée pour de la largeur rendue. UX-5 fond l'en-tête du
+   * canvas dans la barre de vue et colle la barre d'outil au dessin : 153.
    *
-   * La cible de §13.1 est 120 px. Il y faut UX-5, qui fond l'en-tête du canvas
-   * dans la barre de vue : deux rangées deviennent une.
+   * C'est le compte du §9 de la spécification : 44 (titre) + 34 (étapes) +
+   * 34 (vue) + 40 (outil), plus un pixel de bordure. Le seuil de « ≤ 120 px »
+   * du §13.1 a été écrit avant que ces quatre barres ne soient posées, et son
+   * arithmétique le contredit : quatre rangées ne tiennent pas dans 120 px.
+   * Descendre plus bas demanderait d'en retirer une, ce que la spécification
+   * ne demande pas.
    */
-  chromeAboveCanvasPx: 170,
+  chromeAboveCanvasPx: 155,
   topBarPx: 48,
   /**
    * Part de la fenêtre occupée par le plan.

@@ -5,7 +5,10 @@ import { fileAction } from './support/file-menu.js';
 
 import { openDestination, openStage } from './support/navigation.js';
 import {
+  choosePreset,
+  closeDisplayPanel,
   hidePlacedComponents,
+  openDisplayPanel,
   openInspector,
   openLayerEditor,
   openModelTree,
@@ -294,13 +297,11 @@ test('switches level and discipline view without losing the model', async ({
   page,
 }) => {
   await loadDemo(page);
-  await openLayerEditor(page);
-  await page.getByLabel('Vue disciplinaire').selectOption('plumbing');
+  await choosePreset(page, 'Plomberie');
   await expect(
     page.locator('[data-layer="water.pipes"]').first(),
   ).toBeVisible();
-  await openLayerEditor(page);
-  await page.getByLabel('Vue disciplinaire').selectOption('architecture');
+  await choosePreset(page, 'Architecture');
   await expect(page.locator('[data-role="WALL_CUT"][id^="wall:"]')).toHaveCount(
     6,
   );
@@ -682,16 +683,13 @@ test('exports the plan it draws, not a simplified redrawing of it', async ({
   // export: the sheet is what the user is looking at.
   expect(architecture).not.toContain('water.pipes');
 
-  await openLayerEditor(page);
-
-  // Un modèle, deux dessins, un interrupteur de calque : la composition du mur
-  // est le sujet de la vue « Matériaux ».
-  await page.getByLabel('Vue disciplinaire').selectOption('materials');
+  // Un modèle, deux dessins, un préréglage : la composition du mur est le
+  // sujet de la vue « Matériaux ».
+  await choosePreset(page, 'Matériaux');
   const materials = await exportSvg();
   expect(materials).toContain('architecture.wall-layers');
 
-  await openLayerEditor(page);
-  await page.getByLabel('Vue disciplinaire').selectOption('plumbing');
+  await choosePreset(page, 'Plomberie');
   const plumbing = await exportSvg();
   expect(plumbing).toContain('water.pipes');
 });
@@ -2176,17 +2174,21 @@ test('reads the same plan through one discipline at a time', async ({
   await expect(walls).toHaveCount(6);
 
   await openStage(page, 'Systèmes');
-  const disciplines = page.getByRole('region', { name: 'Disciplines' });
-  await expect(disciplines).toBeVisible();
-  // The count is the difference between « rien à voir » and « rien de tracé ».
-  await expect(disciplines).toContainText('réseau(x)');
+  // Le métier se choisit contre le dessin, dans la barre de vue : c'est une
+  // chose que le plan montre, pas une destination du panneau gauche.
+  const trade = page.locator('.view-bar').getByLabel('Discipline');
+  await expect(trade).toBeVisible();
+  // Le compte fait la différence entre « rien à voir » et « rien de tracé ».
+  await expect(trade.locator('option[value="ELECTRICAL"]')).toContainText(
+    /\(\d+\)/u,
+  );
 
-  await disciplines.getByRole('button', { name: /^Électricité/ }).click();
+  await trade.selectOption('ELECTRICAL');
   // The same drawing, under the same walls: Systèmes is a context, not a way
   // out of the model.
   await expect(canvas).toBeVisible();
   await expect(walls).toHaveCount(6);
-  await expect(page.locator('.canvas-panel h2')).toContainText('Électricité');
+  await expect(trade).toHaveValue('ELECTRICAL');
   expect(errors).toEqual([]);
 });
 
@@ -2236,20 +2238,16 @@ test('reads a trade in the stage that draws it, Énergie included', async ({
   // les neuf étapes ont réparti les seize métiers, et aucune n'a le droit d'en
   // perdre un en route.
   await openStage(page, 'Énergie');
-  const disciplines = page.getByRole('region', { name: 'Disciplines' });
-  await expect(disciplines).toBeVisible();
-  await disciplines.getByRole('button', { name: /^Solaire/ }).click();
+  const trade = page.locator('.view-bar').getByLabel('Discipline');
+  await expect(trade).toBeVisible();
+  await trade.selectOption('SOLAR');
   await expect(canvas).toBeVisible();
 
   // Et Systèmes ne les propose plus : un métier revendiqué par deux étapes est
   // un métier qu'on cherchera dans la mauvaise.
   await openStage(page, 'Systèmes');
-  await expect(
-    disciplines.getByRole('button', { name: /^Solaire/ }),
-  ).toHaveCount(0);
-  await expect(
-    disciplines.getByRole('button', { name: /^Électricité/ }),
-  ).toBeVisible();
+  await expect(trade.locator('option[value="SOLAR"]')).toHaveCount(0);
+  await expect(trade.locator('option[value="ELECTRICAL"]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
 
@@ -2258,25 +2256,39 @@ test('chooses what is drawn from a preset before a checkbox', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  const popover = page.getByRole('dialog', { name: 'Visibilité' });
-  await expect(popover).toHaveCount(0);
-  await page.getByRole('button', { name: 'Visibilité', exact: true }).click();
-  await expect(popover).toBeVisible();
+  const panel = page.getByRole('dialog', { name: 'Affichage' });
+  await expect(panel).toHaveCount(0);
+  await openDisplayPanel(page);
+
+  // Un seul écran pour « ce qui est dessiné » et « comment c'est dessiné » :
+  // deux interfaces pour une question sont deux réponses qui divergent.
+  await panel
+    .getByRole('button', { name: 'Plan technique', exact: true })
+    .click();
+  await expect(
+    panel.getByRole('button', { name: 'Plan technique', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
 
   // A preset answers the usual question in one click.
-  await popover.getByRole('button', { name: 'Électricité' }).click();
+  await panel.getByRole('button', { name: 'Électricité' }).click();
   await expect(
-    popover.getByRole('button', { name: 'Électricité' }),
+    panel.getByRole('button', { name: 'Électricité' }),
   ).toHaveAttribute('aria-pressed', 'true');
-  // And the popover says how much is hidden, so nobody prints a plan missing
+  // And the panel says how much is hidden, so nobody prints a plan missing
   // half its objects without being told.
-  await expect(popover).toContainText('masqué(s)');
+  await expect(panel).toContainText('masqué(s)');
 
-  // The twenty layers are still there, one disclosure down.
-  await popover.getByText('Calque par calque').click();
-  await expect(popover.locator('.layer-list li').first()).toBeVisible();
+  // The twenty-eight layers are still there, one disclosure down.
+  await panel.getByText(/^Calque par calque/u).click();
+  await expect(panel.locator('.layer-list li').first()).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(popover).toHaveCount(0);
+  await expect(panel).toHaveCount(0);
+
+  // Et le compte se lit sans ouvrir le panneau : un plan amputé sans rien à
+  // l'écran pour le dire est un plan que quelqu'un imprimera.
+  await expect(page.getByRole('button', { name: /^Affichage/u })).toContainText(
+    /\d/u,
+  );
   expect(errors).toEqual([]);
 });
 
@@ -3244,6 +3256,7 @@ test('reopens a saved view exactly as it was saved', async ({ page }) => {
   const stairs = page.getByRole('checkbox', { name: 'Escaliers' });
   await expect(stairs).toBeChecked();
   await stairs.uncheck();
+  await closeDisplayPanel(page);
   await openDestination(page, 'Vues et feuilles');
   await page.getByLabel('Nom de la vue').fill('Sans les escaliers');
   await page.getByRole('button', { name: 'Enregistrer cette vue' }).click();
@@ -3256,6 +3269,7 @@ test('reopens a saved view exactly as it was saved', async ({ page }) => {
   await openLayerEditor(page);
   await stairs.check();
   await expect(stairs).toBeChecked();
+  await closeDisplayPanel(page);
   await openDestination(page, 'Vues et feuilles');
   await page
     .getByRole('row')

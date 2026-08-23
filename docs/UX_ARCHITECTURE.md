@@ -252,11 +252,23 @@ Une discipline hors périmètre n'est pas proposée — sauf si le projet en tie
 déjà des objets. Le compte de réseaux est affiché à côté de chaque discipline :
 c'est la différence entre « rien à voir » et « rien de tracé ».
 
-**La visibilité** se choisit dans un popover sur le plan, par préréglage. Neuf
-fois sur dix la question est « montre-moi l'électricité », et un préréglage y
-répond en un clic ; les vingt calques restent un dépliage plus bas — ils sont le
-moteur, et le moteur n'a pas à être l'interface. Le popover dit combien de
-calques sont masqués, pour que personne n'imprime un plan amputé sans l'avoir su.
+**Ce que le plan montre se lit et se change contre le plan**, dans la barre de
+vue : le niveau dessiné, le métier, la variante, l'affichage. Ce sont quatre
+notions distinctes qu'on a longtemps confondues sous le mot « vue », et elles
+décrivent toutes le dessin — elles sont donc à côté de lui, sur une rangée. On
+change d'étage dans l'arborescence, jamais ici : la barre le nomme.
+
+**L'affichage** a un seul écran, `DisplayPanel` : le rendu (comment c'est
+dessiné), le préréglage (quoi afficher), puis les vingt-huit calques sous un
+dépliage. `LayersPanel` a été supprimé, pas déplacé — deux interfaces pour une
+question sont deux réponses qui finissent par diverger. Neuf fois sur dix la
+question est « montre-moi l'électricité », et un préréglage y répond en un
+clic ; les calques sont le moteur, et le moteur n'a pas à être l'interface.
+
+Le rendu et les calques restent **deux axes indépendants** : les mélanger
+interdirait un plan d'architecte des réseaux. Le compte de calques masqués est
+sur le bouton d'affichage lui-même, pour que personne n'imprime un plan amputé
+sans l'avoir su.
 
 **Le navigateur de bâtiment** est en tête du panneau gauche, en permanence.
 « Où je suis et ce qu'il y a dedans » est une question qu'on se pose sans

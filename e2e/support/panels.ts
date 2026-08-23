@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 /**
  * Les parties du panneau de contexte qu'un test doit atteindre.
@@ -20,10 +20,51 @@ export async function openModelTree(page: Page): Promise<void> {
     .waitFor();
 }
 
+/**
+ * Le panneau d'affichage, ouvert comme une personne l'ouvre.
+ *
+ * Il y avait deux écrans pour une question : `LayersPanel` dans la colonne de
+ * gauche et `VisibilityPopover` au-dessus du plan. Il n'en reste qu'un, contre
+ * le dessin, derrière le bouton « Affichage » de la barre de vue.
+ */
+export async function openDisplayPanel(page: Page): Promise<void> {
+  const panel = page.getByRole('dialog', { name: 'Affichage' });
+  if (await panel.isVisible()) return;
+  await page.getByRole('button', { name: /^Affichage/u }).click();
+  await panel.waitFor();
+}
+
+/**
+ * Et refermé, parce qu'il flotte au-dessus du dessin.
+ *
+ * C'était un dépliage du panneau gauche, qu'on pouvait laisser ouvert sans
+ * conséquence. C'est maintenant une boîte de dialogue contre le plan : la
+ * laisser ouverte, c'est laisser un test cliquer à travers.
+ */
+export async function closeDisplayPanel(page: Page): Promise<void> {
+  const panel = page.getByRole('dialog', { name: 'Affichage' });
+  if (!(await panel.isVisible())) return;
+  await page.keyboard.press('Escape');
+  await expect(panel).toHaveCount(0);
+}
+
+/** Le préréglage de visibilité, choisi par son nom, puis le plan rendu. */
+export async function choosePreset(page: Page, label: string): Promise<void> {
+  await openDisplayPanel(page);
+  await page
+    .getByRole('dialog', { name: 'Affichage' })
+    .getByRole('button', { name: label, exact: true })
+    .click();
+  await closeDisplayPanel(page);
+}
+
+/** Les vingt-huit cases, sous leur dépliage, dans le même panneau. */
 export async function openLayerEditor(page: Page): Promise<void> {
-  const editor = page.getByLabel('Vue disciplinaire');
-  if (await editor.isVisible()) return;
-  await page.getByText('Calques (avancé)').click();
+  await openDisplayPanel(page);
+  const list = page.locator('.display-panel .layer-list');
+  if (await list.isVisible()) return;
+  await page.getByText(/^Calque par calque/u).click();
+  await list.waitFor();
 }
 
 /**
@@ -40,6 +81,7 @@ export async function hidePlacedComponents(page: Page): Promise<void> {
   await openLayerEditor(page);
   const placed = page.getByRole('checkbox', { name: 'Équipements posés' });
   if (await placed.isChecked()) await placed.uncheck();
+  await closeDisplayPanel(page);
 }
 
 /**

@@ -196,7 +196,8 @@ describe('the eighteen acceptance criteria', () => {
       'editor/tool-icons.tsx',
       'editor/ContextToolBar.tsx',
       'checks/IssueCenter.tsx',
-      'visibility/VisibilityPopover.tsx',
+      'visibility/DisplayPanel.tsx',
+      'shell/ViewBar.tsx',
       'workflow/WorkflowGuide.tsx',
     ])
       expect(code(path), path).not.toMatch(/#[0-9a-f]{3,8}\b/iu);

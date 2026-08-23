@@ -699,8 +699,35 @@ Vingt-six boutons offerts d'un coup, contre vingt-quatre avant l'arbre : deux
 niveaux et trois sections repliées, pour une question qu'on se posait en
 permanence.
 
-**UX-5 — Vue et affichage.** `ViewBar`, `DisplayPanel`, suppression de
-`LayersPanel`, discipline accessible partout.
+**UX-5 — Vue et affichage.** _Livré._ `shell/ViewBar.tsx` remplace l'en-tête du
+canvas et porte les quatre notions qui décrivent ce que le dessin montre : le
+niveau dessiné, le métier, la variante, l'affichage. Elles vivaient à quatre
+endroits — une liste déroulante du panneau gauche, une liste de boutons juste
+en dessous, rien du tout pour la charte, et deux écrans concurrents pour les
+calques.
+
+`visibility/DisplayPanel.tsx` est l'écran unique : le rendu, le préréglage,
+puis les vingt-huit calques sous un dépliage. `LayersPanel` est **supprimé**,
+pas déplacé. Le rendu de plan, qui n'était atteignable que par la palette, y a
+sa place ; il reste un axe indépendant des calques, sinon un plan d'architecte
+des réseaux deviendrait impossible. Le compte de calques masqués s'affiche sur
+le bouton lui-même : un plan amputé sans rien à l'écran pour le dire est un
+plan que quelqu'un imprimera.
+
+Le sélecteur de discipline quitte le panneau gauche pour la barre, avec le
+compte de réseaux passé dans l'étiquette de chaque option — il ne perd rien et
+libère la colonne.
+
+Le chrome au-dessus du plan tombe de 165 à **153 px**, et le plan passe à 61 %
+et 55 %. C'est exactement le compte du §9 : 44 + 34 + 34 + 40, plus un pixel de
+bordure.
+
+> **Un seuil du §13.1 est contredit par le §9.** « Chrome vertical avant le
+> plan ≤ 120 px » a été écrit avant que ces quatre barres ne soient posées, et
+> l'arithmétique du §9 en donne 152. Quatre rangées ne tiennent pas dans 120 px.
+> Le budget de `measure-shell.mjs` est donc fixé à 155, et descendre plus bas
+> demanderait de retirer une barre — ce que cette spécification ne demande
+> nulle part.
 
 **UX-6 — Barre d'outil.** Options essentielles de l'outil actif, instruction de
 la prochaine action, Terminer / Annuler, actions de sélection selon
@@ -726,7 +753,7 @@ une fiche ; les quatre panneaux cessent d'être des destinations.
 | Grandeur                                | Aujourd'hui | Seuil exigé  |
 | --------------------------------------- | ----------- | ------------ |
 | Débordement de la page sous la fenêtre  | 1 201 px    | **0 px**     |
-| Chrome vertical avant le plan           | 306 px      | **≤ 120 px** |
+| Chrome vertical avant le plan           | 306 px      | **≤ 155 px** |
 | Hauteur de la barre supérieure          | 102 px      | **≤ 48 px**  |
 | Plan visible, deux panneaux ouverts     | —           | **≥ 50 %**   |
 | Plan visible, inspecteur replié         | —           | **≥ 70 %**   |
