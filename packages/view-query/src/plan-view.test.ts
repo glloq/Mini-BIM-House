@@ -860,3 +860,240 @@ describe('wall junctions', () => {
     ).toBeUndefined();
   });
 });
+
+/**
+ * Doors and windows, drawn as what they are.
+ *
+ * Every door swept a quarter-circle to the same side whatever it was, and
+ * every window was one line laid across the masonry. The model now says which
+ * way a door opens, and the catalogue's family says which drawing an opening
+ * gets.
+ */
+describe('openings', () => {
+  function withDoor(
+    swing?: Record<string, unknown>,
+    familyId?: string,
+  ): Project {
+    const base = project();
+    const level = base.building.levels[0]!;
+    return {
+      ...base,
+      ...(familyId === undefined
+        ? {}
+        : {
+            openingTypes: [
+              {
+                id: 'entry-model',
+                familyId,
+                category: 'DOOR',
+                name: 'Porte',
+                properties: {},
+              },
+            ],
+          }),
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            openings: level.openings.map((opening) =>
+              opening.id === 'entry-door'
+                ? ({
+                    ...opening,
+                    ...(familyId === undefined
+                      ? {}
+                      : { definitionId: 'entry-model' }),
+                    ...(swing === undefined ? {} : { swing }),
+                  } as typeof opening)
+                : opening,
+            ),
+          },
+        ],
+      },
+    };
+  }
+
+  function withWindow(familyId: string): Project {
+    const base = project();
+    const level = base.building.levels[0]!;
+    return {
+      ...base,
+      openingTypes: [
+        {
+          id: 'window-model',
+          familyId,
+          category: 'WINDOW',
+          name: 'Fenêtre',
+          properties: {},
+        },
+      ],
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            openings: level.openings.map((opening) =>
+              opening.id === 'living-window'
+                ? { ...opening, definitionId: 'window-model' }
+                : opening,
+            ),
+          },
+        ],
+      },
+    };
+  }
+
+  const points = (
+    primitive: ScenePrimitive | undefined,
+  ): readonly { readonly x: number; readonly y: number }[] =>
+    primitive?.geometry.kind === 'POLYLINE'
+      ? primitive.geometry.polyline.points
+      : [];
+
+  it('draws the arc as a curve rather than as a visible polygon', () => {
+    // At eight segments the arc of a door is a polygon on a printed sheet, and
+    // a plan is read at arm's length.
+    const swing = find(
+      buildPlanView(project()).primitives,
+      'opening-swing:entry-door',
+    );
+    expect(points(swing).length).toBeGreaterThanOrEqual(17);
+  });
+
+  it('hinges the leaf where the model says, on the side the model says', () => {
+    // Stated against the wall's own path: « à gauche » of a drawing is a
+    // different door once the plan is mirrored.
+    const wallSide = (primitive: ScenePrimitive | undefined): number =>
+      points(primitive).at(-1)?.y ?? 0;
+    const byDefault = find(
+      buildPlanView(project()).primitives,
+      'opening-leaf:entry-door',
+    );
+    const other = find(
+      buildPlanView(withDoor({ hinge: 'END', opensTo: 'LEFT_OF_HOST' }))
+        .primitives,
+      'opening-leaf:entry-door',
+    );
+    // The wall runs east; the default door opens to its right, the other one
+    // to its left, so the two leaves end on opposite sides of it.
+    expect(wallSide(byDefault)).toBeLessThan(0);
+    expect(wallSide(other)).toBeGreaterThan(0);
+    // And they are hinged at opposite jambs.
+    expect(points(byDefault)[0]!.x).toBeCloseTo(1_000, 6);
+    expect(points(other)[0]!.x).toBeCloseTo(1_900, 6);
+  });
+
+  it('opens a door as far as the model says', () => {
+    const ajar = find(
+      buildPlanView(
+        withDoor({
+          hinge: 'START',
+          opensTo: 'RIGHT_OF_HOST',
+          openingAngleDeg: 45,
+        }),
+      ).primitives,
+      'opening-leaf:entry-door',
+    );
+    expect(ajar?.metadata?.angleDeg).toBe(45);
+    const [hinge, tip] = points(ajar);
+    // At 45° the leaf covers as much wall as it does room.
+    expect(Math.abs(tip!.x - hinge!.x)).toBeCloseTo(
+      Math.abs(tip!.y - hinge!.y),
+      6,
+    );
+  });
+
+  it('slides a sliding door instead of sweeping the room', () => {
+    const drawn = buildPlanView(withDoor(undefined, 'DOOR_SLIDING')).primitives;
+    expect(find(drawn, 'opening-swing:entry-door')).toBeUndefined();
+    const leaf = find(drawn, 'opening-leaf:entry-door');
+    expect(leaf?.metadata?.representation).toBe('SLIDING_DOOR');
+    // The panel runs along the wall, not across the room.
+    const [from, to] = points(leaf);
+    expect(from!.y).toBeCloseTo(to!.y, 6);
+    expect(Math.abs(to!.x - from!.x)).toBeCloseTo(900, 6);
+  });
+
+  it('hides a pocket door in the wall it disappears into', () => {
+    const leaf = find(
+      buildPlanView(withDoor(undefined, 'DOOR_POCKET')).primitives,
+      'opening-leaf:entry-door',
+    );
+    expect(leaf?.metadata?.part).toBe('LEAF_HIDDEN');
+    // Between the two faces of a 300 mm wall whose path is its centre line.
+    for (const point of points(leaf)) expect(point.y).toBeCloseTo(0, 6);
+  });
+
+  it('gives a double door two leaves, one at each jamb', () => {
+    const drawn = buildPlanView(withDoor(undefined, 'DOOR_DOUBLE')).primitives;
+    const first = find(drawn, 'opening-leaf-a:entry-door');
+    const second = find(drawn, 'opening-leaf-b:entry-door');
+    expect(points(first)[0]!.x).toBeCloseTo(1_000, 6);
+    expect(points(second)[0]!.x).toBeCloseTo(1_900, 6);
+    expect(find(drawn, 'opening-swing-a:entry-door')).toBeDefined();
+    expect(find(drawn, 'opening-swing-b:entry-door')).toBeDefined();
+  });
+
+  it('draws no leaf for a garage door, whose panel is overhead', () => {
+    const drawn = buildPlanView(withDoor(undefined, 'DOOR_GARAGE')).primitives;
+    expect(find(drawn, 'opening-leaf:entry-door')).toBeUndefined();
+    expect(find(drawn, 'opening-panel:entry-door')?.metadata?.part).toBe(
+      'PANEL',
+    );
+  });
+
+  it('fits a window with a frame as well as a pane', () => {
+    // A window read as a hole with something fitted in it, rather than as a
+    // line drawn across the masonry.
+    const drawn = buildPlanView(withWindow('WINDOW_CASEMENT')).primitives;
+    const frame = find(drawn, 'opening-frame:living-window');
+    expect(frame?.metadata?.part).toBe('FRAME');
+    // A closed outline inside the reveal of a 300 mm wall.
+    const xs = points(frame).map(({ x }) => x);
+    expect(Math.max(...xs)).toBeLessThan(150);
+    expect(Math.min(...xs)).toBeGreaterThan(-150);
+    expect(find(drawn, 'opening-glazing:living-window')).toBeDefined();
+  });
+
+  it('passes two panes of a sliding window one behind the other', () => {
+    const drawn = buildPlanView(withWindow('WINDOW_SLIDING')).primitives;
+    const first = find(drawn, 'opening-glazing-a:living-window');
+    const second = find(drawn, 'opening-glazing-b:living-window');
+    expect(first).toBeDefined();
+    expect(second).toBeDefined();
+    expect(points(first)[0]!.x).not.toBeCloseTo(points(second)[0]!.x, 6);
+    expect(find(drawn, 'opening-glazing:living-window')).toBeUndefined();
+  });
+
+  it('divides a bay with its mullions', () => {
+    const drawn = buildPlanView(withWindow('WINDOW_BAY')).primitives;
+    expect(
+      find(drawn, 'opening-mullion-33:living-window')?.metadata?.part,
+    ).toBe('MULLION');
+    expect(find(drawn, 'opening-mullion-67:living-window')).toBeDefined();
+  });
+
+  it('leaves a plain void plain', () => {
+    const base = project();
+    const level = base.building.levels[0]!;
+    const drawn = buildPlanView({
+      ...base,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            openings: level.openings.map((opening) =>
+              opening.id === 'entry-door'
+                ? { ...opening, openingType: 'VOID' as const }
+                : opening,
+            ),
+          },
+        ],
+      },
+    }).primitives;
+    expect(find(drawn, 'opening:entry-door')).toBeDefined();
+    expect(find(drawn, 'opening-leaf:entry-door')).toBeUndefined();
+    expect(find(drawn, 'opening-glazing:entry-door')).toBeUndefined();
+  });
+});

@@ -185,6 +185,23 @@ function architecturalStyles(mode: GraphicOutputMode): SvgStyleCatalog {
       strokeLinecap: 'round',
       strokeLinejoin: 'round',
     },
+    // The frame of a window: fitted into the hole, and read as fitted rather
+    // than drawn across the masonry.
+    'opening-frame': {
+      stroke: palette.opening,
+      fill: 'none',
+      strokeWidthPaperMm: WIDTHS.glazing,
+      strokeLinejoin: 'round',
+    },
+    // A leaf that is not there to be seen — inside a pocket, overhead in a
+    // garage — is drawn as what it is: present, and hidden.
+    'opening-hidden': {
+      stroke: palette.opening,
+      fill: 'none',
+      strokeWidthPaperMm: WIDTHS.glazing,
+      dashPaperMm: [2, 1.2],
+      strokeLinecap: 'round',
+    },
     'opening-glazing': {
       stroke: palette.glazing,
       fill: 'none',
@@ -375,6 +392,20 @@ const architecturalRules: readonly GraphicStyleRule[] = [
   {
     match: { semanticRole: 'OPENING', metadata: { part: 'GLAZING' } },
     token: 'opening-glazing',
+  },
+  {
+    match: {
+      semanticRole: 'OPENING',
+      metadata: { part: ['FRAME', 'MULLION'] },
+    },
+    token: 'opening-frame',
+  },
+  {
+    match: {
+      semanticRole: 'OPENING',
+      metadata: { part: ['LEAF_HIDDEN', 'PANEL'] },
+    },
+    token: 'opening-hidden',
   },
   {
     match: { semanticRole: 'ANNOTATION', metadata: { labelPart: 'NAME' } },

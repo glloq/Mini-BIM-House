@@ -1,5 +1,6 @@
 import type {
   ComponentCategory,
+  DoorSwing,
   Level,
   RoofEdge,
   StairType,
@@ -11,6 +12,7 @@ import type {
 } from '@house-technical-designer/core-domain';
 import {
   DEFAULT_NOTE_HEIGHT_MM,
+  doorSwingOf,
   isDimension,
   isTextNote,
 } from '@house-technical-designer/core-domain';
@@ -415,6 +417,9 @@ export function openingEditsFor(
               definitionId: value === '' ? null : value,
             }),
         },
+        ...(opening.openingType === 'DOOR'
+          ? doorSwingEdits(level.id, opening)
+          : []),
         {
           id: 'openingType',
           semanticId: 'opening.openingType',
@@ -457,6 +462,56 @@ export function openingEditsFor(
       ];
   }
   return undefined;
+}
+
+/**
+ * Le sens d’ouverture d’une porte, énoncé par rapport au tracé de son mur.
+ *
+ * Jamais « à gauche » ou « à droite » de l’écran : le même dessin retourné
+ * donnerait une autre porte, et le modèle ne peut pas porter un fait qui dépend
+ * de la manière dont on le regarde.
+ */
+function doorSwingEdits(
+  levelId: string,
+  opening: Opening,
+): readonly InspectorEdit[] {
+  const swing = doorSwingOf(opening);
+  return [
+    {
+      id: 'swing.hinge',
+      semanticId: 'opening.swing.hinge',
+      label: 'Gond',
+      control: {
+        kind: 'SELECT',
+        value: swing.hinge,
+        options: [
+          { value: 'START', label: 'Début du mur' },
+          { value: 'END', label: 'Fin du mur' },
+        ],
+      },
+      apply: (value) =>
+        new UpdateOpeningCommand(levelId, opening.id, {
+          swing: { ...swing, hinge: value as DoorSwing['hinge'] },
+        }),
+    },
+    {
+      id: 'swing.opensTo',
+      semanticId: 'opening.swing.opensTo',
+      label: 'Ouvre vers',
+      control: {
+        kind: 'SELECT',
+        value: swing.opensTo,
+        options: [
+          { value: 'LEFT_OF_HOST', label: 'Gauche du mur' },
+          { value: 'RIGHT_OF_HOST', label: 'Droite du mur' },
+        ],
+      },
+      apply: (value) =>
+        new UpdateOpeningCommand(levelId, opening.id, {
+          swing: { ...swing, opensTo: value as DoorSwing['opensTo'] },
+        }),
+    },
+  ];
 }
 
 /** Les propriétés modifiables d’une pièce. */

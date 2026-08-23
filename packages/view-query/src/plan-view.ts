@@ -21,6 +21,7 @@ import {
   structuralFootprint,
   validateWall,
   resolveSpaceGeometry,
+  doorSwingOf,
 } from '@house-technical-designer/core-domain';
 import type { Assembly } from '@house-technical-designer/assemblies';
 import type {
@@ -47,6 +48,10 @@ import {
   interiorLabelPoint,
   offsetPolyline,
 } from '@house-technical-designer/geometry';
+import {
+  isGlazedRepresentation,
+  openingRepresentation,
+} from './opening-representation.js';
 import {
   defaultVisibility,
   visibleDisciplines,
@@ -128,6 +133,10 @@ function unitDirection(from: Point2D, to: Point2D): Point2D | undefined {
   const dy = to.y - from.y;
   const length = Math.hypot(dx, dy);
   return length === 0 ? undefined : { x: dx / length, y: dy / length };
+}
+
+function negate(direction: Point2D): Point2D {
+  return { x: -direction.x, y: -direction.y };
 }
 
 function normal(direction: Point2D): Point2D {
@@ -399,6 +408,7 @@ function openingPrimitives(
   opening: Opening,
   host: Wall | undefined,
   assembly: Assembly | undefined,
+  familyId: string | undefined,
   issues: PlanViewIssue[],
 ): readonly PrimitiveDraft[] {
   if (host === undefined || assembly === undefined) {
@@ -452,6 +462,7 @@ function openingPrimitives(
       discipline: 'ARCHITECTURE',
       metadata: {
         openingType: opening.openingType,
+        representation: openingRepresentation(opening.openingType, familyId),
         widthMm: opening.widthMm,
         heightMm: opening.heightMm,
         sillHeightMm: opening.sillHeightMm,
@@ -460,77 +471,204 @@ function openingPrimitives(
     },
   ];
 
-  if (opening.openingType === 'DOOR') {
-    // Leaf shown open at 90°, then the quarter-circle swing it sweeps.
-    const hinge = translate(start, side, rightOffset);
-    const leafEnd = translate(hinge, side, -opening.widthMm);
+  const representation = openingRepresentation(opening.openingType, familyId);
+  const centreOffset = (leftOffset + rightOffset) / 2;
+  const push = (
+    suffix: string,
+    part: string,
+    points: readonly Point2D[],
+    extra: ScenePrimitive['metadata'] = {},
+  ): void => {
     drafts.push({
-      id: `opening-leaf:${opening.id}`,
+      id: `opening-${suffix}:${opening.id}`,
       sourceObjectId: opening.id,
       semanticRole: 'OPENING',
       geometry: {
         kind: 'POLYLINE',
-        polyline: { points: [hinge, leafEnd], closed: false },
-      },
-      layer: 'architecture.openings',
-      zIndex: 31,
-      discipline: 'ARCHITECTURE',
-      metadata: { openingType: 'DOOR', part: 'LEAF' },
-    });
-    const steps = 8;
-    const swing: Point2D[] = [];
-    for (let step = 0; step <= steps; step += 1) {
-      const angle = (Math.PI / 2) * (step / steps);
-      const along = Math.sin(angle) * opening.widthMm;
-      const across = -Math.cos(angle) * opening.widthMm;
-      swing.push({
-        x: hinge.x + direction.x * along + side.x * across,
-        y: hinge.y + direction.y * along + side.y * across,
-      });
-    }
-    drafts.push({
-      id: `opening-swing:${opening.id}`,
-      sourceObjectId: opening.id,
-      semanticRole: 'OPENING',
-      geometry: {
-        kind: 'POLYLINE',
-        polyline: { points: swing, closed: false },
-      },
-      layer: 'architecture.openings',
-      zIndex: 31,
-      discipline: 'ARCHITECTURE',
-      metadata: { openingType: 'DOOR', part: 'SWING' },
-    });
-  }
-
-  if (opening.openingType === 'WINDOW') {
-    const glazingOffset = (leftOffset + rightOffset) / 2;
-    drafts.push({
-      id: `opening-glazing:${opening.id}`,
-      sourceObjectId: opening.id,
-      semanticRole: 'OPENING',
-      geometry: {
-        kind: 'POLYLINE',
-        polyline: {
-          points: [
-            translate(start, side, glazingOffset),
-            translate(end, side, glazingOffset),
-          ],
-          closed: false,
-        },
+        polyline: { points: [...points], closed: false },
       },
       layer: 'architecture.openings',
       zIndex: 31,
       discipline: 'ARCHITECTURE',
       metadata: {
-        openingType: 'WINDOW',
-        part: 'GLAZING',
-        sillHeightMm: opening.sillHeightMm,
+        openingType: opening.openingType,
+        representation,
+        part,
+        ...extra,
       },
     });
+  };
+
+  const swing = doorSwingOf(opening);
+  const hingeAtStart = swing.hinge === 'START';
+  const opensLeft = swing.opensTo === 'LEFT_OF_HOST';
+  const faceOffset = opensLeft ? leftOffset : rightOffset;
+  const along = hingeAtStart ? direction : negate(direction);
+  const across = opensLeft ? side : negate(side);
+  const jamb = (fromStart: boolean): Point2D =>
+    translate(fromStart ? start : end, side, faceOffset);
+
+  /** The leaf and the arc it sweeps, hinged where the model says. */
+  const leafAndSwing = (
+    suffix: string,
+    hinge: Point2D,
+    leafAlong: Point2D,
+    widthMm: number,
+  ): void => {
+    const angleDeg = swing.openingAngleDeg;
+    const at = (degrees: number): Point2D => {
+      const radians = (degrees * Math.PI) / 180;
+      const cos = Math.cos(radians);
+      const sin = Math.sin(radians);
+      return {
+        x: hinge.x + (leafAlong.x * cos + across.x * sin) * widthMm,
+        y: hinge.y + (leafAlong.y * cos + across.y * sin) * widthMm,
+      };
+    };
+    push(`leaf${suffix}`, 'LEAF', [hinge, at(angleDeg)], { angleDeg });
+    // Twenty segments rather than eight: at eight the arc of a door is a
+    // visible polygon on a printed sheet, and a plan is read at arm's length.
+    const arc: Point2D[] = [];
+    for (let step = 0; step <= DOOR_SWING_SEGMENTS; step += 1)
+      arc.push(at((angleDeg * step) / DOOR_SWING_SEGMENTS));
+    push(`swing${suffix}`, 'SWING', arc, { angleDeg });
+  };
+
+  switch (representation) {
+    case 'HINGED_DOOR':
+    case 'GLAZED_DOOR': {
+      leafAndSwing('', jamb(hingeAtStart), along, opening.widthMm);
+      break;
+    }
+    case 'DOUBLE_DOOR': {
+      // Two leaves, each half the bay, hinged one at each jamb.
+      const half = opening.widthMm / 2;
+      leafAndSwing('-a', jamb(true), direction, half);
+      leafAndSwing('-b', jamb(false), negate(direction), half);
+      break;
+    }
+    case 'SLIDING_DOOR': {
+      // The panel runs along the wall instead of sweeping the room.
+      const face = translate(
+        jamb(hingeAtStart),
+        across,
+        SLIDING_PANEL_OFFSET_MM,
+      );
+      push('leaf', 'LEAF', [
+        face,
+        translate(face, negate(along), opening.widthMm),
+      ]);
+      break;
+    }
+    case 'POCKET_DOOR': {
+      // Into the wall, where it is hidden: drawn between the two faces.
+      const centre = translate(hingeAtStart ? start : end, side, centreOffset);
+      push('leaf', 'LEAF_HIDDEN', [
+        centre,
+        translate(centre, negate(along), opening.widthMm),
+      ]);
+      break;
+    }
+    case 'FOLDING_DOOR': {
+      const half = opening.widthMm / 2;
+      const hinge = jamb(hingeAtStart);
+      const knuckle = {
+        x: hinge.x + (along.x * 0.7071 + across.x * 0.7071) * half,
+        y: hinge.y + (along.y * 0.7071 + across.y * 0.7071) * half,
+      };
+      const far = translate(knuckle, along, half * 0.7071);
+      push('leaf', 'LEAF', [
+        hinge,
+        knuckle,
+        translate(far, across, -half * 0.7071),
+      ]);
+      break;
+    }
+    case 'GARAGE_DOOR': {
+      // No leaf on a plan: the panel is overhead. The line says where it is.
+      push('panel', 'PANEL', [
+        translate(start, side, centreOffset),
+        translate(end, side, centreOffset),
+      ]);
+      break;
+    }
+    default:
+      break;
+  }
+
+  if (
+    isGlazedRepresentation(representation) ||
+    representation === 'GLAZED_DOOR'
+  ) {
+    // Reveal, then frame, then glass: a window read as a hole with something
+    // fitted in it rather than as a line drawn across the masonry.
+    const frameInset = Math.min(thicknessMm / 4, FRAME_INSET_MM);
+    const frameLeft = leftOffset - frameInset;
+    const frameRight = rightOffset + frameInset;
+    push(
+      'frame',
+      'FRAME',
+      [
+        translate(start, side, frameLeft),
+        translate(end, side, frameLeft),
+        translate(end, side, frameRight),
+        translate(start, side, frameRight),
+        translate(start, side, frameLeft),
+      ],
+      { sillHeightMm: opening.sillHeightMm },
+    );
+    if (representation === 'GLAZED_SLIDING') {
+      // Two panes that pass one another, so the plan says which slides.
+      const gap = Math.min(thicknessMm / 6, SLIDING_PANE_GAP_MM);
+      const overlap = opening.widthMm * 0.55;
+      push('glazing-a', 'GLAZING', [
+        translate(start, side, centreOffset - gap),
+        translate(
+          translate(start, direction, overlap),
+          side,
+          centreOffset - gap,
+        ),
+      ]);
+      push('glazing-b', 'GLAZING', [
+        translate(
+          translate(start, direction, opening.widthMm - overlap),
+          side,
+          centreOffset + gap,
+        ),
+        translate(end, side, centreOffset + gap),
+      ]);
+    } else {
+      push(
+        'glazing',
+        'GLAZING',
+        [
+          translate(start, side, centreOffset),
+          translate(end, side, centreOffset),
+        ],
+        { sillHeightMm: opening.sillHeightMm },
+      );
+    }
+    if (representation === 'GLAZED_BAY')
+      // A bay is not one pane: the mullions say how it is divided.
+      for (const fraction of [1 / 3, 2 / 3]) {
+        const at = translate(start, direction, opening.widthMm * fraction);
+        push(`mullion-${Math.round(fraction * 100)}`, 'MULLION', [
+          translate(at, side, frameLeft),
+          translate(at, side, frameRight),
+        ]);
+      }
   }
   return drafts;
 }
+
+/** Segments in the arc of a door: enough that a printed sheet reads a curve. */
+const DOOR_SWING_SEGMENTS = 20;
+/** How far outside the wall face a sliding panel is drawn. */
+const SLIDING_PANEL_OFFSET_MM = 40;
+/** How far apart two sliding panes are drawn, so both are visible. */
+const SLIDING_PANE_GAP_MM = 25;
+/** How far inside the reveal the frame of a window sits. */
+const FRAME_INSET_MM = 50;
 
 function centroid(polygon: Polygon2D): Point2D {
   const points = polygon.outer;
@@ -1555,6 +1693,14 @@ export function buildPlanView(
   const assemblies = new Map(
     (project.assemblies ?? []).map((assembly) => [assembly.id, assembly]),
   );
+  // The family the project's own copy of a catalogue entry declares: what says
+  // whether a door swings, slides or folds, and a plan that ignores it draws a
+  // quarter-circle across a metre of room a sliding door never sweeps.
+  const openingFamilies = new Map(
+    (project.openingTypes ?? [])
+      .filter(({ familyId }) => familyId !== undefined)
+      .map(({ id, familyId }) => [id, familyId!]),
+  );
   const drafts: PrimitiveDraft[] = [];
   if (level !== undefined) {
     for (const wall of level.walls) {
@@ -1578,6 +1724,9 @@ export function buildPlanView(
           opening,
           host,
           host === undefined ? undefined : assemblies.get(host.assemblyId),
+          opening.definitionId === undefined
+            ? undefined
+            : openingFamilies.get(opening.definitionId),
           issues,
         ),
       );

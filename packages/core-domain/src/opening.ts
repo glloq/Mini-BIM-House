@@ -9,6 +9,61 @@ export function isOpeningType(value: string): value is OpeningType {
   return (OPENING_TYPES as readonly string[]).includes(value);
 }
 
+export const DOOR_HINGES = ['START', 'END'] as const;
+export type DoorHinge = (typeof DOOR_HINGES)[number];
+
+export const DOOR_OPENING_SIDES = ['LEFT_OF_HOST', 'RIGHT_OF_HOST'] as const;
+export type DoorOpeningSide = (typeof DOOR_OPENING_SIDES)[number];
+
+/**
+ * Which way a door opens.
+ *
+ * Stated against the host wall's own path — the end of the path it is hinged
+ * on, and the side of the path it swings towards — never against the screen.
+ * « À gauche » of a drawing is a different door once the plan is mirrored or
+ * the wall redrawn the other way round, and the model may not hold a fact that
+ * depends on how it is being looked at.
+ */
+export interface DoorSwing {
+  readonly hinge: DoorHinge;
+  readonly opensTo: DoorOpeningSide;
+  /** How far open the leaf is drawn. Ninety degrees when unstated. */
+  readonly openingAngleDeg?: number;
+}
+
+/**
+ * What a door does when nobody has said.
+ *
+ * Exactly what every door drew before a door could be asked: hinged at the
+ * start of its host's path, opening to the right of it, at a right angle. A
+ * file written before this existed opens unchanged.
+ */
+export const DEFAULT_SWING_ANGLE_DEG = 90;
+
+export const DEFAULT_DOOR_SWING: DoorSwing = {
+  hinge: 'START',
+  opensTo: 'RIGHT_OF_HOST',
+  openingAngleDeg: DEFAULT_SWING_ANGLE_DEG,
+};
+
+export function isDoorHinge(value: string): value is DoorHinge {
+  return (DOOR_HINGES as readonly string[]).includes(value);
+}
+
+export function isDoorOpeningSide(value: string): value is DoorOpeningSide {
+  return (DOOR_OPENING_SIDES as readonly string[]).includes(value);
+}
+
+/** The swing a door is drawn with: its own, or the one every door had. */
+export function doorSwingOf(opening: Opening): Required<DoorSwing> {
+  const stated = opening.swing ?? DEFAULT_DOOR_SWING;
+  return {
+    hinge: stated.hinge,
+    opensTo: stated.opensTo,
+    openingAngleDeg: stated.openingAngleDeg ?? DEFAULT_SWING_ANGLE_DEG,
+  };
+}
+
 export interface Opening {
   readonly id: OpeningId;
   readonly type: 'OPENING';
@@ -20,9 +75,12 @@ export interface Opening {
   readonly widthMm: number;
   readonly heightMm: number;
   readonly definitionId?: string;
+  /** Doors only, and optional: an unstated swing is the default one. */
+  readonly swing?: DoorSwing;
 }
 
 export type OpeningIssueCode =
+  | 'INVALID_SWING'
   | 'WRONG_HOST'
   | 'INVALID_OFFSET'
   | 'INVALID_DIMENSION'
@@ -99,6 +157,38 @@ export function validateOpening(
       path: 'sillHeightMm',
       message: 'opening extends above its host wall',
     });
+  }
+  const swing = opening.swing;
+  if (swing !== undefined) {
+    if (!isDoorHinge(swing.hinge))
+      issues.push({
+        code: 'INVALID_SWING',
+        path: 'swing.hinge',
+        message: `must be one of ${DOOR_HINGES.join(', ')}`,
+      });
+    if (!isDoorOpeningSide(swing.opensTo))
+      issues.push({
+        code: 'INVALID_SWING',
+        path: 'swing.opensTo',
+        message: `must be one of ${DOOR_OPENING_SIDES.join(', ')}`,
+      });
+    if (
+      swing.openingAngleDeg !== undefined &&
+      (!Number.isFinite(swing.openingAngleDeg) ||
+        swing.openingAngleDeg <= 0 ||
+        swing.openingAngleDeg > 180)
+    )
+      issues.push({
+        code: 'INVALID_SWING',
+        path: 'swing.openingAngleDeg',
+        message: 'must be greater than zero and at most 180',
+      });
+    if (opening.openingType !== 'DOOR')
+      issues.push({
+        code: 'INVALID_SWING',
+        path: 'swing',
+        message: 'only a door has a swing',
+      });
   }
   return issues;
 }
