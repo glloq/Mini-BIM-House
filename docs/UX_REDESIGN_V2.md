@@ -729,9 +729,21 @@ bordure.
 > demanderait de retirer une barre — ce que cette spécification ne demande
 > nulle part.
 
-**UX-6 — Barre d'outil.** Options essentielles de l'outil actif, instruction de
-la prochaine action, Terminer / Annuler, actions de sélection selon
-`selectionCapabilities()`.
+**UX-6 — Barre d'outil.** _Livré._ `editor/tool-instruction.ts` dérive du
+registre et de l'état ce que l'outil attend : combien de points il demande,
+combien sont posés, s'il s'arrête de lui-même. La barre l'écrit à côté du nom
+de l'outil — « Cliquez le second point », « Entrée termine, Échap annule » — et
+offre « Annuler le tracé » dès qu'il y a quelque chose à abandonner.
+
+Aucun outil n'écrit sa propre phrase, donc aucun ne peut oublier de la mettre
+à jour ; un test la demande pour les vingt-cinq, à chaque étape de leur tracé.
+« Mur » ne disait pas s'il faut cliquer une fois ou deux, ni comment on arrête
+un tracé qui ne s'arrête pas tout seul : on le découvrait en essayant,
+c'est-à-dire en se trompant.
+
+Les actions de sélection selon `selectionCapabilities()` étaient déjà là ; les
+options essentielles de l'outil restent sous l'outil, dans la boîte, où choisir
+un assemblage fait partie du choix de l'outil mur.
 
 **UX-7 — Inspecteur.** Propriétés de vue au repos ; sections hiérarchisées ;
 avancé replié.

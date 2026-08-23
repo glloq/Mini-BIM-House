@@ -225,6 +225,13 @@ Ce qu'un outil laisse décider avant de dessiner se trouve **sous l'outil**,
 dans le panneau contextuel : choisir un assemblage fait partie du choix de
 l'outil mur, ce n'est pas une course séparée en haut de la fenêtre.
 
+**Un outil dit ce qu'il attend.** La barre au-dessus du dessin écrit la
+prochaine action — « Cliquez le second point », « Entrée termine, Échap
+annule » — et offre d'abandonner le tracé dès qu'il y a quelque chose à
+abandonner. La phrase est **dérivée** du registre et de l'état par
+`editor/tool-instruction.ts` : aucun outil ne l'écrit, donc aucun ne peut
+oublier de la mettre à jour, et un test la réclame pour les vingt-cinq.
+
 **La boîte à outils propose ce que l'étape demande.**
 `apps/web/src/editor/toolbox.ts` déclare, par étape et par sous-étape, des
 **entrées** : un outil du registre plus ce qu'on aurait choisi juste après.

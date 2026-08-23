@@ -2413,8 +2413,25 @@ button.ghost:disabled {
   border-bottom: 0;
   background: var(--surface-raised);
 }
+/* Ce que l'outil attend, écrit à côté de son nom : la phrase se laisse
+   couper avant les boutons, qui sont ce qu'on vient chercher. */
+.context-instruction {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.context-instruction small {
+  color: var(--ink-soft);
+  opacity: 0.8;
+}
 .context-tool-bar > * {
   flex: 0 0 auto;
+}
+.context-tool-bar > .context-instruction {
+  flex: 0 1 auto;
 }
 .context-tool-bar.is-empty {
   border-color: transparent;

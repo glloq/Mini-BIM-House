@@ -2192,6 +2192,36 @@ test('reads the same plan through one discipline at a time', async ({
   expect(errors).toEqual([]);
 });
 
+test('says what the active tool expects, and how to stop', async ({ page }) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const bar = page.locator('.context-tool-bar');
+
+  // Un outil disait son nom et rien d'autre : « Mur » ne dit pas s'il faut
+  // cliquer une fois ou deux, ni comment on arrête un tracé qui ne s'arrête
+  // pas tout seul. On le découvrait en se trompant.
+  await chooseTool(page, 'Mur');
+  await expect(bar).toContainText('Cliquez le premier point.');
+  await expect(bar).not.toContainText('Échap');
+
+  const canvas = page.locator('.plan-canvas');
+  const frame = (await canvas.boundingBox())!;
+  await canvas.click({ position: { x: 60, y: frame.height - 40 } });
+  await expect(bar).toContainText('Cliquez le second point.');
+  // Et une issue apparaît dès qu'il y a quelque chose à abandonner.
+  await expect(bar).toContainText('Échap');
+  await bar.getByRole('button', { name: 'Annuler le tracé' }).click();
+  await expect(bar).toContainText('Cliquez le premier point.');
+
+  // Un tracé qui ne s'arrête pas tout seul dit comment on l'arrête.
+  await chooseTool(page, 'Mur continu');
+  await canvas.click({ position: { x: 60, y: frame.height - 40 } });
+  await canvas.click({ position: { x: 200, y: frame.height - 40 } });
+  await expect(bar).toContainText('Entrée termine');
+  await page.keyboard.press('Escape');
+  expect(errors).toEqual([]);
+});
+
 test('names an entry by what it places, and pre-fills its fiche', async ({
   page,
 }) => {

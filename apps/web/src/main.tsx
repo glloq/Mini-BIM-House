@@ -2429,6 +2429,7 @@ function App() {
                 dispatch={dispatchEditor}
                 onTransform={transformSelection}
                 onAlign={alignSelection}
+                onCancel={() => dispatchEditor({ type: 'CANCEL' })}
               />
               <PlanCanvas
                 graphicProfileId={rendering.graphicProfileId}
