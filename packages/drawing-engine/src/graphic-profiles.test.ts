@@ -93,6 +93,7 @@ describe('graphic profiles v1', () => {
     expect(() =>
       validateGraphicProfileBundle({
         id: 'incomplete',
+        family: 'incomplete',
         version: '1',
         mode: 'PRINT',
         profile: {
@@ -158,5 +159,69 @@ describe('the charters this version ships', () => {
   it('holds nothing it could not render', () => {
     for (const entry of GRAPHIC_PROFILE_REGISTRY)
       expect(() => validateGraphicProfileBundle(entry)).not.toThrow();
+  });
+});
+
+describe('specialisations a charter may state', () => {
+  it('leaves the four technical charters exactly as they were', () => {
+    // The technical charters state no rule: anything they draw differently
+    // after the resolver exists is a regression, not a feature.
+    for (const entry of [
+      GENERIC_TECHNICAL_SCREEN,
+      GENERIC_TECHNICAL_PRINT,
+      FR_INITIAL_SCREEN,
+      FR_INITIAL_PRINT,
+    ])
+      expect(entry.profile.styleRules ?? []).toEqual([]);
+  });
+
+  it('refuses a rule that would replace every role at once', () => {
+    expect(() =>
+      validateGraphicProfileBundle({
+        ...GENERIC_TECHNICAL_SCREEN,
+        profile: {
+          ...GENERIC_TECHNICAL_SCREEN.profile,
+          styleRules: [{ match: {}, token: 'wall-cut' }],
+        },
+      }),
+    ).toThrow('states no condition');
+  });
+
+  it('refuses a rule naming a token the charter cannot draw', () => {
+    expect(() =>
+      validateGraphicProfileBundle({
+        ...GENERIC_TECHNICAL_SCREEN,
+        profile: {
+          ...GENERIC_TECHNICAL_SCREEN.profile,
+          styleRules: [
+            {
+              match: {
+                semanticRole: 'SPACE_FILL',
+                metadata: { category: 'BEDROOM' },
+              },
+              token: 'space-bedroom',
+            },
+          ],
+        },
+      }),
+    ).toThrow('no style for token space-bedroom');
+  });
+
+  it('refuses a font weight no renderer could honour', () => {
+    expect(() =>
+      validateGraphicProfileBundle({
+        ...GENERIC_TECHNICAL_SCREEN,
+        styles: {
+          ...GENERIC_TECHNICAL_SCREEN.styles,
+          tokens: {
+            ...GENERIC_TECHNICAL_SCREEN.styles.tokens,
+            annotation: {
+              ...GENERIC_TECHNICAL_SCREEN.styles.tokens.annotation,
+              fontWeight: 0,
+            },
+          },
+        },
+      }),
+    ).toThrow('invalid font weight');
   });
 });

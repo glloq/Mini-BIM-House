@@ -1,5 +1,7 @@
 import type {
+  ComponentInstance,
   Dimension,
+  EquipmentDefinition,
   Level,
   Opening,
   Project,
@@ -21,6 +23,7 @@ import {
   structuralFootprint,
   validateWall,
   resolveSpaceGeometry,
+  doorSwingOf,
 } from '@house-technical-designer/core-domain';
 import type { Assembly } from '@house-technical-designer/assemblies';
 import type {
@@ -35,13 +38,25 @@ import {
   createSemanticScene,
   drawingViewId,
   graphicProfileId,
+  placeSymbol,
+  spaceGraphicCategory,
+  SYMBOL_LIBRARY_V1,
 } from '@house-technical-designer/drawing-engine';
 import type {
   BoundingBox2D,
   Point2D,
   Polygon2D,
 } from '@house-technical-designer/geometry';
-import { offsetPolyline } from '@house-technical-designer/geometry';
+import {
+  boundingBox2D,
+  interiorLabelPoint,
+  offsetPolyline,
+} from '@house-technical-designer/geometry';
+import { architecturalFixtureSymbol } from './fixture-symbols.js';
+import {
+  isGlazedRepresentation,
+  openingRepresentation,
+} from './opening-representation.js';
 import {
   defaultVisibility,
   visibleDisciplines,
@@ -62,6 +77,17 @@ export interface PlanViewIssue {
   readonly message: string;
 }
 
+/**
+ * How much of a plan's dimensioning is drawn.
+ *
+ * The dimensions a project holds are objects somebody placed; the overall
+ * width and depth of a building are neither placed nor stored, because they
+ * are true of whatever the walls happen to be today. Asking for them is a
+ * property of the drawing, and what comes back is graphic information derived
+ * on the spot — never an object written back into the model.
+ */
+export type DimensionDisplayMode = 'NONE' | 'PROJECT' | 'PROJECT_AND_OVERALL';
+
 export interface PlanViewOptions {
   readonly levelId?: string;
   /** Drawing scale denominator: 50 means 1:50. */
@@ -70,6 +96,8 @@ export interface PlanViewOptions {
   readonly selection?: readonly string[];
   readonly hoveredId?: string;
   readonly graphicProfileId?: string;
+  /** What the drawing dimensions. Its own dimensions when unstated. */
+  readonly dimensions?: DimensionDisplayMode;
   /** Extra primitives merged into the scene, such as an analysis overlay. */
   readonly extraPrimitives?: readonly ScenePrimitive[];
   /** Model-space padding around the drawn content, in millimetres. */
@@ -123,6 +151,10 @@ function unitDirection(from: Point2D, to: Point2D): Point2D | undefined {
   const dy = to.y - from.y;
   const length = Math.hypot(dx, dy);
   return length === 0 ? undefined : { x: dx / length, y: dy / length };
+}
+
+function negate(direction: Point2D): Point2D {
+  return { x: -direction.x, y: -direction.y };
 }
 
 function normal(direction: Point2D): Point2D {
@@ -227,6 +259,7 @@ function wallPrimitives(
   wall: Wall,
   assembly: Assembly,
   neighbours: readonly Wall[],
+  assemblies: ReadonlyMap<string, Assembly>,
   issues: PlanViewIssue[],
 ): readonly PrimitiveDraft[] {
   const validation = validateWall(wall, assembly);
@@ -292,18 +325,97 @@ function wallPrimitives(
     if (other.id <= wall.id) continue;
     const join = resolveStraightWallJoin(wall, other);
     if (join.status !== 'JOINED') continue;
+    const otherAssembly = assemblies.get(other.assemblyId);
+    if (otherAssembly === undefined) continue;
+    const patch = joinPatch(
+      wall,
+      faces.thicknessMm,
+      other,
+      deriveWallFaces(other, otherAssembly).thicknessMm,
+      join.point,
+    );
+    if (patch === undefined) continue;
     drafts.push({
       id: `wall-join:${wall.id}:${other.id}`,
       sourceObjectId: wall.id,
       semanticRole: 'WALL_CUT',
-      geometry: { kind: 'POINT', point: join.point },
+      geometry: { kind: 'POLYGON', polygon: patch },
       layer: 'architecture.walls',
       zIndex: 22,
       discipline: 'ARCHITECTURE',
-      metadata: { joinKind: join.kind, withWallId: other.id },
+      metadata: {
+        joinKind: join.kind,
+        withWallId: other.id,
+        // The corner reads as the heavier of the two walls, because that is
+        // what it is: a partition dies into a party wall, not the other way.
+        role: heavierRole(wall.role, other.role),
+      },
     });
   }
   return drafts;
+}
+
+/** Which of two walls the corner between them belongs to. */
+const WALL_ROLE_WEIGHT: Readonly<Record<string, number>> = {
+  EXTERIOR: 3,
+  INTERIOR: 2,
+  PARTITION: 1,
+  OTHER: 0,
+};
+
+function heavierRole(first: string, second: string): string {
+  return (WALL_ROLE_WEIGHT[first] ?? 0) >= (WALL_ROLE_WEIGHT[second] ?? 0)
+    ? first
+    : second;
+}
+
+/**
+ * Below this, two walls are too nearly parallel for a corner to mean anything.
+ *
+ * The patch of a one-degree corner is metres long and is not a corner; the
+ * walls simply overlap, and drawing them is enough.
+ */
+const JOIN_MINIMUM_SINE = 0.05;
+
+/**
+ * The piece of masonry that closes the corner between two walls.
+ *
+ * Each wall is drawn as its own rectangle, so two walls meeting at their ends
+ * cover three of the four quadrants around the corner and leave the fourth
+ * empty: a white notch bitten out of the outside of every corner of the house.
+ * The missing piece is exactly where both walls' faces would run if neither
+ * stopped — the parallelogram cut by the four face lines — so the patch is
+ * built from those lines and can never spill past a face.
+ */
+function joinPatch(
+  first: Wall,
+  firstThicknessMm: number,
+  second: Wall,
+  secondThicknessMm: number,
+  point: Point2D,
+): Polygon2D | undefined {
+  const firstSegment = wallSegment(first);
+  const secondSegment = wallSegment(second);
+  if (firstSegment === undefined || secondSegment === undefined)
+    return undefined;
+  const firstDirection = unitDirection(firstSegment[0], firstSegment[1]);
+  const secondDirection = unitDirection(secondSegment[0], secondSegment[1]);
+  if (firstDirection === undefined || secondDirection === undefined)
+    return undefined;
+  const cross =
+    firstDirection.x * secondDirection.y - firstDirection.y * secondDirection.x;
+  if (Math.abs(cross) < JOIN_MINIMUM_SINE) return undefined;
+  const corner = (firstSide: number, secondSide: number): Point2D => {
+    const along = (-secondSide * secondThicknessMm) / (2 * cross);
+    const across = (firstSide * firstThicknessMm) / (2 * cross);
+    return {
+      x: point.x + firstDirection.x * along + secondDirection.x * across,
+      y: point.y + firstDirection.y * along + secondDirection.y * across,
+    };
+  };
+  return {
+    outer: [corner(1, 1), corner(-1, 1), corner(-1, -1), corner(1, -1)],
+  };
 }
 
 /**
@@ -314,6 +426,7 @@ function openingPrimitives(
   opening: Opening,
   host: Wall | undefined,
   assembly: Assembly | undefined,
+  familyId: string | undefined,
   issues: PlanViewIssue[],
 ): readonly PrimitiveDraft[] {
   if (host === undefined || assembly === undefined) {
@@ -367,6 +480,7 @@ function openingPrimitives(
       discipline: 'ARCHITECTURE',
       metadata: {
         openingType: opening.openingType,
+        representation: openingRepresentation(opening.openingType, familyId),
         widthMm: opening.widthMm,
         heightMm: opening.heightMm,
         sillHeightMm: opening.sillHeightMm,
@@ -375,77 +489,205 @@ function openingPrimitives(
     },
   ];
 
-  if (opening.openingType === 'DOOR') {
-    // Leaf shown open at 90°, then the quarter-circle swing it sweeps.
-    const hinge = translate(start, side, rightOffset);
-    const leafEnd = translate(hinge, side, -opening.widthMm);
+  const representation = openingRepresentation(opening.openingType, familyId);
+  const centreOffset = (leftOffset + rightOffset) / 2;
+  const push = (
+    suffix: string,
+    part: string,
+    points: readonly Point2D[],
+    extra: ScenePrimitive['metadata'] = {},
+  ): void => {
     drafts.push({
-      id: `opening-leaf:${opening.id}`,
+      id: `opening-${suffix}:${opening.id}`,
       sourceObjectId: opening.id,
       semanticRole: 'OPENING',
       geometry: {
         kind: 'POLYLINE',
-        polyline: { points: [hinge, leafEnd], closed: false },
-      },
-      layer: 'architecture.openings',
-      zIndex: 31,
-      discipline: 'ARCHITECTURE',
-      metadata: { openingType: 'DOOR', part: 'LEAF' },
-    });
-    const steps = 8;
-    const swing: Point2D[] = [];
-    for (let step = 0; step <= steps; step += 1) {
-      const angle = (Math.PI / 2) * (step / steps);
-      const along = Math.sin(angle) * opening.widthMm;
-      const across = -Math.cos(angle) * opening.widthMm;
-      swing.push({
-        x: hinge.x + direction.x * along + side.x * across,
-        y: hinge.y + direction.y * along + side.y * across,
-      });
-    }
-    drafts.push({
-      id: `opening-swing:${opening.id}`,
-      sourceObjectId: opening.id,
-      semanticRole: 'OPENING',
-      geometry: {
-        kind: 'POLYLINE',
-        polyline: { points: swing, closed: false },
-      },
-      layer: 'architecture.openings',
-      zIndex: 31,
-      discipline: 'ARCHITECTURE',
-      metadata: { openingType: 'DOOR', part: 'SWING' },
-    });
-  }
-
-  if (opening.openingType === 'WINDOW') {
-    const glazingOffset = (leftOffset + rightOffset) / 2;
-    drafts.push({
-      id: `opening-glazing:${opening.id}`,
-      sourceObjectId: opening.id,
-      semanticRole: 'OPENING',
-      geometry: {
-        kind: 'POLYLINE',
-        polyline: {
-          points: [
-            translate(start, side, glazingOffset),
-            translate(end, side, glazingOffset),
-          ],
-          closed: false,
-        },
+        polyline: { points: [...points], closed: false },
       },
       layer: 'architecture.openings',
       zIndex: 31,
       discipline: 'ARCHITECTURE',
       metadata: {
-        openingType: 'WINDOW',
-        part: 'GLAZING',
-        sillHeightMm: opening.sillHeightMm,
+        openingType: opening.openingType,
+        representation,
+        part,
+        ...extra,
       },
     });
+  };
+
+  const swing = doorSwingOf(opening);
+  const hingeAtStart = swing.hinge === 'START';
+  const opensLeft = swing.opensTo === 'LEFT_OF_HOST';
+  const faceOffset = opensLeft ? leftOffset : rightOffset;
+  const along = hingeAtStart ? direction : negate(direction);
+  const across = opensLeft ? side : negate(side);
+  const jamb = (fromStart: boolean): Point2D =>
+    translate(fromStart ? start : end, side, faceOffset);
+
+  /** The leaf and the arc it sweeps, hinged where the model says. */
+  const leafAndSwing = (
+    suffix: string,
+    hinge: Point2D,
+    leafAlong: Point2D,
+    widthMm: number,
+  ): void => {
+    const angleDeg = swing.openingAngleDeg;
+    const at = (degrees: number): Point2D => {
+      const radians = (degrees * Math.PI) / 180;
+      const cos = Math.cos(radians);
+      const sin = Math.sin(radians);
+      return {
+        x: hinge.x + (leafAlong.x * cos + across.x * sin) * widthMm,
+        y: hinge.y + (leafAlong.y * cos + across.y * sin) * widthMm,
+      };
+    };
+    push(`leaf${suffix}`, 'LEAF', [hinge, at(angleDeg)], { angleDeg });
+    // Twenty segments rather than eight: at eight the arc of a door is a
+    // visible polygon on a printed sheet, and a plan is read at arm's length.
+    const arc: Point2D[] = [];
+    for (let step = 0; step <= DOOR_SWING_SEGMENTS; step += 1)
+      arc.push(at((angleDeg * step) / DOOR_SWING_SEGMENTS));
+    push(`swing${suffix}`, 'SWING', arc, { angleDeg });
+  };
+
+  switch (representation) {
+    case 'HINGED_DOOR':
+    case 'GLAZED_DOOR': {
+      leafAndSwing('', jamb(hingeAtStart), along, opening.widthMm);
+      break;
+    }
+    case 'DOUBLE_DOOR':
+    case 'GLAZED_DOUBLE_DOOR': {
+      // Two leaves, each half the bay, hinged one at each jamb.
+      const half = opening.widthMm / 2;
+      leafAndSwing('-a', jamb(true), direction, half);
+      leafAndSwing('-b', jamb(false), negate(direction), half);
+      break;
+    }
+    case 'SLIDING_DOOR': {
+      // The panel runs along the wall instead of sweeping the room.
+      const face = translate(
+        jamb(hingeAtStart),
+        across,
+        SLIDING_PANEL_OFFSET_MM,
+      );
+      push('leaf', 'LEAF', [
+        face,
+        translate(face, negate(along), opening.widthMm),
+      ]);
+      break;
+    }
+    case 'POCKET_DOOR': {
+      // Into the wall, where it is hidden: drawn between the two faces.
+      const centre = translate(hingeAtStart ? start : end, side, centreOffset);
+      push('leaf', 'LEAF_HIDDEN', [
+        centre,
+        translate(centre, negate(along), opening.widthMm),
+      ]);
+      break;
+    }
+    case 'FOLDING_DOOR': {
+      const half = opening.widthMm / 2;
+      const hinge = jamb(hingeAtStart);
+      const knuckle = {
+        x: hinge.x + (along.x * 0.7071 + across.x * 0.7071) * half,
+        y: hinge.y + (along.y * 0.7071 + across.y * 0.7071) * half,
+      };
+      const far = translate(knuckle, along, half * 0.7071);
+      push('leaf', 'LEAF', [
+        hinge,
+        knuckle,
+        translate(far, across, -half * 0.7071),
+      ]);
+      break;
+    }
+    case 'GARAGE_DOOR': {
+      // No leaf on a plan: the panel is overhead. The line says where it is.
+      push('panel', 'PANEL', [
+        translate(start, side, centreOffset),
+        translate(end, side, centreOffset),
+      ]);
+      break;
+    }
+    default:
+      break;
+  }
+
+  if (
+    isGlazedRepresentation(representation) ||
+    representation === 'GLAZED_DOOR'
+  ) {
+    // Reveal, then frame, then glass: a window read as a hole with something
+    // fitted in it rather than as a line drawn across the masonry.
+    const frameInset = Math.min(thicknessMm / 4, FRAME_INSET_MM);
+    const frameLeft = leftOffset - frameInset;
+    const frameRight = rightOffset + frameInset;
+    push(
+      'frame',
+      'FRAME',
+      [
+        translate(start, side, frameLeft),
+        translate(end, side, frameLeft),
+        translate(end, side, frameRight),
+        translate(start, side, frameRight),
+        translate(start, side, frameLeft),
+      ],
+      { sillHeightMm: opening.sillHeightMm },
+    );
+    if (representation === 'GLAZED_SLIDING') {
+      // Two panes that pass one another, so the plan says which slides.
+      const gap = Math.min(thicknessMm / 6, SLIDING_PANE_GAP_MM);
+      const overlap = opening.widthMm * 0.55;
+      push('glazing-a', 'GLAZING', [
+        translate(start, side, centreOffset - gap),
+        translate(
+          translate(start, direction, overlap),
+          side,
+          centreOffset - gap,
+        ),
+      ]);
+      push('glazing-b', 'GLAZING', [
+        translate(
+          translate(start, direction, opening.widthMm - overlap),
+          side,
+          centreOffset + gap,
+        ),
+        translate(end, side, centreOffset + gap),
+      ]);
+    } else {
+      push(
+        'glazing',
+        'GLAZING',
+        [
+          translate(start, side, centreOffset),
+          translate(end, side, centreOffset),
+        ],
+        { sillHeightMm: opening.sillHeightMm },
+      );
+    }
+    if (representation === 'GLAZED_BAY')
+      // A bay is not one pane: the mullions say how it is divided.
+      for (const fraction of [1 / 3, 2 / 3]) {
+        const at = translate(start, direction, opening.widthMm * fraction);
+        push(`mullion-${Math.round(fraction * 100)}`, 'MULLION', [
+          translate(at, side, frameLeft),
+          translate(at, side, frameRight),
+        ]);
+      }
   }
   return drafts;
 }
+
+/** Segments in the arc of a door: enough that a printed sheet reads a curve. */
+const DOOR_SWING_SEGMENTS = 20;
+/** How far outside the wall face a sliding panel is drawn. */
+const SLIDING_PANEL_OFFSET_MM = 40;
+/** How far apart two sliding panes are drawn, so both are visible. */
+const SLIDING_PANE_GAP_MM = 25;
+/** How far inside the reveal the frame of a window sits. */
+const FRAME_INSET_MM = 50;
 
 function centroid(polygon: Polygon2D): Point2D {
   const points = polygon.outer;
@@ -553,6 +795,124 @@ function dimensionPrimitives(
   ];
 }
 
+/** How far outside the building the overall dimensions are drawn. */
+const OVERALL_DIMENSION_OFFSET_MM = 900;
+
+/**
+ * The width and the depth of what is built, measured off the walls.
+ *
+ * Not objects: nothing is written back into the project. They are true of
+ * whatever the walls are today, and a stored copy of them would be a second
+ * answer to a question the walls already answer.
+ */
+function overallDimensionPrimitives(
+  level: Level,
+  assemblies: ReadonlyMap<string, Assembly>,
+): readonly PrimitiveDraft[] {
+  const corners: Point2D[] = [];
+  for (const wall of level.walls) {
+    const assembly = assemblies.get(wall.assemblyId);
+    if (assembly === undefined) continue;
+    corners.push(...deriveWallFaces(wall, assembly).footprint.outer);
+  }
+  const box = boundingBox2D(corners);
+  if (box === undefined) return [];
+  const widthMm = box.max.x - box.min.x;
+  const depthMm = box.max.y - box.min.y;
+  if (widthMm <= 0 || depthMm <= 0) return [];
+  const gap = OVERALL_DIMENSION_OFFSET_MM;
+  return [
+    ...overallRun(
+      'width',
+      { x: box.min.x, y: box.max.y },
+      { x: box.max.x, y: box.max.y },
+      { x: 0, y: gap },
+      widthMm,
+    ),
+    ...overallRun(
+      'depth',
+      { x: box.min.x, y: box.min.y },
+      { x: box.min.x, y: box.max.y },
+      { x: -gap, y: 0 },
+      depthMm,
+    ),
+  ];
+}
+
+function overallRun(
+  axis: string,
+  first: Point2D,
+  second: Point2D,
+  offset: Point2D,
+  valueMm: number,
+): readonly PrimitiveDraft[] {
+  const moved = (point: Point2D): Point2D => ({
+    x: point.x + offset.x,
+    y: point.y + offset.y,
+  });
+  const firstOffset = moved(first);
+  const secondOffset = moved(second);
+  const shared = {
+    layer: 'annotation.dimensions',
+    discipline: 'ARCHITECTURE' as const,
+    metadata: {
+      dimensionType: axis === 'width' ? 'HORIZONTAL' : 'VERTICAL',
+      valueMm: Number(valueMm.toFixed(1)),
+      // Graphic information derived from the walls, not an object the project
+      // holds: a reader of the scene can tell the two apart.
+      derived: true,
+      overallAxis: axis.toUpperCase(),
+    },
+  };
+  return [
+    {
+      ...shared,
+      id: `dimension-overall:${axis}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: { points: [firstOffset, secondOffset], closed: false },
+      },
+      zIndex: 70,
+    },
+    {
+      ...shared,
+      id: `dimension-overall-witness-first:${axis}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: { points: [first, firstOffset], closed: false },
+      },
+      zIndex: 70,
+    },
+    {
+      ...shared,
+      id: `dimension-overall-witness-second:${axis}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'POLYLINE',
+        polyline: { points: [second, secondOffset], closed: false },
+      },
+      zIndex: 70,
+    },
+    {
+      ...shared,
+      id: `dimension-overall-label:${axis}`,
+      semanticRole: 'DIMENSION',
+      geometry: {
+        kind: 'TEXT',
+        anchor: {
+          x: (firstOffset.x + secondOffset.x) / 2,
+          y: (firstOffset.y + secondOffset.y) / 2,
+        },
+        text: `${(valueMm / 1000).toFixed(2)} m`,
+        ...(axis === 'depth' ? { rotationDeg: -90 } : {}),
+      },
+      zIndex: 71,
+    },
+  ];
+}
+
 /**
  * Where a dimension's line starts and ends.
  *
@@ -573,9 +933,28 @@ function measuredEnd(
   return point;
 }
 
+/**
+ * The paper the room's name and its area take, at any scale.
+ *
+ * The engine draws in paper millimetres, so a room that is too small for two
+ * lines at 1:100 is too small for two lines, full stop — the decision is made
+ * once, here, and holds for every scale the same drawing goes out at.
+ */
+const LABEL_NAME_PAPER_MM = 2.8;
+const LABEL_AREA_PAPER_MM = 2.1;
+/** Baseline to baseline, name to area. */
+const LABEL_LINE_PAPER_MM = 3.4;
+/** Average advance of a sans-serif glyph, as a fraction of its size. */
+const LABEL_GLYPH_RATIO = 0.58;
+
+function labelWidthPaperMm(text: string, sizePaperMm: number): number {
+  return text.length * sizePaperMm * LABEL_GLYPH_RATIO;
+}
+
 function spacePrimitives(
   space: Space,
   level: Level,
+  scale: number,
 ): readonly PrimitiveDraft[] {
   // The project's one answer about a room's outline: stated, or worked out
   // from the walls that enclose it. The plan used to read `manualPolygon` and
@@ -585,8 +964,8 @@ function spacePrimitives(
   if (polygon === undefined || resolved.floorAreaM2 === undefined) return [];
   const areaM2 = resolved.floorAreaM2;
   const heightM = level.defaultStoreyHeightMm / 1000;
-  const anchor = centroid(polygon);
-  return [
+  const graphicCategory = spaceGraphicCategory(space.category);
+  const drafts: PrimitiveDraft[] = [
     {
       id: `space:${space.id}`,
       sourceObjectId: space.id,
@@ -598,26 +977,86 @@ function spacePrimitives(
       metadata: {
         name: space.name,
         category: space.category,
+        // The model's own word for the use, and the canonical one a charter
+        // can style: « CHAMBRE », « Bedroom » and « SLEEPING » are one colour
+        // on a plan, and the plan must not be the place that learns it.
+        graphicCategory,
         areaM2: Number(areaM2.toFixed(2)),
         volumeM3: Number((areaM2 * heightM).toFixed(2)),
         heightM,
       },
     },
-    {
-      id: `space-label:${space.id}`,
-      sourceObjectId: space.id,
-      semanticRole: 'ANNOTATION',
-      geometry: {
-        kind: 'TEXT',
-        anchor,
-        text: `${space.name}\n${areaM2.toFixed(2)} m²`,
-      },
-      layer: 'architecture.space-labels',
-      zIndex: 60,
-      discipline: 'ARCHITECTURE',
-      metadata: { name: space.name, areaM2: Number(areaM2.toFixed(2)) },
-    },
   ];
+
+  // Where the name goes: the point furthest from the walls, not the average of
+  // the outline's corners — which is inside a rectangle and outside an L.
+  const placement = interiorLabelPoint(polygon);
+  const box = boundingBox2D(polygon.outer);
+  if (box === undefined) return drafts;
+  const anchor = placement?.point ?? centroid(polygon);
+  const reach =
+    placement?.clearance ??
+    Math.min(box.max.x - box.min.x, box.max.y - box.min.y) / 2;
+  // Width across the room at the anchor, height from the inscribed circle: a
+  // corridor holds its name on one line and has no room to stack a second.
+  const availableWidthPaperMm =
+    (placement?.horizontalSpan ?? box.max.x - box.min.x) / scale;
+  const availableHeightPaperMm = (reach * 2) / scale;
+
+  const areaText = `${areaM2.toFixed(2)} m²`;
+  const nameWidthPaperMm = labelWidthPaperMm(space.name, LABEL_NAME_PAPER_MM);
+  const areaWidthPaperMm = labelWidthPaperMm(areaText, LABEL_AREA_PAPER_MM);
+  const fitsName =
+    availableHeightPaperMm >= LABEL_NAME_PAPER_MM &&
+    availableWidthPaperMm >= nameWidthPaperMm;
+  // A cupboard gets its name or nothing; a name that spills into the room next
+  // door is worse than a room left unnamed.
+  if (!fitsName) return drafts;
+  const fitsArea =
+    availableHeightPaperMm >= LABEL_LINE_PAPER_MM + LABEL_AREA_PAPER_MM &&
+    availableWidthPaperMm >= areaWidthPaperMm;
+
+  const baseline = (offsetPaperMm: number): Point2D => ({
+    x: anchor.x,
+    y: anchor.y + offsetPaperMm * scale,
+  });
+  drafts.push({
+    id: `space-label-name:${space.id}`,
+    sourceObjectId: space.id,
+    semanticRole: 'ANNOTATION',
+    geometry: {
+      kind: 'TEXT',
+      anchor: baseline(fitsArea ? -1 : 1),
+      text: space.name,
+    },
+    layer: 'architecture.space-labels',
+    zIndex: 60,
+    discipline: 'ARCHITECTURE',
+    metadata: { labelPart: 'NAME', name: space.name, graphicCategory },
+  });
+  if (!fitsArea) return drafts;
+  // Two primitives rather than one text holding a newline: SVG draws no line
+  // break, and « CH 1 » and « 9.72 m² » are two levels of one annotation, not
+  // one string in one size.
+  drafts.push({
+    id: `space-label-area:${space.id}`,
+    sourceObjectId: space.id,
+    semanticRole: 'ANNOTATION',
+    geometry: {
+      kind: 'TEXT',
+      anchor: baseline(LABEL_LINE_PAPER_MM - 1),
+      text: areaText,
+    },
+    layer: 'architecture.space-labels',
+    zIndex: 60,
+    discipline: 'ARCHITECTURE',
+    metadata: {
+      labelPart: 'AREA',
+      areaM2: Number(areaM2.toFixed(2)),
+      graphicCategory,
+    },
+  });
+  return drafts;
 }
 
 const NETWORK_LAYERS: Readonly<
@@ -801,43 +1240,132 @@ const COMPONENT_ROLES: Readonly<Record<string, SemanticRole>> = {
   PHOTOVOLTAIC: 'ELECTRICAL_PV',
 };
 
-function componentPrimitives(level: Level): readonly PrimitiveDraft[] {
-  return (level.components ?? []).map((component) => {
+function componentPrimitives(
+  level: Level,
+  equipment: ReadonlyMap<string, EquipmentDefinition>,
+  scale: number,
+): readonly PrimitiveDraft[] {
+  return (level.components ?? []).flatMap((component) => {
+    const discipline = disciplineOfComponent(component.category);
+    const metadata: ScenePrimitive['metadata'] = {
+      category: component.category,
+      ...(component.definitionId === undefined
+        ? {}
+        : { definitionId: component.definitionId }),
+      ...(component.spaceId === undefined
+        ? {}
+        : { spaceId: component.spaceId }),
+    };
+    const definition =
+      component.definitionId === undefined
+        ? undefined
+        : equipment.get(component.definitionId);
+    const drawn = fixturePrimitives(
+      component,
+      definition,
+      discipline,
+      metadata,
+      scale,
+    );
+    if (drawn !== undefined) return drawn;
+    // Nothing in the catalogue draws this one: the mark says something is
+    // here, which is all it ever said.
     const half = COMPONENT_MARK_MM / 2;
     const radians = (component.rotationDeg * Math.PI) / 180;
-    const corner = (dx: number, dy: number) => ({
+    const corner = (dx: number, dy: number): Point2D => ({
       x: component.position.x + dx * Math.cos(radians) - dy * Math.sin(radians),
       y: component.position.y + dx * Math.sin(radians) + dy * Math.cos(radians),
     });
-    return {
-      id: `component:${component.id}`,
-      sourceObjectId: component.id,
-      semanticRole: COMPONENT_ROLES[component.category] ?? 'SYMBOL',
-      geometry: {
-        kind: 'POLYGON' as const,
-        polygon: {
-          outer: [
-            corner(-half, -half),
-            corner(half, -half),
-            corner(half, half),
-            corner(-half, half),
-          ],
+    return [
+      {
+        id: `component:${component.id}`,
+        sourceObjectId: component.id,
+        semanticRole: COMPONENT_ROLES[component.category] ?? 'SYMBOL',
+        geometry: {
+          kind: 'POLYGON' as const,
+          polygon: {
+            outer: [
+              corner(-half, -half),
+              corner(half, -half),
+              corner(half, half),
+              corner(-half, half),
+            ],
+          },
         },
+        layer: 'components.placed',
+        zIndex: 45,
+        discipline,
+        metadata,
       },
-      layer: 'components.placed',
-      zIndex: 45,
-      discipline: disciplineOfComponent(component.category),
-      metadata: {
-        category: component.category,
-        ...(component.definitionId === undefined
-          ? {}
-          : { definitionId: component.definitionId }),
-        ...(component.spaceId === undefined
-          ? {}
-          : { spaceId: component.spaceId }),
-      },
-    };
+    ];
   });
+}
+
+/**
+ * The thing itself, drawn at the size it is.
+ *
+ * A bath drawn six millimetres on the sheet is a dot at 1:50 and a dot at
+ * 1:100: it says a bath is here and nothing about whether anybody can get past
+ * it. The glyph is chosen by the family and stretched to the entry's own
+ * width, so what the plan shows is the footprint the catalogue declares.
+ */
+function fixturePrimitives(
+  component: ComponentInstance,
+  definition: EquipmentDefinition | undefined,
+  discipline: Discipline,
+  metadata: ScenePrimitive['metadata'],
+  scale: number,
+): readonly PrimitiveDraft[] | undefined {
+  // The family decides first — that is where the emprises are — and what the
+  // fiche itself names comes next: a schematic glyph says something is here,
+  // which is more than the mark said. Only a model-space glyph is stretched to
+  // the declared width; a schematic one keeps its size on the sheet.
+  const symbolId =
+    architecturalFixtureSymbol(definition?.familyId) ??
+    definition?.rendering?.symbols?.find(
+      ({ viewType }) => viewType === undefined || viewType === 'PLAN',
+    )?.symbolId;
+  if (symbolId === undefined) return undefined;
+  const symbol = SYMBOL_LIBRARY_V1.definitions[symbolId];
+  if (symbol === undefined) return undefined;
+  const glyphWidthMm = symbol.viewBox.max.x - symbol.viewBox.min.x;
+  const widthMm = definition?.dimensions?.widthMm;
+  const modelScale =
+    symbol.scaleRules.space === 'MODEL_SPACE' &&
+    widthMm !== undefined &&
+    Number.isFinite(widthMm) &&
+    widthMm > 0 &&
+    glyphWidthMm > 0
+      ? widthMm / glyphWidthMm
+      : 1;
+  return placeSymbol(symbol, {
+    id: `component:${component.id}`,
+    symbolId,
+    position: component.position,
+    // A model-space glyph is already in millimetres. A schematic one is drawn
+    // in paper millimetres, so it takes the drawing's scale and comes out the
+    // same size on the sheet whatever the sheet says.
+    drawingScale: scale,
+    rotationDeg: component.rotationDeg,
+    modelScale,
+    sourceObjectId: component.id,
+    layer: 'components.placed',
+    zIndex: 45,
+  }).map((primitive) => ({
+    id: primitive.id,
+    sourceObjectId: component.id,
+    // The trade a placed thing belongs to still decides its role, as it did
+    // when every one of them was a square: what changed is its shape, not
+    // which drawing it is read on.
+    semanticRole: COMPONENT_ROLES[component.category] ?? primitive.semanticRole,
+    geometry: primitive.geometry,
+    layer: 'components.placed',
+    zIndex: 45,
+    // The discipline of a placed thing is what the thing is, which its own
+    // category says; a glyph shared by two trades does not decide it.
+    discipline,
+    metadata: { ...metadata, ...primitive.metadata },
+  }));
 }
 
 /**
@@ -1342,7 +1870,7 @@ function slabAndRoofPrimitives(level: Level): readonly PrimitiveDraft[] {
 }
 
 function boundsOf(
-  primitives: readonly PrimitiveDraft[],
+  primitives: readonly Pick<PrimitiveDraft, 'geometry'>[],
   paddingMm: number,
 ): DrawingView['viewport'] {
   const points: Point2D[] = [];
@@ -1391,6 +1919,17 @@ export function buildPlanView(
   const assemblies = new Map(
     (project.assemblies ?? []).map((assembly) => [assembly.id, assembly]),
   );
+  // The family the project's own copy of a catalogue entry declares: what says
+  // whether a door swings, slides or folds, and a plan that ignores it draws a
+  // quarter-circle across a metre of room a sliding door never sweeps.
+  const equipment = new Map(
+    (project.equipment ?? []).map((entry) => [entry.id, entry]),
+  );
+  const openingFamilies = new Map(
+    (project.openingTypes ?? [])
+      .filter(({ familyId }) => familyId !== undefined)
+      .map(({ id, familyId }) => [id, familyId!]),
+  );
   const drafts: PrimitiveDraft[] = [];
   if (level !== undefined) {
     for (const wall of level.walls) {
@@ -1403,7 +1942,9 @@ export function buildPlanView(
         });
         continue;
       }
-      drafts.push(...wallPrimitives(wall, assembly, level.walls, issues));
+      drafts.push(
+        ...wallPrimitives(wall, assembly, level.walls, assemblies, issues),
+      );
     }
     for (const opening of level.openings) {
       const host = level.walls.find(({ id }) => id === opening.hostElementId);
@@ -1412,19 +1953,30 @@ export function buildPlanView(
           opening,
           host,
           host === undefined ? undefined : assemblies.get(host.assemblyId),
+          opening.definitionId === undefined
+            ? undefined
+            : openingFamilies.get(opening.definitionId),
           issues,
         ),
       );
     }
     for (const space of level.spaces)
-      drafts.push(...spacePrimitives(space, level));
+      drafts.push(
+        ...spacePrimitives(space, level, options.scale ?? DEFAULT_SCALE),
+      );
+    const dimensionMode = options.dimensions ?? 'PROJECT';
     for (const annotation of level.annotations)
-      if (isDimension(annotation))
-        drafts.push(...dimensionPrimitives(annotation, level, issues));
-      else if (isTextNote(annotation))
+      if (isDimension(annotation)) {
+        if (dimensionMode !== 'NONE')
+          drafts.push(...dimensionPrimitives(annotation, level, issues));
+      } else if (isTextNote(annotation))
         drafts.push(...textNotePrimitives(annotation));
+    if (dimensionMode === 'PROJECT_AND_OVERALL')
+      drafts.push(...overallDimensionPrimitives(level, assemblies));
     drafts.push(...slabAndRoofPrimitives(level));
-    drafts.push(...componentPrimitives(level));
+    drafts.push(
+      ...componentPrimitives(level, equipment, options.scale ?? DEFAULT_SCALE),
+    );
     drafts.push(...stairPrimitives(level));
     drafts.push(...roofStructurePrimitives(level));
     drafts.push(...structurePrimitives(level));
@@ -1463,7 +2015,13 @@ export function buildPlanView(
     scale: options.scale ?? DEFAULT_SCALE,
     viewport:
       options.viewport ??
-      boundsOf(drafts, options.paddingMm ?? DEFAULT_PADDING_MM),
+      // What is drawn, not what was built: the bounds used to come from every
+      // draft, so switching the plot off left the drawing framed on a plot
+      // nobody could see and the house at a quarter of the sheet.
+      boundsOf(
+        primitives.length === 0 ? drafts : primitives,
+        options.paddingMm ?? DEFAULT_PADDING_MM,
+      ),
     visibleDisciplines: visibleDisciplines(layers),
     graphicProfileId: graphicProfileId(
       options.graphicProfileId ?? 'generic-technical-screen',

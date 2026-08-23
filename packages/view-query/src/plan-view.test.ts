@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
 import { entityId } from '@house-technical-designer/core-domain';
 import type { ScenePrimitive } from '@house-technical-designer/drawing-engine';
+import { polygonContains } from '@house-technical-designer/geometry';
 import { buildPlanView, previewWallFaces } from './plan-view.js';
 import {
   LAYER_PRESETS,
@@ -12,6 +13,48 @@ import {
 } from './layers.js';
 
 const levelId = entityId<'Level'>('ground');
+
+/** The fixture's one room, given another outline. */
+function withRoomOutline(
+  base: Project,
+  outer: readonly { readonly x: number; readonly y: number }[],
+): Project {
+  const level = base.building.levels[0]!;
+  return {
+    ...base,
+    building: {
+      ...base.building,
+      levels: [
+        {
+          ...level,
+          spaces: level.spaces.map((space) => ({
+            ...space,
+            boundaryMode: 'MANUAL' as const,
+            manualPolygon: { outer: [...outer] },
+          })),
+        },
+      ],
+    },
+  };
+}
+
+const withLShapedRoom = (base: Project): Project =>
+  withRoomOutline(base, [
+    { x: 0, y: 0 },
+    { x: 6000, y: 0 },
+    { x: 6000, y: 2000 },
+    { x: 2000, y: 2000 },
+    { x: 2000, y: 6000 },
+    { x: 0, y: 6000 },
+  ]);
+
+const withClosetRoom = (base: Project): Project =>
+  withRoomOutline(base, [
+    { x: 0, y: 0 },
+    { x: 1000, y: 0 },
+    { x: 1000, y: 400 },
+    { x: 0, y: 400 },
+  ]);
 
 function project(): Project {
   return {
@@ -221,8 +264,24 @@ describe('plan view walls', () => {
     expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(300, 6);
   });
 
+  it('keeps the make-up of a wall out of the architectural plan', () => {
+    // Three bands of colour in every wall bury what the architectural drawing
+    // exists to show. The build-up belongs to the materials drawing, and the
+    // layer is where the two are told apart.
+    const architectural = buildPlanView(project());
+    expect(
+      architectural.primitives.filter(
+        ({ layer }) => layer === 'architecture.wall-layers',
+      ),
+    ).toEqual([]);
+  });
+
   it('draws one band per assembly layer, carrying its material and role', () => {
-    const { primitives } = buildPlanView(project());
+    const { primitives } = buildPlanView(project(), {
+      layers: presetVisibility(
+        LAYER_PRESETS.find(({ id }) => id === 'materials')!,
+      ),
+    });
     const bands = primitives.filter(
       ({ layer }) => layer === 'architecture.wall-layers',
     );
@@ -253,7 +312,7 @@ describe('plan view walls', () => {
     const { primitives } = buildPlanView(project());
     const join = find(primitives, 'wall-join:wall-south:wall-west');
     expect(join?.metadata?.joinKind).toBe('L');
-    expect(join?.geometry).toEqual({ kind: 'POINT', point: { x: 0, y: 0 } });
+    expect(join?.geometry.kind).toBe('POLYGON');
   });
 
   it('reports a wall whose assembly is missing instead of drawing it', () => {
@@ -371,10 +430,48 @@ describe('plan view spaces and networks', () => {
       volumeM3: 60,
       heightM: 2.5,
     });
-    const label = find(primitives, 'space-label:living')!;
-    expect(label.geometry.kind).toBe('TEXT');
-    if (label.geometry.kind === 'TEXT')
-      expect(label.geometry.text).toContain('Séjour');
+    // Two primitives, not one string holding a newline: SVG draws no line
+    // break, so « Séjour\n24.00 m² » came out as one run of text.
+    const name = find(primitives, 'space-label-name:living')!;
+    const area = find(primitives, 'space-label-area:living')!;
+    expect(name.metadata).toMatchObject({ labelPart: 'NAME' });
+    expect(area.metadata).toMatchObject({ labelPart: 'AREA' });
+    if (name.geometry.kind !== 'TEXT' || area.geometry.kind !== 'TEXT') return;
+    expect(name.geometry.text).toBe('Séjour');
+    expect(area.geometry.text).toBe('24.00 m²');
+    expect(name.geometry.anchor.x).toBe(area.geometry.anchor.x);
+    expect(name.geometry.anchor.y).toBeLessThan(area.geometry.anchor.y);
+  });
+
+  it('places the name where the room is, not at the average of its corners', () => {
+    // The average of an L's corners falls in the notch, so the room's name
+    // used to land in the corridor next door.
+    const ell = withLShapedRoom(project());
+    const { primitives } = buildPlanView(ell);
+    const name = find(primitives, 'space-label-name:living')!;
+    const fill = find(primitives, 'space:living')!;
+    if (name.geometry.kind !== 'TEXT' || fill.geometry.kind !== 'POLYGON')
+      return;
+    expect(polygonContains(fill.geometry.polygon, name.geometry.anchor)).toBe(
+      true,
+    );
+  });
+
+  it('writes the area only where there is room for a second line', () => {
+    // A cupboard gets its name or nothing: a label spilling into the room next
+    // door is worse than a room left unnamed.
+    const closet = withClosetRoom(project());
+    const near = buildPlanView(closet, { scale: 50 }).primitives;
+    expect(find(near, 'space-label-area:living')).toBeDefined();
+    // At 1:100 the same closet has half the paper: the name still fits, the
+    // second line no longer does.
+    const far = buildPlanView(closet, { scale: 100 }).primitives;
+    expect(find(far, 'space-label-name:living')).toBeDefined();
+    expect(find(far, 'space-label-area:living')).toBeUndefined();
+    // At 1:200 nothing fits, and nothing is written rather than written out
+    // into the room next door.
+    const distant = buildPlanView(closet, { scale: 200 }).primitives;
+    expect(find(distant, 'space-label-name:living')).toBeUndefined();
   });
 
   it('routes each network onto its discipline layer', () => {
@@ -570,5 +667,626 @@ describe('what discipline a drawing reads each thing by', () => {
         view.primitives.some((primitive) => primitive.id === id),
         id,
       ).toBe(true);
+  });
+});
+
+/**
+ * Two walls, and the corner they make.
+ *
+ * Each wall is drawn as its own rectangle, so two walls meeting at their ends
+ * cover three of the four quadrants around the corner and leave the fourth
+ * empty: a white notch bitten out of the outside of every corner of a house.
+ * These cases are the shapes a corner comes in.
+ */
+describe('wall junctions', () => {
+  interface Leg {
+    readonly id: string;
+    readonly from: { readonly x: number; readonly y: number };
+    readonly to: { readonly x: number; readonly y: number };
+    readonly thicknessMm?: number;
+    readonly role?: 'EXTERIOR' | 'INTERIOR' | 'PARTITION' | 'OTHER';
+  }
+
+  const assemblyOf = (thicknessMm: number): unknown => ({
+    id: `assembly-${thicknessMm}`,
+    name: `Mur ${thicknessMm}`,
+    category: 'WALL',
+    layers: [
+      {
+        id: `layer-${thicknessMm}`,
+        materialId: 'masonry',
+        thicknessM: thicknessMm / 1000,
+        role: 'STRUCTURAL',
+      },
+    ],
+  });
+
+  function junction(first: Leg, second: Leg): Project {
+    const base = project();
+    const legs = [first, second];
+    const thicknesses = [
+      ...new Set(legs.map(({ thicknessMm }) => thicknessMm ?? 300)),
+    ];
+    const level = base.building.levels[0]!;
+    return {
+      ...base,
+      assemblies: thicknesses.map(assemblyOf) as NonNullable<
+        Project['assemblies']
+      >,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            spaces: [],
+            walls: legs.map(
+              (leg) =>
+                ({
+                  id: entityId<'Wall'>(leg.id),
+                  type: 'WALL',
+                  levelId,
+                  path: { points: [leg.from, leg.to] },
+                  referenceSide: 'CENTER',
+                  assemblyId: `assembly-${leg.thicknessMm ?? 300}`,
+                  baseOffsetMm: 0,
+                  heightMode: 'EXPLICIT',
+                  heightMm: 2500,
+                  role: leg.role ?? 'EXTERIOR',
+                }) as unknown as (typeof level.walls)[number],
+            ),
+          },
+        ],
+      },
+    };
+  }
+
+  const patchOf = (first: Leg, second: Leg): ScenePrimitive | undefined => {
+    const { primitives } = buildPlanView(junction(first, second));
+    const [a, b] = [first.id, second.id].sort();
+    return find(primitives, `wall-join:${a}:${b}`);
+  };
+
+  /** Signed distance of a point from a wall's centre line. */
+  const offsetFrom = (
+    leg: Leg,
+    point: { readonly x: number; readonly y: number },
+  ): number => {
+    const dx = leg.to.x - leg.from.x;
+    const dy = leg.to.y - leg.from.y;
+    const length = Math.hypot(dx, dy);
+    return Math.abs(
+      ((point.x - leg.from.x) * -dy + (point.y - leg.from.y) * dx) / length,
+    );
+  };
+
+  const cases: readonly (readonly [string, Leg, Leg, string])[] = [
+    [
+      'a right-angle corner',
+      { id: 'w-a', from: { x: -4_000, y: 0 }, to: { x: 0, y: 0 } },
+      { id: 'w-b', from: { x: 0, y: 0 }, to: { x: 0, y: 4_000 } },
+      'L',
+    ],
+    [
+      'a wall dying into another',
+      { id: 'w-a', from: { x: 0, y: 0 }, to: { x: 6_000, y: 0 } },
+      { id: 'w-b', from: { x: 3_000, y: 0 }, to: { x: 3_000, y: 4_000 } },
+      'T',
+    ],
+    [
+      'a crossing',
+      { id: 'w-a', from: { x: 0, y: 0 }, to: { x: 6_000, y: 0 } },
+      { id: 'w-b', from: { x: 3_000, y: -2_000 }, to: { x: 3_000, y: 2_000 } },
+      'X',
+    ],
+    [
+      'an acute angle',
+      { id: 'w-a', from: { x: 0, y: 0 }, to: { x: 6_000, y: 0 } },
+      { id: 'w-b', from: { x: 0, y: 0 }, to: { x: 6_000, y: 3_000 } },
+      'L',
+    ],
+    [
+      'an obtuse angle',
+      { id: 'w-a', from: { x: 0, y: 0 }, to: { x: 6_000, y: 0 } },
+      { id: 'w-b', from: { x: 0, y: 0 }, to: { x: -4_000, y: 4_000 } },
+      'L',
+    ],
+    [
+      'a partition meeting an outer wall',
+      {
+        id: 'w-a',
+        from: { x: 0, y: 0 },
+        to: { x: 6_000, y: 0 },
+        thicknessMm: 400,
+        role: 'EXTERIOR',
+      },
+      {
+        id: 'w-b',
+        from: { x: 3_000, y: 0 },
+        to: { x: 3_000, y: 4_000 },
+        thicknessMm: 100,
+        role: 'PARTITION',
+      },
+      'T',
+    ],
+  ];
+
+  it.each(cases)('closes %s', (_name, first, second, kind) => {
+    const patch = patchOf(first, second);
+    expect(patch?.metadata?.joinKind).toBe(kind);
+    expect(patch?.geometry.kind).toBe('POLYGON');
+    if (patch?.geometry.kind !== 'POLYGON') return;
+    expect(patch.geometry.polygon.outer).toHaveLength(4);
+    // No spike past a face: every corner of the patch sits exactly on both
+    // walls' faces, which is where the masonry of a mitre ends.
+    for (const point of patch.geometry.polygon.outer) {
+      expect(offsetFrom(first, point)).toBeCloseTo(
+        (first.thicknessMm ?? 300) / 2,
+        6,
+      );
+      expect(offsetFrom(second, point)).toBeCloseTo(
+        (second.thicknessMm ?? 300) / 2,
+        6,
+      );
+    }
+  });
+
+  it('fills the quadrant neither wall covers', () => {
+    // The notch: outside the end of the horizontal wall, and on the far side
+    // of the vertical one. Neither rectangle reaches it.
+    const [first, second] = [cases[0]![1], cases[0]![2]];
+    const patch = patchOf(first, second)!;
+    if (patch.geometry.kind !== 'POLYGON') return;
+    expect(polygonContains(patch.geometry.polygon, { x: 100, y: -100 })).toBe(
+      true,
+    );
+    expect(polygonContains(patch.geometry.polygon, { x: 200, y: -100 })).toBe(
+      false,
+    );
+  });
+
+  it('gives the corner to the heavier of the two walls', () => {
+    // A partition dies into a party wall, not the other way round.
+    const [, first, second] = cases[5]!;
+    expect(patchOf(first, second)?.metadata?.role).toBe('EXTERIOR');
+  });
+
+  it('draws no corner where two walls are all but parallel', () => {
+    // The patch of a one-degree corner is metres long and is not a corner.
+    expect(
+      patchOf(
+        { id: 'w-a', from: { x: 0, y: 0 }, to: { x: 6_000, y: 0 } },
+        { id: 'w-b', from: { x: 0, y: 0 }, to: { x: 6_000, y: 60 } },
+      ),
+    ).toBeUndefined();
+  });
+});
+
+/**
+ * Doors and windows, drawn as what they are.
+ *
+ * Every door swept a quarter-circle to the same side whatever it was, and
+ * every window was one line laid across the masonry. The model now says which
+ * way a door opens, and the catalogue's family says which drawing an opening
+ * gets.
+ */
+describe('openings', () => {
+  function withDoor(
+    swing?: Record<string, unknown>,
+    familyId?: string,
+  ): Project {
+    const base = project();
+    const level = base.building.levels[0]!;
+    return {
+      ...base,
+      ...(familyId === undefined
+        ? {}
+        : {
+            openingTypes: [
+              {
+                id: 'entry-model',
+                familyId,
+                category: 'DOOR',
+                name: 'Porte',
+                properties: {},
+              },
+            ],
+          }),
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            openings: level.openings.map((opening) =>
+              opening.id === 'entry-door'
+                ? ({
+                    ...opening,
+                    ...(familyId === undefined
+                      ? {}
+                      : { definitionId: 'entry-model' }),
+                    ...(swing === undefined ? {} : { swing }),
+                  } as typeof opening)
+                : opening,
+            ),
+          },
+        ],
+      },
+    };
+  }
+
+  function withWindow(familyId: string): Project {
+    const base = project();
+    const level = base.building.levels[0]!;
+    return {
+      ...base,
+      openingTypes: [
+        {
+          id: 'window-model',
+          familyId,
+          category: 'WINDOW',
+          name: 'Fenêtre',
+          properties: {},
+        },
+      ],
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            openings: level.openings.map((opening) =>
+              opening.id === 'living-window'
+                ? { ...opening, definitionId: 'window-model' }
+                : opening,
+            ),
+          },
+        ],
+      },
+    };
+  }
+
+  const points = (
+    primitive: ScenePrimitive | undefined,
+  ): readonly { readonly x: number; readonly y: number }[] =>
+    primitive?.geometry.kind === 'POLYLINE'
+      ? primitive.geometry.polyline.points
+      : [];
+
+  it('draws the arc as a curve rather than as a visible polygon', () => {
+    // At eight segments the arc of a door is a polygon on a printed sheet, and
+    // a plan is read at arm's length.
+    const swing = find(
+      buildPlanView(project()).primitives,
+      'opening-swing:entry-door',
+    );
+    expect(points(swing).length).toBeGreaterThanOrEqual(17);
+  });
+
+  it('hinges the leaf where the model says, on the side the model says', () => {
+    // Stated against the wall's own path: « à gauche » of a drawing is a
+    // different door once the plan is mirrored.
+    const wallSide = (primitive: ScenePrimitive | undefined): number =>
+      points(primitive).at(-1)?.y ?? 0;
+    const byDefault = find(
+      buildPlanView(project()).primitives,
+      'opening-leaf:entry-door',
+    );
+    const other = find(
+      buildPlanView(withDoor({ hinge: 'END', opensTo: 'LEFT_OF_HOST' }))
+        .primitives,
+      'opening-leaf:entry-door',
+    );
+    // The wall runs east; the default door opens to its right, the other one
+    // to its left, so the two leaves end on opposite sides of it.
+    expect(wallSide(byDefault)).toBeLessThan(0);
+    expect(wallSide(other)).toBeGreaterThan(0);
+    // And they are hinged at opposite jambs.
+    expect(points(byDefault)[0]!.x).toBeCloseTo(1_000, 6);
+    expect(points(other)[0]!.x).toBeCloseTo(1_900, 6);
+  });
+
+  it('opens a door as far as the model says', () => {
+    const ajar = find(
+      buildPlanView(
+        withDoor({
+          hinge: 'START',
+          opensTo: 'RIGHT_OF_HOST',
+          openingAngleDeg: 45,
+        }),
+      ).primitives,
+      'opening-leaf:entry-door',
+    );
+    expect(ajar?.metadata?.angleDeg).toBe(45);
+    const [hinge, tip] = points(ajar);
+    // At 45° the leaf covers as much wall as it does room.
+    expect(Math.abs(tip!.x - hinge!.x)).toBeCloseTo(
+      Math.abs(tip!.y - hinge!.y),
+      6,
+    );
+  });
+
+  it('slides a sliding door instead of sweeping the room', () => {
+    const drawn = buildPlanView(withDoor(undefined, 'DOOR_SLIDING')).primitives;
+    expect(find(drawn, 'opening-swing:entry-door')).toBeUndefined();
+    const leaf = find(drawn, 'opening-leaf:entry-door');
+    expect(leaf?.metadata?.representation).toBe('SLIDING_DOOR');
+    // The panel runs along the wall, not across the room.
+    const [from, to] = points(leaf);
+    expect(from!.y).toBeCloseTo(to!.y, 6);
+    expect(Math.abs(to!.x - from!.x)).toBeCloseTo(900, 6);
+  });
+
+  it('hides a pocket door in the wall it disappears into', () => {
+    const leaf = find(
+      buildPlanView(withDoor(undefined, 'DOOR_POCKET')).primitives,
+      'opening-leaf:entry-door',
+    );
+    expect(leaf?.metadata?.part).toBe('LEAF_HIDDEN');
+    // Between the two faces of a 300 mm wall whose path is its centre line.
+    for (const point of points(leaf)) expect(point.y).toBeCloseTo(0, 6);
+  });
+
+  it('gives a double door two leaves, one at each jamb', () => {
+    const drawn = buildPlanView(withDoor(undefined, 'DOOR_DOUBLE')).primitives;
+    const first = find(drawn, 'opening-leaf-a:entry-door');
+    const second = find(drawn, 'opening-leaf-b:entry-door');
+    expect(points(first)[0]!.x).toBeCloseTo(1_000, 6);
+    expect(points(second)[0]!.x).toBeCloseTo(1_900, 6);
+    expect(find(drawn, 'opening-swing-a:entry-door')).toBeDefined();
+    expect(find(drawn, 'opening-swing-b:entry-door')).toBeDefined();
+  });
+
+  it('draws no leaf for a garage door, whose panel is overhead', () => {
+    const drawn = buildPlanView(withDoor(undefined, 'DOOR_GARAGE')).primitives;
+    expect(find(drawn, 'opening-leaf:entry-door')).toBeUndefined();
+    expect(find(drawn, 'opening-panel:entry-door')?.metadata?.part).toBe(
+      'PANEL',
+    );
+  });
+
+  it('fits a window with a frame as well as a pane', () => {
+    // A window read as a hole with something fitted in it, rather than as a
+    // line drawn across the masonry.
+    const drawn = buildPlanView(withWindow('WINDOW_CASEMENT')).primitives;
+    const frame = find(drawn, 'opening-frame:living-window');
+    expect(frame?.metadata?.part).toBe('FRAME');
+    // A closed outline inside the reveal of a 300 mm wall.
+    const xs = points(frame).map(({ x }) => x);
+    expect(Math.max(...xs)).toBeLessThan(150);
+    expect(Math.min(...xs)).toBeGreaterThan(-150);
+    expect(find(drawn, 'opening-glazing:living-window')).toBeDefined();
+  });
+
+  it('passes two panes of a sliding window one behind the other', () => {
+    const drawn = buildPlanView(withWindow('WINDOW_SLIDING')).primitives;
+    const first = find(drawn, 'opening-glazing-a:living-window');
+    const second = find(drawn, 'opening-glazing-b:living-window');
+    expect(first).toBeDefined();
+    expect(second).toBeDefined();
+    expect(points(first)[0]!.x).not.toBeCloseTo(points(second)[0]!.x, 6);
+    expect(find(drawn, 'opening-glazing:living-window')).toBeUndefined();
+  });
+
+  it('divides a bay with its mullions', () => {
+    const drawn = buildPlanView(withWindow('WINDOW_BAY')).primitives;
+    expect(
+      find(drawn, 'opening-mullion-33:living-window')?.metadata?.part,
+    ).toBe('MULLION');
+    expect(find(drawn, 'opening-mullion-67:living-window')).toBeDefined();
+  });
+
+  it('leaves a plain void plain', () => {
+    const base = project();
+    const level = base.building.levels[0]!;
+    const drawn = buildPlanView({
+      ...base,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            openings: level.openings.map((opening) =>
+              opening.id === 'entry-door'
+                ? { ...opening, openingType: 'VOID' as const }
+                : opening,
+            ),
+          },
+        ],
+      },
+    }).primitives;
+    expect(find(drawn, 'opening:entry-door')).toBeDefined();
+    expect(find(drawn, 'opening-leaf:entry-door')).toBeUndefined();
+    expect(find(drawn, 'opening-glazing:entry-door')).toBeUndefined();
+  });
+});
+
+/**
+ * Les équipements posés, dessinés comme ce qu'ils sont.
+ *
+ * Every placed thing was the same three-hundred-millimetre square: a bathroom
+ * held three identical squares and said nothing about whether anybody could
+ * stand in it.
+ */
+describe('placed fixtures', () => {
+  function withComponent(
+    definition: Record<string, unknown> | undefined,
+    definitionId?: string,
+  ): Project {
+    const base = project();
+    const level = base.building.levels[0]!;
+    return {
+      ...base,
+      ...(definition === undefined
+        ? {}
+        : {
+            equipment: [definition] as unknown as NonNullable<
+              Project['equipment']
+            >,
+          }),
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            components: [
+              {
+                id: entityId<'ComponentInstance'>('fixture'),
+                type: 'COMPONENT_INSTANCE',
+                levelId,
+                category: 'SANITARY',
+                ...(definitionId === undefined ? {} : { definitionId }),
+                position: { x: 3_000, y: 2_000 },
+                elevationMm: 0,
+                rotationDeg: 0,
+              },
+            ],
+          },
+        ],
+      },
+    };
+  }
+
+  const bathtub = {
+    id: 'generic-bathtub',
+    familyId: 'BATHTUB',
+    kind: 'SANITARY',
+    catalogKind: 'GENERIC',
+    name: 'Baignoire',
+    dimensions: { widthMm: 1_700, depthMm: 700, heightMm: 600 },
+  };
+
+  const drawnFor = (project: Project): readonly ScenePrimitive[] =>
+    buildPlanView(project).primitives.filter(
+      ({ sourceObjectId }) => sourceObjectId === 'fixture',
+    );
+
+  it('draws a bath at the size the catalogue says it is', () => {
+    const drawn = drawnFor(withComponent(bathtub, 'generic-bathtub'));
+    expect(drawn.length).toBeGreaterThan(1);
+    const outline = drawn[0]!;
+    if (outline.geometry.kind !== 'POLYGON') return;
+    const xs = outline.geometry.polygon.outer.map(({ x }) => x);
+    const ys = outline.geometry.polygon.outer.map(({ y }) => y);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(1_700, 6);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(700, 6);
+  });
+
+  it('turns the fixture with the thing it stands for', () => {
+    const base = withComponent(bathtub, 'generic-bathtub');
+    const level = base.building.levels[0]!;
+    const turned = {
+      ...base,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            components: level.components!.map((component) => ({
+              ...component,
+              rotationDeg: 90,
+            })),
+          },
+        ],
+      },
+    };
+    const outline = drawnFor(turned)[0]!;
+    if (outline.geometry.kind !== 'POLYGON') return;
+    const xs = outline.geometry.polygon.outer.map(({ x }) => x);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(700, 6);
+  });
+
+  it('keeps the trade a placed thing belongs to', () => {
+    const drawn = drawnFor(withComponent(bathtub, 'generic-bathtub'));
+    for (const primitive of drawn) {
+      expect(primitive.discipline).toBe('WATER');
+      expect(primitive.layer).toBe('components.placed');
+      expect(primitive.metadata).toMatchObject({ category: 'SANITARY' });
+    }
+  });
+
+  it('still marks a thing whose model says nothing about its shape', () => {
+    // An unknown thing is drawn, as it always was: the mark says something is
+    // here, which is all it ever said.
+    const drawn = drawnFor(withComponent(undefined));
+    expect(drawn).toHaveLength(1);
+    expect(drawn[0]!.id).toBe('component:fixture');
+  });
+});
+
+describe('what a plan dimensions', () => {
+  /** The fixture, plus one cote somebody placed. */
+  function withDimension(base: Project): Project {
+    const level = base.building.levels[0]!;
+    return {
+      ...base,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            annotations: [
+              {
+                id: entityId<'Dimension'>('cote-sud'),
+                kind: 'DIMENSION',
+                type: 'HORIZONTAL',
+                first: {
+                  kind: 'WALL_ENDPOINT',
+                  wallId: entityId<'Wall'>('wall-south'),
+                  endpoint: 'START',
+                },
+                second: {
+                  kind: 'WALL_ENDPOINT',
+                  wallId: entityId<'Wall'>('wall-south'),
+                  endpoint: 'END',
+                },
+                offsetMm: 500,
+              },
+            ] as unknown as typeof level.annotations,
+          },
+        ],
+      },
+    };
+  }
+
+  const dimensionIds = (project: Project, mode?: string): readonly string[] =>
+    buildPlanView(
+      project,
+      mode === undefined
+        ? {}
+        : { dimensions: mode as 'NONE' | 'PROJECT' | 'PROJECT_AND_OVERALL' },
+    )
+      .primitives.filter(({ layer }) => layer === 'annotation.dimensions')
+      .map(({ id }) => id);
+
+  it("draws the project's own dimensions when nobody says otherwise", () => {
+    const placed = withDimension(project());
+    expect(dimensionIds(placed).join(' ')).toContain('dimension:cote-sud');
+    expect(dimensionIds(placed).join(' ')).not.toContain('overall');
+  });
+
+  it('draws none when the drawing asks for none', () => {
+    expect(dimensionIds(withDimension(project()), 'NONE')).toEqual([]);
+  });
+
+  it('measures the building itself when the drawing asks for it', () => {
+    const ids = dimensionIds(withDimension(project()), 'PROJECT_AND_OVERALL');
+    expect(ids).toContain('dimension-overall:width');
+    expect(ids).toContain('dimension-overall:depth');
+    expect(ids.join(' ')).toContain('dimension:cote-sud');
+  });
+
+  it('derives the overall run from the walls rather than storing it', () => {
+    // True of whatever the walls are today; a stored copy would be a second
+    // answer to a question the walls already answer.
+    const before = project();
+    const label = buildPlanView(before, {
+      dimensions: 'PROJECT_AND_OVERALL',
+    }).primitives.find(({ id }) => id === 'dimension-overall-label:width')!;
+    expect(label.metadata).toMatchObject({ derived: true });
+    if (label.geometry.kind !== 'TEXT') return;
+    // Two walls, 6 m and 4 m, 300 mm thick: 6.15 m across the outer faces.
+    expect(label.geometry.text).toBe('6.15 m');
+    // Nothing was written back into the project.
+    expect(before.building.levels[0]!.annotations).toEqual(
+      project().building.levels[0]!.annotations,
+    );
   });
 });

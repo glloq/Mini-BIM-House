@@ -800,6 +800,65 @@ Le profil graphique transforme ensuite ces rôles en :
 - motif ;
 - hachure.
 
+### 11.5 Résolution du style : rôle, calque et métadonnées
+
+Le rôle sémantique seul ne suffit pas : toutes les pièces sont `SPACE_FILL` et
+tous les murs `WALL_CUT`, alors que la scène porte déjà `category` sur la pièce
+et `role` sur le mur. Une charte peut donc énoncer des règles :
+
+```ts
+{
+  match: {
+    semanticRole: 'WALL_CUT',
+    layer: 'architecture.walls',
+    metadata: { role: ['INTERIOR', 'PARTITION'] },
+  },
+  token: 'wall-interior',
+}
+```
+
+`resolveGraphicToken(profile, primitive)` choisit dans l'ordre :
+
+```text
+règle la plus spécifique → jeton du rôle → rien (le renderer le signale)
+```
+
+Le poids d'une règle est, à défaut de `priority`, le nombre de critères
+qu'elle énonce ; à poids égal, la règle écrite en premier l'emporte.
+
+Deux interdits :
+
+- ne jamais écrire une couleur dans le modèle BIM (`space.color`, `wall.color`) ;
+- ne jamais brancher sur une catégorie métier dans `plan-view.ts`.
+
+Le BIM décrit ce qu'est l'objet ; la charte décide de son apparence.
+
+### 11.6 Chartes et calques : deux questions distinctes
+
+Une charte répond à « comment dessiner ? », un preset de calques à « quoi
+afficher ? ». Les deux axes se combinent librement :
+
+```text
+Plan architectural + calques Architecture
+Plan architectural + calques Électricité
+Plan technique     + calques Matériaux
+```
+
+Chartes livrées :
+
+| Charte              | Pour                                       |
+| ------------------- | ------------------------------------------ |
+| Technique générique | lire un réseau, une coupe, un détail       |
+| Technique FR        | idem, conventions françaises               |
+| Plan architectural  | lire une maison : murs, pièces, ouvertures |
+
+`architecture.wall-layers` n'est plus visible par défaut : la composition d'un
+mur est le sujet du preset « Matériaux », pas celui du plan architectural.
+
+La vue reçoit sa charte, elle ne la choisit pas : `PlanCanvas` prend un
+`graphicProfileId`, l'espace de travail décide du défaut (« Construire » lit une
+maison, « Systèmes » lit un réseau), et une vue enregistrée garde la sienne.
+
 ---
 
 ## 12. Conventions graphiques et normalisation

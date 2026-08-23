@@ -166,6 +166,34 @@
         },
         "definitionId": {
           "type": "string"
+        },
+        "swing": {
+          "type": "object",
+          "description": "Which way a door opens, stated against its host wall's own path rather than against the screen.",
+          "required": [
+            "hinge",
+            "opensTo"
+          ],
+          "properties": {
+            "hinge": {
+              "enum": [
+                "START",
+                "END"
+              ]
+            },
+            "opensTo": {
+              "enum": [
+                "LEFT_OF_HOST",
+                "RIGHT_OF_HOST"
+              ]
+            },
+            "openingAngleDeg": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 180
+            }
+          },
+          "additionalProperties": true
         }
       },
       "additionalProperties": true

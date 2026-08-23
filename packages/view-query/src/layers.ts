@@ -30,10 +30,14 @@ export const PLAN_LAYERS = [
     defaultVisible: true,
   },
   {
+    // Off by default: the make-up of a wall is what the materials drawing is
+    // about. On the architectural plan it fills every wall with three bands of
+    // colour and buries the thing the drawing exists to show — where the
+    // building's walls are.
     id: 'architecture.wall-layers',
     label: 'Couches de matériaux',
     disciplines: ['ARCHITECTURE'],
-    defaultVisible: true,
+    defaultVisible: false,
   },
   {
     id: 'architecture.openings',
@@ -176,7 +180,6 @@ export interface LayerPreset {
 
 const ARCHITECTURE_BASE: readonly PlanLayerId[] = [
   'architecture.walls',
-  'architecture.wall-layers',
   'architecture.openings',
   'architecture.slabs',
   'architecture.spaces',
@@ -282,7 +285,6 @@ export const LAYER_PRESETS: readonly LayerPreset[] = [
     disciplines: ['ARCHITECTURE'],
     layers: [
       'architecture.walls',
-      'architecture.wall-layers',
       'architecture.openings',
       'architecture.spaces',
       'architecture.space-labels',

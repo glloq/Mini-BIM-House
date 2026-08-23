@@ -6,6 +6,7 @@ import {
   GENERIC_SYMBOL_FORMAT_VERSION,
   placeSymbol,
   rawGenericSymbolEntries,
+  symbolCatalogSources,
   resolveSymbol,
   symbolCatalogIssues,
   SYMBOL_LIBRARY_V1,
@@ -178,12 +179,30 @@ describe('symbol library v1', () => {
 
 describe('the symbols as data', () => {
   it('lives in a file rather than in the code that draws it', () => {
-    // Twenty-seven definitions written out in TypeScript with four helpers to
-    // keep them short: it works at twenty-seven and stops at three hundred.
+    // Definitions written out in TypeScript with four helpers to keep them
+    // short: it works at twenty-seven and stops at three hundred.
     expect(GENERIC_SYMBOL_FORMAT_VERSION).toBe('1.0.0');
-    expect(rawGenericSymbolEntries()).toHaveLength(27);
-    expect(Object.keys(SYMBOL_LIBRARY_V1.definitions)).toHaveLength(27);
+    expect(rawGenericSymbolEntries()).toHaveLength(45);
+    expect(Object.keys(SYMBOL_LIBRARY_V1.definitions)).toHaveLength(45);
     expect(SYMBOL_LIBRARY_V1.licence).toBe('AGPL-3.0-only');
+  });
+
+  it('adds a second file to the same library rather than a second library', () => {
+    // A drawing names a symbol, not a library, and two libraries would make
+    // the same name mean two things.
+    expect(SYMBOL_LIBRARY_V1.id).toBe('generic-technical-symbols');
+    expect(symbolCatalogSources()).toContain(
+      'packages/drawing-engine/data/symbols/architecture-fixtures.json',
+    );
+  });
+
+  it('draws the fixtures of a house at the size they are', () => {
+    // A basin drawn six millimetres on the sheet is a dot at 1:50 and a dot at
+    // 1:100: it says a basin is here, and nothing about whether it fits.
+    const bath = SYMBOL_LIBRARY_V1.definitions['architecture.fixture.bathtub'];
+    expect(bath?.scaleRules.space).toBe('MODEL_SPACE');
+    expect(bath!.viewBox.max.x - bath!.viewBox.min.x).toBe(1_700);
+    expect(bath!.viewBox.max.y - bath!.viewBox.min.y).toBe(700);
   });
 
   it('versions every glyph and says where it comes from', () => {

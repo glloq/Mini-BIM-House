@@ -2,14 +2,25 @@ import {
   graphicProfileId,
   type GraphicProfile,
   type ObjectState,
-  type SemanticRole,
 } from './scene.js';
+import { architecturalCleanBundle } from './architectural-profile.js';
+import { DEFAULT_ROLE_TOKENS, SEMANTIC_ROLES } from './role-tokens.js';
+import { graphicStyleRuleSpecificity } from './style-resolver.js';
 import type { SvgStyle, SvgStyleCatalog } from './svg-renderer.js';
 
 export type GraphicOutputMode = 'SCREEN' | 'PRINT';
 
 export interface GraphicProfileBundle {
   readonly id: string;
+  /**
+   * The charter this bundle is a mode of.
+   *
+   * Screen and print are two bundles of one charter, and the pair used to be
+   * guessed from the locale — which said that the architectural charter and
+   * the French technical one were the same drawing, because both are written
+   * in French. A family is stated, not inferred.
+   */
+  readonly family: string;
   readonly version: string;
   readonly mode: GraphicOutputMode;
   readonly profile: GraphicProfile;
@@ -17,72 +28,6 @@ export interface GraphicProfileBundle {
   /** Informational references only; a profile is not a compliance claim. */
   readonly designReferences: readonly string[];
 }
-
-const allRoles: readonly SemanticRole[] = [
-  'SITE',
-  'SPACE_FILL',
-  'WALL_CUT',
-  'WALL_LAYER_STRUCTURE',
-  'WALL_LAYER_INSULATION',
-  'WALL_LAYER_FINISH',
-  'WALL_LAYER_OTHER',
-  'WALL_BELOW',
-  'OPENING',
-  'OPENING_REVEAL',
-  'NETWORK',
-  'WATER_COLD',
-  'WATER_HOT',
-  'WATER_RECIRCULATION',
-  'WATER_NON_POTABLE',
-  'VENT_SUPPLY',
-  'VENT_EXHAUST',
-  'VENT_TRANSFER',
-  'ELECTRICAL_POWER',
-  'ELECTRICAL_LIGHTING',
-  'ELECTRICAL_CONTROL',
-  'ELECTRICAL_PV',
-  'SYMBOL',
-  'ANNOTATION',
-  'DIMENSION',
-  'ANALYSIS',
-  'ANALYSIS_LOW',
-  'ANALYSIS_MEDIUM',
-  'ANALYSIS_HIGH',
-  'ANALYSIS_UNKNOWN',
-];
-
-const roleTokens: Readonly<Record<SemanticRole, string>> = {
-  SITE: 'site',
-  SPACE_FILL: 'space-fill',
-  WALL_CUT: 'wall-cut',
-  WALL_LAYER_STRUCTURE: 'wall-layer-structure',
-  WALL_LAYER_INSULATION: 'wall-layer-insulation',
-  WALL_LAYER_FINISH: 'wall-layer-finish',
-  WALL_LAYER_OTHER: 'wall-layer-other',
-  WALL_BELOW: 'wall-below',
-  OPENING: 'opening',
-  OPENING_REVEAL: 'opening-reveal',
-  NETWORK: 'network',
-  WATER_COLD: 'water-cold',
-  WATER_HOT: 'water-hot',
-  WATER_RECIRCULATION: 'water-recirculation',
-  WATER_NON_POTABLE: 'water-non-potable',
-  VENT_SUPPLY: 'vent-supply',
-  VENT_EXHAUST: 'vent-exhaust',
-  VENT_TRANSFER: 'vent-transfer',
-  ELECTRICAL_POWER: 'electrical-power',
-  ELECTRICAL_LIGHTING: 'electrical-lighting',
-  ELECTRICAL_CONTROL: 'electrical-control',
-  ELECTRICAL_PV: 'electrical-pv',
-  SYMBOL: 'symbol',
-  ANNOTATION: 'annotation',
-  DIMENSION: 'dimension',
-  ANALYSIS: 'analysis',
-  ANALYSIS_LOW: 'analysis-low',
-  ANALYSIS_MEDIUM: 'analysis-medium',
-  ANALYSIS_HIGH: 'analysis-high',
-  ANALYSIS_UNKNOWN: 'analysis-unknown',
-};
 
 const paperWidths = {
   ultraThin: 0.13,
@@ -288,6 +233,7 @@ function bundle(
   const id = `${locale}-technical-${suffix}`;
   const result: GraphicProfileBundle = {
     id,
+    family: `${locale}-technical`,
     version: '1.0.0',
     mode,
     profile: {
@@ -297,7 +243,7 @@ function bundle(
           ? `Technique FR initial — ${mode}`
           : `Generic technical — ${mode}`,
       locale: locale === 'fr' ? 'fr-FR' : 'und',
-      roleTokens,
+      roleTokens: DEFAULT_ROLE_TOKENS,
       ...(mode === 'SCREEN' ? { minimumScreenStrokePx: 1 } : {}),
       ...(locale === 'fr' ? { symbolOverrides: {} } : {}),
     },
@@ -314,17 +260,34 @@ function bundle(
 export function validateGraphicProfileBundle(
   bundle: GraphicProfileBundle,
 ): void {
-  if (bundle.id.trim() === '' || bundle.version.trim() === '')
+  if (
+    bundle.id.trim() === '' ||
+    bundle.family.trim() === '' ||
+    bundle.version.trim() === ''
+  )
     throw new TypeError(
-      'Graphic profile identity and version must not be empty.',
+      'Graphic profile identity, family and version must not be empty.',
     );
   if (bundle.profile.id !== bundle.id)
     throw new TypeError('Graphic bundle and profile IDs must match.');
-  for (const role of allRoles) {
+  for (const role of SEMANTIC_ROLES) {
     const token = bundle.profile.roleTokens[role];
     if (token === undefined || bundle.styles.tokens[token] === undefined)
       throw new RangeError(
         `Graphic profile has no style for semantic role ${role}.`,
+      );
+  }
+  // A specialisation nobody can draw is worse than no specialisation: the
+  // renderer would fail on the one bedroom that happened to carry a category,
+  // long after the profile was written.
+  for (const [index, rule] of (bundle.profile.styleRules ?? []).entries()) {
+    if (graphicStyleRuleSpecificity(rule.match) === 0)
+      throw new TypeError(
+        `Graphic style rule ${index} states no condition, so it would replace every role.`,
+      );
+    if (bundle.styles.tokens[rule.token] === undefined)
+      throw new RangeError(
+        `Graphic style rule ${index} has no style for token ${rule.token}.`,
       );
   }
   for (const [token, style] of Object.entries(bundle.styles.tokens)) {
@@ -360,12 +323,31 @@ function validateProfileStyle(token: string, style: SvgStyle): void {
     ) === true
   )
     throw new RangeError(`Graphic token ${token} has an invalid dash pattern.`);
+  if (
+    typeof style.fontWeight === 'number' &&
+    (!Number.isFinite(style.fontWeight) ||
+      style.fontWeight < 1 ||
+      style.fontWeight > 1_000)
+  )
+    throw new RangeError(`Graphic token ${token} has an invalid font weight.`);
+}
+
+/** A bundle stated elsewhere, checked before this version admits it exists. */
+function validated(entry: GraphicProfileBundle): GraphicProfileBundle {
+  validateGraphicProfileBundle(entry);
+  return entry;
 }
 
 export const GENERIC_TECHNICAL_SCREEN = bundle('generic', 'SCREEN');
 export const GENERIC_TECHNICAL_PRINT = bundle('generic', 'PRINT');
 export const FR_INITIAL_SCREEN = bundle('fr', 'SCREEN');
 export const FR_INITIAL_PRINT = bundle('fr', 'PRINT');
+export const ARCHITECTURAL_CLEAN_SCREEN = validated(
+  architecturalCleanBundle('SCREEN'),
+);
+export const ARCHITECTURAL_CLEAN_PRINT = validated(
+  architecturalCleanBundle('PRINT'),
+);
 
 /**
  * Every graphic profile this version ships.
@@ -380,6 +362,8 @@ export const GRAPHIC_PROFILE_REGISTRY: readonly GraphicProfileBundle[] = [
   GENERIC_TECHNICAL_PRINT,
   FR_INITIAL_SCREEN,
   FR_INITIAL_PRINT,
+  ARCHITECTURAL_CLEAN_SCREEN,
+  ARCHITECTURAL_CLEAN_PRINT,
 ];
 
 const PROFILES_BY_ID = new Map(
@@ -414,7 +398,6 @@ export function graphicProfileForMode(
   if (held === undefined) return undefined;
   if (held.mode === mode) return held;
   return GRAPHIC_PROFILE_REGISTRY.find(
-    (entry) =>
-      entry.mode === mode && entry.profile.locale === held.profile.locale,
+    (entry) => entry.mode === mode && entry.family === held.family,
   );
 }

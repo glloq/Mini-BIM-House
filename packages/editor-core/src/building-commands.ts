@@ -2,6 +2,7 @@ import type {
   ComponentCategory,
   ComponentInstance,
   Dimension,
+  DoorSwing,
   Level,
   NetworkNode,
   Opening,
@@ -31,6 +32,8 @@ import {
   isTextNote,
   textNoteId,
   validateTextNote,
+  isDoorHinge,
+  isDoorOpeningSide,
   isOpeningType,
   isSlabRole,
   isStairType,
@@ -1666,6 +1669,13 @@ export interface OpeningPatch {
    * of being set: the field existed on the opening and nothing wrote it.
    */
   readonly definitionId?: string | null;
+  /**
+   * Which way the door opens, against its host wall's own path.
+   *
+   * Only a door has one, and the swing every door had before it could be
+   * asked stays the default: a file written earlier opens unchanged.
+   */
+  readonly swing?: DoorSwing;
 }
 
 /**
@@ -1706,6 +1716,21 @@ export class UpdateOpeningCommand extends BuildingCommand {
       ...finitePositive(this.patch.widthMm, "La largeur de l'ouverture"),
       ...finitePositive(this.patch.heightMm, "La hauteur de l'ouverture"),
     ];
+    const swing = this.patch.swing;
+    if (swing !== undefined) {
+      if (!isDoorHinge(swing.hinge))
+        errors.push(`Gond inconnu : ${String(swing.hinge)}.`);
+      if (!isDoorOpeningSide(swing.opensTo))
+        errors.push(`Sens d'ouverture inconnu : ${String(swing.opensTo)}.`);
+      if ((this.patch.openingType ?? opening.openingType) !== 'DOOR')
+        errors.push("Seule une porte possède un sens d'ouverture.");
+      const angle = swing.openingAngleDeg;
+      if (
+        angle !== undefined &&
+        (!Number.isFinite(angle) || angle <= 0 || angle > 180)
+      )
+        errors.push("L'angle d'ouverture doit être compris entre 0 et 180°.");
+    }
     const sill = this.patch.sillHeightMm;
     if (sill !== undefined && (!Number.isFinite(sill) || sill < 0))
       errors.push("L'allège doit être un nombre fini positif ou nul.");

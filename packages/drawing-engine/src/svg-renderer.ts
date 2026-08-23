@@ -6,6 +6,7 @@ import type {
   ScenePrimitive,
   SemanticScene,
 } from './scene.js';
+import { resolveGraphicToken } from './style-resolver.js';
 
 export interface SvgStyle {
   readonly stroke?: string;
@@ -16,6 +17,23 @@ export interface SvgStyle {
   readonly opacity?: number;
   readonly fontFamily?: string;
   readonly fontSizePaperMm?: number;
+  /**
+   * The weight a label is set in.
+   *
+   * A room's name and its area are two levels of the same annotation, and a
+   * drawing that sets them in one weight has the reader work out which is
+   * which.
+   */
+  readonly fontWeight?: number | 'normal' | 'bold';
+  readonly textAnchor?: 'start' | 'middle' | 'end';
+  /**
+   * How a light line ends and turns.
+   *
+   * Mitred joins on a hairline symbol grow spikes at sharp angles; rounded
+   * ones do not. It is a property of the charter, so it is stated here.
+   */
+  readonly strokeLinecap?: 'butt' | 'round' | 'square';
+  readonly strokeLinejoin?: 'miter' | 'round' | 'bevel';
 }
 
 export interface SvgStyleCatalog {
@@ -110,7 +128,7 @@ function renderPrimitive(
   catalog: SvgStyleCatalog,
   options: SvgRenderOptions,
 ): string {
-  const token = profile.roleTokens[primitive.semanticRole];
+  const token = resolveGraphicToken(profile, primitive);
   if (token === undefined)
     throw new RangeError(
       `Graphic profile has no token for semantic role: ${primitive.semanticRole}`,
@@ -172,6 +190,12 @@ function svgStyle(style: SvgStyle, scale: number): string {
     style.strokeWidthPaperMm === undefined
       ? ''
       : `stroke-width:${number(style.strokeWidthPaperMm * scale)}`,
+    style.strokeLinecap === undefined
+      ? ''
+      : `stroke-linecap:${style.strokeLinecap}`,
+    style.strokeLinejoin === undefined
+      ? ''
+      : `stroke-linejoin:${style.strokeLinejoin}`,
     style.dashPaperMm === undefined
       ? ''
       : `stroke-dasharray:${style.dashPaperMm.map((value) => number(value * scale)).join(',')}`,
@@ -182,6 +206,10 @@ function svgStyle(style: SvgStyle, scale: number): string {
     style.fontSizePaperMm === undefined
       ? ''
       : `font-size:${number(style.fontSizePaperMm * scale)}`,
+    style.fontWeight === undefined
+      ? ''
+      : `font-weight:${typeof style.fontWeight === 'number' ? number(style.fontWeight) : style.fontWeight}`,
+    style.textAnchor === undefined ? '' : `text-anchor:${style.textAnchor}`,
   ].filter(Boolean);
   return declarations.length === 0 ? '' : `style="${declarations.join(';')}"`;
 }
@@ -208,6 +236,13 @@ function validateStyle(style: SvgStyle): void {
     ) === true
   )
     throw new RangeError('Dash lengths must be finite and positive.');
+  if (
+    typeof style.fontWeight === 'number' &&
+    (!Number.isFinite(style.fontWeight) ||
+      style.fontWeight < 1 ||
+      style.fontWeight > 1_000)
+  )
+    throw new RangeError('Font weight must be between one and one thousand.');
 }
 
 function points(

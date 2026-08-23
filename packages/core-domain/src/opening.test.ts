@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { assemblyId } from '@house-technical-designer/assemblies';
 import { entityId } from './ids.js';
 import {
+  DEFAULT_DOOR_SWING,
   calculateWallNetArea,
+  doorSwingOf,
   validateOpening,
   type Opening,
 } from './opening.js';
@@ -86,5 +88,83 @@ describe('hosted openings', () => {
         ]),
       }),
     );
+  });
+});
+
+describe('which way a door opens', () => {
+  const door: Opening = { ...opening, openingType: 'DOOR', sillHeightMm: 0 };
+
+  it('gives a door that says nothing the swing every door had', () => {
+    // A file written before a door could be asked opens unchanged.
+    expect(doorSwingOf(door)).toEqual({
+      hinge: 'START',
+      opensTo: 'RIGHT_OF_HOST',
+      openingAngleDeg: 90,
+    });
+    expect(DEFAULT_DOOR_SWING.hinge).toBe('START');
+  });
+
+  it('keeps a right angle when only the hinge and the side are stated', () => {
+    expect(
+      doorSwingOf({
+        ...door,
+        swing: { hinge: 'END', opensTo: 'LEFT_OF_HOST' },
+      }),
+    ).toEqual({ hinge: 'END', opensTo: 'LEFT_OF_HOST', openingAngleDeg: 90 });
+  });
+
+  it('refuses a swing it could not draw', () => {
+    expect(
+      validateOpening(
+        {
+          ...door,
+          swing: { hinge: 'MIDDLE' as never, opensTo: 'RIGHT_OF_HOST' },
+        },
+        wall,
+      ),
+    ).toContainEqual(expect.objectContaining({ code: 'INVALID_SWING' }));
+    expect(
+      validateOpening(
+        {
+          ...door,
+          swing: {
+            hinge: 'START',
+            opensTo: 'RIGHT_OF_HOST',
+            openingAngleDeg: 400,
+          },
+        },
+        wall,
+      ),
+    ).toContainEqual(
+      expect.objectContaining({ path: 'swing.openingAngleDeg' }),
+    );
+  });
+
+  it('refuses a swing on something that is not a door', () => {
+    // A window does not swing on a plan, and a hole in a wall does not either.
+    expect(
+      validateOpening(
+        { ...opening, swing: { hinge: 'START', opensTo: 'LEFT_OF_HOST' } },
+        wall,
+      ),
+    ).toContainEqual(
+      expect.objectContaining({ code: 'INVALID_SWING', path: 'swing' }),
+    );
+  });
+
+  it('accepts a door that states one', () => {
+    expect(
+      validateOpening(
+        {
+          ...door,
+          swing: {
+            hinge: 'END',
+            opensTo: 'LEFT_OF_HOST',
+            openingAngleDeg: 45,
+          },
+        },
+        wall,
+      ),
+    ).toEqual([]);
   });
 });

@@ -165,6 +165,38 @@ describe('element enums are checked at the command boundary', () => {
     ).toBe('REJECTED');
   });
 
+  it('refuses a swing it could not draw, and one on what does not swing', () => {
+    const dispatcher = new ProjectCommandDispatcher(project());
+    // The fixture's opening is a window, and a window does not swing.
+    expect(
+      dispatcher.dispatch(
+        new UpdateOpeningCommand('ground', 'opening', {
+          swing: { hinge: 'START', opensTo: 'RIGHT_OF_HOST' },
+        }),
+      ).status,
+    ).toBe('REJECTED');
+    expect(
+      dispatcher.dispatch(
+        new UpdateOpeningCommand('ground', 'opening', {
+          openingType: 'DOOR',
+          swing: { hinge: 'MIDDLE' as never, opensTo: 'RIGHT_OF_HOST' },
+        }),
+      ).status,
+    ).toBe('REJECTED');
+    expect(
+      dispatcher.dispatch(
+        new UpdateOpeningCommand('ground', 'opening', {
+          openingType: 'DOOR',
+          swing: {
+            hinge: 'END',
+            opensTo: 'LEFT_OF_HOST',
+            openingAngleDeg: 45,
+          },
+        }),
+      ).status,
+    ).toBe('APPLIED');
+  });
+
   it('reports a bad value on a wall or slab that already carries one', () => {
     const assembly = project().assemblies![0]!;
     expect(

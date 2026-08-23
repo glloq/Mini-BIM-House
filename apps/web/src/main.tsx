@@ -24,7 +24,6 @@ import type {
   ProjectSheet,
   SavedDrawingView,
 } from '@house-technical-designer/core-domain';
-import { GENERIC_TECHNICAL_SCREEN } from '@house-technical-designer/drawing-engine';
 import {
   designDomainLabel,
   domainOfDiscipline,
@@ -173,6 +172,11 @@ import {
   navigationFor,
   type ShellNavigation,
 } from './ux/navigation-state.js';
+import {
+  PLAN_RENDERINGS,
+  defaultPlanRendering,
+  planRendering,
+} from './ux/view-profiles.js';
 import { isEmptyTarget, type UiTarget } from './ux/ui-target.js';
 import {
   LEGACY_WORKSPACE_LABELS,
@@ -390,6 +394,19 @@ function App() {
   const [navigatorOpen, setNavigatorOpen] = useState(false);
   /** The trade the plan is being read through, in Systèmes. */
   const [activeDomain, setActiveDomain] = useState<DesignDomainId>();
+
+  /**
+   * Le rendu choisi pour le plan, quand quelqu’un en a choisi un.
+   *
+   * Sans choix, c’est l’espace de travail qui décide : on construit une maison
+   * en la regardant comme une maison, on pose une gaine en regardant le dessin
+   * technique. Le rendu dit comment dessiner ; ce qui est affiché reste
+   * l’affaire des calques.
+   */
+  const [renderingId, setRenderingId] = useState<string>();
+  const rendering =
+    (renderingId === undefined ? undefined : planRendering(renderingId)) ??
+    defaultPlanRendering(navigation.workspace);
 
   const [climate, setClimate] = useState<readonly ClimateDataset[]>([]);
   const [overlayId, setOverlayId] = useState<OverlayId>('none');
@@ -1335,7 +1352,9 @@ function App() {
         // many model millimetres one paper millimetre carries at this zoom.
         scaleDenominator: scaleDenominatorForZoom(editor.camera.pixelsPerMm),
         layers: editor.layers,
-        graphicProfileId: GENERIC_TECHNICAL_SCREEN.profile.id,
+        // La vue enregistrée garde le dessin sous lequel elle a été prise, et
+        // non celui que cette version tient pour normal.
+        graphicProfileId: rendering.graphicProfileId,
         centreMm: editor.camera.centerModelMm,
         ...(overlayId === 'none' ? {} : { analysisOverlayId: overlayId }),
       });
@@ -1348,6 +1367,7 @@ function App() {
       editor.camera.pixelsPerMm,
       editor.layers,
       overlayId,
+      rendering,
       runCommand,
     ],
   );
@@ -1713,6 +1733,19 @@ function App() {
         hint: 'Ce qui est dessiné',
         run: () =>
           dispatchEditor({ type: 'APPLY_PRESET', presetId: preset.id }),
+      })),
+      // « Comment dessiner » et « quoi afficher » sont deux axes : un plan
+      // d'architecte des réseaux et un plan technique des matériaux doivent
+      // rester deux combinaisons possibles.
+      ...PLAN_RENDERINGS.map((entry) => ({
+        id: `rendu:${entry.id}`,
+        label: entry.label,
+        group: 'Rendu du plan',
+        hint: entry.hint,
+        run: () => {
+          setTab('plan');
+          setRenderingId(entry.id);
+        },
       })),
       ...file.project.building.levels.map((level) => ({
         id: `niveau:${level.id}`,
@@ -2362,6 +2395,7 @@ function App() {
                 onAlign={alignSelection}
               />
               <PlanCanvas
+                graphicProfileId={rendering.graphicProfileId}
                 project={scenarioProject ?? file.project}
                 editor={{ ...editor, levelId: activeLevelId } as EditorState}
                 dispatch={dispatchEditor}
