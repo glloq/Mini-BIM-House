@@ -39,7 +39,9 @@ import {
   selectClimate,
 } from '@house-technical-designer/climate';
 import {
+  calculateSurfaceQuantities,
   calculateWallQuantities,
+  surfacesToCount,
   networkRunQuantities,
   placedEquipmentQuantities,
 } from '@house-technical-designer/quantities';
@@ -393,12 +395,26 @@ export function createProjectCalculationContext(
   const equipment = project.equipment ?? [];
   const placed = placedEquipment(project);
   const systems = project.systems ?? [];
-  const quantityResult = calculateWallQuantities(
+  // Walls and horizontal surfaces, together. The takeoff read the walls and
+  // nothing else: the ground slab, the intermediate floor and both roof planes
+  // — half of what a house is made of — never reached the cost or the carbon.
+  const walls = calculateWallQuantities(
     project.building.levels.flatMap((level) => [...level.walls]),
     project.building.levels.flatMap((level) => [...level.openings]),
     assemblies,
     materials,
   );
+  const surfaces = calculateSurfaceQuantities(
+    surfacesToCount(project),
+    assemblies,
+    materials,
+  );
+  const quantityResult: typeof walls = {
+    status:
+      walls.status === 'OK' && surfaces.status === 'OK' ? 'OK' : 'PARTIAL',
+    items: [...walls.items, ...surfaces.items],
+    warnings: [...walls.warnings, ...surfaces.warnings],
+  };
   const datasets =
     options.climate === undefined
       ? []

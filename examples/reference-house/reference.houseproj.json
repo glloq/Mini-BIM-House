@@ -512,7 +512,7 @@
               "type": "COMPONENT_INSTANCE",
               "levelId": "ground",
               "category": "VENTILATION",
-              "definitionId": "generic-balanced-ventilation-unit",
+              "definitionId": "generic-extract-ventilation-unit",
               "name": "Groupe VMC",
               "position": {
                 "x": 9500,
@@ -2836,17 +2836,17 @@
         }
       },
       {
-        "id": "generic-balanced-ventilation-unit",
-        "familyId": "BALANCED_VENTILATION_UNIT",
+        "id": "generic-extract-ventilation-unit",
+        "familyId": "EXTRACT_VENTILATION_UNIT",
         "kind": "VENTILATION_UNIT",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
-        "name": "VMC double flux avec échangeur",
+        "version": "1.2.0",
+        "name": "VMC simple flux hygroréglable",
         "category": "VENTILATION_UNIT",
         "dimensions": {
-          "widthMm": 600,
-          "depthMm": 600,
-          "heightMm": 500
+          "widthMm": 480,
+          "depthMm": 480,
+          "heightMm": 300
         },
         "allowedHosts": [
           "CEILING",
@@ -2864,6 +2864,7 @@
           "CONNECTABLE",
           "CLEARANCE_ZONED",
           "PLAN_DRAWN",
+          "PERFORMANCE_MAPPED",
           "CALCULATED"
         ],
         "ports": [
@@ -2871,8 +2872,8 @@
             "id": "extract",
             "portTypeId": "AIR_EXTRACT",
             "position": {
-              "x": -300,
-              "y": -150,
+              "x": -240,
+              "y": 0,
               "z": 0
             }
           },
@@ -2880,26 +2881,8 @@
             "id": "exhaust",
             "portTypeId": "AIR_EXHAUST",
             "position": {
-              "x": 300,
-              "y": -150,
-              "z": 0
-            }
-          },
-          {
-            "id": "intake",
-            "portTypeId": "AIR_OUTSIDE",
-            "position": {
-              "x": 300,
-              "y": 150,
-              "z": 0
-            }
-          },
-          {
-            "id": "supply",
-            "portTypeId": "AIR_SUPPLY",
-            "position": {
-              "x": -300,
-              "y": 150,
+              "x": 240,
+              "y": 0,
               "z": 0
             }
           },
@@ -2907,8 +2890,8 @@
             "id": "power",
             "portTypeId": "ELECTRICAL_AC",
             "position": {
-              "x": -300,
-              "y": -150,
+              "x": -240,
+              "y": 0,
               "z": 0
             }
           }
@@ -2916,19 +2899,19 @@
         "clearances": [
           {
             "zone": "MAINTENANCE",
-            "frontMm": 500,
+            "frontMm": 400,
             "belowMm": 400,
-            "reason": "Changement des filtres et de l’échangeur"
+            "reason": "Dépose du caisson et changement du moteur"
           },
           {
             "zone": "AIR_INTAKE",
-            "frontMm": 300,
-            "reason": "Prise d’air neuf"
+            "frontMm": 200,
+            "reason": "Reprise sur le réseau d’extraction"
           },
           {
             "zone": "AIR_EXHAUST",
             "aboveMm": 500,
-            "reason": "Rejet d’air vicié, à distance de la prise d’air neuf"
+            "reason": "Rejet en toiture, à distance de toute prise d’air"
           }
         ],
         "provenance": {
@@ -2947,11 +2930,6 @@
             "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
           },
           {
-            "property": "heatRecoveryEfficiency",
-            "sourceType": "GENERIC",
-            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-          },
-          {
             "property": "maximumStaticPressurePa",
             "sourceType": "GENERIC",
             "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -2960,11 +2938,46 @@
             "property": "systemType",
             "sourceType": "GENERIC",
             "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
-          },
+          }
+        ],
+        "performanceCurves": [
           {
-            "property": "bypassAvailable",
-            "sourceType": "GENERIC",
-            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+            "id": "pressure-vs-flow",
+            "inputAxes": [
+              {
+                "id": "flowM3h",
+                "unit": "m³/h"
+              }
+            ],
+            "output": "staticPressurePa",
+            "outputUnit": "Pa",
+            "interpolation": "LINEAR",
+            "points": [
+              {
+                "inputs": [
+                  0
+                ],
+                "output": 150
+              },
+              {
+                "inputs": [
+                  100
+                ],
+                "output": 120
+              },
+              {
+                "inputs": [
+                  200
+                ],
+                "output": 70
+              },
+              {
+                "inputs": [
+                  300
+                ],
+                "output": 0
+              }
+            ]
           }
         ],
         "rendering": {
@@ -2978,13 +2991,11 @@
           "layer": "ventilation.equipment"
         },
         "properties": {
-          "designFlowM3h": 250,
-          "nominalPowerW": 55,
-          "heatRecoveryEfficiency": 0.85,
-          "maximumStaticPressurePa": 200,
-          "systemType": "BALANCED",
-          "bypassAvailable": true,
-          "name": "VMC double flux avec échangeur"
+          "designFlowM3h": 150,
+          "nominalPowerW": 22,
+          "maximumStaticPressurePa": 150,
+          "systemType": "EXTRACT",
+          "name": "VMC simple flux hygroréglable"
         }
       },
       {
@@ -5227,7 +5238,7 @@
               "y": 500,
               "z": 2400
             },
-            "equipmentId": "generic-balanced-ventilation-unit",
+            "equipmentId": "generic-extract-ventilation-unit",
             "componentId": "component-vmc"
           },
           {
@@ -6384,7 +6395,7 @@
             "generic-radiator": 210,
             "generic-towel-radiator": 290,
             "generic-dhw-tank": 780,
-            "generic-balanced-ventilation-unit": 420,
+            "generic-extract-ventilation-unit": 340,
             "generic-air-terminal": 24,
             "generic-rainwater-tank": 1900,
             "generic-washbasin": 180,
@@ -6409,7 +6420,7 @@
             "generic-radiator": 95,
             "generic-towel-radiator": 110,
             "generic-dhw-tank": 340,
-            "generic-balanced-ventilation-unit": 260,
+            "generic-extract-ventilation-unit": 240,
             "generic-air-terminal": 18,
             "generic-rainwater-tank": 850,
             "generic-washbasin": 140,

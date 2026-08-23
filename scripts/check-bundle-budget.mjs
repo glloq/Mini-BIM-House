@@ -148,8 +148,14 @@ export const BUDGETS = {
    * reasons of the families that left service. A catalogue that only grows is
    * one nobody can correct; what a retirement costs is the sentence saying
    * where to go instead, and it is worth its bytes.
+   *
+   * And one more so the takeoff counts the floors and the roof. It read the
+   * walls and nothing else: the ground slab, the intermediate floor and both
+   * roof planes never reached the bill of materials, the cost total or the
+   * carbon total, and the total did not say it was missing half the building —
+   * it gave a figure.
    */
-  totalGzipBytes: 430 * 1024,
+  totalGzipBytes: 431 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

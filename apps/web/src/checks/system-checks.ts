@@ -308,8 +308,40 @@ function ventilationChecks(
     'VENTILATION_UNIT',
     'AHU',
   ]);
+  // What the group is, against what the drawing is. Both say it — the fiche in
+  // `systemType`, the network in its own — and nothing compared them: the
+  // house declared a double-flow unit while its drawing showed passive wall
+  // inlets and a single extract trunk, which is a simple-flux system. A
+  // balanced unit blows its supply air through ducts the house does not have.
+  const checks: CheckItem[] = [];
+  const drawn = new Set(
+    (project.systems ?? [])
+      .filter((system) => system.discipline === 'VENTILATION')
+      .flatMap((system) =>
+        typeof system.systemType === 'string' ? [system.systemType] : [],
+      ),
+  );
+  for (const one of fans) {
+    const stated = one.resolvedProperties['systemType'];
+    if (typeof stated !== 'string' || drawn.size === 0) continue;
+    if (drawn.has(stated)) continue;
+    checks.push({
+      id: `system:ventilation:type-mismatch:${one.instanceId}`,
+      status: 'FAIL',
+      source: 'CALCULATION',
+      title: 'Ventilation — le groupe posé n’est pas celui du réseau dessiné',
+      detail: `${label(one)} est un groupe ${stated} et le réseau est dessiné en ${[...drawn].join(', ')} : l'un souffle par des gaines que l'autre n'a pas.`,
+      fix: {
+        label: 'Voir sur le plan',
+        tab: 'plan',
+        objectIds: [one.instanceId],
+      },
+    });
+  }
+
   if (fans.length === 0)
     return [
+      ...checks,
       {
         id: 'system:ventilation:no-unit',
         status: 'UNKNOWN',
@@ -322,6 +354,7 @@ function ventilationChecks(
   const designFlow = summed(fans, 'designFlowM3h', 'nominalFlowM3h');
   if (designFlow === undefined)
     return [
+      ...checks,
       {
         id: 'system:ventilation:unit-flow-unknown',
         status: 'UNKNOWN',
@@ -331,8 +364,9 @@ function ventilationChecks(
         fix: { label: 'Ouvrir les équipements', tab: 'equipment' },
       },
     ];
-  if (designFlow >= extracted) return [];
+  if (designFlow >= extracted) return checks;
   return [
+    ...checks,
     {
       id: 'system:ventilation:unit-undersized',
       status: 'FAIL',

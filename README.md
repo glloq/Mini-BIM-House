@@ -815,6 +815,8 @@ Documents principaux :
 - [`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md) — état réel, chantier par chantier
 - [`docs/USER_GUIDE_MVP.md`](docs/USER_GUIDE_MVP.md) — parcours utilisateur
 - [`docs/PERFORMANCE_BASELINE.md`](docs/PERFORMANCE_BASELINE.md) — chiffres mesurés
+- [`docs/CONTRACT_GAPS.md`](docs/CONTRACT_GAPS.md) — ce que les contrats de données ne savent pas encore dire
+- [`docs/ENGINE_AUDIT.md`](docs/ENGINE_AUDIT.md) — ce que chaque moteur a été interrogé sur, et ce qu'il a répondu
 - [`docs/specifications/`](docs/specifications/)
 - [`docs/standards/`](docs/standards/)
 - [`docs/adr/`](docs/adr/)

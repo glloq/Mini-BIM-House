@@ -78,6 +78,52 @@ describe('bill of materials', () => {
     ).toBeUndefined();
   });
 
+  it('counts the floors and the roof, not only the walls', () => {
+    // The takeoff read the walls and nothing else. A house's ground slab, its
+    // intermediate floor and its two roof planes are half of what it is made
+    // of, and none of it reached the bill, the cost or the carbon — a total
+    // that silently omits half a building reads as complete and is not.
+    const project = demo();
+    const report = buildBom(project);
+    const counted = new Set(
+      report.lines.flatMap(({ sourceEntityIds }) => [...sourceEntityIds]),
+    );
+    const surfaces = project.building.levels.flatMap((level) => [
+      ...level.slabs.map(({ id }) => String(id)),
+      ...level.roofs.map(({ id }) => String(id)),
+    ]);
+    expect(surfaces.length).toBeGreaterThan(3);
+    for (const id of surfaces) expect(counted.has(id), id).toBe(true);
+    // And what they are made of is in the bill: the concrete of the slab, the
+    // joists of the floor, the glass wool of the roof.
+    const materials = new Set(report.lines.map(({ materialId }) => materialId));
+    for (const id of [
+      'generic-concrete',
+      'generic-softwood',
+      'generic-glass-wool',
+    ])
+      expect(materials.has(id), id).toBe(true);
+  });
+
+  it('leaves nothing of the building uncounted', () => {
+    // Asked of the model rather than of a list written here: the day a storey
+    // gains a kind of object nobody counted, this names it.
+    const project = demo();
+    const counted = new Set(
+      buildBom(project).lines.flatMap(({ sourceEntityIds }) => [
+        ...sourceEntityIds,
+      ]),
+    );
+    const uncounted = project.building.levels
+      .flatMap((level) => [
+        ...level.walls.map(({ id }) => String(id)),
+        ...level.slabs.map(({ id }) => String(id)),
+        ...level.roofs.map(({ id }) => String(id)),
+      ])
+      .filter((id) => !counted.has(id));
+    expect(uncounted).toEqual([]);
+  });
+
   it('exports a CSV whose unknown values stay empty', () => {
     const base = demo();
     const csv = bomToCsv(buildBom(base));

@@ -48,10 +48,13 @@ const HELD: readonly { readonly id: string; readonly why: string }[] = [
   { id: 'generic-towel-radiator', why: 'les émetteurs des salles d’eau' },
   // Eau chaude, ventilation, eaux pluviales : déjà là, mais sans identité.
   { id: 'generic-dhw-tank', why: 'l’eau chaude sanitaire' },
-  {
-    id: 'generic-balanced-ventilation-unit',
-    why: 'la ventilation double flux',
-  },
+  // Simple flux, parce que c'est ce que le réseau dessine : des bouches
+  // d'extraction, des entrées d'air en menuiserie qui ne sont raccordées à
+  // rien, et un transfert sous la porte du palier. Un groupe double flux
+  // souffle son air par des gaines, et la maison n'en a pas — les deux fiches
+  // disent leur `systemType`, personne ne les comparait, et la maison en
+  // déclarait un et en était l'autre.
+  { id: 'generic-extract-ventilation-unit', why: 'la ventilation simple flux' },
   { id: 'generic-air-terminal', why: 'les bouches' },
   { id: 'generic-rainwater-tank', why: 'la récupération' },
   // Sanitaires — la maison a une salle de bains et une cuisine.
@@ -161,7 +164,7 @@ const PRICES: Readonly<Record<string, number>> = {
   'generic-radiator': 210,
   'generic-towel-radiator': 290,
   'generic-dhw-tank': 780,
-  'generic-balanced-ventilation-unit': 420,
+  'generic-extract-ventilation-unit': 340,
   'generic-air-terminal': 24,
   'generic-rainwater-tank': 1900,
   'generic-washbasin': 180,
@@ -195,7 +198,7 @@ const LABOUR: Readonly<Record<string, number>> = {
   'generic-radiator': 95,
   'generic-towel-radiator': 110,
   'generic-dhw-tank': 340,
-  'generic-balanced-ventilation-unit': 260,
+  'generic-extract-ventilation-unit': 240,
   'generic-air-terminal': 18,
   'generic-rainwater-tank': 850,
   'generic-washbasin': 140,

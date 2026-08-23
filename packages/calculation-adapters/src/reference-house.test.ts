@@ -335,6 +335,63 @@ describe('PR-069 reference house', () => {
     expect(project.sheets?.[0]?.viewports.length).toBeGreaterThan(1);
   });
 
+  it('draws no run that leads nowhere and no network in two pieces', async () => {
+    // Three invariants nothing checked. A port a system declares and no run
+    // joins is a length of pipe somebody meant to draw; a port joined twice is
+    // a tee nobody modelled; and a network in two disconnected pieces computes
+    // both halves and reports one total. All three are silent: every module
+    // still returns a number.
+    const loaded = loadProjectJson(await readFile(fixturePath, 'utf8'));
+    expect(loaded.status).toBe('OK');
+    if (loaded.status !== 'OK') return;
+    for (const system of loaded.file.project.systems ?? []) {
+      const used = new Map<string, number>();
+      for (const edge of system.edges)
+        for (const port of [edge.fromPortId, edge.toPortId])
+          used.set(port, (used.get(port) ?? 0) + 1);
+      expect(
+        system.ports.filter(({ id }) => !used.has(id)).map(({ id }) => id),
+        `${system.id} : ports qu'aucun tronçon ne joint`,
+      ).toEqual([]);
+      expect(
+        [...used].filter(([, count]) => count > 1).map(([id]) => id),
+        `${system.id} : ports joints deux fois`,
+      ).toEqual([]);
+
+      // One piece. A node with no port at all is not a defect — a passive wall
+      // inlet and a door undercut are drawn and ducted to nothing — but a node
+      // that declares a port belongs to the run its ports are on.
+      const nodeOfPort = new Map(
+        system.ports.map((one) => [one.id, one.nodeId]),
+      );
+      const near = new Map<string, string[]>();
+      for (const edge of system.edges) {
+        const from = nodeOfPort.get(edge.fromPortId)!;
+        const to = nodeOfPort.get(edge.toPortId)!;
+        near.set(from, [...(near.get(from) ?? []), to]);
+        near.set(to, [...(near.get(to) ?? []), from]);
+      }
+      const ducted = system.nodes.filter(({ id }) =>
+        system.ports.some((one) => one.nodeId === id),
+      );
+      const seen = new Set<string>();
+      const queue = ducted[0] === undefined ? [] : [ducted[0].id];
+      for (const id of queue) seen.add(id);
+      while (queue.length > 0) {
+        const at = queue.shift()!;
+        for (const next of near.get(at) ?? [])
+          if (!seen.has(next)) {
+            seen.add(next);
+            queue.push(next);
+          }
+      }
+      expect(
+        ducted.filter(({ id }) => !seen.has(id)).map(({ id }) => id),
+        `${system.id} : réseau en deux morceaux`,
+      ).toEqual([]);
+    }
+  });
+
   it('runs every module on the reference house', async () => {
     const loaded = loadProjectJson(await readFile(fixturePath, 'utf8'));
     expect(loaded.status).toBe('OK');

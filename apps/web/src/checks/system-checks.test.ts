@@ -264,6 +264,35 @@ describe('what the house needs against what is standing in it', () => {
     expect(unit.detail).toContain('60');
   });
 
+  it('says when the group posed is not the system drawn', async () => {
+    const project = demo();
+    // The reference house is drawn in simple flux — passive wall inlets, one
+    // extract trunk — and holds the group that matches. Nothing is said.
+    expect(idsOf(await checksOf(project))).not.toContain(
+      'system:ventilation:type-mismatch:component-vmc',
+    );
+    // A balanced unit blows its supply air through ducts this house does not
+    // have. Both say what they are and nothing compared them: the fixture
+    // declared one and was built as the other for as long as it existed.
+    const balanced = {
+      ...project,
+      equipment: (project.equipment ?? []).map((entry) =>
+        equipmentKindOf(entry) === 'VENTILATION_UNIT'
+          ? {
+              ...entry,
+              properties: { ...entry.properties, systemType: 'BALANCED' },
+            }
+          : entry,
+      ),
+    };
+    const mismatch = (await checksOf(balanced)).find(({ id }) =>
+      id.startsWith('system:ventilation:type-mismatch:'),
+    )!;
+    expect(mismatch.status).toBe('FAIL');
+    expect(mismatch.detail).toContain('BALANCED');
+    expect(mismatch.detail).toContain('EXTRACT');
+  });
+
   it('says which circuit would trip, and stays quiet when none would', async () => {
     const project = demo();
     expect(idsOf(await checksOf(project))).not.toContain(

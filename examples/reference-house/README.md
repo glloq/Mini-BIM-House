@@ -18,7 +18,8 @@ continuent de réussir en n'ayant rien à vérifier. Elle décrit donc :
 - **un terrain** avec ses limites, un arbre et une maison voisine, tous deux de
   hauteur connue, donc capables de porter une ombre ;
 - **trente et un objets posés** tirés du catalogue — pompe à chaleur, ballon
-  tampon, circulateur, cinq radiateurs, groupe de ventilation double flux,
+  tampon, circulateur, cinq radiateurs, deux sèche-serviettes, groupe de
+  ventilation simple flux hygroréglable — celui que son réseau dessine,
   ballon d'eau chaude, cinq appareils sanitaires, tableau, disjoncteur, prises,
   luminaires, champ photovoltaïque, onduleur, batterie — chacun posé quelque
   part et non seulement catalogué : trois radiateurs et un seul ne sont pas la
