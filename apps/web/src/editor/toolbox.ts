@@ -2041,6 +2041,26 @@ export function activeEntryId(
   return best?.id;
 }
 
+/**
+ * De quoi prendre l'outil composant avec une fiche déjà choisie.
+ *
+ * Les entrées nomment une famille et laissent `draftsForEntry` trouver la
+ * fiche ; celui qui vient de choisir dans la nomenclature tient déjà la
+ * fiche — il n'a pas de famille à résoudre, il a une réponse. Les clés sont
+ * fabriquées ici parce que c'est ici qu'on sait comment elles s'écrivent.
+ */
+export function componentDrafts(
+  definitionId: string,
+  category: string,
+): ToolDrafts {
+  const tool = toolById('COMPONENT');
+  if (tool === undefined) return {};
+  return {
+    [keyFor(tool, 'category')]: category,
+    [keyFor(tool, 'definitionId')]: definitionId,
+  };
+}
+
 function keyFor(tool: EditorToolDefinition, option: string): string {
   const declared = (tool.options ?? []).find(({ key }) => key === option);
   return draftKey(tool.id, option, declared?.scope === 'SHARED');

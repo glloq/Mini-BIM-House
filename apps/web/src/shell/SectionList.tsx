@@ -57,6 +57,17 @@ export interface SectionListProps {
     readonly id: string;
     readonly domain?: DesignDomainId;
   }) => void;
+  /**
+   * Le reste du métier, quand la sous-partie pose des équipements.
+   *
+   * Une sous-partie nomme trois à huit choses ; la nomenclature en tient
+   * quarante par métier. Le bouton n'est pas une entrée de plus — il ne pose
+   * rien par lui-même — c'est la porte vers celles qu'on n'a pas nommées.
+   */
+  readonly onBrowseFamilies: (section: {
+    readonly label: string;
+    readonly domain?: DesignDomainId;
+  }) => void;
 }
 
 /**
@@ -83,6 +94,7 @@ export function SectionList({
   drafts,
   onChooseEntry,
   onOpenSection,
+  onBrowseFamilies,
 }: SectionListProps) {
   const sections = toolboxFor(project, stage, undefined, design);
   if (sections.length === 0) return null;
@@ -92,22 +104,47 @@ export function SectionList({
     ? section
     : sections[0]?.id;
 
+  /*
+   * Une sous-partie qui pose des équipements en pose bien plus qu'elle n'en
+   * nomme : c'est la seule à qui la porte de la nomenclature veut dire
+   * quelque chose. Un mur ne se choisit pas dans un catalogue d'appareils.
+   */
+  const equips = (held: ToolboxSection) =>
+    held.entries.some(({ toolId }) => toolId === 'COMPONENT');
+
   const entries = (held: ToolboxSection) => (
-    <div className="add-grid">
-      {ordered(held, design).map((available) => (
-        <EntryButton
-          key={available.entry.id}
-          available={available}
-          active={isEntryActive(
-            project,
-            available.entry,
-            editor.activeTool,
-            drafts,
-          )}
-          onChoose={onChooseEntry}
-        />
-      ))}
-    </div>
+    <>
+      <div className="add-grid">
+        {ordered(held, design).map((available) => (
+          <EntryButton
+            key={available.entry.id}
+            available={available}
+            active={isEntryActive(
+              project,
+              available.entry,
+              editor.activeTool,
+              drafts,
+            )}
+            onChoose={onChooseEntry}
+          />
+        ))}
+      </div>
+      {equips(held) && (
+        <button
+          type="button"
+          className="section-more"
+          title={`Tout ce que la nomenclature tient en ${held.label.toLowerCase()}`}
+          onClick={() =>
+            onBrowseFamilies({
+              label: held.label,
+              ...(held.domain === undefined ? {} : { domain: held.domain }),
+            })
+          }
+        >
+          Autre…
+        </button>
+      )}
+    </>
   );
 
   if (only !== undefined)

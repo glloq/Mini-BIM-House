@@ -23,6 +23,17 @@ export interface CatalogBrowserProps {
   >;
   readonly known: Parameters<typeof catalogFamilyView>[2];
   readonly onAdd: (summary: CatalogSummary) => void;
+  /**
+   * Le filtre de départ, quand on l'ouvre depuis un endroit qui sait lequel.
+   *
+   * Cinq cents familles à plat sont une liste qu'on ne lit pas ; les
+   * quarante-six de l'électricité sont un catalogue. Ouvert depuis la
+   * sous-partie « Électricité », le métier est déjà su, et le redemander
+   * serait faire recommencer un choix déjà fait.
+   */
+  readonly openOn?: CatalogFilter;
+  /** Ce que le bouton d'une fiche dit qu'il fait : ajouter, ou poser. */
+  readonly placeLabel?: string;
 }
 
 const AXIS_LABELS: Readonly<Record<string, string>> = {
@@ -70,8 +81,14 @@ export function CatalogBrowser({
   summariesByFamily,
   known,
   onAdd,
+  openOn,
+  placeLabel,
 }: CatalogBrowserProps) {
-  const [filter, setFilter] = useState<CatalogFilter>({});
+  // Le filtre de départ n'est qu'un départ : il peuple l'état, il ne le
+  // verrouille pas. Élargir la recherche reste un clic.
+  const [filter, setFilter] = useState<CatalogFilter>(
+    openOn === undefined ? {} : { ...openOn, withGenericData: true },
+  );
   const [openId, setOpenId] = useState<string | undefined>(undefined);
   const rows = useMemo(
     () => catalogRows(summariesByFamily, known, filter),
@@ -265,7 +282,7 @@ export function CatalogBrowser({
                             onAdd(entry);
                           }}
                         >
-                          Ajouter au projet
+                          {placeLabel ?? 'Ajouter au projet'}
                         </button>
                       </li>
                     ))}

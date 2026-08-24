@@ -22,6 +22,7 @@ import {
   SetScenarioOverrideCommand,
 } from '@house-technical-designer/editor-core';
 import type {
+  DesignDomainId,
   ProjectSheet,
   SavedDrawingView,
 } from '@house-technical-designer/core-domain';
@@ -206,6 +207,7 @@ import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import { surfaceIds } from './editor/polygon-surface.js';
 import {
+  componentDrafts,
   draftsForEntry,
   ficheOfFamily,
   type ToolboxEntry,
@@ -310,6 +312,16 @@ const DisplayPanel = lazy(async () => ({
 const ProjectCreationPage = lazy(async () => ({
   default: (await import('./project-creation/ProjectCreationPage.js'))
     .ProjectCreationPage,
+}));
+/*
+ * La nomenclature entière, chargée au moment où on la demande.
+ *
+ * Elle pèse soixante-treize kio et sert à qui veut poser autre chose que les
+ * soixante-dix-neuf familles nommées : un plan qui s'ouvre n'a pas à la
+ * porter.
+ */
+const FamilyPicker = lazy(async () => ({
+  default: (await import('./library/FamilyPicker.js')).FamilyPicker,
 }));
 
 /**
@@ -445,6 +457,15 @@ function App() {
   /** The property someone was sent to look at, when they were sent to one. */
   const [inspectedProperty, setInspectedProperty] = useState<string>();
   /** Whether what is drawn is being chosen right now. */
+  /*
+   * La sous-partie dont on est en train de lire la nomenclature.
+   *
+   * Une sous-partie nomme trois à huit familles ; le métier en tient quarante.
+   * « Autre… » ouvre les autres, filtrées sur ce métier-là.
+   */
+  const [browsing, setBrowsing] = useState<
+    { readonly label: string; readonly domain?: DesignDomainId } | undefined
+  >(undefined);
   const [displayOpen, setDisplayOpen] = useState(false);
   /*
    * Où poser le panneau d'affichage : relu sur son bouton, jamais mémorisé.
@@ -2481,6 +2502,7 @@ function App() {
                 onOpenSection={(section) =>
                   setNavigation((current) => goToSection(current, section))
                 }
+                onBrowseFamilies={setBrowsing}
               />
               <details className="project-tree-fold">
                 <summary>Éléments du projet</summary>
@@ -2984,6 +3006,38 @@ function App() {
       }
       overlays={
         <>
+          {/*
+           * Le reste du métier, ouvert depuis la sous-partie qui le sert.
+           *
+           * Poser un mitigeur demandait six gestes : quitter le plan, ouvrir
+           * « Équipements », chercher, ajouter au projet, revenir, reprendre
+           * l'outil composant, retrouver la fiche dans une liste. Il en
+           * demande deux.
+           */}
+          {browsing !== undefined && (
+            <Suspense fallback={null}>
+              <FamilyPicker
+                project={file.project}
+                title={browsing.label}
+                {...(browsing.domain === undefined
+                  ? {}
+                  : { domain: browsing.domain })}
+                onCommand={runCommand}
+                onMessage={setMessage}
+                onClose={() => setBrowsing(undefined)}
+                onPlace={(equipmentId, category) => {
+                  dispatchEditor({ type: 'SET_TOOL', tool: 'COMPONENT' });
+                  setToolDrafts((current) => ({
+                    ...current,
+                    ...componentDrafts(equipmentId, category),
+                  }));
+                  setMessage(
+                    'Fiche prête : cliquez sur le plan pour la poser.',
+                  );
+                }}
+              />
+            </Suspense>
+          )}
           {exportFailure !== undefined && (
             <section className="panel recovery-prompt" role="alertdialog">
               <p>

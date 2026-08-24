@@ -183,8 +183,16 @@ export const BUDGETS = {
    * répond à « je fais une maison à deux étages », qui est une phrase qu'on
    * dit **en** dessinant, et qui demandait jusqu'ici de quitter le plan pour
    * empiler des niveaux à la main puis de tout retracer.
+   *
+   * Et un avec la porte vers la nomenclature. La boîte à outils nomme
+   * soixante-dix-neuf familles ; trois cent quatre-vingts se posent, dont deux
+   * cent soixante-six ont déjà une fiche. « Autre… » ouvre les autres, filtrées
+   * sur le métier de la sous-partie, et le choix installe la fiche **et** prend
+   * l'outil avec elle. Ce qui arrive au premier écran est le bouton et sa
+   * règle de style : le sélecteur, lui, est chargé quand on l'ouvre — c'est
+   * toute la nomenclature, et un plan qui s'ouvre n'a pas à la porter.
    */
-  initialGzipBytes: 293 * 1024,
+  initialGzipBytes: 294 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -303,8 +311,12 @@ export const BUDGETS = {
    * ses entrées avec le même `EntryButton` — ce qu'il coûte, c'est un
    * composant et une grille. La colonne de gauche montre enfin ce qu'on peut
    * poser plutôt que ce qui est déjà posé, et l'étage courant reste à un clic.
+   *
+   * Et deux avec le sélecteur de famille, chargés à l'ouverture et jamais
+   * avant. Ils remplacent six gestes par deux pour deux cent soixante-six
+   * familles : c'est le meilleur rapport de tout ce tableau.
    */
-  totalGzipBytes: 473 * 1024,
+  totalGzipBytes: 476 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */
