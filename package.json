@@ -35,6 +35,7 @@
     "validate:docs": "node scripts/validation-report.mjs --check",
     "docs:screenshots": "node scripts/capture-screenshots.mjs",
     "measure:shell": "node scripts/measure-shell.mjs",
+    "audit:layout": "node scripts/audit-layout.mjs",
     "test:coverage": "vitest run --coverage",
     "catalog:starter": "vite-node scripts/starter-library.ts",
     "reference:equipment": "vite-node scripts/reference-house-equipment.ts",

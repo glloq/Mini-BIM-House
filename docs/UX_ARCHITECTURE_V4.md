@@ -1179,6 +1179,39 @@ la barre d'état et son métier devenu la rangée des sous-parties. Quatre rang�
 sont devenues trois : **116 px**, contre 153 avant la V4 et 306 avant la
 refonte.
 
+### 14.1 Ce qui est dans le document sans être sur l'écran
+
+`measure-shell.mjs` répond de la coque **au repos** : sa hauteur, sa part de
+plan, son débordement de page. Il visite un écran — la maison chargée, l'onglet
+Bâtiment — et sept espaces, treize destinations, une trentaine de sous-parties
+et deux cent quarante entrées font bien plus d'un écran.
+
+`scripts/audit-layout.mjs` (`npm run audit:layout`) les visite tous, à cinq
+tailles de fenêtre, ouvre chaque entrée, chaque menu, chaque dépliage de
+l'inspecteur, et cherche deux défauts qu'un œil pardonne parce qu'il ne les
+voit pas :
+
+- **coupé** — l'élément sort d'un cadre qui le rogne et aucun cadre intérieur
+  ne défile pour le rattraper : il est dans le document, il n'est nulle part
+  sur l'écran ;
+- **hors écran** — il est entièrement hors de la fenêtre et rien ne défile pour
+  l'y ramener.
+
+Le premier passage en a trouvé **deux cent trente-deux**, tous ramenés à quatre
+causes :
+
+| Cause                                                   | Ce qui disparaissait                                                             |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| La case du plan rogne, et ne défile pas                 | Tout ce qui dépasse d'un écran de document : vérifications, feuilles, projet     |
+| Le minimum appartenait au dessin                        | Ce qui est posé sur son bord bas quand la case devient plus courte que le dessin |
+| L'inspecteur prenait la moitié de l'écran               | Le plan tombait de 597 px à 255 sous 1 050 px de large                           |
+| « Affichage » avait la taille d'un bouton de formulaire | Son propre haut, rogné de dix pixels                                             |
+
+Vingt minutes de parcours : c'est un audit, pas une porte.
+`apps/web/src/ux/reachable-layout.test.ts` reprend les quatre règles qui en
+sortent et les tient en une seconde — une feuille de style se relit mal, et une
+règle qui disparaît ne se voit pas.
+
 La seconde ligne d'options ne pousse rien : elle **flotte** sur la marge haute
 du dessin, et seuls ses contrôles répondent au pointeur. Une rangée qui pousse
 le plan en apparaissant le fait changer de taille, la caméra se remet à

@@ -312,10 +312,21 @@ const ProjectCreationPage = lazy(async () => ({
     .ProjectCreationPage,
 }));
 
-/** One workspace panel, with what to show while its code is still arriving. */
+/**
+ * One workspace panel, with what to show while its code is still arriving.
+ *
+ * `is-document` : un écran de document **défile**, le plan non.
+ *
+ * Les deux vivent dans la même case de la grille, et cette case rogne ce qui
+ * en sort — c'est ce qui empêche le dessin d'allonger la page. Les tableaux et
+ * les formulaires, eux, sont plus hauts qu'elle : les vérifications, la table
+ * des feuilles, l'écran du projet perdaient tout ce qui passait la ligne de
+ * flottaison, sans barre de défilement pour aller le chercher. Un audit de
+ * mise en page en comptait deux cent trente.
+ */
 function LazyWorkspace({ children }: { readonly children: ReactNode }) {
   return (
-    <section className="canvas-panel panel">
+    <section className="canvas-panel panel is-document">
       <Suspense
         fallback={<p className="notice">Chargement de l’espace de travail…</p>}
       >
@@ -435,6 +446,16 @@ function App() {
   const [inspectedProperty, setInspectedProperty] = useState<string>();
   /** Whether what is drawn is being chosen right now. */
   const [displayOpen, setDisplayOpen] = useState(false);
+  /*
+   * Où poser le panneau d'affichage : relu sur son bouton, jamais mémorisé.
+   *
+   * Il vivait `absolute` sous le bouton, donc dans la case du plan, et cette
+   * case rogne ce qui en sort. Un écran de 768 px avec un objet désigné donne
+   * 334 px au plan : les vingt calques du panneau tombaient dehors.
+   */
+  const [displayAt, setDisplayAt] = useState<
+    { readonly top: number; readonly right: number } | undefined
+  >(undefined);
   /** Whether the model tree is open; it is secondary, behind « ☰ Modèle ». */
   /** The trade the plan is being read through, in Systèmes. */
   /*
@@ -2642,7 +2663,18 @@ function App() {
                         className="secondary"
                         aria-expanded={displayOpen}
                         aria-haspopup="dialog"
-                        onClick={() => setDisplayOpen((open) => !open)}
+                        onClick={(event) => {
+                          // Relevé sur le bouton lui-même, à chaque ouverture :
+                          // le panneau est posé en `fixed`, hors de la case du
+                          // plan qui rognait ses derniers calques.
+                          const at =
+                            event.currentTarget.getBoundingClientRect();
+                          setDisplayAt({
+                            top: at.bottom + 6,
+                            right: Math.max(6, window.innerWidth - at.right),
+                          });
+                          setDisplayOpen((open) => !open);
+                        }}
                       >
                         Affichage
                         {hiddenLayers > 0 && (
@@ -2659,6 +2691,9 @@ function App() {
                             renderingId={rendering.id}
                             onRendering={setRenderingId}
                             onClose={() => setDisplayOpen(false)}
+                            {...(displayAt === undefined
+                              ? {}
+                              : { at: displayAt })}
                           />
                         </Suspense>
                       )}
