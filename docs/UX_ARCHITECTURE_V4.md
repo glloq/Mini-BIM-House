@@ -1212,6 +1212,41 @@ Vingt minutes de parcours : c'est un audit, pas une porte.
 sortent et les tient en une seconde — une feuille de style se relit mal, et une
 règle qui disparaît ne se voit pas.
 
+### 14.2 Ce qu'on peut ajouter, et ce qu'on ne peut pas
+
+`entry-placement.test.ts` répond « chaque entrée pose-t-elle vraiment ce qu'elle
+annonce ». C'est la moitié de la question ; l'autre est « qu'est-ce qui
+manque ». `scripts/audit-entries.ts` (`npm run audit:entries`) la pose : il
+dresse le tableau des entrées espace par espace — leur outil, leur famille, ce
+qu'elles valent devant un projet neuf et devant la maison de démonstration, ce
+qu'elles laissent derrière elles — puis compte l'écart avec la nomenclature.
+
+Au premier passage : **157 entrées nommant 79 familles**, contre **380 familles
+posables**, dont 266 avaient déjà une fiche générique. Les trois cents autres
+étaient atteignables — la bibliothèque les tient toutes — mais y arriver
+demandait six gestes : quitter le plan, ouvrir « Équipements », chercher,
+ajouter au projet, revenir, reprendre l'outil composant, retrouver la fiche
+dans une liste déroulante.
+
+Deux réponses, et non une :
+
+- **soixante-treize entrées nommées de plus** — la porte-fenêtre, la baie
+  vitrée, le variateur, la sortie de cuisson, la VMC double flux, la fosse
+  toutes eaux, le puits d'infiltration, l'onduleur hybride. Ce sont celles
+  qu'on retape à la main dans une maison ordinaire. Le compte des familles
+  nommées passe à **148** ;
+- **une porte vers le reste**, `FamilyPicker` : « Autre… », en bas de chaque
+  sous-partie qui pose des équipements, ouvre la nomenclature **déjà filtrée
+  sur le métier de cette sous-partie**, et le choix d'une famille installe sa
+  fiche _et_ prend l'outil avec elle. Il reste un clic sur le plan, comme pour
+  n'importe quel bouton nommé.
+
+Trois cents boutons de plus auraient été le mur de boutons que la boîte à
+outils a démonté. Ce qui reste hors des deux réponses n'est pas un oubli : les
+coudes, les tés et les vannes appartiennent à une **conduite** — on les pose en
+traçant, pas en cliquant — et les trente-cinq types de menuiserie demandent
+qu'une ouverture porte une fiche, ce que le modèle ne sait pas encore.
+
 La seconde ligne d'options ne pousse rien : elle **flotte** sur la marge haute
 du dessin, et seuls ses contrôles répondent au pointeur. Une rangée qui pousse
 le plan en apparaissant le fait changer de taille, la caméra se remet à

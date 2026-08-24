@@ -34,7 +34,7 @@ import {
 } from '../apps/web/src/editor/toolbox.js';
 import {
   CREATION_STAGES,
-  type CreationStageId,
+  creationStage,
 } from '../apps/web/src/ux/creation-stages.js';
 import { designStateOf } from '../apps/web/src/ux/design-state.js';
 import type { ObjectKind } from '../apps/web/src/editor/object-editors.js';
@@ -70,12 +70,10 @@ const entries = allToolboxEntries();
 
 if (!gapsOnly) {
   for (const stage of CREATION_STAGES) {
-    // Le registre des étapes est déclaré `as const` sans être typé : son `id`
-    // arrive donc en `string`, et le nommer ici vaut mieux qu'un cast muet.
-    const sections = sectionsOfStage(stage.id as CreationStageId);
+    const sections = sectionsOfStage(stage);
     if (sections.length === 0) continue;
     console.log('');
-    console.log(`## ${stage.label}`);
+    console.log(`## ${creationStage(stage).label}`);
     for (const section of sections) {
       console.log('');
       console.log(`### ${section.label}`);

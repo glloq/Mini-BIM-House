@@ -191,8 +191,17 @@ export const BUDGETS = {
    * l'outil avec elle. Ce qui arrive au premier écran est le bouton et sa
    * règle de style : le sélecteur, lui, est chargé quand on l'ouvre — c'est
    * toute la nomenclature, et un plan qui s'ouvre n'a pas à la porter.
+   *
+   * Et deux avec soixante-treize entrées nommées de plus — la porte-fenêtre,
+   * la baie vitrée, le variateur, la sortie de cuisson, la VMC double flux, la
+   * fosse toutes eaux, le puits d'infiltration, l'onduleur hybride. Le nombre
+   * de familles qu'un bouton nomme passe de soixante-dix-neuf à cent
+   * quarante-huit. Ce sont des données, pas du code : chaque entrée est une
+   * ligne de registre, et `entry-placement.test.ts` les pose toutes pour de
+   * bon. Deux kio pour soixante-treize gestes qui demandaient d'ouvrir la
+   * nomenclature.
    */
-  initialGzipBytes: 294 * 1024,
+  initialGzipBytes: 296 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -315,8 +324,11 @@ export const BUDGETS = {
    * Et deux avec le sélecteur de famille, chargés à l'ouverture et jamais
    * avant. Ils remplacent six gestes par deux pour deux cent soixante-six
    * familles : c'est le meilleur rapport de tout ce tableau.
+   *
+   * Et un avec les soixante-treize entrées nommées, comptées au chargement
+   * initial ci-dessus : le registre vit dans le premier écran.
    */
-  totalGzipBytes: 476 * 1024,
+  totalGzipBytes: 478 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */
