@@ -51,15 +51,14 @@ que le modèle n'a qu'un niveau.
 ```text
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │ PROJET │ TERRAIN │ BÂTIMENT │ AMÉNAGEMENT │ SYSTÈMES │ ÉTUDES │ DOCUMENTS │  │
-├──────────────────────────────────────────────────────────────────────────────┤
-│ sous-parties de l'onglet courant                                             │
-├──────────────────────────────────────────────────────────────────────────────┤
-│ outils de la sous-partie          ·         paramètres de l'outil actif      │
-├──────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│                              PLAN DE TRAVAIL                                 │
-│                                                                              │
-├──────────────────────────────────────────────────────────────────────────────┤
+├───────────────────┬──────────────────────────────────────────────────────────┤
+│ ▾ Murs            │ [↖] [Mur]        ·      paramètres de l'outil actif       │
+│   [Mur] [Continu] ├──────────────────────────────────────────────────────────┤
+│   [Rectangle]     │                                                          │
+│ ▸ Ouvertures      │                     PLAN DE TRAVAIL                      │
+│ ▸ Pièces          │                                                          │
+│ ▸ Dalles          │                                                          │
+├───────────────────┴──────────────────────────────────────────────────────────┤
 │ RDC │ grille 10 cm │ snap ● │ ortho ● │ cotes Auto │ 1:50 │ x 4,20 y 2,80 m  │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -107,39 +106,68 @@ inatteignable**, et un test le refuse.
 
 ---
 
-## 2. Le header du plan
+## 2. Le sommaire des sous-parties, et le header du plan
 
-Trois zones, deux lignes, et la seconde n'existe que si quelque chose l'occupe.
+Les sous-parties sont un **sommaire dépliable dans la colonne de gauche**, et
+ce qu'elles posent est dessous. Le header, lui, ne garde que le minimum.
 
 ```text
-BÂTIMENT › MURS     [↖] [Mur] [Continu] [Rectangle] [Cloison] [+]     300 mm · Extérieur
-────────────────────────────────────────────────────────────────────────────────────────
-Assemblage [Ossature bois ▼]   Référence [Face intérieure ▼]   Hauteur [2500 mm]
+┌─────────────────────┐   [↖] [Mur] [+]              300 mm · Extérieur
+│ ▾ Murs              │  ───────────────────────────────────────────────
+│   [Mur]  [Continu]  │  Assemblage [Ossature bois ▼]  Hauteur [2500 mm]
+│   [Rectangle]       │
+│   [Cloison]         │                 PLAN DE TRAVAIL
+│ ▸ Ouvertures        │
+│ ▸ Pièces         2  │
+│ ▸ Dalles            │
+└─────────────────────┘
 ```
 
-- **À gauche** : où l'on est. `ONGLET › SOUS-PARTIE`, et rien d'autre.
-- **Au centre** : de trois à huit boutons. Le premier est toujours `↖`
-  (Sélection). Le dernier est toujours `+`, qui contient le reste.
-- **À droite** : le résumé des paramètres de l'outil actif, en lecture seule.
-  Vide quand aucun outil n'est actif.
-- **Seconde ligne** : les paramètres eux-mêmes, éditables. **Elle n'apparaît
-  que si un outil est actif et qu'il a des options.** Elle disparaît avec lui.
+**Le sommaire** — `SectionList` :
 
-Le compte de trois à huit n'est pas une préférence : c'est ce qu'on balaie d'un
-regard sans lire. Un header qui en demande neuf a une sous-partie de trop.
+- une ligne par sous-partie de l'onglet courant, dépliable ;
+- **une seule ouverte** : l'ouvrir referme la précédente, parce que
+  `navigation.sections` ne retient qu'une sous-partie par espace et que le
+  dépliage n'en est que le reflet ;
+- l'ouverte montre ce qu'elle pose, recommandées d'abord, inertes en dernier ;
+- le nombre à droite d'un métier est ce qu'il a **déjà de tracé**, jamais son
+  nombre d'outils : « rien à voir » et « rien de tracé » sont deux réponses
+  différentes, et c'est la seconde qu'on cherche. Il est hors du nom
+  accessible — sans quoi « Eau » s'appellerait « Eau 2 » et changerait de nom
+  quand le projet change.
 
-### 2.1 Le `+` n'est pas une poubelle
+**Le header** — `ToolHeader` :
 
-Ce qui va dans `+` : les outils de la même sous-partie dont on se sert une fois
-par projet, les variantes rares d'un outil déjà présent, et les opérations de
-retouche (`Décaler`, `Joindre`, `Ajuster`, `Scinder`) qui appartiennent à
-plusieurs sous-parties à la fois.
+- **la Sélection**, qui est l'état de repos et où l'on revient sans arrêt ;
+- **l'outil en cours**, parce qu'un plan qui dessine sans dire avec quoi est un
+  plan qui surprend ;
+- **`+`**, qui tient les gestes communs — mesurer, coter, annoter ;
+- **à droite** : ce que la sélection accepte de prendre, et ce que le plan
+  montre ;
+- **seconde ligne** : les paramètres de l'outil actif, éditables. **Elle
+  n'apparaît que si un outil est actif et qu'il a des options.**
 
-Ce qui n'y va **jamais** : un outil qu'aucun autre header ne propose. Le `+`
-range, il ne cache pas. La recherche et la palette continuent d'atteindre les
-vingt-cinq outils du registre depuis n'importe où.
+### 2.1 Pourquoi le header ne propose plus ce que la sous-partie pose
 
-### 2.2 L'inspecteur n'est pas un panneau
+Il le proposait, et la colonne aussi : « Mur » en haut, « Mur » à gauche, le
+même registre montré à deux endroits. L'un des deux était toujours celui qu'on
+n'avait pas visé, et sur les sous-parties fournies la rangée débordait.
+
+Ce qu'on pose se choisit donc **là où on le lit**, dans le sommaire. Ce qui
+reste dans le header est ce qui n'a pas d'autre place : l'état de repos,
+l'outil en cours, et les gestes qui ne sont d'aucune sous-partie.
+
+### 2.2 Le `+` n'est pas une poubelle
+
+Ce qui va dans `+` : les gestes communs à toutes les sous-parties — mesurer,
+coter, annoter, et les retouches (`Décaler`, `Joindre`, `Ajuster`, `Scinder`).
+
+Ce qui n'y va **jamais** : les outils d'une autre sous-partie — ils sont à un
+dépliage, dans le sommaire — ni ceux d'un autre espace : les sept espaces sont
+séparés. Le `+` range, il ne cache pas. La recherche et la palette continuent
+d'atteindre les vingt-cinq outils du registre depuis n'importe où.
+
+### 2.3 L'inspecteur n'est pas un panneau
 
 Il n'y a pas de colonne de propriétés permanente. L'inspecteur apparaît à
 droite **quand un objet est sélectionné**, et disparaît au clic dans le vide.
@@ -957,11 +985,14 @@ tenaient pas encore.
 
 #### UI-FINAL-1 — ce qu'on peut poser, avant ce qui est posé
 
-`AddPanel` appelle `toolboxFor(project, stage, domain, design)` et choisit la
+Le panneau appelle `toolboxFor(project, stage, domain, design)` et choisit la
 sous-partie active : le **même** appel que le header, jamais une seconde liste.
 `EntryButton` est le dessin commun des deux. L'arborescence reste atteignable
 sous « Éléments du projet » ; la rangée des niveaux, elle, est restée au-dessus
 — l'étage courant n'est pas un contenu qu'on range, c'est où va ce qu'on trace.
+
+Il est depuis devenu `SectionList` : le panneau et la rangée des sous-parties
+ont fusionné en un sommaire dépliable — voir « Un seul sommaire » plus bas.
 
 #### UI-FINAL-2 — une surface se ferme, un chemin se termine
 
@@ -1037,15 +1068,15 @@ dans l'arborescence, un chemin de scénario, et elle se rebouche.
 
 Les sept espaces étaient cohérents, et chacun était incomplet ou perméable.
 
-| Lot                     | Ce qu'il fait                                                                                                             |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| **Séparation**          | Le « + » tient les autres sous-parties de **cet** espace, et plus les six autres. La recherche reste le chemin vers tout. |
-| **Aides du plan**       | `planAids` par espace : dégagements en Aménagement et Systèmes, analyse en Études, nord et calque en Terrain.             |
-| **Surfaces visibles**   | Lavis du terrain, aire écrite dessus, et ce qu'on vient de fermer est désigné avec ses poignées.                          |
-| **Nord sur le plan**    | Une rose en bas à droite, dans l'espace du terrain.                                                                       |
-| **Aménagement complet** | Une entrée reste et **installe** la fiche qu'elle pose ; le catalogue arrive au clic.                                     |
-| **Étages**              | Un réglage sous la rangée des niveaux : chaque étage ajouté reprend le rez-de-chaussée.                                   |
-| **Calque de papier**    | Une image sous le dessin, calée en mètres, jamais sélectionnable.                                                         |
+| Lot                     | Ce qu'il fait                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Séparation**          | Le « + » ne verse plus les outils des six autres espaces. La recherche reste le chemin vers tout.             |
+| **Aides du plan**       | `planAids` par espace : dégagements en Aménagement et Systèmes, analyse en Études, nord et calque en Terrain. |
+| **Surfaces visibles**   | Lavis du terrain, aire écrite dessus, et ce qu'on vient de fermer est désigné avec ses poignées.              |
+| **Nord sur le plan**    | Une rose en bas à droite, dans l'espace du terrain.                                                           |
+| **Aménagement complet** | Une entrée reste et **installe** la fiche qu'elle pose ; le catalogue arrive au clic.                         |
+| **Étages**              | Un réglage sous la rangée des niveaux : chaque étage ajouté reprend le rez-de-chaussée.                       |
+| **Calque de papier**    | Une image sous le dessin, calée en mètres, jamais sélectionnable.                                             |
 
 Quatre défauts trouvés en corrigeant ceux-là : l'outil composant ne disait à
 quoi il fixait ce qu'il posait — donc aucune fiche nommant un support ne
@@ -1053,6 +1084,67 @@ pouvait être posée ; « Trémie » nommait deux gestes ; les réglages
 d'accrochage étaient rognés par la barre d'état qui défile ; et un bouton posé
 sur le plan ne recevait pas ses clics, parce que la surface de dessin capture
 le pointeur.
+
+### Un seul sommaire, et un espace qui ne touche que ce qu'il dessine
+
+Quatre défauts de forme restaient, tous du même genre : l'écran proposait deux
+fois la même chose, ou proposait ce qu'on ne pouvait pas faire.
+
+| Lot                | Ce qu'il fait                                                                                                           |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| **Sommaire**       | Les sous-parties passent de la rangée au-dessus du plan à une liste dépliable dans la colonne, avec ce qu'elles posent. |
+| **Header minimal** | Il ne garde que la Sélection, l'outil en cours et les gestes communs — le reste était le doublon du sommaire.           |
+| **Audit de pose**  | Les deux cent quarante entrées sont **exécutées** en test : ce qu'elles posent, elles le posent vraiment.               |
+| **Portée**         | Un espace ne peut désigner que ce qu'il sait poser : plus de parcelle déplacée depuis Bâtiment.                         |
+
+#### Le sommaire — `SectionList`
+
+Les sous-parties étaient une rangée au-dessus du plan et ce qu'elles posaient
+un panneau séparé à gauche : deux endroits pour une seule idée, avec les mêmes
+boutons aux deux places. On cliquait « Murs » en haut, on lisait « Ajouter ·
+Murs » à gauche, et le même « Mur » se trouvait aux deux endroits — l'un des
+deux étant toujours celui qu'on n'avait pas visé.
+
+Un seul sommaire, dans la colonne, où l'ouverte montre ce qu'elle sait poser.
+Rien n'y est mémorisé : `navigation.sections` retient laquelle est ouverte, et
+le dépliage n'en est que le reflet. Une seule sous-partie ? Elle s'ouvre sans
+son sommaire — il n'y a rien à choisir.
+
+#### L'audit de pose — `entry-placement.ts`
+
+Deux cent quarante boutons ne disent pas lesquels marchent. On les essayait un
+par un, à la main, et on n'en essayait pas deux cent quarante.
+
+`placeEntry(file, levelId, entry, aim)` rejoue **exactement** ce que fait
+l'application quand on prend une entrée et qu'on clique : les options que
+l'entrée pré-remplit, la même fabrique de commande, le même répartiteur. Le
+test les prend toutes ; une entrée que le modèle rend inerte doit **dire
+pourquoi**, une entrée active doit poser sans refus et **changer quelque
+chose** — une commande acceptée qui ne change rien est un bouton qui ne fait
+rien. `entry-kinds.ts` déclare ce que chaque outil laisse derrière lui, et le
+même test l'empêche de mentir.
+
+Vingt et une entrées refusaient tout ce qu'on leur demandait depuis des
+semaines : les prises et les interrupteurs, qui veulent un mur ; les puits et
+les bornes, qui veulent le terrain ; les gouttières et les panneaux, qui
+veulent une toiture. `hostUnder` ne lisait pas `allowedHosts` de la fiche. Il
+le lit : le support visé s'il convient, sinon le mur le plus proche **quand la
+fiche nomme le mur**, sinon la toiture sous le point, sinon la dalle. Trouvés
+au passage : les tracés de réseau actifs pour des métiers sans réseau, la
+réunion de deux pièces refusée dès que l'une était meublée, et deux entrées
+nommées « Trémie » pour deux gestes différents.
+
+#### La portée d'un espace — `space-scope.ts`
+
+Le terrain reste dessiné sous la maison quand on dessine la maison, et c'est
+voulu : on trace des murs _par rapport_ à la limite de propriété. Mais un clic
+un peu large sur ce fond déplaçait la parcelle en croyant viser un mur.
+
+Ce qu'un espace peut **désigner** est donc ce qu'il sait **poser** :
+`selectableKinds(stage)` se dérive de `sectionsOfStage` et de `entryCreates`,
+sans seconde liste à tenir à jour. Les cotes et les annotations passent
+partout — elles ne sont d'aucun métier. Projet, Études et Documents ne posent
+rien et ne filtrent rien : on y lit la maison entière.
 
 #### UI-FINAL-5 — ce que les parcours figent
 
@@ -1070,14 +1162,14 @@ Un seuil qu'on ne mesure pas n'est pas un seuil. `scripts/measure-shell.mjs`
 vérifie déjà les quatre premiers ; les deux derniers demandent un compteur
 nouveau.
 
-| Seuil                                              | Cible        | Aujourd'hui              |
-| -------------------------------------------------- | ------------ | ------------------------ |
-| Chrome vertical hors plan, au repos, en 1024 × 768 | **≤ 146 px** | **116 px**               |
-| Chrome vertical avec la seconde ligne d'outils     | **≤ 182 px** | **116 px** — elle flotte |
-| Plan visible, en 1024 × 768                        | **≥ 60 %**   | 58 %                     |
-| Boutons visibles dans le header d'outils           | **3 à 8**    | 5 à 8 ; 2 en colonne     |
-| Clics pour le premier mur d'un projet neuf         | **≤ 3**      | 3                        |
-| Clics pour changer de sous-partie                  | **1**        | 1                        |
+| Seuil                                              | Cible        | Aujourd'hui                  |
+| -------------------------------------------------- | ------------ | ---------------------------- |
+| Chrome vertical hors plan, au repos, en 1024 × 768 | **≤ 146 px** | **116 px**                   |
+| Chrome vertical avec la seconde ligne d'outils     | **≤ 182 px** | **116 px** — elle flotte     |
+| Plan visible, en 1024 × 768                        | **≥ 60 %**   | 58 %                         |
+| Boutons visibles dans le header d'outils           | **3 à 8**    | 2 à 3 ; le reste au sommaire |
+| Clics pour le premier mur d'un projet neuf         | **≤ 3**      | 3                            |
+| Clics pour changer de sous-partie                  | **1**        | 1                            |
 
 Les 146 px se décomposaient : navigation 42, sous-parties 34, outils 42, barre
 d'état 28. Ce qui les a financés n'est pas ce qu'on croyait : ce sont les deux

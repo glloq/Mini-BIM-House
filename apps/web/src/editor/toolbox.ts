@@ -27,6 +27,7 @@ import type {
   DesignDomainId,
   Project,
 } from '@house-technical-designer/core-domain';
+import { domainOfDiscipline } from '@house-technical-designer/core-domain';
 
 import type { CreationStageId } from '../ux/creation-stages.js';
 import type { DesignState } from '../ux/design-state.js';
@@ -84,6 +85,18 @@ export interface ToolboxEntry {
   /** Mise en avant : c'est la suite normale du travail. */
   readonly recommendedWhen?: DesignPredicate;
   readonly requires?: ToolboxRequirement;
+  /**
+   * Le métier de la sous-partie qui la porte.
+   *
+   * Estampillé à la lecture plutôt qu'écrit deux cent quarante fois : la
+   * section le déclare déjà, et une entrée qui l'ignorerait obligerait chaque
+   * écran à remonter la hiérarchie pour le retrouver.
+   *
+   * Il sert à répondre « quel réseau ? » : prendre « Tracer un tronçon » dans
+   * la ventilation choisissait le premier réseau du projet, c'est-à-dire
+   * l'eau, et le refus parlait ensuite de ports déjà reliés.
+   */
+  readonly domain?: DesignDomainId;
 }
 
 /** Ce que l'entrée vaut ici et maintenant. */
@@ -150,10 +163,20 @@ const HAS_CONTOUR: EntryNeeds = {
     entryId: 'building.wall',
   },
 };
-const HAS_NETWORK: EntryNeeds = {
-  enabledWhen: (state) => state.networkCount > 0,
-  requires: { reason: 'Créez d’abord un réseau dans « Réseaux ».' },
-};
+/**
+ * Un réseau **de ce métier-là**, et pas n'importe lequel.
+ *
+ * « Un réseau existe » activait « Tracer un tronçon » dans les douze
+ * disciplines : le bouton de la ventilation était vif sur un projet qui n'a
+ * qu'un réseau d'eau, on cliquait, et le refus parlait de ports libres. Ce
+ * qu'on veut savoir est si ce métier a de quoi tracer.
+ */
+const hasNetworkOf = (domain: DesignDomainId): EntryNeeds => ({
+  enabledWhen: (state) => state.networkDomains.includes(domain),
+  requires: {
+    reason: 'Créez d’abord un réseau de ce métier dans « Réseaux ».',
+  },
+});
 
 /** Poser une fiche du catalogue : l'outil composant, sa catégorie, sa famille. */
 const place = (
@@ -1007,7 +1030,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('PLUMBING'),
         ),
       ],
     },
@@ -1025,7 +1048,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('WASTEWATER'),
         ),
         entry(
           'waste.branch',
@@ -1036,7 +1059,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('WASTEWATER'),
         ),
         entry(
           'waste.node',
@@ -1047,7 +1070,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('WASTEWATER'),
         ),
         place(
           'waste.trap',
@@ -1105,7 +1128,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('RAINWATER'),
         ),
         place(
           'rain.gutter',
@@ -1179,7 +1202,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('HEATING'),
         ),
         place(
           'heating.manifold',
@@ -1229,7 +1252,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('VENTILATION'),
         ),
         place(
           'air.supply',
@@ -1295,7 +1318,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('ELECTRICAL'),
         ),
         place(
           'power.box',
@@ -1345,7 +1368,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('LIGHTING'),
         ),
         place(
           'light.downlight',
@@ -1387,7 +1410,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('FLUE'),
         ),
         entry(
           'flue.node',
@@ -1398,7 +1421,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('FLUE'),
         ),
         place(
           'flue.stove',
@@ -1448,7 +1471,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('DATA'),
         ),
         entry(
           'data.node',
@@ -1459,7 +1482,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('DATA'),
         ),
         place(
           'data.rack',
@@ -1502,7 +1525,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('SAFETY'),
         ),
         entry(
           'safety.route',
@@ -1513,7 +1536,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('SAFETY'),
         ),
         place(
           'safety.smoke',
@@ -1586,7 +1609,7 @@ const STAGE_SECTIONS: Readonly<
 
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('SOLAR'),
         ),
         place(
           'energy.combiner',
@@ -1643,7 +1666,7 @@ const STAGE_SECTIONS: Readonly<
           'CABLE',
           undefined,
           undefined,
-          HAS_NETWORK,
+          hasNetworkOf('STORAGE'),
         ),
       ],
     },
@@ -1749,14 +1772,30 @@ export const COMMON_SECTION: ToolboxSection = {
 export function sectionsOfStage(
   stage: CreationStageId,
 ): readonly ToolboxSection[] {
-  return STAGE_SECTIONS[stage];
+  return STAGE_SECTIONS[stage].map(stamped);
+}
+
+/**
+ * La section, ses entrées portant son métier.
+ *
+ * Écrire le métier sur chaque entrée serait l'écrire deux cent quarante fois ;
+ * le laisser sur la section seule obligerait chaque écran à remonter la
+ * hiérarchie pour savoir de quel réseau on parle.
+ */
+function stamped(section: ToolboxSection): ToolboxSection {
+  if (section.domain === undefined) return section;
+  const domain = section.domain;
+  return {
+    ...section,
+    entries: section.entries.map((entry) => ({ domain, ...entry })),
+  };
 }
 
 /** Toutes les entrées déclarées, communes comprises. */
 export function allToolboxEntries(): readonly ToolboxEntry[] {
   return [
     ...Object.values(STAGE_SECTIONS).flatMap((sections) =>
-      sections.flatMap((section) => section.entries),
+      sections.map(stamped).flatMap((section) => section.entries),
     ),
     ...COMMON_SECTION.entries,
   ];
@@ -1923,7 +1962,32 @@ export function draftsForEntry(
     const fiche = ficheOfFamily(project, candidate.family);
     if (fiche !== undefined) drafts[keyFor(tool, 'definitionId')] = fiche;
   }
+  /*
+   * Et le réseau de son métier, quand l'outil en demande un.
+   *
+   * Même mécanique que la fiche : l'entrée nomme un **métier**, jamais un
+   * identifiant de réseau, et c'est le projet qui répond. Sans cela, prendre
+   * « Tracer un tronçon » dans la ventilation choisissait le premier réseau du
+   * projet — l'eau — et le refus parlait de ports déjà reliés.
+   */
+  if (
+    candidate.domain !== undefined &&
+    (tool.options ?? []).some(({ key }) => key === 'networkId')
+  ) {
+    const network = networkOfDomain(project, candidate.domain);
+    if (network !== undefined) drafts[keyFor(tool, 'networkId')] = network;
+  }
   return drafts;
+}
+
+/** Le réseau que ce métier a, quand il en a un. */
+export function networkOfDomain(
+  project: Project,
+  domain: DesignDomainId,
+): string | undefined {
+  return (project.systems ?? []).find(
+    (network) => domainOfDiscipline(network.discipline) === domain,
+  )?.id;
 }
 
 /**

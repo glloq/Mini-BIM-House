@@ -17,7 +17,11 @@
  * n'ait, il ne s'écrit nulle part, et il se recalcule plutôt que de se tenir à
  * jour.
  */
-import type { Project } from '@house-technical-designer/core-domain';
+import type {
+  DesignDomainId,
+  Project,
+} from '@house-technical-designer/core-domain';
+import { domainOfDiscipline } from '@house-technical-designer/core-domain';
 import { detectRooms } from '@house-technical-designer/editor-core';
 
 /** Un contour fermé par les murs, et ce qu'il enferme. */
@@ -53,6 +57,15 @@ export interface DesignState {
   readonly pvModuleCount: number;
   /** Les réseaux du projet, qui n'appartiennent à aucun niveau. */
   readonly networkCount: number;
+  /**
+   * Les métiers qui ont **leur** réseau, et pas seulement un réseau.
+   *
+   * « Un réseau existe » suffisait à activer « Tracer un tronçon » dans les
+   * douze disciplines : le bouton de la ventilation était vif sur un projet
+   * qui n'a qu'un réseau d'eau, on cliquait, et le refus parlait de ports.
+   * Ce qu'on veut savoir est si **ce** métier a de quoi tracer.
+   */
+  readonly networkDomains: readonly DesignDomainId[];
 }
 
 /** L'état d'un projet vide : tout à zéro, et aucun cas particulier ailleurs. */
@@ -73,6 +86,7 @@ export const EMPTY_DESIGN_STATE: DesignState = {
   distributionBoardCount: 0,
   pvModuleCount: 0,
   networkCount: 0,
+  networkDomains: [],
 };
 
 /**
@@ -88,6 +102,22 @@ function componentsOf(
   return (level.components ?? []).filter(
     (component) => component.category === category,
   ).length;
+}
+
+/**
+ * Les métiers dont le projet tient un réseau.
+ *
+ * Le pont entre les deux vocabulaires — ce qu'un tronçon transporte, et le
+ * métier sous lequel un dessin est classé — est écrit une fois dans le
+ * domaine ; on le lit, on ne le refait pas.
+ */
+function networkDomainsOf(project: Project): readonly DesignDomainId[] {
+  const domains = new Set<DesignDomainId>();
+  for (const network of project.systems ?? []) {
+    const domain = domainOfDiscipline(network.discipline);
+    if (domain !== undefined) domains.add(domain);
+  }
+  return [...domains];
 }
 
 /**
@@ -108,6 +138,7 @@ export function designStateOf(
     return {
       ...EMPTY_DESIGN_STATE,
       networkCount: (project.systems ?? []).length,
+      networkDomains: networkDomainsOf(project),
     };
 
   const contours: readonly ClosedContour[] = detectRooms(project, level.id).map(
@@ -143,5 +174,6 @@ export function designStateOf(
     distributionBoardCount: componentsOf(level, 'ELECTRICAL'),
     pvModuleCount: componentsOf(level, 'PHOTOVOLTAIC'),
     networkCount: (project.systems ?? []).length,
+    networkDomains: networkDomainsOf(project),
   };
 }

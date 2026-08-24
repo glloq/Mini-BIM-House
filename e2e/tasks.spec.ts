@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { loadDemoProject } from './support/file-menu.js';
 import { openDestination, openStage } from './support/navigation.js';
-import { openSection, revealAllTools } from './support/tools.js';
+import { openSection, revealAllTools, toolButton } from './support/tools.js';
 import { openDisplayPanel, closeDisplayPanel } from './support/panels.js';
 
 /**
@@ -74,14 +74,16 @@ test('T1 — un projet neuf, quatre murs, une porte, une fenêtre, une pièce', 
   await countClicks(page);
   await page.goto('/');
   const canvas = page.locator('.plan-canvas');
-  const toolbox = page.locator('.tool-header');
+  // Les outils vivent dans le sommaire de la colonne ; la rangée au-dessus du
+  // plan ne garde que la Sélection, l'outil en cours et les gestes communs.
+  const toolbox = page.locator('#workspace-sidebar, .tool-header');
 
   // Trois clics pour le premier mur d'un projet neuf : l'outil, puis ses deux
   // points. L'étape Bâtiment le met sous la main sans qu'on ait à le chercher,
   // et il en fallait cinq — le seuil du §13.3 est trois.
   const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
   const beforeFirst = await clicksSoFar(page);
-  await toolbox.getByRole('button', { name: 'Mur', exact: true }).click();
+  await toolButton(page, 'Mur').click();
   await canvas.click({ position: { x: 80, y: 80 } });
   await canvas.click({ position: { x: 320, y: 80 } });
   await expect(walls).toHaveCount(1);
@@ -133,7 +135,9 @@ test('T2 — de l’architecture à l’électricité, une prise et un circuit',
   await openStage(page, 'Systèmes');
   await openSection(page, 'Électricité');
 
-  const toolbox = page.locator('.tool-header');
+  // Les outils vivent dans le sommaire de la colonne ; la rangée au-dessus du
+  // plan ne garde que la Sélection, l'outil en cours et les gestes communs.
+  const toolbox = page.locator('#workspace-sidebar, .tool-header');
   await toolbox.getByRole('button', { name: 'Prise', exact: true }).click();
   // L'entrée a rempli la fiche : c'est ce qu'elle promet en portant ce nom.
   await expect(page.getByLabel('Modèle catalogue')).toHaveValue(
@@ -262,7 +266,9 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
    * la personne comprend ce qui manque, et si elle peut y aller de là.
    */
   await page.goto('/');
-  const toolbox = page.locator('.tool-header');
+  // Les outils vivent dans le sommaire de la colonne ; la rangée au-dessus du
+  // plan ne garde que la Sélection, l'outil en cours et les gestes communs.
+  const toolbox = page.locator('#workspace-sidebar, .tool-header');
   await openSection(page, 'Ouvertures');
   const door = toolbox.getByRole('button', { name: 'Porte', exact: true });
 
@@ -275,9 +281,9 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
   // bouton qu'on annonce inerte et qui agit ment à qui l'écoute.
   await door.click();
   await openSection(page, 'Murs');
-  await expect(
-    toolbox.getByRole('button', { name: 'Mur', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
+  // Le sommaire **et** la rangée le montrent pris : c'est le même bouton
+  // montré aux deux endroits d'où l'on peut le prendre.
+  await expect(toolButton(page, 'Mur')).toHaveAttribute('aria-pressed', 'true');
 
   // Un mur tracé, et la porte n'a plus rien à expliquer.
   const canvas = page.locator('.plan-canvas');
@@ -339,7 +345,9 @@ test('T8 — un contour fermé dit sa surface, et propose d’en faire une pièc
    */
   await page.goto('/');
   const canvas = page.locator('.plan-canvas');
-  const toolbox = page.locator('.tool-header');
+  // Les outils vivent dans le sommaire de la colonne ; la rangée au-dessus du
+  // plan ne garde que la Sélection, l'outil en cours et les gestes communs.
+  const toolbox = page.locator('#workspace-sidebar, .tool-header');
 
   await toolbox
     .getByRole('button', { name: 'Murs rectangle', exact: true })

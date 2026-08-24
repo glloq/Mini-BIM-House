@@ -14,12 +14,7 @@ import {
   openLayerEditor,
   openModelTree,
 } from './support/panels.js';
-import {
-  chooseTool,
-  openSection,
-  revealAllTools,
-  toolButton,
-} from './support/tools.js';
+import { chooseTool, openSection, toolButton } from './support/tools.js';
 
 /**
  * Console errors are a failure, not noise: a blank page caused by an unhandled
@@ -320,11 +315,19 @@ test('keyboard shortcuts drive the tools', async ({ page }) => {
   await page.locator('.plan-canvas').click({ position: { x: 5, y: 5 } });
   await page.keyboard.press('w');
   await expect(toolButton(page, 'Mur')).toHaveAttribute('aria-pressed', 'true');
-  // Et le panneau « Ajouter » le dit aussi : c'est le même registre, montré
-  // deux fois, jamais deux registres.
+  // Et le sommaire de la colonne le dit aussi : c'est le même registre, montré
+  // aux deux endroits où l'on peut le prendre, jamais deux registres.
   await expect(
     page
-      .getByLabel(/^Ajouter · /u)
+      .getByRole('navigation', { name: 'Sous-parties' })
+      .getByRole('button', { name: 'Mur', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  // La rangée au-dessus du plan ne propose plus ce que la sous-partie pose,
+  // mais elle montre toujours l'outil en cours : un plan qui dessine sans
+  // dire avec quoi est un plan qui surprend.
+  await expect(
+    page
+      .locator('.tool-header')
       .getByRole('button', { name: 'Mur', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Escape');
@@ -1742,23 +1745,27 @@ test('shows nothing above the plan until something is being done', async ({
   await expect(bar).toHaveClass(/is-empty/u);
   await expect(bar.getByRole('button')).toHaveCount(0);
 
-  // Les outils vivent dans le panneau de contexte, une sous-partie à la fois :
-  // ce que Bâtiment › Murs met sous la main, et non les vingt-cinq du
-  // registre ni les quatre sous-parties empilées.
-  const tools = page.locator('.tool-header');
-  await expect(
-    tools.getByRole('group', { name: 'Outils · Murs' }),
-  ).toBeVisible();
-  await expect(
-    tools.getByRole('group', { name: 'Outils · Ouvertures' }),
-  ).toHaveCount(0);
-  // Et elles sont à un clic, dans la rangée sous les sept espaces.
+  // Les outils vivent dans le sommaire de la colonne, une sous-partie à la
+  // fois : ce que Bâtiment › Murs met sous la main, et non les vingt-cinq du
+  // registre ni les quatre sous-parties dépliées ensemble.
+  const tools = page.locator('#workspace-sidebar, .tool-header');
   const parts = page.getByRole('navigation', { name: 'Sous-parties' });
-  await parts.getByRole('button', { name: 'Ouvertures', exact: true }).click();
   await expect(
-    tools.getByRole('group', { name: 'Outils · Ouvertures' }),
+    parts.getByRole('button', { name: 'Mur', exact: true }),
   ).toBeVisible();
-  await parts.getByRole('button', { name: 'Murs', exact: true }).click();
+  await expect(
+    parts.getByRole('button', { name: 'Porte', exact: true }),
+  ).toBeHidden();
+  // Et les autres sont à un dépliage, dans la même colonne : ouvrir l'une
+  // referme la précédente, parce qu'on ne travaille qu'à un endroit.
+  await openSection(page, 'Ouvertures');
+  await expect(
+    parts.getByRole('button', { name: 'Porte', exact: true }),
+  ).toBeVisible();
+  await expect(
+    parts.getByRole('button', { name: 'Mur', exact: true }),
+  ).toBeHidden();
+  await openSection(page, 'Murs');
   await chooseTool(page, 'Mur');
   await expect(bar).toContainText('Mur');
   // What the tool lets one decide before drawing sits under the tool itself,
@@ -1790,14 +1797,15 @@ test('shows nothing above the plan until something is being done', async ({
   const more = tools.locator('.tool-more > summary');
   await expect(more).toBeVisible();
   await more.click();
-  // Le dépliage ne verse plus les six autres espaces : il tient les autres
-  // sous-parties de celui-ci, et les outils communs.
+  // Le dépliage ne tient plus que les gestes communs — mesurer, coter,
+  // annoter — qui ne sont d'aucune sous-partie et servent dans toutes.
   await expect(tools.getByText(/^Communs/u)).toBeVisible();
-  // Et l'espace du bâtiment tient ses propres sous-parties, sans emprunter à
-  // celui du terrain ni à celui des systèmes.
+  // Il ne redouble plus le sommaire de la colonne : ce que la sous-partie
+  // pose se prend là où on le lit, à un seul endroit.
   await expect(
     tools.getByRole('region', { name: 'Outils · Ouvertures' }),
-  ).toBeVisible();
+  ).toHaveCount(0);
+  // Et l'espace du bâtiment n'emprunte rien à celui du terrain.
   await expect(
     tools.getByRole('button', { name: 'Parcelle', exact: true }),
   ).toHaveCount(0);
@@ -2218,10 +2226,7 @@ test('reads the same plan through one discipline at a time', async ({
   // sous-partie *est* une discipline, et deux endroits pour une décision sont
   // un endroit de trop.
   const parts = page.getByRole('navigation', { name: 'Sous-parties' });
-  const power = parts.getByRole('button', {
-    name: 'Électricité',
-    exact: true,
-  });
+  const power = parts.getByLabel('Électricité', { exact: true });
   await expect(power).toBeVisible();
   // Le compte fait la différence entre « rien à voir » et « rien de tracé ».
   await expect(power).toHaveAttribute('title', /réseau/u);
@@ -2356,7 +2361,8 @@ test('names an entry by what it places, and pre-fills its fiche', async ({
 
   // « WC » n'est pas un vingt-sixième outil : c'est l'outil composant avec la
   // fiche WC déjà désignée. Choisir l'entrée fait les deux d'un coup.
-  const toolbox = page.locator('.tool-header');
+  const toolbox = page.locator('#workspace-sidebar, .tool-header');
+  await openSection(page, 'Eau');
   await toolbox.getByRole('button', { name: 'WC', exact: true }).click();
   await expect(page.getByLabel('Catégorie')).toHaveValue('SANITARY');
   await expect(page.getByLabel('Modèle catalogue')).toHaveValue(/generic-wc/u);
@@ -2371,16 +2377,14 @@ test('names an entry by what it places, and pre-fills its fiche', async ({
   // l'outil composant, pas une vingt-sixième entrée du registre.
   await expect(page.locator('.context-tool-bar')).toContainText('Composant');
 
-  // Ce que la sous-partie ne propose pas reste atteignable depuis la même
-  // rangée, sous « + » — les autres sous-parties de **cet** espace, et non
-  // celles des six autres : « Mur » appartient au bâtiment.
-  await page.locator('.tool-header .tool-more > summary').click();
-  const menu = page.locator('.tool-more-menu');
+  // Ce que la sous-partie ne propose pas est dans le même sommaire, à un
+  // dépliage — les autres sous-parties de **cet** espace, et non celles des
+  // six autres : « Mur » appartient au bâtiment.
+  const parts = page.getByRole('navigation', { name: 'Sous-parties' });
+  await expect(parts.getByLabel('Chauffage', { exact: true })).toHaveCount(1);
+  await openSection(page, 'Chauffage');
   await expect(
-    menu.getByRole('region', { name: 'Outils · Chauffage' }),
-  ).toBeVisible();
-  await expect(
-    menu.getByRole('button', { name: 'Mur', exact: true }),
+    toolbox.getByRole('button', { name: 'Mur', exact: true }),
   ).toHaveCount(0);
   expect(errors).toEqual([]);
 });
@@ -2397,21 +2401,15 @@ test('reads every trade in the space that draws it, solar included', async ({
   // qu'un panneau ne se pose pas là où se pose une prise.
   await openStage(page, 'Systèmes');
   const parts = page.getByRole('navigation', { name: 'Sous-parties' });
-  await parts.getByRole('button', { name: 'Solaire', exact: true }).click();
+  await parts.getByLabel('Solaire', { exact: true }).click();
   await expect(canvas).toBeVisible();
-  await expect(
-    parts.getByRole('button', { name: 'Électricité', exact: true }),
-  ).toHaveCount(1);
-  await expect(
-    parts.getByRole('button', { name: 'Stockage', exact: true }),
-  ).toHaveCount(1);
+  await expect(parts.getByLabel('Électricité', { exact: true })).toHaveCount(1);
+  await expect(parts.getByLabel('Stockage', { exact: true })).toHaveCount(1);
 
   // Et la structure est une sous-partie du bâtiment : ce qui porte les murs se
   // dessine là où les murs se dessinent.
   await openStage(page, 'Bâtiment');
-  await expect(
-    parts.getByRole('button', { name: 'Structure', exact: true }),
-  ).toHaveCount(1);
+  await expect(parts.getByLabel('Structure', { exact: true })).toHaveCount(1);
   expect(errors).toEqual([]);
 });
 
@@ -3589,35 +3587,91 @@ test('browses the whole nomenclature and places what can be placed', async ({
   expect(errors).toEqual([]);
 });
 
-test('donne accès aux autres sous-parties depuis le « + »', async ({
+test('donne accès aux autres sous-parties depuis le sommaire', async ({
   page,
 }) => {
   const errors = watchConsole(page);
   await page.goto('/');
   await openStage(page, 'Terrain');
 
-  // Le dépliage ne tenait que les outils communs et le rebut du registre : la
-  // parcelle, qui est une sous-partie voisine, n'y était pas. Il fallait
-  // savoir qu'on devait d'abord changer de sous-partie, et rien ne le disait.
+  // Les sous-parties étaient une rangée au-dessus du plan, et ce qu'elles
+  // posaient un panneau séparé à gauche : deux endroits pour une seule idée,
+  // avec les mêmes boutons aux deux places. Le sommaire de la colonne les
+  // tient toutes, et l'ouverte — elle seule — montre ce qu'elle pose.
   await openSection(page, 'Éléments');
-  await revealAllTools(page);
-  const menu = page.locator('.tool-more-menu');
+  const parts = page.getByRole('navigation', { name: 'Sous-parties' });
+  const posables = parts.locator('.add-grid');
   await expect(
-    menu.getByRole('region', { name: 'Outils · Parcelle' }),
-  ).toBeVisible();
+    posables.getByRole('button', { name: 'Parcelle', exact: true }),
+  ).toBeHidden();
 
-  await menu.getByRole('button', { name: 'Parcelle', exact: true }).click();
-  // Et la rangée suit ce qu'on vient de prendre : l'écran ne peut pas nommer
-  // une sous-partie et en faire une autre.
+  await openSection(page, 'Parcelle');
+  await expect(parts.getByLabel('Parcelle', { exact: true })).toHaveAttribute(
+    'aria-current',
+    'true',
+  );
+  // Et ouvrir une sous-partie referme la précédente : on ne travaille qu'à un
+  // endroit, et deux listes ouvertes seraient deux endroits où viser.
   await expect(
-    page
-      .getByRole('navigation', { name: 'Sous-parties' })
-      .getByRole('button', { name: 'Parcelle', exact: true }),
-  ).toHaveAttribute('aria-current', 'true');
+    posables.getByRole('button', { name: 'Arbre', exact: true }),
+  ).toBeHidden();
+
+  await posables.getByRole('button', { name: 'Parcelle', exact: true }).click();
   await expect(toolButton(page, 'Parcelle')).toHaveAttribute(
     'aria-pressed',
     'true',
   );
+  expect(errors).toEqual([]);
+});
+
+test('ne laisse pas modifier la parcelle depuis le bâtiment, ni le bâtiment depuis l’aménagement', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  await openInspector(page);
+  const canvas = page.locator('.plan-canvas');
+  const title = page.locator('.inspector-subject h3');
+
+  /*
+   * Les sept espaces sont sept moments, pas sept filtres d'affichage.
+   *
+   * Le terrain reste dessiné sous la maison quand on dessine la maison, et
+   * c'est voulu : on trace des murs *par rapport* à la limite de propriété.
+   * Mais un clic un peu large sur ce fond déplaçait la parcelle en croyant
+   * viser un mur — on répondait à une question qu'on n'avait pas posée.
+   *
+   * Ce qu'un espace peut prendre est donc ce qu'il sait poser : Bâtiment
+   * dessine des murs, il ne touche pas au terrain ; Aménagement pose des
+   * meubles, il ne touche pas aux murs.
+   */
+  await openStage(page, 'Terrain');
+  const parcel = { x: 0.03, y: 0.5 };
+  const box = (await canvas.boundingBox())!;
+  const onTheParcel = { x: box.width * parcel.x, y: box.height * parcel.y };
+  await canvas.click({ position: onTheParcel });
+  await expect(title).toContainText('Parcelle');
+
+  // Le même point, dans l'espace du bâtiment, ne prend rien : la parcelle est
+  // là, on la voit, on ne l'attrape pas.
+  await openStage(page, 'Bâtiment');
+  await canvas.click({ position: onTheParcel });
+  await expect(page.locator('.inspector-subject')).toHaveCount(0);
+
+  // Et le mur, lui, se prend là où il se dessine.
+  const south = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  const onTheWall = {
+    x: south.x - box.x + south.width * 0.25,
+    y: south.y - box.y + south.height / 2,
+  };
+  await canvas.click({ position: onTheWall });
+  await expect(title).toContainText('wall-south');
+
+  // Le même mur, depuis l'aménagement, ne se prend plus : on y pose des
+  // meubles, et un meuble ne déplace pas une façade.
+  await openStage(page, 'Aménagement');
+  await canvas.click({ position: onTheWall });
+  await expect(page.locator('.inspector-subject')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
@@ -3660,7 +3714,12 @@ test('installe la fiche que le bouton pose, au moment où on le prend', async ({
   await chooseTool(page, 'Lit');
   // Au milieu de la dalle telle qu'elle est dessinée : le plan se recadre
   // quand le modèle grandit, et une fraction du cadre ne vise plus rien.
-  const slab = (await page.locator('[id^="slab:"]').first().boundingBox())!;
+  //
+  // On attend qu'elle soit dessinée avant de la mesurer : `boundingBox()` ne
+  // patiente pas, il rend `null` sur un dessin qui n'a pas encore repeint.
+  const drawn = page.locator('[id^="slab:"]').first();
+  await expect(drawn).toBeVisible();
+  const slab = (await drawn.boundingBox())!;
   const frame = (await canvas.boundingBox())!;
   await canvas.click({
     position: {
