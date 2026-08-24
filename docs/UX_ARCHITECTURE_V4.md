@@ -1033,6 +1033,27 @@ Une trémie est devenue un objet : son bord est un tracé qu'on clique, elle a u
 identifiant (`dalle#hole:n`), un sujet, des champs, des poignées, une ligne
 dans l'arborescence, un chemin de scénario, et elle se rebouche.
 
+### Après l'audit : séparer les espaces, et les compléter
+
+Les sept espaces étaient cohérents, et chacun était incomplet ou perméable.
+
+| Lot                     | Ce qu'il fait                                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Séparation**          | Le « + » tient les autres sous-parties de **cet** espace, et plus les six autres. La recherche reste le chemin vers tout. |
+| **Aides du plan**       | `planAids` par espace : dégagements en Aménagement et Systèmes, analyse en Études, nord et calque en Terrain.             |
+| **Surfaces visibles**   | Lavis du terrain, aire écrite dessus, et ce qu'on vient de fermer est désigné avec ses poignées.                          |
+| **Nord sur le plan**    | Une rose en bas à droite, dans l'espace du terrain.                                                                       |
+| **Aménagement complet** | Une entrée reste et **installe** la fiche qu'elle pose ; le catalogue arrive au clic.                                     |
+| **Étages**              | Un réglage sous la rangée des niveaux : chaque étage ajouté reprend le rez-de-chaussée.                                   |
+| **Calque de papier**    | Une image sous le dessin, calée en mètres, jamais sélectionnable.                                                         |
+
+Quatre défauts trouvés en corrigeant ceux-là : l'outil composant ne disait à
+quoi il fixait ce qu'il posait — donc aucune fiche nommant un support ne
+pouvait être posée ; « Trémie » nommait deux gestes ; les réglages
+d'accrochage étaient rognés par la barre d'état qui défile ; et un bouton posé
+sur le plan ne recevait pas ses clics, parce que la surface de dessin capture
+le pointeur.
+
 #### UI-FINAL-5 — ce que les parcours figent
 
 `e2e/surfaces.spec.ts` et `e2e/grid.spec.ts` : les quatre gestes de fermeture

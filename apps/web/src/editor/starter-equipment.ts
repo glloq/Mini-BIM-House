@@ -47,6 +47,36 @@ export function offeredFamilies(): readonly string[] {
 }
 
 /**
+ * La fiche générique d'**une** famille, prise à la demande.
+ *
+ * Un projet qui ne tient pas la fiche voyait le bouton disparaître : ouvrir
+ * `Aménagement` sur un projet neuf donnait un espace entièrement vide, sans
+ * une sous-partie, avec pour seul recours « ouvrez la bibliothèque ». C'était
+ * répondre « allez chercher » à quelqu'un qui vient de cliquer « Lit ».
+ *
+ * L'entrée reste donc là et **installe ce qu'elle pose**, au moment où on la
+ * prend. C'est le même passage que pour un projet neuf — il n'y en a pas deux.
+ */
+export function equipmentForFamily(
+  familyId: string,
+): EquipmentDefinition | undefined {
+  const raw = genericEquipmentCatalog().find(
+    (definition) => definition.familyId === familyId,
+  );
+  if (raw === undefined) return undefined;
+  const category = equipmentCategoryOfFamily(familyId);
+  const chosen = category === undefined ? raw : { ...raw, category };
+  return equipmentSnapshot(chosen, {
+    id: chosen.id,
+    allowedHosts: (family(familyId)?.placement?.allowedHosts ?? []).filter(
+      isHostType,
+    ),
+    requiredClearances: family(familyId)?.clearances ?? [],
+    capabilities: familyCapabilities(familyId),
+  });
+}
+
+/**
  * La fiche du catalogue générique pour chaque famille proposée.
  *
  * Une famille que le catalogue ne tient pas ne donne rien : le bouton reste

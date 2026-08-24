@@ -1,5 +1,5 @@
 import type { BuildingId, EntityId, LevelId, ProjectId, SiteId } from './ids';
-import type { Polygon2D } from '@house-technical-designer/geometry';
+import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import type { Material } from '@house-technical-designer/materials';
 import type { Assembly } from '@house-technical-designer/assemblies';
 import type { Wall } from './wall.js';
@@ -122,6 +122,42 @@ export interface Site extends CommonMetadata {
   readonly climateProfileId?: string;
   readonly parcelBoundary?: Polygon2D;
   readonly obstacles?: readonly SiteObstacle[];
+  readonly underlay?: SiteUnderlay;
+}
+
+/**
+ * Une image posée sous le dessin, pour tracer par-dessus.
+ *
+ * Un relevé cadastral, un plan de géomètre, une photo d'esquisse : on
+ * commence rarement une maison sur une feuille blanche, et jusqu'ici il n'y
+ * avait aucun moyen de mettre ce qu'on a sous ce qu'on trace.
+ *
+ * Elle n'est **pas** un objet du modèle : elle ne se sélectionne pas, elle
+ * n'entre dans aucun calcul, aucune nomenclature, aucune vérification. C'est
+ * un calque de papier sous le calque de dessin — et il se retire sans rien
+ * emporter.
+ *
+ * Elle vit dans le projet et non dans le navigateur : un plan rouvert sur une
+ * autre machine sans son relevé est un plan qu'on ne peut pas continuer.
+ */
+export interface SiteUnderlay {
+  /**
+   * L'image elle-même, en `data:` URI.
+   *
+   * Le fichier se transporte d'un poste à l'autre ; un chemin vers un fichier
+   * local ne se transporte pas, et une adresse web disparaît.
+   */
+  readonly image: string;
+  /** Le coin haut-gauche de l'image, en millimètres du modèle. */
+  readonly originMm: Point2D;
+  /** Ce que l'image mesure en largeur, en millimètres. Elle garde son rapport. */
+  readonly widthMm: number;
+  /** Sa hauteur, en millimètres : le rapport de l'image, mesuré à l'ouverture. */
+  readonly heightMm: number;
+  /** Son opacité, de 0 à 1. Un calque de papier se voit à travers. */
+  readonly opacity?: number;
+  /** Ce que c'est, pour le retrouver : « cadastre.png ». */
+  readonly name?: string;
 }
 
 export interface Level extends BaseEntity<LevelId> {

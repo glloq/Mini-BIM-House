@@ -1085,6 +1085,10 @@ export const EDITOR_TOOLS = [
           elevationMm: context.optionNumber('elevationMm') ?? 0,
         },
         context.newId('component'),
+        // Ce que le clic a touché : un lit se pose sur une dalle, une prise
+        // sur un mur, et c'est le plan qui sait ce qu'il y avait sous le
+        // pointeur.
+        context.picks[0],
       );
     },
   },

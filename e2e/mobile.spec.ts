@@ -71,7 +71,10 @@ test('opens the context panel as a drawer and closes it', async ({ page }) => {
   await expect(sidebar).not.toBeInViewport();
   await toggle.click();
   await expect(sidebar).toBeInViewport();
-  await expect(sidebar.locator('select').first()).toBeVisible();
+  // Ce que la colonne montre : ce qu'on peut ajouter ici. Elle tenait aussi
+  // vingt analyses et cinq dégagements dans les sept espaces ; ils sont
+  // désormais là où ils servent.
+  await expect(sidebar.locator('.add-grid button').first()).toBeVisible();
 
   // The backdrop covers the screen, so the tap has to land beside the drawer.
   const backdrop = page.getByRole('button', { name: 'Fermer le panneau' });

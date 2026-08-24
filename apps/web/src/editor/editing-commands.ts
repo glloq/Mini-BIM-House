@@ -3,6 +3,7 @@ import type {
   ComponentInstance,
   Dimension,
   DimensionType,
+  Level,
   SiteObstacleKind,
   StairType,
   StructuralMemberKind,
@@ -16,7 +17,11 @@ import type {
   StructuralMember,
   Wall,
 } from '@house-technical-designer/core-domain';
-import { dimensionId, entityId } from '@house-technical-designer/core-domain';
+import {
+  dimensionId,
+  entityId,
+  levelHosts,
+} from '@house-technical-designer/core-domain';
 import {
   AddComponentCommand,
   AddDimensionCommand,
@@ -329,6 +334,7 @@ export function placeComponentCommand(
     readonly elevationMm: number;
   },
   componentId: string,
+  picked?: string,
 ): EditingCommandResult {
   const level = levelOf(file.project, levelId);
   if (level === undefined)
@@ -338,6 +344,7 @@ export function placeComponentCommand(
       space.boundaryMode === 'MANUAL' &&
       pointInPolygon(point, space.manualPolygon.outer),
   );
+  const host = hostUnder(level, point, picked);
   return {
     status: 'OK',
     command: new AddComponentCommand(level.id, {
@@ -353,8 +360,45 @@ export function placeComponentCommand(
       elevationMm: draft.elevationMm,
       rotationDeg: 0,
       ...(room === undefined ? {} : { spaceId: room.id }),
+      ...(host === undefined ? {} : { hostObjectId: host }),
     }),
   };
+}
+
+/**
+ * Ce à quoi l'objet posé se fixe.
+ *
+ * L'outil ne le disait pas : il posait un composant sans support, et le modèle
+ * refusait — « ce modèle se fixe à : Dalle, Mur ». Autrement dit, **aucune**
+ * fiche du catalogue nommant un support ne pouvait être posée, et c'est la
+ * moitié du catalogue. On cliquait, ça refusait, et rien n'expliquait quoi
+ * faire, puisqu'il n'y avait rien à faire.
+ *
+ * Deux réponses, dans cet ordre :
+ *
+ * 1. **Ce qui était sous le pointeur.** Poser une prise, c'est viser un mur ;
+ *    le plan sait déjà ce que le clic a touché.
+ * 2. **La dalle qu'on survole.** Poser un lit, c'est viser le milieu d'une
+ *    chambre, pas la ligne du sol : personne ne clique une dalle exprès.
+ *
+ * Aucune troisième : un objet posé sur rien reste posé sur rien, et c'est le
+ * modèle qui le dit, comme avant.
+ */
+function hostUnder(
+  level: Level,
+  point: Point2D,
+  picked: string | undefined,
+): string | undefined {
+  const hosts = levelHosts(level);
+  if (picked !== undefined && hosts.has(picked)) return picked;
+  const slab = level.slabs.find(
+    (candidate) =>
+      pointInPolygon(point, candidate.polygon.outer) &&
+      !(candidate.polygon.holes ?? []).some((hole) =>
+        pointInPolygon(point, hole),
+      ),
+  );
+  return slab?.id;
 }
 
 /**

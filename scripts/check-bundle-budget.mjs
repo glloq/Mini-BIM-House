@@ -171,8 +171,20 @@ export const BUDGETS = {
    * et remplace quatre écrans dont deux n'existaient pas : la parcelle se
    * retraçait pour se corriger, et la trémie n'était même pas un objet. Deux
    * kio pour quatre surfaces, c'est le prix d'une seule.
+   *
+   * Et un avec la rose des vents, les étiquettes de surface, et les entrées
+   * qui installent la fiche qu'elles posent. Les deux premières se dessinent
+   * sur le plan, donc au premier écran ; la troisième n'y charge rien — le
+   * catalogue générique arrive quand on prend l'entrée, et pas avant.
+   *
+   * Et trois avec le calque de papier et le nombre d'étages. Le premier est
+   * la seule façon de commencer une maison sur autre chose qu'une feuille
+   * blanche : un cadastre sous le dessin, calé en le regardant. Le second
+   * répond à « je fais une maison à deux étages », qui est une phrase qu'on
+   * dit **en** dessinant, et qui demandait jusqu'ici de quitter le plan pour
+   * empiler des niveaux à la main puis de tout retracer.
    */
-  initialGzipBytes: 289 * 1024,
+  initialGzipBytes: 293 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -292,7 +304,7 @@ export const BUDGETS = {
    * composant et une grille. La colonne de gauche montre enfin ce qu'on peut
    * poser plutôt que ce qui est déjà posé, et l'étage courant reste à un clic.
    */
-  totalGzipBytes: 469 * 1024,
+  totalGzipBytes: 473 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

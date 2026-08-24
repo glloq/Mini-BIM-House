@@ -89,7 +89,31 @@ export interface CreationStage {
    * panneau, où elles prenaient quatre rangées à chaque séance.
    */
   readonly libraries?: readonly DestinationId[];
+  /**
+   * Les aides que le plan montre dans cet espace, et dans celui-là seulement.
+   *
+   * Les dégagements et les superpositions d'analyse étaient offerts partout :
+   * cinq cases de dégagement et vingt analyses dans la colonne du terrain,
+   * dans celle des documents, dans celle du projet. Un panneau qui répond à
+   * une question qu'on ne se pose pas ici est du bruit permanent, et il
+   * repousse sous la ligne de flottaison ce qu'on est venu chercher.
+   *
+   * Chaque aide est donc nommée là où elle sert : les dégagements quand on
+   * pose des objets et des réseaux, l'analyse quand on vérifie, le nord quand
+   * on s'occupe du terrain. Ailleurs, elles n'existent pas.
+   */
+  readonly planAids?: readonly PlanAid[];
 }
+
+/**
+ * Ce que le plan peut montrer en plus du dessin.
+ *
+ * - `CLEARANCES` : les volumes qu'un objet réclame autour de lui.
+ * - `ANALYSIS` : une superposition colorée, calculée par un module.
+ * - `NORTH` : l'orientation du terrain, réglée contre le plan.
+ * - `UNDERLAY` : un relevé posé sous le dessin, pour tracer par-dessus.
+ */
+export type PlanAid = 'CLEARANCES' | 'ANALYSIS' | 'NORTH' | 'UNDERLAY';
 
 const STAGE_DEFINITIONS = {
   PROJECT: {
@@ -111,6 +135,10 @@ const STAGE_DEFINITIONS = {
     domains: ['SITE'],
     sections: [],
     destinations: ['plan'],
+    // Le nord se règle ici parce que c'est ici qu'il veut dire quelque chose :
+    // l'ombre du voisin, l'orientation des pans, la course du soleil. Et le
+    // relevé qu'on décalque : une parcelle se trace sur ce qu'on a reçu.
+    planAids: ['NORTH', 'UNDERLAY'],
   },
   BUILDING: {
     id: 'BUILDING',
@@ -120,6 +148,9 @@ const STAGE_DEFINITIONS = {
       'Les murs, les pièces, les ouvertures, la toiture, ce qui porte.',
     groups: ['BUILDING', 'ARCHITECTURE', 'CONSTRUCTION'],
     domains: ['ARCHITECTURE', 'STRUCTURE'],
+    // Le même relevé sert ici : on trace les murs sur l'esquisse comme on a
+    // tracé la parcelle sur le cadastre.
+    planAids: ['UNDERLAY'],
     sections: [
       { id: 'building.levels', label: 'Niveaux' },
       { id: 'building.walls', label: 'Murs' },
@@ -143,6 +174,9 @@ const STAGE_DEFINITIONS = {
     sections: [],
     destinations: ['plan'],
     libraries: ['equipment'],
+    // Les dégagements sont la question de cet espace : un lave-linge sans son
+    // mètre devant est un lave-linge qu'on n'ouvre pas.
+    planAids: ['CLEARANCES'],
   },
   SYSTEMS: {
     id: 'SYSTEMS',
@@ -179,6 +213,9 @@ const STAGE_DEFINITIONS = {
       { id: 'systems.storage', label: 'Stockage', domain: 'STORAGE' },
     ],
     destinations: ['plan', 'networks'],
+    // Un tronçon passe où il y a la place : les dégagements des appareils
+    // qu'il dessert sont ce qui décide de son tracé.
+    planAids: ['CLEARANCES'],
   },
   CHECKS: {
     id: 'CHECKS',
@@ -189,6 +226,9 @@ const STAGE_DEFINITIONS = {
     groups: ['CHECKS'],
     domains: [],
     sections: [],
+    // L'analyse **est** cet espace : une superposition colorée est une étude
+    // qu'on lit sur le dessin plutôt que dans un tableau.
+    planAids: ['ANALYSIS'],
     // La vue d'ensemble d'abord : cet onglet lit le bâtiment, il ne le dessine
     // pas. Le plan reste au bout, parce qu'un écart s'ouvre sur son objet.
     destinations: ['checks', 'calculations', 'quantities', 'scenarios', 'plan'],

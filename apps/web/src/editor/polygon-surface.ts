@@ -188,3 +188,31 @@ export function slabHoles(
     })),
   );
 }
+
+/**
+ * Tout ce qui, dans ce projet, est un contour qu'on peut corriger.
+ *
+ * Sert à savoir **ce qu'on vient de créer** : une commande ne rend pas
+ * l'identifiant de ce qu'elle a fait, et le comparer avant/après est la seule
+ * réponse qui ne demande à aucune commande de se souvenir de quoi que ce soit.
+ */
+export function surfaceIds(
+  project: Project,
+  levelId: string | undefined,
+): readonly string[] {
+  const level =
+    levelId === undefined
+      ? project.building.levels[0]
+      : project.building.levels.find(({ id }) => id === levelId);
+  return [
+    ...(level === undefined
+      ? []
+      : [
+          ...level.slabs.map(({ id }) => id),
+          ...level.roofs.map(({ id }) => id),
+        ]),
+    ...slabHoles(project, levelId).map(({ objectId }) => objectId),
+    ...(project.site.parcelBoundary === undefined ? [] : ['site:parcel']),
+    ...(project.site.obstacles ?? []).map(({ id }) => id),
+  ];
+}

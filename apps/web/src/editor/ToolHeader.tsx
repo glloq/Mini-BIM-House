@@ -47,10 +47,8 @@ import type { DesignState } from '../ux/design-state.js';
 import {
   COMMON_SECTION,
   availabilityOf,
-  draftsForEntry,
   isEntryActive,
   entryAvailable,
-  leftoverTools,
   missingFicheFamilies,
   toolboxFor,
   type ToolboxAvailability,
@@ -74,6 +72,16 @@ export interface ToolHeaderProps {
    * propose — c'est ce que faisaient les neuf étapes.
    */
   readonly section?: string;
+  /**
+   * Ouvrir une sous-partie, quand on a pris un outil dans une autre.
+   *
+   * Prendre « Parcelle » depuis « Éléments » sans que la rangée suive
+   * laisserait l'écran dire qu'on est ailleurs que là où l'on travaille.
+   */
+  readonly onOpenSection?: (section: {
+    readonly id: string;
+    readonly domain?: DesignDomainId;
+  }) => void;
   /** Ce que le contexte rend possible : la barre d'actions, montée à côté. */
   readonly context: ReactNode;
   /** Ce que le plan montre : la variante et l'affichage, montés à côté. */
@@ -85,7 +93,8 @@ export interface ToolHeaderProps {
   readonly drafts: ToolDrafts;
   readonly onDraftChange: (key: string, value: string) => void;
   /** Poser plusieurs options d'un coup : une entrée en remplit souvent trois. */
-  readonly onDraftsChange: (drafts: ToolDrafts) => void;
+  /** Prendre une entrée : l'outil, ses options, et la fiche qu'elle installe. */
+  readonly onChooseEntry: (entry: ToolboxEntry) => void;
   /** Ouvrir la bibliothèque d'équipements, d'où viennent les fiches. */
   readonly onOpenLibrary: () => void;
 }
@@ -95,6 +104,7 @@ export function ToolHeader({
   stage,
   domain,
   section,
+  onOpenSection,
   context,
   view,
   design,
@@ -102,7 +112,7 @@ export function ToolHeader({
   dispatch,
   drafts,
   onDraftChange,
-  onDraftsChange,
+  onChooseEntry,
   onOpenLibrary,
 }: ToolHeaderProps) {
   // La sous-partie est cherchée parmi toutes celles de l'espace, et non parmi
@@ -123,16 +133,21 @@ export function ToolHeader({
     ),
   };
   const entries = sections.flatMap(({ entries: held }) => held);
-  // Ce que la sous-partie ne propose pas reste à un dépliage, sur le même
-  // écran : une sous-partie filtre ce qui est proposé, elle ne restreint
-  // jamais ce qui est possible. Le calcul vit dans le registre, où un test le
-  // tient : les deux ensembles réunis font le registre entier.
-  const others = leftoverTools(
-    project,
-    stage,
-    chosen === undefined ? domain : undefined,
-    design,
-  ).filter((tool) => !entries.some(({ toolId }) => toolId === tool.id));
+  /*
+   * Ce que la sous-partie ne propose pas reste à un dépliage, sur le même
+   * écran : une sous-partie filtre ce qui est proposé, elle ne restreint
+   * jamais ce qui est possible.
+   *
+   * Le « + » ne tenait que les outils communs et le rebut du registre : les
+   * entrées des **autres sous-parties du même espace** n'y étaient pas. Poser
+   * une parcelle depuis « Éléments » demandait donc de savoir qu'il fallait
+   * d'abord cliquer « Parcelle » — et rien à l'écran ne le disait. Le
+   * dépliage tient maintenant les trois, dans cet ordre : les voisines,
+   * les communs, puis tout le reste.
+   */
+  const siblings = toolboxFor(project, stage, undefined, design).filter(
+    ({ id }) => id !== chosen?.id,
+  );
   const [moreOpen, setMoreOpen] = useState(false);
   const active = toolById(editor.activeTool);
 
@@ -157,9 +172,21 @@ export function ToolHeader({
   };
 
   const choose = (candidate: ToolboxEntry): void => {
-    dispatch({ type: 'SET_TOOL', tool: candidate.toolId as EditorTool });
-    const prefilled = draftsForEntry(project, candidate);
-    if (Object.keys(prefilled).length > 0) onDraftsChange(prefilled);
+    // Prendre une entrée est le même geste ici et dans le panneau « Ajouter » :
+    // il est écrit une fois, au-dessus, avec l'installation de la fiche que
+    // l'entrée pose.
+    onChooseEntry(candidate);
+    // La rangée suit ce qu'on vient de prendre : un outil choisi dans une
+    // autre sous-partie ouvre la sienne, sans quoi l'écran continue de
+    // nommer celle qu'on a quittée.
+    const home = siblings.find(({ entries: held }) =>
+      held.some(({ id }) => id === candidate.id),
+    );
+    if (home !== undefined)
+      onOpenSection?.({
+        id: home.id,
+        ...(home.domain === undefined ? {} : { domain: home.domain }),
+      });
     // Le menu se referme sur ce qu'on vient d'y prendre : un dépliage qui
     // reste ouvert couvre le plan qu'on s'apprête à dessiner.
     setMoreOpen(false);
@@ -182,9 +209,20 @@ export function ToolHeader({
     select?.toolId === editor.activeTool
       ? undefined
       : rest.find(({ toolId }) => toolId === editor.activeTool);
+  /*
+   * L'outil pris ailleurs qu'ici — par la palette, par un raccourci.
+   *
+   * Il n'est plus proposé par la rangée : les espaces sont séparés, et le
+   * dépliage ne verse plus les outils des six autres. Mais on peut encore
+   * l'atteindre par la recherche, et un outil actif qu'aucun bouton ne montre
+   * est un plan qui fait autre chose que ce qu'il affiche.
+   */
   const strayTool =
-    guest === undefined
-      ? others.find(({ id }) => id === editor.activeTool)
+    guest === undefined &&
+    !entries.some(({ toolId }) => toolId === editor.activeTool) &&
+    select?.toolId !== editor.activeTool &&
+    active !== undefined
+      ? active
       : undefined;
 
   // Une sous-partie qui pose des fiches et n'en trouve aucune n'a rien à
@@ -236,7 +274,12 @@ export function ToolHeader({
           onToggle={(event) => setMoreOpen(event.currentTarget.open)}
         >
           <summary
-            title={`Le reste des outils (${rest.length + others.length})`}
+            title={`Le reste des outils (${
+              siblings.reduce(
+                (total, { entries: held }) => total + held.length,
+                0,
+              ) + rest.length
+            })`}
             aria-label="Autres outils"
           >
             +
@@ -253,6 +296,37 @@ export function ToolHeader({
                 </button>
               </p>
             )}
+            {/*
+              Les autres sous-parties de cet espace, nommées.
+              Elles sont ce qu'on cherche le plus souvent dans ce dépliage :
+              une parcelle depuis « Éléments », un mur depuis « Ouvertures ».
+              Les nommer évite d'avoir à savoir qu'il fallait d'abord changer
+              de sous-partie.
+            */}
+            {siblings.map((sibling) => (
+              <section
+                key={sibling.id}
+                className="toolbox-section"
+                aria-label={`Outils · ${sibling.label}`}
+              >
+                <p className="context-group-label">{sibling.label}</p>
+                <div className="toolbox-grid">
+                  {ordered(sibling.entries).map((available) => (
+                    <EntryButton
+                      key={available.entry.id}
+                      available={available}
+                      active={isEntryActive(
+                        project,
+                        available.entry,
+                        editor.activeTool,
+                        drafts,
+                      )}
+                      onChoose={choose}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))}
             {rest.length > 0 && (
               <section
                 className="toolbox-section"
@@ -276,26 +350,15 @@ export function ToolHeader({
                 </div>
               </section>
             )}
-            {others.length > 0 && (
-              <section
-                className="toolbox-section"
-                aria-label="Outils · Tous les outils"
-              >
-                <p className="context-group-label">
-                  Tous les outils ({others.length})
-                </p>
-                <div className="toolbox-list">
-                  {others.map((tool) => (
-                    <ToolButton
-                      key={tool.id}
-                      tool={tool}
-                      active={tool.id === editor.activeTool}
-                      dispatch={dispatch}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
+            {/*
+              Et rien des six autres espaces.
+              Le dépliage versait ici tout ce que le registre tient : « Mur »,
+              « Toiture », « Escalier » dans l'espace du terrain, « Terrain »
+              dans celui du bâtiment. Un espace qui propose ce qui appartient à
+              un autre n'est plus une partie de la maison, c'est un menu.
+              La recherche (Ctrl+K) reste le chemin vers tout, depuis partout —
+              elle, on l'ouvre exprès.
+            */}
           </div>
         </details>
         {/*

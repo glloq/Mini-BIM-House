@@ -212,14 +212,24 @@ export function duplicatedLevel(
         id: entityId<'Space'>(copied(space.id)),
         levelId,
       })),
-      stairs: source.stairs.map((stair) => ({
-        ...stair,
-        id: entityId<'Stair'>(copied(stair.id)),
-        levelId,
-        ...(topLevelId === undefined
-          ? {}
-          : { topLevelId: entityId<'Level'>(topLevelId) }),
-      })),
+      /*
+       * Un escalier monte vers l'étage au-dessus de là où la copie se pose.
+       *
+       * Quand il n'y en a pas — la copie est le dernier niveau — l'escalier
+       * ne suit pas. Ce n'est pas une perte : un escalier qui n'arrive nulle
+       * part n'est pas un escalier, c'est un trou dans un plafond. Le copier
+       * en gardant sa destination d'origine ferait arriver l'escalier du
+       * premier étage dans le plafond du rez-de-chaussée.
+       */
+      stairs:
+        topLevelId === undefined
+          ? []
+          : source.stairs.map((stair) => ({
+              ...stair,
+              id: entityId<'Stair'>(copied(stair.id)),
+              levelId,
+              topLevelId: entityId<'Level'>(topLevelId),
+            })),
       structure: (source.structure ?? []).map((member) => ({
         ...member,
         id: entityId<'StructuralMember'>(copied(member.id)),

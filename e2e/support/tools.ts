@@ -1,5 +1,18 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { openStage } from './navigation.js';
+
+/** Les sept espaces, dans l'ordre de la barre. */
+const SPACES = [
+  'Projet',
+  'Terrain',
+  'Bâtiment',
+  'Aménagement',
+  'Systèmes',
+  'Études',
+  'Documents',
+] as const;
+
 /**
  * Choisir un outil, comme une personne le fait.
  *
@@ -20,21 +33,65 @@ export async function revealAllTools(page: Page): Promise<void> {
   if ((await more.count()) > 0) await more.first().click();
 }
 
+/** Parcourir les sous-parties de l'espace ouvert, jusqu'à trouver l'outil. */
+/**
+ * Ramener cet espace sur son plan.
+ *
+ * Chaque espace se souvient de la destination qu'on y avait ouverte : revenir
+ * dans « Systèmes » après y avoir consulté la table des réseaux rouvre la
+ * table, pas le dessin. Les outils vivent sur le dessin.
+ */
+async function showPlan(page: Page): Promise<void> {
+  if (await page.locator('.tool-header').isVisible()) return;
+  const plan = page
+    .locator('#workspace-sidebar')
+    .getByRole('button', { name: 'Plan', exact: true });
+  if ((await plan.count()) > 0) await plan.first().click();
+}
+
+async function sweepSections(page: Page, offered: Locator): Promise<boolean> {
+  await showPlan(page);
+  // Le dépliage laissé ouvert par la recherche précédente couvre la rangée des
+  // sous-parties : on cherche dans un écran qu'on a soi-même masqué.
+  const open = page.locator('.tool-header details.tool-more[open] > summary');
+  if ((await open.count()) > 0) await open.first().click();
+  if ((await offered.count()) > 0) return true;
+  const row = page.getByRole('navigation', { name: 'Sous-parties' });
+  const parts = row.getByRole('button');
+  for (let index = 0; index < (await parts.count()); index += 1) {
+    await parts.nth(index).click();
+    if ((await offered.count()) > 0) return true;
+  }
+  await revealAllTools(page);
+  return (await offered.count()) > 0;
+}
+
 export async function chooseTool(page: Page, label: string): Promise<void> {
   const toolbox = page.locator('.tool-header');
-  const offered = toolbox.getByRole('button', { name: label, exact: true });
-  if ((await offered.count()) === 0) {
-    // Une sous-partie à la fois : l'outil est peut-être dans une autre, et
-    // c'est un clic de la rangée, pas un dépliage.
-    const row = page.getByRole('navigation', { name: 'Sous-parties' });
-    const parts = row.getByRole('button');
-    for (let index = 0; index < (await parts.count()); index += 1) {
-      await parts.nth(index).click();
-      if ((await offered.count()) > 0) break;
+  /*
+   * Ce qu'on voit, et non ce que le document contient.
+   *
+   * Le contenu d'un `<details>` fermé est dans la page : compter les boutons
+   * sans regarder s'ils sont visibles faisait croire l'outil trouvé alors que
+   * le dépliage était clos, et le clic attendait un bouton que personne ne
+   * voyait. Une personne cherche des yeux.
+   */
+  const offered = toolbox
+    .getByRole('button', { name: label, exact: true })
+    .locator('visible=true');
+  /*
+   * Les sept espaces sont séparés : le « + » ne verse plus les outils des six
+   * autres. Un outil se cherche donc là où il vit — dans son espace, puis dans
+   * sa sous-partie — et c'est ce que fait quelqu'un qui lit la barre du haut.
+   */
+  if (!(await sweepSections(page, offered)))
+    for (const space of SPACES) {
+      await openStage(page, space);
+      if (await sweepSections(page, offered)) break;
     }
-  }
-  if ((await offered.count()) === 0) await revealAllTools(page);
-  await toolbox.getByRole('button', { name: label, exact: true }).click();
+  // Le même nom peut être sous la main **et** dans le dépliage : c'est le
+  // même bouton montré deux fois, et celui de la rangée est le plus proche.
+  await offered.first().click();
   // Choisir referme le dépliage — c'est ce que fait l'écran, et un test qui
   // le laisse ouvert clique ensuite à travers un menu posé sur le plan.
   const open = page.locator('.tool-header details.tool-more[open] > summary');

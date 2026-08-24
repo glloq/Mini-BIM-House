@@ -219,13 +219,15 @@ export class DuplicateLevelCommand extends BuildingCommand {
       return rejected(`Le niveau ${this.sourceLevelId} est introuvable.`);
     if (project.building.levels.some(({ id }) => id === this.draft.id))
       return rejected(`Le niveau ${this.draft.id} existe déjà.`);
-    // A stair climbs to a storey, and the copy has to climb to the storey above
-    // where it lands. Copying it with the original's destination would leave a
-    // stair on the first floor arriving in the ground floor's ceiling.
-    if (source.stairs.length > 0 && this.storeyAbove(project) === undefined)
-      return rejected(
-        `Le niveau ${source.name} contient ${source.stairs.length} escalier(s), et aucun niveau ne se trouve au-dessus de ${this.draft.name} : la copie n'aurait nulle part où monter.`,
-      );
+    /*
+     * Un escalier ne suit pas la copie qui devient le dernier niveau.
+     *
+     * Le refus était plus fort que le mal qu'il évitait : « je fais une maison
+     * à trois niveaux » devenait impossible dès que le rez-de-chaussée portait
+     * un escalier — c'est-à-dire toujours. Ce qu'il fallait empêcher est
+     * qu'un escalier arrive dans un plafond ; `duplicatedLevel` ne le copie
+     * donc pas quand rien ne se trouve au-dessus, et la copie se fait.
+     */
     return ok();
   }
   protected apply(project: Project): Project {

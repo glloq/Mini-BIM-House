@@ -126,7 +126,15 @@ describe('objects this version cannot edit', () => {
     ],
   };
 
-  it('refuses to duplicate a level carrying a stair rather than dropping it', () => {
+  it('copie l’étage sans son escalier quand rien ne se trouve au-dessus', () => {
+    /*
+     * Le refus était plus fort que le mal qu'il évitait.
+     *
+     * « Je fais une maison à trois niveaux » devenait impossible dès que le
+     * rez-de-chaussée portait un escalier — c'est-à-dire toujours. Ce qu'il
+     * fallait empêcher est qu'un escalier arrive dans un plafond ; la copie
+     * ne l'emporte donc pas, et le reste du bâti monte.
+     */
     const commands = new ProjectCommandDispatcher(project(withStair));
     const result = commands.dispatch(
       new DuplicateLevelCommand('ground', {
@@ -136,10 +144,21 @@ describe('objects this version cannot edit', () => {
         defaultStoreyHeightMm: 2500,
       }),
     );
-    expect(result.status).toBe('REJECTED');
-    if (result.status !== 'REJECTED') return;
-    expect(result.errors[0]).toContain('escalier');
-    expect(commands.project.building.levels).toHaveLength(1);
+    expect(result.status).toBe('APPLIED');
+    expect(commands.project.building.levels).toHaveLength(2);
+    const copy = commands.project.building.levels.find(
+      ({ id }) => id === 'first',
+    )!;
+    expect(copy.stairs).toEqual([]);
+    expect(copy.walls.length).toBe(
+      commands.project.building.levels.find(({ id }) => id === 'ground')!.walls
+        .length,
+    );
+    // Et celui du dessous garde le sien : il arrive bien quelque part.
+    expect(
+      commands.project.building.levels.find(({ id }) => id === 'ground')!
+        .stairs,
+    ).toHaveLength(1);
   });
 
   it('counts a stair as content when a level is deleted', () => {

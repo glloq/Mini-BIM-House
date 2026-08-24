@@ -1,5 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 
+import { openStage } from './navigation.js';
+
 /**
  * Les parties du panneau de contexte qu'un test doit atteindre.
  *
@@ -105,4 +107,39 @@ export async function openInspector(page: Page): Promise<void> {
   const toggle = page.getByRole('button', { name: 'Inspecteur', exact: true });
   if ((await toggle.getAttribute('aria-pressed')) === 'true') return;
   await toggle.click();
+}
+
+/**
+ * La superposition d'analyse, là où elle vit.
+ *
+ * Elle était offerte dans les sept espaces : vingt analyses dans la colonne du
+ * terrain, dans celle des documents, dans celle du projet. Un panneau qui
+ * répond à une question qu'on ne se pose pas ici est du bruit permanent. Elle
+ * **est** l'espace Études : une superposition colorée est une étude qu'on lit
+ * sur le dessin plutôt que dans un tableau.
+ */
+export async function chooseOverlay(page: Page, value: string): Promise<void> {
+  const picker = page.getByLabel('Superposition');
+  if (!(await picker.isVisible())) {
+    await openStage(page, 'Études');
+    // Études s'ouvre sur sa vue d'ensemble : colorer le dessin veut dire
+    // ouvrir le dessin, et c'est la dernière destination de cet espace.
+    const plan = page
+      .locator('#workspace-sidebar')
+      .getByRole('button', { name: 'Plan', exact: true });
+    if ((await plan.count()) > 0) await plan.first().click();
+  }
+  await picker.selectOption(value);
+}
+
+/**
+ * Les dégagements, là où ils vivent.
+ *
+ * Ils comptent quand on pose des objets et quand on tire des réseaux : un
+ * lave-linge sans son mètre devant est un lave-linge qu'on n'ouvre pas.
+ */
+export async function openClearances(page: Page): Promise<void> {
+  const panel = page.getByRole('group', { name: 'Dégagements sur le plan' });
+  if (!(await panel.isVisible())) await openStage(page, 'Aménagement');
+  await panel.waitFor();
 }
