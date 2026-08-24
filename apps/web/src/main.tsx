@@ -2381,6 +2381,7 @@ function App() {
                   : { domain: activeDomain })}
                 design={design}
                 editor={editor}
+                drafts={toolDrafts}
                 dispatch={dispatchEditor}
                 onDraftsChange={(prefilled) =>
                   setToolDrafts((current) => ({ ...current, ...prefilled }))
@@ -2520,6 +2521,7 @@ function App() {
                     onTransform={transformSelection}
                     onAlign={alignSelection}
                     onCancel={() => dispatchEditor({ type: 'CANCEL' })}
+                    onFinish={finishRun}
                   />
                 }
                 view={

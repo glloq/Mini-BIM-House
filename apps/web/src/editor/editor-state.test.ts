@@ -393,3 +393,32 @@ describe('the one reading of a drafted point', () => {
     ).toEqual(snapped);
   });
 });
+
+describe('défaire un sommet, et lui seul', () => {
+  it('retire le dernier point posé sans toucher aux autres', () => {
+    // Échap abandonnait tout : un sommet mal placé au dixième coin coûtait
+    // les neuf autres, donc on recommençait plutôt que de corriger.
+    let state = createEditorState({ widthPx: 800, heightPx: 600 });
+    state = editorReducer(state, { type: 'SET_TOOL', tool: 'SITE' });
+    for (const point of [
+      { x: 0, y: 0 },
+      { x: 1000, y: 0 },
+      { x: 1000, y: 900 },
+    ])
+      state = editorReducer(state, { type: 'COMMIT_POINT', point });
+    expect(state.pendingPoints).toHaveLength(3);
+
+    state = editorReducer(state, { type: 'UNDO_POINT' });
+    expect(state.pendingPoints).toEqual([
+      { x: 0, y: 0 },
+      { x: 1000, y: 0 },
+    ]);
+    expect(state.pendingPicks).toHaveLength(2);
+    expect(state.activeTool).toBe('SITE');
+  });
+
+  it('ne fait rien quand il n’y a rien à défaire', () => {
+    const empty = createEditorState({ widthPx: 800, heightPx: 600 });
+    expect(editorReducer(empty, { type: 'UNDO_POINT' })).toBe(empty);
+  });
+});

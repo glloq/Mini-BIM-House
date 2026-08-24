@@ -211,6 +211,19 @@ export interface EditorToolDefinition {
    */
   readonly openEnded?: true;
   /**
+   * Ce que « terminer » veut dire pour ce tracé.
+   *
+   * Un tracé ouvert et un contour fermé ne s'achèvent pas de la même façon.
+   * Un réseau s'arrête où on cesse de cliquer : le dernier point est le
+   * dernier point. Une dalle, une toiture, une parcelle sont des **surfaces**
+   * — le dernier sommet rejoint le premier, qu'on le clique ou non, et ce
+   * qu'on lit pendant qu'on trace est une aire, pas une longueur.
+   *
+   * Seules les surfaces le déclarent : tout autre outil ouvert termine un
+   * chemin, et un seul endroit nomme celles qui se referment.
+   */
+  readonly completionMode?: 'CLOSE_POLYGON';
+  /**
    * Whether the point being drafted follows the angle and length constraints.
    *
    * A wall is drawn along the building axes. A dimension is not drawn at all:
@@ -628,6 +641,7 @@ export const EDITOR_TOOLS = [
     // Three corners is the fewest a floor can have; there is no most.
     requiredPoints: 3,
     openEnded: true,
+    completionMode: 'CLOSE_POLYGON',
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
     options: [
@@ -687,6 +701,7 @@ export const EDITOR_TOOLS = [
     requiredPoints: 3,
     level: 'EXPERT',
     openEnded: true,
+    completionMode: 'CLOSE_POLYGON',
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
     createCommand: (context) =>
@@ -700,6 +715,7 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.roof',
     requiredPoints: 3,
     openEnded: true,
+    completionMode: 'CLOSE_POLYGON',
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
     options: [
@@ -953,6 +969,7 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.site',
     requiredPoints: 3,
     openEnded: true,
+    completionMode: 'CLOSE_POLYGON',
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
     options: [
@@ -1590,6 +1607,27 @@ export function requiredPoints(tool: EditorTool): number {
 /** Whether the tool draws until the user says it is finished. */
 export function isOpenEnded(tool: EditorTool): boolean {
   return toolDefinition(tool).openEnded === true;
+}
+
+/**
+ * Ce que « terminer » veut dire, quand cela veut dire quelque chose.
+ *
+ * Un outil qui sait combien de points il attend n'a rien à terminer : il se
+ * termine tout seul. Les autres se partagent en deux gestes, et c'est cette
+ * distinction que l'écran doit rendre — « Fermer la surface » n'est pas
+ * « Terminer le tracé », et proposer l'un pour l'autre fait douter de ce qui
+ * va être créé.
+ */
+export type CompletionMode = 'CLOSE_POLYGON' | 'FINISH_PATH';
+
+export function completionModeOf(tool: EditorTool): CompletionMode | undefined {
+  if (!isOpenEnded(tool)) return undefined;
+  return toolDefinition(tool).completionMode ?? 'FINISH_PATH';
+}
+
+/** Ce que le bouton dit, et ce que la phrase dit : le même mot. */
+export function completionLabel(mode: CompletionMode): string {
+  return mode === 'CLOSE_POLYGON' ? 'Fermer la surface' : 'Terminer le tracé';
 }
 
 /** Whether what this tool drafts is a wall, thickness and all. */

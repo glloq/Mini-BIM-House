@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DirectInputPatch } from './editor-state.js';
+import { completionLabel, type CompletionMode } from './tool-registry.js';
 import { parseAngleDeg, parseLengthMm } from './typed-values.js';
 
 export interface DynamicInputProps {
@@ -31,6 +32,10 @@ export interface DynamicInputProps {
    * gestures because they are two decisions.
    */
   readonly onFinish?: () => void;
+  /** Ce que « terminer » veut dire ici : fermer une surface, ou finir un chemin. */
+  readonly completion?: CompletionMode;
+  /** Retirer le dernier sommet posé, quand il y en a un. */
+  readonly onUndoPoint?: () => void;
   readonly onCancel: () => void;
 }
 
@@ -53,6 +58,8 @@ export function DynamicInput({
   onChange,
   onCommit,
   onFinish,
+  completion,
+  onUndoPoint,
   onCancel,
 }: DynamicInputProps) {
   const length = useRef<HTMLInputElement>(null);
@@ -73,12 +80,27 @@ export function DynamicInput({
     onChange({ angleDeg: text.trim() === '' ? null : (parsed ?? null) });
   };
 
+  /*
+   * Entrée valide ce qu'on a tapé, et termine quand on n'a rien tapé.
+   *
+   * L'aide générale annonce « Entrée : terminer le tracé » ; ces champs
+   * faisaient l'inverse — Entrée posait un point, et il fallait Ctrl+Entrée
+   * pour finir. Deux réponses à la même touche selon l'endroit du curseur,
+   * c'est une interface qui se contredit.
+   *
+   * Un champ vide ne demande rien : Entrée y veut dire ce qu'elle veut dire
+   * partout ailleurs. Un champ où l'on vient de taper une longueur demande
+   * qu'on la pose, et c'est le geste qu'on est en train de faire.
+   * Ctrl+Entrée reste l'alias de l'expert : il termine dans les deux cas, et
+   * il n'est jamais nécessaire — les boutons sont là pour cela.
+   */
+  const typing = lengthText.trim() !== '' || angleText.trim() !== '';
+
   function handleKey(event: React.KeyboardEvent<HTMLDivElement>): void {
     if (event.key === 'Enter') {
       event.preventDefault();
-      // Ctrl+Entrée ends the run; Entrée places a point and keeps drawing.
-      if ((event.ctrlKey || event.metaKey) && onFinish !== undefined)
-        onFinish();
+      const finishing = event.ctrlKey || event.metaKey || !typing;
+      if (finishing && onFinish !== undefined) onFinish();
       else onCommit();
       return;
     }
@@ -134,8 +156,27 @@ export function DynamicInput({
         </label>
       )}
       {onFinish !== undefined && (
-        <button type="button" className="secondary" onClick={onFinish}>
-          Terminer (Ctrl+Entrée)
+        <button
+          type="button"
+          className="primary"
+          title={
+            typing
+              ? 'Entrée pose le point tapé ; Ctrl+Entrée achève le tracé'
+              : 'Entrée achève le tracé'
+          }
+          onClick={onFinish}
+        >
+          {completionLabel(completion ?? 'FINISH_PATH')}
+        </button>
+      )}
+      {onUndoPoint !== undefined && (
+        <button
+          type="button"
+          className="secondary"
+          title="Retirer le dernier sommet posé, et lui seul"
+          onClick={onUndoPoint}
+        >
+          Annuler dernier sommet
         </button>
       )}
     </div>

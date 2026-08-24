@@ -941,6 +941,46 @@ Ils viennent de V2 et de V3, ils ont tenu, et ils tiennent encore :
 Le manque 11 — la maison comme objet — n'est dans aucun lot : il se décide à
 part, parce qu'il touche le modèle et pas l'écran.
 
+### Les quatre interactions fondamentales
+
+L'architecture générale ne se refait plus : les sept espaces, les sous-parties
+et le `ToolHeader` sont la base. Restaient quatre gestes de base qui ne
+tenaient pas encore.
+
+| Lot            | Ce qu'il fait                                                                        | Dépend de  |
+| -------------- | ------------------------------------------------------------------------------------ | ---------- |
+| **UI-FINAL-1** | _Livré._ La colonne de gauche montre ce qu'on **ajoute**, l'arbre passe dessous      | V4-4       |
+| **UI-FINAL-2** | _Livré._ Fermeture uniforme des surfaces : bouton, premier sommet, Entrée, aire vive | V4-4       |
+| **UI-FINAL-3** | `PolygonSurfaceEditor` : sommets, côtés, angles, aire — pour les quatre surfaces     | UI-FINAL-2 |
+| **UI-FINAL-4** | Une vraie grille modèle, en millimètres, alignée sur (0, 0)                          | —          |
+| **UI-FINAL-5** | Les parcours E2E qui figent ces quatre gestes                                        | 1 à 4      |
+
+#### UI-FINAL-1 — ce qu'on peut poser, avant ce qui est posé
+
+`AddPanel` appelle `toolboxFor(project, stage, domain, design)` et choisit la
+sous-partie active : le **même** appel que le header, jamais une seconde liste.
+`EntryButton` est le dessin commun des deux. L'arborescence reste atteignable
+sous « Éléments du projet » ; la rangée des niveaux, elle, est restée au-dessus
+— l'étage courant n'est pas un contenu qu'on range, c'est où va ce qu'on trace.
+
+#### UI-FINAL-2 — une surface se ferme, un chemin se termine
+
+Le registre déclare `completionMode: 'CLOSE_POLYGON'` sur `SLAB`, `SLAB_HOLE`,
+`ROOF` et `SITE` ; tout autre outil ouvert termine un chemin. De là viennent :
+
+- **quatre gestes qui achèvent** — le bouton « Fermer la surface », un reclic
+  sur le premier sommet, `Entrée`, et `Ctrl+Entrée` en alias d'expert, jamais
+  nécessaire ;
+- **« Annuler dernier sommet »**, une action de l'éditeur à elle seule, parce
+  qu'Échap coûtait les neuf autres coins ;
+- **le premier sommet marqué**, l'arête de fermeture dessinée, et **l'aire et
+  le périmètre écrits pendant qu'on trace** — on dessine une parcelle pour ses
+  mètres carrés.
+
+`Entrée` veut dire la même chose partout : elle achève. Dans les champs de
+saisie, elle pose d'abord la valeur qu'on vient de taper — un champ vide ne
+demande rien.
+
 ---
 
 ## 14. Ce qu'on mesure

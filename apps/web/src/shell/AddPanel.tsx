@@ -37,6 +37,7 @@ import type {
 import {
   availabilityOf,
   draftsForEntry,
+  isEntryActive,
   toolboxFor,
   type ToolboxEntry,
 } from '../editor/toolbox.js';
@@ -52,6 +53,8 @@ export interface AddPanelProps {
   readonly section?: string;
   readonly design: DesignState;
   readonly editor: EditorState;
+  /** Ce qui est réglé : c'est lui qui dit laquelle des entrées est en cours. */
+  readonly drafts: ToolDrafts;
   readonly dispatch: (action: EditorAction) => void;
   readonly onDraftsChange: (drafts: ToolDrafts) => void;
 }
@@ -63,6 +66,7 @@ export function AddPanel({
   section,
   design,
   editor,
+  drafts,
   dispatch,
   onDraftsChange,
 }: AddPanelProps) {
@@ -108,7 +112,12 @@ export function AddPanel({
           <EntryButton
             key={available.entry.id}
             available={available}
-            active={available.entry.toolId === editor.activeTool}
+            active={isEntryActive(
+              project,
+              available.entry,
+              editor.activeTool,
+              drafts,
+            )}
             onChoose={choose}
           />
         ))}

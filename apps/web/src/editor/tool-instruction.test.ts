@@ -6,7 +6,12 @@ import {
   type EditorTool,
 } from './editor-state.js';
 import { toolInstruction } from './tool-instruction.js';
-import { EDITOR_TOOLS, isOpenEnded, requiredPoints } from './tool-registry.js';
+import {
+  completionModeOf,
+  EDITOR_TOOLS,
+  isOpenEnded,
+  requiredPoints,
+} from './tool-registry.js';
 
 const base = createEditorState({ widthPx: 800, heightPx: 600 });
 
@@ -64,6 +69,50 @@ describe('what the active tool says it expects', () => {
     // Un outil d'un seul point dit ce qu'il pose, parce que « le premier
     // point » d'un composant ne veut rien dire.
     expect(toolInstruction(withTool('COMPONENT', 0)).next).toContain('poser');
+  });
+
+  it('nomme le geste qui achève, et il n’est jamais Ctrl+Entrée', () => {
+    // L'aide annonçait « Entrée : terminer le tracé » pendant que les champs
+    // faisaient l'inverse. Une touche ne peut pas vouloir dire deux choses.
+    for (const tool of EDITOR_TOOLS) {
+      const mode = completionModeOf(tool.id);
+      if (mode === undefined) continue;
+      const said = toolInstruction(withTool(tool.id, 3)).finish!;
+      expect(said, tool.id).toContain('Entrée');
+      expect(said, tool.id).not.toContain('Ctrl');
+      expect(said, tool.id).toContain(
+        mode === 'CLOSE_POLYGON' ? 'Fermer la surface' : 'Terminer le tracé',
+      );
+    }
+  });
+
+  it('propose de recliquer le premier sommet, pour une surface seulement', () => {
+    const parcel = toolInstruction(withTool('SITE', 3, [])).next;
+    expect(parcel).toContain('premier sommet');
+    // Un réseau n'a pas de premier sommet à rejoindre : il s'arrête où l'on
+    // cesse de cliquer.
+    expect(toolInstruction(withTool('NETWORK_ROUTE', 3)).next).not.toContain(
+      'premier sommet',
+    );
+  });
+
+  it('écrit ce que la surface mesure pendant qu’on la trace', () => {
+    const drawn: EditorState = {
+      ...base,
+      activeTool: 'SITE',
+      pendingPoints: [
+        { x: 0, y: 0 },
+        { x: 30_000, y: 0 },
+        { x: 30_000, y: 25_000 },
+        { x: 0, y: 25_000 },
+      ],
+    };
+    expect(toolInstruction(drawn).measures).toBe('750,00 m² · 110,00 m');
+    // Un chemin n'a pas d'aire, et rien de dégénéré ne s'écrit.
+    expect(
+      toolInstruction({ ...drawn, activeTool: 'NETWORK_ROUTE' }).measures,
+    ).toBe('85,00 m');
+    expect(toolInstruction(withTool('SITE', 4)).measures).toBeUndefined();
   });
 
   it('says what selection does, which is the resting state', () => {

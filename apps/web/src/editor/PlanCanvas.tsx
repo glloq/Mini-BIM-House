@@ -45,7 +45,25 @@ import {
   pointerModelPoint,
   requiredPoints,
 } from './editor-state.js';
-import { drawsWalls, dynamicInputOf, isOpenEnded } from './tool-registry.js';
+import {
+  completionModeOf,
+  drawsWalls,
+  dynamicInputOf,
+  isOpenEnded,
+} from './tool-registry.js';
+import {
+  draftMeasureLabel,
+  draftMeasures as draftMeasuresOf,
+} from './draft-measures.js';
+
+/**
+ * La taille de la marque du premier sommet, en pixels.
+ *
+ * En pixels et non en millimètres : le premier sommet se cherche justement
+ * quand on a dézoomé pour voir tout le contour, et une marque de trente
+ * centimètres n'existe plus à cette échelle.
+ */
+const FIRST_VERTEX_MARK_PX = 5;
 
 /** What a handle does, said out loud for anyone not looking at the screen. */
 function gripLabel(grip: Grip): string {
@@ -312,9 +330,93 @@ export function PlanCanvas({
               state: 'GHOST',
             },
           ];
+
+    /*
+     * Le premier sommet, reconnaissable, et ce que la surface mesure déjà.
+     *
+     * On traçait une parcelle sans savoir lequel des sommets refermait le
+     * contour ni ce qu'elle faisait : les deux se découvraient une fois
+     * l'objet créé. Le premier sommet porte donc une marque, l'arête de
+     * fermeture est dessinée pendant qu'on trace, et l'aire s'écrit au centre.
+     *
+     * La marque est dimensionnée en pixels puis convertie en millimètres :
+     * une taille en millimètres disparaîtrait au dézoom, et c'est au dézoom
+     * qu'on cherche le premier sommet.
+     */
+    const closing = completionModeOf(editor.activeTool) === 'CLOSE_POLYGON';
+    const first = editor.pendingPoints[0]!;
+    const markMm = FIRST_VERTEX_MARK_PX / editor.camera.pixelsPerMm;
+    const mark: readonly ScenePrimitive[] = closing
+      ? [
+          {
+            id: 'preview:first-vertex',
+            semanticRole: 'ANNOTATION' as const,
+            geometry: {
+              kind: 'POLYGON' as const,
+              polygon: {
+                outer: [
+                  { x: first.x - markMm, y: first.y - markMm },
+                  { x: first.x + markMm, y: first.y - markMm },
+                  { x: first.x + markMm, y: first.y + markMm },
+                  { x: first.x - markMm, y: first.y + markMm },
+                ],
+              },
+            },
+            layer: 'annotation.dimensions',
+            zIndex: 93,
+            discipline: 'ARCHITECTURE' as const,
+            state: 'GHOST' as const,
+          },
+        ]
+      : [];
+    const ring = closing ? [...editor.pendingPoints, target] : [];
+    const measured = closing
+      ? draftMeasuresOf(ring, 'CLOSE_POLYGON')
+      : undefined;
+    const surface: readonly ScenePrimitive[] =
+      closing && ring.length >= 3
+        ? [
+            {
+              id: 'preview:closing-edge',
+              semanticRole: 'ANNOTATION' as const,
+              geometry: {
+                kind: 'POLYLINE' as const,
+                polyline: { points: [target, first], closed: false },
+              },
+              layer: 'annotation.dimensions',
+              zIndex: 88,
+              discipline: 'ARCHITECTURE' as const,
+              state: 'GHOST' as const,
+            },
+            ...(measured === undefined
+              ? []
+              : [
+                  {
+                    id: 'preview:area',
+                    semanticRole: 'ANNOTATION' as const,
+                    geometry: {
+                      kind: 'TEXT' as const,
+                      anchor: {
+                        x:
+                          ring.reduce((sum, { x }) => sum + x, 0) / ring.length,
+                        y:
+                          ring.reduce((sum, { y }) => sum + y, 0) / ring.length,
+                      },
+                      text: draftMeasureLabel(measured),
+                    },
+                    layer: 'annotation.dimensions',
+                    zIndex: 93,
+                    discipline: 'ARCHITECTURE' as const,
+                    state: 'GHOST' as const,
+                  },
+                ]),
+          ]
+        : [];
     return [
       ...band,
       ...laid,
+      ...surface,
+      ...mark,
       ...(footprint === undefined
         ? []
         : [
@@ -724,6 +826,26 @@ export function PlanCanvas({
         event.currentTarget.setPointerCapture(event.pointerId);
         return;
       }
+      /*
+       * Recliquer le premier sommet referme la surface.
+       *
+       * C'était le geste que tout le monde essayait, et il posait un sommet de
+       * plus au même endroit : un contour à cinq sommets dont deux confondus.
+       * Il fallait connaître « Ctrl+Entrée » pour finir ce qu'on avait
+       * commencé à la souris.
+       */
+      if (
+        completionModeOf(editor.activeTool) === 'CLOSE_POLYGON' &&
+        editor.pendingPoints.length >= requiredPoints(editor.activeTool) &&
+        onFinishRun !== undefined
+      ) {
+        const first = editor.pendingPoints[0]!;
+        const reach = pickToleranceMm(editor.camera, event.pointerType);
+        if (Math.hypot(model.x - first.x, model.y - first.y) <= reach) {
+          onFinishRun();
+          return;
+        }
+      }
       const snapped = snapFor(event)?.point;
       const point = resolveDraftPoint({
         tool: editor.activeTool,
@@ -760,6 +882,7 @@ export function PlanCanvas({
       editor,
       modelPointOf,
       onCommitPoints,
+      onFinishRun,
       onMoveSelection,
       plan.primitives,
       snapFor,
@@ -1179,6 +1302,12 @@ export function PlanCanvas({
             {...(isOpenEnded(editor.activeTool) && onFinishRun !== undefined
               ? { onFinish: onFinishRun }
               : {})}
+            {...(completionModeOf(editor.activeTool) === undefined
+              ? {}
+              : { completion: completionModeOf(editor.activeTool)! })}
+            {...(editor.pendingPoints.length === 0
+              ? {}
+              : { onUndoPoint: () => dispatch({ type: 'UNDO_POINT' }) })}
             onCancel={() => dispatch({ type: 'CANCEL' })}
           />
         )}
@@ -1325,7 +1454,11 @@ export function PlanCanvas({
             it has to be written somewhere the user is already looking. */}
         {isOpenEnded(editor.activeTool) &&
           editor.pendingPoints.length > 0 &&
-          ` · ${editor.pendingPoints.length} point(s) · Entrée termine, Échap annule`}
+          ` · ${editor.pendingPoints.length} point(s) · ${
+            completionModeOf(editor.activeTool) === 'CLOSE_POLYGON'
+              ? 'Entrée ferme la surface'
+              : 'Entrée termine'
+          }, Échap annule`}
       </p>
     </div>
   );

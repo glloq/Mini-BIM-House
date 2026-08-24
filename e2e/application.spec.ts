@@ -1749,7 +1749,7 @@ test('shows nothing above the plan until something is being done', async ({
   await expect(tools.getByLabel('Assemblage')).toBeVisible();
 
   // Finishing empties it again.
-  await bar.getByRole('button', { name: 'Terminer' }).click();
+  await bar.getByRole('button', { name: 'Quitter l’outil' }).click();
   await expect(bar).toHaveClass(/is-empty/u);
 
   // Selecting something brings back what applies to the selection, and only
@@ -1764,7 +1764,7 @@ test('shows nothing above the plan until something is being done', async ({
     },
   });
   await expect(bar.getByRole('group', { name: 'Alignement' })).toBeVisible();
-  await expect(bar).not.toContainText('Terminer');
+  await expect(bar).not.toContainText('Quitter l’outil');
 
   // Un seul écran pour tout le monde : ce que l'étape ne propose pas est à un
   // dépliage, pas à un changement de mode. Une étape filtre ce qui est
@@ -2318,7 +2318,7 @@ test('says what the active tool expects, and how to stop', async ({ page }) => {
   await chooseTool(page, 'Mur continu');
   await canvas.click({ position: { x: 60, y: frame.height - 40 } });
   await canvas.click({ position: { x: 200, y: frame.height - 40 } });
-  await expect(bar).toContainText('Entrée termine');
+  await expect(bar).toContainText('Terminer le tracé : Entrée');
   await page.keyboard.press('Escape');
   expect(errors).toEqual([]);
 });

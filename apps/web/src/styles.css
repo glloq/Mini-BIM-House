@@ -3027,6 +3027,17 @@ button.ghost:disabled {
   color: var(--ink-soft);
   opacity: 0.8;
 }
+/* Ce que le tracé mesure déjà. La phrase se laisse couper ; l'aire, non :
+   c'est pour elle qu'on dessine une surface. */
+.draft-measures {
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.35rem;
+  background: var(--surface-raised);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .context-tool-bar > * {
   flex: 0 0 auto;
 }

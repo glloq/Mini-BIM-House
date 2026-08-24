@@ -129,8 +129,11 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
   },
   { id: 'edit.delete', label: 'Supprimer', key: 'Delete', group: 'Édition' },
   {
+    // Un seul mot pour un geste : « terminer » couvre le chemin qu'on arrête
+    // et la surface qu'on referme, et l'écran nomme lequel des deux selon
+    // l'outil. Ce qui ne varie pas, c'est que la touche est Entrée.
     id: 'edit.finish',
-    label: 'Terminer le tracé',
+    label: 'Terminer ou fermer le tracé',
     key: 'Enter',
     group: 'Édition',
   },

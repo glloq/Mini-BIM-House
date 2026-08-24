@@ -48,6 +48,7 @@ import {
   COMMON_SECTION,
   availabilityOf,
   draftsForEntry,
+  isEntryActive,
   entryAvailable,
   leftoverTools,
   missingFicheFamilies,
@@ -201,7 +202,7 @@ export function ToolHeader({
           {select !== undefined && (
             <EntryButton
               available={availabilityOf(select, design)}
-              active={select.toolId === editor.activeTool}
+              active={isEntryActive(project, select, editor.activeTool, drafts)}
               onChoose={choose}
             />
           )}
@@ -209,7 +210,12 @@ export function ToolHeader({
             <EntryButton
               key={available.entry.id}
               available={available}
-              active={available.entry.toolId === editor.activeTool}
+              active={isEntryActive(
+                project,
+                available.entry,
+                editor.activeTool,
+                drafts,
+              )}
               onChoose={choose}
             />
           ))}
@@ -258,7 +264,12 @@ export function ToolHeader({
                     <EntryButton
                       key={available.entry.id}
                       available={available}
-                      active={available.entry.toolId === editor.activeTool}
+                      active={isEntryActive(
+                        project,
+                        available.entry,
+                        editor.activeTool,
+                        drafts,
+                      )}
                       onChoose={choose}
                     />
                   ))}

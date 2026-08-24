@@ -6,7 +6,10 @@ import { OBJECT_FAMILIES } from './object-editors.js';
 import {
   EDITOR_LEVELS,
   EDITOR_TOOLS,
+  completionLabel,
+  completionModeOf,
   constrainsDrafting,
+  isOpenEnded,
   dynamicInputOf,
   populatedToolGroups,
   populatedToolGroupsAtLevel,
@@ -371,5 +374,44 @@ describe('how much of the editor is shown', () => {
     for (const level of EDITOR_LEVELS)
       for (const group of populatedToolGroupsAtLevel(level))
         expect(toolsInGroupAtLevel(group, level).length).toBeGreaterThan(0);
+  });
+});
+
+describe('ce que « terminer » veut dire', () => {
+  it('ne veut rien dire pour un outil qui sait combien de points il attend', () => {
+    // Un mur entre deux points se termine tout seul : lui proposer de fermer
+    // une surface serait proposer un geste qui n'existe pas.
+    for (const tool of EDITOR_TOOLS) {
+      if (isOpenEnded(tool.id)) continue;
+      expect(completionModeOf(tool.id), tool.id).toBeUndefined();
+    }
+  });
+
+  it('sépare les surfaces des chemins, et un seul endroit les nomme', () => {
+    const closing = EDITOR_TOOLS.filter(
+      ({ id }) => completionModeOf(id) === 'CLOSE_POLYGON',
+    ).map(({ id }) => id);
+    expect([...closing].sort()).toEqual(['ROOF', 'SITE', 'SLAB', 'SLAB_HOLE']);
+    // Tout autre outil ouvert termine un chemin : il n'y a pas de troisième
+    // cas, et rien à déclarer pour l'obtenir.
+    for (const tool of EDITOR_TOOLS) {
+      if (!isOpenEnded(tool.id)) continue;
+      if (closing.includes(tool.id)) continue;
+      expect(completionModeOf(tool.id), tool.id).toBe('FINISH_PATH');
+    }
+  });
+
+  it('demande au moins trois sommets pour une surface', () => {
+    // Deux sommets ne referment rien, et un bouton « Fermer la surface » qui
+    // refuse ensuite se lit comme une panne.
+    for (const tool of EDITOR_TOOLS) {
+      if (completionModeOf(tool.id) !== 'CLOSE_POLYGON') continue;
+      expect(requiredPoints(tool.id), tool.id).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it('écrit le geste avec le mot du geste', () => {
+    expect(completionLabel('CLOSE_POLYGON')).toBe('Fermer la surface');
+    expect(completionLabel('FINISH_PATH')).toBe('Terminer le tracé');
   });
 });

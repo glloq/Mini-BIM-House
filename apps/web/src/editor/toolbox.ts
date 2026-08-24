@@ -1911,6 +1911,57 @@ export function draftsForEntry(
   return drafts;
 }
 
+/**
+ * L'entrée que l'écran est en train de faire, et elle seule.
+ *
+ * « Toit auto », « 2 pans », « 1 pan » et « Pan libre » prennent le même outil
+ * et ne diffèrent que par ce qu'ils pré-remplissent. Comparer les outils
+ * allumait les quatre à la fois : quatre boutons enfoncés pour un seul geste,
+ * et plus rien pour dire lequel on avait pris.
+ *
+ * Une entrée est active quand l'outil est le sien **et** que tout ce qu'elle
+ * pré-remplit est encore ce qui est réglé. Rien n'est mémorisé : la réponse
+ * est relue des brouillons, donc changer une option à la main éteint l'entrée
+ * — ce qui est exact, parce qu'on ne fait plus tout à fait ce qu'elle fait.
+ */
+export function isEntryActive(
+  project: Project,
+  candidate: ToolboxEntry,
+  activeTool: string,
+  drafts: ToolDrafts,
+): boolean {
+  if (candidate.toolId !== activeTool) return false;
+  return activeEntryId(project, activeTool, drafts) === candidate.id;
+}
+
+/**
+ * Celle des entrées de cet outil que l'écran est en train de faire.
+ *
+ * « Toit auto » ne pré-remplit que le contour, « 2 pans » le contour **et** le
+ * nombre de pans : ce que l'un règle, l'autre le règle aussi, donc satisfaire
+ * son propre pré-remplissage ne suffit pas à être la bonne réponse. La plus
+ * précise gagne, et à égalité c'est l'ordre du registre qui tranche — celui
+ * d'un chantier.
+ *
+ * La question est posée à tout le registre plutôt qu'aux entrées affichées :
+ * la réponse ne doit pas dépendre de ce qui est sous la main à cet instant.
+ */
+export function activeEntryId(
+  project: Project,
+  activeTool: string,
+  drafts: ToolDrafts,
+): string | undefined {
+  let best: { readonly id: string; readonly keys: number } | undefined;
+  for (const candidate of allToolboxEntries()) {
+    if (candidate.toolId !== activeTool) continue;
+    const wanted = Object.entries(draftsForEntry(project, candidate));
+    if (!wanted.every(([key, value]) => drafts[key] === value)) continue;
+    if (best === undefined || wanted.length > best.keys)
+      best = { id: candidate.id, keys: wanted.length };
+  }
+  return best?.id;
+}
+
 function keyFor(tool: EditorToolDefinition, option: string): string {
   const declared = (tool.options ?? []).find(({ key }) => key === option);
   return draftKey(tool.id, option, declared?.scope === 'SHARED');

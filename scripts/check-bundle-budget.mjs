@@ -152,8 +152,14 @@ export const BUDGETS = {
    * Et un avec ce que le plan écrit tout seul — cotes intérieures et pente
    * des évacuations. C'est le dessin lui-même : il n'y a pas d'endroit plus
    * tôt où le mettre.
+   *
+   * Et un avec la fermeture des surfaces : l'aire et le périmètre écrits
+   * pendant qu'on trace, le premier sommet marqué, l'arête de fermeture, et
+   * les deux boutons qui achèvent un contour à la souris. Une parcelle se
+   * dessine pour ses mètres carrés ; les lire après l'avoir créée obligeait à
+   * créer, lire, annuler, recommencer.
    */
-  initialGzipBytes: 285 * 1024,
+  initialGzipBytes: 286 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -263,13 +269,16 @@ export const BUDGETS = {
    * pente des évacuations. Une évacuation horizontale est une évacuation qui
    * ne s'écoule pas, et c'est la seule chose qu'un plan doit crier.
    *
+   * Et un avec la fermeture des surfaces, comptée au chargement initial
+   * ci-dessus : elle vit dans le plan, donc dans le premier écran.
+   *
    * Et un avec le panneau « Ajouter » et la rangée des niveaux. Le panneau ne
    * tient aucune liste : il appelle `toolboxFor` comme le header, et dessine
    * ses entrées avec le même `EntryButton` — ce qu'il coûte, c'est un
    * composant et une grille. La colonne de gauche montre enfin ce qu'on peut
    * poser plutôt que ce qui est déjà posé, et l'étage courant reste à un clic.
    */
-  totalGzipBytes: 465 * 1024,
+  totalGzipBytes: 466 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */
