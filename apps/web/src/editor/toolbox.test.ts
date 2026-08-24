@@ -11,11 +11,11 @@ import {
   allToolboxEntries,
   availabilityOf,
   draftsForEntry,
+  entryAvailable,
+  entryFicheInstalled,
   ficheOfFamily,
   isEntryActive,
-  missingFicheFamilies,
   sectionsOfStage,
-  leftoverTools,
   toolboxFor,
   unblockingEntry,
   type ToolboxEntry,
@@ -104,26 +104,46 @@ describe('what a stage puts under the hand', () => {
     expect(resolved).toBeGreaterThan(8);
   });
 
-  it('says why a stage is empty rather than showing an empty column', () => {
-    // Aménagement pose des fiches du catalogue ; un projet qui n'en tient
-    // aucune n'a rien à poser, et une colonne vide sans un mot est un écran
-    // qui ne dit pas ce qu'il attend.
+  it('propose ce qu’on peut poser, même si la fiche n’est pas encore là', () => {
+    /*
+     * L'ancienne règle retirait le bouton, et c'était pire que la promesse
+     * qu'elle voulait éviter : `Aménagement` sur un projet sans catalogue
+     * n'avait pas une sous-partie, pas un bouton, rien à quoi rattacher « il
+     * faut ouvrir la bibliothèque ». On punissait de ne pas connaître le
+     * programme.
+     *
+     * Une entrée nomme une famille, et la prendre installe la fiche que cette
+     * famille désigne. Elle peut donc rester.
+     */
     const bare = { ...project, equipment: [] };
-    expect(toolboxFor(bare, 'FITTING', undefined)).toEqual([]);
-    expect(sectionsOfStage('FITTING').length).toBeGreaterThan(0);
-    expect(missingFicheFamilies(bare, 'FITTING').length).toBeGreaterThan(0);
-    // Et rien à dire quand tout est là.
-    expect(missingFicheFamilies(project, 'BUILDING')).toEqual([]);
+    const offered = toolboxFor(bare, 'FITTING', undefined);
+    expect(offered.length).toBeGreaterThan(0);
+    expect(offered.flatMap(({ entries }) => entries).length).toBeGreaterThan(0);
+    // Et l'écran sait laquelle reste à installer : ce n'est pas la même chose
+    // que de ne pas pouvoir la poser.
+    const bed = offered
+      .flatMap(({ entries }) => entries)
+      .find(({ id }) => id === 'fitting.bed')!;
+    expect(entryFicheInstalled(bare, bed)).toBe(false);
+    expect(entryFicheInstalled(project, bed)).toBe(true);
+    // Un outil que le registre ne tient pas reste la seule vraie absence.
+    expect(entryAvailable(bare, { ...bed, toolId: 'OUTIL_INVENTÉ' })).toBe(
+      false,
+    );
   });
 
-  it('offers nothing a project cannot place', () => {
-    // Un bouton qui ne peut rien poser est une promesse, et une promesse est
-    // pire qu'une absence : critère 17 du contrat.
-    const bare = { ...project, equipment: [] };
+  it('nomme une famille du catalogue, jamais une fiche', () => {
+    // Critère 17 : ce qu'une entrée désigne est une famille de la
+    // nomenclature. Aucune n'écrit l'identifiant d'une fiche, sans quoi le
+    // catalogue installé ne pourrait plus répondre.
+    const fiches = new Set((project.equipment ?? []).map(({ id }) => id));
     for (const stage of CREATION_STAGES)
-      for (const section of toolboxFor(bare, stage, undefined))
+      for (const section of toolboxFor(project, stage, undefined))
         for (const candidate of section.entries)
-          expect(candidate.family, candidate.id).toBeUndefined();
+          expect(
+            candidate.family === undefined || !fiches.has(candidate.family),
+            candidate.id,
+          ).toBe(true);
   });
 
   it('keeps a section for every trade a stage claims a sub-stage for', () => {
@@ -274,47 +294,62 @@ describe('what the house allows, tool by tool', () => {
       }
   });
 
-  it('keeps every tool of the registry reachable whatever the house', () => {
+  it('donne un espace à chaque outil du registre', () => {
     /*
-     * L'invariant de UX-3 sous la nouvelle règle.
+     * L'invariant de UX-3, sous la règle que les parties sont séparées.
      *
-     * `visibleWhen` retire d'une liste, jamais du programme : un escalier
-     * n'est pas proposé sur une maison de plain-pied, et il est alors dans
-     * « Tous les outils ». Ce que ce test refuse est qu'il tombe entre les
-     * deux — proposé nulle part et rangé nulle part.
+     * Le « + » versait dans chaque espace tout ce que le registre tient :
+     * « Mur », « Toiture » et « Escalier » dans l'espace du terrain,
+     * « Terrain » dans celui du bâtiment. Un espace qui propose ce qui
+     * appartient à un autre n'est plus une partie de la maison, c'est un menu.
+     *
+     * L'invariant change donc de forme, pas de fond : ce qu'on refuse est
+     * qu'un outil n'ait **aucun** espace. Sur la maison la plus fournie —
+     * `visibleWhen` retire d'une liste, jamais du programme — chacun doit
+     * trouver la sienne.
      */
-    for (const state of [
-      EMPTY_DESIGN_STATE,
-      houseWith({ levelCount: 1, wallCount: 4 }),
-      houseWith({
-        levelCount: 2,
-        wallCount: 8,
-        closedContours: [{ areaM2: 12 }],
-        slabCount: 1,
-        networkCount: 1,
-        roofSurfaceCount: 1,
-      }),
-    ])
-      for (const stage of CREATION_STAGES) {
-        const proposed = new Set(
-          [
-            ...toolboxFor(project, stage, undefined, state).flatMap(
-              ({ entries }) => entries,
-            ),
-            // Les communs sont sous la main partout : la Sélection ouvre la
-            // rangée, le reste est dans le « + ».
-            ...COMMON_SECTION.entries,
-          ].map(({ toolId }) => toolId),
-        );
-        const left = new Set(
-          leftoverTools(project, stage, undefined, state).map(({ id }) => id),
-        );
-        for (const tool of EDITOR_TOOLS)
-          expect(
-            proposed.has(tool.id) || left.has(tool.id),
-            `${stage} · ${tool.id}`,
-          ).toBe(true);
-      }
+    const furnished = houseWith({
+      levelCount: 2,
+      wallCount: 8,
+      closedContours: [{ areaM2: 12 }],
+      slabCount: 1,
+      networkCount: 1,
+      roofSurfaceCount: 1,
+    });
+    const housed = new Set(
+      [
+        ...CREATION_STAGES.flatMap((stage) =>
+          toolboxFor(project, stage, undefined, furnished).flatMap(
+            ({ entries }) => entries,
+          ),
+        ),
+        // Les communs sont sous la main partout : la Sélection ouvre la
+        // rangée, le reste est dans le « + » de chaque espace.
+        ...COMMON_SECTION.entries,
+      ].map(({ toolId }) => toolId),
+    );
+    for (const tool of EDITOR_TOOLS)
+      expect(housed.has(tool.id), tool.id).toBe(true);
+  });
+
+  it('ne verse pas un espace dans un autre', () => {
+    /*
+     * Ce que l'audit demande en toutes lettres : les parties sont séparées.
+     *
+     * On ne doit pas atteindre les étapes du terrain depuis l'onglet du
+     * bâtiment, ni l'inverse. La recherche (Ctrl+K) reste le chemin vers
+     * tout, depuis partout — elle, on l'ouvre exprès.
+     */
+    const offered = (stage: (typeof CREATION_STAGES)[number]): Set<string> =>
+      new Set(
+        toolboxFor(project, stage, undefined, EMPTY_DESIGN_STATE)
+          .flatMap(({ entries }) => entries)
+          .map(({ toolId }) => toolId),
+      );
+    expect(offered('BUILDING').has('SITE')).toBe(false);
+    expect(offered('SITE').has('WALL')).toBe(false);
+    expect(offered('SITE').has('STAIR')).toBe(false);
+    expect(offered('FITTING').has('NETWORK_ROUTE')).toBe(false);
   });
 
   it('proposes at most what it would propose knowing nothing', () => {
@@ -368,5 +403,28 @@ describe('quelle entrée est en cours', () => {
   it('n’allume rien quand l’outil n’est pas le sien', () => {
     const wall = allToolboxEntries().find(({ toolId }) => toolId === 'WALL')!;
     expect(isEntryActive(project, wall, 'SELECT', {})).toBe(false);
+  });
+});
+
+describe('les noms que les entrées portent', () => {
+  it('ne donne pas le même nom à deux gestes différents', () => {
+    /*
+     * « Trémie » nommait un percement de mur dans « Ouvertures » et un
+     * percement de dalle dans « Dalles » : on cliquait l'un en croyant prendre
+     * l'autre, et rien à l'écran ne les distinguait.
+     */
+    const seen = new Map<string, string>();
+    for (const stage of CREATION_STAGES)
+      for (const section of toolboxFor(project, stage, undefined))
+        for (const candidate of section.entries) {
+          const shown = `${stage} · ${candidate.label}`;
+          const before = seen.get(shown);
+          if (before !== undefined && before !== candidate.toolId)
+            expect(
+              before,
+              `${shown} : « ${candidate.id} » et « ${before} » portent le même nom`,
+            ).toBe(candidate.toolId);
+          seen.set(shown, candidate.toolId);
+        }
   });
 });

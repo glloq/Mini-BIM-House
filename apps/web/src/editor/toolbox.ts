@@ -18,9 +18,10 @@
  * aucune ne voit pas l'entrée : un bouton qui ne peut rien poser est une
  * promesse, et une promesse est pire qu'une absence.
  *
- * L'étape filtre ce qui est **proposé**. Les vingt-cinq outils restent tous
- * atteignables depuis n'importe où par la recherche et la palette, et un test
- * refuse qu'un seul devienne invisible.
+ * L'étape filtre ce qui est **proposé**, et les sept espaces sont séparés :
+ * on n'atteint pas les étapes du terrain depuis l'onglet du bâtiment. La
+ * recherche et la palette restent le chemin vers tout, depuis partout — on les
+ * ouvre exprès. Un test refuse qu'un outil n'ait aucun espace.
  */
 import type {
   DesignDomainId,
@@ -31,11 +32,7 @@ import type { CreationStageId } from '../ux/creation-stages.js';
 import type { DesignState } from '../ux/design-state.js';
 
 import { draftKey, type ToolDrafts } from './tool-options.js';
-import {
-  EDITOR_TOOLS,
-  toolById,
-  type EditorToolDefinition,
-} from './tool-registry.js';
+import { toolById, type EditorToolDefinition } from './tool-registry.js';
 import type { ToolIconId } from './tool-icons.js';
 
 /**
@@ -78,9 +75,8 @@ export interface ToolboxEntry {
   /**
    * Absente tant que c'est faux.
    *
-   * Ne retire jamais l'outil de « Tous les outils », ni de la recherche, ni de
-   * la palette : une étape filtre ce qui est proposé, elle ne restreint jamais
-   * ce qui est possible.
+   * Ne retire jamais l'outil de la recherche ni de la palette : une étape
+   * filtre ce qui est proposé, elle ne restreint jamais ce qui est possible.
    */
   readonly visibleWhen?: DesignPredicate;
   /** Présente mais inerte, avec sa raison écrite. */
@@ -411,10 +407,14 @@ const STAGE_SECTIONS: Readonly<
           undefined,
           HAS_WALL,
         ),
+        // « Trémie » nommait deux choses : un percement de mur, ici, et un
+        // percement de dalle dans « Dalles ». On cliquait l'un en croyant
+        // prendre l'autre. Une trémie est un trou dans un plancher ; ce qui
+        // traverse un mur est un passage.
         entry(
           'building.void',
           'OPENING',
-          'Trémie',
+          'Passage',
           'Percer un passage dans un mur',
           'VOID',
           { openingType: 'VOID' },
@@ -931,6 +931,30 @@ const STAGE_SECTIONS: Readonly<
           'PIPE',
           'SANITARY',
           'OUTDOOR_TAP',
+        ),
+      ],
+    },
+    {
+      /*
+       * Ce que le catalogue ne nomme pas.
+       *
+       * Chaque entrée d'ici pose une fiche : « Lit », « Lave-linge »,
+       * « Prise ». Il faut aussi pouvoir poser ce qui n'a pas de fiche — un
+       * appareil qu'on décrira à la main — et cet outil-là n'avait plus de
+       * maison depuis que les espaces ne se versent plus les uns dans les
+       * autres. Un outil sans espace est un outil qu'on ne trouve plus.
+       */
+      id: 'fitting.other',
+      label: 'Divers',
+      domain: 'FURNITURE',
+      entries: [
+        entry(
+          'fitting.component',
+          'COMPONENT',
+          'Composant',
+          'Poser un appareil que le catalogue ne nomme pas',
+          'APPLIANCE',
+          { category: 'FURNITURE' },
         ),
       ],
     },
@@ -1763,12 +1787,31 @@ export function ficheOfFamily(
   )?.id;
 }
 
-/** Si le projet peut poser ce que l'entrée propose. */
+/**
+ * Si le programme sait faire ce que l'entrée propose.
+ *
+ * Il ne s'agit plus de savoir si le **projet** tient déjà la fiche : une
+ * entrée dont la famille n'était pas installée disparaissait, et `Aménagement`
+ * sur un projet neuf était un espace entièrement vide — pas une sous-partie,
+ * pas un bouton, rien à quoi rattacher « il faut ouvrir la bibliothèque ».
+ * C'était punir de ne pas connaître le programme.
+ *
+ * Une entrée nomme une famille, et prendre l'entrée **installe** la fiche que
+ * cette famille désigne. La seule chose qui puisse encore la retirer est un
+ * outil que le registre ne tient pas — c'est-à-dire un bug.
+ */
 export function entryAvailable(
+  _project: Project,
+  candidate: ToolboxEntry,
+): boolean {
+  return toolById(candidate.toolId) !== undefined;
+}
+
+/** Si la fiche que cette entrée pose est déjà dans le projet. */
+export function entryFicheInstalled(
   project: Project,
   candidate: ToolboxEntry,
 ): boolean {
-  if (toolById(candidate.toolId) === undefined) return false;
   return (
     candidate.family === undefined ||
     ficheOfFamily(project, candidate.family) !== undefined
@@ -1835,34 +1878,6 @@ export function toolboxFor(
       ),
     }))
     .filter((section) => section.entries.length > 0);
-}
-
-/**
- * Ce que la sous-partie ne propose pas, et qui reste à un dépliage.
- *
- * L'autre moitié de `toolboxFor` : ce que le filtre laisse de côté ne
- * disparaît pas du programme, il change d'endroit. Les deux ensembles réunis
- * font le registre entier, et un test le refuse autrement — c'est ce qui rend
- * `visibleWhen` sûr, y compris pour un escalier qu'une maison de plain-pied ne
- * propose pas.
- */
-export function leftoverTools(
-  project: Project,
-  stage: CreationStageId,
-  domain: DesignDomainId | undefined,
-  state?: DesignState,
-): readonly EditorToolDefinition[] {
-  const offered = new Set(
-    [
-      ...toolboxFor(project, stage, domain, state).flatMap(
-        ({ entries }) => entries,
-      ),
-      ...COMMON_SECTION.entries.filter((candidate) =>
-        entryAvailable(project, candidate),
-      ),
-    ].map(({ toolId }) => toolId),
-  );
-  return EDITOR_TOOLS.filter((tool) => !offered.has(tool.id));
 }
 
 /**

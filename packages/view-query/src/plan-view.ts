@@ -1665,7 +1665,24 @@ function structurePrimitives(level: Level): readonly PrimitiveDraft[] {
 function sitePrimitives(project: Project): readonly PrimitiveDraft[] {
   const drafts: PrimitiveDraft[] = [];
   const parcel = project.site.parcelBoundary;
-  if (parcel !== undefined)
+  if (parcel !== undefined) {
+    /*
+     * Le sol, puis la limite.
+     *
+     * Une parcelle fermée n'était qu'un trait tireté pâle sur du blanc : rien
+     * ne disait qu'une surface venait d'exister. Le lavis est un dessin à
+     * part, sans identifiant — on ne sélectionne pas le sol, on sélectionne la
+     * limite — et il passe sous tout le reste, ce qui est sa place.
+     */
+    drafts.push({
+      id: 'site:ground',
+      semanticRole: 'SITE',
+      geometry: { kind: 'POLYGON', polygon: parcel },
+      layer: 'site.parcel',
+      zIndex: 0,
+      discipline: 'SITE',
+      metadata: { ground: true },
+    });
     drafts.push({
       id: 'site:parcel',
       sourceObjectId: 'site:parcel',
@@ -1675,6 +1692,7 @@ function sitePrimitives(project: Project): readonly PrimitiveDraft[] {
       zIndex: 1,
       discipline: 'SITE',
     });
+  }
   for (const obstacle of project.site.obstacles ?? [])
     drafts.push({
       id: `site-obstacle:${obstacle.id}`,

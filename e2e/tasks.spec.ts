@@ -302,8 +302,11 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
    * Et une question qui ne se pose pas ne se pose pas.
    *
    * Sur une maison d'un seul niveau il n'y a pas d'escalier à dessiner : la
-   * sous-partie est absente, pas grisée — il n'y a rien à expliquer. L'outil,
-   * lui, reste atteignable sous « + », comme les vingt-quatre autres.
+   * sous-partie est absente, pas grisée — il n'y a rien à expliquer.
+   *
+   * Le dépliage ne le rattrape plus : les sept espaces sont séparés, et le
+   * « + » ne verse plus les outils des six autres. Ce qui reste, et qui
+   * suffit, c'est la recherche — un bouton, pas un raccourci.
    */
   await openStage(page, 'Bâtiment');
   const parts = page.getByRole('navigation', { name: 'Sous-parties' });
@@ -313,6 +316,14 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
   await revealAllTools(page);
   await expect(
     toolbox.getByRole('button', { name: 'Escalier', exact: true }),
+  ).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Rechercher' }).click();
+  const palette = page.getByRole('dialog', { name: 'Palette de commandes' });
+  await expect(palette).toBeVisible();
+  await palette.getByLabel('Chercher une commande').fill('escalier');
+  await expect(
+    palette.getByRole('button', { name: /Escalier/u }).first(),
   ).toBeVisible();
 });
 

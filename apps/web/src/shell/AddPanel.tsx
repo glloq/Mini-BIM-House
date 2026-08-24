@@ -29,14 +29,9 @@ import type {
 } from '@house-technical-designer/core-domain';
 
 import { EntryButton } from '../editor/EntryButton.js';
-import type {
-  EditorAction,
-  EditorState,
-  EditorTool,
-} from '../editor/editor-state.js';
+import type { EditorState } from '../editor/editor-state.js';
 import {
   availabilityOf,
-  draftsForEntry,
   isEntryActive,
   toolboxFor,
   type ToolboxEntry,
@@ -55,8 +50,8 @@ export interface AddPanelProps {
   readonly editor: EditorState;
   /** Ce qui est réglé : c'est lui qui dit laquelle des entrées est en cours. */
   readonly drafts: ToolDrafts;
-  readonly dispatch: (action: EditorAction) => void;
-  readonly onDraftsChange: (drafts: ToolDrafts) => void;
+  /** Prendre une entrée : le même geste que dans la rangée d'outils. */
+  readonly onChooseEntry: (entry: ToolboxEntry) => void;
 }
 
 export function AddPanel({
@@ -67,8 +62,7 @@ export function AddPanel({
   design,
   editor,
   drafts,
-  dispatch,
-  onDraftsChange,
+  onChooseEntry,
 }: AddPanelProps) {
   // La sous-partie est cherchée parmi toutes celles de l'espace, comme dans le
   // header : un métier ne doit pas pouvoir faire disparaître la sous-partie
@@ -81,12 +75,6 @@ export function AddPanel({
       : [chosen];
   const entries = shown.flatMap(({ entries: held }) => held);
   if (entries.length === 0) return null;
-
-  const choose = (candidate: ToolboxEntry): void => {
-    dispatch({ type: 'SET_TOOL', tool: candidate.toolId as EditorTool });
-    const prefilled = draftsForEntry(project, candidate);
-    if (Object.keys(prefilled).length > 0) onDraftsChange(prefilled);
-  };
 
   /*
    * Les recommandées d'abord, les inertes en dernier.
@@ -118,7 +106,7 @@ export function AddPanel({
               editor.activeTool,
               drafts,
             )}
-            onChoose={choose}
+            onChoose={onChooseEntry}
           />
         ))}
       </div>

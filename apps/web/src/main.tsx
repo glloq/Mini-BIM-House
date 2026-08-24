@@ -16,6 +16,7 @@ import type { ClimateDataset } from '@house-technical-designer/climate';
 import { validateClimateDataset } from '@house-technical-designer/climate';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import {
+  AddEquipmentCommand,
   ReplaceProjectCommand,
   SaveDrawingViewCommand,
   SetScenarioOverrideCommand,
@@ -78,6 +79,7 @@ import {
 import type { InspectorEdit } from './editor/inspector-edits.js';
 import type { CheckFix } from './checks/checks-model.js';
 import {
+  completionModeOf,
   isOpenEnded,
   optionsOf,
   requiredPoints,
@@ -202,6 +204,12 @@ import {
 } from './ux/destinations.js';
 import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
+import { surfaceIds } from './editor/polygon-surface.js';
+import {
+  draftsForEntry,
+  ficheOfFamily,
+  type ToolboxEntry,
+} from './editor/toolbox.js';
 import {
   alignObjectsCommand,
   EMPTY_CLIPBOARD,
@@ -877,6 +885,9 @@ function App() {
     [design, file.project, navigation.stage],
   );
   const openSection = activeSectionId(navigation, sectionChoices);
+  // Ce que le plan montre en plus du dessin, dans cet espace. Dérivé du
+  // registre : aucune seconde liste ne dit où une aide s'affiche.
+  const planAids = creationStage(navigation.stage).planAids ?? [];
 
   const changeLayout = useCallback((patch: Partial<WorkspaceLayout>): void => {
     setLayout((current) => {
@@ -1483,6 +1494,56 @@ function App() {
    * should hold its own copy of what a command does.
    */
   /**
+   * Prendre une entrée de la boîte à outils, où qu'on l'ait cliquée.
+   *
+   * La rangée d'outils et le panneau « Ajouter » montrent les mêmes entrées ;
+   * chacun avait sa façon de les prendre, donc deux endroits à corriger. Il
+   * n'y en a plus qu'un.
+   *
+   * Une entrée nomme une **famille** du catalogue, et elle installe la fiche
+   * que cette famille désigne si le projet ne la tient pas encore. Avant, elle
+   * disparaissait : `Aménagement` sur un projet neuf n'avait pas un bouton, et
+   * la seule issue écrite était « ouvrez la bibliothèque ». Le catalogue
+   * générique arrive à ce moment-là, et pas au démarrage — il pèse soixante-
+   * treize kio, et un plan qui s'ouvre n'a pas à les porter.
+   */
+  const chooseEntry = useCallback(
+    (candidate: ToolboxEntry) => {
+      dispatchEditor({
+        type: 'SET_TOOL',
+        tool: candidate.toolId as EditorTool,
+      });
+      const prefill = (): void => {
+        const drafts = draftsForEntry(session.current.file.project, candidate);
+        if (Object.keys(drafts).length > 0)
+          setToolDrafts((current) => ({ ...current, ...drafts }));
+      };
+      const family = candidate.family;
+      if (
+        family === undefined ||
+        ficheOfFamily(session.current.file.project, family) !== undefined
+      ) {
+        prefill();
+        return;
+      }
+      void (async () => {
+        const { equipmentForFamily } =
+          await import('./editor/starter-equipment.js');
+        const fiche = equipmentForFamily(family);
+        if (fiche === undefined) {
+          setMessage(
+            `${candidate.label} : le catalogue ne tient aucune fiche « ${family} ».`,
+          );
+          return;
+        }
+        if (!runCommand(new AddEquipmentCommand(fiche))) return;
+        prefill();
+      })();
+    },
+    [runCommand],
+  );
+
+  /**
    * Ends a run of points and lets the tool make what it can of them.
    *
    * A run of walls has no number of corners known in advance; the user says
@@ -1498,9 +1559,33 @@ function App() {
       );
       return;
     }
+    /*
+     * Ce qu'on vient de fermer est ce qu'on veut regarder.
+     *
+     * Une parcelle fermée ne montrait rien : un trait pointillé pâle, aucune
+     * surface écrite, aucune poignée — l'écran redevenait blanc au moment
+     * même où l'objet venait d'exister. Le prendre répond aux deux questions
+     * qui suivent : est-ce que c'est reconnu, et comment je le corrige.
+     *
+     * Une commande ne rend pas l'identifiant de ce qu'elle a fait ; le
+     * comparer avant/après ne demande à aucune commande de s'en souvenir.
+     */
+    const before = new Set(
+      surfaceIds(session.current.file.project, activeLevelId),
+    );
     commitPoints(editor.pendingPoints, editor.pendingPicks);
     dispatchEditor({ type: 'FINISH_RUN' });
+    if (completionModeOf(editor.activeTool) !== 'CLOSE_POLYGON') return;
+    const made = surfaceIds(session.current.file.project, activeLevelId).find(
+      (id) => !before.has(id),
+    );
+    if (made === undefined) return;
+    // Et la sélection, pour que ses poignées soient là : elles ne se
+    // dessinent que dans l'état de repos, qui est celui où l'on corrige.
+    dispatchEditor({ type: 'SET_TOOL', tool: 'SELECT' });
+    dispatchEditor({ type: 'SELECT', objectId: made });
   }, [
+    activeLevelId,
     commitPoints,
     editor.activeTool,
     editor.pendingPicks,
@@ -2382,10 +2467,7 @@ function App() {
                 design={design}
                 editor={editor}
                 drafts={toolDrafts}
-                dispatch={dispatchEditor}
-                onDraftsChange={(prefilled) =>
-                  setToolDrafts((current) => ({ ...current, ...prefilled }))
-                }
+                onChooseEntry={chooseEntry}
               />
               <details className="project-tree-fold">
                 <summary>Éléments du projet</summary>
@@ -2448,33 +2530,54 @@ function App() {
                     )}
                 </section>
               )}
-              <ClearanceControl
-                groups={clearanceGroups}
-                onChange={setClearanceGroups}
-                conflicts={clearances.conflicts.length}
-                unmeasured={clearances.unmeasured.length}
-              />
-              <OverlayControl
-                overlayId={overlayId}
-                onChange={setOverlayId}
-                {...(drawnOverlay === undefined
-                  ? {}
-                  : { overlay: drawnOverlay })}
-                warnings={overlayWarnings}
-                onSelectObjects={(objectIds) => {
-                  // A remark becomes a correction the moment the plan shows
-                  // which objects it is about.
-                  dispatchEditor({ type: 'SELECT_MANY', objectIds });
-                  setTab('plan');
-                  zoomSelection();
-                }}
-                {...(climate.length === 0
-                  ? {
-                      unavailableReason:
-                        'Analyse indisponible : aucun résultat de module pour ce projet.',
-                    }
-                  : {})}
-              />
+              {/*
+                Chaque aide là où elle sert, et nulle part ailleurs.
+                Cinq cases de dégagement et vingt analyses s'affichaient dans
+                la colonne du terrain, dans celle des documents, dans celle du
+                projet : un panneau qui répond à une question qu'on ne se pose
+                pas ici repousse sous la ligne de flottaison ce qu'on cherche.
+                C'est le registre des espaces qui dit lesquelles, comme il dit
+                déjà ce que l'espace contient.
+              */}
+              {planAids.includes('CLEARANCES') && (
+                <ClearanceControl
+                  groups={clearanceGroups}
+                  onChange={setClearanceGroups}
+                  conflicts={clearances.conflicts.length}
+                  unmeasured={clearances.unmeasured.length}
+                />
+              )}
+              {/*
+                L'analyse vit dans Études — et partout où elle a déjà quelque
+                chose à dire : une variante colore le plan par le même chemin,
+                et sa légende ne peut pas disparaître parce qu'on regarde
+                l'espace du bâtiment.
+              */}
+              {(planAids.includes('ANALYSIS') ||
+                scenarioMode !== undefined ||
+                overlayId !== 'none') && (
+                <OverlayControl
+                  overlayId={overlayId}
+                  onChange={setOverlayId}
+                  {...(drawnOverlay === undefined
+                    ? {}
+                    : { overlay: drawnOverlay })}
+                  warnings={overlayWarnings}
+                  onSelectObjects={(objectIds) => {
+                    // A remark becomes a correction the moment the plan shows
+                    // which objects it is about.
+                    dispatchEditor({ type: 'SELECT_MANY', objectIds });
+                    setTab('plan');
+                    zoomSelection();
+                  }}
+                  {...(climate.length === 0
+                    ? {
+                        unavailableReason:
+                          'Analyse indisponible : aucun résultat de module pour ce projet.',
+                      }
+                    : {})}
+                />
+              )}
             </>
           )}
         </ContextPanel>
@@ -2500,6 +2603,10 @@ function App() {
                 stage={navigation.stage}
                 design={design}
                 {...(openSection === undefined ? {} : { section: openSection })}
+                onChooseEntry={chooseEntry}
+                onOpenSection={(next) =>
+                  setNavigation((current) => goToSection(current, next))
+                }
                 {...(activeDomain === undefined
                   ? {}
                   : { domain: activeDomain })}
@@ -2508,9 +2615,6 @@ function App() {
                 drafts={toolDrafts}
                 onDraftChange={(key, value) =>
                   setToolDrafts((current) => ({ ...current, [key]: value }))
-                }
-                onDraftsChange={(prefilled) =>
-                  setToolDrafts((current) => ({ ...current, ...prefilled }))
                 }
                 onOpenLibrary={() => setTab('equipment')}
                 context={
@@ -2583,6 +2687,7 @@ function App() {
                 project={scenarioProject ?? file.project}
                 editor={{ ...editor, levelId: activeLevelId } as EditorState}
                 dispatch={dispatchEditor}
+                aids={planAids}
                 onCommitPoints={commitPoints}
                 onFinishRun={finishRun}
                 onMoveSelection={moveSelection}

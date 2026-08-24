@@ -1165,6 +1165,92 @@ button.icon {
 .snap-marker.snap-intersection {
   border-color: #8c5a2f;
 }
+/* La rose des vents, posée sur le dessin. Elle se règle en regardant ce
+   qu'elle oriente : la parcelle, la rue, l'ombre du voisin. */
+/* Ce qu'on a tracé, écrit dessus : « Parcelle · 750,00 m² ». Une surface qui
+   ne dit pas son aire est un trait, et un trait n'apprend rien. */
+.surface-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0.1rem 0.4rem;
+  border: 1px solid #cfdcd5;
+  border-radius: 0.4rem;
+  background: #ffffffdd;
+  color: #3d5449;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.surface-label.selected {
+  border-color: var(--accent);
+  font-weight: 700;
+}
+.north-dial {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 2.2rem;
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #d7e0da;
+  border-radius: 0.6rem;
+  background: #ffffffe6;
+  box-shadow: 0 6px 18px rgba(20, 40, 32, 0.12);
+  font-size: 0.72rem;
+}
+.north-dial svg {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+}
+.north-face {
+  fill: #f6faf8;
+  stroke: #cfdcd5;
+  stroke-width: 1.2;
+}
+.north-needle {
+  fill: #b4462f;
+}
+.north-letter {
+  fill: #4a5d54;
+  font-size: 9px;
+  font-weight: 700;
+}
+.north-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.north-controls label {
+  color: #4a5d54;
+  font-weight: 700;
+}
+.north-controls input {
+  width: 4.6rem;
+  padding: 0.1rem 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+.north-quarters {
+  display: flex;
+  gap: 0.15rem;
+}
+.north-quarters button {
+  padding: 0.05rem 0.28rem;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  background: var(--surface);
+  color: inherit;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+.north-quarters button.active {
+  border-color: var(--accent);
+  font-weight: 700;
+}
 .canvas-status {
   position: absolute;
   right: 0.6rem;

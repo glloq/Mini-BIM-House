@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AddComponentCommand,
   ProjectCommandDispatcher,
   RemoveComponentCommand,
   UpdateComponentCommand,
@@ -181,5 +182,86 @@ describe('a component as an object of the editor', () => {
       dispatcher.dispatch(new RemoveComponentCommand('ground', 'nowhere'))
         .status,
     ).toBe('REJECTED');
+  });
+});
+
+describe('ce à quoi un objet posé se fixe', () => {
+  const source = file();
+  const level = source.project.building.levels.find(
+    ({ id }) => id === 'ground',
+  )!;
+
+  it('prend la dalle qu’on survole, sans avoir à la viser', () => {
+    /*
+     * L'outil ne disait à quoi il fixait rien du tout, et le modèle refusait :
+     * « ce modèle se fixe à : Dalle, Mur ». Autrement dit aucune fiche du
+     * catalogue nommant un support ne pouvait être posée — la moitié du
+     * catalogue. Poser un lit, c'est viser le milieu d'une chambre ; personne
+     * ne clique une dalle exprès.
+     */
+    const slab = level.slabs[0]!;
+    const inside = slab.polygon.outer.reduce(
+      (total, point) => ({
+        x: total.x + point.x / slab.polygon.outer.length,
+        y: total.y + point.y / slab.polygon.outer.length,
+      }),
+      { x: 0, y: 0 },
+    );
+    const result = placeComponentCommand(
+      source,
+      'ground',
+      inside,
+      { category: 'FURNITURE', elevationMm: 0 },
+      'component-bed',
+    );
+    expect(result.status).toBe('OK');
+    if (result.status !== 'OK') return;
+    expect((result.command as AddComponentCommand).draft.hostObjectId).toBe(
+      slab.id,
+    );
+  });
+
+  it('préfère ce que le clic a touché', () => {
+    // Poser une prise, c'est viser un mur : le plan sait ce qu'il y avait
+    // sous le pointeur, et cette réponse-là passe avant la dalle du dessous.
+    const wall = level.walls[0]!;
+    const slab = level.slabs[0]!;
+    const inside = slab.polygon.outer.reduce(
+      (total, point) => ({
+        x: total.x + point.x / slab.polygon.outer.length,
+        y: total.y + point.y / slab.polygon.outer.length,
+      }),
+      { x: 0, y: 0 },
+    );
+    const result = placeComponentCommand(
+      source,
+      'ground',
+      inside,
+      { category: 'ELECTRICAL', elevationMm: 1200 },
+      'component-socket',
+      wall.id,
+    );
+    expect(result.status).toBe('OK');
+    if (result.status !== 'OK') return;
+    expect((result.command as AddComponentCommand).draft.hostObjectId).toBe(
+      wall.id,
+    );
+  });
+
+  it('ne fixe à rien ce qui est posé sur rien', () => {
+    // Loin de tout : un objet posé sur rien reste posé sur rien, et c'est le
+    // modèle qui le refuse, comme avant.
+    const result = placeComponentCommand(
+      source,
+      'ground',
+      { x: -900_000, y: -900_000 },
+      { category: 'FURNITURE', elevationMm: 0 },
+      'component-nowhere',
+    );
+    expect(result.status).toBe('OK');
+    if (result.status !== 'OK') return;
+    expect(
+      (result.command as AddComponentCommand).draft.hostObjectId,
+    ).toBeUndefined();
   });
 });

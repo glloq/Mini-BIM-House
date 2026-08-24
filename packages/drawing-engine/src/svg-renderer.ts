@@ -137,9 +137,21 @@ function renderPrimitive(
   if (base === undefined)
     throw new RangeError(`Unknown graphic token: ${token}`);
   const state = options.includeInteractionStates ? primitive.state : undefined;
+  const override =
+    state === undefined ? {} : (catalog.stateOverrides?.[state] ?? {});
+  /*
+   * Un état ne remplit pas ce qui n'était pas rempli.
+   *
+   * La parcelle est un contour tireté, sans fond ; la sélectionner la
+   * transformait en aplat bleu sur toute la feuille, parce que l'état repeint
+   * `fill` sans regarder ce que le jeton disait. Un état dit **comment** un
+   * dessin est pris, pas **ce qu'il est** : il change une couleur, il ne
+   * transforme pas un trait en surface.
+   */
   const style = {
     ...base,
-    ...(state === undefined ? {} : catalog.stateOverrides?.[state]),
+    ...override,
+    ...(base.fill === 'none' ? { fill: 'none' } : {}),
   };
   validateStyle(style);
   const attributes = [

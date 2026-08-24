@@ -30,6 +30,8 @@ import { editsFor, familyOf, gripsFor } from './object-editors.js';
 import { pickToleranceMm } from './pick-tolerance.js';
 import { DynamicInput } from './DynamicInput.js';
 import { ModelGrid } from './ModelGrid.js';
+import { NorthDial } from './NorthDial.js';
+import type { PlanAid } from '../ux/creation-stages.js';
 import { TemporaryDimensions } from './TemporaryDimensions.js';
 import {
   areaLabel,
@@ -37,6 +39,7 @@ import {
   roomLabels,
   roomMeasures,
 } from './room-labels.js';
+import { surfaceLabels, surfaceMeasureLabel } from './surface-labels.js';
 import { runSlopes, slopeLabel } from './run-slopes.js';
 import { TEMPORARY_EDIT_IDS } from './temporary-edits.js';
 import { draftedMeasures } from './typed-values.js';
@@ -154,6 +157,13 @@ export interface PlanCanvasProps {
    * le canvas apporte est l'endroit — le contour qu'on désigne.
    */
   readonly onCreateRoom?: (at: Point2D) => void;
+  /**
+   * Ce que le plan montre en plus du dessin, dans cet espace-ci.
+   *
+   * Le nord ne se règle qu'où il veut dire quelque chose. Ailleurs, la rose
+   * serait un cadran de plus à ignorer.
+   */
+  readonly aids?: readonly PlanAid[];
 }
 
 /** Segments the snap engine considers: every wall axis on the level. */
@@ -191,6 +201,7 @@ export function PlanCanvas({
   onMoveSelection,
   onCommand,
   onCreateRoom,
+  aids = [],
   onObjectMenu,
   selectableFamily,
   graphicProfileId,
@@ -616,6 +627,23 @@ export function PlanCanvas({
         ? []
         : roomLabels(project, editor.levelId),
     [editor.dimensionMode, editor.levelId, project],
+  );
+
+  /*
+   * Ce qu'on a **tracé**, par opposition à ce que les murs enferment.
+   *
+   * Deux questions, deux dessins : « cette pièce fait combien » et « qu'est-ce
+   * que je viens de fermer ». La seconde n'avait aucune réponse sur le plan —
+   * une parcelle finie était un trait pointillé pâle et rien d'autre.
+   *
+   * `Aucune` les éteint aussi : un dessin nu est un dessin nu.
+   */
+  const surfaces = useMemo(
+    () =>
+      editor.dimensionMode === 'NONE'
+        ? []
+        : surfaceLabels(project, editor.levelId, editor.selection),
+    [editor.dimensionMode, editor.levelId, editor.selection, project],
   );
 
   /*
@@ -1385,6 +1413,27 @@ export function PlanCanvas({
           </span>
         );
       })}
+      {/*
+        Ce qu'on a tracé, écrit dessus.
+        Une parcelle fermée ne montrait qu'un trait pâle : l'écran redevenait
+        blanc au moment même où l'objet venait d'exister. Le terrain se lit
+        toujours ; les dalles, toitures et trémies quand on les désigne, parce
+        qu'une maison en superpose plusieurs.
+      */}
+      {surfaces.map((surface) => {
+        const at = modelToScreen(editor.camera, surface.at);
+        return (
+          <span
+            key={`surface:${surface.objectId}`}
+            className={
+              surface.selected ? 'surface-label selected' : 'surface-label'
+            }
+            style={{ left: `${at.x}px`, top: `${at.y}px` }}
+          >
+            {surfaceMeasureLabel(surface)}
+          </span>
+        );
+      })}
       {labels.map((label) => {
         const at = modelToScreen(editor.camera, label.at);
         return (
@@ -1445,6 +1494,14 @@ export function PlanCanvas({
         pointer move, so it is shown without being announced; the application
         status region carries the messages that matter.
       */}
+      {/* La rose des vents, contre le dessin : on choisit une orientation en
+          regardant la parcelle, pas dans un champ d'un autre écran. */}
+      {aids.includes('NORTH') && onCommand !== undefined && (
+        <NorthDial
+          project={project}
+          onCommand={(command) => onCommand(command)}
+        />
+      )}
       <p className="canvas-status" aria-live="off">
         {editor.cursorModel === undefined
           ? 'Déplacez le curseur sur le plan.'

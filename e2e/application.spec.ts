@@ -5,6 +5,7 @@ import { fileAction } from './support/file-menu.js';
 
 import { openDestination, openStage } from './support/navigation.js';
 import {
+  chooseOverlay,
   choosePreset,
   closeDisplayPanel,
   hidePlacedComponents,
@@ -13,7 +14,12 @@ import {
   openLayerEditor,
   openModelTree,
 } from './support/panels.js';
-import { chooseTool, toolButton } from './support/tools.js';
+import {
+  chooseTool,
+  openSection,
+  revealAllTools,
+  toolButton,
+} from './support/tools.js';
 
 /**
  * Console errors are a failure, not noise: a blank page caused by an unhandled
@@ -212,7 +218,9 @@ test('runs every calculation module from the dashboard', async ({ page }) => {
 
 test('shows a thermal overlay with a legend', async ({ page }) => {
   await loadDemo(page);
-  await page.getByLabel('Superposition').selectOption('thermal-u');
+  // L'analyse vit dans Études : une superposition colorée est une étude qu'on
+  // lit sur le dessin plutôt que dans un tableau.
+  await chooseOverlay(page, 'thermal-u');
   await expect(page.locator('.overlay-legend')).toBeVisible();
   const coloured = page.locator('[data-layer="analysis.overlay"] > *');
   // The whole envelope is coloured now, not the opaque walls alone: the
@@ -1773,10 +1781,17 @@ test('shows nothing above the plan until something is being done', async ({
   const more = tools.locator('.tool-more > summary');
   await expect(more).toBeVisible();
   await more.click();
-  await expect(tools.getByText(/^Tous les outils/u)).toBeVisible();
+  // Le dépliage ne verse plus les six autres espaces : il tient les autres
+  // sous-parties de celui-ci, et les outils communs.
+  await expect(tools.getByText(/^Communs/u)).toBeVisible();
+  // Et l'espace du bâtiment tient ses propres sous-parties, sans emprunter à
+  // celui du terrain ni à celui des systèmes.
   await expect(
-    tools.getByRole('button', { name: 'Composant', exact: true }),
+    tools.getByRole('region', { name: 'Outils · Ouvertures' }),
   ).toBeVisible();
+  await expect(
+    tools.getByRole('button', { name: 'Parcelle', exact: true }),
+  ).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
@@ -2348,13 +2363,16 @@ test('names an entry by what it places, and pre-fills its fiche', async ({
   await expect(page.locator('.context-tool-bar')).toContainText('Composant');
 
   // Ce que la sous-partie ne propose pas reste atteignable depuis la même
-  // rangée, sous « + ».
+  // rangée, sous « + » — les autres sous-parties de **cet** espace, et non
+  // celles des six autres : « Mur » appartient au bâtiment.
   await page.locator('.tool-header .tool-more > summary').click();
+  const menu = page.locator('.tool-more-menu');
   await expect(
-    page
-      .locator('.tool-header')
-      .getByRole('button', { name: 'Mur', exact: true }),
+    menu.getByRole('region', { name: 'Outils · Chauffage' }),
   ).toBeVisible();
+  await expect(
+    menu.getByRole('button', { name: 'Mur', exact: true }),
+  ).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
@@ -3199,6 +3217,7 @@ test('colours the networks with what their own engines computed', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  await chooseOverlay(page, 'none');
   const overlay = page.getByLabel('Superposition');
   // The engines have been in the repository for a long time; until now only
   // the thermal figures reached the drawing.
@@ -3223,6 +3242,7 @@ test('colours a room by what it needs, gets and breathes', async ({ page }) => {
   // and only ever read in a table.
   const errors = watchConsole(page);
   await loadDemo(page);
+  await chooseOverlay(page, 'none');
   const overlay = page.getByLabel('Superposition');
   const legend = page.locator('.overlay-legend');
   for (const [id, title] of [
@@ -3483,7 +3503,7 @@ test('draws the ground the house sits on and its structure', async ({
 
   // The site has held a parcel since the beginning and no screen could draw
   // one.
-  await chooseTool(page, 'Terrain');
+  await chooseTool(page, 'Parcelle');
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   const box = (await canvas.boundingBox())!;
@@ -3557,5 +3577,88 @@ test('browses the whole nomenclature and places what can be placed', async ({
 
   await browser.getByRole('button', { name: 'Ajouter au projet' }).click();
   await expect(page.getByRole('status')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('donne accès aux autres sous-parties depuis le « + »', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+  await openStage(page, 'Terrain');
+
+  // Le dépliage ne tenait que les outils communs et le rebut du registre : la
+  // parcelle, qui est une sous-partie voisine, n'y était pas. Il fallait
+  // savoir qu'on devait d'abord changer de sous-partie, et rien ne le disait.
+  await openSection(page, 'Éléments');
+  await revealAllTools(page);
+  const menu = page.locator('.tool-more-menu');
+  await expect(
+    menu.getByRole('region', { name: 'Outils · Parcelle' }),
+  ).toBeVisible();
+
+  await menu.getByRole('button', { name: 'Parcelle', exact: true }).click();
+  // Et la rangée suit ce qu'on vient de prendre : l'écran ne peut pas nommer
+  // une sous-partie et en faire une autre.
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Sous-parties' })
+      .getByRole('button', { name: 'Parcelle', exact: true }),
+  ).toHaveAttribute('aria-current', 'true');
+  await expect(toolButton(page, 'Parcelle')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  expect(errors).toEqual([]);
+});
+
+test('installe la fiche que le bouton pose, au moment où on le prend', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+
+  /*
+   * `Aménagement` sur un projet neuf n'avait pas une sous-partie, pas un
+   * bouton, rien : les entrées disparaissaient parce que le projet ne tenait
+   * pas encore les fiches du catalogue, et la seule issue écrite était
+   * « ouvrez la bibliothèque ». C'était punir de ne pas connaître le
+   * programme.
+   */
+  await openStage(page, 'Aménagement');
+  await expect(
+    page.getByRole('navigation', { name: 'Sous-parties' }).getByRole('button'),
+  ).not.toHaveCount(0);
+
+  // Un lit se pose sur quelque chose : la dalle d'abord, comme dans la vraie
+  // vie. C'est le refus qu'on lisait avant de savoir si la fiche existait.
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  await openStage(page, 'Bâtiment');
+  await chooseTool(page, 'Dalle libre');
+  for (const corner of [
+    { x: 0.2, y: 0.35 },
+    { x: 0.75, y: 0.35 },
+    { x: 0.75, y: 0.8 },
+    { x: 0.2, y: 0.8 },
+  ])
+    await canvas.click({
+      position: { x: box.width * corner.x, y: box.height * corner.y },
+    });
+  await page.getByRole('button', { name: 'Fermer la surface' }).first().click();
+
+  await openStage(page, 'Aménagement');
+  await chooseTool(page, 'Lit');
+  // Au milieu de la dalle telle qu'elle est dessinée : le plan se recadre
+  // quand le modèle grandit, et une fraction du cadre ne vise plus rien.
+  const slab = (await page.locator('[id^="slab:"]').first().boundingBox())!;
+  const frame = (await canvas.boundingBox())!;
+  await canvas.click({
+    position: {
+      x: slab.x - frame.x + slab.width / 2,
+      y: slab.y - frame.y + slab.height / 2,
+    },
+  });
+  await expect(page.locator('[id^="component:"]')).not.toHaveCount(0);
   expect(errors).toEqual([]);
 });

@@ -46,6 +46,7 @@ const SCREEN = {
   textPrimary: '#26364B',
   textSecondary: '#657184',
   site: '#A3AD9B',
+  siteFill: '#F2F5EE',
   reveal: '#FFFFFF',
   space: {
     BEDROOM: '#DDEAD5',
@@ -82,6 +83,7 @@ const PRINT = {
   textPrimary: '#111111',
   textSecondary: '#444444',
   site: '#888888',
+  siteFill: 'none',
   reveal: '#FFFFFF',
   space: {
     BEDROOM: '#FFFFFF',
@@ -136,6 +138,22 @@ function architecturalStyles(mode: GraphicOutputMode): SvgStyleCatalog {
       fill: 'none',
       strokeWidthPaperMm: WIDTHS.hairline,
       dashPaperMm: [4, 1.5],
+    },
+    /*
+     * Le sol de la parcelle : un lavis, sous tout le reste.
+     *
+     * Une parcelle fermée n'était qu'un pointillé pâle sur du blanc — rien ne
+     * disait qu'une surface existait. Le lavis est un **dessin à part** et non
+     * un fond donné au contour : la sélection remplit ce qu'elle prend, et une
+     * parcelle sélectionnée serait devenue un aplat bleu sur toute la feuille.
+     *
+     * À l'impression il disparaît : un aplat sur toute la page coûte de
+     * l'encre et ne dit rien qu'un trait tireté ne dise déjà.
+     */
+    'site-ground': {
+      stroke: 'none',
+      fill: mode === 'PRINT' ? 'none' : palette.siteFill,
+      strokeWidthPaperMm: 0,
     },
     // The unqualified room: a wash lighter than any named use, so a room whose
     // use nobody stated does not shout louder than a bedroom.
@@ -377,6 +395,13 @@ function architecturalStyles(mode: GraphicOutputMode): SvgStyleCatalog {
  * changed to make them drawable.
  */
 const architecturalRules: readonly GraphicStyleRule[] = [
+  {
+    // Le sol de la parcelle : un lavis, dessiné à part du contour, parce que
+    // la sélection remplit ce qu'elle prend — une parcelle sélectionnée dont
+    // le contour porterait le fond deviendrait un aplat sur toute la feuille.
+    match: { semanticRole: 'SITE', metadata: { ground: true } },
+    token: 'site-ground',
+  },
   {
     match: { semanticRole: 'WALL_CUT', metadata: { role: 'EXTERIOR' } },
     token: 'wall-exterior',

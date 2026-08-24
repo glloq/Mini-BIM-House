@@ -171,8 +171,13 @@ export const BUDGETS = {
    * et remplace quatre écrans dont deux n'existaient pas : la parcelle se
    * retraçait pour se corriger, et la trémie n'était même pas un objet. Deux
    * kio pour quatre surfaces, c'est le prix d'une seule.
+   *
+   * Et un avec la rose des vents, les étiquettes de surface, et les entrées
+   * qui installent la fiche qu'elles posent. Les deux premières se dessinent
+   * sur le plan, donc au premier écran ; la troisième n'y charge rien — le
+   * catalogue générique arrive quand on prend l'entrée, et pas avant.
    */
-  initialGzipBytes: 289 * 1024,
+  initialGzipBytes: 290 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -292,7 +297,7 @@ export const BUDGETS = {
    * composant et une grille. La colonne de gauche montre enfin ce qu'on peut
    * poser plutôt que ce qui est déjà posé, et l'étage courant reste à un clic.
    */
-  totalGzipBytes: 469 * 1024,
+  totalGzipBytes: 470 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

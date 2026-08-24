@@ -113,7 +113,7 @@ test('ferme une parcelle par Entrée, et la retire sommet par sommet', async ({
   page,
 }) => {
   await readyDemo(page);
-  await chooseTool(page, 'Terrain');
+  await chooseTool(page, 'Parcelle');
   await placeCorners(page);
 
   // Un sommet de trop se retire seul : Échap coûtait les trois autres, donc
@@ -146,13 +146,17 @@ test('perce une trémie dans la dalle qu’on vient de fermer', async ({
   ]);
   await closeButton(page).click();
   await expect(page.getByRole('status')).toContainText(/trémie/iu);
+  console.log(
+    'SOMMETS',
+    (await page.locator('.inspector-subject').textContent())?.slice(0, 120),
+  );
 });
 
 test('l’aide et les champs disent la même chose de la touche Entrée', async ({
   page,
 }) => {
   await readyDemo(page);
-  await chooseTool(page, 'Terrain');
+  await chooseTool(page, 'Parcelle');
   await placeCorners(page, CORNERS.slice(0, 2));
 
   // Une surface se ferme, un chemin se termine : le mot change, jamais la
@@ -173,7 +177,7 @@ test('cote une parcelle à 30 sur 25, lit 750 m², et défait', async ({
    */
   await readyDemo(page);
   await openInspector(page);
-  await chooseTool(page, 'Terrain');
+  await chooseTool(page, 'Parcelle');
   await placeCorners(page);
   await closeButton(page).click();
   await expect(page.locator('[id="site:parcel"]')).toHaveCount(1);
@@ -229,16 +233,15 @@ test('corrige une trémie, qui est un objet comme un autre', async ({
   await closeButton(page).click();
   await expect(page.getByRole('status')).toContainText(/trémie/iu);
 
-  // Elle se désigne : elle vivait dans un tableau, sans nom, donc rien ne
-  // pouvait la corriger — on annulait, ou on refaisait la dalle.
-  await chooseTool(page, 'Sélection');
-  const hole = page.locator('[id*="#hole:0"]').first();
-  await expect(hole).toBeAttached();
-  const frame = (await page.locator('.plan-canvas').boundingBox())!;
-  const box = (await hole.boundingBox())!;
-  await page.locator('.plan-canvas').click({
-    position: { x: box.x - frame.x + box.width / 2, y: box.y - frame.y + 1 },
-  });
+  /*
+   * Elle est déjà désignée : ce qu'on vient de fermer est ce qu'on veut
+   * regarder. Elle vivait dans un tableau, sans nom — rien ne pouvait la
+   * corriger, et on annulait, ou on refaisait la dalle.
+   */
+  await expect(page.locator('[id*="#hole:0"]').first()).toBeAttached();
   await expect(page.locator('.inspector-subject')).toContainText('Trémie');
   await expect(page.getByLabel(/^Largeur/u)).toBeVisible();
+  // Et ses poignées sont là : quatre sommets, quatre milieux de côté.
+  await expect(page.locator('.grip-polygon-vertex')).toHaveCount(4);
+  await expect(page.locator('.grip-polygon-edge')).toHaveCount(4);
 });
