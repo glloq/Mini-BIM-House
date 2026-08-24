@@ -57,7 +57,9 @@ async function sweepSections(page: Page, offered: Locator): Promise<boolean> {
   if ((await open.count()) > 0) await open.first().click();
   if ((await offered.count()) > 0) return true;
   const row = page.getByRole('navigation', { name: 'Sous-parties' });
-  const parts = row.getByRole('button');
+  // Les sous-parties sont un sommaire dépliable dans la colonne : on ouvre
+  // celle qu'on veut, et ce qu'elle pose apparaît dessous.
+  const parts = row.locator('details.section-fold > summary');
   for (let index = 0; index < (await parts.count()); index += 1) {
     await parts.nth(index).click();
     if ((await offered.count()) > 0) return true;
@@ -67,7 +69,9 @@ async function sweepSections(page: Page, offered: Locator): Promise<boolean> {
 }
 
 export async function chooseTool(page: Page, label: string): Promise<void> {
-  const toolbox = page.locator('.tool-header');
+  // Les outils vivent dans le sommaire de la colonne ; la rangée au-dessus du
+  // plan ne garde que la Sélection, l'outil en cours et les gestes communs.
+  const toolbox = page.locator('#workspace-sidebar, .tool-header');
   /*
    * Ce qu'on voit, et non ce que le document contient.
    *
@@ -98,25 +102,32 @@ export async function chooseTool(page: Page, label: string): Promise<void> {
   if ((await open.count()) > 0) await open.first().click();
 }
 
-/** Ouvrir une sous-partie de l'espace courant, par son nom. */
+/**
+ * Ouvrir une sous-partie de l'espace courant, par son nom.
+ *
+ * C'est un dépliage et non un bouton : la rangée au-dessus du plan est
+ * devenue un sommaire dans la colonne, où l'ouverte montre ce qu'elle pose.
+ */
 export async function openSection(page: Page, label: string): Promise<void> {
-  await page
+  const summary = page
     .getByRole('navigation', { name: 'Sous-parties' })
-    .getByRole('button', { name: label, exact: true })
-    .click();
+    .getByLabel(label, { exact: true });
+  if ((await summary.getAttribute('aria-current')) !== 'true')
+    await summary.click();
 }
 
 /**
- * Le bouton d'un outil dans la rangée, et pas ailleurs.
+ * Le bouton d'un outil, là où il se trouve.
  *
- * Le même outil est désormais écrit à deux endroits : la rangée, qu'on prend
- * sans lire, et le panneau « Ajouter », qui montre tout ce que la sous-partie
- * sait poser. C'est voulu — mais un test qui demande « le bouton Mur » en
- * trouve deux. Celui de la rangée est celui dont on parle quand on parle de
- * l'outil actif.
+ * Les outils vivent dans le sommaire de la colonne ; la rangée au-dessus du
+ * plan ne garde que la Sélection, l'outil en cours et les gestes communs. Un
+ * test qui demande « le bouton Mur » cherche donc les deux, et prend celui
+ * qu'on voit.
  */
 export function toolButton(page: Page, label: string): Locator {
   return page
-    .locator('.tool-header')
-    .getByRole('button', { name: label, exact: true });
+    .locator('#workspace-sidebar, .tool-header')
+    .getByRole('button', { name: label, exact: true })
+    .locator('visible=true')
+    .first();
 }

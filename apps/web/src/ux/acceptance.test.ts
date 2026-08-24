@@ -199,7 +199,7 @@ describe('the eighteen acceptance criteria', () => {
       'editor/ContextToolBar.tsx',
       'checks/IssueCenter.tsx',
       'visibility/DisplayPanel.tsx',
-      'shell/SectionBar.tsx',
+      'shell/SectionList.tsx',
       'shell/TopBar.tsx',
       'workflow/WorkflowGuide.tsx',
     ])

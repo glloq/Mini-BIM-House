@@ -29,10 +29,7 @@
  * Voir `docs/UX_ARCHITECTURE_V4.md` §2.
  */
 import { useState, type ReactNode } from 'react';
-import type {
-  DesignDomainId,
-  Project,
-} from '@house-technical-designer/core-domain';
+import type { Project } from '@house-technical-designer/core-domain';
 
 import type { CreationStageId } from '../ux/creation-stages.js';
 
@@ -49,7 +46,6 @@ import {
   availabilityOf,
   isEntryActive,
   entryAvailable,
-  missingFicheFamilies,
   toolboxFor,
   type ToolboxAvailability,
   type ToolboxEntry,
@@ -62,26 +58,6 @@ const SELECT_ENTRY = 'common.select';
 export interface ToolHeaderProps {
   readonly project: Project;
   readonly stage: CreationStageId;
-  readonly domain?: DesignDomainId;
-  /**
-   * La sous-partie ouverte, quand la rangée en a désigné une.
-   *
-   * Une seule est montrée : l'espace dit de quelle partie de la maison on
-   * s'occupe, la rangée dit laquelle de ses parties, et la colonne montre ce
-   * qu'il faut pour celle-là. Absente, on retombe sur tout ce que l'espace
-   * propose — c'est ce que faisaient les neuf étapes.
-   */
-  readonly section?: string;
-  /**
-   * Ouvrir une sous-partie, quand on a pris un outil dans une autre.
-   *
-   * Prendre « Parcelle » depuis « Éléments » sans que la rangée suive
-   * laisserait l'écran dire qu'on est ailleurs que là où l'on travaille.
-   */
-  readonly onOpenSection?: (section: {
-    readonly id: string;
-    readonly domain?: DesignDomainId;
-  }) => void;
   /** Ce que le contexte rend possible : la barre d'actions, montée à côté. */
   readonly context: ReactNode;
   /** Ce que le plan montre : la variante et l'affichage, montés à côté. */
@@ -95,16 +71,11 @@ export interface ToolHeaderProps {
   /** Poser plusieurs options d'un coup : une entrée en remplit souvent trois. */
   /** Prendre une entrée : l'outil, ses options, et la fiche qu'elle installe. */
   readonly onChooseEntry: (entry: ToolboxEntry) => void;
-  /** Ouvrir la bibliothèque d'équipements, d'où viennent les fiches. */
-  readonly onOpenLibrary: () => void;
 }
 
 export function ToolHeader({
   project,
   stage,
-  domain,
-  section,
-  onOpenSection,
   context,
   view,
   design,
@@ -113,41 +84,13 @@ export function ToolHeader({
   drafts,
   onDraftChange,
   onChooseEntry,
-  onOpenLibrary,
 }: ToolHeaderProps) {
-  // La sous-partie est cherchée parmi toutes celles de l'espace, et non parmi
-  // celles que le métier laisse passer : « Ossature » nomme la structure, et
-  // la chercher à travers le filtre d'architecture reviendrait à la perdre au
-  // moment même où on la désigne.
-  const chosen = toolboxFor(project, stage, undefined, design).find(
-    ({ id }) => id === section,
-  );
-  const sections =
-    chosen === undefined
-      ? toolboxFor(project, stage, domain, design)
-      : [chosen];
   const common: ToolboxSection = {
     ...COMMON_SECTION,
     entries: COMMON_SECTION.entries.filter((candidate) =>
       entryAvailable(project, candidate),
     ),
   };
-  const entries = sections.flatMap(({ entries: held }) => held);
-  /*
-   * Ce que la sous-partie ne propose pas reste à un dépliage, sur le même
-   * écran : une sous-partie filtre ce qui est proposé, elle ne restreint
-   * jamais ce qui est possible.
-   *
-   * Le « + » ne tenait que les outils communs et le rebut du registre : les
-   * entrées des **autres sous-parties du même espace** n'y étaient pas. Poser
-   * une parcelle depuis « Éléments » demandait donc de savoir qu'il fallait
-   * d'abord cliquer « Parcelle » — et rien à l'écran ne le disait. Le
-   * dépliage tient maintenant les trois, dans cet ordre : les voisines,
-   * les communs, puis tout le reste.
-   */
-  const siblings = toolboxFor(project, stage, undefined, design).filter(
-    ({ id }) => id !== chosen?.id,
-  );
   const [moreOpen, setMoreOpen] = useState(false);
   const active = toolById(editor.activeTool);
 
@@ -155,8 +98,7 @@ export function ToolHeader({
    * Les recommandées d'abord.
    *
    * L'ordre du registre est celui d'un chantier ; celui de l'écran est celui
-   * de ce qui reste à faire. Trier plutôt que masquer : la personne retrouve
-   * ses outils au même endroit, avec le plus utile en tête.
+   * de ce qui reste à faire.
    */
   const ordered = (
     candidates: readonly ToolboxEntry[],
@@ -172,71 +114,78 @@ export function ToolHeader({
   };
 
   const choose = (candidate: ToolboxEntry): void => {
-    // Prendre une entrée est le même geste ici et dans le panneau « Ajouter » :
-    // il est écrit une fois, au-dessus, avec l'installation de la fiche que
-    // l'entrée pose.
+    // Prendre une entrée est le même geste ici et dans le sommaire : il est
+    // écrit une fois, au-dessus, avec l'installation de la fiche qu'elle pose.
     onChooseEntry(candidate);
-    // La rangée suit ce qu'on vient de prendre : un outil choisi dans une
-    // autre sous-partie ouvre la sienne, sans quoi l'écran continue de
-    // nommer celle qu'on a quittée.
-    const home = siblings.find(({ entries: held }) =>
-      held.some(({ id }) => id === candidate.id),
-    );
-    if (home !== undefined)
-      onOpenSection?.({
-        id: home.id,
-        ...(home.domain === undefined ? {} : { domain: home.domain }),
-      });
     // Le menu se referme sur ce qu'on vient d'y prendre : un dépliage qui
     // reste ouvert couvre le plan qu'on s'apprête à dessiner.
     setMoreOpen(false);
   };
 
   // La sélection est l'état de repos, pas un outil : elle ouvre la rangée
-  // parce qu'on y revient sans arrêt, et elle n'a rien à mettre en seconde
-  // ligne.
+  // parce qu'on y revient sans arrêt.
   const select = common.entries.find(({ id }) => id === SELECT_ENTRY);
   const rest = common.entries.filter(({ id }) => id !== SELECT_ENTRY);
   const drawing = editor.activeTool !== 'SELECT';
+
   /*
-   * L'outil pris dans le « + » reste sous la main.
+   * Ce qu'on est en train de faire, montré à côté de la Sélection.
    *
-   * Sinon il disparaît au moment même où l'on s'en sert : la rangée montre ce
-   * que la sous-partie propose, plus ce qu'on est en train de faire.
+   * La rangée ne propose plus ce que la sous-partie pose — c'est le sommaire
+   * qui le fait, et le montrer deux fois faisait viser le mauvais des deux.
+   * Elle montre en revanche l'outil en cours : un plan qui dessine sans dire
+   * avec quoi est un plan qui surprend.
+   *
+   * L'entrée est cherchée dans tout l'espace et parmi les gestes communs,
+   * puisque c'est de là qu'on a pu la prendre.
    */
+  const reachable = [
+    ...toolboxFor(project, stage, undefined, design).flatMap(
+      ({ entries }) => entries,
+    ),
+    ...rest,
+  ];
   const guest =
-    entries.some(({ toolId }) => toolId === editor.activeTool) ||
     select?.toolId === editor.activeTool
       ? undefined
-      : rest.find(({ toolId }) => toolId === editor.activeTool);
+      : (reachable.find((candidate) =>
+          isEntryActive(project, candidate, editor.activeTool, drafts),
+        ) ?? reachable.find(({ toolId }) => toolId === editor.activeTool));
   /*
    * L'outil pris ailleurs qu'ici — par la palette, par un raccourci.
    *
-   * Il n'est plus proposé par la rangée : les espaces sont séparés, et le
-   * dépliage ne verse plus les outils des six autres. Mais on peut encore
-   * l'atteindre par la recherche, et un outil actif qu'aucun bouton ne montre
-   * est un plan qui fait autre chose que ce qu'il affiche.
+   * Les sept espaces sont séparés, et celui-ci ne propose pas les outils des
+   * six autres. Mais on peut encore l'atteindre par la recherche, et un outil
+   * actif qu'aucun bouton ne montre est un plan qui fait autre chose que ce
+   * qu'il affiche.
    */
   const strayTool =
     guest === undefined &&
-    !entries.some(({ toolId }) => toolId === editor.activeTool) &&
     select?.toolId !== editor.activeTool &&
     active !== undefined
       ? active
       : undefined;
 
-  // Une sous-partie qui pose des fiches et n'en trouve aucune n'a rien à
-  // montrer : dire d'où elles viennent vaut mieux qu'une rangée vide.
-  const missing = missingFicheFamilies(project, stage);
-
   return (
     <div className="tool-header">
       <div className="tool-row">
-        <div
-          className="tool-tools"
-          role="group"
-          aria-label={rowLabel(sections)}
-        >
+        <div className="tool-tools" role="group" aria-label="Outils du plan">
+          {/*
+           * Le minimum, et rien de plus.
+           *
+           * La rangée montrait les mêmes boutons que la colonne de gauche —
+           * « Mur » en haut, « Mur » à gauche — et l'un des deux était
+           * toujours celui qu'on n'avait pas visé. Ce qu'on pose se choisit
+           * dans le sommaire ; ce qui reste ici est ce qui n'a pas d'autre
+           * place :
+           *
+           * - **la Sélection**, qui est l'état de repos et où l'on revient
+           *   sans arrêt ;
+           * - **l'outil en cours**, parce qu'un plan qui dessine sans dire
+           *   avec quoi est un plan qui surprend ;
+           * - **les gestes communs** — mesurer, coter, annoter — qui ne sont
+           *   d'aucune sous-partie et servent dans toutes.
+           */}
           {select !== undefined && (
             <EntryButton
               available={availabilityOf(select, design)}
@@ -244,19 +193,6 @@ export function ToolHeader({
               onChoose={choose}
             />
           )}
-          {ordered(entries).map((available) => (
-            <EntryButton
-              key={available.entry.id}
-              available={available}
-              active={isEntryActive(
-                project,
-                available.entry,
-                editor.activeTool,
-                drafts,
-              )}
-              onChoose={choose}
-            />
-          ))}
           {guest !== undefined && (
             <EntryButton
               available={availabilityOf(guest, design)}
@@ -274,59 +210,12 @@ export function ToolHeader({
           onToggle={(event) => setMoreOpen(event.currentTarget.open)}
         >
           <summary
-            title={`Le reste des outils (${
-              siblings.reduce(
-                (total, { entries: held }) => total + held.length,
-                0,
-              ) + rest.length
-            })`}
-            aria-label="Autres outils"
+            title={`Les gestes communs (${rest.length})`}
+            aria-label="Gestes communs"
           >
             +
           </summary>
           <div className="tool-more-menu">
-            {entries.length === 0 && missing.length > 0 && (
-              <p className="hint">
-                Cette sous-partie pose des fiches du catalogue —{' '}
-                {missing.slice(0, 3).join(', ')}
-                {missing.length > 3 ? '…' : ''} — et ce projet n’en tient
-                aucune.{' '}
-                <button type="button" className="link" onClick={onOpenLibrary}>
-                  Ouvrir la bibliothèque d’équipements
-                </button>
-              </p>
-            )}
-            {/*
-              Les autres sous-parties de cet espace, nommées.
-              Elles sont ce qu'on cherche le plus souvent dans ce dépliage :
-              une parcelle depuis « Éléments », un mur depuis « Ouvertures ».
-              Les nommer évite d'avoir à savoir qu'il fallait d'abord changer
-              de sous-partie.
-            */}
-            {siblings.map((sibling) => (
-              <section
-                key={sibling.id}
-                className="toolbox-section"
-                aria-label={`Outils · ${sibling.label}`}
-              >
-                <p className="context-group-label">{sibling.label}</p>
-                <div className="toolbox-grid">
-                  {ordered(sibling.entries).map((available) => (
-                    <EntryButton
-                      key={available.entry.id}
-                      available={available}
-                      active={isEntryActive(
-                        project,
-                        available.entry,
-                        editor.activeTool,
-                        drafts,
-                      )}
-                      onChoose={choose}
-                    />
-                  ))}
-                </div>
-              </section>
-            ))}
             {rest.length > 0 && (
               <section
                 className="toolbox-section"
@@ -350,15 +239,6 @@ export function ToolHeader({
                 </div>
               </section>
             )}
-            {/*
-              Et rien des six autres espaces.
-              Le dépliage versait ici tout ce que le registre tient : « Mur »,
-              « Toiture », « Escalier » dans l'espace du terrain, « Terrain »
-              dans celui du bâtiment. Un espace qui propose ce qui appartient à
-              un autre n'est plus une partie de la maison, c'est un menu.
-              La recherche (Ctrl+K) reste le chemin vers tout, depuis partout —
-              elle, on l'ouvre exprès.
-            */}
           </div>
         </details>
         {/*
@@ -411,10 +291,6 @@ export function ToolHeader({
 }
 
 /** Ce que la rangée s'appelle : le nom de la sous-partie qu'elle sert. */
-function rowLabel(sections: readonly ToolboxSection[]): string {
-  const only = sections.length === 1 ? sections[0]?.label : undefined;
-  return only === undefined ? 'Outils' : `Outils · ${only}`;
-}
 
 function ToolButton({
   tool,

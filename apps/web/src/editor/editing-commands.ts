@@ -13,6 +13,7 @@ import type {
   Roof,
   RoofPlane,
   Slab,
+  Space,
   Stair,
   StructuralMember,
   Wall,
@@ -20,6 +21,7 @@ import type {
 import {
   dimensionId,
   entityId,
+  hostAccepts,
   levelHosts,
 } from '@house-technical-designer/core-domain';
 import {
@@ -41,7 +43,7 @@ import {
   ProjectEditorCommand,
   ProjectCommandDispatcher,
   ProjectTransactionCommand,
-  RemoveSpaceCommand,
+  ReplaceProjectCommand,
   type DetectedRoom,
   SetParcelBoundaryCommand,
   SetWallPathCommand,
@@ -344,7 +346,13 @@ export function placeComponentCommand(
       space.boundaryMode === 'MANUAL' &&
       pointInPolygon(point, space.manualPolygon.outer),
   );
-  const host = hostUnder(level, point, picked);
+  const host = hostUnder(
+    file.project,
+    level,
+    point,
+    picked,
+    draft.definitionId,
+  );
   return {
     status: 'OK',
     command: new AddComponentCommand(level.id, {
@@ -365,32 +373,108 @@ export function placeComponentCommand(
   };
 }
 
+/** À quelle distance ce mur passe du point, en millimètres. */
+function distanceToWall(wall: Wall, point: Point2D): number {
+  let best = Number.POSITIVE_INFINITY;
+  for (let index = 1; index < wall.path.points.length; index += 1) {
+    const start = wall.path.points[index - 1]!;
+    const end = wall.path.points[index]!;
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const lengthSquared = dx * dx + dy * dy;
+    if (lengthSquared === 0) continue;
+    const along = Math.max(
+      0,
+      Math.min(
+        1,
+        ((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared,
+      ),
+    );
+    best = Math.min(
+      best,
+      Math.hypot(
+        point.x - (start.x + dx * along),
+        point.y - (start.y + dy * along),
+      ),
+    );
+  }
+  return best;
+}
+
+/** Jusqu'où on accepte de rattacher un objet au mur qu'on visait. */
+const WALL_REACH_MM = 1500;
+
 /**
- * Ce à quoi l'objet posé se fixe.
+ * Ce à quoi l'objet posé se fixe — et qui l'accepte.
  *
- * L'outil ne le disait pas : il posait un composant sans support, et le modèle
- * refusait — « ce modèle se fixe à : Dalle, Mur ». Autrement dit, **aucune**
- * fiche du catalogue nommant un support ne pouvait être posée, et c'est la
- * moitié du catalogue. On cliquait, ça refusait, et rien n'expliquait quoi
- * faire, puisqu'il n'y avait rien à faire.
+ * L'outil ne le disait pas du tout : il posait un composant sans support, et le
+ * modèle refusait — « ce modèle se fixe à : Dalle, Mur ». Puis il a pris la
+ * dalle sous le point, pour tout, et le modèle a refusé autrement — « Terrain,
+ * et slab-ground n'en est pas un ». Vingt et une entrées sur deux cent
+ * quarante ne pouvaient toujours rien poser : les prises et les interrupteurs,
+ * qui veulent un mur ; les puits, les fosses et les bornes, qui veulent le
+ * terrain ; les gouttières et les panneaux, qui veulent une toiture.
  *
- * Deux réponses, dans cet ordre :
+ * La fiche dit ce qu'elle accepte. On cherche donc un support **parmi ceux
+ * qu'elle accepte**, dans l'ordre où l'on vise :
  *
- * 1. **Ce qui était sous le pointeur.** Poser une prise, c'est viser un mur ;
- *    le plan sait déjà ce que le clic a touché.
- * 2. **La dalle qu'on survole.** Poser un lit, c'est viser le milieu d'une
- *    chambre, pas la ligne du sol : personne ne clique une dalle exprès.
+ * 1. **Ce que le clic a touché**, s'il convient : c'est le plus explicite.
+ * 2. **Le mur le plus proche**, quand la fiche veut un mur — poser une prise
+ *    c'est viser un mur, et on vise à un mètre près.
+ * 3. **La toiture, puis la dalle** sous le point : poser un lit c'est viser le
+ *    milieu d'une chambre, pas la ligne du sol.
  *
- * Aucune troisième : un objet posé sur rien reste posé sur rien, et c'est le
- * modèle qui le dit, comme avant.
+ * Rien, sinon — et rien est la bonne réponse pour ce qui se pose sur le
+ * terrain : le modèle l'accepte, parce que le terrain est partout.
  */
 function hostUnder(
+  project: Project,
   level: Level,
   point: Point2D,
   picked: string | undefined,
+  definitionId: string | undefined,
 ): string | undefined {
   const hosts = levelHosts(level);
-  if (picked !== undefined && hosts.has(picked)) return picked;
+  const allowed =
+    definitionId === undefined
+      ? undefined
+      : (project.equipment ?? []).find(({ id }) => id === definitionId)
+          ?.allowedHosts;
+  // Une fiche qui ne dit rien accepte ce qu'on lui donne : c'est le composant
+  // générique, celui qu'on pose quand le catalogue ne nomme pas la chose.
+  const fits = (id: string): boolean =>
+    allowed === undefined ||
+    allowed.length === 0 ||
+    hostAccepts(allowed, hosts.get(id));
+
+  if (picked !== undefined && hosts.has(picked) && fits(picked)) return picked;
+
+  /*
+   * Le mur d'abord, mais seulement pour ce qui va au mur.
+   *
+   * Une prise se vise sur un mur, à un mètre près ; un lit se vise au milieu
+   * d'une chambre, et le mur le plus proche n'est pas ce qui le porte. C'est
+   * la fiche qui tranche, et une fiche qui ne dit rien n'a pas demandé de mur.
+   */
+  const nearestWall = (): string | undefined =>
+    [...level.walls]
+      .map((candidate) => ({
+        id: candidate.id,
+        away: distanceToWall(candidate, point),
+      }))
+      .filter(({ away }) => away <= WALL_REACH_MM)
+      .sort((first, second) => first.away - second.away)[0]?.id;
+
+  if (allowed?.includes('WALL') === true) {
+    const wall = nearestWall();
+    if (wall !== undefined && fits(wall)) return wall;
+  }
+
+  const roof = level.roofs.find((candidate) =>
+    pointInPolygon(point, candidate.footprint.outer),
+  );
+  if (roof !== undefined && fits(roof.id)) return roof.id;
+
   const slab = level.slabs.find(
     (candidate) =>
       pointInPolygon(point, candidate.polygon.outer) &&
@@ -398,7 +482,12 @@ function hostUnder(
         pointInPolygon(point, hole),
       ),
   );
-  return slab?.id;
+  if (slab !== undefined && fits(slab.id)) return slab.id;
+
+  // Et le mur en dernier recours : ce qui n'a ni toit ni dalle sous lui peut
+  // encore s'accrocher à ce qu'il touche.
+  const wall = nearestWall();
+  return wall !== undefined && fits(wall) ? wall : undefined;
 }
 
 /**
@@ -790,6 +879,7 @@ export function mergeSpacesCommand(
     };
   let removal: ProjectCommand | undefined;
   let merged: DetectedRoom | undefined;
+  let without: Project | undefined;
   for (const wallId of shared) {
     const command = removalCommandFor(file.project, level.id, wallId);
     if (command === undefined) continue;
@@ -802,37 +892,129 @@ export function mergeSpacesCommand(
       continue;
     removal = command;
     merged = candidate;
+    without = dispatcher.project;
     break;
   }
-  if (removal === undefined || merged === undefined)
+  if (removal === undefined || merged === undefined || without === undefined)
     return {
       status: 'ERROR',
       message:
         'Aucun mur commun ne sépare ces deux pièces sans ouvrir le reste.',
     };
-  const removals = [removal];
   const kept = level.spaces.find(({ id }) => id === first.existingSpaceId);
   const dropped = level.spaces.filter(
     ({ id }) => id === first.existingSpaceId || id === second.existingSpaceId,
   );
+  /*
+   * Ce que les deux pièces portaient suit dans la pièce réunie.
+   *
+   * Sans cela, réunir refusait : « cette pièce est encore désignée par
+   * Plafonnier séjour, Radiateur séjour, Prise séjour… ». Le refus était juste
+   * — on n'efface pas une pièce que des objets nomment — mais réunir n'est pas
+   * effacer. Le luminaire du séjour est toujours dans la pièce ; c'est la
+   * pièce qui a changé de contour.
+   */
+  /*
+   * Ce que les deux pièces portaient suit dans la pièce réunie.
+   *
+   * Réunir refusait : « cette pièce est encore désignée par Plafonnier séjour,
+   * Radiateur séjour, Zone chauffée, ventilation:inlet-living… ». Le refus
+   * était juste — on n'efface pas une pièce que des objets nomment — mais
+   * réunir n'est pas effacer. Le luminaire est toujours dans la pièce ; c'est
+   * la pièce qui a changé de contour.
+   *
+   * Le projet réuni est donc écrit d'un coup, et validé d'un coup : les
+   * composants, les zones et les nœuds de réseau qui nommaient l'une ou
+   * l'autre nomment la nouvelle. Un objet accroché au mur qu'on retire
+   * retrouve un support sous lui, comme s'il venait d'être posé là.
+   */
+  const gone = new Set(dropped.map(({ id }) => id as string));
+  const survivor =
+    without.building.levels.find(({ id }) => id === level.id) ?? level;
+  const standing = new Set(survivor.walls.map(({ id }) => id as string));
+  const rehosted = survivor.components?.map((component) => {
+    const host =
+      component.hostObjectId === undefined ||
+      standing.has(component.hostObjectId)
+        ? component.hostObjectId
+        : hostUnder(
+            without,
+            survivor,
+            component.position,
+            undefined,
+            component.definitionId,
+          );
+    const inside =
+      component.spaceId !== undefined && gone.has(component.spaceId);
+    return {
+      ...component,
+      ...(inside ? { spaceId: entityId<'Space'>(spaceId) } : {}),
+      ...(host === undefined ? {} : { hostObjectId: host }),
+    };
+  });
+  const rejoined: Space = {
+    id: entityId<'Space'>(spaceId),
+    type: 'SPACE',
+    levelId: level.id,
+    // La pièce qui reste garde le nom de la première désignée : c'est celle
+    // qu'on a montrée en premier, et un nom inventé serait un nom que
+    // personne n'a choisi.
+    name: kept?.name ?? 'Pièce',
+    category: kept?.category ?? 'OTHER',
+    ...(kept?.usageProfileId === undefined
+      ? {}
+      : { usageProfileId: kept.usageProfileId }),
+    ...(kept?.thermalZoneId === undefined
+      ? {}
+      : { thermalZoneId: kept.thermalZoneId }),
+    boundaryMode: 'MANUAL',
+    manualPolygon: merged.polygon,
+  };
+  const rebuilt: Project = {
+    ...without,
+    building: {
+      ...without.building,
+      levels: without.building.levels.map((current) =>
+        current.id !== level.id
+          ? current
+          : {
+              ...current,
+              spaces: [
+                ...current.spaces.filter(({ id }) => !gone.has(id)),
+                rejoined,
+              ],
+              ...(rehosted === undefined ? {} : { components: rehosted }),
+            },
+      ),
+      zones: without.building.zones.map((zone) => ({
+        ...zone,
+        spaceIds: [
+          ...new Set(
+            zone.spaceIds.map((id) => (gone.has(id) ? entityId(spaceId) : id)),
+          ),
+        ],
+      })),
+    },
+    ...(without.systems === undefined
+      ? {}
+      : {
+          systems: without.systems.map((network) => ({
+            ...network,
+            nodes: network.nodes.map((node) =>
+              node.spaceId !== undefined && gone.has(node.spaceId)
+                ? { ...node, spaceId }
+                : node,
+            ),
+          })),
+        }),
+  };
   return {
     status: 'OK',
-    command: new ProjectTransactionCommand(
+    command: new ReplaceProjectCommand(
       `merge-spaces:${spaceId}`,
       'Réunir deux pièces',
-      [
-        ...removals,
-        ...dropped.map((space) => new RemoveSpaceCommand(level.id, space.id)),
-        new AddSpaceCommand(level.id, {
-          id: spaceId,
-          // La pièce qui reste garde le nom de la première désignée : c'est
-          // celle qu'on a montrée en premier, et un nom inventé serait un nom
-          // que personne n'a choisi.
-          name: kept?.name ?? 'Pièce',
-          category: kept?.category ?? 'OTHER',
-          polygon: merged.polygon,
-        }),
-      ],
+      () => rebuilt,
+      { objectIds: [spaceId, ...gone], domains: ['building'] },
     ),
   };
 }

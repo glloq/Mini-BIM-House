@@ -15,8 +15,6 @@ import type { CSSProperties, ReactNode } from 'react';
 
 export interface AppShellProps {
   readonly topBar: ReactNode;
-  /** L'étape en cours, sur une rangée sous la barre supérieure. */
-  readonly stageBar: ReactNode;
   readonly contextPanel: ReactNode;
   readonly contextSeparator: ReactNode;
   readonly canvas: ReactNode;
@@ -35,7 +33,6 @@ export interface AppShellProps {
 
 export function AppShell({
   topBar,
-  stageBar,
   contextPanel,
   contextSeparator,
   canvas,
@@ -52,7 +49,8 @@ export function AppShell({
   return (
     <main className="workspace">
       {topBar}
-      {stageBar}
+      {/* Les sous-parties étaient ici, sur une rangée : elles sont dans la
+          colonne, en sommaire dépliable, avec ce qu'elles posent. */}
       {overlays}
       <div className="shell-body">
         <div

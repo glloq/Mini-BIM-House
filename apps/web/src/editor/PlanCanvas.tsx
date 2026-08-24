@@ -26,14 +26,20 @@ import {
 } from '@house-technical-designer/view-query';
 import type { EditorAction, EditorState } from './editor-state.js';
 import { offsetAlongWall, type GeometryEdit, type Grip } from './grips.js';
-import { editsFor, familyOf, gripsFor } from './object-editors.js';
+import {
+  editsFor,
+  familyOf,
+  gripsFor,
+  inspectObject,
+} from './object-editors.js';
+import { selectableInStage } from '../ux/space-scope.js';
 import { pickToleranceMm } from './pick-tolerance.js';
 import { DynamicInput } from './DynamicInput.js';
 import { ModelGrid } from './ModelGrid.js';
 import { NorthDial } from './NorthDial.js';
 import { UnderlayControl } from './UnderlayControl.js';
 import { UnderlayImage } from './UnderlayImage.js';
-import type { PlanAid } from '../ux/creation-stages.js';
+import type { CreationStageId, PlanAid } from '../ux/creation-stages.js';
 import { TemporaryDimensions } from './TemporaryDimensions.js';
 import {
   areaLabel,
@@ -166,6 +172,12 @@ export interface PlanCanvasProps {
    * serait un cadran de plus à ignorer.
    */
   readonly aids?: readonly PlanAid[];
+  /**
+   * L'espace ouvert : il décide de ce qu'on a le droit de désigner ici.
+   *
+   * Sans lui, on prend la parcelle depuis l'onglet du bâtiment.
+   */
+  readonly stage: CreationStageId;
   /** Ce qu'il y a à dire quand une aide refuse : l'image trop lourde, par exemple. */
   readonly onMessage?: (message: string) => void;
 }
@@ -206,6 +218,7 @@ export function PlanCanvas({
   onCommand,
   onCreateRoom,
   aids = [],
+  stage,
   onMessage,
   onObjectMenu,
   selectableFamily,
@@ -923,13 +936,30 @@ export function PlanCanvas({
     ],
   );
 
-  /** Whether the family filter lets this object be taken. */
+  /**
+   * Si l'on a le droit de prendre cet objet ici.
+   *
+   * Deux filtres, et deux raisons différentes :
+   *
+   * - **l'espace** : on pouvait prendre la parcelle depuis l'onglet du
+   *   bâtiment et les murs depuis celui de l'aménagement. Un clic un peu
+   *   large, et l'on déplaçait la limite du terrain en croyant bouger une
+   *   cloison. Un espace filtre ce qu'il propose ; il filtre aussi ce qu'il
+   *   prend, sans quoi la séparation des parties n'est qu'une façade.
+   * - **la famille**, que la Sélection propose de restreindre : c'est un
+   *   réglage, celui qu'on met quand deux objets se superposent.
+   */
   const selectable = useCallback(
-    (objectId: string): boolean =>
-      selectableFamily === undefined ||
-      selectableFamily === 'ALL' ||
-      familyOf(project, objectId)?.id === selectableFamily,
-    [project, selectableFamily],
+    (objectId: string): boolean => {
+      const kind = inspectObject(project, objectId).kind;
+      if (kind !== 'UNKNOWN' && !selectableInStage(stage, kind)) return false;
+      return (
+        selectableFamily === undefined ||
+        selectableFamily === 'ALL' ||
+        familyOf(project, objectId)?.id === selectableFamily
+      );
+    },
+    [project, selectableFamily, stage],
   );
 
   /**

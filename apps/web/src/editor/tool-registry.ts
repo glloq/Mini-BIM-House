@@ -1555,6 +1555,20 @@ export function toolById(id: string): EditorToolDefinition | undefined {
   return EDITOR_TOOLS.find((tool) => tool.id === id);
 }
 
+/**
+ * Le même identifiant, mais reconnu par le compilateur.
+ *
+ * `EditorToolDefinition.id` est un `string` — le registre est écrit à la main
+ * et une entrée de boîte à outils nomme son outil par une chaîne. Ce qui
+ * distingue cette fonction d'une conversion est qu'elle **regarde** : un nom
+ * que le registre ne tient pas ne devient pas un outil par décret.
+ */
+export function editorToolId(id: string): EditorTool | undefined {
+  return EDITOR_TOOLS.some((tool) => tool.id === id)
+    ? (id as EditorTool)
+    : undefined;
+}
+
 /** The tools of one family, in the order they were registered. */
 /** The tools of one group that this level of the interface offers. */
 export function toolsInGroupAtLevel(

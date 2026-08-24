@@ -151,7 +151,7 @@ import { CommandPalette } from './palette/CommandPalette.js';
 import { PanelSeparator } from './shell/PanelSeparator.js';
 import { StatusBar } from './shell/StatusBar.js';
 import { ProjectTree } from './shell/ProjectTree.js';
-import { AddPanel } from './shell/AddPanel.js';
+import { SectionList } from './shell/SectionList.js';
 import { LevelRow } from './shell/LevelRow.js';
 import { StoreyCount } from './shell/StoreyCount.js';
 import {
@@ -161,7 +161,6 @@ import {
   saveLayout,
   type WorkspaceLayout,
 } from './shell/workspace-layout.js';
-import { networksOfDomain } from './systems/discipline-scope.js';
 import { hiddenLayerCount } from './visibility/display-count.js';
 import { technicalDomains } from './systems/discipline-scope.js';
 import { WorkflowGuide } from './workflow/WorkflowGuide.js';
@@ -169,7 +168,7 @@ import { workflowEntries } from './workflow/workflow-registry.js';
 import { AppShell } from './shell/AppShell.js';
 import { TopBar } from './shell/TopBar.js';
 import { StageBar } from './shell/StageBar.js';
-import { SectionBar, type SectionChoice } from './shell/SectionBar.js';
+
 import { ContextPanel } from './shell/ContextPanel.js';
 import { ShellStatusBar } from './shell/ShellStatusBar.js';
 import { ProjectMenu } from './shell/ProjectMenu.js';
@@ -864,25 +863,8 @@ function App() {
    * sous-partie dont aucun outil n'est posable sur ce projet n'est pas une
    * sous-partie, c'est une promesse.
    */
-  const sectionChoices = useMemo<readonly SectionChoice[]>(
-    () =>
-      toolboxFor(file.project, navigation.stage, undefined, design).map(
-        (section) => ({
-          id: section.id,
-          label: section.label,
-          ...(section.domain === undefined
-            ? {}
-            : {
-                domain: section.domain,
-                // La rangée est désormais le seul endroit où l'on choisit un
-                // métier : le compte de réseaux la suit, pour que la
-                // différence entre « rien à voir » et « rien de tracé » ne s'y
-                // perde pas.
-                networks: networksOfDomain(file.project, section.domain),
-              }),
-          toolCount: section.entries.length,
-        }),
-      ),
+  const sectionChoices = useMemo(
+    () => toolboxFor(file.project, navigation.stage, undefined, design),
     [design, file.project, navigation.stage],
   );
   const openSection = activeSectionId(navigation, sectionChoices);
@@ -2415,17 +2397,6 @@ function App() {
           }
         />
       }
-      stageBar={
-        <SectionBar
-          stageLabel={creationStage(navigation.stage).label}
-          sections={sectionChoices}
-          {...(openSection === undefined ? {} : { activeId: openSection })}
-          onSelect={(section) => {
-            setNavigation((current) => goToSection(current, section));
-            setMenuOpen(false);
-          }}
-        />
-      }
       contextPanel={
         <ContextPanel
           navigation={navigation}
@@ -2469,17 +2440,26 @@ function App() {
                   onMessage={setMessage}
                 />
               )}
-              <AddPanel
+              {/*
+               * Les sous-parties, et ce que l'ouverte sait poser.
+               *
+               * Elles étaient une rangée au-dessus du plan et un panneau ici :
+               * deux endroits pour une idée, avec les mêmes boutons aux deux
+               * places — l'un des deux étant toujours celui qu'on n'avait pas
+               * visé. Une liste dépliable les réunit, et c'est la forme d'un
+               * sommaire : on voit les parties, on ouvre celle qu'on travaille.
+               */}
+              <SectionList
                 project={file.project}
                 stage={navigation.stage}
                 {...(openSection === undefined ? {} : { section: openSection })}
-                {...(activeDomain === undefined
-                  ? {}
-                  : { domain: activeDomain })}
                 design={design}
                 editor={editor}
                 drafts={toolDrafts}
                 onChooseEntry={chooseEntry}
+                onOpenSection={(section) =>
+                  setNavigation((current) => goToSection(current, section))
+                }
               />
               <details className="project-tree-fold">
                 <summary>Éléments du projet</summary>
@@ -2614,21 +2594,13 @@ function App() {
                 project={file.project}
                 stage={navigation.stage}
                 design={design}
-                {...(openSection === undefined ? {} : { section: openSection })}
                 onChooseEntry={chooseEntry}
-                onOpenSection={(next) =>
-                  setNavigation((current) => goToSection(current, next))
-                }
-                {...(activeDomain === undefined
-                  ? {}
-                  : { domain: activeDomain })}
                 editor={editor}
                 dispatch={dispatchEditor}
                 drafts={toolDrafts}
                 onDraftChange={(key, value) =>
                   setToolDrafts((current) => ({ ...current, [key]: value }))
                 }
-                onOpenLibrary={() => setTab('equipment')}
                 context={
                   <ContextToolBar
                     project={file.project}
@@ -2700,6 +2672,7 @@ function App() {
                 editor={{ ...editor, levelId: activeLevelId } as EditorState}
                 dispatch={dispatchEditor}
                 aids={planAids}
+                stage={navigation.stage}
                 onMessage={setMessage}
                 onCommitPoints={commitPoints}
                 onFinishRun={finishRun}

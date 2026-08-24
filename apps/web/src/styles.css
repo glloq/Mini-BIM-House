@@ -2437,49 +2437,54 @@ legend {
 }
 /* En dessous de 1 100 px, neuf libellés deviennent une liste déroulante. */
 /*
- * Les parties de la partie, sous les sept espaces.
+ * Les parties de la partie, en sommaire dépliable dans la colonne.
  *
- * Plus discrète que la barre au-dessus : on y change de sous-partie souvent,
- * et deux rangées de la même force sont deux rangées qui se disputent. Elle
- * commence par dire où l'on est, parce que « MURS » seul ne veut rien dire.
+ * Elles étaient une rangée au-dessus du plan, et ce qu'elles posaient était un
+ * panneau séparé : deux endroits pour une idée, avec les mêmes boutons aux
+ * deux places. Une liste où l'ouverte montre son contenu se lit comme un
+ * sommaire — on voit les parties, on ouvre celle qu'on travaille.
  */
-.section-bar {
-  display: flex;
-  height: 28px;
-  align-items: center;
-  gap: 0.1rem;
-  padding: 0.1rem 0.6rem;
+.section-list {
+  margin-bottom: 0.5rem;
+}
+.section-fold {
   border-bottom: 1px solid var(--line);
-  overflow-x: auto;
 }
-.section-place {
-  margin-right: 0.35rem;
+.section-fold > summary {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  padding: 0.28rem 0.15rem;
   color: var(--ink-soft);
-  font-size: 0.66rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  opacity: 0.75;
-}
-.section-entry {
-  border: 0;
-  padding: 0.15rem 0.45rem;
-  border-radius: 0.4rem;
-  background: none;
-  color: var(--ink-soft);
-  font-size: 0.72rem;
-  font-weight: 600;
-  white-space: nowrap;
   cursor: pointer;
+  list-style: none;
 }
-.section-entry:hover {
-  background: var(--surface);
+.section-fold > summary::-webkit-details-marker {
+  display: none;
 }
-.section-entry.active {
-  background: var(--accent-soft);
+/* Le chevron dit ce qui est ouvert sans prendre une colonne pour le dire. */
+.section-fold > summary::before {
+  content: '▸';
+  font-size: 0.62rem;
+  opacity: 0.7;
+}
+.section-fold[open] > summary::before {
+  content: '▾';
+}
+.section-fold[open] > summary {
   color: var(--ink-strong);
-  font-weight: 700;
+}
+.section-count {
+  margin-left: auto;
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+.section-fold .add-grid {
+  padding: 0 0 0.35rem;
 }
 .stage-compact {
   display: none;
