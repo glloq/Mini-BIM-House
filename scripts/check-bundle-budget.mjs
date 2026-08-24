@@ -158,8 +158,14 @@ export const BUDGETS = {
    * les deux boutons qui achèvent un contour à la souris. Une parcelle se
    * dessine pour ses mètres carrés ; les lire après l'avoir créée obligeait à
    * créer, lire, annuler, recommencer.
+   *
+   * Et un avec la grille du modèle. Elle remplace deux lignes de CSS, ce qui
+   * est cher — sauf que ces deux lignes peignaient des carreaux de 24 pixels
+   * qui ne mesuraient aucune longueur, ne suivaient ni le déplacement ni le
+   * zoom, et faisaient de « poser un mur sur la grille » un hasard. Un repère
+   * qui ne repère rien ne coûte rien et ne vaut rien.
    */
-  initialGzipBytes: 286 * 1024,
+  initialGzipBytes: 287 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -269,8 +275,9 @@ export const BUDGETS = {
    * pente des évacuations. Une évacuation horizontale est une évacuation qui
    * ne s'écoule pas, et c'est la seule chose qu'un plan doit crier.
    *
-   * Et un avec la fermeture des surfaces, comptée au chargement initial
-   * ci-dessus : elle vit dans le plan, donc dans le premier écran.
+   * Et un avec la fermeture des surfaces, et un avec la grille du modèle,
+   * comptés au chargement initial ci-dessus : ils vivent dans le plan, donc
+   * dans le premier écran.
    *
    * Et un avec le panneau « Ajouter » et la rangée des niveaux. Le panneau ne
    * tient aucune liste : il appelle `toolboxFor` comme le header, et dessine
@@ -278,7 +285,7 @@ export const BUDGETS = {
    * composant et une grille. La colonne de gauche montre enfin ce qu'on peut
    * poser plutôt que ce qui est déjà posé, et l'étage courant reste à un clic.
    */
-  totalGzipBytes: 466 * 1024,
+  totalGzipBytes: 467 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

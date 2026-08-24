@@ -952,7 +952,7 @@ tenaient pas encore.
 | **UI-FINAL-1** | _Livré._ La colonne de gauche montre ce qu'on **ajoute**, l'arbre passe dessous      | V4-4       |
 | **UI-FINAL-2** | _Livré._ Fermeture uniforme des surfaces : bouton, premier sommet, Entrée, aire vive | V4-4       |
 | **UI-FINAL-3** | `PolygonSurfaceEditor` : sommets, côtés, angles, aire — pour les quatre surfaces     | UI-FINAL-2 |
-| **UI-FINAL-4** | Une vraie grille modèle, en millimètres, alignée sur (0, 0)                          | —          |
+| **UI-FINAL-4** | _Livré._ Une vraie grille modèle, en millimètres, alignée sur (0, 0)                 | —          |
 | **UI-FINAL-5** | Les parcours E2E qui figent ces quatre gestes                                        | 1 à 4      |
 
 #### UI-FINAL-1 — ce qu'on peut poser, avant ce qui est posé
@@ -980,6 +980,30 @@ Le registre déclare `completionMode: 'CLOSE_POLYGON'` sur `SLAB`, `SLAB_HOLE`,
 `Entrée` veut dire la même chose partout : elle achève. Dans les champs de
 saisie, elle pose d'abord la valeur qu'on vient de taper — un champ vide ne
 demande rien.
+
+#### UI-FINAL-4 — une grille qui mesure quelque chose
+
+Ce qui en tenait lieu était un `background-image` CSS : deux dégradés tous les
+24 pixels, collés au cadre. Elle ne bougeait pas au déplacement, ne changeait
+pas au zoom, et ses carreaux ne mesuraient aucune longueur — poser un mur
+« sur la grille » était un hasard.
+
+`model-grid.ts` calcule les lignes **de la caméra seule** : pas fin choisi sur
+une échelle de mètre-ruban (un, deux, cinq, et les mêmes dix fois plus grand),
+pas fort cinq ou dix fois plus large, lignes comptées depuis l'origine du
+modèle et non depuis le bord du cadre — c'est ce qui garantit qu'une ligne
+passe exactement par x = 0 et y reste. `ModelGrid` la dessine derrière tout,
+sans prendre un clic et sans être annoncée.
+
+Elle est **toujours visible**, et elle ne dit rien de l'accrochage : voir où
+sont les mètres et s'y coller sont deux questions, et les confondre faisait
+disparaître le repère dès qu'on voulait dessiner librement.
+
+En chemin : les sept réglages d'accrochage étaient inatteignables à la souris.
+La barre d'état défile — c'est ce qui la garde sur une rangée — et une boîte
+qui défile rogne ce qui en sort : le panneau était dessiné, rogné, et le plan
+recevait les clics à sa place. Il est posé en `fixed`, à l'endroit de son
+propre bouton.
 
 ---
 

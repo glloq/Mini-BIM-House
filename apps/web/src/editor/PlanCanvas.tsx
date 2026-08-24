@@ -29,6 +29,7 @@ import { offsetAlongWall, type GeometryEdit, type Grip } from './grips.js';
 import { editsFor, familyOf, gripsFor } from './object-editors.js';
 import { pickToleranceMm } from './pick-tolerance.js';
 import { DynamicInput } from './DynamicInput.js';
+import { ModelGrid } from './ModelGrid.js';
 import { TemporaryDimensions } from './TemporaryDimensions.js';
 import {
   areaLabel,
@@ -1263,6 +1264,13 @@ export function PlanCanvas({
       onPointerLeave={handleUp}
       onWheel={handleWheel}
     >
+      {/*
+        La grille, en premier et derrière tout.
+        Elle était un `background-image` CSS de 24 pixels collé au cadre : elle
+        ne suivait ni le déplacement ni le zoom, et ses carreaux ne mesuraient
+        aucune longueur. Celle-ci est dans le repère du modèle.
+      */}
+      <ModelGrid camera={editor.camera} />
       {temporary !== undefined && (
         <TemporaryDimensions
           edits={temporary.edits}
