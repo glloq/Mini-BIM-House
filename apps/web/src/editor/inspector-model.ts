@@ -18,6 +18,8 @@ import { routeFall } from '@house-technical-designer/editor-core';
 import { serializedTotalThicknessM } from '@house-technical-designer/assemblies';
 import { polygonArea } from '@house-technical-designer/geometry';
 import { assemblyView } from '../library/library-model.js';
+import { polygonFacts } from './polygon-edits.js';
+import { polygonSurface, readSlabHoleId } from './polygon-surface.js';
 
 export interface InspectorField {
   readonly label: string;
@@ -59,6 +61,7 @@ export interface InspectorSubject {
     | 'OPENING'
     | 'SPACE'
     | 'SLAB'
+    | 'SLAB_HOLE'
     | 'ROOF'
     | 'NETWORK_EDGE'
     | 'NETWORK_NODE'
@@ -1073,6 +1076,44 @@ export function siteSubject(
         ],
       },
       { title: 'Références', fields: [field('Identifiant', obstacle.id)] },
+    ],
+  };
+}
+
+/**
+ * Ce qu'une trémie montre.
+ *
+ * Un trou vivait dans le tableau `holes` d'une dalle : il n'avait pas de nom,
+ * donc rien ne pouvait le désigner, donc rien ne pouvait le corriger. On le
+ * perçait, et s'il était mal placé on annulait la dalle entière.
+ */
+export function slabHoleSubject(
+  project: Project,
+  objectId: string,
+): InspectorSubject | undefined {
+  const hole = readSlabHoleId(objectId);
+  if (hole === undefined) return undefined;
+  const surface = polygonSurface(project, undefined, objectId);
+  if (surface === undefined) return undefined;
+  const facts = polygonFacts(surface.outline);
+  return {
+    objectId,
+    kind: 'SLAB_HOLE',
+    title: `Trémie ${hole.index + 1}`,
+    sections: [
+      {
+        title: 'Percement',
+        fields: [
+          field('Dans la dalle', hole.slabId),
+          field('Sommets', surface.outline.length),
+          ...(facts === undefined
+            ? []
+            : [
+                field('Surface', `${facts.areaM2.toFixed(2)} m²`),
+                field('Périmètre', `${facts.perimeterM.toFixed(2)} m`),
+              ]),
+        ],
+      },
     ],
   };
 }

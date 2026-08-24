@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 import { loadDemoProject } from './support/file-menu.js';
+import { openInspector } from './support/panels.js';
 import { chooseTool } from './support/tools.js';
 
 /**
@@ -15,12 +16,17 @@ import { chooseTool } from './support/tools.js';
  * Ces tests figent les quatre gestes, et qu'aucun ne réclame le clavier.
  */
 
-/** Un contour, en fractions du canvas, pour ne pas dépendre de sa taille. */
+/**
+ * Un contour, en fractions du canvas, pour ne pas dépendre de sa taille.
+ *
+ * Il commence bas : la seconde ligne du header flotte au-dessus du plan, et
+ * cliquer sous elle est ce que ferait quelqu'un qui la voit.
+ */
 const CORNERS = [
-  { x: 0.2, y: 0.22 },
-  { x: 0.7, y: 0.22 },
-  { x: 0.7, y: 0.62 },
-  { x: 0.2, y: 0.62 },
+  { x: 0.2, y: 0.34 },
+  { x: 0.7, y: 0.34 },
+  { x: 0.7, y: 0.76 },
+  { x: 0.2, y: 0.76 },
 ] as const;
 
 type Position = { readonly x: number; readonly y: number };
@@ -133,10 +139,10 @@ test('perce une trémie dans la dalle qu’on vient de fermer', async ({
 
   await chooseTool(page, 'Trémie');
   await placeCorners(page, [
-    { x: 0.34, y: 0.32 },
-    { x: 0.5, y: 0.32 },
-    { x: 0.5, y: 0.5 },
-    { x: 0.34, y: 0.5 },
+    { x: 0.34, y: 0.44 },
+    { x: 0.5, y: 0.44 },
+    { x: 0.5, y: 0.62 },
+    { x: 0.34, y: 0.62 },
   ]);
   await closeButton(page).click();
   await expect(page.getByRole('status')).toContainText(/trémie/iu);
@@ -154,4 +160,85 @@ test('l’aide et les champs disent la même chose de la touche Entrée', async 
   const instruction = page.locator('.context-instruction');
   await expect(instruction).toContainText('Fermer la surface : Entrée');
   await expect(instruction).not.toContainText('Ctrl');
+});
+
+test('cote une parcelle à 30 sur 25, lit 750 m², et défait', async ({
+  page,
+}) => {
+  /*
+   * Le parcours que l'audit demande, en entier.
+   *
+   * On traçait au jugé, on créait, on lisait la surface, on annulait, on
+   * recommençait. Une surface se cote : on donne ses mesures et elle les prend.
+   */
+  await readyDemo(page);
+  await openInspector(page);
+  await chooseTool(page, 'Terrain');
+  await placeCorners(page);
+  await closeButton(page).click();
+  await expect(page.locator('[id="site:parcel"]')).toHaveCount(1);
+
+  await chooseTool(page, 'Sélection');
+  const canvas = page.locator('.plan-canvas');
+  const frame = (await canvas.boundingBox())!;
+  const parcel = (await page.locator('[id="site:parcel"]').boundingBox())!;
+  // Un bord, pas le centre : la maison est posée au milieu de la parcelle, et
+  // c'est elle qu'on prendrait en visant le milieu.
+  await canvas.click({
+    position: {
+      x: parcel.x - frame.x + 2,
+      y: parcel.y - frame.y + parcel.height / 2,
+    },
+  });
+  await expect(page.locator('.inspector-subject')).toContainText('Parcelle');
+
+  // Les poignées existent : une parcelle se corrige sommet par sommet, elle
+  // ne se retrace pas.
+  await expect(page.locator('.grip-polygon-vertex')).toHaveCount(4);
+
+  const width = page.getByLabel(/^Largeur/u);
+  const depth = page.getByLabel(/^Profondeur/u);
+  await width.fill('30000');
+  await width.press('Enter');
+  await depth.fill('25000');
+  await depth.press('Enter');
+
+  // 30 × 25 : la surface est recalculée tout de suite, sans rien rouvrir.
+  await expect(page.locator('.inspector-subject')).toContainText('750');
+
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(page.locator('.inspector-subject')).not.toContainText('750');
+});
+
+test('corrige une trémie, qui est un objet comme un autre', async ({
+  page,
+}) => {
+  await readyDemo(page);
+  await openInspector(page);
+  await chooseTool(page, 'Dalle libre');
+  await placeCorners(page);
+  await closeButton(page).click();
+
+  await chooseTool(page, 'Trémie');
+  await placeCorners(page, [
+    { x: 0.34, y: 0.44 },
+    { x: 0.5, y: 0.44 },
+    { x: 0.5, y: 0.62 },
+    { x: 0.34, y: 0.62 },
+  ]);
+  await closeButton(page).click();
+  await expect(page.getByRole('status')).toContainText(/trémie/iu);
+
+  // Elle se désigne : elle vivait dans un tableau, sans nom, donc rien ne
+  // pouvait la corriger — on annulait, ou on refaisait la dalle.
+  await chooseTool(page, 'Sélection');
+  const hole = page.locator('[id*="#hole:0"]').first();
+  await expect(hole).toBeAttached();
+  const frame = (await page.locator('.plan-canvas').boundingBox())!;
+  const box = (await hole.boundingBox())!;
+  await page.locator('.plan-canvas').click({
+    position: { x: box.x - frame.x + box.width / 2, y: box.y - frame.y + 1 },
+  });
+  await expect(page.locator('.inspector-subject')).toContainText('Trémie');
+  await expect(page.getByLabel(/^Largeur/u)).toBeVisible();
 });

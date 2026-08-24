@@ -21,8 +21,11 @@ import {
   RemoveRoofStructureCommand,
   RemoveSlabCommand,
   RemoveSpaceCommand,
+  UpdateSlabCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
+
+import { readSlabHoleId } from './polygon-surface.js';
 
 /**
  * How one family of objects is removed.
@@ -103,6 +106,32 @@ export const slabRemoval: RemovalProvider = (project, levelId, objectId) =>
   levelOf(project, levelId)?.slabs.some(({ id }) => id === objectId) === true
     ? new RemoveSlabCommand(levelId, objectId)
     : undefined;
+
+/**
+ * Reboucher une trémie, c'est retirer un anneau de sa dalle.
+ *
+ * Il n'y avait aucun moyen de le faire : on annulait le percement tant qu'il
+ * était dans l'historique, et après cela on refaisait la dalle.
+ */
+export const slabHoleRemoval: RemovalProvider = (
+  project,
+  levelId,
+  objectId,
+) => {
+  const hole = readSlabHoleId(objectId);
+  if (hole === undefined) return undefined;
+  const host = levelOf(project, levelId)?.slabs.find(
+    ({ id }) => id === hole.slabId,
+  );
+  const holes = host?.polygon.holes;
+  if (host === undefined || holes?.[hole.index] === undefined) return undefined;
+  return new UpdateSlabCommand(levelId, host.id, {
+    polygon: {
+      outer: host.polygon.outer,
+      holes: holes.filter((_ring, index) => index !== hole.index),
+    },
+  });
+};
 
 export const roofRemoval: RemovalProvider = (project, levelId, objectId) =>
   levelOf(project, levelId)?.roofs.some(({ id }) => id === objectId) === true

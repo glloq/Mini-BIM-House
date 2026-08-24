@@ -16,11 +16,15 @@ import {
   isDimension,
   isTextNote,
 } from '@house-technical-designer/core-domain';
-import type { JsonValue } from '@house-technical-designer/core-domain';
+import type {
+  JsonValue,
+  SiteObstacleKind,
+} from '@house-technical-designer/core-domain';
 import { edgePropertySchema } from '@house-technical-designer/editor-core';
 import {
   MoveWallPointCommand,
   ProjectEditorCommand,
+  UpdateSiteObstacleCommand,
   UpdateDimensionCommand,
   UpdateNetworkEdgeCommand,
   UpdateNetworkNodeCommand,
@@ -47,8 +51,11 @@ import {
   ROOF_EDGE_KIND_OPTIONS,
   STAIR_TYPE_OPTIONS,
   STRUCTURAL_MEMBER_OPTIONS,
+  SITE_OBSTACLE_OPTIONS,
   SPACE_CATEGORY_OPTIONS as SPACE_CATEGORIES,
 } from './domain-options.js';
+import { polygonSurfaceEdits } from './polygon-edits.js';
+import { polygonSurface } from './polygon-surface.js';
 
 /** A control the inspector offers for one editable property. */
 export type InspectorControl =
@@ -614,6 +621,9 @@ export function slabEditsFor(
                 });
           },
         },
+        // Et son contour, mesuré et corrigeable — le même jeu de champs que
+        // pour une toiture, une trémie ou une parcelle.
+        ...polygonSurfaceEdits(project, level.id, objectId),
       ];
   }
   return undefined;
@@ -676,6 +686,7 @@ export function roofEditsFor(
               : new UpdateRoofCommand(level.id, roof.id, { azimuthDeg });
           },
         },
+        ...polygonSurfaceEdits(project, level.id, objectId),
       ];
   }
   return undefined;
@@ -1334,4 +1345,86 @@ export function networkEdgeEditsFor(
     });
   }
   return undefined;
+}
+
+/**
+ * Ce qu'un terrain laisse corriger.
+ *
+ * La parcelle et les emprises n'avaient **aucune** propriété modifiable : une
+ * parcelle mal bornée se retraçait, et un obstacle mal nommé restait mal
+ * nommé. Ce sont pourtant des contours comme les autres — plus, pour un
+ * obstacle, ce qu'il est et quelle hauteur il fait.
+ */
+export function siteEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  const surface = polygonSurfaceEdits(project, undefined, objectId);
+  if (objectId === 'site:parcel')
+    return project.site.parcelBoundary === undefined ? undefined : surface;
+
+  const obstacle = (project.site.obstacles ?? []).find(
+    ({ id }) => id === objectId,
+  );
+  if (obstacle === undefined) return undefined;
+  return [
+    {
+      id: 'name',
+      semanticId: 'site.obstacle.name',
+      label: 'Nom',
+      control: {
+        kind: 'TEXT',
+        value: obstacle.name ?? '',
+        placeholder: obstacle.kind ?? 'Sans nom',
+      },
+      apply: (value) =>
+        new UpdateSiteObstacleCommand(obstacle.id, { name: value }),
+    },
+    {
+      id: 'kind',
+      semanticId: 'site.obstacle.kind',
+      label: 'Nature',
+      control: {
+        kind: 'SELECT',
+        value: obstacle.kind ?? 'OTHER',
+        options: SITE_OBSTACLE_OPTIONS,
+      },
+      apply: (value) =>
+        new UpdateSiteObstacleCommand(obstacle.id, {
+          kind: value as SiteObstacleKind,
+        }),
+    },
+    {
+      id: 'heightMm',
+      semanticId: 'site.obstacle.heightMm',
+      label: 'Hauteur',
+      // Une hauteur inconnue n'est pas une hauteur nulle : un arbre de zéro
+      // mètre ne porte aucune ombre, et c'est l'ombre qu'on calcule.
+      hint: 'Vide : hauteur inconnue.',
+      control: {
+        kind: 'NUMBER',
+        value: obstacle.heightMm ?? 0,
+        unit: 'mm',
+        step: 100,
+        min: 0,
+      },
+      apply: (value) => {
+        const heightMm = parsed(value);
+        return heightMm === undefined
+          ? undefined
+          : new UpdateSiteObstacleCommand(obstacle.id, { heightMm });
+      },
+    },
+    ...surface,
+  ];
+}
+
+/** Les propriétés d'une trémie : son contour, et rien d'autre. */
+export function slabHoleEditsFor(
+  project: Project,
+  objectId: string,
+): readonly InspectorEdit[] | undefined {
+  const surface = polygonSurface(project, undefined, objectId);
+  if (surface?.kind !== 'SLAB_HOLE') return undefined;
+  return polygonSurfaceEdits(project, surface.levelId, objectId);
 }

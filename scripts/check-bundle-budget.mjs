@@ -164,8 +164,15 @@ export const BUDGETS = {
    * qui ne mesuraient aucune longueur, ne suivaient ni le déplacement ni le
    * zoom, et faisaient de « poser un mur sur la grille » un hasard. Un repère
    * qui ne repère rien ne coûte rien et ne vaut rien.
+   *
+   * Et deux avec l'éditeur de contour. Un seul jeu de champs — largeur,
+   * profondeur, longueur de chaque côté, coordonnées de chaque sommet, aire,
+   * périmètre — répond pour la dalle, la toiture, la trémie et la parcelle,
+   * et remplace quatre écrans dont deux n'existaient pas : la parcelle se
+   * retraçait pour se corriger, et la trémie n'était même pas un objet. Deux
+   * kio pour quatre surfaces, c'est le prix d'une seule.
    */
-  initialGzipBytes: 287 * 1024,
+  initialGzipBytes: 289 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -275,9 +282,9 @@ export const BUDGETS = {
    * pente des évacuations. Une évacuation horizontale est une évacuation qui
    * ne s'écoule pas, et c'est la seule chose qu'un plan doit crier.
    *
-   * Et un avec la fermeture des surfaces, et un avec la grille du modèle,
-   * comptés au chargement initial ci-dessus : ils vivent dans le plan, donc
-   * dans le premier écran.
+   * Et un avec la fermeture des surfaces, un avec la grille du modèle et deux
+   * avec l'éditeur de contour, comptés au chargement initial ci-dessus : ils
+   * vivent dans le plan, donc dans le premier écran.
    *
    * Et un avec le panneau « Ajouter » et la rangée des niveaux. Le panneau ne
    * tient aucune liste : il appelle `toolboxFor` comme le header, et dessine
@@ -285,7 +292,7 @@ export const BUDGETS = {
    * composant et une grille. La colonne de gauche montre enfin ce qu'on peut
    * poser plutôt que ce qui est déjà posé, et l'étage courant reste à un clic.
    */
-  totalGzipBytes: 467 * 1024,
+  totalGzipBytes: 469 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

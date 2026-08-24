@@ -947,13 +947,13 @@ L'architecture générale ne se refait plus : les sept espaces, les sous-parties
 et le `ToolHeader` sont la base. Restaient quatre gestes de base qui ne
 tenaient pas encore.
 
-| Lot            | Ce qu'il fait                                                                        | Dépend de  |
-| -------------- | ------------------------------------------------------------------------------------ | ---------- |
-| **UI-FINAL-1** | _Livré._ La colonne de gauche montre ce qu'on **ajoute**, l'arbre passe dessous      | V4-4       |
-| **UI-FINAL-2** | _Livré._ Fermeture uniforme des surfaces : bouton, premier sommet, Entrée, aire vive | V4-4       |
-| **UI-FINAL-3** | `PolygonSurfaceEditor` : sommets, côtés, angles, aire — pour les quatre surfaces     | UI-FINAL-2 |
-| **UI-FINAL-4** | _Livré._ Une vraie grille modèle, en millimètres, alignée sur (0, 0)                 | —          |
-| **UI-FINAL-5** | Les parcours E2E qui figent ces quatre gestes                                        | 1 à 4      |
+| Lot            | Ce qu'il fait                                                                             | Dépend de  |
+| -------------- | ----------------------------------------------------------------------------------------- | ---------- |
+| **UI-FINAL-1** | _Livré._ La colonne de gauche montre ce qu'on **ajoute**, l'arbre passe dessous           | V4-4       |
+| **UI-FINAL-2** | _Livré._ Fermeture uniforme des surfaces : bouton, premier sommet, Entrée, aire vive      | V4-4       |
+| **UI-FINAL-3** | _Livré._ `PolygonSurfaceEditor` : sommets, côtés, angles, aire — pour les quatre surfaces | UI-FINAL-2 |
+| **UI-FINAL-4** | _Livré._ Une vraie grille modèle, en millimètres, alignée sur (0, 0)                      | —          |
+| **UI-FINAL-5** | _Livré._ Les parcours E2E qui figent ces quatre gestes                                    | 1 à 4      |
 
 #### UI-FINAL-1 — ce qu'on peut poser, avant ce qui est posé
 
@@ -1004,6 +1004,42 @@ La barre d'état défile — c'est ce qui la garde sur une rangée — et une bo
 qui défile rogne ce qui en sort : le panneau était dessiné, rogné, et le plan
 recevait les clics à sa place. Il est posé en `fixed`, à l'endroit de son
 propre bouton.
+
+#### UI-FINAL-3 — un seul éditeur pour quatre surfaces
+
+Une dalle, une toiture, une trémie et une parcelle sont la même chose : une
+suite de sommets qui se referme. Elles étaient quatre écrans, dont deux
+absents — la parcelle n'avait ni propriété ni poignée, donc on la **retraçait**
+pour la corriger, et la trémie n'était même pas un objet : elle vivait dans le
+tableau `holes` d'une dalle, sans identifiant, donc rien ne pouvait la
+désigner.
+
+`polygon-surface.ts` dit **où est le contour** et **comment le réécrire** ;
+c'est tout ce qu'il dit. Les poignées, l'insertion et la suppression de
+sommets, et les commandes d'édition passent toutes par là — une cinquième
+surface ne demanderait pas un cinquième éditeur.
+
+`polygon-edits.ts` en dérive les champs, les mêmes pour les quatre :
+
+- **largeur et profondeur** quand la forme est un rectangle, le premier coin
+  gardé en place — c'est presque toutes les dalles et presque toutes les
+  parcelles ;
+- **la longueur de chaque côté**, qui pousse le sommet suivant le long du côté ;
+- **les coordonnées de chaque sommet**, pour un bornage qu'on relève ;
+- **l'aire, le périmètre, les côtés et les angles** en lecture, angles rentrants
+  écrits 270° et non 90°.
+
+Une trémie est devenue un objet : son bord est un tracé qu'on clique, elle a un
+identifiant (`dalle#hole:n`), un sujet, des champs, des poignées, une ligne
+dans l'arborescence, un chemin de scénario, et elle se rebouche.
+
+#### UI-FINAL-5 — ce que les parcours figent
+
+`e2e/surfaces.spec.ts` et `e2e/grid.spec.ts` : les quatre gestes de fermeture
+sur les quatre surfaces, la parcelle cotée à 30 × 25 qui lit 750 m² puis se
+défait, la trémie qu'on désigne et qu'on corrige, la grille visible au
+chargement, au zoom, au déplacement, au changement d'espace, et indépendante de
+l'accrochage.
 
 ---
 

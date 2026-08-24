@@ -35,6 +35,10 @@ export async function chooseTool(page: Page, label: string): Promise<void> {
   }
   if ((await offered.count()) === 0) await revealAllTools(page);
   await toolbox.getByRole('button', { name: label, exact: true }).click();
+  // Choisir referme le dépliage — c'est ce que fait l'écran, et un test qui
+  // le laisse ouvert clique ensuite à travers un menu posé sur le plan.
+  const open = page.locator('.tool-header details.tool-more[open] > summary');
+  if ((await open.count()) > 0) await open.first().click();
 }
 
 /** Ouvrir une sous-partie de l'espace courant, par son nom. */
