@@ -989,6 +989,15 @@ button.icon {
 }
 
 /* Plan canvas: the semantic scene rendered by the drawing engine. */
+/* Le calque de papier : entre la grille et le dessin, sans prendre un clic.
+   Un relevé se regarde, il ne se désigne pas. */
+.underlay-image {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  max-width: none;
+}
+
 /* La grille du plan, dessinée dans le repère du modèle et non collée au
    cadre : elle suit le déplacement et le zoom, et un carreau vaut toujours la
    même longueur réelle. Elle ne prend aucun clic et n'entre dans aucune
@@ -1165,8 +1174,95 @@ button.icon {
 .snap-marker.snap-intersection {
   border-color: #8c5a2f;
 }
+/* Poser et caler le relevé, contre le plan : on cale un cadastre en regardant
+   le dessin, pas dans un formulaire d'un autre écran. */
+.underlay-control {
+  position: absolute;
+  left: 0.6rem;
+  bottom: 0.5rem;
+  font-size: 0.72rem;
+}
+.underlay-control > button {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid #d7e0da;
+  border-radius: 0.5rem;
+  background: #ffffffe6;
+  color: #4a5d54;
+  cursor: pointer;
+}
+.underlay-settings {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  bottom: calc(100% + 0.35rem);
+  display: flex;
+  flex-direction: column;
+  min-width: 12rem;
+  padding: 0.5rem 0.6rem;
+  gap: 0.3rem;
+  box-shadow: 0 12px 28px rgba(20, 40, 32, 0.18);
+}
+.underlay-settings label {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.underlay-settings input[type='number'] {
+  width: 5rem;
+  padding: 0.1rem 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+.underlay-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
 /* La rose des vents, posée sur le dessin. Elle se règle en regardant ce
    qu'elle oriente : la parcelle, la rue, l'ombre du voisin. */
+/* Combien d'étages, sous la rangée des niveaux : « je fais une maison à deux
+   étages » se dit en dessinant, pas dans un assistant qu'on a quitté. */
+.storey-count {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+  margin-bottom: 0.45rem;
+  font-size: 0.76rem;
+}
+.storey-label {
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.storey-count button {
+  width: 1.5rem;
+  padding: 0.05rem 0;
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+  background: var(--surface);
+  color: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.storey-count button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.storey-value {
+  min-width: 1.2rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: center;
+}
+.storey-hint {
+  flex: 1 1 100%;
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
 /* Ce qu'on a tracé, écrit dessus : « Parcelle · 750,00 m² ». Une surface qui
    ne dit pas son aire est un trait, et un trait n'apprend rien. */
 .surface-label {

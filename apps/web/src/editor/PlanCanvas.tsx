@@ -31,6 +31,8 @@ import { pickToleranceMm } from './pick-tolerance.js';
 import { DynamicInput } from './DynamicInput.js';
 import { ModelGrid } from './ModelGrid.js';
 import { NorthDial } from './NorthDial.js';
+import { UnderlayControl } from './UnderlayControl.js';
+import { UnderlayImage } from './UnderlayImage.js';
 import type { PlanAid } from '../ux/creation-stages.js';
 import { TemporaryDimensions } from './TemporaryDimensions.js';
 import {
@@ -164,6 +166,8 @@ export interface PlanCanvasProps {
    * serait un cadran de plus à ignorer.
    */
   readonly aids?: readonly PlanAid[];
+  /** Ce qu'il y a à dire quand une aide refuse : l'image trop lourde, par exemple. */
+  readonly onMessage?: (message: string) => void;
 }
 
 /** Segments the snap engine considers: every wall axis on the level. */
@@ -202,6 +206,7 @@ export function PlanCanvas({
   onCommand,
   onCreateRoom,
   aids = [],
+  onMessage,
   onObjectMenu,
   selectableFamily,
   graphicProfileId,
@@ -1299,6 +1304,14 @@ export function PlanCanvas({
         aucune longueur. Celle-ci est dans le repère du modèle.
       */}
       <ModelGrid camera={editor.camera} />
+      {/* Le calque de papier, entre la grille et le dessin : on trace
+          par-dessus ce qu'on a, et on ne le désigne jamais. */}
+      {project.site.underlay !== undefined && (
+        <UnderlayImage
+          camera={editor.camera}
+          underlay={project.site.underlay}
+        />
+      )}
       {temporary !== undefined && (
         <TemporaryDimensions
           edits={temporary.edits}
@@ -1496,6 +1509,16 @@ export function PlanCanvas({
       */}
       {/* La rose des vents, contre le dessin : on choisit une orientation en
           regardant la parcelle, pas dans un champ d'un autre écran. */}
+      {/* Poser un relevé sous le dessin : on le cale en regardant le plan,
+          jamais dans un formulaire d'un autre écran. */}
+      {aids.includes('UNDERLAY') && onCommand !== undefined && (
+        <UnderlayControl
+          project={project}
+          onCommand={(command) => onCommand(command)}
+          onMessage={(message) => onMessage?.(message)}
+          originMm={editor.camera.centerModelMm}
+        />
+      )}
       {aids.includes('NORTH') && onCommand !== undefined && (
         <NorthDial
           project={project}

@@ -743,8 +743,15 @@ test('creates a partition as a partition, not as an exterior wall', async ({
     Math.max(...nodes.map((node) => node.getBoundingClientRect().bottom)),
   );
   const below = Math.min(houseBottom - frame.y + 40, frame.height - 20);
-  await canvas.click({ position: { x: 60, y: below } });
-  await canvas.click({ position: { x: 260, y: below } });
+  /*
+   * Et à l'écart du coin bas-gauche, où le bouton « Image de fond » se pose.
+   *
+   * Un réglage posé sur le dessin prend de la place sur le dessin : c'est le
+   * prix de le régler en regardant ce qu'il règle. On trace donc là où il n'y
+   * a rien, comme on le ferait.
+   */
+  await canvas.click({ position: { x: 220, y: below } });
+  await canvas.click({ position: { x: 420, y: below } });
   await expect(page.getByRole('status')).toContainText('Ajouter un mur');
 
   expect((await wallIds()).length).toBe(before.length + 1);
@@ -762,7 +769,7 @@ test('creates a partition as a partition, not as an exterior wall', async ({
    */
   await chooseTool(page, 'Sélection');
   await page.getByLabel('Filtrer sur').selectOption('WALL');
-  await canvas.click({ position: { x: 160, y: below } });
+  await canvas.click({ position: { x: 320, y: below } });
   await expect(page.locator('.inspector-subject')).toContainText('PARTITION');
 });
 
@@ -1390,7 +1397,7 @@ test('reaches an object through the project tree', async ({ page }) => {
   // ce n'est pas un contenu qu'on range, c'est où va ce qu'on trace.
   await expect(
     page
-      .getByRole('group', { name: 'Niveaux' })
+      .getByRole('group', { name: 'Niveaux', exact: true })
       .getByRole('button', { name: 'Rez-de-chaussée' }),
   ).toHaveAttribute('aria-current', 'true');
   expect(errors).toEqual([]);
@@ -1623,7 +1630,9 @@ test('creates a project on a page, storey by storey', async ({ page }) => {
   // l'on change d'étage.
   await openDestination(page, 'Plan');
   await expect(
-    page.getByRole('group', { name: 'Niveaux' }).getByRole('button'),
+    page
+      .getByRole('group', { name: 'Niveaux', exact: true })
+      .getByRole('button'),
   ).toHaveText(['Sous-sol', 'Rez-de-chaussée', 'Étage', 'Combles']);
   expect(errors).toEqual([]);
 });
@@ -2462,7 +2471,7 @@ test('keeps the building navigator in front, and its lists folded', async ({
 
   // Les niveaux sont là, au-dessus du dépliage : l'étage courant n'est pas un
   // contenu qu'on range, c'est où va ce qu'on trace.
-  const levels = page.getByRole('group', { name: 'Niveaux' });
+  const levels = page.getByRole('group', { name: 'Niveaux', exact: true });
   await expect(levels.getByRole('button')).toHaveCount(2);
   await levels.getByRole('button', { name: 'Étage' }).click();
   await expect(page.locator('.status-bar')).toContainText('Étage');
@@ -3660,5 +3669,95 @@ test('installe la fiche que le bouton pose, au moment où on le prend', async ({
     },
   });
   await expect(page.locator('[id^="component:"]')).not.toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('dit combien d’étages la maison a, et copie la base sur chacun', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+  await openStage(page, 'Bâtiment');
+
+  /*
+   * Le nombre d'étages se décidait dans l'assistant de création, une fois
+   * pour toutes, ou s'empilait à la main dans l'éditeur avancé. « Je fais une
+   * maison à deux étages » est une phrase qu'on dit en dessinant.
+   */
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  await chooseTool(page, 'Murs rectangle');
+  await canvas.click({
+    position: { x: box.width * 0.25, y: box.height * 0.4 },
+  });
+  await canvas.click({ position: { x: box.width * 0.7, y: box.height * 0.8 } });
+  const walls = page.locator('[data-role="WALL_CUT"][id^="wall:"]');
+  await expect(walls).toHaveCount(4);
+
+  const storeys = page.getByRole('group', { name: 'Niveaux du bâtiment' });
+  await expect(storeys).toContainText('1');
+  await storeys.getByRole('button', { name: 'Ajouter un niveau' }).click();
+
+  // Les murs porteurs montent : c'est ce qu'on ne veut pas retracer.
+  const levels = page.getByRole('group', { name: 'Niveaux', exact: true });
+  await expect(levels.getByRole('button')).toHaveCount(2);
+  await levels.getByRole('button').nth(1).click();
+  await expect(walls).toHaveCount(4);
+
+  // Et le retirer dit ce qui l'en empêche, avant le clic plutôt qu'après.
+  await expect(
+    storeys.getByRole('button', { name: 'Retirer un niveau' }),
+  ).toBeDisabled();
+  expect(errors).toEqual([]);
+});
+
+test('pose un relevé sous le dessin, et ne le sélectionne jamais', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+  await openStage(page, 'Terrain');
+
+  /*
+   * On commence rarement une maison sur une feuille blanche : un cadastre, un
+   * plan de géomètre, une photo d'esquisse. Il n'y avait aucun moyen de mettre
+   * ce qu'on a sous ce qu'on trace.
+   */
+  const control = page.getByRole('group', { name: 'Image de fond' });
+  await expect(control).toBeVisible();
+  // Un damier de deux pixels : ce qu'on éprouve est le calque, pas l'image.
+  await page.getByLabel('Choisir une image de fond').setInputFiles({
+    name: 'cadastre.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAF0lEQVR4nGP8//8/AzJgYkAD5AswMDAAAOZLAwXqtcMdAAAAAElFTkSuQmCC',
+      'base64',
+    ),
+  });
+
+  const underlay = page.locator('.underlay-image');
+  await expect(underlay).toBeVisible();
+  // Il ne prend aucun clic, et il n'est annoncé à personne : un calque se
+  // regarde, il ne se désigne pas.
+  await expect(underlay).toHaveCSS('pointer-events', 'none');
+  await expect(underlay).toHaveAttribute('aria-hidden', 'true');
+
+  // Cliquer au travers dessine : c'est tout l'intérêt de tracer par-dessus.
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  await canvas.click({ position: { x: box.width * 0.4, y: box.height * 0.5 } });
+  await expect(page.locator('.inspector-subject')).toHaveCount(0);
+
+  // Les réglages sont déjà là : on vient de poser une image, la première
+  // chose qu'on en fait est de dire ce qu'elle mesure.
+  await page.getByLabel('Largeur de l’image en mètres').fill('40');
+  await expect(control.getByRole('button', { name: /^Fond ·/u })).toContainText(
+    '40,00 m',
+  );
+
+  // Et le retirer ne laisse rien.
+  await control.getByRole('button', { name: 'Retirer', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('Retirer l’image');
+  await expect(page.locator('.underlay-image')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

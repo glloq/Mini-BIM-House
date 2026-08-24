@@ -111,8 +111,9 @@ export interface CreationStage {
  * - `CLEARANCES` : les volumes qu'un objet réclame autour de lui.
  * - `ANALYSIS` : une superposition colorée, calculée par un module.
  * - `NORTH` : l'orientation du terrain, réglée contre le plan.
+ * - `UNDERLAY` : un relevé posé sous le dessin, pour tracer par-dessus.
  */
-export type PlanAid = 'CLEARANCES' | 'ANALYSIS' | 'NORTH';
+export type PlanAid = 'CLEARANCES' | 'ANALYSIS' | 'NORTH' | 'UNDERLAY';
 
 const STAGE_DEFINITIONS = {
   PROJECT: {
@@ -135,8 +136,9 @@ const STAGE_DEFINITIONS = {
     sections: [],
     destinations: ['plan'],
     // Le nord se règle ici parce que c'est ici qu'il veut dire quelque chose :
-    // l'ombre du voisin, l'orientation des pans, la course du soleil.
-    planAids: ['NORTH'],
+    // l'ombre du voisin, l'orientation des pans, la course du soleil. Et le
+    // relevé qu'on décalque : une parcelle se trace sur ce qu'on a reçu.
+    planAids: ['NORTH', 'UNDERLAY'],
   },
   BUILDING: {
     id: 'BUILDING',
@@ -146,6 +148,9 @@ const STAGE_DEFINITIONS = {
       'Les murs, les pièces, les ouvertures, la toiture, ce qui porte.',
     groups: ['BUILDING', 'ARCHITECTURE', 'CONSTRUCTION'],
     domains: ['ARCHITECTURE', 'STRUCTURE'],
+    // Le même relevé sert ici : on trace les murs sur l'esquisse comme on a
+    // tracé la parcelle sur le cadastre.
+    planAids: ['UNDERLAY'],
     sections: [
       { id: 'building.levels', label: 'Niveaux' },
       { id: 'building.walls', label: 'Murs' },

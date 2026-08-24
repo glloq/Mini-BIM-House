@@ -36,7 +36,15 @@ export function NorthDial({ project, onCommand }: NorthDialProps) {
     onCommand(new UpdateSiteCommand({ northAngleDeg: northAngle(next) }));
 
   return (
-    <div className="north-dial" role="group" aria-label="Orientation du nord">
+    <div
+      className="north-dial"
+      role="group"
+      aria-label="Orientation du nord"
+      // La surface de dessin capture le pointeur dès qu'on la presse : sans
+      // cela, le relâchement part au plan et le clic n'arrive jamais ici.
+      onPointerDown={(event) => event.stopPropagation()}
+      onPointerUp={(event) => event.stopPropagation()}
+    >
       <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
         <circle className="north-face" cx="20" cy="20" r="17" />
         {/* L'aiguille tourne dans le sens des aiguilles d'une montre, comme

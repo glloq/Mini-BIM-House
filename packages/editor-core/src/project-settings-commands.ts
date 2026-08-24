@@ -7,6 +7,7 @@ import type {
   RegulatoryContext,
   Site,
   SiteObstacle,
+  SiteUnderlay,
   SiteObstacleKind,
 } from '@house-technical-designer/core-domain';
 import {
@@ -170,6 +171,56 @@ export interface SitePatch {
  * meaningless to the solar modules, so half a location is refused rather than
  * completed with a zero.
  */
+/**
+ * Poser, déplacer ou retirer le calque de papier sous le dessin.
+ *
+ * `undefined` le retire. Ce n'est pas un objet du modèle : il n'entre dans
+ * aucun calcul, aucune nomenclature, aucune vérification — et il se retire
+ * sans rien emporter. C'est ce qui permet de le traiter comme un réglage
+ * plutôt que comme une entité.
+ */
+export class SetSiteUnderlayCommand extends SettingsCommand {
+  constructor(readonly underlay: SiteUnderlay | undefined) {
+    super(
+      'project:site:underlay',
+      underlay === undefined
+        ? 'Retirer l’image de fond'
+        : 'Poser une image de fond',
+    );
+  }
+  validate(): CommandValidation {
+    const drawn = this.underlay;
+    if (drawn === undefined) return ok();
+    const errors: string[] = [];
+    if (drawn.image.trim() === '')
+      errors.push('Une image de fond a besoin de son image.');
+    if (!(drawn.widthMm > 0) || !(drawn.heightMm > 0))
+      errors.push('Une image de fond a une largeur et une hauteur positives.');
+    if (
+      !Number.isFinite(drawn.originMm.x) ||
+      !Number.isFinite(drawn.originMm.y)
+    )
+      errors.push('Le coin de l’image doit être mesurable.');
+    const opacity = drawn.opacity;
+    if (
+      opacity !== undefined &&
+      (!Number.isFinite(opacity) || opacity < 0 || opacity > 1)
+    )
+      errors.push('L’opacité va de 0 à 1.');
+    return errors.length === 0 ? ok() : rejected(...errors);
+  }
+  protected apply(project: Project): Project {
+    const { underlay: _previous, ...site } = project.site;
+    return {
+      ...project,
+      site:
+        this.underlay === undefined
+          ? site
+          : { ...site, underlay: this.underlay },
+    };
+  }
+}
+
 export class UpdateSiteCommand extends SettingsCommand {
   constructor(readonly patch: SitePatch) {
     super('project:site', 'Modifier le site');

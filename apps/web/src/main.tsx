@@ -153,6 +153,7 @@ import { StatusBar } from './shell/StatusBar.js';
 import { ProjectTree } from './shell/ProjectTree.js';
 import { AddPanel } from './shell/AddPanel.js';
 import { LevelRow } from './shell/LevelRow.js';
+import { StoreyCount } from './shell/StoreyCount.js';
 import {
   boundedWidth,
   gridColumns,
@@ -2457,6 +2458,17 @@ function App() {
                   dispatchEditor({ type: 'SET_LEVEL', levelId })
                 }
               />
+              {/*
+                Combien d'étages, dans l'espace où l'on bâtit — et nulle part
+                ailleurs : c'est là qu'on se pose la question.
+              */}
+              {navigation.stage === 'BUILDING' && (
+                <StoreyCount
+                  project={file.project}
+                  onCommand={runCommand}
+                  onMessage={setMessage}
+                />
+              )}
               <AddPanel
                 project={file.project}
                 stage={navigation.stage}
@@ -2688,6 +2700,7 @@ function App() {
                 editor={{ ...editor, levelId: activeLevelId } as EditorState}
                 dispatch={dispatchEditor}
                 aids={planAids}
+                onMessage={setMessage}
                 onCommitPoints={commitPoints}
                 onFinishRun={finishRun}
                 onMoveSelection={moveSelection}
