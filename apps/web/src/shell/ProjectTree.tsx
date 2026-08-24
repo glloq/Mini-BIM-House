@@ -7,7 +7,6 @@ export interface ProjectTreeProps {
   /** The storey being drawn, whose objects are the ones that can be reached. */
   readonly levelId?: string;
   readonly selection: readonly string[];
-  readonly onSelectLevel: (levelId: string) => void;
   readonly onSelectObject: (objectId: string) => void;
   /** Frames the object on the plan, when the user asks for it twice. */
   readonly onFrameObject: (objectId: string) => void;
@@ -50,7 +49,6 @@ export function ProjectTree({
   project,
   levelId,
   selection,
-  onSelectLevel,
   onSelectObject,
   onFrameObject,
   onOpenDocuments,
@@ -58,8 +56,9 @@ export function ProjectTree({
   onOpenLibrary,
   onSearch,
 }: ProjectTreeProps) {
-  const levels = project.building.levels;
-  const active = levels.find(({ id }) => id === levelId) ?? levels[0];
+  const active =
+    project.building.levels.find(({ id }) => id === levelId) ??
+    project.building.levels[0];
 
   /**
    * The families of the storey, asked of the families themselves.
@@ -88,21 +87,6 @@ export function ProjectTree({
 
   return (
     <nav className="project-tree" aria-label="Arborescence du projet">
-      {/* Le panneau dit déjà « Bâtiment » au-dessus : le répéter ici volerait
-          une rangée pour ne rien apprendre. Les niveaux se nomment eux-mêmes. */}
-      <div className="tree-levels" role="group" aria-label="Niveaux">
-        {levels.map((level) => (
-          <button
-            key={level.id}
-            type="button"
-            className={level.id === active?.id ? 'tree-active' : undefined}
-            aria-current={level.id === active?.id ? 'true' : undefined}
-            onClick={() => onSelectLevel(level.id)}
-          >
-            {level.name}
-          </button>
-        ))}
-      </div>
       <ul className="tree-families">
         {families.map(({ label, objects }) => (
           <li key={label}>

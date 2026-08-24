@@ -262,8 +262,14 @@ export const BUDGETS = {
    * Et un avec ce que le plan écrit tout seul : les cotes intérieures et la
    * pente des évacuations. Une évacuation horizontale est une évacuation qui
    * ne s'écoule pas, et c'est la seule chose qu'un plan doit crier.
+   *
+   * Et un avec le panneau « Ajouter » et la rangée des niveaux. Le panneau ne
+   * tient aucune liste : il appelle `toolboxFor` comme le header, et dessine
+   * ses entrées avec le même `EntryButton` — ce qu'il coûte, c'est un
+   * composant et une grille. La colonne de gauche montre enfin ce qu'on peut
+   * poser plutôt que ce qui est déjà posé, et l'étage courant reste à un clic.
    */
-  totalGzipBytes: 464 * 1024,
+  totalGzipBytes: 465 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

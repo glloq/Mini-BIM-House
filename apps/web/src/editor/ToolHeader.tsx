@@ -37,8 +37,8 @@ import type {
 import type { CreationStageId } from '../ux/creation-stages.js';
 
 import type { EditorAction, EditorState, EditorTool } from './editor-state.js';
-import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
-import { ToolIcon } from './tool-icons.js';
+import { EntryButton } from './EntryButton.js';
+import { shortcut } from './shortcut-hint.js';
 import { ToolOptions } from './ToolOptions.js';
 import type { ToolDrafts } from './tool-options.js';
 import { toolById, type EditorToolDefinition } from './tool-registry.js';
@@ -52,7 +52,6 @@ import {
   leftoverTools,
   missingFicheFamilies,
   toolboxFor,
-  unblockingEntry,
   type ToolboxAvailability,
   type ToolboxEntry,
   type ToolboxSection,
@@ -88,12 +87,6 @@ export interface ToolHeaderProps {
   readonly onDraftsChange: (drafts: ToolDrafts) => void;
   /** Ouvrir la bibliothèque d'équipements, d'où viennent les fiches. */
   readonly onOpenLibrary: () => void;
-}
-
-function shortcut(commandId: string | undefined): string {
-  if (commandId === undefined) return '';
-  const binding = SHORTCUTS.find(({ id }) => id === commandId);
-  return binding === undefined ? '' : ` (${shortcutLabel(binding)})`;
 }
 
 export function ToolHeader({
@@ -347,72 +340,6 @@ export function ToolHeader({
 function rowLabel(sections: readonly ToolboxSection[]): string {
   const only = sections.length === 1 ? sections[0]?.label : undefined;
   return only === undefined ? 'Outils' : `Outils · ${only}`;
-}
-
-/**
- * Une entrée, et ce qu'elle vaut devant cette maison-là.
- *
- * Une entrée qui ne sert pas encore dit **pourquoi**, écrit sous son nom : un
- * bouton grisé en silence est une panne, et la personne le prend pour un
- * défaut du programme plutôt que pour une étape qui lui manque.
- *
- * Quand la condition se règle avec un outil, la tuile *est* le geste qui
- * débloque : cliquer « Porte » sans mur tracé prend l'outil Mur. Elle n'est
- * donc pas désactivée — un bouton qu'on annonce inerte et qui agit ment à qui
- * l'écoute — seulement marquée et expliquée. C'est là où rien ne débloque
- * — un étage se pose dans le menu du projet — que le bouton est vraiment
- * `disabled`, et il garde sa raison.
- */
-function EntryButton({
-  available,
-  active,
-  onChoose,
-}: {
-  readonly available: ToolboxAvailability;
-  readonly active: boolean;
-  readonly onChoose: (entry: ToolboxEntry) => void;
-}) {
-  const { entry, enabled, recommended, requirement } = available;
-  const tool = toolById(entry.toolId);
-  const unblock = enabled ? undefined : unblockingEntry(requirement);
-  const classes = ['toolbox-entry'];
-  if (active) classes.push('active');
-  if (recommended) classes.push('recommended');
-  if (!enabled) classes.push('blocked');
-  return (
-    <button
-      type="button"
-      className={classes.join(' ')}
-      aria-pressed={active}
-      {...(requirement === undefined
-        ? {}
-        : { 'aria-description': requirement.reason })}
-      {...(unblock === undefined ? { disabled: !enabled } : {})}
-      title={
-        requirement === undefined
-          ? `${entry.hint}${shortcut(tool?.shortcutId)}`
-          : unblock === undefined
-            ? `${entry.label} — ${requirement.reason}`
-            : `${entry.label} — ${requirement.reason} Cliquez pour prendre « ${unblock.label} ».`
-      }
-      onClick={() => onChoose(unblock ?? entry)}
-    >
-      <ToolIcon icon={entry.icon} />
-      <span>{entry.label}</span>
-      {recommended && (
-        <span className="entry-flag" aria-hidden="true">
-          ●
-        </span>
-      )}
-      {requirement !== undefined && (
-        // Hors du nom accessible : « Porte » doit rester « Porte » pour qui
-        // la cherche. La raison passe par `aria-description`, juste au-dessus.
-        <span className="entry-reason" aria-hidden="true">
-          {requirement.reason}
-        </span>
-      )}
-    </button>
-  );
 }
 
 function ToolButton({

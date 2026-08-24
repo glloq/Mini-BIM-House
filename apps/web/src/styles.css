@@ -2010,12 +2010,15 @@ legend {
   min-width: 0;
 }
 /* Les niveaux : une rangée de boutons, et le seul endroit où l'on change
-   d'étage. Une liste déroulante « Niveau » faisait la même chose ailleurs. */
+   d'étage. Elle vivait en tête de l'arborescence ; l'arborescence est passée
+   sous un dépliage, et l'étage courant n'est pas un contenu qu'on range —
+   c'est où va ce qu'on trace. Elle se tient donc seule, au-dessus. */
 .tree-levels {
   display: flex;
   flex-wrap: wrap;
   gap: 0.15rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.76rem;
 }
 .tree-levels button {
   width: auto;
@@ -2023,8 +2026,15 @@ legend {
   border: 1px solid var(--line);
   border-radius: 0.4rem;
   background: var(--surface);
+  color: inherit;
   font-weight: 700;
   white-space: nowrap;
+  cursor: pointer;
+}
+.tree-levels button:hover,
+.tree-levels button.tree-active {
+  background: #eaf2ed;
+  color: #1f4c37;
 }
 .tree-levels button.tree-active {
   border-color: var(--accent);
@@ -2498,6 +2508,54 @@ legend {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+/*
+ * Ce qu'on peut ajouter, en toutes lettres.
+ *
+ * Deux colonnes de tuiles nommées : le panneau est l'étal, la rangée d'outils
+ * est la main. On y lit le nom entier, la raison d'une entrée qui ne sert pas
+ * encore, et on y trouve ce que la rangée range sous « + ».
+ */
+.add-panel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.add-grid {
+  display: grid;
+  gap: 0.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+}
+.add-grid .toolbox-entry {
+  min-height: 2.4rem;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  padding: 0.3rem 0.4rem;
+  text-align: left;
+}
+.add-grid .toolbox-entry.blocked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+}
+.add-grid .toolbox-entry .entry-reason {
+  max-width: 100%;
+  white-space: normal;
+}
+/*
+ * Ce que le projet contient, dessous et replié.
+ *
+ * Ce n'est pas une rétrogradation : retrouver un mur et poser un mur sont deux
+ * gestes différents, et un seul des deux se fait à chaque minute.
+ */
+.project-tree-fold > summary {
+  padding: 0.3rem 0;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
 }
 .toolbox {
   display: flex;

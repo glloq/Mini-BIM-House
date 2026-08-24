@@ -5,19 +5,26 @@ import { expect, type Page } from '@playwright/test';
  *
  * Les vingt cases de calques sont le moteur derrière les presets de
  * visibilité, et restent atteignables : un test les ouvre comme une personne
- * le ferait. L'arborescence, elle, ne se range plus.
+ * le ferait. L'arborescence, elle, est passée sous « Ajouter ».
  */
 /**
- * L'arborescence est permanente : il n'y a plus rien à ouvrir.
+ * L'arborescence, dépliée comme une personne la déplie.
  *
- * Elle vivait derrière « ☰ Modèle » ; une question qu'on se pose sans arrêt ne
- * se range pas. Le helper reste pour que les tests disent encore ce qu'ils
- * font — et pour attendre qu'elle soit là.
+ * Elle occupait toute la colonne de gauche et racontait ce que le projet
+ * **contient** ; ce qu'on vient y faire, c'est **ajouter**. Ce que la
+ * sous-partie sait poser est donc passé devant, et l'arborescence est passée
+ * dessous, derrière « Éléments du projet » — accessible, secondaire.
+ *
+ * Le helper dit encore ce que fait le test : il ouvre le dépliage si besoin,
+ * puis attend l'arborescence.
  */
 export async function openModelTree(page: Page): Promise<void> {
-  await page
-    .getByRole('navigation', { name: 'Arborescence du projet' })
-    .waitFor();
+  const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
+  if (!(await tree.isVisible())) {
+    const fold = page.locator('details.project-tree-fold > summary');
+    if ((await fold.count()) > 0) await fold.click();
+  }
+  await tree.waitFor();
 }
 
 /**

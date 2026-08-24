@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 /**
  * Choisir un outil, comme une personne le fait.
@@ -43,4 +43,19 @@ export async function openSection(page: Page, label: string): Promise<void> {
     .getByRole('navigation', { name: 'Sous-parties' })
     .getByRole('button', { name: label, exact: true })
     .click();
+}
+
+/**
+ * Le bouton d'un outil dans la rangée, et pas ailleurs.
+ *
+ * Le même outil est désormais écrit à deux endroits : la rangée, qu'on prend
+ * sans lire, et le panneau « Ajouter », qui montre tout ce que la sous-partie
+ * sait poser. C'est voulu — mais un test qui demande « le bouton Mur » en
+ * trouve deux. Celui de la rangée est celui dont on parle quand on parle de
+ * l'outil actif.
+ */
+export function toolButton(page: Page, label: string): Locator {
+  return page
+    .locator('.tool-header')
+    .getByRole('button', { name: label, exact: true });
 }

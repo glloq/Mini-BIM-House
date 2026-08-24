@@ -156,12 +156,12 @@ test('T3 — changer de niveau, de discipline, et masquer une famille', async ({
   await countClicks(page);
   await page.goto('/');
   await loadDemoProject(page);
-  const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
-
   // Un clic pour changer de niveau : la rangée est là, en permanence, et il en
-  // fallait deux — ouvrir « ☰ Modèle », puis choisir.
+  // fallait deux — ouvrir « ☰ Modèle », puis choisir. Elle est restée au-
+  // dessus du dépliage quand l'arborescence est passée sous « Ajouter ».
+  const levels = page.getByRole('group', { name: 'Niveaux' });
   const beforeLevel = await clicksSoFar(page);
-  await tree.getByRole('button', { name: 'Étage', exact: true }).click();
+  await levels.getByRole('button', { name: 'Étage', exact: true }).click();
   await expect(page.locator('.status-bar')).toContainText('Étage');
   expect((await clicksSoFar(page)) - beforeLevel).toBe(1);
 

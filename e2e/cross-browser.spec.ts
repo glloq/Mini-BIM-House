@@ -3,6 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { fileAction } from './support/file-menu.js';
 
 import { openDestination } from './support/navigation.js';
+import { toolButton } from './support/tools.js';
 
 /**
  * The journey every supported engine must complete.
@@ -39,7 +40,7 @@ test('draws, calculates, saves and reopens on this engine', async ({
   await expect(walls).toHaveCount(6);
 
   // Pointer coordinates on a canvas are where engines disagree most.
-  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await toolButton(page, 'Mur').click();
   const canvas = page.locator('.plan-canvas');
   await canvas.click({ position: { x: 120, y: 380 } });
   await canvas.click({ position: { x: 420, y: 380 } });
@@ -75,7 +76,7 @@ test('keeps a local snapshot across a reload on this engine', async ({
   await page.goto('/');
   await fileAction(page, 'Maison de démonstration');
   await expect(page.getByRole('status')).toContainText('démonstration');
-  await page.getByRole('button', { name: 'Mur', exact: true }).click();
+  await toolButton(page, 'Mur').click();
   const canvas = page.locator('.plan-canvas');
   await canvas.click({ position: { x: 140, y: 300 } });
   await canvas.click({ position: { x: 440, y: 300 } });
