@@ -1,6 +1,8 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import { isDimension, isTextNote } from '@house-technical-designer/core-domain';
 
+import { slabHoles } from './polygon-surface.js';
+
 /**
  * One object a family holds, named as the user would name it.
  *
@@ -52,6 +54,13 @@ export const spaceListing: ListingProvider = (project, levelId) =>
 
 export const slabListing: ListingProvider = (project, levelId) =>
   byId(levelOf(project, levelId)?.slabs);
+
+/** Les trémies, nommées par leur rang dans la dalle qu'elles percent. */
+export const slabHoleListing: ListingProvider = (project, levelId) =>
+  slabHoles(project, levelId).map(({ objectId, slabId }, index) => ({
+    objectId,
+    label: `Trémie ${index + 1} · ${slabId}`,
+  }));
 
 export const roofListing: ListingProvider = (project, levelId) =>
   byId(levelOf(project, levelId)?.roofs);

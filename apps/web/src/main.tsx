@@ -149,6 +149,8 @@ import { CommandPalette } from './palette/CommandPalette.js';
 import { PanelSeparator } from './shell/PanelSeparator.js';
 import { StatusBar } from './shell/StatusBar.js';
 import { ProjectTree } from './shell/ProjectTree.js';
+import { AddPanel } from './shell/AddPanel.js';
+import { LevelRow } from './shell/LevelRow.js';
 import {
   boundedWidth,
   gridColumns,
@@ -2353,46 +2355,71 @@ function App() {
           {tab === 'plan' && (
             <>
               {/*
-               * Où je suis, en permanence.
+               * Ce qu'on peut ajouter ici, avant ce que le projet contient.
                *
-               * L'arborescence était derrière un dépliage nommé « ☰ Modèle »,
-               * c'est-à-dire rangée : une question qu'on se pose sans arrêt ne
-               * se range pas. Elle est au-dessus des outils parce qu'on
-               * choisit l'étage avant de choisir le mur.
+               * La colonne racontait le passé — les niveaux, les murs déjà
+               * tracés, les réseaux déjà posés — alors qu'on y vient pour
+               * créer. Ce que la sous-partie sait poser passe donc devant, en
+               * toutes lettres ; l'arborescence reste dessous, à un dépliage,
+               * pour retrouver et pour corriger.
                */}
-              <ProjectTree
+              <LevelRow
                 project={file.project}
                 {...(activeLevelId === undefined
                   ? {}
                   : { levelId: activeLevelId })}
-                selection={editor.selection}
                 onSelectLevel={(levelId) =>
                   dispatchEditor({ type: 'SET_LEVEL', levelId })
                 }
-                onSelectObject={(objectId) =>
-                  dispatchEditor({ type: 'SELECT', objectId })
-                }
-                onFrameObject={(objectId) => {
-                  dispatchEditor({ type: 'SELECT', objectId });
-                  zoomSelection();
-                }}
-                onOpenDocuments={() => setTab('documents')}
-                libraries={librariesOfStage(navigation.stage).map((id) => ({
-                  id,
-                  label: DESTINATION_LABELS[id],
-                }))}
-                onOpenLibrary={(library) => {
-                  // Sur un téléphone le panneau est un tiroir : ouvrir une
-                  // destination le referme, sinon il reste devant ce qu'on
-                  // vient d'ouvrir.
-                  setTab(library as DestinationId);
-                  setMenuOpen(false);
-                }}
-                onSearch={(query) => {
-                  setPaletteQuery(query);
-                  setPaletteOpen(true);
-                }}
               />
+              <AddPanel
+                project={file.project}
+                stage={navigation.stage}
+                {...(openSection === undefined ? {} : { section: openSection })}
+                {...(activeDomain === undefined
+                  ? {}
+                  : { domain: activeDomain })}
+                design={design}
+                editor={editor}
+                drafts={toolDrafts}
+                dispatch={dispatchEditor}
+                onDraftsChange={(prefilled) =>
+                  setToolDrafts((current) => ({ ...current, ...prefilled }))
+                }
+              />
+              <details className="project-tree-fold">
+                <summary>Éléments du projet</summary>
+                <ProjectTree
+                  project={file.project}
+                  {...(activeLevelId === undefined
+                    ? {}
+                    : { levelId: activeLevelId })}
+                  selection={editor.selection}
+                  onSelectObject={(objectId) =>
+                    dispatchEditor({ type: 'SELECT', objectId })
+                  }
+                  onFrameObject={(objectId) => {
+                    dispatchEditor({ type: 'SELECT', objectId });
+                    zoomSelection();
+                  }}
+                  onOpenDocuments={() => setTab('documents')}
+                  libraries={librariesOfStage(navigation.stage).map((id) => ({
+                    id,
+                    label: DESTINATION_LABELS[id],
+                  }))}
+                  onOpenLibrary={(library) => {
+                    // Sur un téléphone le panneau est un tiroir : ouvrir une
+                    // destination le referme, sinon il reste devant ce qu'on
+                    // vient d'ouvrir.
+                    setTab(library as DestinationId);
+                    setMenuOpen(false);
+                  }}
+                  onSearch={(query) => {
+                    setPaletteQuery(query);
+                    setPaletteOpen(true);
+                  }}
+                />
+              </details>
               {(file.project.scenarios ?? []).length > 0 && (
                 <section
                   className="overlay-control"
@@ -2494,6 +2521,7 @@ function App() {
                     onTransform={transformSelection}
                     onAlign={alignSelection}
                     onCancel={() => dispatchEditor({ type: 'CANCEL' })}
+                    onFinish={finishRun}
                   />
                 }
                 view={

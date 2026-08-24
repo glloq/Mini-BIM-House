@@ -8,6 +8,8 @@ import {
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import type { Point2D } from '@house-technical-designer/geometry';
+
+import { polygonSurface } from './polygon-surface.js';
 import {
   isTextNote,
   roofEaveOutline,
@@ -58,6 +60,16 @@ export function slabBounds(
     ({ id }) => id === objectId,
   );
   return slab === undefined ? undefined : extentOf(slab.polygon.outer);
+}
+
+/** L'emprise d'une trémie, lue de l'anneau qu'elle creuse. */
+export function slabHoleBounds(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): ObjectBounds | undefined {
+  const surface = polygonSurface(project, levelId, objectId);
+  return surface?.kind === 'SLAB_HOLE' ? extentOf(surface.outline) : undefined;
 }
 
 export function roofBounds(

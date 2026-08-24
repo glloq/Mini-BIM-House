@@ -941,6 +941,106 @@ Ils viennent de V2 et de V3, ils ont tenu, et ils tiennent encore :
 Le manque 11 — la maison comme objet — n'est dans aucun lot : il se décide à
 part, parce qu'il touche le modèle et pas l'écran.
 
+### Les quatre interactions fondamentales
+
+L'architecture générale ne se refait plus : les sept espaces, les sous-parties
+et le `ToolHeader` sont la base. Restaient quatre gestes de base qui ne
+tenaient pas encore.
+
+| Lot            | Ce qu'il fait                                                                             | Dépend de  |
+| -------------- | ----------------------------------------------------------------------------------------- | ---------- |
+| **UI-FINAL-1** | _Livré._ La colonne de gauche montre ce qu'on **ajoute**, l'arbre passe dessous           | V4-4       |
+| **UI-FINAL-2** | _Livré._ Fermeture uniforme des surfaces : bouton, premier sommet, Entrée, aire vive      | V4-4       |
+| **UI-FINAL-3** | _Livré._ `PolygonSurfaceEditor` : sommets, côtés, angles, aire — pour les quatre surfaces | UI-FINAL-2 |
+| **UI-FINAL-4** | _Livré._ Une vraie grille modèle, en millimètres, alignée sur (0, 0)                      | —          |
+| **UI-FINAL-5** | _Livré._ Les parcours E2E qui figent ces quatre gestes                                    | 1 à 4      |
+
+#### UI-FINAL-1 — ce qu'on peut poser, avant ce qui est posé
+
+`AddPanel` appelle `toolboxFor(project, stage, domain, design)` et choisit la
+sous-partie active : le **même** appel que le header, jamais une seconde liste.
+`EntryButton` est le dessin commun des deux. L'arborescence reste atteignable
+sous « Éléments du projet » ; la rangée des niveaux, elle, est restée au-dessus
+— l'étage courant n'est pas un contenu qu'on range, c'est où va ce qu'on trace.
+
+#### UI-FINAL-2 — une surface se ferme, un chemin se termine
+
+Le registre déclare `completionMode: 'CLOSE_POLYGON'` sur `SLAB`, `SLAB_HOLE`,
+`ROOF` et `SITE` ; tout autre outil ouvert termine un chemin. De là viennent :
+
+- **quatre gestes qui achèvent** — le bouton « Fermer la surface », un reclic
+  sur le premier sommet, `Entrée`, et `Ctrl+Entrée` en alias d'expert, jamais
+  nécessaire ;
+- **« Annuler dernier sommet »**, une action de l'éditeur à elle seule, parce
+  qu'Échap coûtait les neuf autres coins ;
+- **le premier sommet marqué**, l'arête de fermeture dessinée, et **l'aire et
+  le périmètre écrits pendant qu'on trace** — on dessine une parcelle pour ses
+  mètres carrés.
+
+`Entrée` veut dire la même chose partout : elle achève. Dans les champs de
+saisie, elle pose d'abord la valeur qu'on vient de taper — un champ vide ne
+demande rien.
+
+#### UI-FINAL-4 — une grille qui mesure quelque chose
+
+Ce qui en tenait lieu était un `background-image` CSS : deux dégradés tous les
+24 pixels, collés au cadre. Elle ne bougeait pas au déplacement, ne changeait
+pas au zoom, et ses carreaux ne mesuraient aucune longueur — poser un mur
+« sur la grille » était un hasard.
+
+`model-grid.ts` calcule les lignes **de la caméra seule** : pas fin choisi sur
+une échelle de mètre-ruban (un, deux, cinq, et les mêmes dix fois plus grand),
+pas fort cinq ou dix fois plus large, lignes comptées depuis l'origine du
+modèle et non depuis le bord du cadre — c'est ce qui garantit qu'une ligne
+passe exactement par x = 0 et y reste. `ModelGrid` la dessine derrière tout,
+sans prendre un clic et sans être annoncée.
+
+Elle est **toujours visible**, et elle ne dit rien de l'accrochage : voir où
+sont les mètres et s'y coller sont deux questions, et les confondre faisait
+disparaître le repère dès qu'on voulait dessiner librement.
+
+En chemin : les sept réglages d'accrochage étaient inatteignables à la souris.
+La barre d'état défile — c'est ce qui la garde sur une rangée — et une boîte
+qui défile rogne ce qui en sort : le panneau était dessiné, rogné, et le plan
+recevait les clics à sa place. Il est posé en `fixed`, à l'endroit de son
+propre bouton.
+
+#### UI-FINAL-3 — un seul éditeur pour quatre surfaces
+
+Une dalle, une toiture, une trémie et une parcelle sont la même chose : une
+suite de sommets qui se referme. Elles étaient quatre écrans, dont deux
+absents — la parcelle n'avait ni propriété ni poignée, donc on la **retraçait**
+pour la corriger, et la trémie n'était même pas un objet : elle vivait dans le
+tableau `holes` d'une dalle, sans identifiant, donc rien ne pouvait la
+désigner.
+
+`polygon-surface.ts` dit **où est le contour** et **comment le réécrire** ;
+c'est tout ce qu'il dit. Les poignées, l'insertion et la suppression de
+sommets, et les commandes d'édition passent toutes par là — une cinquième
+surface ne demanderait pas un cinquième éditeur.
+
+`polygon-edits.ts` en dérive les champs, les mêmes pour les quatre :
+
+- **largeur et profondeur** quand la forme est un rectangle, le premier coin
+  gardé en place — c'est presque toutes les dalles et presque toutes les
+  parcelles ;
+- **la longueur de chaque côté**, qui pousse le sommet suivant le long du côté ;
+- **les coordonnées de chaque sommet**, pour un bornage qu'on relève ;
+- **l'aire, le périmètre, les côtés et les angles** en lecture, angles rentrants
+  écrits 270° et non 90°.
+
+Une trémie est devenue un objet : son bord est un tracé qu'on clique, elle a un
+identifiant (`dalle#hole:n`), un sujet, des champs, des poignées, une ligne
+dans l'arborescence, un chemin de scénario, et elle se rebouche.
+
+#### UI-FINAL-5 — ce que les parcours figent
+
+`e2e/surfaces.spec.ts` et `e2e/grid.spec.ts` : les quatre gestes de fermeture
+sur les quatre surfaces, la parcelle cotée à 30 × 25 qui lit 750 m² puis se
+défait, la trémie qu'on désigne et qu'on corrige, la grille visible au
+chargement, au zoom, au déplacement, au changement d'espace, et indépendante de
+l'accrochage.
+
 ---
 
 ## 14. Ce qu'on mesure

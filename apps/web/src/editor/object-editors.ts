@@ -2,6 +2,7 @@ import type { Project } from '@house-technical-designer/core-domain';
 import { ProjectTransactionCommand } from '@house-technical-designer/editor-core';
 import {
   buildingElementSubject,
+  slabHoleSubject,
   componentSubject,
   dimensionSubject,
   noteSubject,
@@ -28,7 +29,9 @@ import {
   networkNodeEditsFor,
   openingEditsFor,
   roofEditsFor,
+  siteEditsFor,
   slabEditsFor,
+  slabHoleEditsFor,
   spaceEditsFor,
   wallEditsFor,
   type InspectorEdit,
@@ -62,6 +65,7 @@ import {
   similarSlabs,
   similarWalls,
   slabBounds,
+  slabHoleBounds,
   spaceBounds,
   wallBounds,
   wallContextActions,
@@ -77,6 +81,7 @@ import {
   roofStructurePath,
   sitePath,
   slabPath,
+  slabHolePath,
   spacePath,
   stairPath,
   structurePath,
@@ -93,6 +98,7 @@ import {
   roofStructureListing,
   siteListing,
   slabListing,
+  slabHoleListing,
   spaceListing,
   stairListing,
   structureListing,
@@ -144,6 +150,7 @@ import {
   openingRemoval,
   roofRemoval,
   slabRemoval,
+  slabHoleRemoval,
   spaceRemoval,
   wallRemoval,
   type RemovalProvider,
@@ -400,6 +407,28 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     pathOf: slabPath,
   },
   {
+    /*
+     * La trémie, enfin un objet.
+     *
+     * Elle vivait dans le tableau `holes` d'une dalle, sans identifiant : on
+     * la perçait, et si elle était mal placée on annulait — ou on refaisait la
+     * dalle. Elle se désigne, se mesure, se corrige et se rebouche comme tout
+     * le reste, avec le même éditeur de contour.
+     */
+    label: 'Trémie',
+    kinds: ['SLAB_HOLE'],
+    inspect: slabHoleSubject,
+    edits: slabHoleEditsFor,
+    grips: polygonGrips,
+    remove: slabHoleRemoval,
+    bounds: slabHoleBounds,
+    capabilities: NOTHING_MOVES,
+    listLabel: 'Trémies',
+    scope: 'LEVEL',
+    list: slabHoleListing,
+    pathOf: slabHolePath,
+  },
+  {
     label: 'Toiture',
     kinds: ['ROOF'],
     // Slabs and roofs share one description; only their editable properties
@@ -535,6 +564,11 @@ export const OBJECT_EDITORS: readonly ObjectEditorDefinition[] = [
     label: 'Terrain',
     kinds: ['SITE'],
     inspect: siteSubject,
+    // La parcelle et les emprises n'avaient aucune propriété modifiable et
+    // aucune poignée : une parcelle mal bornée se retraçait. Ce sont des
+    // contours comme les autres, et c'est le même éditeur qui répond.
+    edits: siteEditsFor,
+    grips: polygonGrips,
     remove: siteRemoval,
     bounds: siteBounds,
     // An obstacle moves and is copied; the parcel is the limit of the ground

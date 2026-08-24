@@ -12,6 +12,7 @@ import {
   availabilityOf,
   draftsForEntry,
   ficheOfFamily,
+  isEntryActive,
   missingFicheFamilies,
   sectionsOfStage,
   leftoverTools,
@@ -327,5 +328,45 @@ describe('what the house allows, tool by tool', () => {
       .map(({ id }) => id);
     expect(empty.length).toBeLessThanOrEqual(blind.length);
     for (const id of empty) expect(blind).toContain(id);
+  });
+});
+
+describe('quelle entrée est en cours', () => {
+  it('n’en allume qu’une là où plusieurs partagent l’outil', () => {
+    /*
+     * « Toit auto », « 2 pans », « 1 pan » et « Pan libre » prennent tous
+     * l'outil ROOF : comparer les outils enfonçait les quatre boutons à la
+     * fois, et plus rien ne disait lequel on avait pris.
+     */
+    const roofs = allToolboxEntries().filter(({ toolId }) => toolId === 'ROOF');
+    expect(roofs.length).toBeGreaterThan(1);
+    for (const chosen of roofs) {
+      const drafts = draftsForEntry(project, chosen);
+      const lit = roofs.filter((candidate) =>
+        isEntryActive(project, candidate, 'ROOF', drafts),
+      );
+      expect(
+        lit.map(({ id }) => id),
+        chosen.id,
+      ).toEqual([chosen.id]);
+    }
+  });
+
+  it('s’éteint quand on change à la main ce qu’elle avait rempli', () => {
+    const free = allToolboxEntries().find(({ id }) => id === 'building.roof-2');
+    expect(free).toBeDefined();
+    const drafts = draftsForEntry(project, free!);
+    expect(isEntryActive(project, free!, 'ROOF', drafts)).toBe(true);
+    // On ne fait plus tout à fait ce que l'entrée fait : elle ne peut plus
+    // prétendre être en cours.
+    const key = Object.keys(drafts)[0]!;
+    expect(
+      isEntryActive(project, free!, 'ROOF', { ...drafts, [key]: 'autre' }),
+    ).toBe(false);
+  });
+
+  it('n’allume rien quand l’outil n’est pas le sien', () => {
+    const wall = allToolboxEntries().find(({ toolId }) => toolId === 'WALL')!;
+    expect(isEntryActive(project, wall, 'SELECT', {})).toBe(false);
   });
 });

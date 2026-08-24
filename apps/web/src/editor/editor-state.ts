@@ -221,6 +221,14 @@ export type EditorAction =
       readonly objectId?: string;
     }
   | { readonly type: 'FINISH_RUN' }
+  /**
+   * Défait le dernier sommet posé, et lui seul.
+   *
+   * Échap abandonnait tout le tracé : un sommet mal placé au dixième coin
+   * coûtait les neuf autres, donc on recommençait plutôt que de corriger. Un
+   * tracé se corrige comme il se fait, un point à la fois.
+   */
+  | { readonly type: 'UNDO_POINT' }
   | { readonly type: 'CANCEL' }
   | { readonly type: 'SET_SNAP'; readonly snap: Partial<SnapSettings> }
   | { readonly type: 'SET_DIMENSION_MODE'; readonly mode: DimensionMode }
@@ -446,6 +454,15 @@ export function editorReducer(
       return done
         ? { ...state, pendingPoints: [], pendingPicks: [], directInput: {} }
         : { ...state, pendingPoints: points, pendingPicks: picks };
+    }
+    case 'UNDO_POINT': {
+      if (state.pendingPoints.length === 0) return state;
+      return {
+        ...state,
+        pendingPoints: state.pendingPoints.slice(0, -1),
+        pendingPicks: state.pendingPicks.slice(0, -1),
+        directInput: {},
+      };
     }
     case 'FINISH_RUN':
       // What the run produced is the application's business; the state only

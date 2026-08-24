@@ -11,8 +11,11 @@
  * outil n'écrit sa propre instruction, donc aucun ne peut oublier de la mettre
  * à jour.
  */
+import { draftMeasureLabel, draftMeasures } from './draft-measures.js';
 import type { EditorState } from './editor-state.js';
 import {
+  completionLabel,
+  completionModeOf,
   isOpenEnded,
   requiredPoints,
   toolDefinition,
@@ -32,6 +35,12 @@ export interface ToolInstruction {
   readonly next: string;
   /** Comment on termine, pour un tracé qui ne s'arrête pas tout seul. */
   readonly finish?: string;
+  /**
+   * Ce que le tracé mesure déjà : une aire pour une surface, une longueur
+   * pour un chemin. On dessine une parcelle pour ses mètres carrés ; les lire
+   * après l'avoir créée, c'est créer pour lire, annuler, recommencer.
+   */
+  readonly measures?: string;
 }
 
 export function toolInstruction(editor: EditorState): ToolInstruction {
@@ -50,13 +59,30 @@ export function toolInstruction(editor: EditorState): ToolInstruction {
   // commencé est un bouton qui ne fait rien.
   const escape = placed > 0 ? { finish: 'Échap annule' } : {};
 
-  if (isOpenEnded(tool))
-    return placed === 0
-      ? { next: 'Cliquez le premier point du tracé.' }
-      : {
-          next: `Cliquez le point suivant — ${placed} posé(s).`,
-          finish: 'Entrée termine, Échap annule',
-        };
+  if (isOpenEnded(tool)) {
+    const mode = completionModeOf(tool)!;
+    const closing = mode === 'CLOSE_POLYGON';
+    if (placed === 0)
+      return {
+        next: closing
+          ? 'Cliquez le premier sommet de la surface.'
+          : 'Cliquez le premier point du tracé.',
+      };
+    const measured = draftMeasures(editor.pendingPoints, mode);
+    // Le premier sommet est un bouton autant qu'un repère : le recliquer
+    // referme, et c'est le geste qu'on essaie d'abord quand on ne sait pas.
+    const back =
+      closing && placed >= 3 ? ', ou recliquez le premier sommet' : '';
+    return {
+      next: closing
+        ? `Cliquez le sommet suivant — ${placed} posé(s)${back}.`
+        : `Cliquez le point suivant — ${placed} posé(s).`,
+      finish: `${completionLabel(mode)} : Entrée. Échap annule le tracé`,
+      ...(measured === undefined
+        ? {}
+        : { measures: draftMeasureLabel(measured) }),
+    };
+  }
 
   if (wanted <= 1)
     return {

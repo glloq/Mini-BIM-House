@@ -19,7 +19,12 @@ import type { EditorAction, EditorState } from './editor-state.js';
 import { selectionCapabilities } from './object-editors.js';
 import { SHORTCUTS, shortcutLabel } from './shortcuts.js';
 import { toolInstruction } from './tool-instruction.js';
-import { toolDefinition } from './tool-registry.js';
+import {
+  completionLabel,
+  completionModeOf,
+  requiredPoints,
+  toolDefinition,
+} from './tool-registry.js';
 
 export interface ContextToolBarProps {
   readonly project: Project;
@@ -29,6 +34,14 @@ export interface ContextToolBarProps {
   readonly onAlign?: (edge: AlignEdge) => void;
   /** Abandonner le tracé en cours, sans quitter l'outil. */
   readonly onCancel?: () => void;
+  /**
+   * Achever le tracé en cours — fermer la surface, ou terminer le chemin.
+   *
+   * Le geste existait, et il n'existait qu'au clavier : « Ctrl+Entrée », écrit
+   * dans une boîte flottante. Quelqu'un qui dessine à la souris n'avait aucun
+   * moyen de finir ce qu'il avait commencé.
+   */
+  readonly onFinish?: () => void;
 }
 
 function hint(commandId: string): string {
@@ -50,10 +63,15 @@ export function ContextToolBar({
   onTransform,
   onAlign,
   onCancel,
+  onFinish,
 }: ContextToolBarProps) {
   const definition = toolDefinition(editor.activeTool);
   const instruction = toolInstruction(editor);
   const drafting = editor.pendingPoints.length > 0;
+  // Fermer une surface et terminer un chemin ne sont pas le même geste, et le
+  // registre est le seul à savoir lequel des deux cet outil attend.
+  const mode = completionModeOf(editor.activeTool);
+  const minimum = requiredPoints(editor.activeTool);
   const selected = editor.selection.length;
   const allowed = selectionCapabilities(project, editor.selection);
   // Selection is the resting state, not a tool being used: it is what the plan
@@ -78,13 +96,16 @@ export function ContextToolBar({
       {drawing && (
         <span className="context-tool-name">
           {definition.label}
+          {/* « Terminer » et « Terminer le tracé » côte à côte : deux boutons
+              qui commencent par le même mot et ne font pas la même chose. Ce
+              bouton-ci repose l'outil ; il le dit. */}
           <button
             type="button"
             className="ghost"
-            title="Revenir à la sélection"
+            title="Reposer l’outil et revenir à la sélection"
             onClick={() => dispatch({ type: 'SET_TOOL', tool: 'SELECT' })}
           >
-            Terminer
+            Quitter l’outil
           </button>
           {drafting && (
             <button
@@ -99,6 +120,38 @@ export function ContextToolBar({
         </span>
       )}
       {/*
+        Finir à la souris, comme on a commencé à la souris.
+        « Ctrl+Entrée » était le seul moyen d'achever une surface, et il était
+        écrit dans une boîte flottante que rien n'oblige à lire. Les deux
+        gestes sont ici, nommés par ce qu'ils font : une surface se ferme, un
+        chemin se termine, et un sommet de trop se retire tout seul.
+      */}
+      {mode !== undefined && drafting && (
+        <div className="tool-group" role="group" aria-label="Achever le tracé">
+          <button
+            type="button"
+            className="primary"
+            disabled={editor.pendingPoints.length < minimum}
+            title={
+              editor.pendingPoints.length < minimum
+                ? `${minimum} points au minimum.`
+                : `${completionLabel(mode)} — Entrée, ou Ctrl+Entrée depuis les champs`
+            }
+            onClick={() => onFinish?.()}
+          >
+            {completionLabel(mode)}
+          </button>
+          <button
+            type="button"
+            className="secondary"
+            title="Retirer le dernier sommet posé, et lui seul"
+            onClick={() => dispatch({ type: 'UNDO_POINT' })}
+          >
+            Annuler dernier sommet
+          </button>
+        </div>
+      )}
+      {/*
         Ce que l'outil attend, écrit. Un outil qui n'annonce pas sa prochaine
         action se découvre en se trompant, et rien à l'écran ne disait qu'un
         mur continu se termine par Entrée.
@@ -108,6 +161,9 @@ export function ContextToolBar({
           {instruction.next}
           {instruction.finish !== undefined && (
             <small> · {instruction.finish}</small>
+          )}
+          {instruction.measures !== undefined && (
+            <strong className="draft-measures">{instruction.measures}</strong>
           )}
         </span>
       )}

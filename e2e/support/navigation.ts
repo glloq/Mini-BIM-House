@@ -1,5 +1,7 @@
 import type { Page } from '@playwright/test';
 
+import { openModelTree } from './panels.js';
+
 /**
  * Ouvrir une destination, comme une personne le fait.
  *
@@ -71,14 +73,16 @@ export async function openDestination(
     const tree = page.getByRole('navigation', {
       name: 'Arborescence du projet',
     });
-    // L'arborescence vit sur le plan : venir d'une autre bibliothèque veut
-    // dire y revenir d'abord. Le panneau montre où l'on est, donc « Plan » est
-    // là pour cela.
-    if (!(await tree.isVisible()))
-      await page
+    // L'arborescence vit sur le plan, sous « Éléments du projet » : venir
+    // d'une autre bibliothèque veut dire y revenir d'abord. Le panneau montre
+    // où l'on est, donc « Plan » est là pour cela.
+    if (!(await tree.isVisible())) {
+      const back = page
         .locator('#workspace-sidebar')
-        .getByRole('button', { name: 'Plan', exact: true })
-        .click();
+        .getByRole('button', { name: 'Plan', exact: true });
+      if (await back.isVisible()) await back.click();
+    }
+    await openModelTree(page);
     const entry = tree.getByRole('button', { name: label, exact: true });
     if (!(await entry.isVisible()))
       await tree

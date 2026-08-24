@@ -13,7 +13,7 @@ import {
   openLayerEditor,
   openModelTree,
 } from './support/panels.js';
-import { chooseTool } from './support/tools.js';
+import { chooseTool, toolButton } from './support/tools.js';
 
 /**
  * Console errors are a failure, not noise: a blank page caused by an unhandled
@@ -311,13 +311,19 @@ test('keyboard shortcuts drive the tools', async ({ page }) => {
   await loadDemo(page);
   await page.locator('.plan-canvas').click({ position: { x: 5, y: 5 } });
   await page.keyboard.press('w');
+  await expect(toolButton(page, 'Mur')).toHaveAttribute('aria-pressed', 'true');
+  // Et le panneau « Ajouter » le dit aussi : c'est le même registre, montré
+  // deux fois, jamais deux registres.
   await expect(
-    page.getByRole('button', { name: 'Mur', exact: true }),
+    page
+      .getByLabel(/^Ajouter · /u)
+      .getByRole('button', { name: 'Mur', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Escape');
-  await expect(
-    page.getByRole('button', { name: 'Sélection', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(toolButton(page, 'Sélection')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
 });
 
 test('autosaves an edit and offers to restore it after a reload', async ({
@@ -902,9 +908,7 @@ test('reaches tools, workspaces and objects from the command palette', async ({
     .first()
     .click();
   await expect(palette).toBeHidden();
-  await expect(
-    page.getByRole('button', { name: 'Mur', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(toolButton(page, 'Mur')).toHaveAttribute('aria-pressed', 'true');
 
   // A workspace, without accents and without knowing where its button is.
   await page.keyboard.press('Control+k');
@@ -1374,9 +1378,12 @@ test('reaches an object through the project tree', async ({ page }) => {
   await tree.getByText(/^Pièces/).click();
   await expect(tree.getByRole('button', { name: 'Séjour' })).toBeVisible();
 
-  // Another storey can be reached, and becomes the one being drawn.
+  // L'étage sur lequel on dessine se lit au-dessus du dépliage, pas dedans :
+  // ce n'est pas un contenu qu'on range, c'est où va ce qu'on trace.
   await expect(
-    tree.getByRole('button', { name: 'Rez-de-chaussée' }),
+    page
+      .getByRole('group', { name: 'Niveaux' })
+      .getByRole('button', { name: 'Rez-de-chaussée' }),
   ).toHaveAttribute('aria-current', 'true');
   expect(errors).toEqual([]);
 });
@@ -1742,7 +1749,7 @@ test('shows nothing above the plan until something is being done', async ({
   await expect(tools.getByLabel('Assemblage')).toBeVisible();
 
   // Finishing empties it again.
-  await bar.getByRole('button', { name: 'Terminer' }).click();
+  await bar.getByRole('button', { name: 'Quitter l’outil' }).click();
   await expect(bar).toHaveClass(/is-empty/u);
 
   // Selecting something brings back what applies to the selection, and only
@@ -1757,7 +1764,7 @@ test('shows nothing above the plan until something is being done', async ({
     },
   });
   await expect(bar.getByRole('group', { name: 'Alignement' })).toBeVisible();
-  await expect(bar).not.toContainText('Terminer');
+  await expect(bar).not.toContainText('Quitter l’outil');
 
   // Un seul écran pour tout le monde : ce que l'étape ne propose pas est à un
   // dépliage, pas à un changement de mode. Une étape filtre ce qui est
@@ -2240,6 +2247,7 @@ test('opens a library from the property that designates a fiche', async ({
   // Et elles restent atteignables sans sélection, rangées avec ce qu'on
   // cherche plutôt qu'en tête du panneau.
   await openDestination(page, 'Plan');
+  await openModelTree(page);
   const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
   await tree.locator('summary').filter({ hasText: 'Bibliothèques' }).click();
   await tree.getByRole('button', { name: 'Matériaux', exact: true }).click();
@@ -2310,7 +2318,7 @@ test('says what the active tool expects, and how to stop', async ({ page }) => {
   await chooseTool(page, 'Mur continu');
   await canvas.click({ position: { x: 60, y: frame.height - 40 } });
   await canvas.click({ position: { x: 200, y: frame.height - 40 } });
-  await expect(bar).toContainText('Entrée termine');
+  await expect(bar).toContainText('Terminer le tracé : Entrée');
   await page.keyboard.press('Escape');
   expect(errors).toEqual([]);
 });
@@ -2427,13 +2435,16 @@ test('keeps the building navigator in front, and its lists folded', async ({
   const errors = watchConsole(page);
   await loadDemo(page);
   const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
-  // « Où je suis » est une question qu'on se pose sans arrêt : l'arborescence
-  // n'est plus derrière un dépliage nommé « ☰ Modèle ».
-  await expect(tree).toBeVisible();
+  // « Où je suis » se demande souvent, « qu'est-ce que j'ajoute » se demande
+  // tout le temps : l'arborescence est passée sous « Ajouter », derrière un
+  // seul dépliage nommé par ce qu'il contient — jamais derrière « ☰ Modèle ».
   await expect(page.getByText('☰ Modèle')).toHaveCount(0);
+  await openModelTree(page);
+  await expect(tree).toBeVisible();
 
-  // Les niveaux sont là, et c'est le seul endroit où l'on change d'étage.
-  const levels = tree.getByRole('group', { name: 'Niveaux' });
+  // Les niveaux sont là, au-dessus du dépliage : l'étage courant n'est pas un
+  // contenu qu'on range, c'est où va ce qu'on trace.
+  const levels = page.getByRole('group', { name: 'Niveaux' });
   await expect(levels.getByRole('button')).toHaveCount(2);
   await levels.getByRole('button', { name: 'Étage' }).click();
   await expect(page.locator('.status-bar')).toContainText('Étage');
@@ -2460,6 +2471,7 @@ test('sends the tail of a long family to the search, by a button', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
+  await openModelTree(page);
   const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
   // `Ctrl+K` était la seule issue au-delà de quarante objets, écrite dans une
   // phrase : elle supposait qu'on connaisse le raccourci, qu'on ait un clavier

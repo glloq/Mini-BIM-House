@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 /**
  * Choisir un outil, comme une personne le fait.
@@ -35,6 +35,10 @@ export async function chooseTool(page: Page, label: string): Promise<void> {
   }
   if ((await offered.count()) === 0) await revealAllTools(page);
   await toolbox.getByRole('button', { name: label, exact: true }).click();
+  // Choisir referme le dépliage — c'est ce que fait l'écran, et un test qui
+  // le laisse ouvert clique ensuite à travers un menu posé sur le plan.
+  const open = page.locator('.tool-header details.tool-more[open] > summary');
+  if ((await open.count()) > 0) await open.first().click();
 }
 
 /** Ouvrir une sous-partie de l'espace courant, par son nom. */
@@ -43,4 +47,19 @@ export async function openSection(page: Page, label: string): Promise<void> {
     .getByRole('navigation', { name: 'Sous-parties' })
     .getByRole('button', { name: label, exact: true })
     .click();
+}
+
+/**
+ * Le bouton d'un outil dans la rangée, et pas ailleurs.
+ *
+ * Le même outil est désormais écrit à deux endroits : la rangée, qu'on prend
+ * sans lire, et le panneau « Ajouter », qui montre tout ce que la sous-partie
+ * sait poser. C'est voulu — mais un test qui demande « le bouton Mur » en
+ * trouve deux. Celui de la rangée est celui dont on parle quand on parle de
+ * l'outil actif.
+ */
+export function toolButton(page: Page, label: string): Locator {
+  return page
+    .locator('.tool-header')
+    .getByRole('button', { name: label, exact: true });
 }

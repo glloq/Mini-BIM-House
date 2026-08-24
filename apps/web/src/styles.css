@@ -353,15 +353,13 @@ h2 {
     700 0.72rem ui-monospace,
     monospace;
 }
+/* Pas de grille peinte ici. Vingt-quatre pixels ne mesurent rien : la grille
+   est dessinée dans le repère du modèle, par `ModelGrid`. */
 .drawing-canvas {
   position: relative;
   flex: 1;
   min-height: 500px;
   background-color: #f8faf8;
-  background-image:
-    linear-gradient(#dfe7e2 1px, transparent 1px),
-    linear-gradient(90deg, #dfe7e2 1px, transparent 1px);
-  background-size: 24px 24px;
 }
 .drawing-canvas svg {
   width: 100%;
@@ -991,6 +989,31 @@ button.icon {
 }
 
 /* Plan canvas: the semantic scene rendered by the drawing engine. */
+/* La grille du plan, dessinée dans le repère du modèle et non collée au
+   cadre : elle suit le déplacement et le zoom, et un carreau vaut toujours la
+   même longueur réelle. Elle ne prend aucun clic et n'entre dans aucune
+   sélection — un repère se voit, il ne se désigne pas. */
+.model-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.model-grid line.minor {
+  stroke: #e6ede9;
+  stroke-width: 1;
+}
+.model-grid line.major {
+  stroke: #cfdcd5;
+  stroke-width: 1;
+}
+/* Le zéro du modèle : c'est la question qu'on se pose en tapant une
+   coordonnée, et deux axes y répondent sans un mot. */
+.model-grid line.origin {
+  stroke: #b7cbc0;
+  stroke-width: 1.4;
+  stroke-dasharray: 6 4;
+}
 .plan-canvas {
   position: relative;
   /* Le plan prend ce qui reste de la colonne, et jamais moins que de quoi
@@ -1897,8 +1920,11 @@ legend {
   user-select: none;
   white-space: nowrap;
 }
+/* Posé en `fixed` : la barre défile, et une boîte qui défile rogne ce qui en
+   sort. Le panneau était dessiné, rogné, invisible — et le plan recevait les
+   clics à sa place. Ses coordonnées sont relues de son bouton à l'ouverture. */
 .status-snaps-list {
-  position: absolute;
+  position: fixed;
   z-index: 40;
   bottom: calc(100% + 0.35rem);
   left: 0;
@@ -2010,12 +2036,15 @@ legend {
   min-width: 0;
 }
 /* Les niveaux : une rangée de boutons, et le seul endroit où l'on change
-   d'étage. Une liste déroulante « Niveau » faisait la même chose ailleurs. */
+   d'étage. Elle vivait en tête de l'arborescence ; l'arborescence est passée
+   sous un dépliage, et l'étage courant n'est pas un contenu qu'on range —
+   c'est où va ce qu'on trace. Elle se tient donc seule, au-dessus. */
 .tree-levels {
   display: flex;
   flex-wrap: wrap;
   gap: 0.15rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.76rem;
 }
 .tree-levels button {
   width: auto;
@@ -2023,8 +2052,15 @@ legend {
   border: 1px solid var(--line);
   border-radius: 0.4rem;
   background: var(--surface);
+  color: inherit;
   font-weight: 700;
   white-space: nowrap;
+  cursor: pointer;
+}
+.tree-levels button:hover,
+.tree-levels button.tree-active {
+  background: #eaf2ed;
+  color: #1f4c37;
 }
 .tree-levels button.tree-active {
   border-color: var(--accent);
@@ -2499,6 +2535,54 @@ legend {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/*
+ * Ce qu'on peut ajouter, en toutes lettres.
+ *
+ * Deux colonnes de tuiles nommées : le panneau est l'étal, la rangée d'outils
+ * est la main. On y lit le nom entier, la raison d'une entrée qui ne sert pas
+ * encore, et on y trouve ce que la rangée range sous « + ».
+ */
+.add-panel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.add-grid {
+  display: grid;
+  gap: 0.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+}
+.add-grid .toolbox-entry {
+  min-height: 2.4rem;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  padding: 0.3rem 0.4rem;
+  text-align: left;
+}
+.add-grid .toolbox-entry.blocked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+}
+.add-grid .toolbox-entry .entry-reason {
+  max-width: 100%;
+  white-space: normal;
+}
+/*
+ * Ce que le projet contient, dessous et replié.
+ *
+ * Ce n'est pas une rétrogradation : retrouver un mur et poser un mur sont deux
+ * gestes différents, et un seul des deux se fait à chaque minute.
+ */
+.project-tree-fold > summary {
+  padding: 0.3rem 0;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
 .toolbox {
   display: flex;
   flex-direction: column;
@@ -2968,6 +3052,17 @@ button.ghost:disabled {
 .context-instruction small {
   color: var(--ink-soft);
   opacity: 0.8;
+}
+/* Ce que le tracé mesure déjà. La phrase se laisse couper ; l'aire, non :
+   c'est pour elle qu'on dessine une surface. */
+.draft-measures {
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.35rem;
+  background: var(--surface-raised);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .context-tool-bar > * {
   flex: 0 0 auto;

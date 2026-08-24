@@ -36,8 +36,23 @@ export const openingPath: PathProvider = (project, objectId) =>
 export const spacePath: PathProvider = (project, objectId) =>
   inLevels(project, objectId, (level) => level.spaces, 'spaces');
 
+import { readSlabHoleId } from './polygon-surface.js';
+
 export const slabPath: PathProvider = (project, objectId) =>
   inLevels(project, objectId, (level) => level.slabs, 'slabs');
+
+/**
+ * Une trémie n'a pas de champ à elle : elle est un anneau de sa dalle.
+ *
+ * Le chemin le dit tel quel — la dalle, puis le rang du trou — pour qu'un
+ * scénario puisse en varier un sans que rien n'ait à deviner.
+ */
+export const slabHolePath: PathProvider = (project, objectId) => {
+  const hole = readSlabHoleId(objectId);
+  if (hole === undefined) return undefined;
+  const slab = inLevels(project, hole.slabId, (level) => level.slabs, 'slabs');
+  return slab === undefined ? undefined : `${slab}/polygon/holes/${hole.index}`;
+};
 
 export const roofPath: PathProvider = (project, objectId) =>
   inLevels(project, objectId, (level) => level.roofs, 'roofs');

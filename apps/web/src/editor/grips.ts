@@ -2,6 +2,8 @@ import type { Project } from '@house-technical-designer/core-domain';
 import { edgeMidpoints } from '@house-technical-designer/editor-core';
 import type { Point2D } from '@house-technical-designer/geometry';
 
+import { polygonSurface, type SurfaceKind } from './polygon-surface.js';
+
 /**
  * A handle the user drags on the plan.
  *
@@ -35,7 +37,7 @@ export type Grip =
       readonly id: string;
       readonly at: Point2D;
       readonly objectId: string;
-      readonly objectKind: 'SLAB' | 'ROOF';
+      readonly objectKind: SurfaceKind;
       readonly vertexIndex: number;
     }
   | {
@@ -43,7 +45,7 @@ export type Grip =
       readonly id: string;
       readonly at: Point2D;
       readonly objectId: string;
-      readonly objectKind: 'SLAB' | 'ROOF';
+      readonly objectKind: SurfaceKind;
       readonly edgeIndex: number;
     }
   | {
@@ -81,21 +83,21 @@ export type GeometryEdit =
   | {
       readonly kind: 'POLYGON_VERTEX';
       readonly objectId: string;
-      readonly objectKind: 'SLAB' | 'ROOF';
+      readonly objectKind: SurfaceKind;
       readonly vertexIndex: number;
       readonly to: Point2D;
     }
   | {
       readonly kind: 'POLYGON_INSERT';
       readonly objectId: string;
-      readonly objectKind: 'SLAB' | 'ROOF';
+      readonly objectKind: SurfaceKind;
       readonly edgeIndex: number;
       readonly at: Point2D;
     }
   | {
       readonly kind: 'POLYGON_REMOVE';
       readonly objectId: string;
-      readonly objectKind: 'SLAB' | 'ROOF';
+      readonly objectKind: SurfaceKind;
       readonly vertexIndex: number;
     }
   | {
@@ -228,13 +230,18 @@ export function polygonGrips(
   levelId: string | undefined,
   objectId: string,
 ): readonly Grip[] | undefined {
-  const level = levelOf(project, levelId);
-  if (level === undefined) return undefined;
-  const slab = level.slabs.find(({ id }) => id === objectId);
-  const roof = level.roofs.find(({ id }) => id === objectId);
-  const polygon = slab?.polygon ?? roof?.footprint;
-  if (polygon === undefined) return undefined;
-  const objectKind = slab === undefined ? 'ROOF' : 'SLAB';
+  /*
+   * Les quatre surfaces, une seule fois.
+   *
+   * La dalle et la toiture avaient des poignées, la parcelle n'en avait
+   * aucune — on la retraçait pour la corriger — et la trémie n'existait même
+   * pas comme objet. Ce sont pourtant les mêmes sommets : `polygonSurface`
+   * dit où est le contour, et ces lignes ne savent rien d'autre.
+   */
+  const surface = polygonSurface(project, levelId, objectId);
+  if (surface === undefined) return undefined;
+  const polygon = { outer: surface.outline };
+  const objectKind = surface.kind;
   return [
     ...polygon.outer.map((point, index): Grip => ({
       kind: 'POLYGON_VERTEX',

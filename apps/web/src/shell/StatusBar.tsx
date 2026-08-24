@@ -1,3 +1,5 @@
+import { useRef, useState } from 'react';
+
 import {
   DIMENSION_MODES,
   DIMENSION_MODE_LABELS,
@@ -36,6 +38,22 @@ const SNAPS = [
  */
 export function StatusBar({ editor, dispatch, levelName }: StatusBarProps) {
   const snap = editor.snap;
+  /*
+   * Le repli des réglages, ancré à la main.
+   *
+   * La barre défile — c'est ce qui la garde sur une rangée sur un téléphone —
+   * et une boîte qui défile **rogne** ce qui en sort : le panneau était
+   * dessiné, invisible, et le plan recevait les clics à sa place. Les sept
+   * réglages étaient donc inatteignables à la souris.
+   *
+   * Il est donc posé en `fixed`, hors du défilement, à l'endroit où se trouve
+   * son propre bouton. Rien n'est mémorisé : la position est relue du bouton
+   * à chaque ouverture.
+   */
+  const snapsFold = useRef<HTMLDetailsElement>(null);
+  const [snapsAt, setSnapsAt] = useState<
+    { readonly left: number; readonly bottom: number } | undefined
+  >(undefined);
   return (
     <div className="status-bar" role="group" aria-label="État du dessin">
       <span className="status-cell">{levelName}</span>
@@ -84,9 +102,34 @@ export function StatusBar({ editor, dispatch, levelName }: StatusBarProps) {
        * qu'on règle une fois et qu'on relit rarement. Elles restent à un clic,
        * et la barre tient sur sa rangée.
        */}
-      <details className="status-cell status-snaps">
+      <details
+        ref={snapsFold}
+        className="status-cell status-snaps"
+        onToggle={(event) => {
+          if (!event.currentTarget.open) {
+            setSnapsAt(undefined);
+            return;
+          }
+          const at = snapsFold.current?.getBoundingClientRect();
+          if (at === undefined) return;
+          setSnapsAt({
+            left: at.left,
+            bottom: window.innerHeight - at.top + 6,
+          });
+        }}
+      >
         <summary>Réglages</summary>
-        <div className="status-snaps-list panel">
+        <div
+          className="status-snaps-list panel"
+          {...(snapsAt === undefined
+            ? {}
+            : {
+                style: {
+                  left: `${snapsAt.left}px`,
+                  bottom: `${snapsAt.bottom}px`,
+                },
+              })}
+        >
           {SNAPS.map(([key, label]) => (
             <label key={key} className="checkbox">
               <input

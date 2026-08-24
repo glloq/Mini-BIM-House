@@ -143,6 +143,8 @@ describe('the families the tree and the palette both read', () => {
       'Ouvertures',
       'Pièces',
       'Dalles',
+      // Une trémie est un objet : elle se désigne, se mesure et se rebouche.
+      'Trémies',
       'Toitures',
       'Réseaux',
       'Cotes',

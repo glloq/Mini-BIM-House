@@ -42,7 +42,6 @@ import {
   SetWallPathCommand,
   SplitWallCommand,
   UpdateOpeningCommand,
-  UpdateRoofCommand,
   UpdateSlabCommand,
   createOpeningInsertionCommand,
   detectRooms,
@@ -51,6 +50,7 @@ import {
   withoutVertex,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
+import { polygonSurface } from './polygon-surface.js';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import type { GeometryEdit } from './grips.js';
 import {
@@ -2144,20 +2144,21 @@ export function geometryEditCommand(
     case 'POLYGON_VERTEX':
     case 'POLYGON_INSERT':
     case 'POLYGON_REMOVE': {
-      const slab =
-        edit.objectKind === 'SLAB'
-          ? level.slabs.find(({ id }) => id === edit.objectId)
-          : undefined;
-      const roof =
-        edit.objectKind === 'ROOF'
-          ? level.roofs.find(({ id }) => id === edit.objectId)
-          : undefined;
-      const polygon = slab?.polygon ?? roof?.footprint;
-      if (polygon === undefined)
+      /*
+       * Les quatre surfaces écrivent par le même chemin.
+       *
+       * Cette branche connaissait deux familles et deux commandes, et il en
+       * aurait fallu deux de plus pour la parcelle et la trémie. Le contour
+       * sait où il vit et comment il se réécrit ; ces lignes ne manipulent que
+       * des sommets.
+       */
+      const surface = polygonSurface(file.project, levelId, edit.objectId);
+      if (surface === undefined)
         return {
           status: 'ERROR',
           message: `${edit.objectId} est introuvable.`,
         };
+      const polygon = { outer: surface.outline };
       const next =
         edit.kind === 'POLYGON_VERTEX'
           ? withMovedVertex(polygon, edit.vertexIndex, edit.to)
@@ -2170,15 +2171,7 @@ export function geometryEditCommand(
           message:
             'Un contour garde au moins trois sommets : celui-ci ne peut pas en perdre un de plus.',
         };
-      return {
-        status: 'OK',
-        command:
-          slab === undefined
-            ? new UpdateRoofCommand(level.id, edit.objectId, {
-                footprint: next,
-              })
-            : new UpdateSlabCommand(level.id, edit.objectId, { polygon: next }),
-      };
+      return { status: 'OK', command: surface.withOutline(next.outer) };
     }
   }
 }

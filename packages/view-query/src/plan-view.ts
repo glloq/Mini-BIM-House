@@ -1849,6 +1849,29 @@ function slabAndRoofPrimitives(level: Level): readonly PrimitiveDraft[] {
       discipline: 'ARCHITECTURE' as const,
       metadata: { assemblyId: slab.assemblyId, role: slab.role },
     })),
+    /*
+     * Le bord de chaque trémie, pour qu'on puisse la désigner.
+     *
+     * Un trou était un anneau creusé dans le contour de la dalle : il se
+     * voyait et ne se cliquait pas, donc il ne se corrigeait pas. Son bord est
+     * un objet à lui, au-dessus de la dalle qu'il perce.
+     */
+    ...level.slabs.flatMap((slab) =>
+      (slab.polygon.holes ?? []).map((ring, index) => ({
+        id: `slab:${slab.id}#hole:${index}`,
+        sourceObjectId: `${slab.id}#hole:${index}`,
+        semanticRole: 'ANNOTATION' as const,
+        geometry: {
+          kind: 'POLYLINE' as const,
+          polyline: { points: ring, closed: true },
+        },
+        layer: 'architecture.slabs',
+        // Au-dessus du remplissage des pièces : un trait qu'on voit et qu'on
+        // ne peut pas cliquer parce qu'un aplat le couvre est un trait mort.
+        zIndex: 11,
+        discipline: 'ARCHITECTURE' as const,
+      })),
+    ),
     // Only the planes drawn one at a time: a roof described by its outline
     // draws its own, so that clicking one selects the roof and not a plane
     // nobody made.
