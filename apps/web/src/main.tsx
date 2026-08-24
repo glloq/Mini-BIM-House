@@ -2499,6 +2499,7 @@ function App() {
                 editor={editor}
                 drafts={toolDrafts}
                 onChooseEntry={chooseEntry}
+                onNavigate={navigateTo}
                 onOpenSection={(section) =>
                   setNavigation((current) => goToSection(current, section))
                 }
@@ -2638,6 +2639,7 @@ function App() {
                 stage={navigation.stage}
                 design={design}
                 onChooseEntry={chooseEntry}
+                onNavigate={navigateTo}
                 editor={editor}
                 dispatch={dispatchEditor}
                 drafts={toolDrafts}

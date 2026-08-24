@@ -30,6 +30,7 @@ import type {
 import { domainOfDiscipline } from '@house-technical-designer/core-domain';
 
 import type { CreationStageId } from '../ux/creation-stages.js';
+import type { UiTarget } from '../ux/ui-target.js';
 import type { DesignState } from '../ux/design-state.js';
 
 import { draftKey, type ToolDrafts } from './tool-options.js';
@@ -55,6 +56,16 @@ export interface ToolboxRequirement {
   readonly reason: string;
   /** L'entrée qui débloque, quand c'en est une. */
   readonly entryId?: string;
+  /**
+   * L'écran où se fait le geste, quand ce n'en est pas une.
+   *
+   * Un réseau se crée dans « Réseaux », un étage sous la rangée des niveaux :
+   * ni l'un ni l'autre n'est une entrée de la boîte à outils, et dix-sept
+   * tuiles disaient « allez-y » sans pouvoir y mener. Nommer l'écran suffit —
+   * la coque sait déjà envoyer quelqu'un quelque part, c'est `navigateTo` — et
+   * une raison qui mène vaut mieux qu'une raison qui pointe.
+   */
+  readonly target?: UiTarget;
 }
 
 export interface ToolboxEntry {
@@ -154,7 +165,12 @@ const HAS_WALL: EntryNeeds = {
 };
 const TWO_LEVELS: EntryNeeds = {
   enabledWhen: (state) => state.levelCount >= 2,
-  requires: { reason: 'Ajoutez un étage avant de poser un escalier.' },
+  requires: {
+    reason: 'Ajoutez un étage avant de poser un escalier.',
+    // Le nombre d'étages se règle dans « Niveaux et pièces », et la tuile y
+    // mène : dire « ajoutez un étage » sans dire où était une devinette.
+    target: { destination: 'building' },
+  },
 };
 const HAS_CONTOUR: EntryNeeds = {
   enabledWhen: (state) => state.closedContours.length > 0,
@@ -175,6 +191,9 @@ const hasNetworkOf = (domain: DesignDomainId): EntryNeeds => ({
   enabledWhen: (state) => state.networkDomains.includes(domain),
   requires: {
     reason: 'Créez d’abord un réseau de ce métier dans « Réseaux ».',
+    // Et la tuile y mène, sur le métier dont elle parle : dix-sept boutons
+    // nommaient l'écran sans pouvoir l'ouvrir.
+    target: { destination: 'networks', domain },
   },
 });
 

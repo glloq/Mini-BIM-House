@@ -293,16 +293,26 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
   await expect(door).not.toContainText('Tracez');
   await expect(door).not.toHaveClass(/blocked/);
 
-  // Et là où rien ne débloque dans la rangée, le bouton est vraiment inerte,
-  // raison comprise : un réseau se crée ailleurs que dans la boîte à outils.
+  /*
+   * Et là où le geste qui débloque n'est pas un outil, la tuile mène à
+   * l'écran où il se fait.
+   *
+   * Un réseau se crée dans « Réseaux », pas dans la boîte à outils. Le bouton
+   * était vraiment inerte, raison comprise — c'était déjà mieux qu'un gris
+   * muet, et cela laissait encore la personne devant un écran qu'elle devait
+   * trouver seule. Vingt et une tuiles étaient dans ce cas.
+   */
   await openStage(page, 'Systèmes');
   await openSection(page, 'Eau');
   const run = toolbox.getByRole('button', {
     name: 'Tracer un tronçon',
     exact: true,
   });
-  await expect(run).toBeDisabled();
   await expect(run).toContainText('réseau');
+  await expect(run).toHaveClass(/blocked/);
+  await expect(run).toHaveAttribute('title', /Cliquez pour y aller/u);
+  await run.click();
+  await expect(page.locator('.network-layout')).toBeVisible();
 
   /*
    * Et une question qui ne se pose pas ne se pose pas.

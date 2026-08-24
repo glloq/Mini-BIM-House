@@ -3675,6 +3675,32 @@ test('ne laisse pas modifier la parcelle depuis le bâtiment, ni le bâtiment de
   expect(errors).toEqual([]);
 });
 
+test('mène à l’écran qui débloque, au lieu de le nommer', async ({ page }) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+
+  /*
+   * Vingt et une tuiles disaient où aller sans pouvoir y mener.
+   *
+   * « Créez d'abord un réseau de ce métier dans "Réseaux" » est une raison
+   * juste, et elle laissait la personne devant un bouton gris en face d'un
+   * écran qu'elle devait trouver seule. Une tuile inerte porte un geste :
+   * l'outil qui débloque quand c'en est un, l'écran qui débloque sinon.
+   */
+  await openStage(page, 'Systèmes');
+  await openSection(page, 'Eau');
+  const parts = page.getByRole('navigation', { name: 'Sous-parties' });
+  const blocked = parts.getByRole('button', { name: 'Tracer un tronçon' });
+  await expect(blocked).toContainText('réseau');
+  // Elle n'est donc pas désactivée : un bouton qu'on annonce inerte et qui
+  // agit ment à qui l'écoute, mais un bouton qui mène quelque part agit.
+  await expect(blocked).toBeEnabled();
+
+  await blocked.click();
+  await expect(page.locator('.network-layout')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test('pose depuis la nomenclature ce qu’aucun bouton ne nomme', async ({
   page,
 }) => {

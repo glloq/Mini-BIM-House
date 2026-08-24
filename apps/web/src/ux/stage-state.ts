@@ -168,6 +168,9 @@ export function navigationFor(
 ): ShellNavigation {
   const stage =
     target.stage ??
+    (target.destination === undefined
+      ? undefined
+      : stageOfTab(target.destination)) ??
     (target.domain === undefined ? undefined : stageOfDomain(target.domain));
   if (stage === undefined) return navigation;
   const domains =
@@ -179,9 +182,10 @@ export function navigationFor(
   // parle d'un mur ne doit pas atterrir sur la liste des matériaux parce que
   // c'est là qu'on était hier.
   const tab =
-    target.objectId === undefined
+    target.destination ??
+    (target.objectId === undefined
       ? navigation.tabs[stage]
-      : defaultTabOfStage(stage);
+      : defaultTabOfStage(stage));
   return {
     ...navigation,
     stage,

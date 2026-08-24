@@ -40,6 +40,7 @@ import { ToolOptions } from './ToolOptions.js';
 import type { ToolDrafts } from './tool-options.js';
 import { toolById, type EditorToolDefinition } from './tool-registry.js';
 import type { DesignState } from '../ux/design-state.js';
+import type { UiTarget } from '../ux/ui-target.js';
 
 import {
   COMMON_SECTION,
@@ -71,6 +72,8 @@ export interface ToolHeaderProps {
   /** Poser plusieurs options d'un coup : une entrée en remplit souvent trois. */
   /** Prendre une entrée : l'outil, ses options, et la fiche qu'elle installe. */
   readonly onChooseEntry: (entry: ToolboxEntry) => void;
+  /** Où aller quand le geste qui débloque une entrée n'est pas un outil. */
+  readonly onNavigate: (target: UiTarget) => void;
 }
 
 export function ToolHeader({
@@ -84,6 +87,7 @@ export function ToolHeader({
   drafts,
   onDraftChange,
   onChooseEntry,
+  onNavigate,
 }: ToolHeaderProps) {
   const common: ToolboxSection = {
     ...COMMON_SECTION,
@@ -191,6 +195,7 @@ export function ToolHeader({
               available={availabilityOf(select, design)}
               active={isEntryActive(project, select, editor.activeTool, drafts)}
               onChoose={choose}
+              onNavigate={onNavigate}
             />
           )}
           {guest !== undefined && (
@@ -234,6 +239,7 @@ export function ToolHeader({
                         drafts,
                       )}
                       onChoose={choose}
+                      onNavigate={onNavigate}
                     />
                   ))}
                 </div>

@@ -43,6 +43,7 @@ import {
 import { networksOfDomain } from '../systems/discipline-scope.js';
 import type { CreationStageId } from '../ux/creation-stages.js';
 import type { DesignState } from '../ux/design-state.js';
+import type { UiTarget } from '../ux/ui-target.js';
 
 export interface SectionListProps {
   readonly project: Project;
@@ -64,6 +65,8 @@ export interface SectionListProps {
    * quarante par métier. Le bouton n'est pas une entrée de plus — il ne pose
    * rien par lui-même — c'est la porte vers celles qu'on n'a pas nommées.
    */
+  /** Où aller quand le geste qui débloque une entrée n'est pas un outil. */
+  readonly onNavigate: (target: UiTarget) => void;
   readonly onBrowseFamilies: (section: {
     readonly label: string;
     readonly domain?: DesignDomainId;
@@ -94,6 +97,7 @@ export function SectionList({
   drafts,
   onChooseEntry,
   onOpenSection,
+  onNavigate,
   onBrowseFamilies,
 }: SectionListProps) {
   const sections = toolboxFor(project, stage, undefined, design);
@@ -126,6 +130,7 @@ export function SectionList({
               drafts,
             )}
             onChoose={onChooseEntry}
+            onNavigate={onNavigate}
           />
         ))}
       </div>

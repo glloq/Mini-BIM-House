@@ -1247,6 +1247,35 @@ coudes, les tés et les vannes appartiennent à une **conduite** — on les pose
 traçant, pas en cliquant — et les trente-cinq types de menuiserie demandent
 qu'une ouverture porte une fiche, ce que le modèle ne sait pas encore.
 
+### 14.3 Ce que coûte un ajout
+
+Poser se mesure en trois nombres, et `adding-cost.test.ts` les tient :
+
+| Ce qu'on mesure                                    | Le seuil   | Aujourd'hui |
+| -------------------------------------------------- | ---------- | ----------- |
+| Gestes pour poser, l'espace ouvert                 | **≤ 5**    | 2 à 5       |
+| Outils qui disent quoi faire, au début et en cours | **tous**   | tous        |
+| Tuiles inertes qui mènent au geste qui débloque    | **toutes** | toutes      |
+
+Cinq gestes, c'est prendre l'entrée, poser trois sommets, fermer : une
+parcelle, et le plus cher de ce que la boîte à outils propose. Un outil plus
+cher serait un outil à repenser, pas un seuil à relever.
+
+La troisième ligne est celle qui a changé. Une tuile inerte disait déjà
+**pourquoi** — c'est le contraire du bouton grisé en silence — et cliquer
+dessus prenait l'outil qui débloque quand c'en était un : sans mur tracé,
+« Porte » prend « Mur ». Restaient **vingt et une tuiles** dont le geste qui
+débloque n'est pas un outil : dix-sept « créez d'abord un réseau de ce métier
+dans "Réseaux" », quatre « ajoutez un étage ». La raison était juste et laissait
+la personne devant un écran qu'elle devait trouver seule.
+
+Une exigence nomme donc un **écran** autant qu'une entrée
+(`ToolboxRequirement.target`, un `UiTarget` qui sait maintenant dire sa
+destination), et la coque sait déjà envoyer quelqu'un quelque part — c'est
+`navigateTo`, écrit une fois pour les six fonctions qui disaient « va là-bas ».
+Cliquer la tuile bloquée ouvre Systèmes › Réseaux, sur le métier dont elle
+parle.
+
 La seconde ligne d'options ne pousse rien : elle **flotte** sur la marge haute
 du dessin, et seuls ses contrôles répondent au pointeur. Une rangée qui pousse
 le plan en apparaissant le fait changer de taille, la caméra se remet à
