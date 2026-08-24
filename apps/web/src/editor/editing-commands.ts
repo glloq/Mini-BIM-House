@@ -34,7 +34,10 @@ import {
   MoveWallCommand,
   MoveWallPointCommand,
   ProjectEditorCommand,
+  ProjectCommandDispatcher,
   ProjectTransactionCommand,
+  RemoveSpaceCommand,
+  type DetectedRoom,
   SetParcelBoundaryCommand,
   SetWallPathCommand,
   SplitWallCommand,
@@ -82,6 +85,20 @@ const MAXIMUM_ENDPOINT_DISTANCE_MM = 1200;
 export interface WallToolDraft {
   readonly assemblyId: string;
   readonly role: Wall['role'];
+  /**
+   * Quelle face le tracé représente.
+   *
+   * Le modèle la porte depuis toujours et l'inspecteur la modifie ; les outils
+   * de tracé ne l'offraient pas, si bien qu'on dessinait à l'axe et qu'on
+   * corrigeait après — l'inverse de la façon dont on lit un plan
+   * d'architecte, où les cotes sont intérieures. Absente, c'est l'axe, comme
+   * avant.
+   *
+   * Gauche et droite sont **relatives au sens du tracé**, et c'est le mot du
+   * modèle : lequel des deux côtés est l'intérieur n'appartient pas à un mur,
+   * il appartient à l'enceinte.
+   */
+  readonly referenceSide?: Wall['referenceSide'];
 }
 
 export interface OpeningToolDraft {
@@ -127,7 +144,7 @@ export function addWallCommand(
     type: 'WALL',
     levelId: level.id,
     path: { points: [points[0]!, points[points.length - 1]!] },
-    referenceSide: 'CENTER',
+    referenceSide: draft.referenceSide ?? 'CENTER',
     assemblyId: assembly.id,
     baseOffsetMm: 0,
     heightMode: 'EXPLICIT',
@@ -197,7 +214,7 @@ export function addWallRunCommand(
     type: 'WALL',
     levelId: level.id,
     path: { points: walls },
-    referenceSide: 'CENTER',
+    referenceSide: draft.referenceSide ?? 'CENTER',
     assemblyId: assembly.id,
     baseOffsetMm: 0,
     heightMode: 'EXPLICIT',
@@ -266,10 +283,28 @@ export function addWallRectangleCommand(
       status: 'ERROR',
       message: 'Les deux coins doivent délimiter une surface.',
     };
+  /*
+   * Les coins sont remis dans un ordre fixe.
+   *
+   * « Gauche » et « droite » sont relatives au sens du parcours : sur un
+   * rectangle tracé du coin bas-droit vers le haut-gauche, elles s'échangent.
+   * Une option qui promet « faces intérieures » ne peut pas dépendre du sens
+   * du glissement — on normalise donc le parcours, et l'option dit alors la
+   * vérité quel que soit le geste.
+   */
+  const left = Math.min(from.x, to.x);
+  const right = Math.max(from.x, to.x);
+  const top = Math.min(from.y, to.y);
+  const bottom = Math.max(from.y, to.y);
   return addWallRunCommand(
     file,
     levelId,
-    [from, { x: to.x, y: from.y }, to, { x: from.x, y: to.y }],
+    [
+      { x: left, y: top },
+      { x: left, y: bottom },
+      { x: right, y: bottom },
+      { x: right, y: top },
+    ],
     draft,
     { asOneWall: false, closed: true, newId },
   );
@@ -421,6 +456,45 @@ export function addStairCommand(
  * the shape is guessed at creation, because the two-sided roof and the hipped
  * roof have the same outline and only the user knows which was meant.
  */
+/**
+ * Quels côtés sont des pans, et quels côtés sont des pignons.
+ *
+ * Les pignons sont pris sur les côtés les plus courts, parce que c'est ainsi
+ * qu'une charpente est posée : le faîtage suit la longueur. Sur un contour qui
+ * n'est pas un rectangle, « deux pans » prend les deux plus courts côtés et
+ * laisse le reste en pans — ce qui est faux pour une maison en L, et c'est
+ * pourquoi l'inspecteur garde le dernier mot côté par côté.
+ */
+function roofEdges(
+  outline: readonly Point2D[],
+  draft: {
+    readonly slopeDeg: number;
+    readonly overhangMm: number;
+    readonly pans?: 1 | 2 | 4;
+  },
+): readonly {
+  readonly kind: 'SLOPED' | 'GABLE';
+  readonly slopeDeg: number;
+  readonly overhangMm: number;
+}[] {
+  const lengths = outline.map((point, index) => {
+    const next = outline[(index + 1) % outline.length]!;
+    return { index, length: Math.hypot(next.x - point.x, next.y - point.y) };
+  });
+  const gables = new Set<number>();
+  const wanted = draft.pans === undefined ? 0 : outline.length - draft.pans;
+  if (wanted > 0)
+    for (const { index } of [...lengths]
+      .sort((a, b) => a.length - b.length)
+      .slice(0, wanted))
+      gables.add(index);
+  return outline.map((_, index) => ({
+    kind: gables.has(index) ? ('GABLE' as const) : ('SLOPED' as const),
+    slopeDeg: draft.slopeDeg,
+    overhangMm: draft.overhangMm,
+  }));
+}
+
 export function addRoofStructureCommand(
   file: ProjectFile,
   levelId: string | undefined,
@@ -430,6 +504,18 @@ export function addRoofStructureCommand(
     readonly slopeDeg: number;
     readonly overhangMm: number;
     readonly fromWalls: boolean;
+    /**
+     * Combien de pans, quand on le dit d'un mot.
+     *
+     * Le nombre de pans n'est pas une propriété de la toiture : c'est la
+     * nature de chacun de ses côtés. « Deux pans » veut dire que les deux
+     * côtés les plus courts sont des pignons, « un pan » que trois le sont.
+     * L'inspecteur les change ensuite un par un, comme avant.
+     *
+     * Absent, tous les côtés sont des pans — c'est ce que la toiture faisait
+     * jusqu'ici, et une croupe sur quatre côtés reste une croupe.
+     */
+    readonly pans?: 1 | 2 | 4;
   },
   roofId: string,
 ): EditingCommandResult {
@@ -460,11 +546,7 @@ export function addRoofStructureCommand(
     command: new AddRoofStructureCommand(level.id, {
       id: roofId,
       footprint: { outer: outline.map((point) => ({ ...point })) },
-      edges: outline.map(() => ({
-        kind: 'SLOPED' as const,
-        slopeDeg: draft.slopeDeg,
-        overhangMm: draft.overhangMm,
-      })),
+      edges: roofEdges(outline, draft),
       assemblyId: draft.assemblyId,
       baseElevationMm: level.elevationMm + level.defaultStoreyHeightMm,
     }),
@@ -604,6 +686,110 @@ export function addSpaceAtPointCommand(
       category: draft.category,
       polygon: found.polygon,
     }),
+  };
+}
+
+/**
+ * Réunir deux pièces en une.
+ *
+ * Deux pièces sont séparées par ce qui les sépare : une cloison. Les réunir
+ * n'est donc pas une opération sur les pièces, c'est **retirer la cloison** —
+ * après quoi les murs n'enferment plus qu'un contour, et ce contour n'a besoin
+ * que d'une pièce.
+ *
+ * Le contour d'arrivée n'est pas deviné : la cloison est retirée sur une copie
+ * du projet, et c'est la détection qui dit ce que les murs enferment alors. On
+ * ne calcule pas une union de polygones dont le modèle saurait déjà la réponse.
+ *
+ * Tout part en une seule commande : deux pièces à moitié fusionnées — la
+ * cloison retirée, deux espaces qui se recouvrent — seraient un état que
+ * personne n'a demandé et qu'il faudrait défaire en quatre fois.
+ */
+export function mergeSpacesCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  from: Point2D,
+  to: Point2D,
+  spaceId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const rooms = detectRooms(file.project, level.id);
+  const first = rooms.find((room) => pointInPolygon(from, room.polygon.outer));
+  const second = rooms.find((room) => pointInPolygon(to, room.polygon.outer));
+  if (first === undefined || second === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Désignez deux contours fermés par les murs.',
+    };
+  if (first === second)
+    return { status: 'ERROR', message: 'Ces deux points sont la même pièce.' };
+  /*
+   * Lequel des murs communs est celui qui sépare.
+   *
+   * Les deux contours en citent plusieurs : sur un rectangle coupé en deux,
+   * les murs du haut et du bas courent d'un bout à l'autre et appartiennent
+   * donc aux deux pièces. Les retirer tous ouvrirait la maison.
+   *
+   * Le séparateur est celui dont le retrait laisse **un seul contour qui
+   * contient les deux points**. On ne le devine pas : on essaie, et c'est la
+   * détection qui tranche — la même qui dessine les pièces.
+   */
+  const shared = first.sourceWallIds.filter((id) =>
+    second.sourceWallIds.includes(id),
+  );
+  if (shared.length === 0)
+    return {
+      status: 'ERROR',
+      message: 'Ces deux pièces ne partagent aucun mur : rien à retirer.',
+    };
+  let removal: ProjectCommand | undefined;
+  let merged: DetectedRoom | undefined;
+  for (const wallId of shared) {
+    const command = removalCommandFor(file.project, level.id, wallId);
+    if (command === undefined) continue;
+    const dispatcher = new ProjectCommandDispatcher(file.project);
+    if (dispatcher.dispatch(command).status !== 'APPLIED') continue;
+    const candidate = detectRooms(dispatcher.project, level.id).find((room) =>
+      pointInPolygon(from, room.polygon.outer),
+    );
+    if (candidate === undefined || !pointInPolygon(to, candidate.polygon.outer))
+      continue;
+    removal = command;
+    merged = candidate;
+    break;
+  }
+  if (removal === undefined || merged === undefined)
+    return {
+      status: 'ERROR',
+      message:
+        'Aucun mur commun ne sépare ces deux pièces sans ouvrir le reste.',
+    };
+  const removals = [removal];
+  const kept = level.spaces.find(({ id }) => id === first.existingSpaceId);
+  const dropped = level.spaces.filter(
+    ({ id }) => id === first.existingSpaceId || id === second.existingSpaceId,
+  );
+  return {
+    status: 'OK',
+    command: new ProjectTransactionCommand(
+      `merge-spaces:${spaceId}`,
+      'Réunir deux pièces',
+      [
+        ...removals,
+        ...dropped.map((space) => new RemoveSpaceCommand(level.id, space.id)),
+        new AddSpaceCommand(level.id, {
+          id: spaceId,
+          // La pièce qui reste garde le nom de la première désignée : c'est
+          // celle qu'on a montrée en premier, et un nom inventé serait un nom
+          // que personne n'a choisi.
+          name: kept?.name ?? 'Pièce',
+          category: kept?.category ?? 'OTHER',
+          polygon: merged.polygon,
+        }),
+      ],
+    ),
   };
 }
 

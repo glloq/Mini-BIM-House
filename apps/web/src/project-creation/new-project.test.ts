@@ -10,8 +10,11 @@ import type { NewProjectDraft } from '../ux/new-project-draft.js';
 import { initialShapeCommands } from './initial-shape.js';
 import {
   addLevel,
+  HOUSE_PRESETS,
   levelStackIssues,
   MAX_LEVELS,
+  presetOfStack,
+  presetStack,
   moveLevel,
   removeLevel,
   stackedLevels,
@@ -310,5 +313,67 @@ describe('what the creation page asked for and used to throw away', () => {
     ).toEqual([]);
     expect(shapeIssues({ kind: 'NONE' })).toEqual([]);
     expect(shapeIssues(undefined)).toEqual([]);
+  });
+});
+
+describe('the house one describes in a word', () => {
+  it('turns a type of building into a stack of storeys', () => {
+    // « R+1 » est ce que quelqu'un dit ; deux niveaux est ce que ça vaut.
+    const r1 = HOUSE_PRESETS.find(({ id }) => id === 'R1')!;
+    const stack = presetStack(r1);
+    expect(stack.map(({ kind }) => kind)).toEqual(['GROUND', 'STOREY']);
+    expect(stack.every(({ heightMm }) => heightMm > 0)).toBe(true);
+
+    const cellar = HOUSE_PRESETS.find(({ id }) => id === 'BASEMENT_R1')!;
+    expect(presetStack(cellar).map(({ kind }) => kind)).toEqual([
+      'BASEMENT',
+      'GROUND',
+      'STOREY',
+    ]);
+  });
+
+  it('reads the type back from the stack, and says « personnalisé » otherwise', () => {
+    /*
+     * Le type n'est pas stocké : il est relu de la pile.
+     *
+     * C'est ce qui fait qu'il ne verrouille rien — supprimer l'étage d'un
+     * « R+1 » redonne un plain-pied, et rien ne proteste. Une pile qu'aucun
+     * type ne décrit n'est pas une erreur, c'est une autre réponse.
+     */
+    for (const preset of HOUSE_PRESETS)
+      expect(presetOfStack(presetStack(preset))?.id).toBe(preset.id);
+    const custom = [
+      ...presetStack(HOUSE_PRESETS[1]!),
+      {
+        id: 'attic',
+        name: 'Combles',
+        kind: 'ATTIC' as const,
+        heightMm: 2200,
+      },
+    ];
+    expect(presetOfStack(custom)).toBeUndefined();
+  });
+
+  it('draws the starting footprint against its interior faces', () => {
+    /*
+     * « Dix mètres par huit » veut dire la pièce, pas le dehors.
+     *
+     * Le contour de `shapeOutline` tourne dans le sens où l'intérieur est à
+     * gauche du parcours : la face intérieure y est donc `LEFT`, et c'est
+     * l'inverse du rectangle normalisé de l'outil. Les deux sont vérifiés là
+     * où ils vivent plutôt que supposés ici.
+     */
+    const outline = shapeOutline({
+      kind: 'RECTANGLE',
+      widthMm: 10_000,
+      depthMm: 8_000,
+    });
+    expect(outline).toHaveLength(4);
+    const [first, second] = outline;
+    // Premier côté parcouru vers les x croissants, intérieur du côté des y
+    // croissants : c'est bien la gauche du parcours.
+    expect(second!.x).toBeGreaterThan(first!.x);
+    expect(second!.y).toBe(first!.y);
+    expect(first!.y).toBeLessThan(0);
   });
 });

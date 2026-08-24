@@ -4393,6 +4393,5338 @@
           "ipRating": "IP20",
           "name": "Armoire batterie"
         }
+      },
+      {
+        "id": "generic-optical-termination",
+        "familyId": "FIBER_TERMINATION",
+        "kind": "DATA_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Point de terminaison optique",
+        "category": "DATA_DEVICE",
+        "dimensions": {
+          "widthMm": 150,
+          "depthMm": 35,
+          "heightMm": 100
+        },
+        "allowedHosts": [
+          "WALL",
+          "CEILING",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "fiber-in",
+            "portTypeId": "FIBER",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -50
+            }
+          },
+          {
+            "id": "fiber-out",
+            "portTypeId": "FIBER",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 50
+            }
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "protocol",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "entryCount",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "protocol": "Fibre monomode",
+          "entryCount": 2,
+          "name": "Point de terminaison optique"
+        }
+      },
+      {
+        "id": "generic-switch",
+        "familyId": "SWITCH",
+        "kind": "CONTROL_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Interrupteur simple allumage",
+        "category": "CONTROL_DEVICE",
+        "dimensions": {
+          "widthMm": 80,
+          "depthMm": 40,
+          "heightMm": 80
+        },
+        "allowedHosts": [
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "line",
+            "portTypeId": "ELECTRICAL_AC_INPUT",
+            "position": {
+              "x": 0,
+              "y": -20,
+              "z": 0
+            }
+          },
+          {
+            "id": "load",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": -20,
+              "z": -20
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 50,
+            "reason": "Manœuvre de la commande"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 500,
+            "reason": "Approche pour atteindre la commande"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "poleCount",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "electrical.switch"
+            }
+          ],
+          "planFootprint": "SYMBOL_ONLY",
+          "layer": "electrical.controls"
+        },
+        "properties": {
+          "ratedCurrentA": 10,
+          "nominalVoltageV": 230,
+          "poleCount": 1,
+          "name": "Interrupteur simple allumage"
+        }
+      },
+      {
+        "id": "generic-dishwasher",
+        "familyId": "DISHWASHER",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Lave-vaisselle",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 600,
+          "heightMm": 850
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -425
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -425
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Extraction de l’appareil pour intervention"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Ouverture de la porte et service devant l’appareil"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.loads"
+        },
+        "properties": {
+          "activePowerW": 1800,
+          "name": "Lave-vaisselle"
+        }
+      },
+      {
+        "id": "generic-washing-machine",
+        "familyId": "WASHING_MACHINE",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Lave-linge",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 600,
+          "heightMm": 850
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -425
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -425
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Extraction de l’appareil pour intervention"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Ouverture de la porte et service devant l’appareil"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.loads"
+        },
+        "properties": {
+          "activePowerW": 2200,
+          "name": "Lave-linge"
+        }
+      },
+      {
+        "id": "generic-dryer",
+        "familyId": "DRYER",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Sèche-linge",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 600,
+          "heightMm": 850
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -425
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 300,
+              "z": -425
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Extraction de l’appareil pour intervention"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Ouverture de la porte et service devant l’appareil"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.loads"
+        },
+        "properties": {
+          "activePowerW": 2000,
+          "name": "Sèche-linge"
+        }
+      },
+      {
+        "id": "generic-refrigerator",
+        "familyId": "REFRIGERATOR",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Réfrigérateur",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 650,
+          "heightMm": 1800
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 325,
+              "z": -900
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 325,
+              "z": -900
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Extraction de l’appareil pour intervention"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Ouverture de la porte et service devant l’appareil"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dutyCycle",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.loads"
+        },
+        "properties": {
+          "activePowerW": 100,
+          "dutyCycle": 0.4,
+          "name": "Réfrigérateur"
+        }
+      },
+      {
+        "id": "generic-freezer",
+        "familyId": "FREEZER",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Congélateur armoire",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 650,
+          "heightMm": 1700
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 325,
+              "z": -850
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 325,
+              "z": -850
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Extraction de l’appareil pour intervention"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Ouverture de la porte et service devant l’appareil"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dutyCycle",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.loads"
+        },
+        "properties": {
+          "activePowerW": 150,
+          "dutyCycle": 0.4,
+          "name": "Congélateur armoire"
+        }
+      },
+      {
+        "id": "generic-oven",
+        "familyId": "OVEN",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Four encastrable",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 570,
+          "heightMm": 595
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 285,
+              "z": -297.5
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 285,
+              "z": -297.5
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Extraction de l’appareil pour intervention"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Ouverture de la porte et service devant l’appareil"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.loads"
+        },
+        "properties": {
+          "activePowerW": 3000,
+          "name": "Four encastrable"
+        }
+      },
+      {
+        "id": "generic-hob",
+        "familyId": "HOB",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Plaque de cuisson à induction",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 520,
+          "heightMm": 60
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 260,
+              "z": -30
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 260,
+              "z": -30
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "belowMm": 100,
+            "reason": "Ventilation et accès au boîtier de raccordement"
+          },
+          {
+            "zone": "USAGE",
+            "aboveMm": 650,
+            "reason": "Hauteur libre au-dessus du plan de cuisson"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.loads"
+        },
+        "properties": {
+          "activePowerW": 7200,
+          "name": "Plaque de cuisson à induction"
+        }
+      },
+      {
+        "id": "generic-microwave",
+        "familyId": "MICROWAVE",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Four à micro-ondes",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 500,
+          "depthMm": 400,
+          "heightMm": 300
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 200,
+              "z": -150
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 200,
+              "z": -150
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Extraction de l’appareil pour intervention"
+          },
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Ouverture de la porte et service devant l’appareil"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.loads"
+        },
+        "properties": {
+          "activePowerW": 1200,
+          "name": "Four à micro-ondes"
+        }
+      },
+      {
+        "id": "generic-bed-double",
+        "familyId": "BED",
+        "kind": "FURNITURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Lit deux places 140 × 190",
+        "category": "FURNITURE",
+        "dimensions": {
+          "widthMm": 1400,
+          "depthMm": 2000,
+          "heightMm": 550
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 600,
+            "reason": "Passage latéral pour faire le lit et se coucher"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "usageDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "movable",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "usageDepthMm": 600,
+          "movable": true,
+          "name": "Lit deux places 140 × 190"
+        }
+      },
+      {
+        "id": "generic-sofa-three-seat",
+        "familyId": "SOFA",
+        "kind": "FURNITURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Canapé trois places",
+        "category": "FURNITURE",
+        "dimensions": {
+          "widthMm": 2100,
+          "depthMm": 900,
+          "heightMm": 850
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 700,
+            "reason": "Circulation devant l’assise"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "usageDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "movable",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "usageDepthMm": 700,
+          "movable": true,
+          "name": "Canapé trois places"
+        }
+      },
+      {
+        "id": "generic-chair",
+        "familyId": "CHAIR",
+        "kind": "FURNITURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Chaise",
+        "category": "FURNITURE",
+        "dimensions": {
+          "widthMm": 450,
+          "depthMm": 500,
+          "heightMm": 850
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 600,
+            "reason": "Recul de la chaise pour s’asseoir"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "usageDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "movable",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "usageDepthMm": 600,
+          "movable": true,
+          "name": "Chaise"
+        }
+      },
+      {
+        "id": "generic-dining-table",
+        "familyId": "TABLE",
+        "kind": "FURNITURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Table de repas six places",
+        "category": "FURNITURE",
+        "dimensions": {
+          "widthMm": 1600,
+          "depthMm": 900,
+          "heightMm": 750
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 750,
+            "reason": "Recul des chaises et service autour de la table"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "usageDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "movable",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "usageDepthMm": 750,
+          "movable": true,
+          "name": "Table de repas six places"
+        }
+      },
+      {
+        "id": "generic-desk",
+        "familyId": "DESK",
+        "kind": "FURNITURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Bureau",
+        "category": "FURNITURE",
+        "dimensions": {
+          "widthMm": 1400,
+          "depthMm": 700,
+          "heightMm": 750
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 750,
+            "reason": "Recul du siège de travail"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "usageDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "movable",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "usageDepthMm": 750,
+          "movable": true,
+          "name": "Bureau"
+        }
+      },
+      {
+        "id": "generic-wardrobe",
+        "familyId": "WARDROBE",
+        "kind": "FURNITURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Armoire deux portes",
+        "category": "FURNITURE",
+        "dimensions": {
+          "widthMm": 1200,
+          "depthMm": 600,
+          "heightMm": 2100
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Ouverture des battants et accès aux rayonnages"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 1200,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "usageDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "movable",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "usageDepthMm": 900,
+          "movable": false,
+          "name": "Armoire deux portes"
+        }
+      },
+      {
+        "id": "generic-cabinet",
+        "familyId": "CABINET",
+        "kind": "FURNITURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Meuble bas",
+        "category": "FURNITURE",
+        "dimensions": {
+          "widthMm": 800,
+          "depthMm": 450,
+          "heightMm": 850
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 700,
+            "reason": "Ouverture des portes et des tiroirs"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "usageDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "movable",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "usageDepthMm": 700,
+          "movable": false,
+          "name": "Meuble bas"
+        }
+      },
+      {
+        "id": "generic-kitchen-base-unit",
+        "familyId": "KITCHEN_CABINET",
+        "kind": "FURNITURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Meuble de cuisine bas 60",
+        "category": "FURNITURE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 600,
+          "heightMm": 850
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Ouverture des tiroirs et travail devant le meuble"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 1200,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "usageDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "movable",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "usageDepthMm": 900,
+          "movable": false,
+          "name": "Meuble de cuisine bas 60"
+        }
+      },
+      {
+        "id": "generic-worktop",
+        "familyId": "WORKTOP",
+        "kind": "FURNITURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Plan de travail",
+        "category": "FURNITURE",
+        "dimensions": {
+          "widthMm": 2400,
+          "depthMm": 650,
+          "heightMm": 40
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 900,
+            "reason": "Poste de travail devant le plan"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 1200,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "usageDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "movable",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "usageDepthMm": 900,
+          "movable": false,
+          "name": "Plan de travail"
+        }
+      },
+      {
+        "id": "generic-underfloor-heating-surface",
+        "familyId": "UNDERFLOOR_HEATING",
+        "kind": "UNDERFLOOR_HEATING",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Plancher chauffant à eau",
+        "category": "UNDERFLOOR_HEATING",
+        "dimensions": {
+          "widthMm": 1000,
+          "depthMm": 1000,
+          "heightMm": 90
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "CEILING"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "USAGE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "flow",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": -500,
+              "y": 0,
+              "z": -45
+            }
+          },
+          {
+            "id": "return",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": 500,
+              "y": 0,
+              "z": -45
+            }
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalOutputW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "exponent",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "waterContentL",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalFlowTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalReturnTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalRoomTemperatureC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "heating.emitters"
+        },
+        "properties": {
+          "nominalOutputW": 70,
+          "exponent": 1.1,
+          "waterContentL": 1.2,
+          "nominalFlowTemperatureC": 35,
+          "nominalReturnTemperatureC": 30,
+          "nominalRoomTemperatureC": 20,
+          "name": "Plancher chauffant à eau"
+        }
+      },
+      {
+        "id": "generic-bathtub",
+        "familyId": "BATHTUB",
+        "kind": "SANITARY_FIXTURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Baignoire 170 × 75",
+        "category": "SANITARY_FIXTURE",
+        "dimensions": {
+          "widthMm": 1700,
+          "depthMm": 750,
+          "heightMm": 600
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": 0,
+              "y": 375,
+              "z": 0
+            }
+          },
+          {
+            "id": "hot",
+            "portTypeId": "WATER_HOT",
+            "position": {
+              "x": 0,
+              "y": 375,
+              "z": 0
+            }
+          },
+          {
+            "id": "drain",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -300
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 700,
+            "reason": "Dégagement d’usage devant l’appareil"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowLps",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "hotWaterFraction",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "minimumPressurePa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "trapDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "designFlowLps": 0.3,
+          "hotWaterFraction": 0.6,
+          "dischargeUnits": 3,
+          "minimumPressurePa": 100000,
+          "trapDiameterMm": 40,
+          "name": "Baignoire 170 × 75"
+        }
+      },
+      {
+        "id": "generic-outdoor-tap",
+        "familyId": "OUTDOOR_TAP",
+        "kind": "SANITARY_FIXTURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Robinet extérieur",
+        "category": "SANITARY_FIXTURE",
+        "dimensions": {
+          "widthMm": 120,
+          "depthMm": 100,
+          "heightMm": 150
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "cold",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": 0,
+              "y": 50,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 700,
+            "reason": "Dégagement d’usage devant l’appareil"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 900,
+            "reason": "Approche en fauteuil roulant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowLps",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "minimumPressurePa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "designFlowLps": 0.33,
+          "minimumPressurePa": 100000,
+          "name": "Robinet extérieur"
+        }
+      },
+      {
+        "id": "generic-water-public-connection",
+        "familyId": "WATER_PUBLIC_CONNECTION",
+        "kind": "SITE_FEATURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Branchement public DN 25",
+        "category": "SITE_FEATURE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 200,
+          "heightMm": 200
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "in",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": -300,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "out",
+            "portTypeId": "WATER_COLD",
+            "position": {
+              "x": 300,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès à l’appareil et à ses raccordements"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalDiameterMm": 25,
+          "name": "Branchement public DN 25"
+        }
+      },
+      {
+        "id": "generic-borehole-head",
+        "familyId": "BOREHOLE",
+        "kind": "SITE_FEATURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Tête de forage équipée",
+        "category": "SITE_FEATURE",
+        "dimensions": {
+          "widthMm": 300,
+          "depthMm": 300,
+          "heightMm": 1000
+        },
+        "allowedHosts": [
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "SERVICE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "water",
+            "portTypeId": "WATER_NON_POTABLE",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 500
+            }
+          },
+          {
+            "id": "supply",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 150,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "aboveMm": 2000,
+            "reason": "Extraction de la pompe immergée à la verticale"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "rendering": {
+          "planFootprint": "CIRCLE"
+        },
+        "properties": {
+          "name": "Tête de forage équipée"
+        }
+      },
+      {
+        "id": "generic-well",
+        "familyId": "WELL",
+        "kind": "SITE_FEATURE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Puits busé Ø 1 000",
+        "category": "SITE_FEATURE",
+        "dimensions": {
+          "widthMm": 1000,
+          "depthMm": 1000,
+          "heightMm": 1500
+        },
+        "allowedHosts": [
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "SERVICE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "water",
+            "portTypeId": "WATER_NON_POTABLE",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 750
+            }
+          },
+          {
+            "id": "supply",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 500,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "aboveMm": 2000,
+            "reason": "Descente du matériel et relevage de la pompe"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "buriedDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "CIRCLE"
+        },
+        "properties": {
+          "buriedDepthMm": 8000,
+          "name": "Puits busé Ø 1 000"
+        }
+      },
+      {
+        "id": "generic-service-connection-box",
+        "familyId": "ELECTRICAL_SERVICE_BOX",
+        "kind": "DISTRIBUTION_BOARD",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Coffret de branchement en limite de propriété",
+        "category": "DISTRIBUTION_BOARD",
+        "dimensions": {
+          "widthMm": 500,
+          "depthMm": 250,
+          "heightMm": 700
+        },
+        "allowedHosts": [
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "SERVICE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "incoming",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -350
+            }
+          },
+          {
+            "id": "outgoing",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 125,
+              "z": -200
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -350
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "SERVICE",
+            "frontMm": 800,
+            "reason": "Accès du distributeur au coffret depuis le domaine public"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ipRating",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "ratedCurrentA": 60,
+          "nominalVoltageV": 230,
+          "ipRating": "IP44",
+          "name": "Coffret de branchement en limite de propriété"
+        }
+      },
+      {
+        "id": "generic-ev-charging-station-7kw",
+        "familyId": "SITE_EV_CHARGER",
+        "kind": "APPLIANCE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Borne de recharge sur pied 7,4 kW",
+        "category": "APPLIANCE",
+        "dimensions": {
+          "widthMm": 300,
+          "depthMm": 200,
+          "heightMm": 1300
+        },
+        "allowedHosts": [
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "SERVICE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "supply",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -650
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -650
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Manœuvre du câble et accès à la prise"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "powerFactor",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "activePowerW": 7400,
+          "powerFactor": 1,
+          "name": "Borne de recharge sur pied 7,4 kW"
+        }
+      },
+      {
+        "id": "generic-exterior-wall-luminaire",
+        "familyId": "SITE_EXTERIOR_LIGHT",
+        "kind": "LUMINAIRE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Applique extérieure",
+        "category": "LUMINAIRE",
+        "dimensions": {
+          "widthMm": 150,
+          "depthMm": 200,
+          "heightMm": 250
+        },
+        "allowedHosts": [
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "SERVICE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "supply",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 100,
+              "z": 0
+            }
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "luminousFluxLm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "electricalPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "colorTemperatureK",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ipRating",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-luminaire"
+            }
+          ],
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "luminousFluxLm": 1200,
+          "electricalPowerW": 12,
+          "colorTemperatureK": 3000,
+          "ipRating": "IP65",
+          "name": "Applique extérieure"
+        }
+      },
+      {
+        "id": "generic-exterior-socket-ip55",
+        "familyId": "SITE_EXTERIOR_SOCKET",
+        "kind": "SOCKET",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Prise extérieure étanche IP 55",
+        "category": "SOCKET",
+        "dimensions": {
+          "widthMm": 100,
+          "depthMm": 80,
+          "heightMm": 100
+        },
+        "allowedHosts": [
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "SERVICE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "supply",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 40,
+              "z": 0
+            }
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ipRating",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "poleCount",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-socket"
+            }
+          ],
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "ratedCurrentA": 16,
+          "nominalVoltageV": 230,
+          "ipRating": "IP55",
+          "poleCount": 2,
+          "name": "Prise extérieure étanche IP 55"
+        }
+      },
+      {
+        "id": "generic-septic-tank-3000l",
+        "familyId": "SITE_SEPTIC_TANK",
+        "kind": "DRAINAGE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Fosse toutes eaux de parcelle 3 000 L",
+        "category": "DRAINAGE",
+        "dimensions": {
+          "widthMm": 2000,
+          "depthMm": 1300,
+          "heightMm": 1600
+        },
+        "allowedHosts": [
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "SERVICE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "inlet",
+            "portTypeId": "SOILWATER_INLET",
+            "position": {
+              "x": -1000,
+              "y": 0,
+              "z": 500
+            }
+          },
+          {
+            "id": "outlet",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 1000,
+              "y": 0,
+              "z": 450
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "SERVICE",
+            "frontMm": 3000,
+            "reason": "Approche du camion de vidange"
+          },
+          {
+            "zone": "MAINTENANCE",
+            "aboveMm": 800,
+            "reason": "Ouverture des tampons de visite"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "capacityL",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "buriedDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "capacityL": 3000,
+          "buriedDepthMm": 1200,
+          "name": "Fosse toutes eaux de parcelle 3 000 L"
+        }
+      },
+      {
+        "id": "generic-rainwater-chamber-400",
+        "familyId": "SITE_RAINWATER_CHAMBER",
+        "kind": "RAINWATER_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Regard pluvial 400 × 400",
+        "category": "RAINWATER_DEVICE",
+        "dimensions": {
+          "widthMm": 400,
+          "depthMm": 400,
+          "heightMm": 600
+        },
+        "allowedHosts": [
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "SERVICE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "inlet",
+            "portTypeId": "RAINWATER_IN",
+            "position": {
+              "x": -200,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "outlet",
+            "portTypeId": "RAINWATER_OUT",
+            "position": {
+              "x": 200,
+              "y": 0,
+              "z": -50
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "aboveMm": 600,
+            "reason": "Ouverture du tampon et curage"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "buriedDepthMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "buriedDepthMm": 600,
+          "name": "Regard pluvial 400 × 400"
+        }
+      },
+      {
+        "id": "generic-public-sewer-connection",
+        "familyId": "PUBLIC_SEWER_CONNECTION",
+        "kind": "DRAINAGE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Branchement au collecteur public DN 160",
+        "category": "DRAINAGE",
+        "dimensions": {
+          "widthMm": 1000,
+          "depthMm": 170,
+          "heightMm": 170
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "in",
+            "portTypeId": "WASTEWATER_INLET",
+            "position": {
+              "x": -500,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès à l’appareil et à ses raccordements"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "minimumSlope",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalDiameterMm": 160,
+          "minimumSlope": 0.01,
+          "name": "Branchement au collecteur public DN 160"
+        }
+      },
+      {
+        "id": "generic-rj45-socket",
+        "familyId": "RJ45_SOCKET",
+        "kind": "DATA_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Prise RJ45 catégorie 6",
+        "category": "DATA_DEVICE",
+        "dimensions": {
+          "widthMm": 80,
+          "depthMm": 45,
+          "heightMm": 80
+        },
+        "allowedHosts": [
+          "WALL",
+          "CEILING",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "network",
+            "portTypeId": "ETHERNET",
+            "position": {
+              "x": 0,
+              "y": 22.5,
+              "z": 0
+            }
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "protocol",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "entryCount",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "protocol": "Cat 6",
+          "entryCount": 1,
+          "name": "Prise RJ45 catégorie 6"
+        }
+      },
+      {
+        "id": "generic-communication-enclosure",
+        "familyId": "NETWORK_RACK",
+        "kind": "DATA_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Coffret de communication",
+        "category": "DATA_DEVICE",
+        "dimensions": {
+          "widthMm": 450,
+          "depthMm": 200,
+          "heightMm": 600
+        },
+        "allowedHosts": [
+          "WALL",
+          "CEILING",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "incoming",
+            "portTypeId": "ETHERNET",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -300
+            }
+          },
+          {
+            "id": "outgoing",
+            "portTypeId": "ETHERNET",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 300
+            }
+          },
+          {
+            "id": "supply",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 100,
+              "z": -250
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 700,
+            "reason": "Ouverture de la porte et brassage des cordons"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "activePowerW": 0,
+          "name": "Coffret de communication"
+        }
+      },
+      {
+        "id": "generic-access-router",
+        "familyId": "ROUTER",
+        "kind": "DATA_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Routeur d’accès fibre",
+        "category": "DATA_DEVICE",
+        "dimensions": {
+          "widthMm": 230,
+          "depthMm": 230,
+          "heightMm": 60
+        },
+        "allowedHosts": [
+          "WALL",
+          "CEILING",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "fiber",
+            "portTypeId": "FIBER",
+            "position": {
+              "x": 0,
+              "y": 115,
+              "z": 10
+            }
+          },
+          {
+            "id": "lan",
+            "portTypeId": "ETHERNET",
+            "position": {
+              "x": 0,
+              "y": 115,
+              "z": -10
+            }
+          },
+          {
+            "id": "supply",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 115,
+              "z": -20
+            }
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "activePowerW": 12,
+          "name": "Routeur d’accès fibre"
+        }
+      },
+      {
+        "id": "generic-wifi-access-point",
+        "familyId": "WIFI_ACCESS_POINT",
+        "kind": "DATA_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Point d’accès Wi-Fi de plafond",
+        "category": "DATA_DEVICE",
+        "dimensions": {
+          "widthMm": 180,
+          "depthMm": 180,
+          "heightMm": 40
+        },
+        "allowedHosts": [
+          "WALL",
+          "CEILING",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "network",
+            "portTypeId": "ETHERNET",
+            "position": {
+              "x": 0,
+              "y": 90,
+              "z": 0
+            }
+          },
+          {
+            "id": "radio",
+            "portTypeId": "WIRELESS",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "protocol",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "powerOverEthernet",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "activePowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "protocol": "WIFI",
+          "powerOverEthernet": true,
+          "activePowerW": 12,
+          "name": "Point d’accès Wi-Fi de plafond"
+        }
+      },
+      {
+        "id": "generic-junction-box",
+        "familyId": "JUNCTION_BOX",
+        "kind": "CABLE_ROUTING",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Boîte de dérivation 100 × 100",
+        "category": "CABLE_ROUTING",
+        "dimensions": {
+          "widthMm": 100,
+          "depthMm": 100,
+          "heightMm": 50
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "CEILING"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "incoming",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": -50,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "outgoing",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 50,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 300,
+            "reason": "Ouverture du couvercle et reprise des connexions"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "entryCount",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ipRating",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.containment"
+        },
+        "properties": {
+          "entryCount": 4,
+          "ipRating": "IP55",
+          "name": "Boîte de dérivation 100 × 100"
+        }
+      },
+      {
+        "id": "generic-double-socket",
+        "familyId": "DOUBLE_SOCKET",
+        "kind": "SOCKET",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Prise double 16 A",
+        "category": "SOCKET",
+        "dimensions": {
+          "widthMm": 150,
+          "depthMm": 40,
+          "heightMm": 80
+        },
+        "allowedHosts": [
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": -20,
+              "z": 0
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 0,
+              "y": -20,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 100,
+            "reason": "Débattement de la fiche"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 500,
+            "reason": "Approche pour atteindre la prise"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "poleCount",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-socket"
+            }
+          ],
+          "planFootprint": "SYMBOL_ONLY",
+          "layer": "electrical.outlets"
+        },
+        "properties": {
+          "ratedCurrentA": 16,
+          "nominalVoltageV": 230,
+          "poleCount": 2,
+          "name": "Prise double 16 A"
+        }
+      },
+      {
+        "id": "generic-two-way-switch",
+        "familyId": "TWO_WAY_SWITCH",
+        "kind": "CONTROL_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Interrupteur va-et-vient",
+        "category": "CONTROL_DEVICE",
+        "dimensions": {
+          "widthMm": 80,
+          "depthMm": 40,
+          "heightMm": 80
+        },
+        "allowedHosts": [
+          "WALL"
+        ],
+        "requiredClearances": [
+          "USAGE",
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "line",
+            "portTypeId": "ELECTRICAL_AC_INPUT",
+            "position": {
+              "x": 0,
+              "y": -20,
+              "z": 0
+            }
+          },
+          {
+            "id": "load",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": -20,
+              "z": -20
+            }
+          },
+          {
+            "id": "load-2",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": -20,
+              "z": -40
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "USAGE",
+            "frontMm": 50,
+            "reason": "Manœuvre de la commande"
+          },
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 500,
+            "reason": "Approche pour atteindre la commande"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "poleCount",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "electrical.switch"
+            }
+          ],
+          "planFootprint": "SYMBOL_ONLY",
+          "layer": "electrical.controls"
+        },
+        "properties": {
+          "ratedCurrentA": 10,
+          "nominalVoltageV": 230,
+          "poleCount": 1,
+          "name": "Interrupteur va-et-vient"
+        }
+      },
+      {
+        "id": "generic-wood-stove-8kw",
+        "familyId": "WOOD_STOVE",
+        "kind": "STOVE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Poêle à bûches 8 kW",
+        "category": "STOVE",
+        "dimensions": {
+          "widthMm": 600,
+          "depthMm": 500,
+          "heightMm": 1000
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "COMBUSTIBLE_CLEARANCE",
+          "FIRE",
+          "THERMAL"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "flue-outlet",
+            "portTypeId": "FLUE_GAS",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 500
+            }
+          },
+          {
+            "id": "air-inlet",
+            "portTypeId": "COMBUSTION_AIR",
+            "position": {
+              "x": 0,
+              "y": 250,
+              "z": -400
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "COMBUSTIBLE_CLEARANCE",
+            "backMm": 200,
+            "leftMm": 300,
+            "rightMm": 300,
+            "reason": "Distance aux parois combustibles autour d’un foyer fermé"
+          },
+          {
+            "zone": "FIRE",
+            "frontMm": 500,
+            "reason": "Plaque de sol devant la porte, contre les projections de braises"
+          },
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 800,
+            "reason": "Chargement du foyer et décendrage par l’avant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalOutputW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "efficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "fuel",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "flueDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "combustionAirFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalOutputW": 8000,
+          "efficiency": 0.78,
+          "fuel": "WOOD_LOG",
+          "flueDiameterMm": 150,
+          "combustionAirFlowM3h": 25,
+          "name": "Poêle à bûches 8 kW"
+        }
+      },
+      {
+        "id": "generic-pellet-stove-8kw",
+        "familyId": "PELLET_STOVE",
+        "kind": "STOVE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Poêle à granulés 8 kW",
+        "category": "STOVE",
+        "dimensions": {
+          "widthMm": 550,
+          "depthMm": 550,
+          "heightMm": 1100
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "COMBUSTIBLE_CLEARANCE",
+          "FIRE",
+          "THERMAL"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "flue-outlet",
+            "portTypeId": "FLUE_GAS",
+            "position": {
+              "x": 0,
+              "y": 275,
+              "z": 400
+            }
+          },
+          {
+            "id": "air-inlet",
+            "portTypeId": "COMBUSTION_AIR",
+            "position": {
+              "x": 0,
+              "y": 275,
+              "z": -450
+            }
+          },
+          {
+            "id": "supply",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 275,
+              "z": -500
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "COMBUSTIBLE_CLEARANCE",
+            "backMm": 100,
+            "leftMm": 200,
+            "rightMm": 200,
+            "reason": "Distance aux parois combustibles autour d’un appareil étanche"
+          },
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 700,
+            "aboveMm": 300,
+            "reason": "Remplissage de la trémie et nettoyage du creuset"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalOutputW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "efficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "fuel",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "flueDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "combustionAirFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalOutputW": 8000,
+          "efficiency": 0.9,
+          "fuel": "WOOD_PELLET",
+          "flueDiameterMm": 80,
+          "combustionAirFlowM3h": 20,
+          "name": "Poêle à granulés 8 kW"
+        }
+      },
+      {
+        "id": "generic-wood-insert-10kw",
+        "familyId": "WOOD_INSERT",
+        "kind": "STOVE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Insert bois 10 kW",
+        "category": "STOVE",
+        "dimensions": {
+          "widthMm": 800,
+          "depthMm": 500,
+          "heightMm": 650
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "COMBUSTIBLE_CLEARANCE",
+          "FIRE",
+          "THERMAL"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "flue-outlet",
+            "portTypeId": "FLUE_GAS",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 325
+            }
+          },
+          {
+            "id": "air-inlet",
+            "portTypeId": "COMBUSTION_AIR",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -325
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "COMBUSTIBLE_CLEARANCE",
+            "backMm": 100,
+            "leftMm": 100,
+            "rightMm": 100,
+            "aboveMm": 200,
+            "reason": "Habillage : distance de l’âtre aux matériaux combustibles"
+          },
+          {
+            "zone": "FIRE",
+            "frontMm": 500,
+            "reason": "Plaque de sol devant la porte, contre les projections de braises"
+          },
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 800,
+            "reason": "Chargement et décendrage par l’avant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalOutputW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "efficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "fuel",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "flueDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "combustionAirFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalOutputW": 10000,
+          "efficiency": 0.75,
+          "fuel": "WOOD_LOG",
+          "flueDiameterMm": 180,
+          "combustionAirFlowM3h": 35,
+          "name": "Insert bois 10 kW"
+        }
+      },
+      {
+        "id": "generic-chimney-terminal-150",
+        "familyId": "CHIMNEY_TERMINAL",
+        "kind": "FLUE_COMPONENT",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Sortie de toit Ø 150",
+        "category": "FLUE_COMPONENT",
+        "dimensions": {
+          "widthMm": 400,
+          "depthMm": 400,
+          "heightMm": 900
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "ROOF"
+        ],
+        "requiredClearances": [
+          "COMBUSTIBLE_CLEARANCE",
+          "FIRE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "flue-inlet",
+            "portTypeId": "FLUE_GAS_INLET",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -450
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "FIRE",
+            "aboveMm": 400,
+            "reason": "Débouché au-dessus du faîtage et des matériaux combustibles voisins"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "innerDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "innerDiameterMm": 150,
+          "name": "Sortie de toit Ø 150"
+        }
+      },
+      {
+        "id": "generic-room-thermostat",
+        "familyId": "ROOM_THERMOSTAT",
+        "kind": "CONTROL_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Thermostat d’ambiance",
+        "category": "CONTROL_DEVICE",
+        "dimensions": {
+          "widthMm": 86,
+          "depthMm": 30,
+          "heightMm": 86
+        },
+        "allowedHosts": [
+          "SLAB",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "control",
+            "portTypeId": "CONTROL",
+            "position": {
+              "x": 0,
+              "y": -15,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 200,
+            "reason": "Accès frontal au boîtier et à ses piles"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "minimumSetPointC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maximumSetPointC",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "heating.controls"
+        },
+        "properties": {
+          "minimumSetPointC": 5,
+          "maximumSetPointC": 30,
+          "name": "Thermostat d’ambiance"
+        }
+      },
+      {
+        "id": "generic-heating-manifold",
+        "familyId": "HEATING_MANIFOLD",
+        "kind": "FITTING",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Collecteur de chauffage 3 départs",
+        "category": "FITTING",
+        "dimensions": {
+          "widthMm": 500,
+          "depthMm": 80,
+          "heightMm": 160
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "primary-in",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": -250,
+              "y": 0,
+              "z": 40
+            }
+          },
+          {
+            "id": "primary-out",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": -250,
+              "y": 0,
+              "z": -40
+            }
+          },
+          {
+            "id": "branch-1-flow",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": -100,
+              "y": 0,
+              "z": 80
+            }
+          },
+          {
+            "id": "branch-2-flow",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 80
+            }
+          },
+          {
+            "id": "branch-3-flow",
+            "portTypeId": "HEATING_FLOW",
+            "position": {
+              "x": 100,
+              "y": 0,
+              "z": 80
+            }
+          },
+          {
+            "id": "branch-1-return",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": -100,
+              "y": 0,
+              "z": -80
+            }
+          },
+          {
+            "id": "branch-2-return",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -80
+            }
+          },
+          {
+            "id": "branch-3-return",
+            "portTypeId": "HEATING_RETURN",
+            "position": {
+              "x": 100,
+              "y": 0,
+              "z": -80
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 500,
+            "reason": "Manœuvre des vannes de départ et purge du collecteur"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "maximumFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "heating.distribution"
+        },
+        "properties": {
+          "maximumFlowM3h": 3.5,
+          "name": "Collecteur de chauffage 3 départs"
+        }
+      },
+      {
+        "id": "generic-downlight",
+        "familyId": "DOWNLIGHT",
+        "kind": "LUMINAIRE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Spot encastré LED",
+        "category": "LUMINAIRE",
+        "dimensions": {
+          "widthMm": 85,
+          "depthMm": 85,
+          "heightMm": 55
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 27.5
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "aboveMm": 150,
+            "reason": "Volume libre au-dessus de l’encastrement pour le driver et sa dissipation"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "luminousFluxLm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "electricalPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "colorTemperatureK",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "cri",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "beamAngle",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "powerFactor",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ipRating",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-luminaire"
+            }
+          ],
+          "planFootprint": "CIRCLE",
+          "layer": "electrical.lighting"
+        },
+        "properties": {
+          "luminousFluxLm": 800,
+          "electricalPowerW": 8,
+          "colorTemperatureK": 3000,
+          "cri": 80,
+          "beamAngle": 60,
+          "powerFactor": 0.9,
+          "ipRating": "IP20",
+          "name": "Spot encastré LED"
+        }
+      },
+      {
+        "id": "generic-pendant",
+        "familyId": "PENDANT",
+        "kind": "LUMINAIRE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Suspension",
+        "category": "LUMINAIRE",
+        "dimensions": {
+          "widthMm": 300,
+          "depthMm": 300,
+          "heightMm": 400
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 200
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "belowMm": 300,
+            "reason": "Dépose du luminaire depuis le dessous"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "luminousFluxLm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "electricalPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "colorTemperatureK",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "cri",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-luminaire"
+            }
+          ],
+          "planFootprint": "CIRCLE",
+          "layer": "electrical.lighting"
+        },
+        "properties": {
+          "luminousFluxLm": 1000,
+          "electricalPowerW": 10,
+          "colorTemperatureK": 2700,
+          "cri": 80,
+          "name": "Suspension"
+        }
+      },
+      {
+        "id": "generic-wall-light",
+        "familyId": "WALL_LIGHT",
+        "kind": "LUMINAIRE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Applique murale LED",
+        "category": "LUMINAIRE",
+        "dimensions": {
+          "widthMm": 200,
+          "depthMm": 100,
+          "heightMm": 250
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "power",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 125
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 300,
+            "reason": "Dépose de la vasque et de la platine"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "luminousFluxLm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "electricalPowerW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "colorTemperatureK",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "cri",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ipRating",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-luminaire"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.lighting"
+        },
+        "properties": {
+          "luminousFluxLm": 600,
+          "electricalPowerW": 7,
+          "colorTemperatureK": 3000,
+          "cri": 80,
+          "ipRating": "IP20",
+          "name": "Applique murale LED"
+        }
+      },
+      {
+        "id": "generic-gutter-dn125",
+        "familyId": "GUTTER",
+        "kind": "RAINWATER_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Gouttière demi-ronde DN 125",
+        "category": "RAINWATER_DEVICE",
+        "dimensions": {
+          "widthMm": 6000,
+          "depthMm": 125,
+          "heightMm": 125
+        },
+        "allowedHosts": [
+          "ROOF",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "in",
+            "portTypeId": "RAINWATER_IN",
+            "position": {
+              "x": -3000,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "out",
+            "portTypeId": "RAINWATER_OUT",
+            "position": {
+              "x": 3000,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès à l’appareil et à ses raccordements"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalDiameterMm": 125,
+          "name": "Gouttière demi-ronde DN 125"
+        }
+      },
+      {
+        "id": "generic-downpipe-dn100",
+        "familyId": "DOWNPIPE",
+        "kind": "RAINWATER_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Descente DN 100",
+        "category": "RAINWATER_DEVICE",
+        "dimensions": {
+          "widthMm": 110,
+          "depthMm": 110,
+          "heightMm": 3000
+        },
+        "allowedHosts": [
+          "ROOF",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "in",
+            "portTypeId": "RAINWATER_IN",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1500
+            }
+          },
+          {
+            "id": "out",
+            "portTypeId": "RAINWATER_OUT",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -1500
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès à l’appareil et à ses raccordements"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalDiameterMm": 100,
+          "name": "Descente DN 100"
+        }
+      },
+      {
+        "id": "generic-rain-filter",
+        "familyId": "RAIN_FILTER",
+        "kind": "RAINWATER_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Filtre à eaux pluviales",
+        "category": "RAINWATER_DEVICE",
+        "dimensions": {
+          "widthMm": 300,
+          "depthMm": 300,
+          "heightMm": 400
+        },
+        "allowedHosts": [
+          "ROOF",
+          "WALL",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "in",
+            "portTypeId": "RAINWATER_IN",
+            "position": {
+              "x": -150,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "out",
+            "portTypeId": "RAINWATER_OUT",
+            "position": {
+              "x": 150,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès à l’appareil et à ses raccordements"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalDiameterMm": 100,
+          "name": "Filtre à eaux pluviales"
+        }
+      },
+      {
+        "id": "generic-smoke-alarm",
+        "familyId": "SMOKE_DETECTOR",
+        "kind": "SENSOR",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Détecteur avertisseur autonome de fumée",
+        "category": "SENSOR",
+        "dimensions": {
+          "widthMm": 110,
+          "depthMm": 40,
+          "heightMm": 110
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "detectionType",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "coverageM2",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "CIRCLE"
+        },
+        "properties": {
+          "detectionType": "SMOKE_OPTICAL",
+          "coverageM2": 50,
+          "name": "Détecteur avertisseur autonome de fumée"
+        }
+      },
+      {
+        "id": "generic-co-alarm",
+        "familyId": "CO_DETECTOR",
+        "kind": "SENSOR",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Détecteur de monoxyde de carbone",
+        "category": "SENSOR",
+        "dimensions": {
+          "widthMm": 100,
+          "depthMm": 40,
+          "heightMm": 100
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "detectionType",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "CIRCLE"
+        },
+        "properties": {
+          "detectionType": "CO",
+          "name": "Détecteur de monoxyde de carbone"
+        }
+      },
+      {
+        "id": "generic-water-extinguisher-6l",
+        "familyId": "EXTINGUISHER",
+        "kind": "SAFETY_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Extincteur à eau pulvérisée 6 L",
+        "category": "SAFETY_DEVICE",
+        "dimensions": {
+          "widthMm": 180,
+          "depthMm": 180,
+          "heightMm": 550
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "clearances": [
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 600,
+            "reason": "Prise en main immédiate de l’appareil"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "capacityL",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "material",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "CIRCLE"
+        },
+        "properties": {
+          "capacityL": 6,
+          "material": "Acier",
+          "name": "Extincteur à eau pulvérisée 6 L"
+        }
+      },
+      {
+        "id": "generic-alarm-panel",
+        "familyId": "ALARM_PANEL",
+        "kind": "SAFETY_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Centrale d’alarme",
+        "category": "SAFETY_DEVICE",
+        "dimensions": {
+          "widthMm": 300,
+          "depthMm": 80,
+          "heightMm": 250
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "ACCESSIBILITY"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "supply",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -125
+            }
+          },
+          {
+            "id": "radio",
+            "portTypeId": "WIRELESS",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "ACCESSIBILITY",
+            "frontMm": 700,
+            "reason": "Accès au clavier et remplacement de la batterie"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "batteryBackupHours",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "batteryBackupHours": 24,
+          "name": "Centrale d’alarme"
+        }
+      },
+      {
+        "id": "generic-dc-combiner",
+        "familyId": "DC_COMBINER",
+        "kind": "DISTRIBUTION_BOARD",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Coffret de regroupement continu",
+        "category": "DISTRIBUTION_BOARD",
+        "dimensions": {
+          "widthMm": 300,
+          "depthMm": 130,
+          "heightMm": 400
+        },
+        "allowedHosts": [
+          "ROOF",
+          "SITE",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "string-1",
+            "portTypeId": "PV_DC_INPUT",
+            "position": {
+              "x": -120,
+              "y": 0,
+              "z": -200
+            }
+          },
+          {
+            "id": "string-2",
+            "portTypeId": "PV_DC_INPUT",
+            "position": {
+              "x": -60,
+              "y": 0,
+              "z": -200
+            }
+          },
+          {
+            "id": "dc-out",
+            "portTypeId": "PV_DC",
+            "position": {
+              "x": 90,
+              "y": 0,
+              "z": -200
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 140,
+              "y": 0,
+              "z": -200
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 700,
+            "reason": "Ouverture de la porte et intervention sur les appareils modulaires"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-distribution-board"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.equipment"
+        },
+        "properties": {
+          "nominalVoltageV": 1000,
+          "ratedCurrentA": 32,
+          "name": "Coffret de regroupement continu"
+        }
+      },
+      {
+        "id": "generic-production-meter",
+        "familyId": "PRODUCTION_METER",
+        "kind": "METER",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Compteur de production",
+        "category": "METER",
+        "dimensions": {
+          "widthMm": 72,
+          "depthMm": 65,
+          "heightMm": 130
+        },
+        "allowedHosts": [
+          "ROOF",
+          "SITE",
+          "WALL"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "ac-in",
+            "portTypeId": "ELECTRICAL_AC_INPUT",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 65
+            }
+          },
+          {
+            "id": "ac-out",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -65
+            }
+          },
+          {
+            "id": "control",
+            "portTypeId": "CONTROL",
+            "position": {
+              "x": 36,
+              "y": 0,
+              "z": -65
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 300,
+            "reason": "Lecture de l’index et accès au bornier"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalVoltageV",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.equipment"
+        },
+        "properties": {
+          "nominalVoltageV": 230,
+          "ratedCurrentA": 63,
+          "name": "Compteur de production"
+        }
+      },
+      {
+        "id": "generic-battery-inverter",
+        "familyId": "BATTERY_INVERTER",
+        "kind": "INVERTER",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Onduleur de batterie",
+        "category": "INVERTER",
+        "dimensions": {
+          "widthMm": 450,
+          "depthMm": 200,
+          "heightMm": 600
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "THERMAL",
+          "FIRE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "dc",
+            "portTypeId": "BATTERY_DC",
+            "position": {
+              "x": -150,
+              "y": 0,
+              "z": -300
+            }
+          },
+          {
+            "id": "ac",
+            "portTypeId": "ELECTRICAL_AC",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -300
+            }
+          },
+          {
+            "id": "control",
+            "portTypeId": "CONTROL",
+            "position": {
+              "x": 150,
+              "y": 0,
+              "z": -300
+            }
+          },
+          {
+            "id": "earth",
+            "portTypeId": "EARTH",
+            "position": {
+              "x": 195,
+              "y": 0,
+              "z": -300
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "aboveMm": 300,
+            "belowMm": 300,
+            "reason": "Accès aux bornes continues et alternatives"
+          },
+          {
+            "zone": "THERMAL",
+            "leftMm": 200,
+            "rightMm": 200,
+            "reason": "Ventilation du dissipateur"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "maxChargePowerKW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "maxDischargePowerKW",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "chargeEfficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeEfficiency",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "ELECTRICAL",
+              "symbolId": "symbol-inverter"
+            }
+          ],
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.equipment"
+        },
+        "properties": {
+          "maxChargePowerKW": 5,
+          "maxDischargePowerKW": 5,
+          "chargeEfficiency": 0.96,
+          "dischargeEfficiency": 0.96,
+          "name": "Onduleur de batterie"
+        }
+      },
+      {
+        "id": "generic-battery-isolator",
+        "familyId": "BATTERY_ISOLATOR",
+        "kind": "PROTECTION_DEVICE",
+        "catalogKind": "GENERIC",
+        "version": "1.1.0",
+        "name": "Sectionneur batterie",
+        "category": "PROTECTION_DEVICE",
+        "dimensions": {
+          "widthMm": 110,
+          "depthMm": 90,
+          "heightMm": 160
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "THERMAL",
+          "FIRE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "dc-in",
+            "portTypeId": "BATTERY_DC_INPUT",
+            "position": {
+              "x": -55,
+              "y": 0,
+              "z": -80
+            }
+          },
+          {
+            "id": "dc-out",
+            "portTypeId": "BATTERY_DC",
+            "position": {
+              "x": 55,
+              "y": 0,
+              "z": -80
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 500,
+            "reason": "Manœuvre de la poignée et consignation du stockage"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "ratedCurrentA",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE",
+          "layer": "electrical.equipment"
+        },
+        "properties": {
+          "ratedCurrentA": 125,
+          "name": "Sectionneur batterie"
+        }
+      },
+      {
+        "id": "generic-self-regulating-air-inlet",
+        "familyId": "AIR_INLET",
+        "kind": "AIR_TERMINAL",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Entrée d’air autoréglable",
+        "category": "AIR_TERMINAL",
+        "dimensions": {
+          "widthMm": 350,
+          "depthMm": 30,
+          "heightMm": 40
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL",
+          "SLAB",
+          "ROOF"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "AIR_INTAKE",
+          "AIR_EXHAUST"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 150,
+            "reason": "Dépose du module en traverse haute pour nettoyage"
+          },
+          {
+            "zone": "AIR_INTAKE",
+            "frontMm": 300,
+            "reason": "Veine d’air neuf en façade, sans obstacle devant le module"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "targetFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "pressureDropPa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "airRole",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "VENTILATION",
+              "symbolId": "symbol-air-terminal"
+            }
+          ],
+          "planFootprint": "CIRCLE",
+          "layer": "ventilation.terminals"
+        },
+        "properties": {
+          "targetFlowM3h": 30,
+          "pressureDropPa": 20,
+          "airRole": "SUPPLY",
+          "name": "Entrée d’air autoréglable"
+        }
+      },
+      {
+        "id": "generic-roof-exhaust-terminal",
+        "familyId": "EXHAUST_TERMINAL",
+        "kind": "AIR_TERMINAL",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Rejet en toiture",
+        "category": "AIR_TERMINAL",
+        "dimensions": {
+          "widthMm": 300,
+          "depthMm": 300,
+          "heightMm": 400
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL",
+          "SLAB",
+          "ROOF"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "AIR_INTAKE",
+          "AIR_EXHAUST"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "inlet",
+            "portTypeId": "AIR_EXHAUST_OUTLET",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -200
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 500,
+            "reason": "Dépose du chapeau et contrôle de l’étanchéité de la costière"
+          },
+          {
+            "zone": "AIR_EXHAUST",
+            "aboveMm": 1000,
+            "reason": "Rejet vertical dégagé, à l’écart de toute prise d’air"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "designFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "pressureDropPa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "airRole",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "VENTILATION",
+              "symbolId": "symbol-air-terminal"
+            }
+          ],
+          "planFootprint": "CIRCLE",
+          "layer": "ventilation.terminals"
+        },
+        "properties": {
+          "designFlowM3h": 250,
+          "pressureDropPa": 30,
+          "airRole": "EXHAUST",
+          "name": "Rejet en toiture"
+        }
+      },
+      {
+        "id": "generic-supply-terminal",
+        "familyId": "SUPPLY_TERMINAL",
+        "kind": "AIR_TERMINAL",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Bouche de soufflage",
+        "category": "AIR_TERMINAL",
+        "dimensions": {
+          "widthMm": 125,
+          "depthMm": 125,
+          "heightMm": 60
+        },
+        "allowedHosts": [
+          "CEILING",
+          "WALL",
+          "SLAB",
+          "ROOF"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE",
+          "AIR_INTAKE",
+          "AIR_EXHAUST"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "duct",
+            "portTypeId": "AIR_SUPPLY_INLET",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -30
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 200,
+            "reason": "Dépose et nettoyage de la bouche"
+          },
+          {
+            "zone": "AIR_EXHAUST",
+            "frontMm": 300,
+            "reason": "Veine de soufflage vers la pièce, sans meuble devant"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "targetFlowM3h",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "pressureDropPa",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "airRole",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "symbols": [
+            {
+              "discipline": "VENTILATION",
+              "symbolId": "symbol-air-terminal"
+            }
+          ],
+          "planFootprint": "CIRCLE",
+          "layer": "ventilation.terminals"
+        },
+        "properties": {
+          "targetFlowM3h": 30,
+          "pressureDropPa": 40,
+          "airRole": "SUPPLY",
+          "name": "Bouche de soufflage"
+        }
+      },
+      {
+        "id": "generic-trap-dn40",
+        "familyId": "TRAP",
+        "kind": "DRAINAGE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Siphon DN 40",
+        "category": "DRAINAGE",
+        "dimensions": {
+          "widthMm": 120,
+          "depthMm": 120,
+          "heightMm": 200
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "in",
+            "portTypeId": "WASTEWATER_INLET",
+            "position": {
+              "x": -60,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "out",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 60,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès à l’appareil et à ses raccordements"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalDiameterMm": 40,
+          "dischargeUnits": 1,
+          "name": "Siphon DN 40"
+        }
+      },
+      {
+        "id": "generic-waste-stack-dn100",
+        "familyId": "WASTE_STACK",
+        "kind": "DRAINAGE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Chute eaux usées DN 100",
+        "category": "DRAINAGE",
+        "dimensions": {
+          "widthMm": 110,
+          "depthMm": 110,
+          "heightMm": 3000
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "in",
+            "portTypeId": "WASTEWATER_INLET",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1500
+            }
+          },
+          {
+            "id": "out",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -1500
+            }
+          },
+          {
+            "id": "vent",
+            "portTypeId": "DRAIN_VENT",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1500
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès à l’appareil et à ses raccordements"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "dischargeUnits",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalDiameterMm": 100,
+          "dischargeUnits": 20,
+          "name": "Chute eaux usées DN 100"
+        }
+      },
+      {
+        "id": "generic-vent-stack-dn100",
+        "familyId": "VENT_STACK",
+        "kind": "DRAINAGE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Ventilation primaire DN 100",
+        "category": "DRAINAGE",
+        "dimensions": {
+          "widthMm": 110,
+          "depthMm": 110,
+          "heightMm": 2000
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "vent",
+            "portTypeId": "DRAIN_VENT",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1000
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès à l’appareil et à ses raccordements"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalDiameterMm": 100,
+          "name": "Ventilation primaire DN 100"
+        }
+      },
+      {
+        "id": "generic-inspection-chamber",
+        "familyId": "INSPECTION_CHAMBER",
+        "kind": "DRAINAGE",
+        "catalogKind": "GENERIC",
+        "version": "1.0.0",
+        "name": "Regard de visite 400 × 400",
+        "category": "DRAINAGE",
+        "dimensions": {
+          "widthMm": 400,
+          "depthMm": 400,
+          "heightMm": 600
+        },
+        "allowedHosts": [
+          "WALL",
+          "SLAB",
+          "SITE"
+        ],
+        "requiredClearances": [
+          "MAINTENANCE"
+        ],
+        "capabilities": [
+          "PLACEABLE",
+          "CONNECTABLE",
+          "CLEARANCE_ZONED",
+          "CALCULATED"
+        ],
+        "ports": [
+          {
+            "id": "in",
+            "portTypeId": "WASTEWATER_INLET",
+            "position": {
+              "x": -200,
+              "y": 0,
+              "z": 0
+            }
+          },
+          {
+            "id": "out",
+            "portTypeId": "WASTEWATER",
+            "position": {
+              "x": 200,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ],
+        "clearances": [
+          {
+            "zone": "MAINTENANCE",
+            "frontMm": 600,
+            "reason": "Accès à l’appareil et à ses raccordements"
+          }
+        ],
+        "provenance": {
+          "type": "GENERIC",
+          "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+        },
+        "sources": [
+          {
+            "property": "nominalDiameterMm",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          },
+          {
+            "property": "minimumSlope",
+            "sourceType": "GENERIC",
+            "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
+          }
+        ],
+        "rendering": {
+          "planFootprint": "RECTANGLE"
+        },
+        "properties": {
+          "nominalDiameterMm": 100,
+          "minimumSlope": 0.01,
+          "name": "Regard de visite 400 × 400"
+        }
       }
     ],
     "systems": [
@@ -6212,7 +11544,7 @@
         "methodId": "co2-mass-balance-v1",
         "precisionTarget": "ENGINEERING",
         "settings": {
-          "co2GenerationM3sPerOccupant": 0.0000047,
+          "co2GenerationM3sPerOccupant": 4.7e-06,
           "initialConcentrationPpm": 500,
           "durationHours": 8,
           "occupantsByCategory": {

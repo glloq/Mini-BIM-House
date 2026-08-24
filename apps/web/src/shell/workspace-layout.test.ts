@@ -33,14 +33,23 @@ describe('the arrangement of the workspace', () => {
   });
 
   it('gives the drawing everything the panels do not take', () => {
+    // L'inspecteur part fermé : il paraît quand on désigne quelque chose, et
+    // au repos sa largeur est au dessin.
     expect(gridColumns(DEFAULT_LAYOUT)).toBe(
+      '220px 6px minmax(0, 1fr) 0px 0px',
+    );
+    expect(gridColumns({ ...DEFAULT_LAYOUT, inspectorShown: true })).toBe(
       '220px 6px minmax(0, 1fr) 6px 280px',
     );
     // A hidden panel takes nothing at all, its edge included, rather than
     // leaving a narrow strip of itself behind.
-    expect(gridColumns({ ...DEFAULT_LAYOUT, sidebarShown: false })).toBe(
-      '0px 0px minmax(0, 1fr) 6px 280px',
-    );
+    expect(
+      gridColumns({
+        ...DEFAULT_LAYOUT,
+        sidebarShown: false,
+        inspectorShown: true,
+      }),
+    ).toBe('0px 0px minmax(0, 1fr) 6px 280px');
   });
 
   it('finds the same arrangement in the next session', () => {

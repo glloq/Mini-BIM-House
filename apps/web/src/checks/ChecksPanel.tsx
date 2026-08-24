@@ -9,6 +9,7 @@ import {
   type CheckItem,
 } from './checks-model.js';
 import { evaluateRulePacks } from './rule-packs.js';
+import { studyFigures, studyLines } from './study-overview.js';
 import { RuleReportPanel } from '../RuleReportPanel.js';
 
 export interface ChecksPanelProps {
@@ -35,6 +36,18 @@ export function ChecksPanel({
   // a compliance verdict belongs beside the findings it has to be read with.
   const evaluations = useMemo(() => evaluateRulePacks(project), [project]);
   const summary = summarize(checks);
+  /*
+   * Ce que le bâtiment dessiné donne, avant ce qui ne va pas.
+   *
+   * La liste des constats répond à « qu'est-ce qui cloche » ; elle ne répond
+   * pas à « où en est ma maison ». Une ligne par métier en jeu, trois états, et
+   * les deux surfaces qu'on cite quand on parle d'une maison.
+   */
+  const lines = useMemo(
+    () => studyLines(project, checks, { ran: run !== undefined }),
+    [checks, project, run],
+  );
+  const figures = useMemo(() => studyFigures(project), [project]);
   const shown: readonly CheckItem[] = onlyFailures
     ? checks.filter(({ status }) => status === 'FAIL')
     : checks;
@@ -55,6 +68,42 @@ export function ChecksPanel({
           Afficher uniquement les écarts
         </label>
       </header>
+
+      <section className="study-overview" aria-label="Vue d’ensemble">
+        <ul className="study-lines">
+          {lines.map((line) => (
+            <li key={line.domain} className={`study-line ${line.state}`}>
+              <span className="study-line-label">{line.label}</span>
+              <span className="study-line-state">
+                {line.state === 'HELD' && '✓'}
+                {line.state === 'GAP' &&
+                  `⚠ ${line.gaps} point${line.gaps > 1 ? 's' : ''}`}
+                {line.state === 'AVAILABLE' && '● calcul disponible'}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <dl className="study-figures">
+          <div>
+            <dt>Surface habitable</dt>
+            <dd>{figures.livingAreaM2.toFixed(1).replace('.', ',')} m²</dd>
+          </div>
+          <div>
+            <dt>Emprise au sol</dt>
+            <dd>{figures.footprintM2.toFixed(1).replace('.', ',')} m²</dd>
+          </div>
+        </dl>
+        {summary.failures > 0 && (
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => setOnlyFailures(true)}
+          >
+            Voir les {summary.failures} point
+            {summary.failures > 1 ? 's' : ''} à vérifier
+          </button>
+        )}
+      </section>
 
       <div className="dashboard-cards" role="list">
         <div className="dashboard-card" role="listitem">

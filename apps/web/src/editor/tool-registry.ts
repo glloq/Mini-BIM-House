@@ -6,6 +6,7 @@ import type {
   SlabRole,
   StairType,
   StructuralMemberKind,
+  WallReferenceSide,
   WallRole,
 } from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
@@ -26,6 +27,7 @@ import {
   placeComponentCommand,
   punchSlabHoleCommand,
   joinWallsCommand,
+  mergeSpacesCommand,
   offsetWallCommand,
   splitWallCommand,
   transformObjectsCommand,
@@ -42,6 +44,8 @@ import {
   COMPONENT_CATEGORY_OPTIONS,
   DIMENSION_TYPE_OPTIONS,
   OPENING_TYPE_OPTIONS,
+  RECTANGLE_REFERENCE_OPTIONS,
+  REFERENCE_SIDE_OPTIONS,
   SLAB_ROLE_OPTIONS,
   SITE_OBSTACLE_OPTIONS,
   SPACE_CATEGORY_OPTIONS,
@@ -189,6 +193,14 @@ export interface EditorToolDefinition {
    */
   readonly drawsWalls?: true;
   /**
+   * Un outil qui lit et n'écrit rien.
+   *
+   * Mesurer une distance ne change pas la maison : il n'y a pas de commande à
+   * créer, pas d'annulation à empiler, et rien à valider. L'application dit ce
+   * qu'elle a mesuré et rend la main.
+   */
+  readonly reads?: true;
+  /**
    * Whether the tool keeps taking points until the user says it is finished.
    *
    * A wall between two points is two clicks and everyone knows when it ends. A
@@ -306,6 +318,14 @@ export const EDITOR_TOOLS = [
             ? 'PARTITION'
             : 'EXTERIOR',
       },
+      {
+        key: 'referenceSide',
+        kind: 'SELECT',
+        label: 'Référence',
+        hint: 'Ce que le tracé suit : l’axe du mur, ou l’une de ses faces.',
+        choices: () => REFERENCE_SIDE_OPTIONS,
+        fallback: () => 'CENTER',
+      },
     ],
     createCommand: (context) =>
       addWallCommand(
@@ -315,6 +335,7 @@ export const EDITOR_TOOLS = [
         {
           assemblyId: context.option('assemblyId'),
           role: context.option('role') as WallRole,
+          referenceSide: context.option('referenceSide') as WallReferenceSide,
         },
         context.newId('wall'),
       ),
@@ -363,6 +384,14 @@ export const EDITOR_TOOLS = [
             : 'EXTERIOR',
       },
       {
+        key: 'referenceSide',
+        kind: 'SELECT',
+        label: 'Référence',
+        hint: 'Ce que le tracé suit : l’axe du mur, ou l’une de ses faces.',
+        choices: () => REFERENCE_SIDE_OPTIONS,
+        fallback: () => 'CENTER',
+      },
+      {
         key: 'shape',
         kind: 'SELECT',
         label: 'Créer',
@@ -393,6 +422,7 @@ export const EDITOR_TOOLS = [
         {
           assemblyId: context.option('assemblyId'),
           role: context.option('role') as WallRole,
+          referenceSide: context.option('referenceSide') as WallReferenceSide,
         },
         {
           asOneWall: context.option('shape') === 'POLYLINE',
@@ -439,6 +469,20 @@ export const EDITOR_TOOLS = [
             ? 'PARTITION'
             : 'EXTERIOR',
       },
+      {
+        key: 'referenceSide',
+        kind: 'SELECT',
+        label: 'Référence',
+        /*
+         * Sur un rectangle fermé, le sens du tracé est connu : la face gauche
+         * est l'intérieur. C'est le seul cas où le mot « intérieur » peut être
+         * dit sans mentir — pour un mur isolé, lequel des deux côtés est
+         * dedans n'appartient pas au mur, il appartient à l'enceinte.
+         */
+        hint: 'Ce que les deux coins mesurent : l’axe des murs, ou l’intérieur.',
+        choices: () => RECTANGLE_REFERENCE_OPTIONS,
+        fallback: () => 'CENTER',
+      },
     ],
     createCommand: (context) =>
       addWallRectangleCommand(
@@ -448,6 +492,7 @@ export const EDITOR_TOOLS = [
         {
           assemblyId: context.option('assemblyId'),
           role: context.option('role') as WallRole,
+          referenceSide: context.option('referenceSide') as WallReferenceSide,
         },
         context.newId,
       ),
@@ -701,6 +746,19 @@ export const EDITOR_TOOLS = [
         ],
         fallback: () => 'POINTS',
       },
+      {
+        key: 'pans',
+        kind: 'SELECT',
+        label: 'Pans',
+        hint: 'Les pignons se posent sur les côtés les plus courts ; l’inspecteur les change ensuite un par un.',
+        choices: () => [
+          { value: '0', label: 'Tous les côtés' },
+          { value: '4', label: '4 pans' },
+          { value: '2', label: '2 pans' },
+          { value: '1', label: '1 pan' },
+        ],
+        fallback: () => '0',
+      },
     ],
     createCommand: (context) =>
       addRoofStructureCommand(
@@ -712,6 +770,9 @@ export const EDITOR_TOOLS = [
           slopeDeg: context.optionNumber('slopeDeg') ?? 35,
           overhangMm: context.optionNumber('overhangMm') ?? 400,
           fromWalls: context.option('outline') === 'WALLS',
+          ...(context.option('pans') === '0'
+            ? {}
+            : { pans: Number(context.option('pans')) as 1 | 2 | 4 }),
         },
         context.newId('roof'),
       ),
@@ -1279,6 +1340,39 @@ export const EDITOR_TOOLS = [
         newId: context.newId,
       });
     },
+  },
+  {
+    id: 'MERGE_SPACES',
+    // Une opération sur ce qui est déjà là, comme scinder et joindre : réunir
+    // deux pièces retire un mur, ce n'est pas dessiner une pièce de plus.
+    group: 'MODIFICATION',
+    label: 'Fusionner',
+    hint: 'Réunir deux pièces en retirant ce qui les sépare',
+    shortcutId: 'tool.mergeSpaces',
+    requiredPoints: 2,
+    createCommand: (context) => {
+      const [from, to] = context.points;
+      if (from === undefined || to === undefined)
+        return { status: 'ERROR', message: 'Deux points sont attendus.' };
+      return mergeSpacesCommand(
+        context.file,
+        context.levelId,
+        from,
+        to,
+        context.newId('space'),
+      );
+    },
+  },
+  {
+    id: 'MEASURE',
+    group: 'ANNOTATION',
+    label: 'Mesurer',
+    hint: 'Mesurer entre deux points, sans rien poser',
+    shortcutId: 'tool.measure',
+    requiredPoints: 2,
+    reads: true,
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
   },
   {
     id: 'DIMENSION',

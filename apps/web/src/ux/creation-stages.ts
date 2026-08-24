@@ -1,23 +1,29 @@
 /**
- * Ce que je suis en train de faire.
+ * Les sept parties d'une maison.
  *
- * Cinq espaces répondaient à « où je travaille » ; ils demandaient à
- * quelqu'un qui pose une prise de savoir d'avance qu'une prise se pose dans
- * « Systèmes ». Neuf étapes répondent à la question qu'on se pose vraiment en
- * dessinant une maison — je suis en train de faire le bâtiment, la structure,
- * les réseaux — et l'ordre dans lequel elles sont écrites est celui d'un
- * chantier.
+ * Cinq espaces répondaient à « où je travaille » ; neuf étapes ont répondu à
+ * « ce que je suis en train de faire », et deux d'entre elles demandaient
+ * encore de savoir d'avance où quelque chose se dessine : un poteau était dans
+ * Structure et pas dans Bâtiment, un panneau dans Énergie et pas dans
+ * Systèmes. Ce sont les deux qui ont fusionné.
  *
- * Une étape **filtre ce qui est proposé. Elle ne restreint jamais ce qui est
- * possible.** On peut revenir en arrière, sauter une étape, poser
- * l'électricité avant la toiture, reprendre un mur après avoir tracé les
- * réseaux. La recherche et la palette donnent accès à tout, depuis n'importe
- * où. Rien ici ne se « valide », rien ne se verrouille, et rien n'est écrit
- * dans le projet : l'étape active est un état d'écran.
+ * Sept, parce que sept est le nombre de parties qu'une maison a quand on la
+ * décrit à quelqu'un : le projet, le terrain, le bâti, ce qu'on met dedans, ce
+ * qui circule dans les murs, ce qu'on vérifie, ce qu'on sort. Aucun huitième
+ * onglet ne sera ajouté ; une fonction nouvelle trouve sa sous-partie.
+ *
+ * Un espace **filtre ce qui est proposé. Il ne restreint jamais ce qui est
+ * possible.** On peut revenir en arrière, en sauter un, poser l'électricité
+ * avant la toiture, reprendre un mur après avoir tracé les réseaux. La
+ * recherche et la palette donnent accès à tout, depuis n'importe où. Rien ici
+ * ne se « valide », rien ne se verrouille, et rien n'est écrit dans le
+ * projet : l'espace actif est un état d'écran.
  *
  * À ne pas confondre avec les dix `WorkflowGroup` de `workflow-steps.ts` :
  * ceux-là disent **ce qu'il reste à faire**, dérivé du modèle. Les deux sont
  * reliés par `groups`, et ne fusionnent pas.
+ *
+ * Voir `docs/UX_ARCHITECTURE_V4.md` §1.
  */
 import type { DesignDomainId } from '@house-technical-designer/core-domain';
 
@@ -28,10 +34,8 @@ export const CREATION_STAGES = [
   'PROJECT',
   'SITE',
   'BUILDING',
-  'STRUCTURE',
   'FITTING',
   'SYSTEMS',
-  'ENERGY',
   'CHECKS',
   'DOCUMENTS',
 ] as const;
@@ -112,9 +116,10 @@ const STAGE_DEFINITIONS = {
     id: 'BUILDING',
     label: 'Bâtiment',
     shortcut: 'B',
-    description: 'Les murs, les pièces, les ouvertures, la toiture.',
-    groups: ['BUILDING', 'ARCHITECTURE'],
-    domains: ['ARCHITECTURE'],
+    description:
+      'Les murs, les pièces, les ouvertures, la toiture, ce qui porte.',
+    groups: ['BUILDING', 'ARCHITECTURE', 'CONSTRUCTION'],
+    domains: ['ARCHITECTURE', 'STRUCTURE'],
     sections: [
       { id: 'building.levels', label: 'Niveaux' },
       { id: 'building.walls', label: 'Murs' },
@@ -123,24 +128,10 @@ const STAGE_DEFINITIONS = {
       { id: 'building.slabs', label: 'Dalles' },
       { id: 'building.stairs', label: 'Escaliers' },
       { id: 'building.roof', label: 'Toiture' },
+      { id: 'structure.frame', label: 'Structure', domain: 'STRUCTURE' },
     ],
     destinations: ['plan'],
     libraries: ['materials', 'assemblies', 'openings'],
-  },
-  STRUCTURE: {
-    id: 'STRUCTURE',
-    label: 'Structure',
-    shortcut: 'R',
-    description: 'Ce qui porte : murs porteurs, poteaux, poutres, trémies.',
-    groups: ['CONSTRUCTION'],
-    domains: ['STRUCTURE'],
-    sections: [
-      { id: 'structure.bearing', label: 'Porteurs' },
-      { id: 'structure.columns', label: 'Poteaux' },
-      { id: 'structure.beams', label: 'Poutres' },
-      { id: 'structure.holes', label: 'Trémies' },
-    ],
-    destinations: ['plan'],
   },
   FITTING: {
     id: 'FITTING',
@@ -158,7 +149,7 @@ const STAGE_DEFINITIONS = {
     label: 'Systèmes',
     shortcut: 'S',
     description: 'Le même plan, lu par une discipline technique à la fois.',
-    groups: ['TECHNICAL'],
+    groups: ['TECHNICAL', 'ENERGY'],
     domains: [
       'PLUMBING',
       'WASTEWATER',
@@ -167,9 +158,11 @@ const STAGE_DEFINITIONS = {
       'VENTILATION',
       'ELECTRICAL',
       'LIGHTING',
-      'FLUE',
       'DATA',
       'SAFETY',
+      'FLUE',
+      'SOLAR',
+      'STORAGE',
     ],
     sections: [
       { id: 'systems.water', label: 'Eau', domain: 'PLUMBING' },
@@ -179,36 +172,26 @@ const STAGE_DEFINITIONS = {
       { id: 'systems.air', label: 'Ventilation', domain: 'VENTILATION' },
       { id: 'systems.power', label: 'Électricité', domain: 'ELECTRICAL' },
       { id: 'systems.light', label: 'Éclairage', domain: 'LIGHTING' },
-      { id: 'systems.flue', label: 'Conduits de fumée', domain: 'FLUE' },
       { id: 'systems.data', label: 'Courants faibles', domain: 'DATA' },
       { id: 'systems.safety', label: 'Sécurité', domain: 'SAFETY' },
+      { id: 'systems.flue', label: 'Conduits de fumée', domain: 'FLUE' },
+      { id: 'systems.solar', label: 'Solaire', domain: 'SOLAR' },
+      { id: 'systems.storage', label: 'Stockage', domain: 'STORAGE' },
     ],
     destinations: ['plan', 'networks'],
   },
-  ENERGY: {
-    id: 'ENERGY',
-    label: 'Énergie',
-    shortcut: 'E',
-    description: 'Le photovoltaïque, le stockage, le bilan.',
-    groups: ['ENERGY'],
-    domains: ['SOLAR', 'STORAGE'],
-    sections: [
-      { id: 'energy.solar', label: 'Solaire', domain: 'SOLAR' },
-      { id: 'energy.storage', label: 'Stockage', domain: 'STORAGE' },
-      { id: 'energy.balance', label: 'Bilan' },
-    ],
-    destinations: ['plan', 'calculations'],
-  },
   CHECKS: {
     id: 'CHECKS',
-    label: 'Vérifier',
-    shortcut: 'V',
+    label: 'Études',
+    shortcut: 'E',
     description:
-      'Ce que le bâtiment dessiné donne : calculs, quantités, écarts.',
+      'Ce que le bâtiment dessiné donne : vérifications, calculs, quantités.',
     groups: ['CHECKS'],
     domains: [],
     sections: [],
-    destinations: ['plan', 'checks', 'calculations', 'quantities', 'scenarios'],
+    // La vue d'ensemble d'abord : cet onglet lit le bâtiment, il ne le dessine
+    // pas. Le plan reste au bout, parce qu'un écart s'ouvre sur son objet.
+    destinations: ['checks', 'calculations', 'quantities', 'scenarios', 'plan'],
   },
   DOCUMENTS: {
     id: 'DOCUMENTS',

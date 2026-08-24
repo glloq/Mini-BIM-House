@@ -8,7 +8,7 @@ import {
   type ScenePrimitive,
 } from '@house-technical-designer/drawing-engine';
 import { findSnap, modelToScreen } from '@house-technical-designer/editor-core';
-import type { Segment2D } from '@house-technical-designer/geometry';
+import type { Point2D, Segment2D } from '@house-technical-designer/geometry';
 import type { AnalysisOverlay } from '@house-technical-designer/calculation-core';
 import {
   clearancePrimitives,
@@ -30,6 +30,13 @@ import { editsFor, familyOf, gripsFor } from './object-editors.js';
 import { pickToleranceMm } from './pick-tolerance.js';
 import { DynamicInput } from './DynamicInput.js';
 import { TemporaryDimensions } from './TemporaryDimensions.js';
+import {
+  areaLabel,
+  measureLabel,
+  roomLabels,
+  roomMeasures,
+} from './room-labels.js';
+import { runSlopes, slopeLabel } from './run-slopes.js';
 import { TEMPORARY_EDIT_IDS } from './temporary-edits.js';
 import { draftedMeasures } from './typed-values.js';
 import { carriedGeometry } from './ghost-geometry.js';
@@ -121,6 +128,13 @@ export interface PlanCanvasProps {
   readonly overlay?: AnalysisOverlay;
   /** Which groups of clearance zones the user has asked to see. */
   readonly clearanceGroups?: readonly ClearanceGroupId[];
+  /**
+   * Créer la pièce d'un contour fermé qui n'en porte pas.
+   *
+   * Le geste appartient à la coque, qui sait dispatcher une commande ; ce que
+   * le canvas apporte est l'endroit — le contour qu'on désigne.
+   */
+  readonly onCreateRoom?: (at: Point2D) => void;
 }
 
 /** Segments the snap engine considers: every wall axis on the level. */
@@ -157,6 +171,7 @@ export function PlanCanvas({
   onEditGeometry,
   onMoveSelection,
   onCommand,
+  onCreateRoom,
   onObjectMenu,
   selectableFamily,
   graphicProfileId,
@@ -479,6 +494,62 @@ export function PlanCanvas({
   const segments = useMemo(
     () => snapSegments(project, editor.levelId),
     [project, editor.levelId],
+  );
+
+  /*
+   * Ce que chaque contour fermé porte, écrit dessus.
+   *
+   * La surface était dans l'inspecteur, à une sélection de là ; un contour
+   * fermé sans pièce ne disait rien du tout. C'est pourtant à ce moment-là
+   * qu'on se demande si les murs qu'on vient de fermer sont reconnus, et le
+   * plan est l'endroit où poser la question.
+   *
+   * `Aucune` les éteint : quelqu'un qui veut un dessin nu doit pouvoir
+   * l'avoir.
+   */
+  const labels = useMemo(
+    () =>
+      editor.dimensionMode === 'NONE'
+        ? []
+        : roomLabels(project, editor.levelId),
+    [editor.dimensionMode, editor.levelId, project],
+  );
+
+  /*
+   * Les cotes qu'un plan porte sans qu'on les pose.
+   *
+   * Prises sur ce que les murs enferment — à l'intérieur, comme un plan
+   * d'architecte les porte. Elles ne remplacent pas la cotation : une pièce en
+   * L n'a ni largeur ni profondeur, et ces deux traits en donnent une lecture
+   * rectangulaire. L'outil Cotation reste là pour dire ce qu'on veut dire.
+   */
+  /*
+   * La pente d'une évacuation, écrite sur elle.
+   *
+   * Une évacuation horizontale est une évacuation qui ne s'écoule pas, et
+   * rien ne le disait sur le plan : il fallait sélectionner le tronçon et
+   * lire une propriété, alors que c'est en le traçant qu'on veut le savoir.
+   */
+  const slopes = useMemo(
+    () =>
+      editor.dimensionMode === 'NONE'
+        ? []
+        : runSlopes(
+            project,
+            editor.dimensionMode === 'SELECTION'
+              ? { selection: editor.selection }
+              : {},
+          ),
+    [editor.dimensionMode, editor.selection, project],
+  );
+
+  const measures = useMemo(
+    () =>
+      roomMeasures(project, editor.levelId, {
+        mode: editor.dimensionMode,
+        selection: editor.selection,
+      }),
+    [editor.dimensionMode, editor.levelId, editor.selection, project],
   );
 
   useEffect(() => {
@@ -1139,6 +1210,78 @@ export function PlanCanvas({
           dangerouslySetInnerHTML={{ __html: rendered.markup }}
         />
       )}
+      {slopes.map((slope) => {
+        const at = modelToScreen(editor.camera, slope.at);
+        return (
+          <span
+            key={slope.id}
+            className={slope.tooFlat ? 'run-slope run-slope-flat' : 'run-slope'}
+            style={{ left: `${at.x}px`, top: `${at.y}px` }}
+            title={
+              slope.tooFlat
+                ? 'Une évacuation horizontale est une évacuation qui ne s’écoule pas.'
+                : undefined
+            }
+          >
+            {slopeLabel(slope.slopePercent)}
+          </span>
+        );
+      })}
+      {measures.map((measure) => {
+        const from = modelToScreen(editor.camera, measure.from);
+        const to = modelToScreen(editor.camera, measure.to);
+        return (
+          <span
+            key={measure.id}
+            className={`room-measure room-measure-${measure.axis.toLowerCase()}`}
+            style={{
+              left: `${Math.min(from.x, to.x)}px`,
+              top: `${Math.min(from.y, to.y)}px`,
+              ...(measure.axis === 'X'
+                ? { width: `${Math.abs(to.x - from.x)}px` }
+                : { height: `${Math.abs(to.y - from.y)}px` }),
+            }}
+          >
+            <span className="room-measure-value">
+              {measureLabel(measure.lengthMm)}
+            </span>
+          </span>
+        );
+      })}
+      {labels.map((label) => {
+        const at = modelToScreen(editor.camera, label.at);
+        return (
+          <div
+            key={label.id}
+            className={
+              label.spaceId === undefined
+                ? 'room-label room-label-free'
+                : 'room-label'
+            }
+            style={{ left: `${at.x}px`, top: `${at.y}px` }}
+          >
+            {label.name !== undefined && (
+              <span className="room-label-name">{label.name}</span>
+            )}
+            <span className="room-label-area">{areaLabel(label.areaM2)}</span>
+            {/*
+             * Un contour fermé sans pièce porte le geste qui la crée, là où il
+             * se pose. Aller le chercher dans une barre d'outils pour désigner
+             * ensuite un endroit qu'on est déjà en train de regarder est un
+             * détour que rien ne justifie.
+             */}
+            {label.spaceId === undefined && onCreateRoom !== undefined && (
+              <button
+                type="button"
+                className="room-label-add"
+                onClick={() => onCreateRoom(label.at)}
+              >
+                + Créer pièce
+              </button>
+            )}
+          </div>
+        );
+      })}
       {grips.map((grip) => {
         const at = modelToScreen(editor.camera, grip.at);
         return (

@@ -14,6 +14,7 @@ import {
   ficheOfFamily,
   missingFicheFamilies,
   sectionsOfStage,
+  leftoverTools,
   toolboxFor,
   unblockingEntry,
   type ToolboxEntry,
@@ -148,10 +149,17 @@ describe('what a stage puts under the hand', () => {
     expect(water.map(({ id }) => id)).toEqual(['systems.water']);
   });
 
+  it('narrows Bâtiment to its structural sub-part', () => {
+    // La structure est une sous-partie du bâtiment depuis les sept espaces :
+    // c'est ce qui porte les murs qu'on vient de tracer, pas un autre métier.
+    const bearing = toolboxFor(project, 'BUILDING', 'STRUCTURE');
+    expect(bearing.map(({ id }) => id)).toEqual(['structure.frame']);
+  });
+
   it('shows the whole stage when the trade has nothing of its own', () => {
     // Mieux vaut tout ce que l'étape offre que rien du tout : un métier sans
     // section déclarée ne doit pas vider la colonne.
-    expect(toolboxFor(project, 'BUILDING', 'STRUCTURE').length).toBe(
+    expect(toolboxFor(project, 'BUILDING', 'FURNITURE').length).toBe(
       sectionsOfStage('BUILDING').length,
     );
   });
@@ -266,30 +274,58 @@ describe('what the house allows, tool by tool', () => {
   });
 
   it('keeps every tool of the registry reachable whatever the house', () => {
-    // L'invariant de UX-3 sous la nouvelle règle : `visibleWhen` retire d'une
-    // liste, jamais du programme. Une maison vide doit encore mener partout.
-    const reachable = new Set(
-      allToolboxEntries()
-        .filter(
-          (candidate) => candidate.visibleWhen?.(EMPTY_DESIGN_STATE) !== false,
-        )
-        .map(({ toolId }) => toolId),
-    );
-    for (const tool of EDITOR_TOOLS)
-      expect(reachable.has(tool.id), tool.id).toBe(true);
+    /*
+     * L'invariant de UX-3 sous la nouvelle règle.
+     *
+     * `visibleWhen` retire d'une liste, jamais du programme : un escalier
+     * n'est pas proposé sur une maison de plain-pied, et il est alors dans
+     * « Tous les outils ». Ce que ce test refuse est qu'il tombe entre les
+     * deux — proposé nulle part et rangé nulle part.
+     */
+    for (const state of [
+      EMPTY_DESIGN_STATE,
+      houseWith({ levelCount: 1, wallCount: 4 }),
+      houseWith({
+        levelCount: 2,
+        wallCount: 8,
+        closedContours: [{ areaM2: 12 }],
+        slabCount: 1,
+        networkCount: 1,
+        roofSurfaceCount: 1,
+      }),
+    ])
+      for (const stage of CREATION_STAGES) {
+        const proposed = new Set(
+          [
+            ...toolboxFor(project, stage, undefined, state).flatMap(
+              ({ entries }) => entries,
+            ),
+            // Les communs sont sous la main partout : la Sélection ouvre la
+            // rangée, le reste est dans le « + ».
+            ...COMMON_SECTION.entries,
+          ].map(({ toolId }) => toolId),
+        );
+        const left = new Set(
+          leftoverTools(project, stage, undefined, state).map(({ id }) => id),
+        );
+        for (const tool of EDITOR_TOOLS)
+          expect(
+            proposed.has(tool.id) || left.has(tool.id),
+            `${stage} · ${tool.id}`,
+          ).toBe(true);
+      }
   });
 
-  it('proposes a stage without knowing the house, exactly as before', () => {
-    // L'état est facultatif : les appels qui l'ignorent voient tout.
-    const blind = toolboxFor(project, 'BUILDING', undefined);
-    const empty = toolboxFor(
-      project,
-      'BUILDING',
-      undefined,
-      EMPTY_DESIGN_STATE,
-    );
-    expect(empty.flatMap(({ entries }) => entries).length).toBe(
-      blind.flatMap(({ entries }) => entries).length,
-    );
+  it('proposes at most what it would propose knowing nothing', () => {
+    // L'état est facultatif, et il ne peut que retirer : un appel qui l'ignore
+    // voit tout ce que l'étape a. C'est ce qui rend sûr de l'oublier.
+    const blind = toolboxFor(project, 'BUILDING', undefined)
+      .flatMap(({ entries }) => entries)
+      .map(({ id }) => id);
+    const empty = toolboxFor(project, 'BUILDING', undefined, EMPTY_DESIGN_STATE)
+      .flatMap(({ entries }) => entries)
+      .map(({ id }) => id);
+    expect(empty.length).toBeLessThanOrEqual(blind.length);
+    for (const id of empty) expect(blind).toContain(id);
   });
 });

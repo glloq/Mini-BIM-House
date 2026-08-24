@@ -45,17 +45,19 @@ import {
 } from './creation-stages.js';
 import { DESTINATIONS } from './destinations.js';
 
-describe('the nine creation stages', () => {
-  it('are nine, in the order of a building site', () => {
-    expect(CREATION_STAGES).toHaveLength(9);
+describe('the seven workspaces', () => {
+  it('are seven, in the order one describes a house', () => {
+    // Sept, parce que sept est le nombre de parties qu'une maison a quand on
+    // la décrit à quelqu'un. La structure est une sous-partie du bâtiment, et
+    // l'énergie une spécialité des systèmes : les deux étaient des onglets
+    // qu'il fallait connaître d'avance pour trouver un poteau ou un panneau.
+    expect(CREATION_STAGES).toHaveLength(7);
     expect([...CREATION_STAGES]).toEqual([
       'PROJECT',
       'SITE',
       'BUILDING',
-      'STRUCTURE',
       'FITTING',
       'SYSTEMS',
-      'ENERGY',
       'CHECKS',
       'DOCUMENTS',
     ]);
@@ -97,10 +99,12 @@ describe('the nine creation stages', () => {
     }
     expect(stageOfDomain('ELECTRICAL')).toBe('SYSTEMS');
     expect(stageOfDomain('ARCHITECTURE')).toBe('BUILDING');
+    expect(stageOfDomain('STRUCTURE')).toBe('BUILDING');
+    expect(stageOfDomain('SOLAR')).toBe('SYSTEMS');
     expect(stageOfDomain('SITE')).toBe('SITE');
   });
 
-  it('names every trade exactly once across the nine', () => {
+  it('names every trade exactly once across the seven', () => {
     // Deux étapes qui revendiquent le même métier, et « où se dessine
     // l'électricité » redevient une question d'ordre de déclaration.
     const claimed = CREATION_STAGES.flatMap((id) => [
@@ -110,11 +114,16 @@ describe('the nine creation stages', () => {
     expect(new Set(claimed)).toEqual(new Set(DESIGN_DOMAIN_IDS));
   });
 
-  it('makes a sub-stage of Systèmes a trade, and the others not', () => {
+  it('makes every sub-part of Systèmes a trade, and names one in Bâtiment', () => {
+    // Dans Systèmes, choisir une sous-partie change le métier par lequel le
+    // plan se lit : les douze en portent une. Ailleurs une sous-partie est un
+    // groupe d'outils — sauf la structure, qui est les deux à la fois, et qui
+    // doit donc nommer un métier que l'étape revendique.
     for (const section of creationStage('SYSTEMS').sections)
       expect(section.domain).toBeDefined();
     for (const section of creationStage('BUILDING').sections)
-      expect(section.domain).toBeUndefined();
+      if (section.domain !== undefined)
+        expect(creationStage('BUILDING').domains).toContain(section.domain);
   });
 
   it('gives every trade of a stage a name, so a picker never says a bare id', () => {
@@ -217,8 +226,8 @@ describe('the steps of the guide', () => {
   });
 
   it('are never a navigation destination', () => {
-    // Les dix phases disent ce qu'il reste à faire ; les neuf étapes disent ce
-    // qu'on est en train de faire. Quelques noms coïncident — ils coïncident
+    // Les dix phases disent ce qu'il reste à faire ; les sept espaces disent
+    // ce qu'on est en train de faire. Quelques noms coïncident — ils coïncident
     // comme des mots, pas comme des lieux — et chaque phase est portée par
     // exactement une étape, sinon « il reste des murs à tracer » se lirait à
     // deux endroits.

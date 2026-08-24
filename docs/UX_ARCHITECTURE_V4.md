@@ -145,6 +145,11 @@ Il n'y a pas de colonne de propriétés permanente. L'inspecteur apparaît à
 droite **quand un objet est sélectionné**, et disparaît au clic dans le vide.
 Le plan récupère toute la largeur, ce qui est la seule chose qu'il demande.
 
+Le bouton « Inspecteur » de la barre supérieure est une **épingle**, pas un
+interrupteur : enfoncé, le panneau reste ouvert même sans rien de désigné, et
+montre alors les propriétés de la vue — un objet a des propriétés, une vue
+aussi. Au repos il n'est pas enfoncé.
+
 ---
 
 ## 3. Comment lire les tableaux qui suivent
@@ -871,23 +876,27 @@ dessin de cet onglet :
 Rien dans les tableaux ci-dessus n'est laissé en « à voir ». Voici les onze
 manques, avec ce que chacun coûte.
 
-| #   | Manque                                                  | Ce qu'il demande                                                                                 | Poids |
-| --- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----- |
-| 1   | Outil **Mesurer**                                       | un vingt-sixième outil, sans commande : il lit, il n'écrit rien                                  | petit |
-| 2   | **Face de référence** au tracé                          | deux options sur `WALL`, `WALL_RUN`, `WALL_RECTANGLE` ; le champ existe déjà dans le modèle      | petit |
-| 3   | **Cotes intérieures** et modes de cotation              | un mode dans la barre d'état, et la lecture de la face de référence pour choisir le côté         | moyen |
-| 4   | **Étiquette de surface** flottante et « + Créer pièce » | du dessin ; `detectRooms` fournit déjà le contour et l'aire                                      | moyen |
-| 5   | **Types de maison** et **formes initiales**             | une commande qui crée n niveaux, une autre qui trace un contour coté                             | moyen |
-| 6   | **Pans de toiture** posés d'un coup                     | une commande qui met `GABLE` sur les côtés désignés d'un contour                                 | petit |
-| 7   | **Pente visible** sur une évacuation                    | du dessin, et une lecture de `slopePercent` déjà stocké                                          | petit |
-| 8   | **Natures d'aménagement extérieur**                     | étendre `SiteObstacleKind` : allée, parking, voirie, terrasse, piscine                           | petit |
-| 9   | **Clôture, haie, portail**                              | soit des natures d'obstacle linéaires, soit des familles de catalogue — à décider avant d'écrire | moyen |
-| 10  | **Fusionner deux pièces**                               | une commande de domaine ; aujourd'hui on supprime la cloison                                     | moyen |
-| 11  | **La maison comme objet déplaçable**                    | une sélection « tout le bâti » et une transformation qui la porte, pour `TERRAIN › Implantation` | gros  |
+| #   | Manque                                                                | Ce qu'il demande                                                                                                                           | Poids |
+| --- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----- |
+| 1   | ~~Outil **Mesurer**~~ — _livré_                                       | un vingt-sixième outil qui lit et n'écrit rien : il rend une phrase et rend la main                                                        | petit |
+| 2   | ~~**Face de référence** au tracé~~ — _livré_                          | les trois outils l'offrent ; le parcours d'un rectangle est normalisé, pour que « faces intérieures » ne dépende pas du sens du glissement | petit |
+| 3   | ~~**Cotes intérieures** et modes de cotation~~ — _livré_              | le mode est dans la barre d'état ; il fait écrire au plan la largeur et la profondeur de ce que les murs enferment                         | moyen |
+| 4   | ~~**Étiquette de surface** flottante et « + Créer pièce »~~ — _livré_ | `detectRooms` fournissait déjà le contour et l'aire ; restait à les écrire là où on les cherche                                            | moyen |
+| 5   | ~~**Types de maison** et **formes initiales**~~ — _livré_             | les formes existaient ; les types créent la pile d'un clic, et l'emprise est cotée à l'intérieur                                           | moyen |
+| 6   | ~~**Pans de toiture** posés d'un coup~~ — _livré_                     | les pignons vont sur les côtés les plus courts ; l'inspecteur garde le dernier mot côté par côté                                           | petit |
+| 7   | ~~**Pente visible** sur une évacuation~~ — _livré_                    | `routeFall` la calculait déjà ; une évacuation en dessous d'un pour cent est marquée                                                       | petit |
+| 8   | ~~**Natures d'aménagement extérieur**~~ — _livré_                     | `SiteObstacleKind` en tient quatre de plus : allée, stationnement, voirie, terrasse                                                        | petit |
+| 9   | ~~**Clôture, haie, portail**~~ — _livré_                              | trois natures d'obstacle de plus : elles bordent, se tracent en long, et une haie ombre pour de bon                                        | moyen |
+| 10  | ~~**Fusionner deux pièces**~~ — _livré_                               | retirer la cloison qui sépare, et relire du modèle le contour qui reste                                                                    | moyen |
+| 11  | **La maison comme objet déplaçable**                                  | une sélection « tout le bâti » et une transformation qui la porte, pour `TERRAIN › Implantation`                                           | gros  |
 
-Aucun de ces onze n'est un préalable à la navigation : les sept onglets et les
-headers peuvent être construits sur ce qui existe, et chaque manque se comble
-ensuite sans rien déplacer.
+Aucun de ces onze n'était un préalable à la navigation : les sept onglets et
+les headers ont été construits sur ce qui existait, et chaque manque s'est
+comblé ensuite sans rien déplacer.
+
+**Dix sur onze sont levés.** Le onzième — la maison comme objet déplaçable —
+touche le modèle et non l'écran, et se décide à part : ce n'est pas un manque
+de l'interface, c'est une notion que le modèle n'a pas.
 
 ---
 
@@ -914,20 +923,20 @@ Ils viennent de V2 et de V3, ils ont tenu, et ils tiennent encore :
 
 ## 13. Plan d'implémentation
 
-| Lot       | Ce qu'il fait                                                             | Dépend de |
-| --------- | ------------------------------------------------------------------------- | --------- |
-| **V4-1**  | Sept onglets : `CreationStage` → `WorkspaceTab`, et la table de §1.1      | —         |
-| **V4-2**  | Sous-parties : une rangée, l'état d'écran, le clavier                     | V4-1      |
-| **V4-3**  | Header d'outils : trois zones, seconde ligne conditionnelle, `+`          | V4-2      |
-| **V4-4**  | Le registre des headers — les tableaux §5 à §10, écrits en données        | V4-3      |
-| **V4-5**  | Inspecteur à la sélection seule ; suppression du panneau permanent        | V4-3      |
-| **V4-6**  | Barre d'état : niveau, grille en mm, snap, ortho, cotes, échelle, curseur | V4-1      |
-| **V4-7**  | Face de référence au tracé, et cotes intérieures (manques 2 et 3)         | V4-4      |
-| **V4-8**  | Étiquettes de surface dans le plan, et « + Créer pièce » (manque 4)       | V4-4      |
-| **V4-9**  | `PROJET › Maison` : types de bâtiment et formes initiales (manque 5)      | V4-2      |
-| **V4-10** | Outil Mesurer, pans de toiture, pente visible (manques 1, 6, 7)           | V4-4      |
-| **V4-11** | `ÉTUDES › Vue d'ensemble` (§9.1)                                          | V4-2      |
-| **V4-12** | Natures d'extérieur et fusion de pièces (manques 8, 9, 10)                | V4-4      |
+| Lot       | Ce qu'il fait                                                            | Dépend de |
+| --------- | ------------------------------------------------------------------------ | --------- |
+| **V4-1**  | _Livré._ Sept onglets ; Structure et Énergie fondues, Vérifier → Études  | —         |
+| **V4-2**  | _Livré._ Sous-parties : une rangée, une seule ouverte, le métier suit    | V4-1      |
+| **V4-3**  | _Livré._ Header du plan : outils contre le dessin, `+`, bandeau flottant | V4-2      |
+| **V4-4**  | _Livré._ Le registre des headers — §5 à §10 écrits en données            | V4-3      |
+| **V4-5**  | _Livré._ Inspecteur à la sélection, bouton devenu épingle                | V4-3      |
+| **V4-6**  | _Livré._ Barre d'état : grille en cm, ortho, cotes, échelle, curseur     | V4-1      |
+| **V4-7**  | _Livré._ Face de référence au tracé, et cotes intérieures automatiques   | V4-4      |
+| **V4-8**  | _Livré._ Surfaces écrites sur le plan, et « + Créer pièce » au contour   | V4-4      |
+| **V4-9**  | _Livré._ Types de maison, et l'emprise cotée à l'intérieur               | V4-2      |
+| **V4-10** | _Livré._ Outil Mesurer, pans de toiture, pente visible                   | V4-4      |
+| **V4-11** | _Livré._ `ÉTUDES › Vue d'ensemble` : une ligne par métier, deux surfaces | V4-2      |
+| **V4-12** | _Livré._ Natures d'extérieur nommées, et deux pièces qu'on réunit        | V4-4      |
 
 Le manque 11 — la maison comme objet — n'est dans aucun lot : il se décide à
 part, parce qu'il touche le modèle et pas l'écran.
@@ -940,15 +949,26 @@ Un seuil qu'on ne mesure pas n'est pas un seuil. `scripts/measure-shell.mjs`
 vérifie déjà les quatre premiers ; les deux derniers demandent un compteur
 nouveau.
 
-| Seuil                                              | Cible        | Aujourd'hui   |
-| -------------------------------------------------- | ------------ | ------------- |
-| Chrome vertical hors plan, au repos, en 1024 × 768 | **≤ 146 px** | 153 px        |
-| Chrome vertical avec la seconde ligne d'outils     | **≤ 182 px** | —             |
-| Plan visible, en 1024 × 768                        | **≥ 60 %**   | 55 %          |
-| Boutons visibles dans le header d'outils           | **3 à 8**    | 22 en colonne |
-| Clics pour le premier mur d'un projet neuf         | **≤ 3**      | 3             |
-| Clics pour changer de sous-partie                  | **1**        | —             |
+| Seuil                                              | Cible        | Aujourd'hui              |
+| -------------------------------------------------- | ------------ | ------------------------ |
+| Chrome vertical hors plan, au repos, en 1024 × 768 | **≤ 146 px** | **116 px**               |
+| Chrome vertical avec la seconde ligne d'outils     | **≤ 182 px** | **116 px** — elle flotte |
+| Plan visible, en 1024 × 768                        | **≥ 60 %**   | 58 %                     |
+| Boutons visibles dans le header d'outils           | **3 à 8**    | 5 à 8 ; 2 en colonne     |
+| Clics pour le premier mur d'un projet neuf         | **≤ 3**      | 3                        |
+| Clics pour changer de sous-partie                  | **1**        | 1                        |
 
-Les 146 px se décomposent : navigation 42, sous-parties 34, outils 42, barre
-d'état 28. C'est une décision, pas une mesure — et c'est la suppression du
-panneau latéral permanent qui la finance.
+Les 146 px se décomposaient : navigation 42, sous-parties 34, outils 42, barre
+d'état 28. Ce qui les a financés n'est pas ce qu'on croyait : ce sont les deux
+rangées supérieures fondues en une — le nom de l'application partage la sienne
+avec les sept espaces — et la barre de vue dissoute, son niveau déjà écrit dans
+la barre d'état et son métier devenu la rangée des sous-parties. Quatre rangées
+sont devenues trois : **116 px**, contre 153 avant la V4 et 306 avant la
+refonte.
+
+La seconde ligne d'options ne pousse rien : elle **flotte** sur la marge haute
+du dessin, et seuls ses contrôles répondent au pointeur. Une rangée qui pousse
+le plan en apparaissant le fait changer de taille, la caméra se remet à
+l'échelle, et le point qu'on visait n'est plus là. Trente-quatre pixels de
+bandeau translucide coûtent infiniment moins qu'un plan qui bouge sous la
+main.

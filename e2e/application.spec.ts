@@ -1718,16 +1718,23 @@ test('shows nothing above the plan until something is being done', async ({
   await expect(bar).toHaveClass(/is-empty/u);
   await expect(bar.getByRole('button')).toHaveCount(0);
 
-  // Les outils vivent dans le panneau de contexte, groupés par sous-étape :
-  // ce que l'étape Bâtiment met sous la main, et non les vingt-cinq du
-  // registre.
-  const tools = page.locator('.toolbox');
+  // Les outils vivent dans le panneau de contexte, une sous-partie à la fois :
+  // ce que Bâtiment › Murs met sous la main, et non les vingt-cinq du
+  // registre ni les quatre sous-parties empilées.
+  const tools = page.locator('.tool-header');
   await expect(
-    tools.getByRole('region', { name: 'Outils · Murs' }),
+    tools.getByRole('group', { name: 'Outils · Murs' }),
   ).toBeVisible();
   await expect(
-    tools.getByRole('region', { name: 'Outils · Ouvertures' }),
+    tools.getByRole('group', { name: 'Outils · Ouvertures' }),
+  ).toHaveCount(0);
+  // Et elles sont à un clic, dans la rangée sous les sept espaces.
+  const parts = page.getByRole('navigation', { name: 'Sous-parties' });
+  await parts.getByRole('button', { name: 'Ouvertures', exact: true }).click();
+  await expect(
+    tools.getByRole('group', { name: 'Outils · Ouvertures' }),
   ).toBeVisible();
+  await parts.getByRole('button', { name: 'Murs', exact: true }).click();
   await chooseTool(page, 'Mur');
   await expect(bar).toContainText('Mur');
   // What the tool lets one decide before drawing sits under the tool itself,
@@ -1756,9 +1763,10 @@ test('shows nothing above the plan until something is being done', async ({
   // dépliage, pas à un changement de mode. Une étape filtre ce qui est
   // proposé ; elle ne restreint jamais ce qui est possible.
   await expect(page.getByLabel('Niveau d’interface')).toHaveCount(0);
-  const others = tools.getByText(/^Tous les outils/u).first();
-  await expect(others).toBeVisible();
-  await others.click();
+  const more = tools.locator('.tool-more > summary');
+  await expect(more).toBeVisible();
+  await more.click();
+  await expect(tools.getByText(/^Tous les outils/u)).toBeVisible();
   await expect(
     tools.getByRole('button', { name: 'Composant', exact: true }),
   ).toBeVisible();
@@ -2144,10 +2152,11 @@ test('suggests what is left without ever standing in the way', async ({
   await expect(guide).toBeVisible();
   await expect(guide).toContainText('une suggestion, jamais une condition');
 
-  // Les dix phases sont ici et nulle part ailleurs : la barre d'étapes en
-  // compte neuf, qui disent ce qu'on fait et non ce qu'il reste à faire.
+  // Les dix phases sont ici et nulle part ailleurs : la barre en compte sept,
+  // qui disent de quelle partie de la maison on s'occupe, et non ce qu'il
+  // reste à faire.
   const bar = page.getByRole('navigation', { name: 'Étapes de création' });
-  await expect(bar.getByRole('button')).toHaveCount(9);
+  await expect(bar.getByRole('button')).toHaveCount(7);
   await expect(guide).toContainText('Architecture');
   await expect(guide).toContainText('Technique');
 
@@ -2174,21 +2183,24 @@ test('reads the same plan through one discipline at a time', async ({
   await expect(walls).toHaveCount(6);
 
   await openStage(page, 'Systèmes');
-  // Le métier se choisit contre le dessin, dans la barre de vue : c'est une
-  // chose que le plan montre, pas une destination du panneau gauche.
-  const trade = page.locator('.view-bar').getByLabel('Discipline');
-  await expect(trade).toBeVisible();
+  // Le métier se choisit dans la rangée des sous-parties : dans Systèmes, une
+  // sous-partie *est* une discipline, et deux endroits pour une décision sont
+  // un endroit de trop.
+  const parts = page.getByRole('navigation', { name: 'Sous-parties' });
+  const power = parts.getByRole('button', {
+    name: 'Électricité',
+    exact: true,
+  });
+  await expect(power).toBeVisible();
   // Le compte fait la différence entre « rien à voir » et « rien de tracé ».
-  await expect(trade.locator('option[value="ELECTRICAL"]')).toContainText(
-    /\(\d+\)/u,
-  );
+  await expect(power).toHaveAttribute('title', /réseau/u);
 
-  await trade.selectOption('ELECTRICAL');
+  await power.click();
   // The same drawing, under the same walls: Systèmes is a context, not a way
   // out of the model.
   await expect(canvas).toBeVisible();
   await expect(walls).toHaveCount(6);
-  await expect(trade).toHaveValue('ELECTRICAL');
+  await expect(power).toHaveAttribute('aria-current', 'true');
   expect(errors).toEqual([]);
 });
 
@@ -2312,7 +2324,7 @@ test('names an entry by what it places, and pre-fills its fiche', async ({
 
   // « WC » n'est pas un vingt-sixième outil : c'est l'outil composant avec la
   // fiche WC déjà désignée. Choisir l'entrée fait les deux d'un coup.
-  const toolbox = page.locator('.toolbox');
+  const toolbox = page.locator('.tool-header');
   await toolbox.getByRole('button', { name: 'WC', exact: true }).click();
   await expect(page.getByLabel('Catégorie')).toHaveValue('SANITARY');
   await expect(page.getByLabel('Modèle catalogue')).toHaveValue(/generic-wc/u);
@@ -2327,38 +2339,44 @@ test('names an entry by what it places, and pre-fills its fiche', async ({
   // l'outil composant, pas une vingt-sixième entrée du registre.
   await expect(page.locator('.context-tool-bar')).toContainText('Composant');
 
-  // Ce que l'étape ne propose pas reste atteignable depuis la même colonne.
-  await page
-    .locator('.toolbox')
-    .getByText(/^Tous les outils/u)
-    .click();
+  // Ce que la sous-partie ne propose pas reste atteignable depuis la même
+  // rangée, sous « + ».
+  await page.locator('.tool-header .tool-more > summary').click();
   await expect(
-    page.locator('.toolbox').getByRole('button', { name: 'Mur', exact: true }),
+    page
+      .locator('.tool-header')
+      .getByRole('button', { name: 'Mur', exact: true }),
   ).toBeVisible();
   expect(errors).toEqual([]);
 });
 
-test('reads a trade in the stage that draws it, Énergie included', async ({
+test('reads every trade in the space that draws it, solar included', async ({
   page,
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
   const canvas = page.locator('.plan-canvas');
 
-  // Le solaire et le stockage se dessinent dans Énergie, pas dans Systèmes :
-  // les neuf étapes ont réparti les seize métiers, et aucune n'a le droit d'en
-  // perdre un en route.
-  await openStage(page, 'Énergie');
-  const trade = page.locator('.view-bar').getByLabel('Discipline');
-  await expect(trade).toBeVisible();
-  await trade.selectOption('SOLAR');
-  await expect(canvas).toBeVisible();
-
-  // Et Systèmes ne les propose plus : un métier revendiqué par deux étapes est
-  // un métier qu'on cherchera dans la mauvaise.
+  // Le solaire et le stockage sont des spécialités de Systèmes, comme
+  // l'électricité : un onglet Énergie séparé demandait de savoir d'avance
+  // qu'un panneau ne se pose pas là où se pose une prise.
   await openStage(page, 'Systèmes');
-  await expect(trade.locator('option[value="SOLAR"]')).toHaveCount(0);
-  await expect(trade.locator('option[value="ELECTRICAL"]')).toHaveCount(1);
+  const parts = page.getByRole('navigation', { name: 'Sous-parties' });
+  await parts.getByRole('button', { name: 'Solaire', exact: true }).click();
+  await expect(canvas).toBeVisible();
+  await expect(
+    parts.getByRole('button', { name: 'Électricité', exact: true }),
+  ).toHaveCount(1);
+  await expect(
+    parts.getByRole('button', { name: 'Stockage', exact: true }),
+  ).toHaveCount(1);
+
+  // Et la structure est une sous-partie du bâtiment : ce qui porte les murs se
+  // dessine là où les murs se dessinent.
+  await openStage(page, 'Bâtiment');
+  await expect(
+    parts.getByRole('button', { name: 'Structure', exact: true }),
+  ).toHaveCount(1);
   expect(errors).toEqual([]);
 });
 
@@ -2418,7 +2436,7 @@ test('keeps the building navigator in front, and its lists folded', async ({
   const levels = tree.getByRole('group', { name: 'Niveaux' });
   await expect(levels.getByRole('button')).toHaveCount(2);
   await levels.getByRole('button', { name: 'Étage' }).click();
-  await expect(page.locator('.canvas-panel h2')).toContainText('Étage');
+  await expect(page.locator('.status-bar')).toContainText('Étage');
 
   // Ce que l'étage contient se compte plutôt que se dérouler : une famille
   // vide n'est pas une rangée, et les listes s'ouvrent à la demande.

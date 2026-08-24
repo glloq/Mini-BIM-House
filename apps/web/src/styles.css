@@ -120,13 +120,29 @@ button.secondary {
  * portable, pour dire un nom que personne ne relit. Ce qui ne tient pas sur la
  * rangée descend dans le menu « Projet » — jamais sur une deuxième rangée.
  */
+/*
+ * Le nom, réduit à ce qu'il faut pour reconnaître la fenêtre.
+ *
+ * « House Technical Designer » sur deux lignes prenait la place des sept
+ * espaces. Le nom entier reste dans le document, lisible par un lecteur
+ * d'écran et dans l'infobulle ; ce qui rétrécit est ce qu'on en montre.
+ */
+.wordmark {
+  margin: 0;
+  flex: none;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
 .app-header {
   display: flex;
-  min-height: 44px;
+  height: 44px;
   align-items: center;
   padding: 0 0.75rem;
   border-bottom: 1px solid #dce4df;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 .app-header .eyebrow {
   display: none;
@@ -1001,6 +1017,113 @@ button.icon {
   width: 100%;
   height: auto;
 }
+/*
+ * La pente d'une évacuation, écrite sur elle.
+ *
+ * Discrète quand elle va, marquée quand elle ne va pas : une évacuation
+ * horizontale est une évacuation qui ne s'écoule pas, et c'est la seule chose
+ * qu'un plan doit crier.
+ */
+.run-slope {
+  position: absolute;
+  padding: 0 0.2rem;
+  transform: translate(-50%, -50%);
+  border-radius: 0.2rem;
+  background: var(--surface-raised);
+  color: var(--ink-soft);
+  font-size: 0.6rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.run-slope-flat {
+  border: 1px solid var(--accent);
+  color: var(--ink-strong);
+  font-weight: 700;
+}
+/*
+ * Les cotes intérieures, le long du contour qu'elles mesurent.
+ *
+ * Un trait fin et un nombre : ce que porte un plan d'architecte. Elles ne
+ * répondent pas au pointeur — on vise ce qu'elles mesurent, pas elles.
+ */
+.room-measure {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.room-measure-x {
+  height: 0;
+  border-top: 1px solid var(--line);
+}
+.room-measure-y {
+  width: 0;
+  flex-direction: column;
+  border-left: 1px solid var(--line);
+}
+.room-measure-value {
+  padding: 0 0.2rem;
+  border-radius: 0.2rem;
+  background: var(--surface-raised);
+}
+.room-measure-y .room-measure-value {
+  writing-mode: vertical-rl;
+}
+/*
+ * Ce que chaque contour fermé porte, écrit dessus.
+ *
+ * Posée au centre du contour et centrée sur lui : c'est une étiquette de plan,
+ * pas une bulle. Elle laisse passer les clics — on vise le sol qu'elle nomme,
+ * pas elle — sauf le bouton qui crée la pièce, qui est le seul geste qu'on y
+ * fait.
+ */
+.room-label {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.05rem;
+  transform: translate(-50%, -50%);
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.room-label-name {
+  color: var(--ink-strong);
+  font-weight: 700;
+}
+.room-label-area {
+  font-variant-numeric: tabular-nums;
+}
+/* Un contour fermé que rien ne couvre : la surface est là, la pièce non. */
+.room-label-free {
+  padding: 0.15rem 0.35rem;
+  border: 1px dashed var(--line);
+  border-radius: 0.4rem;
+  background: var(--surface-raised);
+}
+.room-label-add {
+  border: 0;
+  padding: 0.1rem 0.2rem;
+  background: none;
+  color: var(--accent);
+  font-size: 0.66rem;
+  font-weight: 700;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.room-label-add:hover {
+  text-decoration: underline;
+}
 .snap-marker {
   position: absolute;
   width: 12px;
@@ -1156,6 +1279,67 @@ button.icon {
 }
 
 /* Calculation dashboard. */
+/*
+ * La vue d'ensemble : une ligne par métier, trois états.
+ *
+ * Elle passe avant la liste des constats parce qu'elle répond à une autre
+ * question — « où en est ma maison » et non « qu'est-ce qui cloche ».
+ */
+.study-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: var(--surface);
+}
+.study-lines {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 0.1rem 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  list-style: none;
+}
+.study-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+}
+.study-line-label {
+  color: var(--ink-strong);
+  font-weight: 600;
+}
+.study-line-state {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.study-line.GAP .study-line-state {
+  color: var(--ink-strong);
+  font-weight: 700;
+}
+.study-figures {
+  display: flex;
+  margin: 0;
+  gap: 1.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.5rem;
+}
+.study-figures dt {
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+}
+.study-figures dd {
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 .dashboard-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
@@ -1991,11 +2175,11 @@ legend {
  */
 .stage-bar {
   display: flex;
-  min-height: 34px;
+  min-width: 0;
+  height: 34px;
+  flex: 1;
   align-items: center;
   gap: 0.15rem;
-  padding: 0.15rem 0.6rem;
-  border-bottom: 1px solid var(--line);
   overflow-x: auto;
 }
 .stage-entry {
@@ -2034,6 +2218,51 @@ legend {
   line-height: 1;
 }
 /* En dessous de 1 100 px, neuf libellés deviennent une liste déroulante. */
+/*
+ * Les parties de la partie, sous les sept espaces.
+ *
+ * Plus discrète que la barre au-dessus : on y change de sous-partie souvent,
+ * et deux rangées de la même force sont deux rangées qui se disputent. Elle
+ * commence par dire où l'on est, parce que « MURS » seul ne veut rien dire.
+ */
+.section-bar {
+  display: flex;
+  height: 28px;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.1rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+.section-place {
+  margin-right: 0.35rem;
+  color: var(--ink-soft);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.75;
+}
+.section-entry {
+  border: 0;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.4rem;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.section-entry:hover {
+  background: var(--surface);
+}
+.section-entry.active {
+  background: var(--accent-soft);
+  color: var(--ink-strong);
+  font-weight: 700;
+}
 .stage-compact {
   display: none;
 }
@@ -2060,6 +2289,216 @@ legend {
  * l'activité. Une grille de trois se balaie ; une colonne de vingt-cinq se
  * lit ligne à ligne, et on finit par en utiliser cinq.
  */
+/*
+ * Les outils contre le plan, sur une rangée.
+ *
+ * Une colonne d'outils prenait de la largeur au plan en permanence pour des
+ * boutons qu'on regarde une seconde. La rangée est là où la main va, et elle
+ * défile plutôt que de passer à deux lignes — une barre d'outils qui grandit
+ * mange le dessin qu'elle sert.
+ */
+.tool-header {
+  position: relative;
+  /* Au-dessus du plan : ce qui s'ouvre depuis la rangée — le « + », le
+     panneau d'affichage — se déplie par-dessus le dessin, jamais dessous. */
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--line);
+}
+.tool-row {
+  display: flex;
+  height: 42px;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.4rem;
+}
+/*
+ * Les outils défilent, ce qui commande le plan ne défile pas.
+ *
+ * Faire défiler toute la rangée poussait « Affichage » hors de l'écran dès
+ * qu'une sous-partie proposait huit outils — et sur un téléphone, dès la
+ * première.
+ */
+.tool-tools {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 0.2rem;
+  overflow-x: auto;
+}
+.tool-more {
+  flex: none;
+}
+.tool-row-end {
+  position: sticky;
+  right: 0;
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  /* Collée à droite quand la rangée défile : ce qui commande le plan ne part
+     pas hors de l'écran parce qu'il y a huit outils devant. */
+  padding-left: 0.3rem;
+  background: var(--surface);
+}
+/* Le reste des outils, à un dépliage et au même endroit. */
+.tool-more {
+  position: relative;
+  flex: none;
+}
+.tool-more > summary {
+  display: grid;
+  width: 2rem;
+  height: 2.1rem;
+  place-items: center;
+  border: 1px dashed var(--line);
+  border-radius: 0.45rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+.tool-more > summary::-webkit-details-marker {
+  display: none;
+}
+.tool-more[open] > summary {
+  border-style: solid;
+  border-color: var(--accent);
+}
+.tool-more-menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  display: flex;
+  width: max-content;
+  max-width: min(30rem, 92vw);
+  max-height: 60vh;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: var(--surface);
+  box-shadow: 0 0.6rem 1.6rem rgb(0 0 0 / 18%);
+  overflow-y: auto;
+}
+/*
+ * Les options de l'outil actif, et rien sans outil actif.
+ *
+ * Posée **par-dessus** le plan et non au-dessus de lui. Une rangée qui pousse
+ * le dessin en apparaissant le fait changer de taille, et le plan se remet à
+ * l'échelle : on prend l'outil mur, le dessin saute ; on revient à la
+ * sélection, il saute encore, et le point qu'on visait n'est plus là. Trente-
+ * quatre pixels de bandeau sur la marge haute du dessin coûtent infiniment
+ * moins qu'un plan qui bouge sous le pointeur.
+ */
+.tool-line {
+  position: absolute;
+  z-index: 30;
+  top: 100%;
+  right: 0;
+  left: 0;
+  display: flex;
+  height: 34px;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-raised);
+  overflow-x: auto;
+  /*
+   * Le bandeau laisse passer ce qui ne le vise pas.
+   *
+   * Il flotte sur la marge haute du dessin ; sans cela un clic à quatre
+   * pixels du bord du plan tomberait sur une bande au lieu de tomber sur le
+   * plan. Ses propres contrôles, eux, répondent — ce sont les seules choses
+   * qu'on y vise.
+   */
+  pointer-events: none;
+}
+/*
+ * Seuls les contrôles répondent ; le fond et les textes laissent passer.
+ *
+ * Rendre la boîte entière cliquable revenait à poser une vitre sur le haut du
+ * dessin : le nom de l'outil, écrit à gauche, attrapait les clics qui
+ * visaient le plan derrière lui.
+ */
+.tool-line * {
+  pointer-events: none;
+}
+.tool-line button,
+.tool-line select,
+.tool-line input,
+.tool-line label,
+.tool-line summary,
+.tool-line a {
+  pointer-events: auto;
+}
+/*
+ * Un champ dans le header est une ligne, pas un bloc.
+ *
+ * Le style par défaut met l'étiquette au-dessus du champ : quatre-vingts
+ * pixels de haut et deux cents de large pour choisir un assemblage, ce qui
+ * déborde d'une rangée de quarante-deux et vient couvrir les outils. Ici
+ * l'étiquette est devant, et tout tient sur la ligne.
+ */
+.tool-header .tool-group {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.6rem;
+}
+.tool-header .field {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+.tool-header .field label {
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.tool-header select,
+.tool-header input {
+  max-width: 9rem;
+  padding: 0.15rem 0.3rem;
+  font-size: 0.72rem;
+}
+/*
+ * Dans la rangée, une tuile est un bouton et non une vignette : l'icône et le
+ * nom côte à côte, la hauteur d'une rangée et pas celle d'une grille.
+ */
+.tool-row .toolbox-entry {
+  min-height: 2.1rem;
+  flex: none;
+  flex-direction: row;
+  padding: 0.25rem 0.45rem;
+}
+.tool-row .toolbox-entry.blocked {
+  grid-column: auto;
+}
+/*
+ * Une entrée inerte garde sa raison, même sur une rangée.
+ *
+ * La cacher parce qu'il y a moins de place serait revenir au bouton grisé en
+ * silence — la panne qu'on a réparée. Elle est donc écrite, coupée à la
+ * largeur d'un regard, et entière dans l'infobulle et dans
+ * `aria-description`.
+ */
+.tool-row .toolbox-entry .entry-reason {
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .toolbox {
   display: flex;
   flex-direction: column;
@@ -2540,6 +2979,37 @@ button.ghost:disabled {
   border-color: transparent;
   background: none;
 }
+/*
+ * Dans la rangée d'outils, la barre de contexte ne fait plus sa hauteur.
+ *
+ * Elle avait la sienne quand elle était une rangée à elle ; ici elle partage
+ * celle des outils, et lui en imposer une de plus serait payer deux fois la
+ * même barre. Sa règle d'origine tient toujours : elle garde sa place quand
+ * elle est vide, si bien que sélectionner quelque chose ne déplace pas le
+ * dessin sous le pointeur.
+ */
+.tool-line .context-tool-bar {
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.1rem 0.4rem;
+}
+.tool-line .context-tool-bar.is-empty {
+  display: none;
+}
+/*
+ * Vide, la seconde ligne ne montre rien et ne prend rien.
+ *
+ * Elle flotte sur la marge haute du dessin : la faire disparaître ne change
+ * pas la taille du plan, donc rien ne saute sous le pointeur.
+ */
+.tool-line:not(:has(.context-tool-bar:not(.is-empty))):not(:has(.tool-group)) {
+  display: none;
+  /* Et si `:has` venait à manquer, elle ne mangerait toujours pas les clics
+     du dessin : une bande invisible qui intercepte est pire qu'une bande. */
+  pointer-events: none;
+}
+
 .context-tool-name {
   display: inline-flex;
   align-items: center;

@@ -131,8 +131,29 @@ export const BUDGETS = {
    * du modèle, et la raison écrite de chaque outil qui ne sert pas encore. Ces
    * phrases sont la fonction — les abréger reviendrait à griser des boutons en
    * silence, ce qui est précisément la panne qu'on répare.
+   *
+   * Et un avec le header du plan. Il rend bien plus qu'il ne prend : la coque
+   * passe de 153 à 116 px au-dessus du dessin, et la colonne de gauche de
+   * vingt-deux boutons à deux.
+   *
+   * Et deux avec le registre des headers : trente-sept sous-parties au lieu de
+   * douze, et cent soixante entrées au lieu de quatre-vingts. Ce sont les
+   * boutons eux-mêmes ; le catalogue qu'ils nomment, lui, reste à la demande —
+   * un projet neuf l'installe depuis l'assistant de création, qui se charge
+   * quand on le demande.
+   *
+   * Et un avec les étiquettes de surface : ce que les murs enferment, écrit
+   * sur le plan. C'est le premier écran, et la question « est-ce que c'est
+   * reconnu ? » se pose au premier contour fermé.
+   *
+   * Et un avec Mesurer, Fusionner et les pans de toiture : trois gestes du
+   * plan, donc trois gestes du premier écran.
+   *
+   * Et un avec ce que le plan écrit tout seul — cotes intérieures et pente
+   * des évacuations. C'est le dessin lui-même : il n'y a pas d'endroit plus
+   * tôt où le mettre.
    */
-  initialGzipBytes: 279 * 1024,
+  initialGzipBytes: 285 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -214,8 +235,35 @@ export const BUDGETS = {
    * partent dans le même chargement que la boîte à outils, faute de quoi la
    * première grille de l'écran serait grise sans un mot pendant qu'un morceau
    * arrive.
+   *
+   * Et un avec le header du plan : la rangée des sous-parties, la rangée
+   * d'outils et le bandeau d'options sont le premier écran, et le premier
+   * écran ne se charge pas en deux fois.
+   *
+   * Et dix avec le registre des headers et la maison de démonstration, qui
+   * tient désormais les trente-quatre fiches supplémentaires que ses boutons
+   * savent poser — un bouton qui ne peut rien poser est une promesse, et une
+   * maison de démonstration qui n'en tient aucune est une démonstration de
+   * boutons absents.
+   *
+   * Et un avec la barre d'état du §1 : le pas de grille en centimètres,
+   * l'orthogonal sorti des réglages, le mode de cotation et l'échelle en
+   * rapport. Sept cellules qu'on lit sans arrêt valent mieux que cinq qu'il
+   * faut traduire.
+   *
+   * Et un avec les types de maison. Cinq listes de niveaux et deux fonctions
+   * qui les lisent dans les deux sens : un kio pour ne plus commencer un
+   * projet en empilant des étages à la main.
+   *
+   * Et un avec la vue d'ensemble des études, qui se charge avec l'écran
+   * qu'elle ouvre — « où en est ma maison » est une autre question que
+   * « qu'est-ce qui cloche », et elle méritait sa page.
+   *
+   * Et un avec ce que le plan écrit tout seul : les cotes intérieures et la
+   * pente des évacuations. Une évacuation horizontale est une évacuation qui
+   * ne s'écoule pas, et c'est la seule chose qu'un plan doit crier.
    */
-  totalGzipBytes: 449 * 1024,
+  totalGzipBytes: 464 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

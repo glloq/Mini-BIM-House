@@ -122,6 +122,13 @@
                       "BUILDING",
                       "TREE",
                       "EXCLUSION",
+                      "PATH",
+                      "PARKING",
+                      "ROAD",
+                      "TERRACE",
+                      "FENCE",
+                      "HEDGE",
+                      "GATE",
                       "OTHER"
                     ]
                   },

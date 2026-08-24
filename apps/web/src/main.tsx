@@ -65,7 +65,8 @@ import type { ClearanceGroupId } from './editor/clearance-overlay.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { ViewProperties } from './editor/ViewProperties.js';
 import { ContextToolBar } from './editor/ContextToolBar.js';
-import { Toolbox } from './editor/Toolbox.js';
+import { ToolHeader } from './editor/ToolHeader.js';
+import { toolboxFor } from './editor/toolbox.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
 import { APPLICATION_VERSION } from './version.js';
 import { scenarioOverride } from './scenarios/scenario-changes.js';
@@ -155,11 +156,7 @@ import {
   saveLayout,
   type WorkspaceLayout,
 } from './shell/workspace-layout.js';
-import {
-  domainsOfStage,
-  networksOfDomain,
-} from './systems/discipline-scope.js';
-import { ViewBar } from './shell/ViewBar.js';
+import { networksOfDomain } from './systems/discipline-scope.js';
 import { hiddenLayerCount } from './visibility/display-count.js';
 import { technicalDomains } from './systems/discipline-scope.js';
 import { WorkflowGuide } from './workflow/WorkflowGuide.js';
@@ -167,14 +164,17 @@ import { workflowEntries } from './workflow/workflow-registry.js';
 import { AppShell } from './shell/AppShell.js';
 import { TopBar } from './shell/TopBar.js';
 import { StageBar } from './shell/StageBar.js';
+import { SectionBar, type SectionChoice } from './shell/SectionBar.js';
 import { ContextPanel } from './shell/ContextPanel.js';
 import { ShellStatusBar } from './shell/ShellStatusBar.js';
 import { ProjectMenu } from './shell/ProjectMenu.js';
 
 import {
   activeDomain as activeDomainOf,
+  activeSectionId,
   activeTab as activeTabOf,
   DEFAULT_SHELL_NAVIGATION,
+  goToSection,
   goToStage,
   goToTab,
   navigationFor,
@@ -205,6 +205,7 @@ import {
   EMPTY_CLIPBOARD,
   clipboardCount,
   copyObjects,
+  addSpaceAtPointCommand,
   deleteObjectsCommand,
   duplicateObjectsCommand,
   pasteClipboardCommand,
@@ -795,28 +796,31 @@ function App() {
   );
 
   /**
-   * Un inspecteur qui n'a rien à dire ne réserve pas sa largeur.
+   * L'inspecteur paraît quand on désigne quelque chose, et s'en va avec.
    *
    * Deux cent quatre-vingts pixels tenus en permanence pour afficher
    * « Sélectionnez un objet » : sur un portable, un sixième de la fenêtre pour
-   * une phrase. Au repos il ne prend rien.
+   * une phrase.
    *
-   * Le repli est **collant** : il vaut jusqu'à ce qu'on désigne un objet, et
-   * plus jamais après. Un panneau qui se rouvrirait à chaque sélection et se
-   * refermerait à chaque Échap ferait respirer la fenêtre — et la colonne
-   * qu'il rend au dessin, le dessin la rendrait aussitôt. On l'ouvre une fois
-   * ; ensuite c'est le bouton « Inspecteur » qui décide, et lui seul.
+   * Le repli avait dû être **collant** — valable jusqu'à la première
+   * sélection, et plus jamais après — parce qu'un panneau qui va et vient
+   * redimensionnait le plan, et que le plan se remettait alors à l'échelle :
+   * le dessin sautait sous le pointeur au moment précis où l'on venait de
+   * viser. Ce n'était pas le panneau qui avait tort, c'était le
+   * redimensionnement ; il montre désormais plus ou moins de dessin sans rien
+   * remettre à l'échelle, et le panneau peut faire ce que V4 §21 demande :
+   * paraître à la sélection, disparaître au clic dans le vide.
+   *
+   * Le bouton « Inspecteur » devient une **épingle** : enfoncé, le panneau
+   * reste ouvert et montre les propriétés de la vue quand rien n'est désigné —
+   * un objet a des propriétés, une vue aussi. Au repos il n'est pas enfoncé,
+   * et le panneau suit la sélection.
    */
   const inspectorHasSubject =
     tab !== 'plan' ||
     editor.selection.length > 0 ||
     inspectedProperty !== undefined;
-  const [inspectorEngaged, setInspectorEngaged] = useState(false);
-  useEffect(() => {
-    if (inspectorHasSubject) setInspectorEngaged(true);
-  }, [inspectorHasSubject]);
-  const inspectorShown =
-    layout.inspectorShown && (inspectorEngaged || inspectorHasSubject);
+  const inspectorShown = layout.inspectorShown || inspectorHasSubject;
   const columns = gridColumns({ ...layout, inspectorShown });
 
   /*
@@ -826,21 +830,6 @@ function App() {
    * travailler dans une étape qui n'affiche rien, ni d'en quitter une qui
    * affiche cinq. Il disparaît quand il n'y a plus rien à dire.
    */
-  /*
-   * Les métiers que l'étape propose, comptés.
-   *
-   * La barre de vue est le seul endroit où l'on choisit un métier : le compte
-   * de réseaux part donc dans l'étiquette de chaque option, pour que la
-   * différence entre « rien à voir » et « rien de tracé » n'y perde rien.
-   */
-  const disciplineChoices = useMemo(
-    () =>
-      domainsOfStage(file.project, navigation.stage).map((id) => ({
-        id,
-        networks: networksOfDomain(file.project, id),
-      })),
-    [file.project, navigation.stage],
-  );
   const hiddenLayers = useMemo(() => hiddenLayerCount(editor), [editor]);
 
   const stageProgress = useMemo(
@@ -856,6 +845,36 @@ function App() {
     () => designStateOf(file.project, activeLevelId),
     [activeLevelId, file.project],
   );
+
+  /**
+   * Les sous-parties de l'espace courant, telles que ce projet peut les servir.
+   *
+   * Lues dans la boîte à outils et non dans le registre des espaces : une
+   * sous-partie dont aucun outil n'est posable sur ce projet n'est pas une
+   * sous-partie, c'est une promesse.
+   */
+  const sectionChoices = useMemo<readonly SectionChoice[]>(
+    () =>
+      toolboxFor(file.project, navigation.stage, undefined, design).map(
+        (section) => ({
+          id: section.id,
+          label: section.label,
+          ...(section.domain === undefined
+            ? {}
+            : {
+                domain: section.domain,
+                // La rangée est désormais le seul endroit où l'on choisit un
+                // métier : le compte de réseaux la suit, pour que la
+                // différence entre « rien à voir » et « rien de tracé » ne s'y
+                // perde pas.
+                networks: networksOfDomain(file.project, section.domain),
+              }),
+          toolCount: section.entries.length,
+        }),
+      ),
+    [design, file.project, navigation.stage],
+  );
+  const openSection = activeSectionId(navigation, sectionChoices);
 
   const changeLayout = useCallback((patch: Partial<WorkspaceLayout>): void => {
     setLayout((current) => {
@@ -1172,6 +1191,35 @@ function App() {
     [activeLevelId, editor.selection, runCommand],
   );
 
+  /**
+   * Créer la pièce d'un contour fermé, depuis le contour lui-même.
+   *
+   * Le plan écrit la surface de ce que les murs enferment ; quand aucun espace
+   * ne le couvre, il porte aussi le geste qui en fait un. Aller prendre
+   * l'outil Pièce pour désigner ensuite un endroit qu'on est déjà en train de
+   * regarder est un détour que rien ne justifie.
+   */
+  const createRoomAt = useCallback(
+    (at: { x: number; y: number }) => {
+      const result = addSpaceAtPointCommand(
+        session.current.file,
+        activeLevelId,
+        at,
+        // Le modèle refuse une pièce sans nom, et il a raison : une pièce
+        // s'appelle quelque chose. « Pièce » est un nom de travail qu'on
+        // change dans l'inspecteur, pas un vide qu'on laisse.
+        { name: 'Pièce', category: 'OTHER' },
+        `space-${crypto.randomUUID()}`,
+      );
+      if (result.status === 'ERROR') {
+        setMessage(result.message);
+        return;
+      }
+      runCommand(result.command);
+    },
+    [activeLevelId, runCommand],
+  );
+
   const commitPoints = useCallback(
     (
       points: readonly { x: number; y: number }[],
@@ -1181,6 +1229,28 @@ function App() {
       // to it: a new tool is a new entry in the registry, not another branch
       // here.
       const tool = toolDefinition(editor.activeTool);
+      /*
+       * Un outil qui lit rend son résultat et rend la main.
+       *
+       * Mesurer ne change pas la maison : il n'y a pas de commande à créer,
+       * rien à empiler dans l'historique, et rien à annuler. Ce qu'il produit
+       * est une phrase, et la phrase va là où vont les autres.
+       */
+      if (tool.reads === true) {
+        const from = points[0];
+        const to = points[points.length - 1];
+        if (from !== undefined && to !== undefined) {
+          const dx = to.x - from.x;
+          const dy = to.y - from.y;
+          const lengthM = Math.hypot(dx, dy) / 1000;
+          const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
+          setMessage(
+            `${tool.label} — ${lengthM.toFixed(2).replace('.', ',')} m à ${angleDeg.toFixed(0)}°`,
+          );
+        }
+        dispatchEditor({ type: 'CANCEL' });
+        return;
+      }
       const result = tool.createCommand?.({
         file: session.current.file,
         ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
@@ -2178,6 +2248,16 @@ function App() {
         <TopBar
           eyebrow="Mini BIM local-first"
           title="House Technical Designer"
+          tabs={
+            <StageBar
+              stage={navigation.stage}
+              remaining={stageProgress}
+              onSelect={(stage) => {
+                setNavigation((current) => goToStage(current, stage));
+                setMenuOpen(false);
+              }}
+            />
+          }
           actions={
             <>
               <button
@@ -2203,12 +2283,11 @@ function App() {
               <button
                 type="button"
                 className="secondary panel-toggle"
-                aria-pressed={inspectorShown}
+                aria-pressed={layout.inspectorShown}
                 title="Afficher ou masquer l’inspecteur"
-                onClick={() => {
-                  setInspectorEngaged(true);
-                  changeLayout({ inspectorShown: !inspectorShown });
-                }}
+                onClick={() =>
+                  changeLayout({ inspectorShown: !layout.inspectorShown })
+                }
               >
                 Inspecteur
               </button>
@@ -2249,11 +2328,12 @@ function App() {
         />
       }
       stageBar={
-        <StageBar
-          stage={navigation.stage}
-          remaining={stageProgress}
-          onSelect={(stage) => {
-            setNavigation((current) => goToStage(current, stage));
+        <SectionBar
+          stageLabel={creationStage(navigation.stage).label}
+          sections={sectionChoices}
+          {...(openSection === undefined ? {} : { activeId: openSection })}
+          onSelect={(section) => {
+            setNavigation((current) => goToSection(current, section));
             setMenuOpen(false);
           }}
         />
@@ -2312,24 +2392,6 @@ function App() {
                   setPaletteQuery(query);
                   setPaletteOpen(true);
                 }}
-              />
-              <Toolbox
-                project={file.project}
-                stage={navigation.stage}
-                design={design}
-                {...(activeDomain === undefined
-                  ? {}
-                  : { domain: activeDomain })}
-                editor={editor}
-                dispatch={dispatchEditor}
-                drafts={toolDrafts}
-                onDraftChange={(key, value) =>
-                  setToolDrafts((current) => ({ ...current, [key]: value }))
-                }
-                onDraftsChange={(prefilled) =>
-                  setToolDrafts((current) => ({ ...current, ...prefilled }))
-                }
-                onOpenLibrary={() => setTab('equipment')}
               />
               {(file.project.scenarios ?? []).length > 0 && (
                 <section
@@ -2406,56 +2468,87 @@ function App() {
         <>
           {tab === 'plan' && (
             <section className="canvas-panel panel" id="plan">
-              <ViewBar
-                levelName={
-                  levels.find(({ id }) => id === activeLevelId)?.name ??
-                  'aucun niveau'
-                }
-                domains={disciplineChoices}
-                {...(activeDomain === undefined ? {} : { activeDomain })}
-                onDomain={(domain) => navigateTo({ domain })}
-                scenarios={file.project.scenarios ?? []}
-                {...(scenarioMode === undefined
-                  ? {}
-                  : { scenarioId: scenarioMode })}
-                onScenario={setScenarioMode}
-                display={
-                  <div className="visibility-anchor">
-                    <button
-                      type="button"
-                      className="secondary"
-                      aria-expanded={displayOpen}
-                      aria-haspopup="dialog"
-                      onClick={() => setDisplayOpen((open) => !open)}
-                    >
-                      Affichage
-                      {hiddenLayers > 0 && (
-                        <span className="view-badge" aria-hidden="true">
-                          {hiddenLayers}
-                        </span>
-                      )}
-                    </button>
-                    {displayOpen && (
-                      <Suspense fallback={null}>
-                        <DisplayPanel
-                          editor={editor}
-                          dispatch={dispatchEditor}
-                          renderingId={rendering.id}
-                          onRendering={setRenderingId}
-                          onClose={() => setDisplayOpen(false)}
-                        />
-                      </Suspense>
-                    )}
-                  </div>
-                }
-              />
-              <ContextToolBar
+              <ToolHeader
                 project={file.project}
+                stage={navigation.stage}
+                design={design}
+                {...(openSection === undefined ? {} : { section: openSection })}
+                {...(activeDomain === undefined
+                  ? {}
+                  : { domain: activeDomain })}
                 editor={editor}
                 dispatch={dispatchEditor}
-                onTransform={transformSelection}
-                onAlign={alignSelection}
-                onCancel={() => dispatchEditor({ type: 'CANCEL' })}
+                drafts={toolDrafts}
+                onDraftChange={(key, value) =>
+                  setToolDrafts((current) => ({ ...current, [key]: value }))
+                }
+                onDraftsChange={(prefilled) =>
+                  setToolDrafts((current) => ({ ...current, ...prefilled }))
+                }
+                onOpenLibrary={() => setTab('equipment')}
+                context={
+                  <ContextToolBar
+                    project={file.project}
+                    editor={editor}
+                    dispatch={dispatchEditor}
+                    onTransform={transformSelection}
+                    onAlign={alignSelection}
+                    onCancel={() => dispatchEditor({ type: 'CANCEL' })}
+                  />
+                }
+                view={
+                  <>
+                    {(file.project.scenarios ?? []).length > 0 && (
+                      <label className="view-choice">
+                        <span className="visually-hidden">Variante</span>
+                        <select
+                          value={scenarioMode ?? ''}
+                          onChange={(event) =>
+                            setScenarioMode(
+                              event.target.value === ''
+                                ? undefined
+                                : event.target.value,
+                            )
+                          }
+                        >
+                          <option value="">Le projet lui-même</option>
+                          {(file.project.scenarios ?? []).map((scenario) => (
+                            <option key={scenario.id} value={scenario.id}>
+                              {scenario.name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
+                    <div className="visibility-anchor">
+                      <button
+                        type="button"
+                        className="secondary"
+                        aria-expanded={displayOpen}
+                        aria-haspopup="dialog"
+                        onClick={() => setDisplayOpen((open) => !open)}
+                      >
+                        Affichage
+                        {hiddenLayers > 0 && (
+                          <span className="view-badge" aria-hidden="true">
+                            {hiddenLayers}
+                          </span>
+                        )}
+                      </button>
+                      {displayOpen && (
+                        <Suspense fallback={null}>
+                          <DisplayPanel
+                            editor={editor}
+                            dispatch={dispatchEditor}
+                            renderingId={rendering.id}
+                            onRendering={setRenderingId}
+                            onClose={() => setDisplayOpen(false)}
+                          />
+                        </Suspense>
+                      )}
+                    </div>
+                  </>
+                }
               />
               <PlanCanvas
                 graphicProfileId={rendering.graphicProfileId}
@@ -2476,6 +2569,7 @@ function App() {
                   ? {}
                   : { overlay: drawnOverlay })}
                 clearanceGroups={clearanceGroups}
+                onCreateRoom={createRoomAt}
               />
               <StatusBar
                 editor={editor}

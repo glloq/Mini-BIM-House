@@ -51,13 +51,15 @@ describe('the disciplines Systèmes reads the plan through', () => {
   });
 
   it('offers the trades of any stage, not only those of Systèmes', () => {
-    // Le solaire et le stockage se dessinent dans Énergie depuis que les neuf
-    // étapes ont remplacé les cinq espaces. Un sélecteur qui ne saurait parler
-    // que de Systèmes les rendrait inatteignables.
-    expect(domainsOfStage(project, 'ENERGY')).toContain('SOLAR');
+    // Le solaire et le stockage se dessinent dans Systèmes depuis que les sept
+    // espaces ont remplacé les neuf étapes : ce sont des spécialités comme
+    // l'électricité, et un onglet Énergie séparé demandait de savoir d'avance
+    // qu'un panneau ne se pose pas là où se pose une prise.
+    expect(domainsOfStage(project, 'SYSTEMS')).toContain('SOLAR');
+    expect(domainsOfStage(project, 'SYSTEMS')).toContain('STORAGE');
     expect(domainsOfStage(project, 'SYSTEMS')).toContain('ELECTRICAL');
-    expect(domainsOfStage(project, 'SYSTEMS')).not.toContain('SOLAR');
-    // Rien pour une étape qui ne propose aucun métier : Vérifier lit le plan
+    expect(domainsOfStage(project, 'BUILDING')).toContain('STRUCTURE');
+    // Rien pour une étape qui ne propose aucun métier : Études lit le plan
     // tel qu'il est.
     expect(domainsOfStage(project, 'CHECKS')).toEqual([]);
   });

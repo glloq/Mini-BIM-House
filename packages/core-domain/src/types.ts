@@ -63,11 +63,29 @@ export interface GeoLocation {
  * A neighbouring building, a tree and a zone that must stay clear all cast
  * shade, take room and change where things can go — and none of them behaves
  * like the others when the sun is computed. The kind belongs to the obstacle.
+ *
+ * Trois familles. Les trois premiers **ombrent** — un voisin, un arbre, une
+ * zone à laisser libre. Les quatre suivants **tiennent le sol** : une allée,
+ * une aire de stationnement, une voirie, une terrasse ne portent aucune ombre
+ * mais occupent le terrain et comptent dans ce qu'il ne boit plus. Les trois
+ * derniers **bordent** : une clôture, une haie, un portail se tracent en long
+ * et non en large, et une haie ombre pour de bon.
+ *
+ * Tous étaient « Autre, nommé Allée » ou « Autre, nommé Haie » : le modèle ne
+ * savait pas qu'une allée était une allée, et aucun calcul ne pouvait le lui
+ * apprendre.
  */
 export const SITE_OBSTACLE_KINDS = [
   'BUILDING',
   'TREE',
   'EXCLUSION',
+  'PATH',
+  'PARKING',
+  'ROAD',
+  'TERRACE',
+  'FENCE',
+  'HEDGE',
+  'GATE',
   'OTHER',
 ] as const;
 export type SiteObstacleKind = (typeof SITE_OBSTACLE_KINDS)[number];

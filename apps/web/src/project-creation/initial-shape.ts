@@ -73,7 +73,19 @@ export function initialShapeCommands(
     file,
     level.id,
     outline,
-    { assemblyId: EXTERIOR_WALL_ASSEMBLY, role: 'EXTERIOR' },
+    {
+      assemblyId: EXTERIOR_WALL_ASSEMBLY,
+      role: 'EXTERIOR',
+      /*
+       * Le contour tracé est ce que les cotes disent.
+       *
+       * `shapeOutline` parcourt les contours dans le sens horaire de l'écran,
+       * où la face gauche du parcours est l'intérieur. « Dix mètres par huit »
+       * enferme donc dix mètres par huit, comme sur un plan d'architecte, et
+       * non dix mètres par huit d'axe en axe.
+       */
+      referenceSide: shape.measuredOn === 'EXTERIOR' ? 'RIGHT' : 'LEFT',
+    },
     { asOneWall: false, closed: true, newId },
   );
   if (walls.status === 'ERROR') return walls;

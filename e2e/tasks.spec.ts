@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { loadDemoProject } from './support/file-menu.js';
 import { openDestination, openStage } from './support/navigation.js';
+import { openSection, revealAllTools } from './support/tools.js';
 import { openDisplayPanel, closeDisplayPanel } from './support/panels.js';
 
 /**
@@ -73,7 +74,7 @@ test('T1 — un projet neuf, quatre murs, une porte, une fenêtre, une pièce', 
   await countClicks(page);
   await page.goto('/');
   const canvas = page.locator('.plan-canvas');
-  const toolbox = page.locator('.toolbox');
+  const toolbox = page.locator('.tool-header');
 
   // Trois clics pour le premier mur d'un projet neuf : l'outil, puis ses deux
   // points. L'étape Bâtiment le met sous la main sans qu'on ait à le chercher,
@@ -99,7 +100,12 @@ test('T1 — un projet neuf, quatre murs, une porte, une fenêtre, une pièce', 
   }
   await expect(walls).toHaveCount(4);
 
-  // Une porte et une fenêtre : deux entrées qui nomment ce qu'elles posent.
+  // Une porte et une fenêtre : deux entrées qui nomment ce qu'elles posent,
+  // dans la sous-partie qui les tient — un clic pour y aller, et le §14 en
+  // demande exactement un.
+  const beforePart = await clicksSoFar(page);
+  await openSection(page, 'Ouvertures');
+  expect((await clicksSoFar(page)) - beforePart).toBe(1);
   await toolbox.getByRole('button', { name: 'Porte', exact: true }).click();
   await canvas.click({ position: { x: 200, y: 80 } });
   await expect(page.getByRole('status')).toContainText('ouverture');
@@ -108,6 +114,7 @@ test('T1 — un projet neuf, quatre murs, une porte, une fenêtre, une pièce', 
   await expect(page.locator('[data-role^="OPENING"]').first()).toBeVisible();
 
   // Et la pièce que ces murs enferment.
+  await openSection(page, 'Pièces');
   await toolbox.getByRole('button', { name: 'Pièce', exact: true }).click();
   await canvas.click({ position: { x: 200, y: 170 } });
   await expect(page.locator('[data-role="SPACE_FILL"]').first()).toBeVisible();
@@ -121,14 +128,12 @@ test('T2 — de l’architecture à l’électricité, une prise et un circuit',
   await loadDemoProject(page);
   const beforeTrade = await clicksSoFar(page);
 
-  // Deux clics pour changer de discipline : l'étape, puis le métier.
+  // Deux clics pour changer de discipline : l'espace, puis le métier — qui
+  // est une sous-partie, et se prend donc dans la rangée.
   await openStage(page, 'Systèmes');
-  await page
-    .locator('.view-bar')
-    .getByLabel('Discipline')
-    .selectOption('ELECTRICAL');
+  await openSection(page, 'Électricité');
 
-  const toolbox = page.locator('.toolbox');
+  const toolbox = page.locator('.tool-header');
   await toolbox.getByRole('button', { name: 'Prise', exact: true }).click();
   // L'entrée a rempli la fiche : c'est ce qu'elle promet en portant ce nom.
   await expect(page.getByLabel('Modèle catalogue')).toHaveValue(
@@ -157,15 +162,12 @@ test('T3 — changer de niveau, de discipline, et masquer une famille', async ({
   // fallait deux — ouvrir « ☰ Modèle », puis choisir.
   const beforeLevel = await clicksSoFar(page);
   await tree.getByRole('button', { name: 'Étage', exact: true }).click();
-  await expect(page.locator('.view-bar h2')).toContainText('Étage');
+  await expect(page.locator('.status-bar')).toContainText('Étage');
   expect((await clicksSoFar(page)) - beforeLevel).toBe(1);
 
   // Deux clics pour changer de discipline.
   await openStage(page, 'Systèmes');
-  await page
-    .locator('.view-bar')
-    .getByLabel('Discipline')
-    .selectOption('HEATING');
+  await openSection(page, 'Chauffage');
 
   // Deux clics pour masquer une famille : le bouton, puis le préréglage. Il en
   // fallait trois, et il y avait deux écrans pour le faire.
@@ -260,17 +262,19 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
    * la personne comprend ce qui manque, et si elle peut y aller de là.
    */
   await page.goto('/');
-  const toolbox = page.locator('.toolbox');
+  const toolbox = page.locator('.tool-header');
+  await openSection(page, 'Ouvertures');
   const door = toolbox.getByRole('button', { name: 'Porte', exact: true });
 
   await expect(door).toContainText('Tracez d’abord un mur');
   await expect(door).toHaveAttribute('aria-description', /mur/);
   await expect(door).toHaveClass(/blocked/);
 
-  // Et la tuile est le geste : cliquer dessus prend l'outil qui débloque.
-  // Elle n'est donc pas désactivée — un bouton qu'on annonce inerte et qui
-  // agit ment à qui l'écoute.
+  // Et la tuile est le geste : cliquer dessus prend l'outil qui débloque,
+  // fût-il dans une autre sous-partie. Elle n'est donc pas désactivée — un
+  // bouton qu'on annonce inerte et qui agit ment à qui l'écoute.
   await door.click();
+  await openSection(page, 'Murs');
   await expect(
     toolbox.getByRole('button', { name: 'Mur', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
@@ -279,11 +283,72 @@ test('T7 — un outil qui ne sert pas encore dit pourquoi, et y mène', async ({
   const canvas = page.locator('.plan-canvas');
   await canvas.click({ position: { x: 80, y: 80 } });
   await canvas.click({ position: { x: 320, y: 80 } });
+  await openSection(page, 'Ouvertures');
   await expect(door).not.toContainText('Tracez');
   await expect(door).not.toHaveClass(/blocked/);
 
-  // Et là où rien ne débloque, le bouton est vraiment inerte, raison comprise.
-  const stair = toolbox.getByRole('button', { name: 'Escalier', exact: true });
-  await expect(stair).toBeDisabled();
-  await expect(stair).toContainText('étage');
+  // Et là où rien ne débloque dans la rangée, le bouton est vraiment inerte,
+  // raison comprise : un réseau se crée ailleurs que dans la boîte à outils.
+  await openStage(page, 'Systèmes');
+  await openSection(page, 'Eau');
+  const run = toolbox.getByRole('button', {
+    name: 'Tracer un tronçon',
+    exact: true,
+  });
+  await expect(run).toBeDisabled();
+  await expect(run).toContainText('réseau');
+
+  /*
+   * Et une question qui ne se pose pas ne se pose pas.
+   *
+   * Sur une maison d'un seul niveau il n'y a pas d'escalier à dessiner : la
+   * sous-partie est absente, pas grisée — il n'y a rien à expliquer. L'outil,
+   * lui, reste atteignable sous « + », comme les vingt-quatre autres.
+   */
+  await openStage(page, 'Bâtiment');
+  const parts = page.getByRole('navigation', { name: 'Sous-parties' });
+  await expect(
+    parts.getByRole('button', { name: 'Escalier', exact: true }),
+  ).toHaveCount(0);
+  await revealAllTools(page);
+  await expect(
+    toolbox.getByRole('button', { name: 'Escalier', exact: true }),
+  ).toBeVisible();
+});
+
+test('T8 — un contour fermé dit sa surface, et propose d’en faire une pièce', async ({
+  page,
+}) => {
+  /*
+   * La question qu'on se pose en fermant quatre murs.
+   *
+   * « Est-ce que c'est reconnu ? » — et le plan est l'endroit où la poser. La
+   * surface était dans l'inspecteur, à une sélection de là ; un contour fermé
+   * sans pièce ne disait rien du tout.
+   */
+  await page.goto('/');
+  const canvas = page.locator('.plan-canvas');
+  const toolbox = page.locator('.tool-header');
+
+  await toolbox
+    .getByRole('button', { name: 'Murs rectangle', exact: true })
+    .click();
+  await canvas.click({ position: { x: 90, y: 90 } });
+  await canvas.click({ position: { x: 330, y: 260 } });
+  await expect(page.getByRole('status')).toContainText('mur');
+
+  // La surface est écrite sur le contour, et le geste qui en fait une pièce
+  // est là où le contour est.
+  const label = page.locator('.room-label').first();
+  await expect(label).toBeVisible();
+  await expect(label).toContainText('m²');
+  const create = label.getByRole('button', { name: '+ Créer pièce' });
+  await expect(create).toBeVisible();
+  await create.click();
+
+  // Et il n'a plus rien à proposer : le contour porte sa pièce.
+  await expect(page.locator('[data-role="SPACE_FILL"]').first()).toBeVisible();
+  await expect(
+    page.locator('.room-label').getByRole('button', { name: '+ Créer pièce' }),
+  ).toHaveCount(0);
 });

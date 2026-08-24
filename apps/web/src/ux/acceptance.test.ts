@@ -57,8 +57,8 @@ function code(path: string): string {
  * assertion lives elsewhere.
  */
 describe('the eighteen acceptance criteria', () => {
-  it('1. the primary navigation holds exactly nine entries', () => {
-    expect(CREATION_STAGES).toHaveLength(9);
+  it('1. the primary navigation holds exactly seven entries', () => {
+    expect(CREATION_STAGES).toHaveLength(7);
   });
 
   it('2. no library, quantity, scenario or check is a primary destination', () => {
@@ -181,8 +181,8 @@ describe('the eighteen acceptance criteria', () => {
   });
 
   it('15. progressive disclosure, and no separate expert mode', () => {
-    expect(source('editor/Toolbox.tsx')).toContain('details');
-    for (const path of ['editor/Toolbox.tsx', 'editor/ContextToolBar.tsx'])
+    expect(source('editor/ToolHeader.tsx')).toContain('details');
+    for (const path of ['editor/ToolHeader.tsx', 'editor/ContextToolBar.tsx'])
       expect(code(path)).not.toContain('editorLevel');
   });
 
@@ -194,12 +194,13 @@ describe('the eighteen acceptance criteria', () => {
       'shell/StageBar.tsx',
       'shell/ContextPanel.tsx',
       'shell/ShellStatusBar.tsx',
-      'editor/Toolbox.tsx',
+      'editor/ToolHeader.tsx',
       'editor/tool-icons.tsx',
       'editor/ContextToolBar.tsx',
       'checks/IssueCenter.tsx',
       'visibility/DisplayPanel.tsx',
-      'shell/ViewBar.tsx',
+      'shell/SectionBar.tsx',
+      'shell/TopBar.tsx',
       'workflow/WorkflowGuide.tsx',
     ])
       expect(code(path), path).not.toMatch(/#[0-9a-f]{3,8}\b/iu);
