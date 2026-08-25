@@ -30,6 +30,7 @@ import type {
 import { domainOfDiscipline } from '@house-technical-designer/core-domain';
 
 import type { CreationStageId } from '../ux/creation-stages.js';
+import type { UiTarget } from '../ux/ui-target.js';
 import type { DesignState } from '../ux/design-state.js';
 
 import { draftKey, type ToolDrafts } from './tool-options.js';
@@ -55,6 +56,16 @@ export interface ToolboxRequirement {
   readonly reason: string;
   /** L'entrée qui débloque, quand c'en est une. */
   readonly entryId?: string;
+  /**
+   * L'écran où se fait le geste, quand ce n'en est pas une.
+   *
+   * Un réseau se crée dans « Réseaux », un étage sous la rangée des niveaux :
+   * ni l'un ni l'autre n'est une entrée de la boîte à outils, et dix-sept
+   * tuiles disaient « allez-y » sans pouvoir y mener. Nommer l'écran suffit —
+   * la coque sait déjà envoyer quelqu'un quelque part, c'est `navigateTo` — et
+   * une raison qui mène vaut mieux qu'une raison qui pointe.
+   */
+  readonly target?: UiTarget;
 }
 
 export interface ToolboxEntry {
@@ -154,7 +165,12 @@ const HAS_WALL: EntryNeeds = {
 };
 const TWO_LEVELS: EntryNeeds = {
   enabledWhen: (state) => state.levelCount >= 2,
-  requires: { reason: 'Ajoutez un étage avant de poser un escalier.' },
+  requires: {
+    reason: 'Ajoutez un étage avant de poser un escalier.',
+    // Le nombre d'étages se règle dans « Niveaux et pièces », et la tuile y
+    // mène : dire « ajoutez un étage » sans dire où était une devinette.
+    target: { destination: 'building' },
+  },
 };
 const HAS_CONTOUR: EntryNeeds = {
   enabledWhen: (state) => state.closedContours.length > 0,
@@ -175,6 +191,9 @@ const hasNetworkOf = (domain: DesignDomainId): EntryNeeds => ({
   enabledWhen: (state) => state.networkDomains.includes(domain),
   requires: {
     reason: 'Créez d’abord un réseau de ce métier dans « Réseaux ».',
+    // Et la tuile y mène, sur le métier dont elle parle : dix-sept boutons
+    // nommaient l'écran sans pouvoir l'ouvrir.
+    target: { destination: 'networks', domain },
   },
 });
 
@@ -310,6 +329,22 @@ const STAGE_SECTIONS: Readonly<
           target: 'OBSTACLE',
           kind: 'GATE',
         }),
+        place(
+          'site.outdoor-heat-pump',
+          'Unité extérieure',
+          'Poser l’unité extérieure d’une pompe à chaleur',
+          'HEAT_PUMP',
+          'HEATING',
+          'OUTDOOR_HEAT_PUMP',
+        ),
+        place(
+          'site.ground-pv',
+          'Champ photovoltaïque',
+          'Poser un champ photovoltaïque au sol',
+          'PV',
+          'PHOTOVOLTAIC',
+          'GROUND_PV_ARRAY',
+        ),
       ],
     },
     {
@@ -364,6 +399,30 @@ const STAGE_SECTIONS: Readonly<
           'CABLE',
           'OTHER',
           'FIBER_TERMINATION',
+        ),
+        place(
+          'site.water-chamber',
+          'Regard d’eau',
+          'Poser un regard d’eau',
+          'NODE',
+          'OTHER',
+          'WATER_CHAMBER',
+        ),
+        place(
+          'site.sewer-chamber',
+          'Regard d’assainissement',
+          'Poser un regard d’assainissement',
+          'NODE',
+          'OTHER',
+          'SEWER_CHAMBER',
+        ),
+        place(
+          'site.drain',
+          'Drain périphérique',
+          'Poser un drain de fondation',
+          'PIPE',
+          'OTHER',
+          'SITE_DRAIN',
         ),
       ],
     },
@@ -441,6 +500,75 @@ const STAGE_SECTIONS: Readonly<
           'Percer un passage dans un mur',
           'VOID',
           { openingType: 'VOID' },
+          undefined,
+          HAS_WALL,
+        ),
+        /*
+         * Une porte-fenêtre, une baie, un garage : ce sont des ouvertures
+         * qu'on retape à la main chaque fois.
+         *
+         * L'outil ne demande que trois nombres — largeur, hauteur, allège — et
+         * ces trois nombres sont exactement ce qui distingue une porte d'une
+         * porte-fenêtre. Une entrée est un outil plus ce qu'on aurait choisi
+         * juste après : les écrire ici, c'est éviter de les retaper.
+         */
+        entry(
+          'building.french-door',
+          'OPENING',
+          'Porte-fenêtre',
+          'Percer une porte-fenêtre dans un mur',
+          'DOOR',
+          {
+            openingType: 'DOOR',
+            widthMm: '900',
+            heightMm: '2150',
+            sillHeightMm: '0',
+          },
+          undefined,
+          HAS_WALL,
+        ),
+        entry(
+          'building.double-door',
+          'OPENING',
+          'Porte double',
+          'Percer une porte à deux vantaux',
+          'DOOR',
+          {
+            openingType: 'DOOR',
+            widthMm: '1400',
+            heightMm: '2040',
+            sillHeightMm: '0',
+          },
+          undefined,
+          HAS_WALL,
+        ),
+        entry(
+          'building.bay-window',
+          'OPENING',
+          'Baie vitrée',
+          'Percer une baie vitrée dans un mur',
+          'WINDOW',
+          {
+            openingType: 'WINDOW',
+            widthMm: '2400',
+            heightMm: '2150',
+            sillHeightMm: '0',
+          },
+          undefined,
+          HAS_WALL,
+        ),
+        entry(
+          'building.garage-door',
+          'OPENING',
+          'Porte de garage',
+          'Percer une porte de garage',
+          'DOOR',
+          {
+            openingType: 'DOOR',
+            widthMm: '2400',
+            heightMm: '2000',
+            sillHeightMm: '0',
+          },
           undefined,
           HAS_WALL,
         ),
@@ -766,6 +894,14 @@ const STAGE_SECTIONS: Readonly<
           'FURNITURE',
           'DESK',
         ),
+        place(
+          'fitting.shelf',
+          'Étagère',
+          'Poser une étagère',
+          'WARDROBE',
+          'FURNITURE',
+          'SHELF',
+        ),
       ],
     },
     {
@@ -1032,6 +1168,62 @@ const STAGE_SECTIONS: Readonly<
           undefined,
           hasNetworkOf('PLUMBING'),
         ),
+        place(
+          'water.walk-in-shower',
+          'Douche à l’italienne',
+          'Poser une douche à l’italienne',
+          'SHOWER',
+          'SANITARY',
+          'WALK_IN_SHOWER',
+        ),
+        place(
+          'water.wall-hung-wc',
+          'WC suspendu',
+          'Poser un WC suspendu',
+          'WC',
+          'SANITARY',
+          'WALL_HUNG_WC',
+        ),
+        place(
+          'water.mixing-valve',
+          'Mitigeur thermostatique',
+          'Poser un mitigeur thermostatique',
+          'PIPE',
+          'SANITARY',
+          'THERMOSTATIC_MIXING_VALVE',
+        ),
+        place(
+          'water.meter',
+          'Compteur d’eau',
+          'Poser le compteur d’eau',
+          'NODE',
+          'OTHER',
+          'WATER_METER',
+        ),
+        place(
+          'water.main-valve',
+          'Robinet d’arrêt',
+          'Poser le robinet d’arrêt général',
+          'NODE',
+          'OTHER',
+          'MAIN_VALVE',
+        ),
+        place(
+          'water.softener',
+          'Adoucisseur',
+          'Poser un adoucisseur',
+          'TANK',
+          'OTHER',
+          'WATER_SOFTENER',
+        ),
+        place(
+          'water.manifold',
+          'Nourrice',
+          'Poser une nourrice de distribution',
+          'BRANCH',
+          'SANITARY',
+          'MANIFOLD',
+        ),
       ],
     },
     {
@@ -1104,6 +1296,38 @@ const STAGE_SECTIONS: Readonly<
           'OTHER',
           'VENT_STACK',
         ),
+        place(
+          'waste.septic',
+          'Fosse toutes eaux',
+          'Poser une fosse toutes eaux',
+          'TANK',
+          'OTHER',
+          'SEPTIC_TANK',
+        ),
+        place(
+          'waste.grease',
+          'Bac à graisse',
+          'Poser un bac à graisse',
+          'TANK',
+          'OTHER',
+          'GREASE_TRAP',
+        ),
+        place(
+          'waste.lifting',
+          'Poste de relevage',
+          'Poser un poste de relevage',
+          'TANK',
+          'OTHER',
+          'LIFTING_STATION',
+        ),
+        place(
+          'waste.cleanout',
+          'Tampon de dégorgement',
+          'Poser un tampon de dégorgement',
+          'NODE',
+          'OTHER',
+          'CLEANOUT',
+        ),
       ],
     },
     {
@@ -1153,6 +1377,46 @@ const STAGE_SECTIONS: Readonly<
           'TANK',
           'OTHER',
           'RAIN_FILTER',
+        ),
+        place(
+          'rain.chamber',
+          'Regard',
+          'Poser un regard d’eaux pluviales',
+          'NODE',
+          'OTHER',
+          'RAINWATER_CHAMBER',
+        ),
+        place(
+          'rain.underground-tank',
+          'Cuve enterrée',
+          'Poser une cuve enterrée',
+          'TANK',
+          'OTHER',
+          'UNDERGROUND_TANK',
+        ),
+        place(
+          'rain.soakaway',
+          'Puits d’infiltration',
+          'Poser un puits d’infiltration',
+          'TANK',
+          'OTHER',
+          'SOAKAWAY',
+        ),
+        place(
+          'rain.pump',
+          'Pompe de reprise',
+          'Poser une pompe de reprise',
+          'NODE',
+          'OTHER',
+          'RAINWATER_PUMP',
+        ),
+        place(
+          'rain.overflow',
+          'Trop-plein',
+          'Poser un trop-plein',
+          'PIPE',
+          'OTHER',
+          'OVERFLOW',
         ),
       ],
     },
@@ -1220,6 +1484,54 @@ const STAGE_SECTIONS: Readonly<
           'HEATING',
           'ROOM_THERMOSTAT',
         ),
+        place(
+          'heating.boiler-gas',
+          'Chaudière gaz',
+          'Poser une chaudière gaz',
+          'HEAT_PUMP',
+          'HEATING',
+          'BOILER_GAS',
+        ),
+        place(
+          'heating.convector',
+          'Convecteur',
+          'Poser un convecteur électrique',
+          'RADIATOR',
+          'HEATING',
+          'ELECTRIC_HEATER',
+        ),
+        place(
+          'heating.buffer',
+          'Ballon tampon',
+          'Poser un ballon tampon',
+          'TANK',
+          'HEATING',
+          'BUFFER_TANK',
+        ),
+        place(
+          'heating.circulator',
+          'Circulateur',
+          'Poser un circulateur',
+          'NODE',
+          'HEATING',
+          'CIRCULATOR',
+        ),
+        place(
+          'heating.split',
+          'Split mural',
+          'Poser un split mural',
+          'GRILLE',
+          'HEATING',
+          'WALL_SPLIT_UNIT',
+        ),
+        place(
+          'heating.outdoor-unit',
+          'Unité extérieure',
+          'Poser l’unité extérieure',
+          'HEAT_PUMP',
+          'HEATING',
+          'OUTDOOR_UNIT',
+        ),
       ],
     },
     {
@@ -1277,6 +1589,38 @@ const STAGE_SECTIONS: Readonly<
           'DUCT',
           'VENTILATION',
           'EXHAUST_TERMINAL',
+        ),
+        place(
+          'air.double-flow',
+          'VMC double flux',
+          'Poser une VMC double flux',
+          'FAN',
+          'VENTILATION',
+          'BALANCED_VENTILATION_UNIT',
+        ),
+        place(
+          'air.intake',
+          'Prise d’air neuf',
+          'Poser une prise d’air neuf',
+          'GRILLE',
+          'VENTILATION',
+          'OUTDOOR_AIR_INTAKE',
+        ),
+        place(
+          'air.fan',
+          'Ventilateur',
+          'Poser un ventilateur de gaine',
+          'FAN',
+          'VENTILATION',
+          'FAN',
+        ),
+        place(
+          'air.fire-damper',
+          'Clapet coupe-feu',
+          'Poser un clapet coupe-feu',
+          'GRILLE',
+          'VENTILATION',
+          'FIRE_DAMPER',
         ),
       ],
     },
@@ -1344,6 +1688,70 @@ const STAGE_SECTIONS: Readonly<
           'ELECTRICAL',
           'TWO_WAY_SWITCH',
         ),
+        place(
+          'power.dimmer',
+          'Variateur',
+          'Poser un variateur',
+          'SWITCH',
+          'ELECTRICAL',
+          'DIMMER',
+        ),
+        place(
+          'power.double-switch',
+          'Double interrupteur',
+          'Poser un double interrupteur',
+          'SWITCH',
+          'ELECTRICAL',
+          'DOUBLE_SWITCH',
+        ),
+        place(
+          'power.push-button',
+          'Bouton poussoir',
+          'Poser un bouton poussoir',
+          'SWITCH',
+          'ELECTRICAL',
+          'PUSH_BUTTON',
+        ),
+        place(
+          'power.exterior-socket',
+          'Prise extérieure',
+          'Poser une prise extérieure',
+          'SOCKET',
+          'ELECTRICAL',
+          'EXTERIOR_SOCKET',
+        ),
+        place(
+          'power.cable-outlet',
+          'Sortie de câble',
+          'Poser une sortie de câble',
+          'SOCKET',
+          'ELECTRICAL',
+          'CABLE_OUTLET',
+        ),
+        place(
+          'power.cooker-outlet',
+          'Sortie de cuisson',
+          'Poser une sortie de cuisson',
+          'SOCKET',
+          'ELECTRICAL',
+          'COOKER_OUTLET',
+        ),
+        place(
+          'power.sub-board',
+          'Tableau divisionnaire',
+          'Poser un tableau divisionnaire',
+          'BOARD',
+          'ELECTRICAL',
+          'SUB_DISTRIBUTION_BOARD',
+        ),
+        place(
+          'power.ev',
+          'Borne de recharge',
+          'Poser une borne de recharge',
+          'SOCKET',
+          'ELECTRICAL',
+          'EV_CHARGER',
+        ),
       ],
     },
     {
@@ -1393,6 +1801,46 @@ const STAGE_SECTIONS: Readonly<
           'LAMP',
           'LIGHTING',
           'PENDANT',
+        ),
+        place(
+          'light.spotlight',
+          'Projecteur',
+          'Poser un projecteur',
+          'LAMP',
+          'LIGHTING',
+          'SPOTLIGHT',
+        ),
+        place(
+          'light.strip',
+          'Ruban LED',
+          'Poser un ruban LED',
+          'LAMP',
+          'LIGHTING',
+          'LED_STRIP',
+        ),
+        place(
+          'light.exterior',
+          'Éclairage extérieur',
+          'Poser un éclairage extérieur',
+          'LAMP',
+          'LIGHTING',
+          'EXTERIOR_LIGHT',
+        ),
+        place(
+          'light.presence',
+          'Détecteur de présence',
+          'Poser un détecteur de présence',
+          'SWITCH',
+          'LIGHTING',
+          'PRESENCE_SENSOR',
+        ),
+        place(
+          'light.emergency',
+          'Bloc de secours',
+          'Poser un bloc de secours',
+          'LAMP',
+          'LIGHTING',
+          'EMERGENCY_LIGHT',
         ),
       ],
     },
@@ -1455,6 +1903,46 @@ const STAGE_SECTIONS: Readonly<
           'OTHER',
           'CHIMNEY_TERMINAL',
         ),
+        place(
+          'flue.fireplace',
+          'Cheminée',
+          'Poser une cheminée',
+          'RADIATOR',
+          'HEATING',
+          'FIREPLACE',
+        ),
+        place(
+          'flue.pellet-insert',
+          'Insert à granulés',
+          'Poser un insert à granulés',
+          'RADIATOR',
+          'HEATING',
+          'PELLET_INSERT',
+        ),
+        place(
+          'flue.cap',
+          'Chapeau',
+          'Poser un chapeau de conduit',
+          'NODE',
+          'OTHER',
+          'CHIMNEY_CAP',
+        ),
+        place(
+          'flue.cleanout',
+          'Trappe de ramonage',
+          'Poser une trappe de ramonage',
+          'NODE',
+          'OTHER',
+          'FLUE_CLEANOUT',
+        ),
+        place(
+          'flue.air-intake',
+          'Prise d’air de combustion',
+          'Poser une prise d’air de combustion',
+          'GRILLE',
+          'OTHER',
+          'COMBUSTION_AIR_INTAKE',
+        ),
       ],
     },
     {
@@ -1508,6 +1996,54 @@ const STAGE_SECTIONS: Readonly<
           'NODE',
           'OTHER',
           'WIFI_ACCESS_POINT',
+        ),
+        place(
+          'data.camera',
+          'Caméra',
+          'Poser une caméra',
+          'NODE',
+          'OTHER',
+          'CAMERA',
+        ),
+        place(
+          'data.intercom',
+          'Interphone',
+          'Poser un interphone',
+          'NODE',
+          'OTHER',
+          'INTERCOM',
+        ),
+        place(
+          'data.doorbell',
+          'Platine de rue',
+          'Poser une platine de rue',
+          'NODE',
+          'OTHER',
+          'VIDEO_DOORBELL',
+        ),
+        place(
+          'data.switch',
+          'Commutateur',
+          'Poser un commutateur réseau',
+          'BOARD',
+          'OTHER',
+          'NETWORK_SWITCH',
+        ),
+        place(
+          'data.co2',
+          'Capteur de CO₂',
+          'Poser un capteur de CO₂',
+          'NODE',
+          'OTHER',
+          'CO2_SENSOR',
+        ),
+        place(
+          'data.leak',
+          'Détecteur de fuite',
+          'Poser un détecteur de fuite',
+          'NODE',
+          'OTHER',
+          'LEAK_SENSOR',
         ),
       ],
     },
@@ -1570,6 +2106,38 @@ const STAGE_SECTIONS: Readonly<
           'OTHER',
           'EXTINGUISHER',
         ),
+        place(
+          'safety.heat',
+          'Détecteur thermique',
+          'Poser un détecteur thermique',
+          'NODE',
+          'OTHER',
+          'HEAT_DETECTOR',
+        ),
+        place(
+          'safety.siren',
+          'Sirène',
+          'Poser une sirène',
+          'NODE',
+          'OTHER',
+          'SIREN',
+        ),
+        place(
+          'safety.door-contact',
+          'Contact de porte',
+          'Poser un contact de porte',
+          'NODE',
+          'OTHER',
+          'DOOR_CONTACT',
+        ),
+        place(
+          'safety.emergency-stop',
+          'Arrêt d’urgence',
+          'Poser un arrêt d’urgence',
+          'SWITCH',
+          'ELECTRICAL',
+          'EMERGENCY_STOP',
+        ),
       ],
     },
     {
@@ -1627,6 +2195,46 @@ const STAGE_SECTIONS: Readonly<
           'ELECTRICAL',
           'PRODUCTION_METER',
         ),
+        place(
+          'solar.hybrid-inverter',
+          'Onduleur hybride',
+          'Poser un onduleur hybride',
+          'INVERTER',
+          'PHOTOVOLTAIC',
+          'HYBRID_INVERTER',
+        ),
+        place(
+          'solar.microinverter',
+          'Micro-onduleur',
+          'Poser un micro-onduleur',
+          'INVERTER',
+          'PHOTOVOLTAIC',
+          'MICROINVERTER',
+        ),
+        place(
+          'solar.optimizer',
+          'Optimiseur',
+          'Poser un optimiseur',
+          'INVERTER',
+          'PHOTOVOLTAIC',
+          'OPTIMIZER',
+        ),
+        place(
+          'solar.dc-isolator',
+          'Sectionneur continu',
+          'Poser un sectionneur continu',
+          'SWITCH',
+          'PHOTOVOLTAIC',
+          'DC_ISOLATOR',
+        ),
+        place(
+          'solar.ac-panel',
+          'Coffret alternatif',
+          'Poser le coffret alternatif',
+          'BOARD',
+          'ELECTRICAL',
+          'AC_PANEL',
+        ),
       ],
     },
     {
@@ -1667,6 +2275,38 @@ const STAGE_SECTIONS: Readonly<
           undefined,
           undefined,
           hasNetworkOf('STORAGE'),
+        ),
+        place(
+          'storage.pack',
+          'Pack batterie',
+          'Poser un pack batterie',
+          'BATTERY',
+          'ELECTRICAL',
+          'BATTERY_PACK',
+        ),
+        place(
+          'storage.bms',
+          'BMS',
+          'Poser le système de gestion de batterie',
+          'BOARD',
+          'ELECTRICAL',
+          'BMS',
+        ),
+        place(
+          'storage.ats',
+          'Inverseur de source',
+          'Poser un inverseur de source',
+          'SWITCH',
+          'ELECTRICAL',
+          'ATS',
+        ),
+        place(
+          'storage.backup',
+          'Coffret de secours',
+          'Poser le coffret de secours',
+          'BOARD',
+          'ELECTRICAL',
+          'BACKUP_GATEWAY',
         ),
       ],
     },
@@ -2039,6 +2679,26 @@ export function activeEntryId(
       best = { id: candidate.id, keys: wanted.length };
   }
   return best?.id;
+}
+
+/**
+ * De quoi prendre l'outil composant avec une fiche déjà choisie.
+ *
+ * Les entrées nomment une famille et laissent `draftsForEntry` trouver la
+ * fiche ; celui qui vient de choisir dans la nomenclature tient déjà la
+ * fiche — il n'a pas de famille à résoudre, il a une réponse. Les clés sont
+ * fabriquées ici parce que c'est ici qu'on sait comment elles s'écrivent.
+ */
+export function componentDrafts(
+  definitionId: string,
+  category: string,
+): ToolDrafts {
+  const tool = toolById('COMPONENT');
+  if (tool === undefined) return {};
+  return {
+    [keyFor(tool, 'category')]: category,
+    [keyFor(tool, 'definitionId')]: definitionId,
+  };
 }
 
 function keyFor(tool: EditorToolDefinition, option: string): string {

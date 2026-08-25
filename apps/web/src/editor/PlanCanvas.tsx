@@ -1346,6 +1346,10 @@ export function PlanCanvas({
         <TemporaryDimensions
           edits={temporary.edits}
           atPx={temporary.atPx}
+          framePx={{
+            width: editor.camera.viewportWidthPx,
+            height: editor.camera.viewportHeightPx,
+          }}
           onApply={(edit, value) => {
             const command = edit.apply(value);
             if (command !== undefined) onCommand?.(command);

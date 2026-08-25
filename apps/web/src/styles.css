@@ -308,6 +308,19 @@ h2 {
   flex-direction: column;
   overflow: hidden;
 }
+/*
+ * Un écran de document défile ; le plan, non.
+ *
+ * Le plan prend la case qu'on lui donne et n'en sort jamais : c'est ce que
+ * `overflow: hidden` dit, et c'est juste pour lui. Les tableaux et les
+ * formulaires qui occupent la même case sont, eux, plus hauts qu'elle — les
+ * vérifications, la table des feuilles, l'écran du projet — et ce qui passait
+ * la ligne de flottaison était **perdu** : rogné, sans barre pour aller le
+ * chercher. `npm run audit:layout` en comptait deux cent trente.
+ */
+.canvas-panel.is-document {
+  overflow: auto;
+}
 .canvas-panel header {
   padding: 1rem 1.2rem;
   border-bottom: 1px solid #dce4df;
@@ -487,8 +500,20 @@ h2 {
   .panel-edge-empty {
     display: none;
   }
+  /*
+   * L'inspecteur passe sous le plan — et n'en prend pas la moitié.
+   *
+   * En rangée pleine largeur, la grille lui donnait autant de hauteur qu'au
+   * dessin : sur un écran de 768 px, désigner un mur faisait tomber le plan de
+   * 597 px à 255. Il gardait alors ses 240 px de minimum en **débordant** de
+   * sa case, et tout ce qui est posé sur son bord bas — le calque de fond, la
+   * rose des vents — passait sous la ligne de flottaison.
+   *
+   * Les propriétés d'un objet se lisent ; le plan se dessine.
+   */
   .inspector {
     grid-column: 1/-1;
+    max-height: 45vh;
   }
   .metrics {
     grid-template-columns: repeat(6, 1fr);
@@ -585,8 +610,10 @@ h2 {
   .drawing-canvas {
     min-height: 420px;
   }
-  .plan-canvas {
-    min-height: 60vh;
+  /* Le minimum appartient à la case, ici aussi : un dessin plus haut que sa
+     case en sort, et ce qui est posé sur son bord bas disparaît. */
+  #plan {
+    min-height: 65vh;
   }
   /* The inspector reads as a panel under the plan rather than a third column. */
   .inspector {
@@ -1023,12 +1050,24 @@ button.icon {
   stroke-width: 1.4;
   stroke-dasharray: 6 4;
 }
+/*
+ * Le minimum appartient à la case, pas au dessin.
+ *
+ * Le dessin le portait — `min-height: 240px` — et quand la case devenait plus
+ * courte que ça, il en **sortait** : la case rogne ce qui dépasse, et tout ce
+ * qui est posé sur son bord bas — le calque de fond, la rose des vents —
+ * passait sous la ligne de flottaison sans rien pour l'y rattraper. La case
+ * porte donc le minimum, et le dessin prend ce qu'elle lui donne.
+ */
+#plan {
+  min-height: 21rem;
+}
 .plan-canvas {
   position: relative;
-  /* Le plan prend ce qui reste de la colonne, et jamais moins que de quoi
-     dessiner : c'est lui qui donne sa hauteur à la coque, pas l'inverse. */
+  /* Le plan prend ce qui reste de la colonne : c'est la case qui garantit
+     qu'il en reste de quoi dessiner. */
   flex: 1;
-  min-height: 240px;
+  min-height: 0;
   overflow: hidden;
   border: 1px solid #d7e0da;
   border-radius: 0.9rem;
@@ -2187,6 +2226,11 @@ legend {
   background: rgba(255, 255, 255, 0.92);
   font-size: 0.68rem;
 }
+/* Une fois mesurée, elle est posée où elle tient : la transformation qui la
+   remontait à l'aveugle la faisait sortir du dessin près du bord haut. */
+.temporary-dimensions.is-placed {
+  transform: none;
+}
 .temporary-dimension {
   display: grid;
   gap: 0.05rem;
@@ -2486,6 +2530,55 @@ legend {
 .section-fold .add-grid {
   padding: 0 0 0.35rem;
 }
+/*
+ * La porte vers ce que la sous-partie n'a pas nommé.
+ *
+ * Elle n'est pas un outil : elle n'a donc pas la forme d'un outil. Une ligne
+ * discrète sous la grille, qui dit « il y en a d'autres » sans prétendre poser
+ * quoi que ce soit.
+ */
+.section-more {
+  display: block;
+  width: 100%;
+  margin: 0 0 0.5rem;
+  padding: 0.3rem 0.4rem;
+  border: 1px dashed var(--line);
+  border-radius: 0.5rem;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: left;
+}
+.section-more:hover {
+  border-style: solid;
+  color: var(--ink);
+}
+/*
+ * La nomenclature, ouverte par-dessus le plan.
+ *
+ * Elle est posée en `fixed`, comme le panneau d'affichage et pour la même
+ * raison : la case du plan rogne ce qui en sort, et une liste de familles est
+ * plus haute qu'elle.
+ */
+.family-picker {
+  position: fixed;
+  z-index: 40;
+  top: 4.5rem;
+  left: 50%;
+  width: min(46rem, 94vw);
+  max-height: calc(100vh - 7rem);
+  overflow-y: auto;
+  padding: 0.8rem 1rem 1rem;
+  transform: translateX(-50%);
+  box-shadow: 0 1.5rem 3rem var(--shadow);
+}
+.family-picker .panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
 .stage-compact {
   display: none;
 }
@@ -2567,6 +2660,21 @@ legend {
      pas hors de l'écran parce qu'il y a huit outils devant. */
   padding-left: 0.3rem;
   background: var(--surface);
+}
+/*
+ * Ce qui commande le plan tient dans la rangée du plan.
+ *
+ * La barre de vue avait ses propres tailles ; en se fondant dans la rangée
+ * d'outils, « Affichage » a repris celles d'un bouton de formulaire — 63 px
+ * de haut dans une rangée de 42, donc dix pixels rognés au-dessus par la case
+ * du plan. Un bouton dont on ne voit pas le haut est un bouton mal posé.
+ */
+.tool-row-end button,
+.tool-row-end select,
+.tool-row-end input {
+  min-height: 2.1rem;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.75rem;
 }
 /* Le reste des outils, à un dépliage et au même endroit. */
 .tool-more {
@@ -3333,12 +3441,27 @@ button.ghost:disabled {
 .visibility-anchor {
   position: relative;
 }
+/*
+ * Posé en `fixed`, à l'endroit de son propre bouton.
+ *
+ * Il était `absolute` sous le bouton, donc **dans** la case du plan — et cette
+ * case rogne ce qui en sort, c'est ce qui empêche le dessin d'allonger la
+ * page. Sur un écran de 768 px avec un objet désigné, l'inspecteur prend une
+ * rangée entière, le plan tombe à 334 px, et les cent derniers pixels du
+ * panneau — les vingt calques — étaient perdus, sans barre pour les chercher.
+ *
+ * Hors de la case, il n'est plus borné que par la fenêtre, et défile chez lui
+ * quand la fenêtre est courte. La position est relue du bouton à chaque
+ * ouverture, comme les réglages d'accrochage de la barre d'état.
+ */
 .display-panel {
-  position: absolute;
+  position: fixed;
   z-index: 20;
-  top: calc(100% + 0.35rem);
-  right: 0;
+  top: 5.5rem;
+  right: 0.5rem;
   width: min(20rem, 80vw);
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
   padding: 0.7rem 0.9rem 0.9rem;
   box-shadow: 0 1rem 2rem var(--shadow);
 }

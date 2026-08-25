@@ -1179,6 +1179,103 @@ la barre d'état et son métier devenu la rangée des sous-parties. Quatre rang�
 sont devenues trois : **116 px**, contre 153 avant la V4 et 306 avant la
 refonte.
 
+### 14.1 Ce qui est dans le document sans être sur l'écran
+
+`measure-shell.mjs` répond de la coque **au repos** : sa hauteur, sa part de
+plan, son débordement de page. Il visite un écran — la maison chargée, l'onglet
+Bâtiment — et sept espaces, treize destinations, une trentaine de sous-parties
+et deux cent quarante entrées font bien plus d'un écran.
+
+`scripts/audit-layout.mjs` (`npm run audit:layout`) les visite tous, à cinq
+tailles de fenêtre, ouvre chaque entrée, chaque menu, chaque dépliage de
+l'inspecteur, et cherche deux défauts qu'un œil pardonne parce qu'il ne les
+voit pas :
+
+- **coupé** — l'élément sort d'un cadre qui le rogne et aucun cadre intérieur
+  ne défile pour le rattraper : il est dans le document, il n'est nulle part
+  sur l'écran ;
+- **hors écran** — il est entièrement hors de la fenêtre et rien ne défile pour
+  l'y ramener.
+
+Le premier passage en a trouvé **deux cent trente-deux**, tous ramenés à quatre
+causes :
+
+| Cause                                                   | Ce qui disparaissait                                                             |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| La case du plan rogne, et ne défile pas                 | Tout ce qui dépasse d'un écran de document : vérifications, feuilles, projet     |
+| Le minimum appartenait au dessin                        | Ce qui est posé sur son bord bas quand la case devient plus courte que le dessin |
+| L'inspecteur prenait la moitié de l'écran               | Le plan tombait de 597 px à 255 sous 1 050 px de large                           |
+| « Affichage » avait la taille d'un bouton de formulaire | Son propre haut, rogné de dix pixels                                             |
+
+Vingt minutes de parcours : c'est un audit, pas une porte.
+`apps/web/src/ux/reachable-layout.test.ts` reprend les quatre règles qui en
+sortent et les tient en une seconde — une feuille de style se relit mal, et une
+règle qui disparaît ne se voit pas.
+
+### 14.2 Ce qu'on peut ajouter, et ce qu'on ne peut pas
+
+`entry-placement.test.ts` répond « chaque entrée pose-t-elle vraiment ce qu'elle
+annonce ». C'est la moitié de la question ; l'autre est « qu'est-ce qui
+manque ». `scripts/audit-entries.ts` (`npm run audit:entries`) la pose : il
+dresse le tableau des entrées espace par espace — leur outil, leur famille, ce
+qu'elles valent devant un projet neuf et devant la maison de démonstration, ce
+qu'elles laissent derrière elles — puis compte l'écart avec la nomenclature.
+
+Au premier passage : **157 entrées nommant 79 familles**, contre **380 familles
+posables**, dont 266 avaient déjà une fiche générique. Les trois cents autres
+étaient atteignables — la bibliothèque les tient toutes — mais y arriver
+demandait six gestes : quitter le plan, ouvrir « Équipements », chercher,
+ajouter au projet, revenir, reprendre l'outil composant, retrouver la fiche
+dans une liste déroulante.
+
+Deux réponses, et non une :
+
+- **soixante-treize entrées nommées de plus** — la porte-fenêtre, la baie
+  vitrée, le variateur, la sortie de cuisson, la VMC double flux, la fosse
+  toutes eaux, le puits d'infiltration, l'onduleur hybride. Ce sont celles
+  qu'on retape à la main dans une maison ordinaire. Le compte des familles
+  nommées passe à **148** ;
+- **une porte vers le reste**, `FamilyPicker` : « Autre… », en bas de chaque
+  sous-partie qui pose des équipements, ouvre la nomenclature **déjà filtrée
+  sur le métier de cette sous-partie**, et le choix d'une famille installe sa
+  fiche _et_ prend l'outil avec elle. Il reste un clic sur le plan, comme pour
+  n'importe quel bouton nommé.
+
+Trois cents boutons de plus auraient été le mur de boutons que la boîte à
+outils a démonté. Ce qui reste hors des deux réponses n'est pas un oubli : les
+coudes, les tés et les vannes appartiennent à une **conduite** — on les pose en
+traçant, pas en cliquant — et les trente-cinq types de menuiserie demandent
+qu'une ouverture porte une fiche, ce que le modèle ne sait pas encore.
+
+### 14.3 Ce que coûte un ajout
+
+Poser se mesure en trois nombres, et `adding-cost.test.ts` les tient :
+
+| Ce qu'on mesure                                    | Le seuil   | Aujourd'hui |
+| -------------------------------------------------- | ---------- | ----------- |
+| Gestes pour poser, l'espace ouvert                 | **≤ 5**    | 2 à 5       |
+| Outils qui disent quoi faire, au début et en cours | **tous**   | tous        |
+| Tuiles inertes qui mènent au geste qui débloque    | **toutes** | toutes      |
+
+Cinq gestes, c'est prendre l'entrée, poser trois sommets, fermer : une
+parcelle, et le plus cher de ce que la boîte à outils propose. Un outil plus
+cher serait un outil à repenser, pas un seuil à relever.
+
+La troisième ligne est celle qui a changé. Une tuile inerte disait déjà
+**pourquoi** — c'est le contraire du bouton grisé en silence — et cliquer
+dessus prenait l'outil qui débloque quand c'en était un : sans mur tracé,
+« Porte » prend « Mur ». Restaient **vingt et une tuiles** dont le geste qui
+débloque n'est pas un outil : dix-sept « créez d'abord un réseau de ce métier
+dans "Réseaux" », quatre « ajoutez un étage ». La raison était juste et laissait
+la personne devant un écran qu'elle devait trouver seule.
+
+Une exigence nomme donc un **écran** autant qu'une entrée
+(`ToolboxRequirement.target`, un `UiTarget` qui sait maintenant dire sa
+destination), et la coque sait déjà envoyer quelqu'un quelque part — c'est
+`navigateTo`, écrit une fois pour les six fonctions qui disaient « va là-bas ».
+Cliquer la tuile bloquée ouvre Systèmes › Réseaux, sur le métier dont elle
+parle.
+
 La seconde ligne d'options ne pousse rien : elle **flotte** sur la marge haute
 du dessin, et seuls ses contrôles répondent au pointeur. Une rangée qui pousse
 le plan en apparaissant le fait changer de taille, la caméra se remet à

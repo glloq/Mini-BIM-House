@@ -36,6 +36,18 @@ export interface DisplayPanelProps {
   readonly renderingId: string;
   readonly onRendering: (renderingId: string) => void;
   readonly onClose: () => void;
+  /**
+   * Où le poser, relevé sur son propre bouton.
+   *
+   * Il était posé en `absolute` sous le bouton, donc **dans** la case du plan
+   * — et cette case rogne ce qui en sort. Sur un écran de 768 px avec un objet
+   * désigné, l'inspecteur prend une rangée entière, le plan tombe à 334 px, et
+   * les cent derniers pixels du panneau — les vingt calques — étaient perdus.
+   *
+   * Posé en `fixed`, il n'appartient plus à cette case : il est borné par la
+   * fenêtre, et défile chez lui si la fenêtre est courte.
+   */
+  readonly at?: { readonly top: number; readonly right: number };
 }
 
 export function DisplayPanel({
@@ -44,6 +56,7 @@ export function DisplayPanel({
   renderingId,
   onRendering,
   onClose,
+  at,
 }: DisplayPanelProps) {
   useEffect(() => {
     const close = (event: KeyboardEvent): void => {
@@ -56,7 +69,16 @@ export function DisplayPanel({
   const hidden = hiddenLayerCount(editor);
 
   return (
-    <div className="display-panel panel" role="dialog" aria-label="Affichage">
+    <div
+      className="display-panel panel"
+      role="dialog"
+      aria-label="Affichage"
+      style={
+        at === undefined
+          ? undefined
+          : { top: `${at.top}px`, right: `${at.right}px` }
+      }
+    >
       <p className="context-group-label">Rendu</p>
       <div className="visibility-presets">
         {PLAN_RENDERINGS.map((entry) => (

@@ -3675,6 +3675,85 @@ test('ne laisse pas modifier la parcelle depuis le bâtiment, ni le bâtiment de
   expect(errors).toEqual([]);
 });
 
+test('mène à l’écran qui débloque, au lieu de le nommer', async ({ page }) => {
+  const errors = watchConsole(page);
+  await page.goto('/');
+
+  /*
+   * Vingt et une tuiles disaient où aller sans pouvoir y mener.
+   *
+   * « Créez d'abord un réseau de ce métier dans "Réseaux" » est une raison
+   * juste, et elle laissait la personne devant un bouton gris en face d'un
+   * écran qu'elle devait trouver seule. Une tuile inerte porte un geste :
+   * l'outil qui débloque quand c'en est un, l'écran qui débloque sinon.
+   */
+  await openStage(page, 'Systèmes');
+  await openSection(page, 'Eau');
+  const parts = page.getByRole('navigation', { name: 'Sous-parties' });
+  const blocked = parts.getByRole('button', { name: 'Tracer un tronçon' });
+  await expect(blocked).toContainText('réseau');
+  // Elle n'est donc pas désactivée : un bouton qu'on annonce inerte et qui
+  // agit ment à qui l'écoute, mais un bouton qui mène quelque part agit.
+  await expect(blocked).toBeEnabled();
+
+  await blocked.click();
+  await expect(page.locator('.network-layout')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('pose depuis la nomenclature ce qu’aucun bouton ne nomme', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await loadDemo(page);
+
+  /*
+   * Soixante-dix-neuf familles nommées, trois cent quatre-vingts posables.
+   *
+   * Les trois cents autres étaient atteignables — la bibliothèque les tient
+   * toutes — mais y arriver demandait de quitter le plan, d'ouvrir
+   * « Équipements », de chercher, d'ajouter au projet, de revenir, de
+   * reprendre l'outil composant et de retrouver la fiche dans une liste
+   * déroulante. Six gestes pour poser un variateur.
+   */
+  await openStage(page, 'Systèmes');
+  await openSection(page, 'Électricité');
+  const parts = page.getByRole('navigation', { name: 'Sous-parties' });
+  await parts.getByRole('button', { name: 'Autre…' }).click();
+
+  // Ouverte sur le métier de la sous-partie : cinq cents familles à plat sont
+  // une liste qu'on ne lit pas.
+  const picker = page.getByRole('dialog', { name: 'Depuis la nomenclature' });
+  await expect(picker).toBeVisible();
+  await expect(picker.getByLabel('Métier')).toHaveValue('ELECTRICAL');
+  await picker.getByLabel('Rechercher').fill('variateur');
+  await picker
+    .getByRole('button', { name: /Variateur/u })
+    .first()
+    .click();
+
+  // Et le bouton dit ce qu'il fait : il pose, il n'archive pas.
+  await picker
+    .getByRole('button', { name: 'Poser sur le plan' })
+    .first()
+    .click();
+  await expect(picker).toHaveCount(0);
+  await expect(page.getByRole('status')).toContainText('cliquez');
+
+  // La fiche est installée **et** l'outil la tient : il reste un clic.
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  const wall = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: wall.x - box.x + wall.width * 0.4,
+      y: wall.y - box.y + wall.height / 2,
+    },
+  });
+  await expect(page.getByRole('status')).toContainText('appliqué');
+  expect(errors).toEqual([]);
+});
+
 test('installe la fiche que le bouton pose, au moment où on le prend', async ({
   page,
 }) => {

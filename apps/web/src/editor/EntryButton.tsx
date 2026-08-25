@@ -14,6 +14,7 @@ import {
   type ToolboxAvailability,
   type ToolboxEntry,
 } from './toolbox.js';
+import type { UiTarget } from '../ux/ui-target.js';
 
 /**
  * Une entrée, et ce qu'elle vaut devant cette maison-là.
@@ -33,14 +34,26 @@ export function EntryButton({
   available,
   active,
   onChoose,
+  onNavigate,
 }: {
   readonly available: ToolboxAvailability;
   readonly active: boolean;
   readonly onChoose: (entry: ToolboxEntry) => void;
+  /**
+   * Où aller quand le geste qui débloque n'est pas un outil.
+   *
+   * Un réseau se crée dans « Réseaux », un étage dans « Niveaux et pièces » :
+   * vingt et une tuiles disaient d'y aller sans pouvoir y mener.
+   */
+  readonly onNavigate?: (target: UiTarget) => void;
 }) {
   const { entry, enabled, recommended, requirement } = available;
   const tool = toolById(entry.toolId);
   const unblock = enabled ? undefined : unblockingEntry(requirement);
+  const elsewhere =
+    enabled || unblock !== undefined || onNavigate === undefined
+      ? undefined
+      : requirement?.target;
   const classes = ['toolbox-entry'];
   if (active) classes.push('active');
   if (recommended) classes.push('recommended');
@@ -53,15 +66,28 @@ export function EntryButton({
       {...(requirement === undefined
         ? {}
         : { 'aria-description': requirement.reason })}
-      {...(unblock === undefined ? { disabled: !enabled } : {})}
+      {...(unblock === undefined && elsewhere === undefined
+        ? { disabled: !enabled }
+        : {})}
       title={
         requirement === undefined
           ? `${entry.hint}${shortcut(tool?.shortcutId)}`
-          : unblock === undefined
-            ? `${entry.label} — ${requirement.reason}`
-            : `${entry.label} — ${requirement.reason} Cliquez pour prendre « ${unblock.label} ».`
+          : unblock !== undefined
+            ? `${entry.label} — ${requirement.reason} Cliquez pour prendre « ${unblock.label} ».`
+            : elsewhere === undefined
+              ? `${entry.label} — ${requirement.reason}`
+              : `${entry.label} — ${requirement.reason} Cliquez pour y aller.`
       }
-      onClick={() => onChoose(unblock ?? entry)}
+      onClick={() => {
+        // La tuile **est** le geste : elle prend l'outil qui débloque quand
+        // c'en est un, et mène à l'écran qui débloque quand ce n'en est pas
+        // un. Elle n'est vraiment inerte que là où rien ne débloque.
+        if (elsewhere !== undefined) {
+          onNavigate?.(elsewhere);
+          return;
+        }
+        onChoose(unblock ?? entry);
+      }}
     >
       <ToolIcon icon={entry.icon} />
       <span>{entry.label}</span>

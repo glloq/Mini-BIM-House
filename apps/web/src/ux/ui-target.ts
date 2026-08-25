@@ -15,10 +15,21 @@
 import type { DesignDomainId } from '@house-technical-designer/core-domain';
 
 import type { CreationStageId } from './creation-stages.js';
+import type { DestinationId } from './destinations.js';
 
 export interface UiTarget {
   /** L'étape de création à ouvrir : ce que la personne va être en train de faire. */
   readonly stage?: CreationStageId;
+  /**
+   * L'écran de cette étape, quand ce n'est pas le plan.
+   *
+   * Une étape en tient de une à cinq — le plan, les réseaux, les calculs, les
+   * feuilles — et « allez dans Systèmes » n'a jamais voulu dire « allez dans
+   * Systèmes › Réseaux ». Dix-sept boutons disaient « créez d'abord un réseau
+   * de ce métier dans Réseaux » sans pouvoir y mener : la cible savait nommer
+   * l'étape, pas l'écran.
+   */
+  readonly destination?: DestinationId;
   /** The technical discipline to read the plan through, in Systèmes. */
   readonly domain?: DesignDomainId;
   readonly levelId?: string;
@@ -85,6 +96,7 @@ export function locationAfter(from: UiLocation, to: UiTarget): UiLocation {
 export function isEmptyTarget(target: UiTarget): boolean {
   return (
     target.stage === undefined &&
+    target.destination === undefined &&
     target.domain === undefined &&
     target.levelId === undefined &&
     target.objectId === undefined &&

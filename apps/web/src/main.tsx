@@ -22,6 +22,7 @@ import {
   SetScenarioOverrideCommand,
 } from '@house-technical-designer/editor-core';
 import type {
+  DesignDomainId,
   ProjectSheet,
   SavedDrawingView,
 } from '@house-technical-designer/core-domain';
@@ -206,6 +207,7 @@ import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
 import { surfaceIds } from './editor/polygon-surface.js';
 import {
+  componentDrafts,
   draftsForEntry,
   ficheOfFamily,
   type ToolboxEntry,
@@ -311,11 +313,32 @@ const ProjectCreationPage = lazy(async () => ({
   default: (await import('./project-creation/ProjectCreationPage.js'))
     .ProjectCreationPage,
 }));
+/*
+ * La nomenclature entière, chargée au moment où on la demande.
+ *
+ * Elle pèse soixante-treize kio et sert à qui veut poser autre chose que les
+ * soixante-dix-neuf familles nommées : un plan qui s'ouvre n'a pas à la
+ * porter.
+ */
+const FamilyPicker = lazy(async () => ({
+  default: (await import('./library/FamilyPicker.js')).FamilyPicker,
+}));
 
-/** One workspace panel, with what to show while its code is still arriving. */
+/**
+ * One workspace panel, with what to show while its code is still arriving.
+ *
+ * `is-document` : un écran de document **défile**, le plan non.
+ *
+ * Les deux vivent dans la même case de la grille, et cette case rogne ce qui
+ * en sort — c'est ce qui empêche le dessin d'allonger la page. Les tableaux et
+ * les formulaires, eux, sont plus hauts qu'elle : les vérifications, la table
+ * des feuilles, l'écran du projet perdaient tout ce qui passait la ligne de
+ * flottaison, sans barre de défilement pour aller le chercher. Un audit de
+ * mise en page en comptait deux cent trente.
+ */
 function LazyWorkspace({ children }: { readonly children: ReactNode }) {
   return (
-    <section className="canvas-panel panel">
+    <section className="canvas-panel panel is-document">
       <Suspense
         fallback={<p className="notice">Chargement de l’espace de travail…</p>}
       >
@@ -434,7 +457,26 @@ function App() {
   /** The property someone was sent to look at, when they were sent to one. */
   const [inspectedProperty, setInspectedProperty] = useState<string>();
   /** Whether what is drawn is being chosen right now. */
+  /*
+   * La sous-partie dont on est en train de lire la nomenclature.
+   *
+   * Une sous-partie nomme trois à huit familles ; le métier en tient quarante.
+   * « Autre… » ouvre les autres, filtrées sur ce métier-là.
+   */
+  const [browsing, setBrowsing] = useState<
+    { readonly label: string; readonly domain?: DesignDomainId } | undefined
+  >(undefined);
   const [displayOpen, setDisplayOpen] = useState(false);
+  /*
+   * Où poser le panneau d'affichage : relu sur son bouton, jamais mémorisé.
+   *
+   * Il vivait `absolute` sous le bouton, donc dans la case du plan, et cette
+   * case rogne ce qui en sort. Un écran de 768 px avec un objet désigné donne
+   * 334 px au plan : les vingt calques du panneau tombaient dehors.
+   */
+  const [displayAt, setDisplayAt] = useState<
+    { readonly top: number; readonly right: number } | undefined
+  >(undefined);
   /** Whether the model tree is open; it is secondary, behind « ☰ Modèle ». */
   /** The trade the plan is being read through, in Systèmes. */
   /*
@@ -2457,9 +2499,11 @@ function App() {
                 editor={editor}
                 drafts={toolDrafts}
                 onChooseEntry={chooseEntry}
+                onNavigate={navigateTo}
                 onOpenSection={(section) =>
                   setNavigation((current) => goToSection(current, section))
                 }
+                onBrowseFamilies={setBrowsing}
               />
               <details className="project-tree-fold">
                 <summary>Éléments du projet</summary>
@@ -2595,6 +2639,7 @@ function App() {
                 stage={navigation.stage}
                 design={design}
                 onChooseEntry={chooseEntry}
+                onNavigate={navigateTo}
                 editor={editor}
                 dispatch={dispatchEditor}
                 drafts={toolDrafts}
@@ -2642,7 +2687,18 @@ function App() {
                         className="secondary"
                         aria-expanded={displayOpen}
                         aria-haspopup="dialog"
-                        onClick={() => setDisplayOpen((open) => !open)}
+                        onClick={(event) => {
+                          // Relevé sur le bouton lui-même, à chaque ouverture :
+                          // le panneau est posé en `fixed`, hors de la case du
+                          // plan qui rognait ses derniers calques.
+                          const at =
+                            event.currentTarget.getBoundingClientRect();
+                          setDisplayAt({
+                            top: at.bottom + 6,
+                            right: Math.max(6, window.innerWidth - at.right),
+                          });
+                          setDisplayOpen((open) => !open);
+                        }}
                       >
                         Affichage
                         {hiddenLayers > 0 && (
@@ -2659,6 +2715,9 @@ function App() {
                             renderingId={rendering.id}
                             onRendering={setRenderingId}
                             onClose={() => setDisplayOpen(false)}
+                            {...(displayAt === undefined
+                              ? {}
+                              : { at: displayAt })}
                           />
                         </Suspense>
                       )}
@@ -2949,6 +3008,38 @@ function App() {
       }
       overlays={
         <>
+          {/*
+           * Le reste du métier, ouvert depuis la sous-partie qui le sert.
+           *
+           * Poser un mitigeur demandait six gestes : quitter le plan, ouvrir
+           * « Équipements », chercher, ajouter au projet, revenir, reprendre
+           * l'outil composant, retrouver la fiche dans une liste. Il en
+           * demande deux.
+           */}
+          {browsing !== undefined && (
+            <Suspense fallback={null}>
+              <FamilyPicker
+                project={file.project}
+                title={browsing.label}
+                {...(browsing.domain === undefined
+                  ? {}
+                  : { domain: browsing.domain })}
+                onCommand={runCommand}
+                onMessage={setMessage}
+                onClose={() => setBrowsing(undefined)}
+                onPlace={(equipmentId, category) => {
+                  dispatchEditor({ type: 'SET_TOOL', tool: 'COMPONENT' });
+                  setToolDrafts((current) => ({
+                    ...current,
+                    ...componentDrafts(equipmentId, category),
+                  }));
+                  setMessage(
+                    'Fiche prête : cliquez sur le plan pour la poser.',
+                  );
+                }}
+              />
+            </Suspense>
+          )}
           {exportFailure !== undefined && (
             <section className="panel recovery-prompt" role="alertdialog">
               <p>
