@@ -12,6 +12,11 @@
  *
  * Rien n'est écrit deux fois : le tableau est lu du même registre que l'écran,
  * les disponibilités du même `DesignState`, les familles du même catalogue.
+ *
+ * Il vit **dans l'application** et non dans `scripts/`, parce qu'il lit le
+ * registre de l'application : un script Node qui atteint le code du navigateur
+ * est une frontière franchie, et elle se payait en `--jsx is not set` sur un
+ * fichier qu'il n'ouvrait même pas.
  */
 import {
   FAMILY_REGISTRY,
@@ -19,25 +24,19 @@ import {
   type FamilyDefinition,
 } from '@house-technical-designer/catalog-registry';
 
-import { loadDemoProject } from '../apps/web/src/demo-project.js';
-import { createBlankProject } from '../apps/web/src/project-workspace.js';
-import {
-  entryCreates,
-  toolCreates,
-} from '../apps/web/src/editor/entry-kinds.js';
+import { loadDemoProject } from '../src/demo-project.js';
+import { createBlankProject } from '../src/project-workspace.js';
+import { entryCreates, toolCreates } from '../src/editor/entry-kinds.js';
 import {
   allToolboxEntries,
   availabilityOf,
   entryFicheInstalled,
   sectionsOfStage,
   type ToolboxEntry,
-} from '../apps/web/src/editor/toolbox.js';
-import {
-  CREATION_STAGES,
-  creationStage,
-} from '../apps/web/src/ux/creation-stages.js';
-import { designStateOf } from '../apps/web/src/ux/design-state.js';
-import type { ObjectKind } from '../apps/web/src/editor/object-editors.js';
+} from '../src/editor/toolbox.js';
+import { CREATION_STAGES, creationStage } from '../src/ux/creation-stages.js';
+import { designStateOf } from '../src/ux/design-state.js';
+import type { ObjectKind } from '../src/editor/object-editors.js';
 
 const demo = loadDemoProject();
 if (demo.status === 'ERROR') throw new Error(demo.message);

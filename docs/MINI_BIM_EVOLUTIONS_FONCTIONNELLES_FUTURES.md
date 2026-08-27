@@ -243,10 +243,10 @@ L'électricité est le meilleur domaine pour valider cette architecture car Mini
 
 Créer une vue de gestion dérivée :
 
-| Circuit | Usage | Tableau | Charges | P installée | I calculé | Protection | Section | ΔU | État |
-|---|---|---|---:|---:|---:|---|---|---:|---|
-| C01 | éclairage | TD1 | 6 | 420 W | … | … | … | … | OK |
-| C02 | prises | TD1 | 8 | … | … | … | … | … | ⚠ |
+| Circuit | Usage     | Tableau | Charges | P installée | I calculé | Protection | Section |  ΔU | État |
+| ------- | --------- | ------- | ------: | ----------: | --------: | ---------- | ------- | --: | ---- |
+| C01     | éclairage | TD1     |       6 |       420 W |         … | …          | …       |   … | OK   |
+| C02     | prises    | TD1     |       8 |           … |         … | …          | …       |   … | ⚠    |
 
 Actions :
 
