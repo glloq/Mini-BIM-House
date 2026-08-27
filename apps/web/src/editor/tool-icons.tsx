@@ -15,63 +15,9 @@
  */
 import type { ReactElement } from 'react';
 
-export const TOOL_ICONS = [
-  'SELECT',
-  'WALL',
-  'WALL_RUN',
-  'WALL_RECTANGLE',
-  'PARTITION',
-  'DOOR',
-  'WINDOW',
-  'VOID',
-  'SPACE',
-  'SLAB',
-  'SLAB_HOLE',
-  'STAIR',
-  'ROOF',
-  'COLUMN',
-  'BEAM',
-  'SITE',
-  'BUILDING',
-  'TREE',
-  'EXCLUSION',
-  'BED',
-  'TABLE',
-  'SOFA',
-  'WARDROBE',
-  'APPLIANCE',
-  'WC',
-  'BASIN',
-  'SHOWER',
-  'SINK',
-  'TANK',
-  'HEAT_PUMP',
-  'RADIATOR',
-  'UNDERFLOOR',
-  'FAN',
-  'GRILLE',
-  'SOCKET',
-  'SWITCH',
-  'BOARD',
-  'LAMP',
-  'PV',
-  'INVERTER',
-  'BATTERY',
-  'PIPE',
-  'DUCT',
-  'CABLE',
-  'BRANCH',
-  'NODE',
-  'OFFSET',
-  'JOIN',
-  'TRIM',
-  'SPLIT',
-  'ROTATE',
-  'MIRROR',
-  'DIMENSION',
-  'NOTE',
-] as const;
-export type ToolIconId = (typeof TOOL_ICONS)[number];
+import type { ToolIconId } from './tool-icon-ids.js';
+
+export { TOOL_ICONS, type ToolIconId } from './tool-icon-ids.js';
 
 /**
  * Le trait de chaque icône, dans un carré de 24.

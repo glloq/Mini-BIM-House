@@ -35,7 +35,7 @@ import type { DesignState } from '../ux/design-state.js';
 
 import { draftKey, type ToolDrafts } from './tool-options.js';
 import { toolById, type EditorToolDefinition } from './tool-registry.js';
-import type { ToolIconId } from './tool-icons.js';
+import type { ToolIconId } from './tool-icon-ids.js';
 
 /**
  * Une question posée à l'état de la maison.

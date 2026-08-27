@@ -1326,17 +1326,17 @@ Même métrique.
 
 Pour les actions courantes :
 
-| Action | Cible |
-|---|---:|
-| poser un objet déjà utilisé | 1–2 actions |
-| créer un circuit depuis sélection | ≤ 3 décisions |
-| affecter un objet à un système | ≤ 2 actions |
-| ouvrir les propriétés | 1 action |
-| localiser un problème | 1 action |
-| appliquer une correction simple | 1–2 actions |
-| passer Plan → Schéma | 1 action |
-| retourner à l'objet plan depuis schéma | 1 action |
-| répéter un équipement | 1 action |
+| Action                                 |         Cible |
+| -------------------------------------- | ------------: |
+| poser un objet déjà utilisé            |   1–2 actions |
+| créer un circuit depuis sélection      | ≤ 3 décisions |
+| affecter un objet à un système         |   ≤ 2 actions |
+| ouvrir les propriétés                  |      1 action |
+| localiser un problème                  |      1 action |
+| appliquer une correction simple        |   1–2 actions |
+| passer Plan → Schéma                   |      1 action |
+| retourner à l'objet plan depuis schéma |      1 action |
+| répéter un équipement                  |      1 action |
 
 ---
 
