@@ -1566,6 +1566,15 @@ button.icon {
   color: var(--ink-strong);
   font-weight: 700;
 }
+/*
+ * Un constat non vérifiable se lit, sans crier. Il n'est pas un défaut — c'est
+ * une donnée qui manque — donc il ne prend pas le gras de l'écart, mais il ne
+ * reste pas non plus dans la teinte effacée du reste, qui le ferait passer pour
+ * une ligne sans nouvelle.
+ */
+.study-line.UNVERIFIED .study-line-state {
+  color: var(--ink-strong);
+}
 .study-figures {
   display: flex;
   margin: 0;

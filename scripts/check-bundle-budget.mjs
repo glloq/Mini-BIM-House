@@ -450,8 +450,19 @@ export const BUDGETS = {
    * comprise ; et le volume du premier jour d'une cuve d'eau de pluie n'avait
    * aucun endroit où se dire, parce qu'il était cherché sur la fiche du
    * fabricant alors que c'est une décision de celui qui simule.
+   *
+   * Et un avec le métier d'un constat. La page « Études » lisait le métier
+   * d'une ligne en regardant si l'identifiant du constat commençait par son
+   * nom, alors qu'un identifiant commence par sa source : aucun constat n'a
+   * jamais correspondu, chaque métier comptait zéro écart, et la page ne
+   * pouvait afficher que des coches vertes — y compris sur un projet neuf qui
+   * en listait quarante-sept juste en dessous. Le champ est porté par le
+   * constat maintenant, posé par le code qui sait, et un quatrième état dit
+   * « non vérifiable » là où « tenu » mentait. Le kio arrive à la demande,
+   * avec l'écran des vérifications : le premier écran ne bouge pas d'un
+   * dixième.
    */
-  totalGzipBytes: 491 * 1024,
+  totalGzipBytes: 492 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

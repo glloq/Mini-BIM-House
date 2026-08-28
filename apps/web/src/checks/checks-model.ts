@@ -1,6 +1,11 @@
-import type { Project } from '@house-technical-designer/core-domain';
+import type {
+  DesignDomainId,
+  Project,
+} from '@house-technical-designer/core-domain';
 import {
   clearanceReport,
+  domainOfCalculationModule,
+  domainOfDiscipline,
   stairDimensions,
   unresolvedRoofs,
   portCompatibility,
@@ -59,6 +64,22 @@ export interface CheckItem {
   readonly title: string;
   readonly detail: string;
   readonly fix?: CheckFix;
+  /**
+   * The trade the finding belongs to, when it belongs to one.
+   *
+   * Porté, et non deviné. La page « Études » lisait le métier en regardant si
+   * l'identifiant du constat commençait par son nom — `id.startsWith('heating')`
+   * — alors qu'un identifiant commence par sa **source** : `system:heating:…`,
+   * `calculation:heating:…`, `network:ventilation:…`. Aucun constat n'a jamais
+   * correspondu, donc chaque métier comptait zéro écart, donc la page affichait
+   * seize lignes vertes sur une maison qui en avait à signaler. Un écran qui ne
+   * peut pas dire non ne dit rien quand il dit oui.
+   *
+   * Certains constats n'ont pas de métier et n'en auront pas : un conflit de
+   * dégagement est entre deux objets qui peuvent venir de deux disciplines, et
+   * une dérive de référentiel n'est d'aucune. `undefined` est cette réponse-là.
+   */
+  readonly domain?: DesignDomainId;
 }
 
 export interface ChecksSummary {
@@ -156,6 +177,7 @@ export function projectChecks(
         id: `model:${level.id}:${issue.code}:${issue.objectId ?? 'projet'}`,
         status: 'FAIL',
         source: 'MODEL',
+        domain: 'ARCHITECTURE',
         title: `${level.name} — ${issue.code}`,
         detail: issue.message,
         fix: {
@@ -175,6 +197,7 @@ export function projectChecks(
         id: `model:${level.id}:roof-unresolved:${roof.id}`,
         status: 'UNKNOWN',
         source: 'MODEL',
+        domain: 'ARCHITECTURE',
         title: `${level.name} — toiture ${roof.id} non résolue`,
         detail: `${reason} Ses pans ne sont donc comptés ni dans les métrés, ni dans l’enveloppe thermique, ni dans les apports solaires.`,
         fix: {
@@ -202,6 +225,7 @@ export function projectChecks(
         id: `model:${level.id}:stair-path:${stair.id}`,
         status: 'FAIL',
         source: 'MODEL',
+        domain: 'ARCHITECTURE',
         title: `${level.name} — escalier ${stair.id} : la ligne tracée ne porte pas ses marches`,
         detail: short
           ? `Les ${stair.riserCount - 1} marches de ${stair.treadDepthMm} mm demandent ${measured.runMm.toFixed(0)} mm au sol, alors que la ligne de foulée n’en mesure que ${measured.pathLengthMm.toFixed(0)} mm : ${Math.abs(measured.pathDifferenceMm).toFixed(0)} mm de trop. Le plan ne dessine donc pas toutes les marches.`
@@ -227,6 +251,7 @@ export function projectChecks(
         id: `model:space-geometry:${room.spaceId}`,
         status: 'UNKNOWN',
         source: 'MODEL',
+        domain: 'ARCHITECTURE',
         title: `${room.name} — surface non résolue`,
         detail: room.unresolved,
         fix: {
@@ -274,6 +299,7 @@ export function projectChecks(
   // and a drawing set that does not distinguish the two is a drawing set
   // nobody can trust.
   for (const network of project.systems ?? []) {
+    const domain = domainOfDiscipline(network.discipline);
     const ports = new Map(network.ports.map((port) => [port.id, port]));
     for (const edge of network.edges) {
       const from = ports.get(edge.fromPortId);
@@ -285,6 +311,7 @@ export function projectChecks(
         id: `network:${network.id}:undetermined:${edge.id}`,
         status: 'UNKNOWN',
         source: 'NETWORK',
+        ...(domain === undefined ? {} : { domain }),
         title: `${network.systemType} — raccordement indéterminé`,
         detail: verdict.reason,
         fix: {
@@ -296,24 +323,29 @@ export function projectChecks(
     }
   }
 
-  for (const network of project.systems ?? [])
+  for (const network of project.systems ?? []) {
+    const domain = domainOfDiscipline(network.discipline);
     for (const issue of validateTechnicalNetwork(network))
       checks.push({
         id: `network:${network.id}:${issue.code}:${issue.path}`,
         status: 'FAIL',
         source: 'NETWORK',
+        ...(domain === undefined ? {} : { domain }),
         title: `${network.systemType} — ${issue.code}`,
         detail: issue.message,
         fix: { label: 'Ouvrir les réseaux', tab: 'networks' },
       });
+  }
 
   if (run !== undefined) {
     for (const module of run.runs) {
+      const domain = domainOfCalculationModule(module.moduleId);
       if (module.status === 'FAILED' || module.status === 'ERROR')
         checks.push({
           id: `calculation:${module.moduleId}:status`,
           status: 'FAIL',
           source: 'CALCULATION',
+          ...(domain === undefined ? {} : { domain }),
           title: `${module.label} — calcul impossible`,
           detail: module.message ?? 'Le module n’a pas produit de résultat.',
           fix: { label: 'Ouvrir le tableau de bord', tab: 'calculations' },
@@ -330,6 +362,7 @@ export function projectChecks(
           source: 'CALCULATION',
           title: `${module.label} — ${missing.key}`,
           detail: missing.message,
+          ...(domain === undefined ? {} : { domain }),
           ...(fix === undefined ? {} : { fix }),
         });
       }

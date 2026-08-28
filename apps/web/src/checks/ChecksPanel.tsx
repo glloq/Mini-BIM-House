@@ -40,7 +40,7 @@ export function ChecksPanel({
    * Ce que le bâtiment dessiné donne, avant ce qui ne va pas.
    *
    * La liste des constats répond à « qu'est-ce qui cloche » ; elle ne répond
-   * pas à « où en est ma maison ». Une ligne par métier en jeu, trois états, et
+   * pas à « où en est ma maison ». Une ligne par métier en jeu, quatre états, et
    * les deux surfaces qu'on cite quand on parle d'une maison.
    */
   const lines = useMemo(
@@ -78,6 +78,14 @@ export function ChecksPanel({
                 {line.state === 'HELD' && '✓'}
                 {line.state === 'GAP' &&
                   `⚠ ${line.gaps} point${line.gaps > 1 ? 's' : ''}`}
+                {/*
+                 * « Non vérifiable » n'est pas un écart et ne se compte pas
+                 * comme tel : l'application a regardé, et il lui manque une
+                 * donnée pour conclure. Le dire avec le nombre évite la coche
+                 * verte qui s'affichait ici au-dessus de quarante-sept lignes.
+                 */}
+                {line.state === 'UNVERIFIED' &&
+                  `? ${line.unknowns} non vérifiable${line.unknowns > 1 ? 's' : ''}`}
                 {line.state === 'AVAILABLE' && '● calcul disponible'}
               </span>
             </li>

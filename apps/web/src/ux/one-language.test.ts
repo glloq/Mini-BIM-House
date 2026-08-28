@@ -36,6 +36,9 @@ import {
   projectFromNewDraft,
 } from '../project-creation/new-project.js';
 
+/** Une date fixe : un projet neuf porte l'heure de sa création, et un test n'en a pas. */
+const NOW = '2024-01-01T00:00:00.000Z';
+
 /**
  * Reconnaître le français, puis reconnaître l'anglais.
  *
@@ -62,7 +65,7 @@ function house(): Project {
 
 /** Un projet qui vient d'être créé : le premier écran de quelqu'un. */
 function blank(): Project {
-  return projectFromNewDraft(DEFAULT_NEW_PROJECT_DRAFT).project;
+  return projectFromNewDraft(DEFAULT_NEW_PROJECT_DRAFT, NOW).project;
 }
 
 const CASES: readonly (readonly [string, Project])[] = [

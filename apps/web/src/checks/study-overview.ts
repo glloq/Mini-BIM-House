@@ -5,9 +5,17 @@
  * pas à « où en est ma maison » — pour ça il faut la lire en entier, compter
  * les lignes par métier, et savoir de tête quels calculs n'ont pas tourné.
  *
- * Trois états et pas un de plus. **Tenu** : rien à signaler. **Écart** : un
- * constat nommé. **Calcul disponible** : quelque chose peut être calculé et ne
- * l'a pas été — ce qui n'est pas un défaut, seulement un travail qui attend.
+ * Quatre états et pas un de plus. **Tenu** : rien à signaler. **Écart** : un
+ * constat nommé. **Non vérifiable** : l'application a regardé et n'a pas pu
+ * conclure, faute d'une donnée. **Calcul disponible** : quelque chose peut être
+ * calculé et ne l'a pas été — ce qui n'est pas un défaut, seulement un travail
+ * qui attend.
+ *
+ * Le quatrième est arrivé tard, et il manquait beaucoup. Un projet neuf ouvre
+ * cette page sur quarante-sept constats, **tous** non vérifiables, et elle
+ * affichait neuf lignes « Tenu » : neuf coches vertes au-dessus de quarante-sept
+ * lignes rouges, sur le premier écran de quelqu'un. « Tenu » veut dire « rien à
+ * signaler », et il y avait quarante-sept choses à signaler.
  *
  * Un métier que le projet ne fait pas vivre n'a pas de ligne. Un projet sans
  * photovoltaïque n'affiche pas « Photovoltaïque — vide » : il n'affiche rien.
@@ -21,7 +29,7 @@ import {
 import { domainsInPlay } from '../ux/scope-filter.js';
 import type { CheckItem } from './checks-model.js';
 
-export type StudyState = 'HELD' | 'GAP' | 'AVAILABLE';
+export type StudyState = 'HELD' | 'GAP' | 'UNVERIFIED' | 'AVAILABLE';
 
 export interface StudyLine {
   readonly domain: DesignDomainId;
@@ -29,6 +37,8 @@ export interface StudyLine {
   readonly state: StudyState;
   /** Combien d'écarts, quand il y en a. */
   readonly gaps: number;
+  /** Combien de constats que l'application n'a pas pu trancher. */
+  readonly unknowns: number;
 }
 
 export interface StudyFigures {
@@ -38,15 +48,16 @@ export interface StudyFigures {
   readonly footprintM2: number;
 }
 
-/** À quel métier un constat parle, quand il le dit dans son identifiant. */
-function domainOfCheck(
-  check: CheckItem,
-  domains: readonly DesignDomainId[],
-): DesignDomainId | undefined {
-  const id = check.id.toLowerCase();
-  return domains.find((domain) => id.startsWith(domain.toLowerCase()));
-}
-
+/*
+ * Le métier d'un constat se lit sur le constat.
+ *
+ * Il se devinait : `check.id.startsWith(domain.toLowerCase())`. Un identifiant
+ * commence par sa source — `system:heating:…`, `calculation:heating:…`,
+ * `network:ventilation:…` — jamais par son métier, donc la devinette n'a jamais
+ * rien trouvé. Chaque ligne comptait zéro écart quel que soit le projet, et la
+ * page ne pouvait structurellement afficher que du vert. Le champ est porté par
+ * `CheckItem` maintenant, posé là où le constat est écrit, par le code qui sait.
+ */
 export function studyLines(
   project: Project,
   checks: readonly CheckItem[],
@@ -54,18 +65,25 @@ export function studyLines(
 ): readonly StudyLine[] {
   const inPlay = [...domainsInPlay(project)];
   return inPlay.map((domain) => {
-    const gaps = checks.filter(
-      (check) =>
-        check.status === 'FAIL' && domainOfCheck(check, inPlay) === domain,
-    ).length;
+    const mine = checks.filter((check) => check.domain === domain);
+    const gaps = mine.filter(({ status }) => status === 'FAIL').length;
+    const unknowns = mine.filter(({ status }) => status === 'UNKNOWN').length;
     const modules = designDomain(domain).calculationModules ?? [];
     const state: StudyState =
       gaps > 0
         ? 'GAP'
-        : modules.length > 0 && options.ran !== true
-          ? 'AVAILABLE'
-          : 'HELD';
-    return { domain, label: designDomain(domain).label, state, gaps };
+        : unknowns > 0
+          ? 'UNVERIFIED'
+          : modules.length > 0 && options.ran !== true
+            ? 'AVAILABLE'
+            : 'HELD';
+    return {
+      domain,
+      label: designDomain(domain).label,
+      state,
+      gaps,
+      unknowns,
+    };
   });
 }
 
