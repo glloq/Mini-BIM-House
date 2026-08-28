@@ -1187,7 +1187,8 @@ Bâtiment — et sept espaces, treize destinations, une trentaine de sous-partie
 et deux cent quarante entrées font bien plus d'un écran.
 
 `scripts/audit-layout.mjs` (`npm run audit:layout`) les visite tous, à cinq
-tailles de fenêtre, ouvre chaque entrée, chaque menu, chaque dépliage de
+tailles de fenêtre, **sur deux projets** — un projet neuf et la maison de
+démonstration — ouvre chaque entrée, chaque menu, chaque dépliage de
 l'inspecteur, et cherche deux défauts qu'un œil pardonne parce qu'il ne les
 voit pas :
 
@@ -1207,10 +1208,20 @@ causes :
 | L'inspecteur prenait la moitié de l'écran               | Le plan tombait de 597 px à 255 sous 1 050 px de large                           |
 | « Affichage » avait la taille d'un bouton de formulaire | Son propre haut, rogné de dix pixels                                             |
 
-Vingt minutes de parcours : c'est un audit, pas une porte.
-`apps/web/src/ux/reachable-layout.test.ts` reprend les quatre règles qui en
-sortent et les tient en une seconde — une feuille de style se relit mal, et une
-règle qui disparaît ne se voit pas.
+Le second projet est arrivé après coup, et il a rapporté tout de suite. L'audit
+n'ouvrait que la maison de démonstration : c'est le pire cas pour beaucoup de
+choses — deux niveaux, six réseaux, des tableaux longs — et le meilleur pour
+une, rien n'y manque. Le premier écran de tout le monde est l'autre, où les
+listes sont vides et où les outils en main ne sont pas les mêmes. Sur un projet
+neuf, le filtre de l'outil Sélection — « Tous les objets », « Ouverture »,
+« Trémie »… — sortait de trente pixels à droite du plan sur un écran de 390 px,
+sur huit écrans, parce qu'un `max-width: 9rem` fait 144 px et qu'une largeur de
+`<select>` est celle de sa plus longue option. Une ligne : `min(9rem, 100%)`.
+
+Vingt minutes de parcours, quarante depuis qu'ils sont deux : c'est un audit,
+pas une porte. `apps/web/src/ux/reachable-layout.test.ts` reprend les quatre
+règles qui en sortent et les tient en une seconde — une feuille de style se
+relit mal, et une règle qui disparaît ne se voit pas.
 
 ### 14.2 Ce qu'on peut ajouter, et ce qu'on ne peut pas
 

@@ -4,9 +4,10 @@
  * `npm run audit:layout` ouvre les sept espaces, leurs treize destinations,
  * leurs trente sous-parties et leurs deux cent quarante entrées, à cinq tailles
  * de fenêtre, et cherche ce qui est dans le document sans être nulle part sur
- * l'écran. Il en a trouvé deux cent trente-deux, tous ramenés à quatre règles.
+ * l'écran. Il en a trouvé deux cent trente-deux, tous ramenés à quatre règles,
+ * et une cinquième le jour où il a ouvert un second projet.
  *
- * Il met vingt minutes : c'est un audit, pas une porte. Ces quatre règles-là,
+ * Il met quarante minutes : c'est un audit, pas une porte. Ces règles-là,
  * elles, tiennent en une seconde, et ce sont elles qui empêchent les deux cent
  * trente-deux de revenir. Une feuille de style se relit mal ; une règle qui
  * disparaît ne se voit pas.
@@ -89,6 +90,25 @@ describe('rien n’est dans le document sans être sur l’écran', () => {
     // dans une rangée de 42 — et son haut était rogné par la case du plan.
     expect(styles).toMatch(
       /\.tool-row-end button,\s*\n\.tool-row-end select,\s*\n\.tool-row-end input \{/u,
+    );
+  });
+
+  it('ne laisse aucun champ de la rangée dépasser la place qu’on lui donne', () => {
+    /*
+     * La cinquième, et celle qu'il a fallu un **projet neuf** pour voir.
+     *
+     * La largeur d'un `<select>` est celle de sa plus longue option. Le filtre
+     * de l'outil Sélection en a de longues — « Tous les objets », « Ouverture »,
+     * « Trémie » — et `max-width: 9rem` fait 144 px : sur un écran de 390, il
+     * sortait de trente pixels à droite du plan, rogné par la case du plan et
+     * sans rien qui défile pour aller le chercher. Sur huit écrans.
+     *
+     * Il n'apparaissait pas sur la maison de démonstration, seul projet que
+     * l'audit ouvrait, parce que ce n'est pas là qu'on a cet outil en main. Une
+     * borne fixe ne suffit pas : il faut aussi celle que la place impose.
+     */
+    expect(rule('.tool-header select,\n.tool-header input')).toMatch(
+      /max-width:\s*min\([^)]*100%\)/u,
     );
   });
 });
