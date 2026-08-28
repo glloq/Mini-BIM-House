@@ -102,9 +102,68 @@ export type CalculationRunResult =
       readonly message: string;
     };
 
+/**
+ * Ce qu'un cache dit de lui-même.
+ *
+ * Sans ces trois nombres, « les résultats sont réutilisés » est une croyance.
+ * Avec eux, c'est une mesure : un test peut affirmer que déplacer un mur
+ * recalcule cinq modules sur dix-sept, et le jour où quelqu'un ajoute au
+ * calcul une valeur qui change à chaque appel — un horodatage, un identifiant
+ * tiré au sort — le compte de réutilisations tombe à zéro et le test le dit.
+ */
+export interface CalculationCacheStatistics {
+  /** Entrées gardées en ce moment. */
+  readonly entries: number;
+  /** Calculs évités depuis la création de l'orchestrateur. */
+  readonly hits: number;
+  /** Calculs réellement exécutés. */
+  readonly misses: number;
+  /** Entrées supprimées faute de place. */
+  readonly evictions: number;
+}
+
+/**
+ * Combien de résultats un orchestrateur garde.
+ *
+ * Un cache qui ne se vide jamais est une fuite : dix-sept modules par révision,
+ * et une séance de travail en produit des centaines. Cinq cent douze entrées
+ * font une trentaine de révisions de projet — assez pour qu'annuler et refaire
+ * ne recalcule rien, ce qui est le geste que ce cache existe pour rendre
+ * gratuit. Au-delà, la plus anciennement utilisée s'en va : ce qu'on regarde
+ * maintenant vaut mieux que ce qu'on regardait il y a une heure.
+ */
+export const DEFAULT_CALCULATION_CACHE_ENTRIES = 512;
+
 export class CalculationOrchestrator {
   readonly #modules = new Map<string, CalculationModule>();
+  /*
+   * L'ordre d'insertion d'une `Map` est l'ordre de dernière écriture ; une
+   * lecture réécrit donc son entrée pour la remettre en queue, et la tête est
+   * toujours la moins récemment utilisée. C'est un cache LRU sans structure
+   * supplémentaire, ce qui est exactement ce qu'il faut ici.
+   */
   readonly #cache = new Map<string, CalculationResult>();
+  readonly #capacity: number;
+  #hits = 0;
+  #misses = 0;
+  #evictions = 0;
+
+  constructor(capacity: number = DEFAULT_CALCULATION_CACHE_ENTRIES) {
+    if (!Number.isInteger(capacity) || capacity < 1)
+      throw new RangeError('Cache capacity must be a positive integer.');
+    this.#capacity = capacity;
+  }
+
+  /** Ce que le cache a évité, en trois nombres qu'un test peut lire. */
+  statistics(): CalculationCacheStatistics {
+    return {
+      entries: this.#cache.size,
+      hits: this.#hits,
+      misses: this.#misses,
+      evictions: this.#evictions,
+    };
+  }
+
   register(module: CalculationModule): void {
     if (this.#modules.has(module.id))
       throw new TypeError(
@@ -122,6 +181,34 @@ export class CalculationOrchestrator {
   }
   clearCache(): void {
     this.#cache.clear();
+    this.#hits = 0;
+    this.#misses = 0;
+    this.#evictions = 0;
+  }
+
+  /**
+   * Lit une entrée en la remettant en queue.
+   *
+   * Rien de plus qu'un `get`, sauf que le fait de s'en servir la rend récente :
+   * un module qu'on consulte à chaque calcul ne doit pas être évincé par une
+   * révision de plus.
+   */
+  #read(fingerprint: string): CalculationResult | undefined {
+    const cached = this.#cache.get(fingerprint);
+    if (cached === undefined) return undefined;
+    this.#cache.delete(fingerprint);
+    this.#cache.set(fingerprint, cached);
+    return cached;
+  }
+
+  #write(fingerprint: string, result: CalculationResult): void {
+    this.#cache.set(fingerprint, result);
+    while (this.#cache.size > this.#capacity) {
+      const oldest = this.#cache.keys().next();
+      if (oldest.done === true) break;
+      this.#cache.delete(oldest.value);
+      this.#evictions += 1;
+    }
   }
   async #calculate(
     moduleId: string,
@@ -194,9 +281,12 @@ export class CalculationOrchestrator {
         ]),
       ),
     });
-    const cached = this.#cache.get(fingerprint);
-    if (cached !== undefined)
+    const cached = this.#read(fingerprint);
+    if (cached !== undefined) {
+      this.#hits += 1;
       return { status: 'OK', result: cached, cacheHit: true };
+    }
+    this.#misses += 1;
     try {
       const calculated = await module.calculate(
         input,
@@ -230,7 +320,7 @@ export class CalculationOrchestrator {
           ),
         },
       };
-      this.#cache.set(fingerprint, result);
+      this.#write(fingerprint, result);
       return { status: 'OK', result, cacheHit: false };
     } catch (error: unknown) {
       return {

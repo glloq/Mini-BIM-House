@@ -44,6 +44,7 @@ function run(
     runs: [],
     missing: [],
     provenance: [],
+    recomputed: [],
     projectId: project.id,
     projectRevision: project.metadata.projectRevision ?? '',
     climateFingerprint: climateSignature(climate),

@@ -17,6 +17,7 @@ function run(moduleId: string, outputs: Record<string, unknown>): ModuleRun {
     moduleId,
     label: moduleId,
     status: 'OK',
+    reused: false,
     result: {
       moduleId,
       moduleVersion: '1.0.0',
