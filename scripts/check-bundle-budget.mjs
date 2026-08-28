@@ -443,8 +443,15 @@ export const BUDGETS = {
    * dupliqués entre la coque et le morceau des calculs. C'est rare — la
    * plupart des sorties coûtent un peu de colle — et c'est ce qui arrive quand
    * ce qui sortait était une duplication plutôt qu'un poids propre.
+   *
+   * Et un demi-kio pour une chute d'évacuation et un niveau de cuve. Le moteur
+   * refusait un tuyau vertical — « pente indéfinie » — ce qui mettait en
+   * défaut le réseau de toute maison à étage, la maison de démonstration
+   * comprise ; et le volume du premier jour d'une cuve d'eau de pluie n'avait
+   * aucun endroit où se dire, parce qu'il était cherché sur la fiche du
+   * fabricant alors que c'est une décision de celui qui simule.
    */
-  totalGzipBytes: 490 * 1024,
+  totalGzipBytes: 491 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

@@ -84,6 +84,14 @@ export interface WastewaterSegmentResult {
   readonly lengthM?: number;
   readonly elevationDropM?: number;
   readonly slope?: number;
+  /**
+   * Si ce tronçon tombe droit : une chute.
+   *
+   * Elle n'a pas de pente, et ce n'est pas un manque — une chute n'en a pas.
+   * Le distinguer d'une pente inconnue est ce qui permet à la suite de la
+   * chaîne de ne pas réclamer un minimum qui n'a pas de sens ici.
+   */
+  readonly vertical?: boolean;
   readonly totalDischargeUnits?: number;
   readonly designFlowM3s?: number;
 }
@@ -267,19 +275,42 @@ function segmentGeometry(
       current.y - previous.y,
     );
   }
-  if (horizontalLengthMm <= 0) {
-    diagnostics.push(
-      issue(
-        'WASTEWATER_LEVEL_CONFLICT',
-        edge.id,
-        'ERROR',
-        'Slope is undefined for a segment without horizontal length.',
-      ),
-    );
-    return {};
-  }
   const start = edge.path[0]!;
   const end = edge.path.at(-1)!;
+  if (horizontalLengthMm <= 0) {
+    /*
+     * Une chute, et non une faute.
+     *
+     * Un tronçon sans longueur horizontale tombe droit : c'est la chute d'un
+     * immeuble ou d'une maison à étage, et c'est une pièce obligatoire d'un
+     * réseau d'évacuation, pas une erreur de saisie. Elle n'a pas de pente —
+     * l'eau y est en chute libre — et sa capacité se lit sur les unités de
+     * décharge et sa ventilation, non sur une inclinaison.
+     *
+     * C'était refusé comme « pente indéfinie », ce qui mettait en défaut le
+     * réseau de toute maison à étage : la maison de démonstration elle-même
+     * ressortait en erreur. Le fait qu'elle soit verticale se **lit** sur son
+     * tracé plutôt que de se déclarer, comme tout le reste ici : un tronçon
+     * annoncé « chute » et dessiné en pente serait un mensonge que rien
+     * n'attraperait.
+     */
+    const dropMm = start.z - end.z;
+    if (dropMm <= 0) {
+      diagnostics.push(
+        issue(
+          'WASTEWATER_LEVEL_CONFLICT',
+          edge.id,
+          'ERROR',
+          dropMm === 0
+            ? 'A segment with neither horizontal nor vertical length goes nowhere.'
+            : 'A vertical segment that rises cannot drain by gravity.',
+        ),
+      );
+      return {};
+    }
+    const dropM = numericValue(millimetresToMetres(millimetres(dropMm)));
+    return { lengthM: dropM, elevationDropM: dropM, vertical: true };
+  }
   const lengthM = numericValue(
     millimetresToMetres(millimetres(horizontalLengthMm)),
   );

@@ -1419,6 +1419,10 @@ export const wastewaterAdapter: CalculationModule = {
         segments: result.segments.map((segment) => ({
           id: segment.segmentId,
           slope: segment.slope ?? null,
+          // Une chute n'a pas de pente, et c'est un fait plutôt qu'un manque :
+          // sans ce drapeau, `slope: null` se lit « on ne sait pas » alors
+          // qu'il faut lire « il n'y en a pas ».
+          vertical: segment.vertical ?? false,
           designFlowM3s: segment.designFlowM3s ?? null,
           lengthM: segment.lengthM ?? null,
           totalDischargeUnits: segment.totalDischargeUnits ?? null,

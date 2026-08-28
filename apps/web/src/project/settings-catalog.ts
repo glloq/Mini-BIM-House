@@ -297,6 +297,13 @@ const MODULE_SETTINGS_ENTRIES: readonly ModuleSettingsEntry[] = [
         label: 'Besoin journalier',
         unit: 'L',
       },
+      {
+        key: 'initialVolumeL',
+        kind: 'NUMBER',
+        label: 'Volume au premier jour',
+        unit: 'L',
+        hint: 'Ce que la cuve contient quand la simulation commence. Une cuve vide noircit les premières semaines, une cuve pleine les embellit : le bilan ne choisit ni l’un ni l’autre.',
+      },
     ],
   },
   {

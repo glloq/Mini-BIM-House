@@ -1509,12 +1509,24 @@ function rainwaterInput(context: ProjectCalculationContext): CalculationJson {
     ...(hours === undefined ? {} : { periodHours: [...hours] }),
     ...(dailyDemandL === undefined ? {} : { dailyDemandL }),
     ...(nominalVolumeL === undefined ? {} : { nominalVolumeL }),
-    // What is in the tank on the first day is a measurement, and « la cuve
-    // est vide » is one of the answers it can have — but nobody said it here.
-    // An empty tank makes the first weeks of the balance look worse than they
-    // are, and a full one makes them look better; neither is a default.
+    /*
+     * What is in the tank on the first day is a measurement, and « la cuve est
+     * vide » is one of the answers it can have — but nobody said it here. An
+     * empty tank makes the first weeks of the balance look worse than they
+     * are, and a full one makes them look better; neither is a default.
+     *
+     * Et c'est un réglage du projet avant d'être une propriété de la cuve.
+     * Un fabricant ne livre pas une cuve avec de l'eau dedans : le niveau du
+     * premier jour appartient à celui qui simule, au même titre que le besoin
+     * journalier et le coefficient de ruissellement, qui sont déjà là. Il se
+     * lit donc d'abord dans les réglages, et la fiche ne répond que si le
+     * projet se tait — ce qui laisse une cuve instrumentée dire ce qu'elle
+     * contient.
+     */
     initialVolumeL:
-      equipmentNumber(context, tank, 'initialVolumeL', 'rainwater') ?? null,
+      settings.optionalNumber('rainwater', 'initialVolumeL') ??
+      equipmentNumber(context, tank, 'initialVolumeL', 'rainwater') ??
+      null,
     surfaces: context.roofs.map((roof) => ({
       surfaceId: roof.roofId,
       projectedAreaM2: roof.projectedAreaM2,

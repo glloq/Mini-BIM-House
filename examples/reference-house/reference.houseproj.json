@@ -10253,16 +10253,6 @@
             }
           },
           {
-            "id": "wastewater:stack",
-            "kind": "INSPECTION_CHAMBER",
-            "position": {
-              "x": 7500,
-              "y": 5200,
-              "z": 2900
-            },
-            "levelId": "first"
-          },
-          {
             "id": "wastewater:first-basin",
             "kind": "FIXTURE",
             "position": {
@@ -10291,6 +10281,36 @@
               "fixtureType": "BATH",
               "dischargeUnits": 2
             }
+          },
+          {
+            "id": "wastewater:stack-head",
+            "kind": "STACK",
+            "position": {
+              "x": 7500,
+              "y": 5200,
+              "z": 3090
+            },
+            "levelId": "first"
+          },
+          {
+            "id": "wastewater:stack-mid",
+            "kind": "STACK",
+            "position": {
+              "x": 7500,
+              "y": 5200,
+              "z": 2915
+            },
+            "levelId": "first"
+          },
+          {
+            "id": "wastewater:stack-foot",
+            "kind": "STACK",
+            "position": {
+              "x": 7500,
+              "y": 5200,
+              "z": -200
+            },
+            "levelId": "ground"
           }
         ],
         "ports": [
@@ -10361,26 +10381,8 @@
             "direction": "OUT"
           },
           {
-            "id": "wastewater:stack-in-basin",
-            "nodeId": "wastewater:stack",
-            "role": "FLOW",
-            "direction": "IN"
-          },
-          {
             "id": "wastewater:first-bath-out",
             "nodeId": "wastewater:first-bath",
-            "role": "FLOW",
-            "direction": "OUT"
-          },
-          {
-            "id": "wastewater:stack-in-bath",
-            "nodeId": "wastewater:stack",
-            "role": "FLOW",
-            "direction": "IN"
-          },
-          {
-            "id": "wastewater:stack-out",
-            "nodeId": "wastewater:stack",
             "role": "FLOW",
             "direction": "OUT"
           },
@@ -10389,6 +10391,48 @@
             "nodeId": "wastewater:collector",
             "role": "FLOW",
             "direction": "IN"
+          },
+          {
+            "id": "wastewater:stack-head-in-basin",
+            "nodeId": "wastewater:stack-head",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:stack-head-out",
+            "nodeId": "wastewater:stack-head",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:stack-mid-in-head",
+            "nodeId": "wastewater:stack-mid",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:stack-mid-in-bath",
+            "nodeId": "wastewater:stack-mid",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:stack-mid-out",
+            "nodeId": "wastewater:stack-mid",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:stack-foot-in",
+            "nodeId": "wastewater:stack-foot",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:stack-foot-out",
+            "nodeId": "wastewater:stack-foot",
+            "role": "FLOW",
+            "direction": "OUT"
           }
         ],
         "edges": [
@@ -10409,11 +10453,10 @@
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-100",
             "properties": {
-              "internalDiameterM": 0.1,
               "materialId": "pvc"
-            },
-            "productId": "waste-pipe-pvc-100"
+            }
           },
           {
             "id": "wastewater:branch-sink",
@@ -10432,11 +10475,10 @@
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-40",
             "properties": {
-              "internalDiameterM": 0.04,
               "materialId": "pvc"
-            },
-            "productId": "waste-pipe-pvc-40"
+            }
           },
           {
             "id": "wastewater:branch-basin",
@@ -10455,11 +10497,10 @@
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-40",
             "properties": {
-              "internalDiameterM": 0.04,
               "materialId": "pvc"
-            },
-            "productId": "waste-pipe-pvc-40"
+            }
           },
           {
             "id": "wastewater:branch-shower",
@@ -10478,11 +10519,10 @@
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-50",
             "properties": {
-              "internalDiameterM": 0.04,
               "materialId": "pvc"
-            },
-            "productId": "waste-pipe-pvc-50"
+            }
           },
           {
             "id": "wastewater:branch-wc",
@@ -10501,16 +10541,15 @@
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-100",
             "properties": {
-              "internalDiameterM": 0.1,
               "materialId": "pvc"
-            },
-            "productId": "waste-pipe-pvc-100"
+            }
           },
           {
             "id": "wastewater:branch-first-basin",
             "fromPortId": "wastewater:first-basin-out",
-            "toPortId": "wastewater:stack-in-basin",
+            "toPortId": "wastewater:stack-head-in-basin",
             "path": [
               {
                 "x": 2000,
@@ -10520,20 +10559,19 @@
               {
                 "x": 7500,
                 "y": 5200,
-                "z": 3050
+                "z": 3090
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-40",
             "properties": {
-              "nominalDiameterMm": 40,
               "slopePercent": 2
-            },
-            "productId": "waste-pipe-pvc-40"
+            }
           },
           {
             "id": "wastewater:branch-first-bath",
             "fromPortId": "wastewater:first-bath-out",
-            "toPortId": "wastewater:stack-in-bath",
+            "toPortId": "wastewater:stack-mid-in-bath",
             "path": [
               {
                 "x": 1000,
@@ -10543,25 +10581,45 @@
               {
                 "x": 7500,
                 "y": 5200,
-                "z": 3000
+                "z": 2915
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-50",
             "properties": {
-              "nominalDiameterMm": 50,
               "slopePercent": 2
-            },
-            "productId": "waste-pipe-pvc-50"
+            }
           },
           {
-            "id": "wastewater:stack-run",
-            "fromPortId": "wastewater:stack-out",
-            "toPortId": "wastewater:collector-in-stack",
+            "id": "wastewater:stack-upper",
+            "kind": "GRAVITY_PIPE",
+            "fromPortId": "wastewater:stack-head-out",
+            "toPortId": "wastewater:stack-mid-in-head",
             "path": [
               {
                 "x": 7500,
                 "y": 5200,
-                "z": 2900
+                "z": 3090
+              },
+              {
+                "x": 7500,
+                "y": 5200,
+                "z": 2915
+              }
+            ],
+            "productId": "waste-pipe-pvc-100",
+            "properties": {}
+          },
+          {
+            "id": "wastewater:stack-drop",
+            "kind": "GRAVITY_PIPE",
+            "fromPortId": "wastewater:stack-mid-out",
+            "toPortId": "wastewater:stack-foot-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5200,
+                "z": 2915
               },
               {
                 "x": 7500,
@@ -10569,12 +10627,30 @@
                 "z": -200
               }
             ],
+            "productId": "waste-pipe-pvc-100",
+            "properties": {}
+          },
+          {
+            "id": "wastewater:stack-collector",
             "kind": "GRAVITY_PIPE",
+            "fromPortId": "wastewater:stack-foot-out",
+            "toPortId": "wastewater:collector-in-stack",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5200,
+                "z": -200
+              },
+              {
+                "x": 9500,
+                "y": 7900,
+                "z": -350
+              }
+            ],
+            "productId": "waste-pipe-pvc-100",
             "properties": {
-              "nominalDiameterMm": 100,
-              "slopePercent": 100
-            },
-            "productId": "waste-pipe-pvc-100"
+              "slopePercent": 4.5
+            }
           }
         ]
       },
@@ -11604,7 +11680,8 @@
         "settings": {
           "runoffCoefficient": 0.9,
           "preFilterEfficiency": 0.95,
-          "dailyDemandL": 120
+          "dailyDemandL": 120,
+          "initialVolumeL": 2500
         }
       },
       "photovoltaic": {
