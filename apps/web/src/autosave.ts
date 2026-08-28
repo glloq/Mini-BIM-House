@@ -10,7 +10,7 @@ import {
   recoverAutosave,
   type AutosaveStore,
   type RecoveryResult,
-} from '@house-technical-designer/project-io';
+} from '@house-technical-designer/project-io/browser';
 import { createAutosaveQueue } from './autosave-queue.js';
 
 export const AUTOSAVE_KEY = 'house-technical-designer:autosave';
