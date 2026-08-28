@@ -484,6 +484,14 @@ export const BUDGETS = {
    * cent trente-six familles à leur glyphe. Le détail du premier écran est
    * au-dessus ; le reste suit les écrans concernés. Le total passe à 499.
    *
+   * Puis un de plus, et c'est une erreur de mesure autant qu'une décision. Le
+   * 499 ci-dessus a été arrêté sur un chiffre relevé **avant** le dernier
+   * commit de la passe — la calibration du relevé par deux points, son module
+   * de calcul et le clic que la surface de dessin prête au panneau. La CI a
+   * mesuré 499,4 sur ce que la branche contient vraiment, et elle avait
+   * raison : un budget qui n'a pas vu le dernier commit n'est pas une
+   * décision, c'est un chiffre périmé. Le plafond passe à 500, sur le réel.
+   *
    * Et un avec ce que douze contrôles refusaient de dire. Un bouton grisé sans
    * motif se lit comme une panne : on reclique, on cherche le réglage qui le
    * libère, il n'existe pas. Douze le faisaient — « Relier », « Ajouter le
@@ -504,7 +512,7 @@ export const BUDGETS = {
    * premier écran parce que le verrou y est aussi : il vaut pour le premier
    * clic comme pour le millième.
    */
-  totalGzipBytes: 499 * 1024,
+  totalGzipBytes: 500 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

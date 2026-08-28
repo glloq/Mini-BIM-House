@@ -140,7 +140,14 @@ jobs:
       # The first visit pays for the initial download; a budget makes its
       # growth a decision rather than a surprise.
       - run: npm run check:bundle
+      # `if: always()` aussi, parce que la mesure de coque en dépend et qu'elle
+      # est en `always()`. Sans ça, un `check:bundle` rouge sautait
+      # l'installation du navigateur, et la mesure — qui, elle, s'exécutait
+      # quand même — échouait sur « Executable doesn't exist ». Deux échecs
+      # affichés pour une seule cause, dont le second envoie chercher un
+      # problème de navigateur qui n'existe pas.
       - run: npm run test:e2e:install
+        if: always()
       # Ce que la coque coûte à l'écran, mesuré plutôt qu'estimé : une barre
       # qui repasse à deux rangées ne se voit dans aucune revue de diff.
       - run: npm run measure:shell -- --check
