@@ -75,6 +75,33 @@ export class ProjectCommandDispatcher {
   get project(): Project {
     return this.#project;
   }
+  /**
+   * Ce qu'une commande toucherait, sans l'appliquer.
+   *
+   * Une politique d'édition a besoin de savoir sur quoi une commande va
+   * écrire **avant** qu'elle écrive. Rien ne le déclare : `ChangeSet` est un
+   * résultat, pas une intention, et il n'existe qu'une fois la commande
+   * exécutée.
+   *
+   * Le faire dire à chaque commande — un champ `touches` — aurait été moins
+   * cher et beaucoup moins sûr : une commande ajoutée demain sans ce champ
+   * serait un trou silencieux dans la règle, et c'est précisément la classe de
+   * trou qu'on est en train de fermer. Un essai à blanc est juste pour toutes
+   * les commandes, celles qui existent et celles qui n'existent pas encore.
+   *
+   * Il est possible parce qu'`execute` est pure : elle rend un `nextState` et
+   * ne touche pas au projet qu'on lui donne. Le prix est une exécution de plus
+   * par geste, sur un objet en mémoire.
+   */
+  preview(command: ProjectCommand): DispatchResult {
+    const validation = command.validate(this.#project);
+    if (!validation.valid)
+      return { status: 'REJECTED', errors: validation.errors };
+    return {
+      status: 'APPLIED',
+      changes: command.execute(this.#project).changes,
+    };
+  }
   dispatch(command: ProjectCommand): DispatchResult {
     const validation = command.validate(this.#project);
     if (!validation.valid)

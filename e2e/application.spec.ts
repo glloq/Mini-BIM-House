@@ -1423,7 +1423,18 @@ test('reaches a column and a component through the project tree', async ({
   await canvas.click({ position: { x: box.width * 0.4, y: box.height * 0.4 } });
   await expect(page.locator('[id^="structure:member-"]')).toHaveCount(1);
 
+  /*
+   * Un radiateur se pose dans Systèmes, et un poteau dans Bâtiment : chaque
+   * objet a un espace propriétaire, et poser un appareil de chauffage depuis
+   * l'onglet du bâti est refusé. Le changement d'étape n'est pas une
+   * contorsion du test, c'est la règle qu'il traverse.
+   */
   await chooseTool(page, 'Composant');
+  // L'outil « Composant » vit dans Aménagement, et il pose n'importe quelle
+  // catégorie : un appareil de chauffage appartient aux Systèmes, donc c'est
+  // de là qu'on le pose. Choisir l'outil, puis l'espace qui possède ce qu'il
+  // va poser.
+  await openStage(page, 'Systèmes');
   await page.getByLabel('Catégorie').selectOption('HEATING');
   // A name the reference house does not already hold: the tree lists what is
   // in the project, and two lines reading the same thing prove nothing about
@@ -3138,6 +3149,9 @@ test('places a thing in the building, as an object of the editor', async ({
   const errors = watchConsole(page);
   await loadDemo(page);
   await chooseTool(page, 'Composant');
+  // Un appareil de chauffage appartient aux Systèmes : c'est de là qu'il se
+  // pose, et l'onglet où vit l'outil — Aménagement — le refuserait.
+  await openStage(page, 'Systèmes');
   await page.getByLabel('Catégorie').selectOption('HEATING');
   // A name the reference house does not already hold: the tree lists what is
   // in the project, and two lines reading the same thing prove nothing about

@@ -50,7 +50,7 @@ const LIBRARIES: readonly string[] = [
 
 const STAGE_OF: Readonly<Record<string, string>> = {
   Projet: 'Projet',
-  'Niveaux et pièces': 'Projet',
+  'Niveaux et pièces': 'Bâtiment',
   Plan: 'Bâtiment',
   Matériaux: 'Bâtiment',
   Assemblages: 'Bâtiment',
@@ -93,14 +93,22 @@ export async function openDestination(
     const tree = page.getByRole('navigation', {
       name: 'Arborescence du projet',
     });
-    // L'arborescence vit sur le plan, sous « Éléments du projet » : venir
-    // d'une autre bibliothèque veut dire y revenir d'abord. Le panneau montre
-    // où l'on est, donc « Plan » est là pour cela.
+    /*
+     * L'arborescence vit sur le plan, sous « Éléments du projet » : venir
+     * d'une autre bibliothèque, ou d'une étape qui offre plusieurs
+     * destinations, veut dire y revenir d'abord. Le panneau montre où l'on
+     * est, donc « Plan » est là pour cela.
+     *
+     * Et sur un téléphone, choisir une destination referme le tiroir — c'est
+     * ce qu'il faut pour voir le plan, et ce qui fait qu'il faut le rouvrir
+     * pour lire l'arborescence.
+     */
     if (!(await tree.isVisible())) {
       const back = page
         .locator('#workspace-sidebar')
         .getByRole('button', { name: 'Plan', exact: true });
       if (await back.isVisible()) await back.click();
+      if (await toggle.isVisible()) await toggle.click();
     }
     await openModelTree(page);
     const entry = tree.getByRole('button', { name: label, exact: true });

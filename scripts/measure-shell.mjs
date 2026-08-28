@@ -124,8 +124,20 @@ export const SHELL_BUDGETS = {
    * Puis V4-3 les sort tous de la colonne — les outils sont contre le plan —
    * et il en reste **deux**. Le budget passe à huit, ce qui laisse la place
    * d'un navigateur de modèle sans laisser celle d'une seconde barre d'outils.
+   *
+   * Puis deux de plus, et pas gratuitement. « Niveaux et pièces » — le panneau
+   * qui pose les murs, les dalles, les pièces, les escaliers, la toiture et la
+   * structure — était rangé sous l'onglet **Projet**, c'est-à-dire sous les
+   * réglages. Il est passé au Bâtiment, qui est ce dont il parle, et le
+   * Bâtiment offre donc deux destinations au lieu d'une : la colonne les liste.
+   *
+   * Ce que ces deux boutons achètent : le panneau est là où l'on va quand on
+   * veut modifier le bâtiment, au lieu d'être caché derrière l'onglet des
+   * options. Et depuis que chaque objet a un espace propriétaire, il n'y avait
+   * plus le choix — un panneau qui pose des murs depuis un onglet qui ne
+   * possède aucun objet aurait vu chacun de ses gestes refusé.
    */
-  leftColumnButtons: 8,
+  leftColumnButtons: 10,
   /** Zones qui réservent de la place sans rien montrer. */
   emptyReservedZones: 0,
 };

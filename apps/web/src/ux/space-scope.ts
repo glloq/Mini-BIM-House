@@ -1,5 +1,16 @@
 /**
- * Ce que chaque espace laisse **désigner**.
+ * Ce que chaque espace laisse **désigner au plan**.
+ *
+ * À ne pas confondre avec `ownership.ts`, qui dit ce que chaque espace laisse
+ * **modifier**. Les deux sont différents et les deux servent :
+ *
+ * - ici, le clic sur le dessin, qui prend ce qu'on est en train de faire ;
+ * - là-bas, l'écriture dans le projet, quel que soit le chemin.
+ *
+ * Un objet écarté ici reste atteignable autrement — par la palette, par
+ * l'arborescence, par un constat — et il s'ouvre alors en lecture. C'est ce
+ * qui permet de ne jamais avoir à le rendre modifiable pour qu'il soit
+ * consultable.
  *
  * On pouvait prendre la parcelle depuis l'onglet du bâtiment et les murs
  * depuis celui de l'aménagement : un clic un peu large, et l'on déplaçait la

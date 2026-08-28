@@ -665,17 +665,32 @@ function App() {
     [saveState],
   );
 
-  const runCommand = useCallback((command: ProjectCommand): boolean => {
-    const result = session.current.dispatch(command);
-    if (result.status === 'ERROR') {
-      setMessage(`Refusé — ${result.messages.join(' ')}`);
-      return false;
-    }
-    setFile(result.file);
-    setSaveState('MODIFIED');
-    setMessage(`${command.label} · appliqué.`);
-    return true;
-  }, []);
+  /**
+   * Tout ce qui écrit dans le projet passe par là, l'espace actif compris.
+   *
+   * La frontière d'édition est tenue par la session, qui est le seul passage :
+   * voir `ProjectEditingSession.dispatch`. Ici on ne fait que lui dire d'où le
+   * geste vient.
+   *
+   * Annuler et refaire ne passent pas par cette fonction, et c'est voulu :
+   * reprendre son propre geste n'est pas modifier l'objet de quelqu'un
+   * d'autre, et bloquer `Ctrl+Z` parce qu'on a changé d'onglet entre-temps
+   * serait un piège.
+   */
+  const runCommand = useCallback(
+    (command: ProjectCommand): boolean => {
+      const result = session.current.dispatch(command, navigation.stage);
+      if (result.status === 'ERROR') {
+        setMessage(`Refusé — ${result.messages.join(' ')}`);
+        return false;
+      }
+      setFile(result.file);
+      setSaveState('MODIFIED');
+      setMessage(`${command.label} · appliqué.`);
+      return true;
+    },
+    [navigation.stage],
+  );
 
   /**
    * Writes the project and the climate it uses as one file.

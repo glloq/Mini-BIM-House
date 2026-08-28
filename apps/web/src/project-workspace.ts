@@ -13,6 +13,9 @@ import {
 // because creating a project is something the application must be able to do
 // before anything is loaded, and a blank project was handed all of them.
 import { STARTER_LIBRARY } from '@house-technical-designer/catalog-registry/starter';
+import { creationStage, type CreationStageId } from './ux/creation-stages.js';
+import { ownerStageOf } from './ux/ownership.js';
+import { changedObjects } from './ux/model-diff.js';
 import {
   ARCHITECTURAL_CLEAN_PRINT,
   exportSemanticSceneToSvg,
@@ -90,17 +93,69 @@ export class ProjectEditingSession {
     return { ...this.#source, project: this.#dispatcher.project };
   }
 
-  addWall(draft: WallDraft, wallId: string): AddWallResult {
+  addWall(
+    draft: WallDraft,
+    wallId: string,
+    stage: CreationStageId = 'BUILDING',
+  ): AddWallResult {
     const command = createAddWallCommand(this.file, draft, wallId);
     if (command.status === 'ERROR') return command;
-    const result = this.#dispatcher.dispatch(command.command);
+    return this.dispatch(command.command, stage);
+  }
+
+  /**
+   * Runs any project command so panels edit through the same undo history.
+   *
+   * Et c'est ici que la frontière d'édition tient, parce que c'est le seul
+   * passage. Le clic, la poignée, l'inspecteur, le menu contextuel, `Delete`,
+   * un raccourci, la palette, l'arborescence, un constat : tous les gestes
+   * finissent par une commande, et une commande passe par cette méthode. La
+   * règle posée sur chacun de ces chemins aurait été la même règle écrite huit
+   * fois, dont une oubliée — c'est exactement ce qui se passait, seule la
+   * sélection au plan étant filtrée.
+   *
+   * L'essai à blanc dit ce que la commande **toucherait**, puisque rien ne le
+   * déclare à l'avance. Si l'un de ces objets appartient à un autre espace, la
+   * commande n'est pas jouée et le refus dit lequel et où aller.
+   *
+   * Une commande qui ne touche aucun objet reconnu — un réglage de projet, une
+   * entrée de bibliothèque, un niveau — n'est refusée par personne : c'est la
+   * règle « sans propriétaire, partout ».
+   */
+  dispatch(command: ProjectCommand, stage: CreationStageId): AddWallResult {
+    const refusal = this.#refusal(command, stage);
+    if (refusal !== undefined) return { status: 'ERROR', messages: [refusal] };
+    const result = this.#dispatcher.dispatch(command);
     return dispatchResult(result, this.file);
   }
 
-  /** Runs any project command so panels edit through the same undo history. */
-  dispatch(command: ProjectCommand): AddWallResult {
-    const result = this.#dispatcher.dispatch(command);
-    return dispatchResult(result, this.file);
+  /**
+   * La phrase à dire quand cet espace ne possède pas ce que la commande touche.
+   *
+   * Ce qu'elle touche est **comparé**, pas demandé : le `ChangeSet` d'une
+   * commande dit l'identifiant de la commande et non celui des objets. Voir
+   * `model-diff.ts`, qui porte la mesure.
+   *
+   * Un objet retiré n'existe plus dans le projet d'après, et un objet posé
+   * n'existait pas dans celui d'avant : le propriétaire se cherche donc dans
+   * celui des deux qui porte l'objet. Sans ça, poser un mur depuis Systèmes
+   * serait passé — le mur neuf n'étant reconnu par personne dans le projet
+   * d'avant, donc sans propriétaire, donc permis.
+   */
+  #refusal(
+    command: ProjectCommand,
+    stage: CreationStageId,
+  ): string | undefined {
+    const before = this.#dispatcher.project;
+    if (!command.validate(before).valid) return undefined;
+    const after = command.execute(before).nextState;
+    for (const objectId of changedObjects(before, after)) {
+      const owner =
+        ownerStageOf(before, objectId) ?? ownerStageOf(after, objectId);
+      if (owner === undefined || owner === stage) continue;
+      return `Cet objet appartient à ${creationStage(owner).label} : c'est là qu'il se modifie.`;
+    }
+    return undefined;
   }
 
   undo(): AddWallResult {

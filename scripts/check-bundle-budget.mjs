@@ -471,8 +471,18 @@ export const BUDGETS = {
    * destinations sur treize. Une phrase par refus, portée par le contrôle, et
    * un projet neuf mené à dessiner plutôt qu'aux réglages d'un bâtiment qui
    * n'existe pas. Tout arrive à la demande, avec les écrans concernés.
+   *
+   * Et un avec la frontière d'édition. Un objet appartient à un espace, et il
+   * ne se modifie que là : la parcelle au Terrain, les murs au Bâtiment, le
+   * mobilier à l'Aménagement, les réseaux aux Systèmes. La règle tient sur le
+   * seul passage qui écrit dans le projet, et elle a besoin de savoir ce
+   * qu'une commande touche — ce qu'aucune commande ne dit, le champ prévu pour
+   * ça portant l'identifiant de la commande et non celui des objets. Elle le
+   * lit donc en comparant l'inventaire avant et après. Ce kio-là est au
+   * premier écran parce que le verrou y est aussi : il vaut pour le premier
+   * clic comme pour le millième.
    */
-  totalGzipBytes: 493 * 1024,
+  totalGzipBytes: 494 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */
