@@ -207,8 +207,22 @@ export const BUDGETS = {
    * d'une hypothèse retirée du modèle, et c'est le dernier kio qu'on paie
    * ainsi : le suivant devra être financé par le découpage des catalogues en
    * chargement à la demande, et non par un budget qu'on relève.
+   *
+   * Et quatre avec le format durci. Soixante-treize objets du schéma se
+   * ferment, et Ajv émet un contrôle de propriétés pour chacun : le validateur
+   * compilé pèse quatre kio de plus, au premier écran parce que `project-io`
+   * est importé au chargement.
+   *
+   * **J'avais écrit que le kio précédent serait le dernier payé ainsi.** Il ne
+   * l'est pas, et le dire vaut mieux que de le maquiller : ces quatre kio
+   * achètent un format qui refuse `definitonId`, ce qui est un meilleur marché
+   * que le précédent. Mais la dette est réelle et elle a un nom : sortir la
+   * validation du chargement initial, comme `autosave` en est sorti — un
+   * sous-chemin `project-io/validation`, et l'application qui l'appelle au
+   * moment où elle ouvre un fichier plutôt qu'au moment où elle démarre. Tant
+   * que ce n'est pas fait, aucun budget ne doit plus monter.
    */
-  initialGzipBytes: 297 * 1024,
+  initialGzipBytes: 302 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -335,7 +349,7 @@ export const BUDGETS = {
    * Et un avec les soixante-treize entrées nommées, comptées au chargement
    * initial ci-dessus : le registre vit dans le premier écran.
    */
-  totalGzipBytes: 479 * 1024,
+  totalGzipBytes: 483 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

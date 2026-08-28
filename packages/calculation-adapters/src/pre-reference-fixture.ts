@@ -39,9 +39,8 @@ function preReferenceNetworks(): readonly TechnicalNetwork[] {
           kind: 'FIXTURE',
           position: point(4000, 0, 400),
           spaceId: space,
-          fixtureType: 'SINK',
-          designFlowLps: 0.2,
-        } as TechnicalNetwork['nodes'][number],
+          properties: { fixtureType: 'SINK', designFlowLps: 0.2 },
+        },
       ],
       ports: [
         {
@@ -73,8 +72,8 @@ function preReferenceNetworks(): readonly TechnicalNetwork[] {
           kind: 'FIXTURE',
           position: point(4000, 0, -150),
           spaceId: space,
-          dischargeUnits: 1,
-        } as TechnicalNetwork['nodes'][number],
+          properties: { dischargeUnits: 1 },
+        },
         {
           id: 'wastewater:outlet',
           kind: 'OUTLET',
@@ -117,9 +116,8 @@ function preReferenceNetworks(): readonly TechnicalNetwork[] {
           kind: 'TERMINAL',
           position: point(2500, 2000, 2300),
           spaceId: space,
-          airRole: 'EXTRACT',
-          targetFlowM3h: 60,
-        } as TechnicalNetwork['nodes'][number],
+          properties: { airRole: 'EXTRACT', targetFlowM3h: 60 },
+        },
       ],
       ports: [
         {
@@ -178,9 +176,12 @@ function preReferenceNetworks(): readonly TechnicalNetwork[] {
           kind: 'LUMINAIRE',
           position: point(2500, 2000, 2400),
           spaceId: space,
-          catalogItemId: 'luminaire',
-          properties: { powerFactor: 0.95, demandFactor: 1 },
-        } as TechnicalNetwork['nodes'][number],
+          properties: {
+            catalogItemId: 'luminaire',
+            powerFactor: 0.95,
+            demandFactor: 1,
+          },
+        },
       ],
       ports: [
         {

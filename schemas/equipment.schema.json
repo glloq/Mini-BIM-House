@@ -57,7 +57,7 @@
           "exclusiveMinimum": 0
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "ports": {
       "type": "array",
@@ -88,7 +88,7 @@
             "type": "number"
           }
         },
-        "additionalProperties": true
+        "additionalProperties": false
       }
     },
     "properties": {
@@ -126,7 +126,7 @@
                   "type": "string"
                 }
               },
-              "additionalProperties": true
+              "additionalProperties": false
             }
           },
           "output": {
@@ -159,11 +159,11 @@
                   "type": "number"
                 }
               },
-              "additionalProperties": true
+              "additionalProperties": false
             }
           }
         },
-        "additionalProperties": true
+        "additionalProperties": false
       }
     },
     "sources": {
@@ -192,7 +192,7 @@
             "type": "string"
           }
         },
-        "additionalProperties": true
+        "additionalProperties": false
       }
     },
     "clearances": {
@@ -234,7 +234,7 @@
             "type": "string"
           }
         },
-        "additionalProperties": true
+        "additionalProperties": false
       }
     },
     "category": {
@@ -273,7 +273,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": true
+            "additionalProperties": false
           }
         },
         "planFootprint": {
@@ -283,7 +283,7 @@
           "type": "string"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "provenance": {
       "type": "object",
@@ -305,8 +305,12 @@
           "type": "string"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
+    },
+    "name": {
+      "description": "Le nom lisible de la fiche. Le modèle le porte ; le schéma l'oubliait.",
+      "type": "string"
     }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

@@ -29,7 +29,7 @@
       "type": "object"
     }
   },
-  "additionalProperties": true,
+  "additionalProperties": false,
   "$defs": {
     "Project": {
       "type": "object",
@@ -136,7 +136,7 @@
                     "type": "string"
                   }
                 },
-                "additionalProperties": true
+                "additionalProperties": false
               }
             },
             "underlay": {
@@ -172,10 +172,27 @@
                   "type": "string"
                 }
               },
-              "additionalProperties": true
+              "additionalProperties": false
+            },
+            "location": {
+              "description": "Où le projet se trouve. Le schéma ne la déclarait pas, et la maison de référence la porte depuis toujours : c'est exactement ce qu'un objet ouvert laisse passer.",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "latitudeDeg",
+                "longitudeDeg"
+              ],
+              "properties": {
+                "latitudeDeg": {
+                  "type": "number"
+                },
+                "longitudeDeg": {
+                  "type": "number"
+                }
+              }
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         "building": {
           "type": "object",
@@ -197,7 +214,7 @@
               }
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         "materialLibrary": {
           "type": "object",
@@ -279,10 +296,10 @@
                     "type": "string"
                   }
                 },
-                "additionalProperties": true
+                "additionalProperties": false
               }
             },
-            "additionalProperties": true
+            "additionalProperties": false
           }
         },
         "systems": {
@@ -363,7 +380,7 @@
               }
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         "sheets": {
           "type": "array",
@@ -375,7 +392,7 @@
           "$ref": "#/$defs/ProjectScope"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "ProjectScope": {
       "type": "object",
@@ -416,7 +433,7 @@
           }
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "Level": {
       "type": "object",
@@ -509,7 +526,7 @@
           }
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "Zone": {
       "type": "object",
@@ -551,7 +568,7 @@
           "type": "object"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "ComponentInstance": {
       "type": "object",
@@ -621,7 +638,7 @@
           "type": "object"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "Stair": {
       "type": "object",
@@ -686,7 +703,7 @@
               }
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         "landings": {
           "type": "array",
@@ -706,11 +723,11 @@
                 "exclusiveMinimum": 0
               }
             },
-            "additionalProperties": true
+            "additionalProperties": false
           }
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "RoofStructure": {
       "type": "object",
@@ -763,7 +780,7 @@
                 "minimum": 0
               }
             },
-            "additionalProperties": true
+            "additionalProperties": false
           }
         },
         "assemblyId": {
@@ -774,7 +791,7 @@
           "type": "number"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "SavedDrawingView": {
       "type": "object",
@@ -827,9 +844,60 @@
         },
         "analysisOverlayId": {
           "type": "string"
+        },
+        "cut": {
+          "description": "La ligne de coupe d'une vue en coupe, non déclarée jusqu'ici.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "start",
+            "end"
+          ],
+          "properties": {
+            "start": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "x",
+                "y"
+              ],
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                }
+              }
+            },
+            "end": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "x",
+                "y"
+              ],
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "viewDirectionDeg": {
+          "description": "La direction du regard d'une façade.",
+          "type": "number"
+        },
+        "viewDepthMm": {
+          "description": "La profondeur regardée, en millimètres.",
+          "type": "number"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "ProjectSheet": {
       "type": "object",
@@ -925,11 +993,11 @@
                 "exclusiveMinimum": 0
               }
             },
-            "additionalProperties": true
+            "additionalProperties": false
           }
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "StructuralMember": {
       "type": "object",
@@ -988,7 +1056,7 @@
           "minLength": 1
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "OpeningDefinition": {
       "type": "object",
@@ -1049,7 +1117,7 @@
               "type": "string"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         "sources": {
           "type": "array",
@@ -1077,11 +1145,11 @@
                 "type": "string"
               }
             },
-            "additionalProperties": true
+            "additionalProperties": false
           }
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     }
   }
 }

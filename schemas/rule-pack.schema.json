@@ -34,7 +34,7 @@
           "type": "string"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "validity": {
       "type": "object",
@@ -85,7 +85,7 @@
             "type": "string"
           }
         },
-        "additionalProperties": true
+        "additionalProperties": false
       }
     },
     "rules": {
@@ -140,12 +140,12 @@
                 "type": "string"
               }
             },
-            "additionalProperties": true
+            "additionalProperties": false
           }
         },
-        "additionalProperties": true
+        "additionalProperties": false
       }
     }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }
