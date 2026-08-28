@@ -858,7 +858,36 @@ export const electricalAdapter: CalculationModule = {
             : { conductorResistanceOhmPerM: perMetre }),
         };
       });
-      const result = calculateElectricalCircuit({ circuit, loads, cables });
+      /*
+       * La topologie, quand le projet la donne.
+       *
+       * Elle change ce qui est calculé : le circuit devient l'arbre qu'il est,
+       * chaque tronçon porte le courant des seules charges qu'il alimente, et
+       * la chute rendue est celle de la charge la plus défavorisée. Un circuit
+       * qui se ramifie — c'est-à-dire n'importe quel circuit de prises — était
+       * jusqu'ici rendu sans chute du tout.
+       */
+      const rootNodeId = string(entry.rootNodeId);
+      const cableEnds: Record<string, { from: string; to: string }> = {};
+      for (const cable of cableRows) {
+        const from = string(cable.fromNodeId);
+        const to = string(cable.toNodeId);
+        if (from !== undefined && to !== undefined)
+          cableEnds[string(cable.id)!] = { from, to };
+      }
+      const loadNodes: Record<string, string> = {};
+      for (const load of loadRows) {
+        const nodeId = string(load.nodeId);
+        if (nodeId !== undefined) loadNodes[string(load.loadId)!] = nodeId;
+      }
+      const result = calculateElectricalCircuit({
+        circuit,
+        loads,
+        cables,
+        ...(rootNodeId === undefined
+          ? {}
+          : { topology: { rootNodeId, cableEnds, loadNodes } }),
+      });
       for (const entryWarning of result.warnings)
         warnings.push({
           code: entryWarning.code,
@@ -874,6 +903,9 @@ export const electricalAdapter: CalculationModule = {
         designCurrentA: result.designCurrentA ?? null,
         voltageDropV: result.voltageDropV ?? null,
         voltageDropPercent: result.voltageDropPercent ?? null,
+        // La charge la plus défavorisée : c'est celle qu'on rapprochera, ou
+        // dont on grossira le câble.
+        worstLoadId: result.worstLoadId ?? null,
         cables: result.cables.map((cable) => ({
           cableId: cable.cableId,
           lengthM: cable.lengthM,

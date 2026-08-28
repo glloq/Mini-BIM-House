@@ -1329,6 +1329,9 @@ function electricalInput(context: ProjectCalculationContext): CalculationJson {
           activePowerW: activePowerW ?? null,
           powerFactor: powerFactor ?? null,
           demandFactor: demandFactor ?? null,
+          // Le nœud qui la porte : sans lui, le moteur ne peut pas savoir
+          // quels tronçons l'alimentent, donc quel courant y passe.
+          nodeId: node.id,
         });
       }
       // The feeder carries the whole circuit, so it belongs to its cable path;
@@ -1366,10 +1369,20 @@ function electricalInput(context: ProjectCalculationContext): CalculationJson {
             'PROJECT',
             `Cable ${edge.id} states no conductor material.`,
           );
+        const owners = portOwners(network);
         cables.push({
           id: edge.id,
           circuitId: circuitNode.id,
           networkId: network.id,
+          /*
+           * Ce que le réseau déclare relier, et non ce que le tracé suggère.
+           *
+           * Les deux peuvent diverger : quatre câbles de la maison de
+           * démonstration ont un tracé qui part à un mètre du nœud dont ils
+           * déclarent partir. Un dessin dérive ; une connexion, non.
+           */
+          fromNodeId: owners.get(edge.fromPortId) ?? null,
+          toNodeId: owners.get(edge.toPortId) ?? null,
           path: edge.path.map((point) => ({ ...point })),
           conductorSectionMm2: sectionMm2 ?? null,
           conductorMaterial: material ?? null,
@@ -1384,6 +1397,14 @@ function electricalInput(context: ProjectCalculationContext): CalculationJson {
         id: circuitNode.id,
         networkId: network.id,
         boardId: board?.id ?? null,
+        /*
+         * D'où le circuit part, et c'est ce qui donne le sens du courant.
+         *
+         * Le tableau quand il y en a un ; le nœud du circuit lui-même sinon —
+         * c'est là que la protection est posée. Sans ce départ, une guirlande a
+         * deux extrémités libres et rien ne dit laquelle alimente l'autre.
+         */
+        rootNodeId: board?.id ?? circuitNode.id,
         purpose: nodeString(circuitNode, 'purpose') ?? 'POWER',
         voltageV: voltageV ?? null,
         phases: phases === 1 || phases === 3 ? phases : null,

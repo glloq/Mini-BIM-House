@@ -254,8 +254,26 @@ export const BUDGETS = {
    * Ce chiffre est donc un plafond de nouveau serré, à cinq kio du réel. La
    * règle reprend sa valeur : le prochain kio du premier écran devra être
    * financé par ce qui en sort, et non par ce budget.
+   *
+   * **Et il l'a été : les dix-sept moteurs de calcul en sortent, et ce nombre
+   * baisse de vingt-sept kio de plus.** Ils n'auraient jamais dû y être. Le
+   * fichier qui les nomme — `module-registry.ts` — promettait dans son en-tête
+   * de n'importer rien, « pour que nommer un module coûte quelques centaines
+   * d'octets plutôt que dix-sept moteurs de calcul ». La promesse était tenue
+   * par le fichier et défaite par le paquet : le barillet le réexportait à
+   * côté des moteurs, et l'écran des réglages importait le barillet pour lire
+   * un libellé et une méthode. Thermique, hydraulique, électrique, acoustique
+   * arrivaient donc au premier écran de quelqu'un qui n'ouvre jamais l'onglet
+   * des calculs.
+   *
+   * Le sous-chemin `calculation-adapters/registry` ne contient que des noms —
+   * identifiant, libellé, méthode, version — et `registry-only.test.ts` tient
+   * les deux moitiés de la promesse : le fichier reste sans dépendance, et ce
+   * qu'il déclare est ce que les moteurs déclarent.
+   *
+   * Le plafond redescend donc à 254, de nouveau à quelques kio du réel.
    */
-  initialGzipBytes: 278 * 1024,
+  initialGzipBytes: 254 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -410,6 +428,21 @@ export const BUDGETS = {
    * pour s'activer, et posait la fenêtre dans le mur le plus proche du clic —
    * on visait le toit, la fenêtre arrivait au rez-de-chaussée. Le kio paie un
    * vrai outil, sa commande, et le clic converti dans le repère du pan.
+   *
+   * Et un avec les circuits qui se ramifient. Le moteur électrique ne savait
+   * additionner qu'une guirlande, et faisait passer le courant total du
+   * circuit dans chacun de ses tronçons : tout circuit de maison — où l'on
+   * tire une dérivation par pièce — ressortait sans aucune chute de tension.
+   * Il lit maintenant l'arbre que le réseau déclare, fait porter à chaque
+   * tronçon le courant des seules charges qu'il alimente, et rend la chute de
+   * la charge la plus défavorisée. Le kio arrive à la demande, avec les dix-
+   * sept moteurs de calcul, et pas au premier écran.
+   *
+   * Et le total **baisse** d'un kio en sortant les moteurs du premier écran :
+   * réunis dans un seul fichier chargé à la demande, ils cessent d'être
+   * dupliqués entre la coque et le morceau des calculs. C'est rare — la
+   * plupart des sorties coûtent un peu de colle — et c'est ce qui arrive quand
+   * ce qui sortait était une duplication plutôt qu'un poids propre.
    */
   totalGzipBytes: 490 * 1024,
 };
