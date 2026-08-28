@@ -27,6 +27,21 @@ export interface UnderlayImageProps {
 export function UnderlayImage({ camera, underlay }: UnderlayImageProps) {
   if (!(camera.viewportWidthPx > 0)) return null;
   const at = modelToScreen(camera, underlay.originMm);
+  /*
+   * La feuille tournée.
+   *
+   * Un cadastre est rarement nord en haut et une photo d'esquisse ne l'est
+   * jamais ; il fallait jusqu'ici retourner l'image dans un autre logiciel
+   * avant de l'importer, ce que personne ne fait deux fois.
+   *
+   * Elle tourne autour de son centre, parce que c'est ce qu'on attend en
+   * redressant une feuille : le dessin pivote sur place au lieu de partir en
+   * arc de cercle. Cela ne dérange pas la calibration — mettre à l'échelle
+   * autour d'un point fixe et tourner le même dessin donnent le même résultat
+   * dans les deux ordres —, et le coin `originMm` continue de dire où l'image
+   * serait posée droite, ce que le fichier écrivait déjà.
+   */
+  const turned = underlay.rotationDeg ?? 0;
   return (
     <img
       className="underlay-image"
@@ -40,6 +55,7 @@ export function UnderlayImage({ camera, underlay }: UnderlayImageProps) {
         width: `${underlay.widthMm * camera.pixelsPerMm}px`,
         height: `${underlay.heightMm * camera.pixelsPerMm}px`,
         opacity: underlay.opacity ?? 0.55,
+        ...(turned === 0 ? {} : { transform: `rotate(${turned}deg)` }),
       }}
     />
   );

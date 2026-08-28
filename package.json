@@ -37,6 +37,7 @@
     "measure:shell": "node scripts/measure-shell.mjs",
     "audit:layout": "node scripts/audit-layout.mjs",
     "audit:first-screen": "node scripts/audit-first-screen.mjs",
+    "graphics:coverage": "node scripts/audit-graphics-coverage.mjs",
     "audit:entries": "vite-node --config vitest.config.ts apps/web/tools/audit-entries.ts",
     "test:coverage": "vitest run --coverage",
     "catalog:starter": "vite-node scripts/starter-library.ts",

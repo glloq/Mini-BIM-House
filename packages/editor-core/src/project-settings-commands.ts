@@ -207,6 +207,16 @@ export class SetSiteUnderlayCommand extends SettingsCommand {
       (!Number.isFinite(opacity) || opacity < 0 || opacity > 1)
     )
       errors.push('L’opacité va de 0 à 1.');
+    // La rotation est écrite ramenée dans [0 ; 360[ : 370° et 10° sont la même
+    // image, et deux projets identiques doivent s'écrire pareil. Le schéma dit
+    // la même chose, et une commande qui écrirait autre chose produirait un
+    // fichier que le projet lui-même refuse de relire.
+    const rotation = drawn.rotationDeg;
+    if (
+      rotation !== undefined &&
+      (!Number.isFinite(rotation) || rotation < 0 || rotation >= 360)
+    )
+      errors.push('L’angle de l’image va de 0 à 360°.');
     return errors.length === 0 ? ok() : rejected(...errors);
   }
   protected apply(project: Project): Project {

@@ -4,11 +4,13 @@ import {
   ARCHITECTURAL_CLEAN_PRINT,
   ARCHITECTURAL_CLEAN_SCREEN,
   GENERIC_TECHNICAL_SCREEN,
+  GRAPHIC_PROFILE_REGISTRY,
   graphicProfileBundle,
   graphicProfileForMode,
   validateGraphicProfileBundle,
 } from './graphic-profiles.js';
 import { spaceCategoryToken } from './architectural-profile.js';
+import { GRAPHIC_ROLE_RULES } from './role-tokens.js';
 import { SPACE_GRAPHIC_CATEGORIES } from './space-categories.js';
 import { resolveGraphicToken } from './style-resolver.js';
 import type { ScenePrimitive } from './scene.js';
@@ -40,8 +42,12 @@ describe('the clean architectural charter', () => {
 
   it('leaves the technical charter alone rather than bending it', () => {
     // A drawing whose reader is looking for a duct and a drawing whose reader
-    // is looking at where they would live are two drawings.
-    expect(GENERIC_TECHNICAL_SCREEN.profile.styleRules ?? []).toEqual([]);
+    // is looking at where they would live are two drawings. La charte
+    // technique ne porte donc que les règles qui définissent les rôles
+    // graphiques, communes à toutes, et aucune spécialisation à elle.
+    expect(GENERIC_TECHNICAL_SCREEN.profile.styleRules ?? []).toEqual([
+      ...GRAPHIC_ROLE_RULES,
+    ]);
     expect(GENERIC_TECHNICAL_SCREEN.styles.tokens['wall-cut']?.fill).toBe(
       '#111111',
     );
@@ -183,5 +189,95 @@ describe('the clean architectural charter', () => {
         metadata: { openingType: 'DOOR', part: 'SWING' },
       }),
     ).toBe('opening');
+  });
+});
+
+/*
+ * La parcelle a deux dessins et deux jetons : le sol et la limite. Ces
+ * épreuves échouent si l'un des deux redevient l'autre — c'est-à-dire si le
+ * terrain redevient le trait pâle qu'on ne voyait pas.
+ */
+describe('la parcelle, dessinée comme une parcelle', () => {
+  const ground: Drawn = {
+    semanticRole: 'SITE',
+    layer: 'site.parcel',
+    metadata: { ground: true },
+  };
+  const boundary: Drawn = { semanticRole: 'SITE', layer: 'site.parcel' };
+  const channels = (hex: string): readonly number[] =>
+    [1, 3, 5].map((index) => Number.parseInt(hex.slice(index, index + 2), 16));
+
+  it('distingue le sol de sa limite, dans toutes les chartes', () => {
+    // Le modèle ne connaît qu'un rôle `SITE` : sans rôle graphique, le lavis
+    // et le bornage retombent sur le même jeton et la surface disparaît.
+    for (const bundle of GRAPHIC_PROFILE_REGISTRY) {
+      expect(resolveGraphicToken(bundle.profile, ground)).toBe('site-parcel');
+      expect(resolveGraphicToken(bundle.profile, boundary)).toBe(
+        'site-parcel-boundary',
+      );
+    }
+  });
+
+  it('refuse une charte qui ne saurait pas dessiner un rôle graphique', () => {
+    // Sans ce contrôle, la parcelle aurait un fond dans un plan d'architecte
+    // et lèverait une exception dans un plan technique, le jour où quelqu'un
+    // ouvre l'autre.
+    const { 'site-parcel': _removed, ...rest } =
+      ARCHITECTURAL_CLEAN_SCREEN.styles.tokens;
+    expect(() =>
+      validateGraphicProfileBundle({
+        ...ARCHITECTURAL_CLEAN_SCREEN,
+        styles: { ...ARCHITECTURAL_CLEAN_SCREEN.styles, tokens: rest },
+      }),
+    ).toThrow('graphic role SITE_PARCEL');
+  });
+
+  it('pose un lavis vert clair semi-transparent sous le dessin', () => {
+    // « Vert » n'est pas une préférence : c'est la seule couleur du plan qui
+    // ne soit ni un mur, ni une pièce, ni un réseau.
+    const wash = ARCHITECTURAL_CLEAN_SCREEN.styles.tokens['site-parcel']!;
+    const [red, green, blue] = channels(wash.fill!);
+    expect(green!).toBeGreaterThan(red!);
+    expect(green!).toBeGreaterThan(blue!);
+    // Semi-transparent : il passe sous la maison, un vert opaque ferait de
+    // l'emprise du bâtiment un trou blanc découpé dans la pelouse.
+    expect(wash.opacity!).toBeGreaterThan(0);
+    expect(wash.opacity!).toBeLessThan(1);
+    expect(wash.stroke).toBe('none');
+  });
+
+  it('cerne le sol d’un vert plus foncé que lui', () => {
+    const wash = ARCHITECTURAL_CLEAN_SCREEN.styles.tokens['site-parcel']!;
+    const edge =
+      ARCHITECTURAL_CLEAN_SCREEN.styles.tokens['site-parcel-boundary']!;
+    const luminance = (hex: string): number => {
+      const [red, green, blue] = channels(hex).map((value) => value / 255);
+      return 0.2126 * red! + 0.7152 * green! + 0.0722 * blue!;
+    };
+    expect(luminance(edge.stroke!)).toBeLessThan(luminance(wash.fill!));
+    // Le contour ne se remplit pas : la sélection repeint ce qu'elle prend, et
+    // une parcelle sélectionnée deviendrait un aplat bleu sur toute la feuille.
+    expect(edge.fill).toBe('none');
+  });
+
+  it('n’emporte pas la couleur sur une feuille monochrome', () => {
+    // La même feuille sort sur un traceur noir et blanc, et un aplat sur toute
+    // la page coûte de l'encre sans rien dire qu'un tireté ne dise déjà.
+    expect(ARCHITECTURAL_CLEAN_PRINT.styles.tokens['site-parcel']?.fill).toBe(
+      'none',
+    );
+    const printed = new Set(
+      channels(
+        ARCHITECTURAL_CLEAN_PRINT.styles.tokens['site-parcel-boundary']!
+          .stroke!,
+      ),
+    );
+    expect(printed.size).toBe(1);
+  });
+
+  it('garde le sol sous tout ce qui est posé dessus', () => {
+    // Un lavis qui pèserait autant qu'un mur cesserait d'être un fond.
+    expect(width('site-parcel')).toBe(0);
+    expect(width('site-parcel-boundary')).toBeLessThan(width('wall-partition'));
   });
 });

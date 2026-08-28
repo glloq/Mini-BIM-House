@@ -110,6 +110,65 @@
       }
     },
     {
+      "id": "architecture.placed-object",
+      "name": "Objet posé",
+      "version": "1.0.0",
+      "semanticType": "PLACED_OBJECT",
+      "discipline": "OTHER",
+      "provenance": {
+        "type": "GENERIC",
+        "reference": "Glyphes techniques dessinés pour cette application — ne reproduit aucune planche normalisée"
+      },
+      "viewBox": {
+        "min": {
+          "x": -150,
+          "y": -150
+        },
+        "max": {
+          "x": 150,
+          "y": 150
+        }
+      },
+      "anchors": [
+        {
+          "id": "origin",
+          "point": {
+            "x": 0,
+            "y": 0
+          },
+          "kind": "INSERTION"
+        }
+      ],
+      "primitives": [
+        {
+          "kind": "POLYGON",
+          "points": [
+            {
+              "x": -150,
+              "y": -150
+            },
+            {
+              "x": 150,
+              "y": -150
+            },
+            {
+              "x": 150,
+              "y": 150
+            },
+            {
+              "x": -150,
+              "y": 150
+            }
+          ],
+          "role": "SYMBOL"
+        }
+      ],
+      "scaleRules": {
+        "space": "MODEL_SPACE",
+        "nominalSizeMm": 300
+      }
+    },
+    {
       "id": "water.valve",
       "name": "Vanne",
       "version": "1.0.0",

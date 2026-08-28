@@ -243,9 +243,14 @@ distinction est portée par le registre, pas par le composant.
 
 Un utilisateur peut à tout moment revenir en arrière, sauter une étape, poser
 l'électricité avant la toiture, modifier un mur après avoir tracé les réseaux.
-L'étape **filtre ce qui est proposé**. Elle ne restreint jamais ce qui est
-possible : la palette, la recherche et « Autres outils » donnent accès à tout,
-depuis n'importe quelle étape.
+L'étape **filtre ce qui est proposé** : la palette, la recherche et « Autres
+outils » donnent accès à tout, depuis n'importe quelle étape.
+
+> Ce paragraphe disait aussi « elle ne restreint jamais ce qui est possible ».
+> Ce n'est plus vrai, et c'est délibéré : un objet appartient à un espace et ne
+> se modifie que là. Ailleurs il reste visible et consultable. Voir
+> [`UX_ARCHITECTURE.md`](UX_ARCHITECTURE.md) § « Sept parties », qui porte la
+> règle et son tableau.
 
 > Cela modifie le critère d'acceptation n° 3 du contrat actuel — « les dix
 > phases ne sont nulle part dans la navigation ». Il devient : _les phases ne

@@ -61,11 +61,48 @@ décrit à quelqu'un. Aucun huitième onglet ne sera ajouté ; une fonction
 nouvelle trouve sa sous-partie. Voir
 [`UX_ARCHITECTURE_V4.md`](UX_ARCHITECTURE_V4.md) §1.
 
-**Un espace filtre ce qui est proposé. Il ne restreint jamais ce qui est
-possible.** On revient en arrière, on en saute un, on pose l'électricité avant
-la toiture. La recherche et la palette donnent accès à tout, depuis n'importe
-où. Rien ne se valide, rien ne se verrouille, et l'espace actif est un état
-d'écran : il n'entre jamais dans le fichier projet.
+**Un espace filtre ce qui est proposé, et décide de ce qui est modifiable.**
+
+La première moitié n'a pas bougé : on revient en arrière, on en saute un, on
+pose l'électricité avant la toiture. La recherche et la palette donnent accès à
+tout, depuis n'importe où — trouver un outil n'est pas s'en servir. Rien ne se
+valide, rien ne se verrouille, et l'espace actif reste un état d'écran : il
+n'entre jamais dans le fichier projet.
+
+La seconde est neuve, et elle remplace une phrase qui disait l'inverse — « il
+ne restreint jamais ce qui est possible ». Cette phrase a coûté ce qu'elle
+promettait : un clic un peu large depuis l'onglet du bâtiment déplaçait la
+limite du terrain.
+
+Trois notions étaient mélangées en une. Un objet peut être **visible** — il est
+au dessin comme contexte —, **consultable** — on peut le désigner, lire ses
+propriétés, le localiser — et **modifiable**. Elles ne se recouvrent pas :
+
+|                                         | Terrain            | Bâtiment   | Aménagement | Systèmes   | Études · Documents |
+| --------------------------------------- | ------------------ | ---------- | ----------- | ---------- | ------------------ |
+| parcelle, obstacles                     | modifiable         | référence  | référence   | référence  | lecture            |
+| murs, dalles, pièces, toiture           | référence          | modifiable | référence   | référence  | lecture            |
+| mobilier, sanitaires, appareils         | référence          | référence  | modifiable  | référence  | lecture            |
+| tronçons, nœuds, équipements techniques | référence          | référence  | référence   | modifiable | lecture            |
+| cotes, annotations                      | modifiable partout |            |             |            |                    |
+
+Un mur doit rester visible dans Systèmes, sinon on route des gaines dans le
+vide ; il doit y être consultable, sinon un constat thermique n'a nulle part où
+mener ; il ne doit pas y être modifiable.
+
+La carte est portée par `apps/web/src/ux/ownership.ts`. Un objet posé est
+réparti par ce qu'il **est** et non par sa famille : le ballon d'eau chaude et
+la VMC sont le même `COMPONENT`, l'un est d'Aménagement et l'autre de Systèmes.
+Sans propriétaire — une cote, une annotation, une catégorie `OTHER`, un objet
+qu'on ne reconnaît pas — veut dire « partout », jamais « nulle part » : refuser
+ce que personne ne revendique ferait un objet visible que plus rien ne corrige.
+
+La règle tient sur **un seul passage**, `ProjectEditingSession.dispatch`. Le
+clic, la poignée, l'inspecteur, le menu contextuel, `Delete`, un raccourci, la
+palette, l'arborescence, un constat : tous les gestes finissent par une
+commande, et toutes les commandes passent par là. La poser sur chacun des huit
+chemins revenait à l'écrire huit fois et à en oublier un — c'est exactement ce
+qui se passait, `selectableInStage` ne filtrant que le clic sur le plan.
 
 La barre ne contient jamais **Matériaux**, **Assemblages**, **Quantités** ni
 **Scénarios** : ce sont des outils et des résultats, et un outil n'est pas une

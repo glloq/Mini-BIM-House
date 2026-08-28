@@ -29,7 +29,7 @@ export class AddWallCommand implements EditorCommand {
   ) {}
   validate(state: EditorProjectState): CommandValidation {
     if (state.walls.some(({ id }) => id === this.wall.id))
-      return { valid: false, errors: [`Wall ${this.wall.id} already exists.`] };
+      return { valid: false, errors: [`Le mur ${this.wall.id} existe déjà.`] };
     const assembly = state.assemblies.find(
       ({ id }) => id === this.wall.assemblyId,
     );
@@ -58,7 +58,7 @@ export class DeleteWallCommand implements EditorCommand {
   ) {}
   validate(state: EditorProjectState): CommandValidation {
     if (!state.walls.some(({ id }) => id === this.wallId))
-      return { valid: false, errors: [`Wall ${this.wallId} does not exist.`] };
+      return { valid: false, errors: [`Le mur ${this.wallId} n’existe pas.`] };
     const dependants = wallOpenings(state.openings, this.wallId);
     const dimensions = state.dimensions.filter(
       ({ first, second }) =>
@@ -72,12 +72,12 @@ export class DeleteWallCommand implements EditorCommand {
             ...(dependants.length === 0
               ? []
               : [
-                  `Wall ${this.wallId} hosts openings: ${dependants.map(({ id }) => id).join(', ')}.`,
+                  `Le mur ${this.wallId} porte des ouvertures : ${dependants.map(({ id }) => id).join(', ')}. Retirez-les avant de le supprimer.`,
                 ]),
             ...(dimensions.length === 0
               ? []
               : [
-                  `Wall ${this.wallId} is referenced by dimensions: ${dimensions.map(({ id }) => id).join(', ')}.`,
+                  `Le mur ${this.wallId} est coté par ${dimensions.map(({ id }) => id).join(', ')}. Retirez ces cotes avant d’y toucher.`,
                 ]),
           ],
         };
@@ -106,10 +106,13 @@ export class MoveWallCommand implements EditorCommand {
   ) {}
   validate(state: EditorProjectState): CommandValidation {
     if (!Number.isFinite(this.deltaMm.x) || !Number.isFinite(this.deltaMm.y))
-      return { valid: false, errors: ['Wall movement must be finite.'] };
+      return {
+        valid: false,
+        errors: ['Le déplacement d’un mur doit être un nombre fini.'],
+      };
     return state.walls.some(({ id }) => id === this.wallId)
       ? { valid: true }
-      : { valid: false, errors: [`Wall ${this.wallId} does not exist.`] };
+      : { valid: false, errors: [`Le mur ${this.wallId} n’existe pas.`] };
   }
   execute(state: EditorProjectState): CommandExecution {
     const walls = state.walls.map((wall) =>
@@ -166,10 +169,10 @@ export class MoveWallPointCommand implements EditorCommand {
   }
   validate(state: EditorProjectState): CommandValidation {
     if (!Number.isFinite(this.to.x) || !Number.isFinite(this.to.y))
-      return { valid: false, errors: ['Wall point must be finite.'] };
+      return { valid: false, errors: ['Un point de mur doit être mesurable.'] };
     const wall = state.walls.find(({ id }) => id === this.wallId);
     if (wall === undefined)
-      return { valid: false, errors: [`Wall ${this.wallId} does not exist.`] };
+      return { valid: false, errors: [`Le mur ${this.wallId} n’existe pas.`] };
     if (
       !Number.isInteger(this.pointIndex) ||
       this.pointIndex < 0 ||
@@ -177,7 +180,7 @@ export class MoveWallPointCommand implements EditorCommand {
     )
       return {
         valid: false,
-        errors: [`Wall ${this.wallId} has no point ${this.pointIndex}.`],
+        errors: [`Le mur ${this.wallId} n’a pas de point ${this.pointIndex}.`],
       };
     const next = this.moved(state)!;
     const assembly = state.assemblies.find(({ id }) => id === wall.assemblyId);
@@ -246,12 +249,12 @@ export class SetWallPathCommand implements EditorCommand {
   validate(state: EditorProjectState): CommandValidation {
     const wall = state.walls.find(({ id }) => id === this.wallId);
     if (wall === undefined)
-      return { valid: false, errors: [`Wall ${this.wallId} does not exist.`] };
+      return { valid: false, errors: [`Le mur ${this.wallId} n’existe pas.`] };
     if (this.points.length !== wall.path.points.length)
       return {
         valid: false,
         errors: [
-          `Wall ${this.wallId} has ${wall.path.points.length} points, not ${this.points.length}.`,
+          `Le mur ${this.wallId} a ${wall.path.points.length} points, et non ${this.points.length}.`,
         ],
       };
     if (
@@ -259,7 +262,10 @@ export class SetWallPathCommand implements EditorCommand {
         (point) => !Number.isFinite(point.x) || !Number.isFinite(point.y),
       )
     )
-      return { valid: false, errors: ['Wall points must be finite.'] };
+      return {
+        valid: false,
+        errors: ['Les points d’un mur doivent être mesurables.'],
+      };
     const next = this.reshaped(state)!;
     const assembly = state.assemblies.find(({ id }) => id === wall.assemblyId);
     const issues = validateWall(next, assembly);
@@ -350,29 +356,35 @@ export class SplitWallCommand implements EditorCommand {
   }
   validate(state: EditorProjectState): CommandValidation {
     if (!Number.isFinite(this.at.x) || !Number.isFinite(this.at.y))
-      return { valid: false, errors: ['Split point must be finite.'] };
+      return {
+        valid: false,
+        errors: ['Le point de scission doit être mesurable.'],
+      };
     if (state.walls.some(({ id }) => id === this.newWallId))
       return {
         valid: false,
-        errors: [`Wall ${this.newWallId} already exists.`],
+        errors: [`Le mur ${this.newWallId} existe déjà.`],
       };
     const wall = state.walls.find(({ id }) => id === this.wallId);
     if (wall === undefined)
-      return { valid: false, errors: [`Wall ${this.wallId} does not exist.`] };
+      return { valid: false, errors: [`Le mur ${this.wallId} n’existe pas.`] };
     if (wall.path.points.length !== 2)
       return {
         valid: false,
         errors: [
-          `Wall ${this.wallId} has more than one segment; split it segment by segment.`,
+          `Le mur ${this.wallId} compte plusieurs segments : scindez-le segment par segment.`,
         ],
       };
     const cut = this.cut(state);
     if (cut === undefined)
-      return { valid: false, errors: [`Wall ${this.wallId} has no length.`] };
+      return {
+        valid: false,
+        errors: [`Le mur ${this.wallId} n’a pas de longueur.`],
+      };
     if (cut.distanceMm <= 0 || cut.distanceMm >= cut.totalMm)
       return {
         valid: false,
-        errors: ['The split point must fall inside the wall.'],
+        errors: ['Le point de scission doit tomber à l’intérieur du mur.'],
       };
     const crossed = wallOpenings(state.openings, this.wallId).filter(
       (opening) =>
@@ -383,7 +395,7 @@ export class SplitWallCommand implements EditorCommand {
       return {
         valid: false,
         errors: [
-          `The split point falls inside ${crossed.map(({ id }) => id).join(', ')}.`,
+          `Le point de scission tombe dans ${crossed.map(({ id }) => id).join(', ')}.`,
         ],
       };
     const dimensions = state.dimensions.filter(
@@ -395,7 +407,7 @@ export class SplitWallCommand implements EditorCommand {
       : {
           valid: false,
           errors: [
-            `Wall ${this.wallId} is referenced by dimensions: ${dimensions.map(({ id }) => id).join(', ')}.`,
+            `Le mur ${this.wallId} est coté par ${dimensions.map(({ id }) => id).join(', ')}. Retirez ces cotes avant d’y toucher.`,
           ],
         };
   }
@@ -450,7 +462,7 @@ export class JoinSplitWallsCommand implements EditorCommand {
       ? { valid: true }
       : {
           valid: false,
-          errors: [`Wall ${this.removedWallId} does not exist.`],
+          errors: [`Le mur ${this.removedWallId} n’existe pas.`],
         };
   }
   execute(state: EditorProjectState): CommandExecution {

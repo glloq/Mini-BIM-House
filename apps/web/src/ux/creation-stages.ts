@@ -12,12 +12,26 @@
  * qui circule dans les murs, ce qu'on vérifie, ce qu'on sort. Aucun huitième
  * onglet ne sera ajouté ; une fonction nouvelle trouve sa sous-partie.
  *
- * Un espace **filtre ce qui est proposé. Il ne restreint jamais ce qui est
- * possible.** On peut revenir en arrière, en sauter un, poser l'électricité
- * avant la toiture, reprendre un mur après avoir tracé les réseaux. La
- * recherche et la palette donnent accès à tout, depuis n'importe où. Rien ici
- * ne se « valide », rien ne se verrouille, et rien n'est écrit dans le
- * projet : l'espace actif est un état d'écran.
+ * Un espace **filtre ce qui est proposé, et décide de ce qui est modifiable.**
+ * C'est la moitié qui manquait. On peut toujours revenir en arrière, en sauter
+ * un, poser l'électricité avant la toiture, reprendre un mur après avoir tracé
+ * les réseaux : aucun ordre n'est imposé, rien ne se « valide », rien n'est
+ * écrit dans le projet — l'espace actif reste un état d'écran.
+ *
+ * Mais un objet appartient à un espace, et il ne se modifie que là. La
+ * parcelle au Terrain, les murs au Bâtiment, le mobilier à l'Aménagement, les
+ * réseaux aux Systèmes. Ailleurs il reste **visible**, parce qu'on route des
+ * gaines contre des murs, et **consultable**, parce qu'un constat thermique
+ * doit pouvoir mener au mur dont il parle. Il n'y est pas modifiable.
+ *
+ * La règle disait exactement l'inverse jusqu'ici — « il ne restreint jamais ce
+ * qui est possible » — et elle a coûté ce qu'elle promettait : un clic un peu
+ * large depuis l'onglet du bâtiment déplaçait la limite du terrain. Voir
+ * `ownership.ts`, qui la porte, et `ProjectEditingSession.dispatch`, qui la
+ * tient sur le seul passage qui écrit.
+ *
+ * La recherche et la palette continuent de donner accès à tout, depuis
+ * n'importe où : trouver un outil n'est pas s'en servir.
  *
  * À ne pas confondre avec les dix `WorkflowGroup` de `workflow-steps.ts` :
  * ceux-là disent **ce qu'il reste à faire**, dérivé du modèle. Les deux sont
@@ -120,11 +134,22 @@ const STAGE_DEFINITIONS = {
     id: 'PROJECT',
     label: 'Projet',
     shortcut: 'P',
-    description: 'Ce que ce projet est : périmètre, niveaux, options.',
+    description: 'Ce que ce projet est : périmètre, options, référentiels.',
     groups: ['PROJECT'],
     domains: [],
     sections: [],
-    destinations: ['project', 'building'],
+    /*
+     * Les réglages du projet, et rien d'autre.
+     *
+     * « Niveaux et pièces » était ici, et c'est le panneau qui pose les murs,
+     * les dalles, les pièces, les escaliers, la toiture et la structure. On
+     * modifiait donc le bâtiment depuis l'onglet des réglages, ce qui n'était
+     * pas seulement mal rangé : depuis que chaque objet a un espace
+     * propriétaire, tout ce que ce panneau fait y aurait été refusé, puisque
+     * Projet ne possède aucun objet. Le panneau a rejoint le Bâtiment, qui est
+     * ce dont il parle.
+     */
+    destinations: ['project'],
   },
   SITE: {
     id: 'SITE',
@@ -161,7 +186,7 @@ const STAGE_DEFINITIONS = {
       { id: 'building.roof', label: 'Toiture' },
       { id: 'structure.frame', label: 'Structure', domain: 'STRUCTURE' },
     ],
-    destinations: ['plan'],
+    destinations: ['plan', 'building'],
     libraries: ['materials', 'assemblies', 'openings'],
   },
   FITTING: {

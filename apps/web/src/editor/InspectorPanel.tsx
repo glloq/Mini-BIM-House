@@ -1,14 +1,32 @@
 import type { Project } from '@house-technical-designer/core-domain';
 import type { ProjectCommand } from '@house-technical-designer/editor-core';
-import { editsFor, inspectObject, sharedEditsFor } from './object-editors.js';
+import { editsFor, inspectObject } from './object-editors.js';
 import type { ReactNode } from 'react';
 
+import type { CreationStageId } from '../ux/creation-stages.js';
 import type { InspectorEdit } from './inspector-edits.js';
 import { InspectorField } from './InspectorField.js';
+import {
+  canDeleteInStage,
+  editsInStage,
+  readOnlyNoticeFor,
+  sharedEditsInStage,
+  type ReadOnlyNotice,
+} from './stage-editing.js';
 
 export interface InspectorPanelProps {
   readonly project: Project;
   readonly selection: readonly string[];
+  /**
+   * L'espace depuis lequel on regarde.
+   *
+   * Le panneau ne le recevait pas, et c'est tout ce qui lui manquait pour
+   * cesser de proposer ce qui allait être refusé : il offrait ses champs et
+   * son bouton « Supprimer » sur une parcelle lue depuis Bâtiment, où aucune
+   * des deux commandes n'a jamais pu aboutir. Un objet n'est pas modifiable
+   * dans l'absolu — il l'est **d'ici**, ou d'ailleurs.
+   */
+  readonly stage: CreationStageId;
   /**
    * The property someone was sent here to look at, when they were sent.
    *
@@ -28,6 +46,16 @@ export interface InspectorPanelProps {
   readonly atRest?: ReactNode;
   /** Ouvrir la bibliothèque qu'un champ désigne, sans quitter le plan. */
   readonly onOpenLibrary?: (library: string) => void;
+  /**
+   * Aller dans l'espace qui possède la sélection, sans la perdre.
+   *
+   * Nommer le propriétaire ne suffit pas : « cet objet se modifie dans
+   * Bâtiment » laisserait retrouver l'onglet, y aller, puis re-désigner
+   * l'objet, c'est-à-dire trois gestes pour appliquer une règle que personne
+   * n'a demandée. Le bouton fait le trajet et garde la sélection, si bien que
+   * l'édition qu'on venait faire est disponible en arrivant.
+   */
+  readonly onEditInOwnerStage: (stage: CreationStageId) => void;
   readonly onClear: () => void;
   readonly onCommand: (command: ProjectCommand) => boolean;
   readonly onMessage: (message: string) => void;
@@ -61,12 +89,45 @@ function matches(candidate: string, wanted: string): boolean {
   return plain(candidate).includes(plain(wanted));
 }
 
+/**
+ * La phrase qui nomme le propriétaire, et le bouton qui y mène.
+ *
+ * Elle prend la place exacte de ce qu'on retire — la section « Modifier » ou
+ * le bouton « Supprimer » — pour que l'absence soit expliquée là où elle se
+ * remarque, et non par un panneau qui aurait simplement l'air incomplet.
+ */
+function ReadOnlyReason({
+  notice,
+  onEditInOwnerStage,
+}: {
+  readonly notice: ReadOnlyNotice;
+  readonly onEditInOwnerStage: (stage: CreationStageId) => void;
+}) {
+  const action = notice.action;
+  return (
+    <section className="inspector-readonly">
+      <p className="notice">{notice.sentence}</p>
+      {action !== undefined && (
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => onEditInOwnerStage(action.stage)}
+        >
+          {action.label}
+        </button>
+      )}
+    </section>
+  );
+}
+
 export function InspectorPanel({
   project,
   selection,
+  stage,
   expandProperty,
   atRest,
   onOpenLibrary,
+  onEditInOwnerStage,
   onClear,
   onCommand,
   onMessage,
@@ -82,8 +143,24 @@ export function InspectorPanel({
       )
     );
 
+  /*
+   * Ce qu'une modification change, ici et maintenant.
+   *
+   * En scénario, corriger un champ n'écrit pas dans la maison : cela dit ce
+   * que cette variante fait autrement, et la commande écrite ne touche aucun
+   * objet — le verrou central ne la refuse donc pas. Filtrer ces champs-là
+   * fermerait l'étude entière, puisqu'une variante se construit dans Études
+   * et ne parle que de murs, qui appartiennent au Bâtiment. La suppression,
+   * elle, reste une vraie suppression et reste donc gouvernée.
+   */
+  const statesVariant = onEdit !== undefined;
+  const deletable = canDeleteInStage(stage, project, selection);
+
   if (selection.length > 1) {
-    const shared = sharedEditsFor(project, selection);
+    const shared = sharedEditsInStage(stage, project, selection);
+    // Une édition commune écrit dans le projet quel que soit le mode : elle
+    // n'a pas de chemin de scénario, et se juge donc toujours sur l'espace.
+    const notice = readOnlyNoticeFor(stage, project, selection);
     return (
       <div className="inspector-multiple">
         <p className="hint">{selection.length} objets sélectionnés</p>
@@ -109,10 +186,16 @@ export function InspectorPanel({
               />
             ))}
           </section>
-        ) : (
+        ) : notice === undefined ? (
           <p className="notice">
             Ces objets n’ont aucune propriété commune modifiable ensemble.
           </p>
+        ) : null}
+        {notice !== undefined && (
+          <ReadOnlyReason
+            notice={notice}
+            onEditInOwnerStage={onEditInOwnerStage}
+          />
         )}
         <ul className="selection-list">
           {selection.map((objectId) => (
@@ -123,17 +206,30 @@ export function InspectorPanel({
           <button type="button" className="secondary" onClick={onClear}>
             Vider la sélection
           </button>
-          <button type="button" className="secondary danger" onClick={onDelete}>
-            Supprimer
-          </button>
+          {deletable && (
+            <button
+              type="button"
+              className="secondary danger"
+              onClick={onDelete}
+            >
+              Supprimer
+            </button>
+          )}
         </div>
       </div>
     );
   }
 
   const objectId = selection[0]!;
+  // Les faits ne sont jamais filtrés : un mur reste lisible depuis Systèmes,
+  // c'est même la raison pour laquelle il y est visible.
   const subject = inspectObject(project, objectId);
-  const edits = editsFor(project, objectId);
+  const edits = statesVariant
+    ? editsFor(project, objectId)
+    : editsInStage(stage, project, objectId);
+  const notice = statesVariant
+    ? undefined
+    : readOnlyNoticeFor(stage, project, selection);
 
   function applyEdit(edit: InspectorEdit, value: string): void {
     if (onEdit !== undefined) {
@@ -217,11 +313,19 @@ export function InspectorPanel({
           ))}
         </section>
       )}
-      <div className="actions">
-        <button type="button" className="secondary danger" onClick={onDelete}>
-          Supprimer
-        </button>
-      </div>
+      {notice !== undefined && (
+        <ReadOnlyReason
+          notice={notice}
+          onEditInOwnerStage={onEditInOwnerStage}
+        />
+      )}
+      {deletable && (
+        <div className="actions">
+          <button type="button" className="secondary danger" onClick={onDelete}>
+            Supprimer
+          </button>
+        </div>
+      )}
     </article>
   );
 }

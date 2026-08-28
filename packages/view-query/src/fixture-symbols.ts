@@ -1,65 +1,75 @@
-/**
- * The glyph an architectural plan draws a placed thing with.
- *
- * A plan of a house shows a bath as a bath: a shape somebody can see does not
- * fit against the wall it is drawn against. Every placed thing used to be the
- * same three-hundred-millimetre square, so a bathroom held three identical
- * squares and said nothing about whether anyone could stand in it.
- *
- * The family of the catalogue entry decides, as it does for an opening: one
- * table rather than a scattering of identifiers compared by hand.
- */
-const BY_FAMILY: Readonly<Record<string, string>> = {
-  WC: 'architecture.fixture.wc',
-  WALL_HUNG_WC: 'architecture.fixture.wc',
-  BIDET: 'architecture.fixture.basin',
-  WASHBASIN: 'architecture.fixture.washbasin',
-  DOUBLE_WASHBASIN: 'architecture.fixture.double-washbasin',
-  BASIN: 'architecture.fixture.basin',
-  BATHTUB: 'architecture.fixture.bathtub',
-  SHOWER: 'architecture.fixture.shower',
-  SHOWER_TRAY: 'architecture.fixture.shower',
-  WALK_IN_SHOWER: 'architecture.fixture.shower',
-  KITCHEN_SINK: 'architecture.fixture.kitchen-sink',
-  UTILITY_SINK: 'architecture.fixture.kitchen-sink',
-  DOUBLE_SINK: 'architecture.fixture.double-sink',
-  HOB: 'architecture.fixture.hob',
-  DISHWASHER: 'architecture.fixture.dishwasher',
-  WASHING_MACHINE: 'architecture.fixture.washing-machine',
-  ELECTRIC_DHW_TANK: 'architecture.fixture.dhw-tank',
-  INDIRECT_TANK: 'architecture.fixture.dhw-tank',
-  SOLAR_DHW_TANK: 'architecture.fixture.dhw-tank',
-  BUFFER_DHW: 'architecture.fixture.dhw-tank',
-  BUFFER_TANK: 'architecture.fixture.dhw-tank',
-  HEAT_PUMP_DHW: 'architecture.fixture.dhw-tank',
-  HEAT_PUMP_AIR_WATER_SPLIT: 'architecture.fixture.heat-pump-indoor',
-  HEAT_PUMP_WATER_WATER: 'architecture.fixture.heat-pump-indoor',
-  HEAT_PUMP_GROUND_WATER: 'architecture.fixture.heat-pump-indoor',
-  EXHAUST_AIR_HEAT_PUMP: 'architecture.fixture.heat-pump-indoor',
-  REVERSIBLE_HEAT_PUMP: 'architecture.fixture.heat-pump-indoor',
-  OUTDOOR_HEAT_PUMP: 'architecture.fixture.heat-pump-outdoor',
-  HEAT_PUMP_AIR_WATER_MONOBLOC: 'architecture.fixture.heat-pump-outdoor',
-  HEAT_PUMP_AIR_AIR: 'architecture.fixture.heat-pump-outdoor',
-  BALANCED_VENTILATION_UNIT: 'architecture.fixture.ventilation-unit',
-  EXTRACT_VENTILATION_UNIT: 'architecture.fixture.ventilation-unit',
-  MAIN_DISTRIBUTION_BOARD: 'architecture.fixture.distribution-board',
-  SUB_DISTRIBUTION_BOARD: 'architecture.fixture.distribution-board',
-  RADIATOR: 'architecture.fixture.radiator',
-  TOWEL_RADIATOR: 'architecture.fixture.radiator',
-  WOOD_STOVE: 'architecture.fixture.stove',
-  PELLET_STOVE: 'architecture.fixture.stove',
-  BOILER_STOVE: 'architecture.fixture.stove',
-};
+import {
+  GENERIC_PLAN_SYMBOL,
+  planSymbolFor,
+  planSymbolSource,
+} from '@house-technical-designer/drawing-engine';
 
 /**
- * The fixture glyph a family is drawn with, when this version has one.
+ * Le glyphe avec lequel un plan dessine une chose posée.
  *
- * Nothing when it does not: the caller then falls back on whatever the
- * catalogue entry itself declares, and on the plain mark after that. A thing
- * whose family is unknown is still drawn.
+ * Un plan de maison montre une baignoire comme une baignoire : une forme que
+ * quelqu'un reconnaît, et qui ne rentre pas contre le mur devant lequel on
+ * l'a dessinée. Toutes les choses posées étaient le même carré de trois cents
+ * millimètres, si bien qu'une salle de bains montrait trois carrés identiques
+ * et ne disait rien de la possibilité de s'y tenir debout.
+ *
+ * ## Ce qui a changé, et pourquoi
+ *
+ * La correspondance vivait ici, dans une table écrite famille par famille :
+ * trente-neuf lignes, qu'il fallait ajouter à la main et que rien ne relisait.
+ * Trente-neuf pour une nomenclature de cinq cent vingt-sept familles, dont
+ * trois cent quatre-vingts posables. Une table de cette forme est praticable à
+ * quarante et fausse à quatre cents — on ne l'étend pas, on l'oublie.
+ *
+ * Elle est passée dans les **données** : chaque glyphe de la bibliothèque
+ * déclare ce dont il tient lieu (`standsFor`), et la fiche de famille déclare
+ * le glyphe qu'elle veut (`graphics.planSymbol`). Ajouter une famille dessinée
+ * est devenu une ligne de JSON dans deux fichiers que `graphics:coverage`
+ * tient d'accord, au lieu d'une ligne de TypeScript que personne ne compte.
+ *
+ * ## La chaîne
+ *
+ * Trois maillons, résolus par le moteur de dessin, du plus précis au moins :
+ * le glyphe de la **famille**, celui de sa **catégorie**, puis le **glyphe
+ * générique nommé**. Ce fichier n'en tient aucun ; il dit seulement quand le
+ * plan doit s'en servir.
+ */
+
+/**
+ * Le glyphe d'une famille, quand la bibliothèque lui en donne un.
+ *
+ * `undefined` quand la réponse serait le glyphe générique : ce n'est pas une
+ * couverture manquante, c'est le partage du travail avec l'appelant. Le
+ * générique **est** le carré que `planPrimitives` dessine déjà lui-même, et le
+ * rendre ici ferait passer trois cents familles par un second chemin pour
+ * obtenir le même carré — à ceci près qu'un glyphe d'espace modèle se laisse
+ * étirer à la largeur déclarée par la fiche, et que tous les plans de
+ * référence du dépôt changeraient d'un coup. C'est une décision de dessin, pas
+ * de câblage, et elle appartient à qui tient ces planches.
+ *
+ * La **catégorie** est facultative parce que l'appelant ne la donne pas encore.
+ * Elle est portée par la copie de la fiche que le projet garde
+ * (`EquipmentDefinition.category`), donc à un argument de distance : la passer
+ * fait passer trente-trois familles de plus du carré à un dessin — les
+ * appareils qu'aucune fiche ne dessine encore mais dont la catégorie, elle,
+ * est dessinée. Là encore, c'est le plan de référence qui change, et c'est à
+ * lui de décider quand.
  */
 export function architecturalFixtureSymbol(
   familyId: string | undefined,
+  category?: string,
 ): string | undefined {
-  return familyId === undefined ? undefined : BY_FAMILY[familyId];
+  const subject = { familyId, category };
+  return planSymbolSource(subject) === 'GENERIC'
+    ? undefined
+    : planSymbolFor(subject);
 }
+
+/**
+ * Le glyphe nommé qu'une chose posée prend quand rien de plus précis n'existe.
+ *
+ * Réexporté ici pour que le dernier maillon de la chaîne se lise depuis
+ * l'endroit où la chaîne est décrite, et non seulement depuis la bibliothèque
+ * qui le publie.
+ */
+export { GENERIC_PLAN_SYMBOL };

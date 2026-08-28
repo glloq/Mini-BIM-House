@@ -30,7 +30,7 @@
       },
       "optionalPorts": ["CONDENSATE", "CONTROL"],
       "graphics": {
-        "planSymbol": "symbol-heat-pump"
+        "planSymbol": "architecture.fixture.heat-pump-outdoor"
       }
     },
     {
@@ -67,7 +67,10 @@
       },
       "category": "HEAT_PUMP",
       "optionalPorts": ["CONDENSATE", "CONTROL"],
-      "capabilities": ["PERFORMANCE_MAPPED"]
+      "capabilities": ["PERFORMANCE_MAPPED"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.heat-pump-indoor"
+      }
     },
     {
       "id": "HEAT_PUMP_AIR_AIR",
@@ -97,7 +100,10 @@
       },
       "category": "HEAT_PUMP",
       "optionalPorts": ["CONDENSATE", "CONTROL"],
-      "capabilities": ["PERFORMANCE_MAPPED"]
+      "capabilities": ["PERFORMANCE_MAPPED"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.heat-pump-outdoor"
+      }
     },
     {
       "id": "HEAT_PUMP_GROUND_WATER",
@@ -133,7 +139,10 @@
       },
       "category": "HEAT_PUMP",
       "optionalPorts": ["CONTROL"],
-      "capabilities": ["PERFORMANCE_MAPPED"]
+      "capabilities": ["PERFORMANCE_MAPPED"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.heat-pump-indoor"
+      }
     },
     {
       "id": "HEAT_PUMP_WATER_WATER",
@@ -169,7 +178,10 @@
       },
       "category": "HEAT_PUMP",
       "optionalPorts": ["CONTROL"],
-      "capabilities": ["PERFORMANCE_MAPPED"]
+      "capabilities": ["PERFORMANCE_MAPPED"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.heat-pump-indoor"
+      }
     },
     {
       "id": "EXHAUST_AIR_HEAT_PUMP",
@@ -206,7 +218,10 @@
       },
       "category": "HEAT_PUMP",
       "optionalPorts": ["CONTROL"],
-      "capabilities": ["PERFORMANCE_MAPPED"]
+      "capabilities": ["PERFORMANCE_MAPPED"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.heat-pump-indoor"
+      }
     },
     {
       "id": "REVERSIBLE_HEAT_PUMP",
@@ -236,7 +251,10 @@
       },
       "category": "HEAT_PUMP",
       "optionalPorts": ["CONDENSATE", "CONTROL"],
-      "capabilities": ["PERFORMANCE_MAPPED"]
+      "capabilities": ["PERFORMANCE_MAPPED"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.heat-pump-indoor"
+      }
     },
     {
       "id": "BOILER_GAS",
@@ -393,7 +411,10 @@
         "CALCULATION": "NONE"
       },
       "category": "RADIATOR",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-radiator"
+      }
     },
     {
       "id": "SOLAR_THERMAL",
@@ -533,7 +554,10 @@
         "CALCULATION": "NONE"
       },
       "category": "VESSEL",
-      "optionalPorts": ["PRIMARY_FLOW", "PRIMARY_RETURN"]
+      "optionalPorts": ["PRIMARY_FLOW", "PRIMARY_RETURN"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.dhw-tank"
+      }
     },
     {
       "id": "HYDRAULIC_SEPARATOR",
@@ -725,7 +749,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "HEATING_CHECK_VALVE",
@@ -746,7 +773,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "HEATING_BALANCING_VALVE",
@@ -767,7 +797,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "THREE_WAY_VALVE",
@@ -795,7 +828,10 @@
         "CALCULATION": "NONE"
       },
       "category": "VALVE",
-      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"],
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "MIXING_VALVE",
@@ -824,7 +860,10 @@
         "CALCULATION": "NONE"
       },
       "category": "VALVE",
-      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"]
+      "optionalPorts": ["ELECTRICAL_AC", "CONTROL"],
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "RADIATOR",
@@ -847,7 +886,7 @@
         "CALCULATION": "PARTIAL"
       },
       "graphics": {
-        "planSymbol": "symbol-radiator"
+        "planSymbol": "architecture.fixture.radiator"
       }
     },
     {
@@ -870,7 +909,10 @@
         "CALCULATION": "NONE"
       },
       "category": "RADIATOR",
-      "optionalPorts": ["ELECTRICAL_AC"]
+      "optionalPorts": ["ELECTRICAL_AC"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.radiator"
+      }
     },
     {
       "id": "FAN_COIL",
@@ -892,7 +934,10 @@
         "CALCULATION": "NONE"
       },
       "category": "RADIATOR",
-      "optionalPorts": ["CONDENSATE", "CONTROL"]
+      "optionalPorts": ["CONDENSATE", "CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-radiator"
+      }
     },
     {
       "id": "UNDERFLOOR_HEATING",
@@ -1095,7 +1140,10 @@
       },
       "hint": "Le frigorigène circule sur ses propres ports ; la discipline dédiée viendra si le besoin se confirme.",
       "category": "HEAT_PUMP",
-      "optionalPorts": ["CONDENSATE", "CONTROL"]
+      "optionalPorts": ["CONDENSATE", "CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-heat-pump"
+      }
     },
     {
       "id": "INDOOR_UNIT",
@@ -1296,7 +1344,7 @@
       },
       "optionalPorts": ["CONTROL"],
       "graphics": {
-        "planSymbol": "symbol-ventilation-unit"
+        "planSymbol": "architecture.fixture.ventilation-unit"
       }
     },
     {
@@ -1327,7 +1375,7 @@
       },
       "optionalPorts": ["CONTROL", "CONDENSATE"],
       "graphics": {
-        "planSymbol": "symbol-ventilation-unit"
+        "planSymbol": "architecture.fixture.ventilation-unit"
       }
     },
     {
@@ -1350,7 +1398,10 @@
         "CALCULATION": "NONE"
       },
       "category": "VENTILATION_UNIT",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-ventilation-unit"
+      }
     },
     {
       "id": "FAN",
@@ -1417,7 +1468,10 @@
         "CALCULATION": "NONE"
       },
       "category": "AIR_TERMINAL",
-      "optionalPorts": ["AIR_OUTSIDE_SOURCE"]
+      "optionalPorts": ["AIR_OUTSIDE_SOURCE"],
+      "graphics": {
+        "planSymbol": "symbol-air-terminal"
+      }
     },
     {
       "id": "EXTRACT_TERMINAL",
@@ -1462,7 +1516,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "AIR_TERMINAL"
+      "category": "AIR_TERMINAL",
+      "graphics": {
+        "planSymbol": "symbol-air-terminal"
+      }
     },
     {
       "id": "EXHAUST_TERMINAL",
@@ -1483,7 +1540,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "AIR_TERMINAL"
+      "category": "AIR_TERMINAL",
+      "graphics": {
+        "planSymbol": "symbol-air-terminal"
+      }
     },
     {
       "id": "OUTDOOR_AIR_INTAKE",
@@ -1504,7 +1564,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "AIR_TERMINAL"
+      "category": "AIR_TERMINAL",
+      "graphics": {
+        "planSymbol": "symbol-air-terminal"
+      }
     },
     {
       "id": "VENTILATION_ELBOW",

@@ -2,7 +2,7 @@ import type {
   GraphicOutputMode,
   GraphicProfileBundle,
 } from './graphic-profiles.js';
-import { DEFAULT_ROLE_TOKENS } from './role-tokens.js';
+import { DEFAULT_ROLE_TOKENS, GRAPHIC_ROLE_RULES } from './role-tokens.js';
 import { graphicProfileId, type GraphicStyleRule } from './scene.js';
 import type { SpaceGraphicCategory } from './space-categories.js';
 import type { SvgStyle, SvgStyleCatalog } from './svg-renderer.js';
@@ -45,8 +45,11 @@ const SCREEN = {
   fixture: '#718197',
   textPrimary: '#26364B',
   textSecondary: '#657184',
-  site: '#A3AD9B',
-  siteFill: '#F2F5EE',
+  // La parcelle est verte parce qu'elle est de l'herbe, et parce qu'aucun
+  // autre trait du plan ne l'est : un terrain gris pâle sur du blanc se
+  // confondait avec une cotation qu'on aurait oublié d'effacer.
+  site: '#4C6B3A',
+  siteFill: '#D9E9C6',
   reveal: '#FFFFFF',
   space: {
     BEDROOM: '#DDEAD5',
@@ -133,12 +136,6 @@ function architecturalStyles(mode: GraphicOutputMode): SvgStyleCatalog {
   });
   const tokens: Record<string, SvgStyle> = {
     ...spaceTokens,
-    site: {
-      stroke: palette.site,
-      fill: 'none',
-      strokeWidthPaperMm: WIDTHS.hairline,
-      dashPaperMm: [4, 1.5],
-    },
     /*
      * Le sol de la parcelle : un lavis, sous tout le reste.
      *
@@ -147,13 +144,30 @@ function architecturalStyles(mode: GraphicOutputMode): SvgStyleCatalog {
      * un fond donné au contour : la sélection remplit ce qu'elle prend, et une
      * parcelle sélectionnée serait devenue un aplat bleu sur toute la feuille.
      *
+     * Semi-transparent, parce qu'il passe sous la maison : un vert opaque
+     * ferait de l'emprise du bâtiment un trou blanc découpé dans la pelouse.
+     *
      * À l'impression il disparaît : un aplat sur toute la page coûte de
      * l'encre et ne dit rien qu'un trait tireté ne dise déjà.
      */
-    'site-ground': {
+    'site-parcel': {
       stroke: 'none',
       fill: mode === 'PRINT' ? 'none' : palette.siteFill,
       strokeWidthPaperMm: 0,
+      ...(mode === 'PRINT' ? {} : { opacity: 0.55 }),
+    },
+    /*
+     * La limite du sol, et ce qui la borde.
+     *
+     * Plus épaisse à l'écran que sur le papier : le bornage est le sujet du
+     * plan de masse, et il doit tenir devant un lavis. Sur une feuille il
+     * revient au cheveu tireté qu'un plan de niveau attend d'un cadre.
+     */
+    'site-parcel-boundary': {
+      stroke: palette.site,
+      fill: 'none',
+      strokeWidthPaperMm: mode === 'PRINT' ? WIDTHS.hairline : WIDTHS.opening,
+      dashPaperMm: [4, 1.5],
     },
     // The unqualified room: a wash lighter than any named use, so a room whose
     // use nobody stated does not shout louder than a bedroom.
@@ -395,13 +409,10 @@ function architecturalStyles(mode: GraphicOutputMode): SvgStyleCatalog {
  * changed to make them drawable.
  */
 const architecturalRules: readonly GraphicStyleRule[] = [
-  {
-    // Le sol de la parcelle : un lavis, dessiné à part du contour, parce que
-    // la sélection remplit ce qu'elle prend — une parcelle sélectionnée dont
-    // le contour porterait le fond deviendrait un aplat sur toute la feuille.
-    match: { semanticRole: 'SITE', metadata: { ground: true } },
-    token: 'site-ground',
-  },
+  // Ce qui distingue le sol de la parcelle de sa limite ne se décide pas ici :
+  // c'est la définition même des rôles graphiques, et elle est la même pour
+  // toutes les chartes. Cette charte ne choisit que leur style.
+  ...GRAPHIC_ROLE_RULES,
   {
     match: { semanticRole: 'WALL_CUT', metadata: { role: 'EXTERIOR' } },
     token: 'wall-exterior',
@@ -440,15 +451,39 @@ const architecturalRules: readonly GraphicStyleRule[] = [
     match: { semanticRole: 'ANNOTATION', metadata: { labelPart: 'AREA' } },
     token: 'space-label-area',
   },
+  /*
+   * On a plan of a house, a bath, a cooker and a radiator are furniture:
+   * drawn, and drawn behind the building. The networks keep their own
+   * colours, because a drawing showing a duct is being read for the duct.
+   *
+   * Deux règles pour un seul jeton, et non une seule : ce qu'on pose et ce
+   * qu'on raccorde se dessinent pareil, mais ils n'appartiennent pas au même
+   * espace de création. Une règle qui les réunirait ne relèverait d'aucun des
+   * deux, et le radiateur reculerait avec les lits le jour où l'on ouvre les
+   * Systèmes pour lui.
+   */
   {
-    // On a plan of a house, a bath, a cooker and a radiator are furniture:
-    // drawn, and drawn behind the building. The networks keep their own
-    // colours, because a drawing showing a duct is being read for the duct.
     match: {
       layer: 'components.placed',
-      metadata: {
-        category: ['SANITARY', 'APPLIANCE', 'FURNITURE', 'HEATING', 'OTHER'],
-      },
+      metadata: { category: ['SANITARY', 'APPLIANCE', 'FURNITURE'] },
+    },
+    token: 'symbol',
+  },
+  {
+    match: {
+      layer: 'components.placed',
+      metadata: { category: 'HEATING' },
+    },
+    token: 'symbol',
+  },
+  {
+    // `OTHER` ne dit rien de son métier, et n'appartient donc à personne : un
+    // variateur posé depuis l'Électricité et une étagère sont tous les deux
+    // `OTHER`. Une règle à part, pour qu'il se dessine en entier partout
+    // plutôt que de reculer avec la moitié qu'on lui aurait choisie.
+    match: {
+      layer: 'components.placed',
+      metadata: { category: 'OTHER' },
     },
     token: 'symbol',
   },

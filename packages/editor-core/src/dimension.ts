@@ -35,17 +35,20 @@ export class AddDimensionCommand implements EditorCommand {
     if (state.dimensions.some(({ id }) => id === this.dimension.id))
       return {
         valid: false,
-        errors: [`Dimension ${this.dimension.id} already exists.`],
+        errors: [`La cote ${this.dimension.id} existe déjà.`],
       };
     if (!Number.isFinite(this.dimension.offsetMm))
-      return { valid: false, errors: ['Dimension offset must be finite.'] };
+      return {
+        valid: false,
+        errors: ['Le décalage d’une cote doit être un nombre fini.'],
+      };
     const resolution = resolveDimension(this.dimension, state.walls);
     return resolution.status === 'OK'
       ? { valid: true }
       : {
           valid: false,
           errors: [
-            `Dimension references missing walls: ${resolution.missingWallIds.join(', ')}.`,
+            `Cette cote mesure des murs absents : ${resolution.missingWallIds.join(', ')}.`,
           ],
         };
   }
@@ -75,7 +78,7 @@ export class DeleteDimensionCommand implements EditorCommand {
       ? { valid: true }
       : {
           valid: false,
-          errors: [`Dimension ${this.dimensionId} does not exist.`],
+          errors: [`La cote ${this.dimensionId} n’existe pas.`],
         };
   }
   execute(state: EditorProjectState): CommandExecution {

@@ -103,11 +103,12 @@ import {
 import {
   boundsOf,
   capabilitiesOf,
-  contextActionsFor,
   inspectObject,
   relationshipsOf,
   similarTo,
 } from './editor/object-editors.js';
+import { contextActionsInStage } from './editor/stage-editing.js';
+import { ownerStageOf } from './ux/ownership.js';
 import type { Project } from '@house-technical-designer/core-domain';
 import type { EditorTool } from './editor/editor-state.js';
 import {
@@ -195,6 +196,7 @@ import {
   creationStage,
   librariesOfStage,
   stageOfTab,
+  type CreationStageId,
 } from './ux/creation-stages.js';
 import { designStateOf } from './ux/design-state.js';
 import {
@@ -665,17 +667,32 @@ function App() {
     [saveState],
   );
 
-  const runCommand = useCallback((command: ProjectCommand): boolean => {
-    const result = session.current.dispatch(command);
-    if (result.status === 'ERROR') {
-      setMessage(`Refusé — ${result.messages.join(' ')}`);
-      return false;
-    }
-    setFile(result.file);
-    setSaveState('MODIFIED');
-    setMessage(`${command.label} · appliqué.`);
-    return true;
-  }, []);
+  /**
+   * Tout ce qui écrit dans le projet passe par là, l'espace actif compris.
+   *
+   * La frontière d'édition est tenue par la session, qui est le seul passage :
+   * voir `ProjectEditingSession.dispatch`. Ici on ne fait que lui dire d'où le
+   * geste vient.
+   *
+   * Annuler et refaire ne passent pas par cette fonction, et c'est voulu :
+   * reprendre son propre geste n'est pas modifier l'objet de quelqu'un
+   * d'autre, et bloquer `Ctrl+Z` parce qu'on a changé d'onglet entre-temps
+   * serait un piège.
+   */
+  const runCommand = useCallback(
+    (command: ProjectCommand): boolean => {
+      const result = session.current.dispatch(command, navigation.stage);
+      if (result.status === 'ERROR') {
+        setMessage(`Refusé — ${result.messages.join(' ')}`);
+        return false;
+      }
+      setFile(result.file);
+      setSaveState('MODIFIED');
+      setMessage(`${command.label} · appliqué.`);
+      return true;
+    },
+    [navigation.stage],
+  );
 
   /**
    * Writes the project and the climate it uses as one file.
@@ -1142,6 +1159,32 @@ function App() {
   }, [activeLevelId, editor.selection, editor.snap.gridSpacingMm, runCommand]);
 
   /**
+   * Aller modifier la sélection dans l'espace qui la possède.
+   *
+   * Un mur lu depuis Systèmes ne s'y modifie pas, et le dire sans y mener
+   * laisse trois gestes à faire — retrouver l'onglet, y aller, re-désigner
+   * l'objet — pour appliquer une règle que personne n'a demandée. On change
+   * donc d'espace et rien d'autre : la sélection n'est pas retouchée, elle est
+   * emmenée, et l'édition qu'on venait faire est là en arrivant.
+   *
+   * L'espace s'ouvre sur le plan et non sur ce qu'on y lisait la dernière
+   * fois : on y va pour toucher un objet, et un objet se touche sur le dessin.
+   */
+  const editInOwnerStage = useCallback(
+    (stage: CreationStageId): void => {
+      setNavigation((current) =>
+        navigationFor(current, { stage, destination: 'plan' }),
+      );
+      changeLayout({ inspectorShown: true });
+      setMenuOpen(false);
+      setMessage(
+        `${creationStage(stage).label} : la sélection y est modifiable.`,
+      );
+    },
+    [changeLayout],
+  );
+
+  /**
    * What can be done to one object, from the plan.
    *
    * The entries every object shares are the application's; the ones a wall
@@ -1156,6 +1199,19 @@ function App() {
       // offered and then refused reads as a defect; one that is visibly
       // unavailable reads as a property of the object, which is what it is.
       const can = capabilitiesOf(project, objectId);
+      /*
+       * L'espace qui possède cet objet, et si c'est celui d'où on le regarde.
+       *
+       * Le menu se construisait sans le savoir : il offrait « Dupliquer »,
+       * « Pivoter », « Retourner », les gestes de la famille et « Supprimer »
+       * sur une parcelle regardée depuis Bâtiment, où les cinq commandes
+       * étaient refusées l'une après l'autre. Ce qui lit reste — cadrer,
+       * désigner les semblables, suivre les liens, ouvrir les propriétés ;
+       * ce qui écrit s'en va, et une ligne dit où le retrouver.
+       */
+      const owner = ownerStageOf(project, objectId);
+      const stage = navigation.stage;
+      const editable = owner === undefined || owner === stage;
       return [
         {
           id: 'frame',
@@ -1168,24 +1224,45 @@ function App() {
           disabled: similarTo(project, levelId, objectId).length === 0,
           run: () => selectSimilar(objectId),
         },
-        {
-          id: 'duplicate',
-          label: 'Dupliquer',
-          disabled: !can.duplicable,
-          run: () => duplicateSelection(),
-        },
-        {
-          id: 'rotate',
-          label: 'Pivoter d’un quart de tour',
-          disabled: !can.rotatable,
-          run: () => transformSelection('ROTATE'),
-        },
-        {
-          id: 'mirror',
-          label: 'Retourner',
-          disabled: !can.mirrorable,
-          run: () => transformSelection('MIRROR'),
-        },
+        /*
+         * Voir les propriétés, quand c'est tout ce qui reste à faire ici.
+         *
+         * L'entrée n'apparaît pas dans l'espace propriétaire : le panneau y
+         * est déjà ouvert par tout ce qu'on y fait, et une ligne de plus dans
+         * un menu qui en compte huit se paie à chaque clic droit. Ailleurs,
+         * lire **est** l'action offerte, et il faut pouvoir la demander.
+         */
+        ...(editable
+          ? []
+          : [
+              {
+                id: 'inspect',
+                label: 'Voir les propriétés',
+                run: () => changeLayout({ inspectorShown: true }),
+              },
+            ]),
+        ...(editable
+          ? [
+              {
+                id: 'duplicate',
+                label: 'Dupliquer',
+                disabled: !can.duplicable,
+                run: () => duplicateSelection(),
+              },
+              {
+                id: 'rotate',
+                label: 'Pivoter d’un quart de tour',
+                disabled: !can.rotatable,
+                run: () => transformSelection('ROTATE'),
+              },
+              {
+                id: 'mirror',
+                label: 'Retourner',
+                disabled: !can.mirrorable,
+                run: () => transformSelection('MIRROR'),
+              },
+            ]
+          : []),
         ...relationshipsOf(project, levelId, objectId).map((tie) => ({
           id: `tie:${tie.role}`,
           label: `Sélectionner : ${tie.role.toLowerCase()} (${tie.objectIds.length})`,
@@ -1196,27 +1273,42 @@ function App() {
             );
           },
         })),
-        ...contextActionsFor(project, levelId, objectId).map((action) => ({
-          id: action.id,
-          label: action.label,
-          disabled: action.command() === undefined,
-          run: () => {
-            const command = action.command();
-            if (command !== undefined) runCommand(command);
-          },
-        })),
-        {
-          id: 'delete',
-          label: 'Supprimer',
-          run: () => deleteSelection(),
-        },
+        ...contextActionsInStage(stage, project, levelId, objectId).map(
+          (action) => ({
+            id: action.id,
+            label: action.label,
+            disabled: action.command() === undefined,
+            run: () => {
+              const command = action.command();
+              if (command !== undefined) runCommand(command);
+            },
+          }),
+        ),
+        ...(editable
+          ? [
+              {
+                id: 'delete',
+                label: 'Supprimer',
+                run: () => deleteSelection(),
+              },
+            ]
+          : [
+              {
+                id: 'own',
+                label: `Modifier dans ${creationStage(owner).label}`,
+                run: () => editInOwnerStage(owner),
+              },
+            ]),
       ];
     },
     [
       activeLevelId,
+      changeLayout,
       deleteSelection,
       duplicateSelection,
+      editInOwnerStage,
       frameObject,
+      navigation.stage,
       runCommand,
       selectSimilar,
       transformSelection,
@@ -2186,8 +2278,24 @@ function App() {
         return;
       }
       if (objectId !== undefined && fix.objectIds !== undefined) {
+        /*
+         * Un constat mène à l'espace qui possède son objet.
+         *
+         * `stageOfTab('plan')` rend **Terrain** : c'est le premier des sept
+         * espaces dont le plan est une destination, et rien dans un nom
+         * d'onglet ne dit de quel objet on parle. Un constat sur un escalier
+         * envoyait donc au Terrain, où un escalier n'est pas modifiable — on
+         * arrivait sur le bon objet, dans l'onglet où il ne se corrige pas.
+         *
+         * Le défaut est plus vieux que la règle des espaces ; il ne coûtait
+         * rien tant que tout se modifiait partout. Le propriétaire de l'objet
+         * est la réponse juste, et l'onglet ne sert que lorsqu'il n'y en a pas
+         * — un matériau, un réglage, une entrée de bibliothèque.
+         */
         navigateTo({
-          stage: stageOfTab(fix.tab),
+          stage:
+            ownerStageOf(session.current.file.project, objectId) ??
+            stageOfTab(fix.tab),
           objectId,
           ...(fix.propertyPath === undefined
             ? {}
@@ -2960,6 +3068,7 @@ function App() {
             <InspectorPanel
               project={scenarioProject ?? file.project}
               selection={editor.selection}
+              stage={navigation.stage}
               atRest={
                 <ViewProperties
                   editor={editor}
@@ -2980,6 +3089,7 @@ function App() {
                 setTab(library as DestinationId);
                 setMenuOpen(false);
               }}
+              onEditInOwnerStage={editInOwnerStage}
               onClear={() => dispatchEditor({ type: 'CLEAR_SELECTION' })}
               onCommand={runCommand}
               onMessage={setMessage}

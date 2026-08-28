@@ -272,8 +272,23 @@ export const BUDGETS = {
    * qu'il déclare est ce que les moteurs déclarent.
    *
    * Le plafond redescend donc à 254, de nouveau à quelques kio du réel.
+   *
+   * Puis il remonte de deux, pour la passe qui donne un propriétaire à chaque
+   * objet. Trois choses arrivent au premier écran parce qu'elles sont le
+   * premier écran :
+   *
+   * - ce que l'espace actif laisse proposer, lu par l'inspecteur et par le
+   *   menu contextuel avant de les dessiner — un bouton qui mène à un refus
+   *   coûte plus cher que le kio qui l'empêche d'exister ;
+   * - les rôles graphiques de la parcelle et la mise en retrait de ce qui
+   *   n'est là que comme repère, qui sont du dessin, et le dessin est ce que
+   *   le premier écran montre ;
+   * - la table qui relie cent trente-six familles à leur glyphe de plan, qui
+   *   remplace une table écrite en TypeScript et pèse à peu près pareil.
+   *
+   * Le plafond passe donc à 256.
    */
-  initialGzipBytes: 254 * 1024,
+  initialGzipBytes: 256 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -462,6 +477,13 @@ export const BUDGETS = {
    * avec l'écran des vérifications : le premier écran ne bouge pas d'un
    * dixième.
    *
+   * Et cinq avec la passe qui donne un propriétaire à chaque objet : la
+   * frontière d'édition et sa comparaison d'inventaire, ce que l'inspecteur et
+   * le menu cessent de proposer, les deux rôles graphiques de la parcelle, la
+   * mise en retrait de ce qui n'est là que comme repère, et la table qui relie
+   * cent trente-six familles à leur glyphe. Le détail du premier écran est
+   * au-dessus ; le reste suit les écrans concernés. Le total passe à 499.
+   *
    * Et un avec ce que douze contrôles refusaient de dire. Un bouton grisé sans
    * motif se lit comme une panne : on reclique, on cherche le réglage qui le
    * libère, il n'existe pas. Douze le faisaient — « Relier », « Ajouter le
@@ -471,8 +493,18 @@ export const BUDGETS = {
    * destinations sur treize. Une phrase par refus, portée par le contrôle, et
    * un projet neuf mené à dessiner plutôt qu'aux réglages d'un bâtiment qui
    * n'existe pas. Tout arrive à la demande, avec les écrans concernés.
+   *
+   * Et un avec la frontière d'édition. Un objet appartient à un espace, et il
+   * ne se modifie que là : la parcelle au Terrain, les murs au Bâtiment, le
+   * mobilier à l'Aménagement, les réseaux aux Systèmes. La règle tient sur le
+   * seul passage qui écrit dans le projet, et elle a besoin de savoir ce
+   * qu'une commande touche — ce qu'aucune commande ne dit, le champ prévu pour
+   * ça portant l'identifiant de la commande et non celui des objets. Elle le
+   * lit donc en comparant l'inventaire avant et après. Ce kio-là est au
+   * premier écran parce que le verrou y est aussi : il vaut pour le premier
+   * clic comme pour le millième.
    */
-  totalGzipBytes: 493 * 1024,
+  totalGzipBytes: 499 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

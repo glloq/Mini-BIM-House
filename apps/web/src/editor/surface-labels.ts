@@ -13,18 +13,31 @@
  *
  * ## Ce qui est écrit, et ce qui ne l'est pas
  *
- * Le terrain, toujours : la parcelle et ce qui la borde **sont** le contenu de
- * cet espace, et une parcelle sans son aire n'apprend rien.
+ * Le terrain, dans le Terrain : la parcelle et ce qui la borde **sont** le
+ * contenu de cet espace, et une parcelle sans son aire n'apprend rien. C'est
+ * là, et seulement là, qu'on se demande combien elle fait.
+ *
+ * Ailleurs, rien. « Parcelle · 742 m² » restait écrit en travers du dessin
+ * dans les sept espaces, y compris ceux où la parcelle n'est qu'un cadre
+ * qu'on ne peut pas toucher : au milieu du plan du bâtiment, l'aire du terrain
+ * répond à une question que personne n'a posée, et elle la répond par-dessus
+ * les pièces. Une sélection ne la ramène pas non plus — l'inspecteur donne
+ * l'aire de ce qu'on désigne, et c'est lui qu'on regarde quand on a désigné
+ * quelque chose.
  *
  * Les dalles, les toitures et les trémies, seulement quand elles sont
  * désignées : une maison en porte plusieurs, superposées, et trois nombres
  * empilés au milieu du séjour se lisent moins bien qu'aucun.
  *
- * Rien n'est calculé ici : `polygonSurface` dit où sont les contours et
- * `polygonFacts` ce qu'ils mesurent.
+ * Rien n'est calculé ici, et rien n'est retenu : `polygonSurface` dit où sont
+ * les contours, `polygonFacts` ce qu'ils mesurent, et l'aire est refaite à
+ * chaque appel. Une surface écrite dans le modèle serait fausse au premier
+ * sommet déplacé.
  */
 import type { Project } from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
+
+import type { CreationStageId } from '../ux/creation-stages.js';
 
 import { areaLabel } from './room-labels.js';
 import { polygonFacts } from './polygon-edits.js';
@@ -56,11 +69,23 @@ export function surfaceMeasureLabel(surface: SurfaceLabel): string {
   return `${surface.label} · ${areaLabel(surface.areaM2)}`;
 }
 
+export interface SurfaceLabelOptions {
+  /**
+   * L'espace ouvert.
+   *
+   * Exigé, et non deviné : ces étiquettes sont écrites sur le dessin, et une
+   * fonction qui se passe de l'espace écrit l'aire du terrain dans les sept.
+   * Le paramètre est là pour qu'un appelant qui l'ignore ne compile pas.
+   */
+  readonly stage: CreationStageId;
+  readonly minimumAreaM2?: number;
+}
+
 export function surfaceLabels(
   project: Project,
   levelId: string | undefined,
   selection: readonly string[],
-  options: { readonly minimumAreaM2?: number } = {},
+  options: SurfaceLabelOptions,
 ): readonly SurfaceLabel[] {
   const minimum = options.minimumAreaM2 ?? 0.25;
   const chosen = new Set(selection);
@@ -69,8 +94,18 @@ export function surfaceLabels(
     const surface = polygonSurface(project, levelId, objectId);
     if (surface === undefined) continue;
     const selected = chosen.has(objectId);
-    // Le terrain se lit toujours ; le reste, quand on le désigne.
-    if (!selected && surface.kind !== 'SITE') continue;
+    /*
+     * Le terrain se lit dans le Terrain, et nulle part ailleurs ; le reste,
+     * quand on le désigne.
+     *
+     * Les deux conditions ne se cumulent pas : la parcelle ne revient pas
+     * parce qu'on l'a sélectionnée depuis le Bâtiment. C'est ce que veut dire
+     * « elle appartient au Terrain » — ailleurs, elle est du contexte, et le
+     * contexte ne s'annote pas.
+     */
+    if (surface.kind === 'SITE') {
+      if (options.stage !== 'SITE') continue;
+    } else if (!selected) continue;
     const facts = polygonFacts(surface.outline);
     if (facts === undefined || facts.areaM2 < minimum) continue;
     labels.push({

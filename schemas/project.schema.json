@@ -168,6 +168,16 @@
                   "minimum": 0,
                   "maximum": 1
                 },
+                "rotationDeg": {
+                  "description": "De combien la feuille est tournée, en degrés dans le sens des aiguilles d'une montre à l'écran. Facultative : absente, l'image est droite — ce que dit tout fichier écrit avant qu'on puisse la tourner.",
+                  "type": "number",
+                  "minimum": 0,
+                  "exclusiveMaximum": 360
+                },
+                "locked": {
+                  "description": "Ce qui empêche une image calée de bouger par accident. Facultatif : absent, l'image est libre, et aucun fichier existant n'est verrouillé rétroactivement.",
+                  "type": "boolean"
+                },
                 "name": {
                   "type": "string"
                 }
