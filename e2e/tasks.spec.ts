@@ -224,9 +224,22 @@ test('T4 — un mur, son assemblage, sa suppression, et le retour', async ({
   await loadDemoProject(page);
   const canvas = page.locator('.plan-canvas');
   const beforeWall = await clicksSoFar(page);
-  await canvas.click({ position: await pointOn(page, 'wall:wall-south') });
+  const aimedAt = await pointOn(page, 'wall:wall-south');
+  await canvas.click({ position: aimedAt });
   const inspector = page.locator('.inspector-subject');
-  await expect(inspector).toContainText('Mur');
+  /*
+   * Le point visé est nommé dans l'échec, et c'est délibéré.
+   *
+   * Ce parcours échoue environ une fois sur six, et seulement quand les deux
+   * projets tournent ensemble — donc en charge. Il n'a jamais échoué sous
+   * observation : impossible d'en lire le message. Ce qu'on peut faire, faute
+   * de le reproduire, c'est le rendre lisible quand il se reproduira tout
+   * seul : où l'on a visé, et ce que le plan montrait à cet endroit.
+   */
+  await expect(
+    inspector,
+    `visé (${aimedAt.x.toFixed(1)}, ${aimedAt.y.toFixed(1)}) sur .plan-canvas`,
+  ).toContainText('Mur');
 
   // Deux clics pour atteindre l'assemblage d'un mur : le mur, puis le champ.
   // Il fallait quitter le plan, trouver la fiche, puis revenir.
@@ -236,7 +249,12 @@ test('T4 — un mur, son assemblage, sa suppression, et le retour', async ({
   ).toBeVisible();
   // Un clic sur le mur, et l'assemblage est là. Il fallait quatre gestes et un
   // retour : quitter le plan, trouver la fiche, revenir.
-  expect((await clicksSoFar(page)) - beforeWall).toBe(1);
+  //
+  // Le compte est relevé dans la page, sur `pointerdown` : si Playwright devait
+  // rejouer son clic — ce qu'il fait quand l'élément n'est pas encore stable —
+  // il en compterait deux, et le message le dirait.
+  const spent = (await clicksSoFar(page)) - beforeWall;
+  expect(spent, `gestes dépensés pour atteindre l’assemblage`).toBe(1);
 
   const before = await page
     .locator('[data-role="WALL_CUT"][id^="wall:"]')

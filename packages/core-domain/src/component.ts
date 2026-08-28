@@ -73,6 +73,24 @@ export interface ComponentInstance {
    * ends up « fixed to » the model of a radiator.
    */
   readonly hostObjectId?: string;
+  /**
+   * L'appareil dans lequel celui-ci est **logé**, quand il l'est.
+   *
+   * Un disjoncteur est monté dans un tableau, un module dans un rack, une
+   * vanne dans un collecteur. Ce n'est ni `hostObjectId` — un tableau n'est pas
+   * un élément de construction — ni une collision : ce sont deux objets qui
+   * occupent le même volume **exprès**, et le dire est la seule façon de
+   * distinguer un appareil correctement monté d'un appareil qui rentre dans un
+   * autre.
+   *
+   * Faute de ce champ, la maison de référence rapportait trois conflits de
+   * dégagement entre son tableau et son disjoncteur — « rien ne peut occuper
+   * le volume d'un autre objet » — pour un montage que tout électricien fait.
+   * L'analyse des dégagements ignore une paire dont l'un loge l'autre, et rien
+   * d'autre : les dégagements du **logeur** valent toujours contre le reste,
+   * ce qui est juste, puisque c'est devant le tableau qu'on se tient.
+   */
+  readonly housedInId?: ComponentInstanceId;
   /** The room it stands in, when the model states one. */
   readonly spaceId?: SpaceId;
   /**
@@ -89,7 +107,9 @@ export type ComponentIssueCode =
   | 'INVALID_ELEVATION'
   | 'INVALID_ROTATION'
   | 'INVALID_CATEGORY'
-  | 'INVALID_DEFINITION_PIN';
+  | 'INVALID_DEFINITION_PIN'
+  /** Un appareil logé dans lui-même, ou dans une chaîne qui revient à lui. */
+  | 'INVALID_HOUSING';
 
 export interface ComponentIssue {
   readonly code: ComponentIssueCode;
@@ -121,6 +141,12 @@ export function validateComponentInstance(
       code: 'INVALID_ROTATION',
       path: 'rotationDeg',
       message: 'must be finite',
+    });
+  if (component.housedInId === component.id)
+    issues.push({
+      code: 'INVALID_HOUSING',
+      path: 'housedInId',
+      message: 'a component cannot be housed in itself',
     });
   if (!isComponentCategory(component.category))
     issues.push({

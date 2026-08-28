@@ -19,7 +19,9 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
+import { clearanceReport } from '@house-technical-designer/core-domain';
 import { loadDemoProject, demoClimateDatasets } from '../demo-project.js';
+import { projectChecks } from '../checks/checks-model.js';
 import {
   runProjectCalculations,
   type ModuleRun,
@@ -145,11 +147,27 @@ describe('les réseaux de la maison de référence', () => {
   };
 
   /*
-   * La ventilation reste à typer, et pour une raison qui demande son propre
-   * changement : ses tronçons sont dessinés depuis le caisson vers les bouches
-   * alors que l'air d'une extraction va dans l'autre sens. Typer ses ports
-   * selon la physique demande de retourner le graphe, que le module de
-   * ventilation lit — c'est un chantier, pas un oubli.
+   * La ventilation reste à typer, et ce n'est pas un oubli : c'est un désaccord
+   * que le modèle n'a pas encore de mot pour dire.
+   *
+   * Le graphe d'un réseau est ici l'**arbre de distribution depuis l'organe** —
+   * le tableau vers les circuits, le caisson vers les bouches — et le module de
+   * ventilation en dépend : `edgeFlows` accumule les débits en descendant
+   * depuis la racine, si bien que le conduit principal porte la somme des
+   * bouches. Les évacuations font exception parce que la gravité leur donne un
+   * exutoire unique, et leur graphe suit donc l'écoulement.
+   *
+   * Or `AIR_EXTRACT` est défini comme une entrée et `AIR_EXTRACT_OUTLET` comme
+   * une sortie : le vocabulaire suppose que le graphe suit l'air. Sur une
+   * extraction il va à contresens, et les typer selon la physique fait
+   * échouer la validation — « déclare AIR_EXTRACT, qui est IN, et dit OUT » —
+   * ce qui est le modèle qui a raison contre la tentative. Essayé, refusé,
+   * défait.
+   *
+   * Deux issues, et aucune n'est un détail : retourner le graphe de la
+   * ventilation, ce que le module lit ; ou donner au vocabulaire de quoi
+   * distinguer « du côté de l'organe » et « du côté du terminal » de ce que le
+   * fluide fait. La seconde vaut sans doute mieux, et elle se décide.
    */
   const NOT_YET_TYPED = new Set(['ventilation']);
 
@@ -175,5 +193,75 @@ describe('les réseaux de la maison de référence', () => {
       )
       .map(({ id }) => id);
     expect(remaining).toEqual([...NOT_YET_TYPED]);
+  });
+});
+
+/**
+ * Ce que la maison de référence dit à l'écran des vérifications.
+ *
+ * Trente-sept constats, dont dix-sept en défaut : des objets qui occupaient le
+ * même volume — un ballon tampon et un circulateur au même endroit, un
+ * disjoncteur « dans » son tableau — et vingt raccordements dont rien ne disait
+ * s'ils tenaient. C'est ce qu'un visiteur voyait en ouvrant l'exemple.
+ *
+ * Ce test ne fige aucun nombre de constats : il fige qu'aucun ne soit **en
+ * défaut**, et nomme un par un les rares qui restent en suspens. Un constat en
+ * défaut sur l'exemple de référence est soit un défaut de l'exemple, soit un
+ * défaut du logiciel ; dans les deux cas quelqu'un doit le regarder.
+ */
+describe('l’écran des vérifications, sur la maison de référence', () => {
+  const checks = projectChecks(house(), undefined);
+
+  it('n’a plus rien en défaut', () => {
+    expect(
+      checks
+        .filter(({ status }) => status === 'FAIL')
+        .map(({ id, detail }) => `${id}: ${detail ?? ''}`),
+    ).toEqual([]);
+  });
+
+  it('ne laisse en suspens que ce qui est nommé', () => {
+    /*
+     * Les cinq de ventilation ont leur raison écrite plus haut ; le jeu de
+     * règles absent est un choix de l'utilisateur — activer un texte
+     * réglementaire est une décision, et prétendre le contraire ferait dire à
+     * l'application qu'un projet est conforme à quelque chose que personne n'a
+     * choisi.
+     */
+    const pending = checks
+      .filter(({ status }) => status === 'UNKNOWN')
+      .map(({ id }) => id);
+    expect(
+      pending.filter((id) => !id.startsWith('network:ventilation:')),
+    ).toEqual(['rule-pack:none']);
+    expect(
+      pending.filter((id) => id.startsWith('network:ventilation:')),
+    ).toHaveLength(5);
+  });
+
+  it('ne fait se rentrer dedans aucun objet', () => {
+    // Le contrôle géométrique seul, sans le reste de l'écran : deux volumes
+    // qui se recouvrent alors qu'ils n'ont pas le droit.
+    expect(
+      clearanceReport(house()).conflicts.map(
+        ({ first, second, message }) =>
+          `${first.objectId}/${first.zone} ↔ ${second.objectId}/${second.zone} : ${message}`,
+      ),
+    ).toEqual([]);
+  });
+
+  it('sait qu’un appareil logé dans un autre n’est pas une collision', () => {
+    /*
+     * Un disjoncteur **est** monté dans son tableau : dix-huit millimètres de
+     * large dans un coffret de trois cent cinquante. La géométrie ne peut pas
+     * faire la différence entre ce montage et deux objets qui se rentrent
+     * dedans ; c'est le modèle qui la fait, et il faut donc que quelqu'un
+     * l'ait dit.
+     */
+    const level = house().building.levels[0]!;
+    const breaker = (level.components ?? []).find(
+      ({ id }) => id === 'component-breaker',
+    )!;
+    expect(breaker.housedInId).toBe('component-board');
   });
 });

@@ -630,6 +630,10 @@
           "type": "string",
           "minLength": 1
         },
+        "housedInId": {
+          "description": "L'appareil dans lequel celui-ci est logé : un disjoncteur dans son tableau, un module dans un rack, une vanne dans un collecteur. Ni un élément de construction — c'est `hostObjectId` — ni une collision : deux objets qui occupent le même volume exprès. L'analyse des dégagements ignore cette paire-là, et elle seule.",
+          "type": "string"
+        },
         "spaceId": {
           "type": "string",
           "minLength": 1
