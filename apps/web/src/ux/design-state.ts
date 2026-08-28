@@ -23,6 +23,7 @@ import type {
 } from '@house-technical-designer/core-domain';
 import { domainOfDiscipline } from '@house-technical-designer/core-domain';
 import { detectRooms } from '@house-technical-designer/editor-core';
+import { allRoofPlanes } from '@house-technical-designer/core-domain';
 
 /** Un contour fermé par les murs, et ce qu'il enferme. */
 export interface ClosedContour {
@@ -168,7 +169,14 @@ export function designStateOf(
     openingCount: level.openings.length,
     slabCount: level.slabs.length,
     stairCount: level.stairs.length,
-    roofSurfaceCount: level.roofs.length,
+    /*
+     * Les pans qu'on peut percer, et non les seuls objets « pan » posés à la
+     * main. Une toiture décrite par son contour rend ses pans par dérivation :
+     * ne compter que `level.roofs` disait « aucune toiture » à quelqu'un qui
+     * venait d'en dessiner une, et grisait la fenêtre de toit dans un projet
+     * qui en attendait une.
+     */
+    roofSurfaceCount: allRoofPlanes(level).length,
     structuralMemberCount: (level.structure ?? []).length,
     sanitaryFixtureCount: componentsOf(level, 'SANITARY'),
     distributionBoardCount: componentsOf(level, 'ELECTRICAL'),

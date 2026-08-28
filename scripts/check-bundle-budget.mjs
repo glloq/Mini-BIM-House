@@ -404,8 +404,14 @@ export const BUDGETS = {
    * coins tiennent dans le pan — et le plan les dessine. Deux kio pour une
    * famille d'ouvertures que la nomenclature nommait depuis toujours et que le
    * modèle ne savait pas poser.
+   *
+   * Et un avec l'outil qui les pose. « Ouverture de toit » existait déjà dans
+   * la boîte : elle prenait l'outil qui perce un mur, demandait une toiture
+   * pour s'activer, et posait la fenêtre dans le mur le plus proche du clic —
+   * on visait le toit, la fenêtre arrivait au rez-de-chaussée. Le kio paie un
+   * vrai outil, sa commande, et le clic converti dans le repère du pan.
    */
-  totalGzipBytes: 489 * 1024,
+  totalGzipBytes: 490 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

@@ -15,6 +15,7 @@ import {
   addTextNoteCommand,
   addEveryDetectedRoomCommand,
   addOpeningCommand,
+  addRoofOpeningCommand,
   addRoofStructureCommand,
   addSiteOutlineCommand,
   addSlabFromPointsCommand,
@@ -574,6 +575,68 @@ export const EDITOR_TOOLS = [
       ),
   },
   {
+    /*
+     * Une fenêtre de toit n'est pas une variante de l'outil « ouverture ».
+     * Celui-ci cherche le mur le plus proche du clic ; celle-là se pose dans
+     * un pan, et se repère le long de l'égout et sur le rampant. Deux gestes,
+     * deux outils — et un seul clic pour chacun.
+     */
+    id: 'ROOF_OPENING',
+    group: 'ARCHITECTURE',
+    label: 'Fenêtre de toit',
+    hint: 'Cliquer dans un pan de toiture pour y poser une fenêtre',
+    shortcutId: 'tool.roofOpening',
+    requiredPoints: 1,
+    level: 'DESIGN',
+    options: [
+      {
+        key: 'openingType',
+        kind: 'SELECT',
+        label: 'Type',
+        // Une fenêtre, ou un trou : une trémie de toit passe par le même geste
+        // et le même contrôle, elle ne porte simplement pas de menuiserie.
+        choices: () =>
+          OPENING_TYPE_OPTIONS.filter(
+            ({ value }) => value === 'WINDOW' || value === 'VOID',
+          ),
+        fallback: () => 'WINDOW',
+      },
+      {
+        key: 'widthMm',
+        kind: 'NUMBER',
+        label: 'Largeur',
+        unit: 'mm',
+        min: 100,
+        step: 10,
+        // Les dimensions d'une fenêtre de toit courante : ce sont des tailles
+        // de fabricant, pas des nombres ronds, et les retaper à chaque pose
+        // est exactement ce qu'une entrée pré-remplie évite.
+        fallback: () => '780',
+      },
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        min: 100,
+        step: 10,
+        fallback: () => '1180',
+      },
+    ],
+    createCommand: (context) =>
+      addRoofOpeningCommand(
+        context.file,
+        context.levelId,
+        context.points[context.points.length - 1]!,
+        {
+          openingType: context.option('openingType') as 'WINDOW' | 'VOID',
+          widthMm: context.optionNumber('widthMm') ?? 0,
+          heightMm: context.optionNumber('heightMm') ?? 0,
+        },
+        context.newId('opening'),
+      ),
+  },
+  {
     id: 'SPACE',
     group: 'ARCHITECTURE',
     label: 'Pièce',
@@ -1094,7 +1157,14 @@ export const EDITOR_TOOLS = [
   },
   {
     id: 'SPLIT',
-    group: 'ARCHITECTURE',
+    /*
+     * Scinder est une modification, pas une construction : l'outil ne crée
+     * rien, il coupe en deux un mur qui existe — exactement comme joindre,
+     * ajuster et décaler, qui sont déjà là. Il a longtemps compté parmi les
+     * outils d'architecture, ce qui portait ce groupe à onze entrées : le
+     * plafond de dix n'est pas un caprice, c'est ce qu'on lit sans chercher.
+     */
+    group: 'MODIFICATION',
     label: 'Scinder',
     hint: 'Couper un mur à l’endroit désigné',
     shortcutId: 'tool.split',
