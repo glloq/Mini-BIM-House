@@ -5,7 +5,7 @@ import {
 } from '@house-technical-designer/assemblies';
 import {
   entityId,
-  type Opening,
+  type WallOpening,
   type Wall,
 } from '@house-technical-designer/core-domain';
 import {
@@ -48,7 +48,7 @@ const initial: EditorProjectState = {
 const createOpening = (placement: {
   host: Wall;
   offsetAlongHostMm: number;
-}): Opening => ({
+}): WallOpening => ({
   id: entityId<'Opening'>('opening'),
   type: 'OPENING',
   openingType: 'WINDOW',

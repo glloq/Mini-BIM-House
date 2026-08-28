@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   entityId,
+  isWallOpening,
   type Opening,
   type Wall,
 } from '@house-technical-designer/core-domain';
@@ -191,10 +192,9 @@ describe('cutting a wall in two', () => {
     expect(back.walls.map(({ id }) => id)).toEqual(['wall']);
     expect(back.walls[0]?.path.points[1]).toEqual({ x: 6000, y: 0 });
     expect(
-      back.openings.map(({ host, offsetAlongHostMm }) => [
-        host.id,
-        offsetAlongHostMm,
-      ]),
+      back.openings
+        .filter(isWallOpening)
+        .map(({ host, offsetAlongHostMm }) => [host.id, offsetAlongHostMm]),
     ).toEqual([
       ['wall', 500],
       ['wall', 4000],

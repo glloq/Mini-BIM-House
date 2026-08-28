@@ -124,101 +124,207 @@
       "additionalProperties": false
     },
     "Opening": {
-      "type": "object",
-      "required": [
-        "id",
-        "type",
-        "openingType",
-        "host",
-        "offsetAlongHostMm",
-        "sillHeightMm",
-        "widthMm",
-        "heightMm"
-      ],
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "const": "OPENING"
-        },
-        "openingType": {
-          "enum": [
-            "DOOR",
-            "WINDOW",
-            "VOID",
-            "OTHER"
-          ]
-        },
-        "host": {
-          "description": "Ce que l'ouverture perce : un mur, ou un pan de toiture. Une référence discriminée plutôt qu'un identifiant nu, parce que « une ouverture est dans un mur » était une hypothèse de toute la chaîne et que les fenêtres de toit existent.",
+      "description": "Ce qu'une ouverture perce, et comment elle s'y repère. Deux formes plutôt qu'une : une baie verticale se donne le long d'un mur et par son allège, une fenêtre de toit dans le plan du pan. Les réunir dans les mêmes champs serait mentir sur ce qu'ils mesurent.",
+      "oneOf": [
+        {
           "type": "object",
-          "additionalProperties": false,
+          "description": "Une baie percée dans un mur : elle se repère par une distance le long du mur et par son allège.",
           "required": [
-            "kind",
-            "id"
+            "id",
+            "type",
+            "openingType",
+            "host",
+            "offsetAlongHostMm",
+            "sillHeightMm",
+            "widthMm",
+            "heightMm"
           ],
           "properties": {
-            "kind": {
-              "type": "string",
-              "enum": [
-                "WALL",
-                "ROOF"
-              ]
-            },
             "id": {
               "type": "string"
+            },
+            "type": {
+              "const": "OPENING"
+            },
+            "openingType": {
+              "enum": [
+                "DOOR",
+                "WINDOW",
+                "VOID",
+                "OTHER"
+              ]
+            },
+            "widthMm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "heightMm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "definitionId": {
+              "type": "string"
+            },
+            "swing": {
+              "type": "object",
+              "description": "Which way a door opens, stated against its host wall's own path rather than against the screen.",
+              "required": [
+                "hinge",
+                "opensTo"
+              ],
+              "properties": {
+                "hinge": {
+                  "enum": [
+                    "START",
+                    "END"
+                  ]
+                },
+                "opensTo": {
+                  "enum": [
+                    "LEFT_OF_HOST",
+                    "RIGHT_OF_HOST"
+                  ]
+                },
+                "openingAngleDeg": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 180
+                }
+              },
+              "additionalProperties": false
+            },
+            "host": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "id"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "WALL"
+                },
+                "id": {
+                  "type": "string"
+                }
+              }
+            },
+            "offsetAlongHostMm": {
+              "type": "number",
+              "minimum": 0
+            },
+            "sillHeightMm": {
+              "type": "number"
             }
-          }
+          },
+          "additionalProperties": false
         },
-        "offsetAlongHostMm": {
-          "type": "number",
-          "minimum": 0
-        },
-        "sillHeightMm": {
-          "type": "number"
-        },
-        "widthMm": {
-          "type": "number",
-          "exclusiveMinimum": 0
-        },
-        "heightMm": {
-          "type": "number",
-          "exclusiveMinimum": 0
-        },
-        "definitionId": {
-          "type": "string"
-        },
-        "swing": {
+        {
           "type": "object",
-          "description": "Which way a door opens, stated against its host wall's own path rather than against the screen.",
+          "description": "Une fenêtre percée dans un pan de toiture : elle se repère dans le plan du pan, le long de l'égout et en remontant le rampant. `upSlopeMm` est une longueur vraie, mesurée dans le plan incliné et non sa projection au sol — c'est ainsi qu'une fenêtre de toit est vendue et posée, et c'est la seule mesure qui reste juste quand la pente change.",
           "required": [
-            "hinge",
-            "opensTo"
+            "id",
+            "type",
+            "openingType",
+            "host",
+            "placement",
+            "widthMm",
+            "heightMm"
           ],
           "properties": {
-            "hinge": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "OPENING"
+            },
+            "openingType": {
               "enum": [
-                "START",
-                "END"
+                "DOOR",
+                "WINDOW",
+                "VOID",
+                "OTHER"
               ]
             },
-            "opensTo": {
-              "enum": [
-                "LEFT_OF_HOST",
-                "RIGHT_OF_HOST"
-              ]
-            },
-            "openingAngleDeg": {
+            "widthMm": {
               "type": "number",
-              "exclusiveMinimum": 0,
-              "maximum": 180
+              "exclusiveMinimum": 0
+            },
+            "heightMm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "definitionId": {
+              "type": "string"
+            },
+            "swing": {
+              "type": "object",
+              "description": "Which way a door opens, stated against its host wall's own path rather than against the screen.",
+              "required": [
+                "hinge",
+                "opensTo"
+              ],
+              "properties": {
+                "hinge": {
+                  "enum": [
+                    "START",
+                    "END"
+                  ]
+                },
+                "opensTo": {
+                  "enum": [
+                    "LEFT_OF_HOST",
+                    "RIGHT_OF_HOST"
+                  ]
+                },
+                "openingAngleDeg": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 180
+                }
+              },
+              "additionalProperties": false
+            },
+            "host": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "id"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "ROOF"
+                },
+                "id": {
+                  "type": "string"
+                }
+              }
+            },
+            "placement": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "alongEaveMm",
+                "upSlopeMm"
+              ],
+              "properties": {
+                "alongEaveMm": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Le long de l'égout, depuis son premier sommet."
+                },
+                "upSlopeMm": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "En remontant le rampant depuis l'égout, en longueur vraie."
+                }
+              }
             }
           },
           "additionalProperties": false
         }
-      },
-      "additionalProperties": false
+      ]
     },
     "Slab": {
       "type": "object",

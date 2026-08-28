@@ -6,7 +6,8 @@ import {
   type Polygon2D,
 } from '@house-technical-designer/geometry';
 import type { Level, Project } from './types.js';
-import type { Opening } from './opening.js';
+import type { Opening, OpeningHostKind } from './opening.js';
+import { isWallOpening, wallOpenings } from './opening.js';
 import type { Space } from './space.js';
 import { detectSpaceBoundaries } from './space.js';
 import type { Wall } from './wall.js';
@@ -72,8 +73,18 @@ export interface ResolvedOpeningGeometry {
   readonly areaM2: number;
   readonly widthM: number;
   readonly heightM: number;
-  /** Height of the sill above the project's zero, not above its storey. */
-  readonly sillElevationMm: number;
+  /** Ce que l'ouverture perce : un mur, ou un pan de toiture. */
+  readonly hostKind: OpeningHostKind;
+  /**
+   * Height of the sill above the project's zero, not above its storey.
+   *
+   * Absente pour une fenêtre de toit, et c'est un fait plutôt qu'un manque :
+   * son bord bas repose sur un plan incliné, donc son altitude dépend du pan
+   * et de l'endroit du pan — que cette résolution n'a pas sous la main. La
+   * rendre à zéro poserait toutes les fenêtres de toit au niveau du sol dans
+   * tout ce qui lit cette valeur.
+   */
+  readonly sillElevationMm?: number;
 }
 
 export interface ResolvedRoofGeometry {
@@ -144,7 +155,10 @@ export function resolveOpeningGeometry(
     widthM: opening.widthMm / 1000,
     heightM: opening.heightMm / 1000,
     areaM2: squareMetres(opening.widthMm * opening.heightMm),
-    sillElevationMm: level.elevationMm + opening.sillHeightMm,
+    hostKind: opening.host.kind,
+    ...(isWallOpening(opening)
+      ? { sillElevationMm: level.elevationMm + opening.sillHeightMm }
+      : {}),
   };
 }
 
@@ -155,7 +169,7 @@ export function resolveWallGeometry(
 ): ResolvedWallGeometry {
   const heightMm = resolveWallHeightMm(project, wall);
   const lengthM = wallLengthM(wall);
-  const hosted = level.openings.filter(({ host }) => host.id === wall.id);
+  const hosted = wallOpenings(level.openings, wall.id);
   const openingAreaM2 = hosted.reduce(
     (sum, opening) => sum + squareMetres(opening.widthMm * opening.heightMm),
     0,

@@ -13,6 +13,7 @@ import type {
 import {
   DEFAULT_NOTE_HEIGHT_MM,
   doorSwingOf,
+  isWallOpening,
   isDimension,
   isTextNote,
 } from '@house-technical-designer/core-domain';
@@ -456,12 +457,19 @@ export function openingEditsFor(
           [
             ['widthMm', 'Largeur', opening.widthMm],
             ['heightMm', 'Hauteur', opening.heightMm],
-            ['sillHeightMm', 'Allège', opening.sillHeightMm],
-            [
-              'offsetAlongHostMm',
-              'Position sur le mur',
-              opening.offsetAlongHostMm,
-            ],
+            // L'allège et la position le long du mur ne veulent rien dire pour
+            // une fenêtre de toit : elle se repère dans le plan du pan, et ces
+            // deux champs-là sont ceux d'une baie verticale.
+            ...(isWallOpening(opening)
+              ? ([
+                  ['sillHeightMm', 'Allège', opening.sillHeightMm],
+                  [
+                    'offsetAlongHostMm',
+                    'Position sur le mur',
+                    opening.offsetAlongHostMm,
+                  ],
+                ] as const)
+              : []),
           ] as const
         ).map(([field, label, value]) => ({
           id: field,

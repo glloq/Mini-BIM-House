@@ -12,6 +12,7 @@ import type { Point2D } from '@house-technical-designer/geometry';
 import { polygonSurface } from './polygon-surface.js';
 import {
   isTextNote,
+  isWallOpening,
   roofEaveOutline,
   structuralFootprint,
 } from '@house-technical-designer/core-domain';
@@ -98,6 +99,8 @@ export function openingBounds(
   const level = levelOf(project, levelId);
   const opening = level?.openings.find(({ id }) => id === objectId);
   if (level === undefined || opening === undefined) return undefined;
+  // Ces repères courent le long d'un mur ; une fenêtre de toit n'en a pas.
+  if (!isWallOpening(opening)) return undefined;
   const host = level.walls.find(({ id }) => id === opening.host.id);
   if (host === undefined) return undefined;
   const start = openingAnchor(host.path.points, opening.offsetAlongHostMm, 0);

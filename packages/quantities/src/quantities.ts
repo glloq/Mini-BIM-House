@@ -2,6 +2,7 @@ import type { Assembly } from '@house-technical-designer/assemblies';
 import {
   calculateWallNetArea,
   resolveRoofGeometry,
+  wallOpenings,
   type Opening,
   type Wall,
 } from '@house-technical-designer/core-domain';
@@ -106,7 +107,7 @@ export function calculateWallQuantities(
       });
       continue;
     }
-    const hostedOpenings = openings.filter(({ host }) => host.id === wall.id);
+    const hostedOpenings = wallOpenings(openings, wall.id);
     const area = calculateWallNetArea(wall, hostedOpenings);
     if (area.status !== 'OK') {
       warnings.push({

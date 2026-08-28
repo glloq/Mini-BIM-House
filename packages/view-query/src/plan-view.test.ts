@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import type { Project } from '@house-technical-designer/core-domain';
-import { entityId } from '@house-technical-designer/core-domain';
+import type { Project, Roof } from '@house-technical-designer/core-domain';
+import {
+  entityId,
+  isRoofOpening,
+  isWallOpening,
+} from '@house-technical-designer/core-domain';
 import type { ScenePrimitive } from '@house-technical-designer/drawing-engine';
 import { polygonContains } from '@house-technical-designer/geometry';
 import { buildPlanView, previewWallFaces } from './plan-view.js';
@@ -406,9 +410,12 @@ describe('plan view openings', () => {
         levels: [
           {
             ...level,
-            openings: level.openings.map((opening) => ({
+            // Les baies de mur seulement : rattacher une fenêtre de toit à un
+            // mur ne serait pas « un hôte introuvable », ce serait un objet
+            // qui n'existe pas, et le compilateur le refuse — c'est le but.
+            openings: level.openings.filter(isWallOpening).map((opening) => ({
               ...opening,
-              host: { kind: 'WALL', id: entityId<'Wall'>('nowhere') },
+              host: { kind: 'WALL' as const, id: entityId<'Wall'>('nowhere') },
             })),
           },
         ],
@@ -1288,5 +1295,133 @@ describe('what a plan dimensions', () => {
     expect(before.building.levels[0]!.annotations).toEqual(
       project().building.levels[0]!.annotations,
     );
+  });
+});
+
+/**
+ * Une fenêtre de toit sur le plan.
+ *
+ * Elle se dessine dans le pan qui la porte, en projection : la pente raccourcit
+ * sa hauteur au sol et pas sa largeur, parce que la largeur court le long de
+ * l'égout. Une fenêtre absente du plan est une fenêtre qu'on croit ne pas avoir
+ * posée, et c'était le cas avant que le modèle sache ce qu'elle perce.
+ */
+describe('une fenêtre de toit', () => {
+  const SLOPE_DEG = 30;
+
+  const withRoofWindow = (base: Project): Project => {
+    const level = base.building.levels[0]!;
+    const roof: Roof = {
+      id: entityId<'Roof'>('toiture'),
+      type: 'ROOF',
+      levelId,
+      footprint: {
+        outer: [
+          { x: 0, y: 0 },
+          { x: 6000, y: 0 },
+          { x: 6000, y: 4000 },
+          { x: 0, y: 4000 },
+        ],
+      },
+      edges: [
+        { kind: 'SLOPED', slopeDeg: SLOPE_DEG, overhangMm: 0 },
+        { kind: 'GABLE', slopeDeg: 0, overhangMm: 0 },
+        { kind: 'SLOPED', slopeDeg: SLOPE_DEG, overhangMm: 0 },
+        { kind: 'GABLE', slopeDeg: 0, overhangMm: 0 },
+      ],
+      assemblyId: 'wall-assembly' as never,
+      baseElevationMm: 2500,
+    };
+    return {
+      ...base,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            roofStructures: [roof],
+            openings: [
+              ...level.openings,
+              {
+                id: entityId<'Opening'>('velux'),
+                type: 'OPENING',
+                openingType: 'WINDOW',
+                host: { kind: 'ROOF', id: `${roof.id}:plane:0` },
+                placement: { alongEaveMm: 2000, upSlopeMm: 1000 },
+                widthMm: 800,
+                heightMm: 1000,
+              },
+            ],
+          },
+        ],
+      },
+    };
+  };
+
+  it('est dessinée dans son pan', () => {
+    const drawn = buildPlanView(withRoofWindow(project())).primitives.find(
+      ({ id }) => id === 'roof-opening:velux',
+    );
+    expect(drawn).toBeDefined();
+    expect(drawn?.metadata).toMatchObject({
+      openingType: 'WINDOW',
+      hostElementId: 'toiture:plane:0',
+    });
+  });
+
+  it('est raccourcie par la pente, dans le sens du rampant seulement', () => {
+    const drawn = buildPlanView(withRoofWindow(project())).primitives.find(
+      ({ id }) => id === 'roof-opening:velux',
+    )!;
+    if (drawn.geometry.kind !== 'POLYGON') return;
+    const [a, b, , d] = drawn.geometry.polygon.outer;
+    expect(Math.hypot(b!.x - a!.x, b!.y - a!.y)).toBeCloseTo(800, 3);
+    expect(Math.hypot(d!.x - a!.x, d!.y - a!.y)).toBeCloseTo(
+      1000 * Math.cos((SLOPE_DEG * Math.PI) / 180),
+      3,
+    );
+  });
+
+  it('dit son altitude plutôt que de la laisser deviner', () => {
+    const drawn = buildPlanView(withRoofWindow(project())).primitives.find(
+      ({ id }) => id === 'roof-opening:velux',
+    )!;
+    // Un mètre de rampant à 30° au-dessus d'un égout à 2,50 m.
+    expect(drawn.metadata).toMatchObject({
+      lowerEdgeElevationMm: Math.round(
+        2500 + 1000 * Math.sin((SLOPE_DEG * Math.PI) / 180),
+      ),
+    });
+  });
+
+  it('signale un pan qui n’existe pas plutôt que de ne rien dessiner', () => {
+    const base = withRoofWindow(project());
+    const level = base.building.levels[0]!;
+    const orphan: Project = {
+      ...base,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            openings: level.openings.map((opening) =>
+              isRoofOpening(opening)
+                ? {
+                    ...opening,
+                    host: { kind: 'ROOF' as const, id: 'nulle-part' },
+                  }
+                : opening,
+            ),
+          },
+        ],
+      },
+    };
+    const result = buildPlanView(orphan);
+    expect(result.issues.map(({ code }) => code)).toContain(
+      'VIEW_UNRESOLVED_HOST',
+    );
+    expect(
+      result.primitives.some(({ id }) => id === 'roof-opening:velux'),
+    ).toBe(false);
   });
 });

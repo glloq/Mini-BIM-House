@@ -17,11 +17,13 @@ import type {
   Stair,
   StructuralMember,
   Wall,
+  WallOpening,
 } from '@house-technical-designer/core-domain';
 import {
   dimensionId,
   entityId,
   hostAccepts,
+  isWallOpening,
   levelHosts,
 } from '@house-technical-designer/core-domain';
 import {
@@ -1190,11 +1192,11 @@ export function addOpeningCommand(
   const command = createOpeningInsertionCommand(point, level.walls, {
     maximumHostDistanceMm: MAXIMUM_HOST_DISTANCE_MM,
     commandId: () => `add-opening:${openingId}`,
-    createOpening: (placement): Opening => ({
+    createOpening: (placement): WallOpening => ({
       id: entityId<'Opening'>(openingId),
       type: 'OPENING',
       openingType: draft.openingType,
-      host: { kind: 'WALL', id: placement.host.id },
+      host: { kind: 'WALL' as const, id: placement.host.id },
       offsetAlongHostMm: Math.max(
         0,
         Math.round(placement.offsetAlongHostMm - draft.widthMm / 2),
@@ -1715,6 +1717,9 @@ export function pasteClipboardCommand(
     );
   }
   for (const opening of clipboard.openings) {
+    // Coller une fenêtre de toit demanderait de coller le pan qui la porte, et
+    // un pan est dérivé d'une toiture : ce n'est pas un objet du presse-papier.
+    if (!isWallOpening(opening)) continue;
     const host = copiedWalls.get(opening.host.id);
     if (host === undefined) continue;
     const copyId = newId('opening');
@@ -1728,7 +1733,7 @@ export function pasteClipboardCommand(
           ...opening,
           id: copyId as Opening['id'],
           // An opening belongs to its wall; the wall is what belongs to a level.
-          host: { kind: 'WALL', id: host },
+          host: { kind: 'WALL' as const, id: host },
         }),
       ),
     );

@@ -395,8 +395,17 @@ export const BUDGETS = {
    * monte au premier écran parce que le plan dessine des toitures, et le
    * premier écran tient quand même dans son plafond : le kio se voit ici et
    * pas là-haut.
+   *
+   * Et deux avec les fenêtres de toit. Une ouverture dit maintenant **comment**
+   * elle se repère et non seulement ce qu'elle perce : le long d'un mur avec
+   * son allège, ou dans le plan du pan, le long de l'égout et en remontant le
+   * rampant. Le second repère demande la géométrie du pan — trouver son égout
+   * depuis l'azimut, raccourcir la montée de la pente, vérifier que les quatre
+   * coins tiennent dans le pan — et le plan les dessine. Deux kio pour une
+   * famille d'ouvertures que la nomenclature nommait depuis toujours et que le
+   * modèle ne savait pas poser.
    */
-  totalGzipBytes: 487 * 1024,
+  totalGzipBytes: 489 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

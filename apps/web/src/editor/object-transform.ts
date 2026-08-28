@@ -1,6 +1,9 @@
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import type { Project, TextNote } from '@house-technical-designer/core-domain';
-import { isTextNote } from '@house-technical-designer/core-domain';
+import {
+  isTextNote,
+  isWallOpening,
+} from '@house-technical-designer/core-domain';
 import {
   AddComponentCommand,
   AddOpeningCommand,
@@ -612,6 +615,12 @@ export const openingDuplicate: DuplicateProvider = (
     ({ id }) => id === objectId,
   );
   if (opening === undefined) return undefined;
+  if (!isWallOpening(opening))
+    return {
+      status: 'REFUSED',
+      message:
+        'Une fenêtre de toit se duplique avec le pan qui la porte, et un pan est dérivé de sa toiture.',
+    };
   const host = copies.get(opening.host.id);
   if (host === undefined)
     return {
@@ -629,7 +638,7 @@ export const openingDuplicate: DuplicateProvider = (
       new AddOpeningCommand(`opening:duplicate:${copyId}`, {
         ...opening,
         id: copyId as (typeof opening)['id'],
-        host: { kind: 'WALL', id: host },
+        host: { kind: 'WALL' as const, id: host },
       }),
     ),
   );

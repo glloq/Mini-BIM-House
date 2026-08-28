@@ -25,6 +25,7 @@ import {
   entityId,
   isComponentCategory,
   hostAccepts,
+  isWallOpening,
   levelHosts,
   HOST_TYPE_LABELS,
   isDimension,
@@ -1739,8 +1740,10 @@ export class UpdateOpeningCommand extends BuildingCommand {
     const offset = this.patch.offsetAlongHostMm;
     if (offset !== undefined && (!Number.isFinite(offset) || offset < 0))
       errors.push('La position sur le mur doit être positive ou nulle.');
-    const host = level.walls.find(({ id }) => id === opening.host.id);
-    if (host !== undefined) {
+    const host = isWallOpening(opening)
+      ? level.walls.find(({ id }) => id === opening.host.id)
+      : undefined;
+    if (host !== undefined && isWallOpening(opening)) {
       const next = { ...opening, ...this.patch };
       const start = host.path.points[0];
       const end = host.path.points.at(-1);
