@@ -95,6 +95,30 @@ describe('ce qu’un espace peut écrire, et ce qu’il ne peut pas', () => {
     expect(session.dispatch(command!, 'BUILDING').status).toBe('OK');
   });
 
+  it('refuses to place a wall from a stage that does not own walls', () => {
+    /*
+     * Poser compte autant que supprimer, et c'est le cas le plus retors : le
+     * mur neuf n'existe pas encore dans le projet d'avant, donc personne ne le
+     * revendique là, donc la règle « sans propriétaire, partout » l'aurait
+     * laissé passer. Le propriétaire se cherche dans celui des deux projets qui
+     * porte l'objet — ici, celui d'après.
+     */
+    const draft = {
+      startXmm: 0,
+      startYmm: 0,
+      endXmm: 5000,
+      endYmm: 0,
+      assemblyId: file().project.building.levels[0]!.walls[0]!.assemblyId,
+    };
+    for (const stage of CREATION_STAGES) {
+      const session = new ProjectEditingSession(file());
+      const placed = session.addWall(draft, `wall-neuf-${stage}`, stage);
+      expect(placed.status, stage).toBe(stage === 'BUILDING' ? 'OK' : 'ERROR');
+      if (placed.status === 'ERROR')
+        expect(placed.messages.join(' '), stage).toContain('Bâtiment');
+    }
+  });
+
   it('writes nothing when it refuses, so undo still undoes the last real edit', () => {
     /*
      * L'essai à blanc sert à ça. Sans lui, la commande serait passée puis
