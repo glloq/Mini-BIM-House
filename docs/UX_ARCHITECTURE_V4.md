@@ -1247,7 +1247,37 @@ coudes, les tés et les vannes appartiennent à une **conduite** — on les pose
 traçant, pas en cliquant — et les trente-cinq types de menuiserie demandent
 qu'une ouverture porte une fiche, ce que le modèle ne sait pas encore.
 
-### 14.3 Ce que coûte un ajout
+### 14.3 Ce que le premier écran emporte
+
+Le budget de bundle dit **combien** pèse le premier chargement ; il ne dit
+jamais **quoi**. Deux fois de suite, du code qu'un commentaire annonçait comme
+chargé à la demande s'est révélé y être depuis toujours :
+
+| Ce qui y était sans raison    | Poids compressé | Trouvé       |
+| ----------------------------- | --------------- | ------------ |
+| Le validateur compilé par Ajv | ~31 kio         | par accident |
+| Les seize moteurs de calcul   | ~27 kio         | par accident |
+
+Les deux pesaient plus que ce que la plupart des optimisations d'interface
+économisent, et les deux ont été trouvés en cherchant autre chose. Le budget
+voyait le poids et pas la cause : il disait « ça a grossi », jamais « les
+moteurs sont revenus ».
+
+`scripts/audit-first-screen.mjs` (`npm run audit:first-screen`) le dit. Il part
+de `main.tsx`, ne suit que les importations **statiques** — un `import(...)`
+est la frontière qu'on mesure, un `import type` disparaît à la compilation —
+et rapporte ce qui arrive, groupé par paquet. Avec un nom, il rend la chaîne
+qui y mène : la réponse à « mais qu'est-ce qui importe ça ? ».
+
+`scripts/first-screen.test.mjs` en fait une porte, sans build et en quelques
+millisecondes : les seize moteurs n'ont pas le droit d'y revenir, le validateur
+non plus, la maison de démonstration non plus, et des adaptateurs de calcul
+seul leur registre passe. Le dix-septième moteur, le thermique, y est **à bon
+droit** — cliquer un mur montre la résistance et le U de sa composition — et
+un test le dit aussi : une règle qui les interdirait tous serait fausse, et
+finirait contournée.
+
+### 14.4 Ce que coûte un ajout
 
 Poser se mesure en trois nombres, et `adding-cost.test.ts` les tient :
 
