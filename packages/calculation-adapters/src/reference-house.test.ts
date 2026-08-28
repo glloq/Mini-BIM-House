@@ -15,7 +15,7 @@ import {
 import {
   loadProjectJson,
   serializeProjectFile,
-} from '@house-technical-designer/project-io';
+} from '@house-technical-designer/project-io/files';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import { PROJECT_CALCULATION_MODULES } from './modules.js';
 import { PROJECT_CALCULATION_MODULE_IDS } from './project-inputs.js';

@@ -7,7 +7,7 @@ import {
   presetVisibility,
 } from '@house-technical-designer/view-query';
 import type { ProjectFile } from '@house-technical-designer/core-domain';
-import { loadProjectJson } from '@house-technical-designer/project-io';
+import { loadProjectJson } from '@house-technical-designer/project-io/files';
 import { readFileSync } from 'node:fs';
 import { APPLICATION_VERSION } from './version.js';
 import {

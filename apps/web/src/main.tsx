@@ -34,13 +34,6 @@ import {
 import {
   applyProjectScenario,
   DEFAULT_ZIP_LIMITS,
-  loadProjectJson,
-  ProjectContainerError,
-  ProjectSerializationError,
-  readProjectContainer,
-  serializeProjectFile,
-  validateProjectFile,
-  writeProjectContainer,
 } from '@house-technical-designer/project-io';
 import {
   boundsOfObjects,
@@ -60,6 +53,18 @@ import {
 // of JSON behind one button. Loading them with the application would put a
 // demonstration in the way of opening one's own project.
 const demoProject = () => import('./demo-project.js');
+/*
+ * Ouvrir, enregistrer, exporter : chargés au moment où on clique.
+ *
+ * Lire ou écrire un fichier de projet passe par le schéma, et le validateur
+ * qu'Ajv en compile pèse à lui seul plus que le reste de l'application. Il
+ * arrivait pourtant au premier écran, parce qu'un `export *` du paquet le
+ * portait jusqu'à `applyProjectScenario`. Quelqu'un qui ouvre l'application
+ * pour dessiner ne valide aucun fichier ; celui qui en ouvre un attend déjà
+ * son disque. Le chargement se fait donc ici, à l'endroit du geste, comme
+ * pour la maison de démonstration.
+ */
+const projectFiles = () => import('@house-technical-designer/project-io/files');
 import { PlanCanvas } from './editor/PlanCanvas.js';
 import { ClearanceControl } from './editor/ClearanceControl.js';
 import { clearanceReport } from '@house-technical-designer/core-domain';
@@ -685,6 +690,11 @@ function App() {
       // What the file holds is the revision captured here, and the state bar
       // says so rather than claiming the current one was written.
       const exported = file.project.metadata.projectRevision ?? '';
+      const {
+        ProjectContainerError,
+        ProjectSerializationError,
+        writeProjectContainer,
+      } = await projectFiles();
       try {
         const bytes = await writeProjectContainer(
           file,
@@ -739,11 +749,13 @@ function App() {
     }
   }, [climate, file]);
 
-  const saveProject = useCallback((): boolean => {
+  const saveProject = useCallback(async (): Promise<boolean> => {
     // The serialiser refuses to write a project the format would not accept.
     // A click handler is outside any error boundary, so the refusal is caught
     // here and said out loud rather than lost in the console with the save
     // state left claiming the project was written.
+    const { ProjectSerializationError, serializeProjectFile } =
+      await projectFiles();
     let json: string;
     try {
       json = serializeProjectFile(file);
@@ -1340,7 +1352,10 @@ function App() {
    * scenario is left in place: it is a record of what was compared.
    */
   const promoteScenario = useCallback(
-    (scenarioId: string) => {
+    async (scenarioId: string) => {
+      // Le validateur que la commande porte doit être là quand elle s'exécute :
+      // il est chargé avant qu'elle soit construite, et la fermeture le tient.
+      const { validateProjectFile } = await projectFiles();
       const result = applyProjectScenario(
         session.current.file.project,
         scenarioId,
@@ -2087,6 +2102,7 @@ function App() {
       return;
     }
     const bytes = new Uint8Array(await selected.arrayBuffer());
+    const { loadProjectJson, readProjectContainer } = await projectFiles();
     const container = await readProjectContainer(bytes, {
       // A dataset that does not satisfy the contract makes the container
       // invalid; dropping it silently would open a project whose weather
@@ -2339,7 +2355,7 @@ function App() {
         })();
       });
     else if (id === 'SAVE') void saveContainer();
-    else if (id === 'EXPORT_JSON') saveProject();
+    else if (id === 'EXPORT_JSON') void saveProject();
     else if (id === 'EXPORT_SVG') {
       const artifact = exportProjectPlan(file, {
         ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
@@ -2903,7 +2919,9 @@ function App() {
                 climate={climate}
                 onCommand={runCommand}
                 onMessage={setMessage}
-                onPromote={promoteScenario}
+                onPromote={(scenarioId) => {
+                  void promoteScenario(scenarioId);
+                }}
               />
             </LazyWorkspace>
           )}

@@ -8,10 +8,8 @@ import { nextLibraryId, projectEquipmentFromCatalog } from './library-model.js';
 import type { EquipmentDefinition as ProjectEquipment } from '@house-technical-designer/core-domain';
 import type { HostType } from '@house-technical-designer/core-domain';
 import { isHostType } from '@house-technical-designer/core-domain';
-import {
-  CURRENT_PROJECT_SCHEMA_VERSION,
-  validateProjectFile,
-} from '@house-technical-designer/project-io';
+import { CURRENT_PROJECT_SCHEMA_VERSION } from '@house-technical-designer/project-io';
+import { validateProjectFile } from '@house-technical-designer/project-io/files';
 import { populatedProject } from '../test-support/populated-project.js';
 import {
   AddEquipmentCommand,

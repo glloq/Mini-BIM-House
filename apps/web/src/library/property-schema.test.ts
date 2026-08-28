@@ -7,7 +7,7 @@ import {
 import {
   loadProjectJson,
   serializeProjectFile,
-} from '@house-technical-designer/project-io';
+} from '@house-technical-designer/project-io/files';
 import {
   describeProperties,
   describeProperty,

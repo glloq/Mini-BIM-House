@@ -1,6 +1,6 @@
 import type { ProjectFile } from '@house-technical-designer/core-domain';
 import type { ClimateDataset } from '@house-technical-designer/climate';
-import { loadProjectJson } from '@house-technical-designer/project-io';
+import { loadProjectJson } from '@house-technical-designer/project-io/files';
 import referenceHouse from '../../../examples/reference-house/reference.houseproj.json';
 import monthlyClimate from '../../../examples/reference-house/climate-monthly.json';
 import designDayClimate from '../../../examples/reference-house/climate-design-day.json';

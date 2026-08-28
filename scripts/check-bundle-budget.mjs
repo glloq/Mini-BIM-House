@@ -235,8 +235,27 @@ export const BUDGETS = {
    * lecture et les conteneurs — et mérite son propre changement plutôt que
    * d'être bâclé au passage d'un moteur de toiture. C'est le premier de la
    * dette, et il reste le premier.
+   *
+   * **Cette dette est payée, et ce nombre baisse de trente et un kio.** Le
+   * découpage a eu lieu : `file-io.ts` porte la lecture, l'écriture et la
+   * validation d'un fichier, `container.ts` l'archive qui le transporte, et
+   * les deux vivent derrière `@house-technical-designer/project-io/files`.
+   * Le barillet du paquet ne les réexporte plus, donc rien n'y touche par
+   * accident. L'application les charge à trois endroits, et chacun est un
+   * geste : enregistrer, exporter, importer. La sauvegarde locale les charge
+   * elle aussi à la demande — ses deux usages sont dans des fonctions `async`,
+   * et une reprise de session attend déjà IndexedDB.
+   *
+   * Ce qui a été mesuré : le premier écran passe de 304 à 273 kio, et le
+   * validateur compilé se retrouve dans un fichier à lui, chargé le jour où
+   * quelqu'un ouvre un projet. Personne ne le télécharge pour regarder un
+   * plan.
+   *
+   * Ce chiffre est donc un plafond de nouveau serré, à cinq kio du réel. La
+   * règle reprend sa valeur : le prochain kio du premier écran devra être
+   * financé par ce qui en sort, et non par ce budget.
    */
-  initialGzipBytes: 304 * 1024,
+  initialGzipBytes: 278 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -362,8 +381,14 @@ export const BUDGETS = {
    *
    * Et un avec les soixante-treize entrées nommées, comptées au chargement
    * initial ci-dessus : le registre vit dans le premier écran.
+   *
+   * Et un avec la sortie de la validation. C'est exactement l'échange que ce
+   * budget existe pour rendre visible, et il se lit en une ligne : le total
+   * monte d'un kio, le premier écran descend de trente et un. Ce qui quitte
+   * le premier téléchargement doit bien atterrir quelque part, avec le peu de
+   * colle qu'un fichier de plus demande ; il atterrit à la demande.
    */
-  totalGzipBytes: 485 * 1024,
+  totalGzipBytes: 486 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

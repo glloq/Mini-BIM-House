@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ENTITY_FAMILIES } from '@house-technical-designer/core-domain';
-import {
-  DEFAULT_PROJECT_IMPORT_LIMITS,
-  loadProjectJson,
-  serializeProjectFile,
-} from './project-io.js';
+import { DEFAULT_PROJECT_IMPORT_LIMITS } from './project-io.js';
+import { loadProjectJson, serializeProjectFile } from './file-io.js';
 
 const fixture = {
   format: 'house-technical-designer-project' as const,

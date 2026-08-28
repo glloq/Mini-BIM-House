@@ -2,10 +2,10 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_PROJECT_MIGRATIONS,
-  loadProjectJson,
   migration110To120,
   runMigrationChain,
 } from './index.js';
+import { loadProjectJson } from './file-io.js';
 
 const oldSource = readFileSync(
   new URL('../test/fixtures/v0.9.0/project.json', import.meta.url),

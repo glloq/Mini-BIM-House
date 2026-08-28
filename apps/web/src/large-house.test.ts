@@ -3,7 +3,7 @@ import {
   buildPlanView,
   defaultVisibility,
 } from '@house-technical-designer/view-query';
-import { serializeProjectFile } from '@house-technical-designer/project-io';
+import { serializeProjectFile } from '@house-technical-designer/project-io/files';
 import { projectChecks } from './checks/checks-model.js';
 import { largeHouse } from './large-house.js';
 

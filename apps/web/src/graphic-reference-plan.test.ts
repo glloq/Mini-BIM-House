@@ -8,7 +8,7 @@ import {
   type ScenePrimitive,
 } from '@house-technical-designer/drawing-engine';
 import { polygonContains } from '@house-technical-designer/geometry';
-import { loadProjectJson } from '@house-technical-designer/project-io';
+import { loadProjectJson } from '@house-technical-designer/project-io/files';
 import {
   LAYER_PRESETS,
   buildPlanView,

@@ -17,7 +17,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 
-import { loadProjectJson } from './project-io.js';
+import { loadProjectJson } from './file-io.js';
 
 const house = readFileSync(
   new URL(

@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { LEGACY_EXTENSION, loadProjectJson } from './index.js';
+import { LEGACY_EXTENSION } from './index.js';
+import { loadProjectJson } from './file-io.js';
 
 function fixture(name: string): string {
   return readFileSync(

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadProjectJson, serializeProjectFile } from './project-io.js';
+import { loadProjectJson, serializeProjectFile } from './file-io.js';
 
 const level = {
   id: 'ground',

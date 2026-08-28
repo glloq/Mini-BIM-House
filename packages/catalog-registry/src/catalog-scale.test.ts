@@ -17,10 +17,8 @@ import { rawGenericOpeningEntries } from '@house-technical-designer/opening-cata
 import { rawGenericMaterialEntries } from '@house-technical-designer/materials/catalog';
 import { rawGenericAssemblyEntries } from '@house-technical-designer/assemblies/catalog';
 import { NETWORK_PRODUCT_REGISTRY } from '@house-technical-designer/network-products';
-import {
-  CURRENT_PROJECT_SCHEMA_VERSION,
-  validateProjectFile,
-} from '@house-technical-designer/project-io';
+import { CURRENT_PROJECT_SCHEMA_VERSION } from '@house-technical-designer/project-io';
+import { validateProjectFile } from '@house-technical-designer/project-io/files';
 
 describe('a catalogue the size the real one will be', () => {
   it('gives the same catalogue twice, so a measure compares code and not draws', () => {

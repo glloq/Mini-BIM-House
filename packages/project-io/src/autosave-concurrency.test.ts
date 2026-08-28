@@ -6,7 +6,7 @@ import {
   recoverAutosave,
   type AutosaveStore,
 } from './autosave.js';
-import { loadProjectJson } from './project-io.js';
+import { loadProjectJson } from './file-io.js';
 
 const raw = {
   format: 'house-technical-designer-project',

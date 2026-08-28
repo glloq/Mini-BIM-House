@@ -3,7 +3,7 @@ import { CalculationOrchestrator } from '@house-technical-designer/calculation-c
 import {
   loadProjectJson,
   serializeProjectFile,
-} from '@house-technical-designer/project-io';
+} from '@house-technical-designer/project-io/files';
 import type { Project } from '@house-technical-designer/core-domain';
 import { PROJECT_CALCULATION_MODULES } from './modules.js';
 import {

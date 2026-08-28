@@ -1,4 +1,4 @@
-import { loadProjectJson } from '@house-technical-designer/project-io';
+import { loadProjectJson } from '@house-technical-designer/project-io/files';
 import {
   domainsPresentIn,
   projectScopeOf,

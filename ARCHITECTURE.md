@@ -71,7 +71,7 @@ Ce que cela veut dire, concrètement :
 | `catalog-registry`                      | nomenclature des familles, schémas de propriétés, empreintes                    |
 | `equipment-catalog`, `network-products` | fiches génériques et produits de réseau                                         |
 | `opening-catalog`                       | menuiseries et protections solaires, en JSON                                    |
-| `project-io`                            | lecture, écriture, validation, migrations                                       |
+| `project-io`                            | modèle de fichier et migrations ; `/files` lit et écrit, `/browser` sauvegarde  |
 | `editor-core`                           | commandes, annulation, outils de dessin                                         |
 | `view-query`                            | plans, coupes, façades, toiture, masse, calques, désignation                    |
 | `drawing-engine`                        | scène sémantique, chartes graphiques, SVG, feuilles, PDF                        |
