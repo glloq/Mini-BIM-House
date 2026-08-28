@@ -1,6 +1,6 @@
 {
   "catalogFormatVersion": "1.0.0",
-  "releaseId": "c421e840bb50d697",
+  "releaseId": "94a01daa878f3455",
   "generatedFrom": [
     {
       "registry": "EQUIPMENT",
@@ -93,9 +93,9 @@
         "packages/drawing-engine/data/symbols/architecture-fixtures.json",
         "packages/drawing-engine/data/symbols/generic.json"
       ],
-      "entryCount": 45,
+      "entryCount": 46,
       "formatVersion": "1.0.0",
-      "fingerprint": "bf7c5af8bb298d8e"
+      "fingerprint": "390e64b7163076d7"
     }
   ]
 }

@@ -21,7 +21,7 @@
         "CALCULATION": "PARTIAL"
       },
       "graphics": {
-        "planSymbol": "symbol-washbasin"
+        "planSymbol": "architecture.fixture.washbasin"
       }
     },
     {
@@ -43,7 +43,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SANITARY_FIXTURE"
+      "category": "SANITARY_FIXTURE",
+      "graphics": {
+        "planSymbol": "architecture.fixture.double-washbasin"
+      }
     },
     {
       "id": "BASIN",
@@ -64,7 +67,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SANITARY_FIXTURE"
+      "category": "SANITARY_FIXTURE",
+      "graphics": {
+        "planSymbol": "architecture.fixture.basin"
+      }
     },
     {
       "id": "KITCHEN_SINK",
@@ -87,7 +93,7 @@
         "CALCULATION": "PARTIAL"
       },
       "graphics": {
-        "planSymbol": "symbol-kitchen-sink"
+        "planSymbol": "architecture.fixture.kitchen-sink"
       }
     },
     {
@@ -109,7 +115,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SANITARY_FIXTURE"
+      "category": "SANITARY_FIXTURE",
+      "graphics": {
+        "planSymbol": "architecture.fixture.double-sink"
+      }
     },
     {
       "id": "SHOWER",
@@ -132,7 +141,7 @@
         "CALCULATION": "PARTIAL"
       },
       "graphics": {
-        "planSymbol": "symbol-shower"
+        "planSymbol": "architecture.fixture.shower"
       }
     },
     {
@@ -155,7 +164,10 @@
         "CALCULATION": "NONE"
       },
       "optionalPorts": ["WATER_COLD", "WATER_HOT"],
-      "category": "SANITARY_FIXTURE"
+      "category": "SANITARY_FIXTURE",
+      "graphics": {
+        "planSymbol": "architecture.fixture.shower"
+      }
     },
     {
       "id": "WALK_IN_SHOWER",
@@ -176,7 +188,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SANITARY_FIXTURE"
+      "category": "SANITARY_FIXTURE",
+      "graphics": {
+        "planSymbol": "architecture.fixture.shower"
+      }
     },
     {
       "id": "BATHTUB",
@@ -197,7 +212,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SANITARY_FIXTURE"
+      "category": "SANITARY_FIXTURE",
+      "graphics": {
+        "planSymbol": "architecture.fixture.bathtub"
+      }
     },
     {
       "id": "WC",
@@ -220,7 +238,7 @@
         "CALCULATION": "PARTIAL"
       },
       "graphics": {
-        "planSymbol": "symbol-wc"
+        "planSymbol": "architecture.fixture.wc"
       }
     },
     {
@@ -242,7 +260,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SANITARY_FIXTURE"
+      "category": "SANITARY_FIXTURE",
+      "graphics": {
+        "planSymbol": "architecture.fixture.wc"
+      }
     },
     {
       "id": "BIDET",
@@ -263,7 +284,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SANITARY_FIXTURE"
+      "category": "SANITARY_FIXTURE",
+      "graphics": {
+        "planSymbol": "architecture.fixture.basin"
+      }
     },
     {
       "id": "URINAL",
@@ -284,7 +308,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SANITARY_FIXTURE"
+      "category": "SANITARY_FIXTURE",
+      "graphics": {
+        "planSymbol": "symbol-wc"
+      }
     },
     {
       "id": "WASHING_MACHINE_OUTLET",
@@ -368,7 +395,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SANITARY_FIXTURE"
+      "category": "SANITARY_FIXTURE",
+      "graphics": {
+        "planSymbol": "architecture.fixture.kitchen-sink"
+      }
     },
     {
       "id": "WATER_PUBLIC_CONNECTION",
@@ -420,7 +450,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "METER"
+      "category": "METER",
+      "graphics": {
+        "planSymbol": "water.flow"
+      }
     },
     {
       "id": "MAIN_VALVE",
@@ -446,7 +479,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "BACKFLOW_PREVENTER",
@@ -472,7 +508,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "PRESSURE_REDUCER",
@@ -498,7 +537,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "FILTER",
@@ -657,7 +699,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "PUMP"
+      "category": "PUMP",
+      "graphics": {
+        "planSymbol": "symbol-pump"
+      }
     },
     {
       "id": "PRESSURE_VESSEL",
@@ -833,7 +878,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "CHECK_VALVE",
@@ -859,7 +907,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "BALANCING_VALVE",
@@ -885,7 +936,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "DRAIN_VALVE",
@@ -911,7 +965,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "AIR_VENT",
@@ -961,7 +1018,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "METER"
+      "category": "METER",
+      "graphics": {
+        "planSymbol": "water.flow"
+      }
     },
     {
       "id": "SUB_METER",
@@ -987,7 +1047,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "METER"
+      "category": "METER",
+      "graphics": {
+        "planSymbol": "water.flow"
+      }
     },
     {
       "id": "THERMOSTATIC_MIXING_VALVE",
@@ -1007,7 +1070,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "DHW_RECIRCULATION_PUMP",
@@ -1027,7 +1093,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "PUMP"
+      "category": "PUMP",
+      "graphics": {
+        "planSymbol": "symbol-pump"
+      }
     },
     {
       "id": "ELECTRIC_DHW_TANK",
@@ -1050,7 +1119,7 @@
         "CALCULATION": "PARTIAL"
       },
       "graphics": {
-        "planSymbol": "symbol-dhw-tank"
+        "planSymbol": "architecture.fixture.dhw-tank"
       }
     },
     {
@@ -1073,7 +1142,10 @@
         "CALCULATION": "NONE"
       },
       "optionalPorts": ["CONDENSATE"],
-      "category": "DHW_TANK"
+      "category": "DHW_TANK",
+      "graphics": {
+        "planSymbol": "symbol-dhw-tank"
+      }
     },
     {
       "id": "HEAT_PUMP_DHW",
@@ -1094,7 +1166,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "DHW_TANK"
+      "category": "DHW_TANK",
+      "graphics": {
+        "planSymbol": "architecture.fixture.dhw-tank"
+      }
     },
     {
       "id": "INDIRECT_TANK",
@@ -1115,7 +1190,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "DHW_TANK"
+      "category": "DHW_TANK",
+      "graphics": {
+        "planSymbol": "architecture.fixture.dhw-tank"
+      }
     },
     {
       "id": "BUFFER_DHW",
@@ -1136,7 +1214,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "DHW_TANK"
+      "category": "DHW_TANK",
+      "graphics": {
+        "planSymbol": "architecture.fixture.dhw-tank"
+      }
     },
     {
       "id": "INSTANT_HEATER",
@@ -1157,7 +1238,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "DHW_TANK"
+      "category": "DHW_TANK",
+      "graphics": {
+        "planSymbol": "symbol-dhw-tank"
+      }
     },
     {
       "id": "SOLAR_DHW_TANK",
@@ -1178,7 +1262,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "DHW_TANK"
+      "category": "DHW_TANK",
+      "graphics": {
+        "planSymbol": "architecture.fixture.dhw-tank"
+      }
     },
     {
       "id": "SAFETY_GROUP",
@@ -1199,7 +1286,10 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["WASTEWATER"],
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "EXPANSION_VESSEL",
@@ -1239,7 +1329,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "RECIRCULATION_PUMP",
@@ -1264,7 +1357,10 @@
       "status": {
         "MODEL": "PARTIAL"
       },
-      "category": "PUMP"
+      "category": "PUMP",
+      "graphics": {
+        "planSymbol": "symbol-pump"
+      }
     },
     {
       "id": "TEMPERATURE_SENSOR",

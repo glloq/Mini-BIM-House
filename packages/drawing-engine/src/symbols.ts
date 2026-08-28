@@ -282,6 +282,171 @@ export function symbolCatalogIssues(
   return issues;
 }
 
+/**
+ * Quel glyphe dessine quelle chose, en données.
+ *
+ * Trente-neuf familles étaient associées à leur dessin par une table écrite en
+ * TypeScript dans `view-query`, une ligne par famille. C'est tenable à quarante
+ * et faux à quatre cents : la nomenclature compte cinq cent vingt-sept
+ * familles, dont trois cent quatre-vingts posables ; personne ne relit une
+ * table de cette taille, et aucune barrière ne sait la lire.
+ *
+ * Elle vit maintenant dans `data/plan-bindings.json`, à deux niveaux :
+ *
+ *   - `families` : cette famille-là se dessine comme ceci, et pas autrement.
+ *     Une baignoire est une baignoire avant d'être « un appareil sanitaire ».
+ *   - `categories` : à défaut, voici à quoi ressemble « un appareil sanitaire
+ *     dont on ne sait rien de plus ». Une ligne y couvre toute une catégorie,
+ *     ce qui est la seule raison pour laquelle cette approche passe à
+ *     l'échelle : dix-huit lignes tiennent cent vingt-trois familles.
+ *
+ * Pourquoi ici et non sur la fiche de famille, qui le dit aussi en
+ * `graphics.planSymbol` : le moteur de plan ne peut pas atteindre la
+ * nomenclature — `view-query` ne dépend pas de `catalog-registry` et ne doit
+ * pas commencer à en dépendre pour dessiner un lavabo. La planche porte donc
+ * la copie que le dessin lit, et `npm run graphics:coverage -- --check` refuse
+ * que les deux divergent, ce qu'elles faisaient déjà pour dix familles avant
+ * que quiconque pose la question.
+ *
+ * Et pourquoi dans un fichier à part, hors de `data/symbols` : un symbole est
+ * une fiche de catalogue, son empreinte est enregistrée, et changer son contenu
+ * sans changer sa version est exactement ce que la barrière des empreintes
+ * refuse — ajouter la liste de ses familles à chaque glyphe aurait fait bouger
+ * quarante-cinq empreintes pour un dessin inchangé. Le dossier des symboles est
+ * en outre validé fichier par fichier contre le schéma du catalogue de
+ * symboles, qui n'accepte rien d'autre que des glyphes. Le lien entre un dessin
+ * et une nomenclature n'est ni l'un ni l'autre : il a son fichier.
+ */
+interface PlanBindingFile {
+  readonly formatVersion: string;
+  readonly id: string;
+  readonly version: string;
+  /** Le glyphe que prend une chose dont ni la famille ni la catégorie n'est tenue. */
+  readonly fallback: string;
+  readonly bindings: {
+    readonly families: Readonly<Record<string, string>>;
+    readonly categories: Readonly<Record<string, string>>;
+  };
+}
+
+const BINDINGS = Object.values(
+  import.meta.glob('../data/plan-bindings.json', {
+    eager: true,
+    import: 'default',
+  }) as Readonly<Record<string, PlanBindingFile>>,
+)[0];
+
+/**
+ * Le glyphe qu'un objet posé prend quand rien de plus précis n'existe.
+ *
+ * C'est le carré de trois cents millimètres que le plan dessinait déjà, sauf
+ * qu'il porte enfin un nom. La différence n'est pas cosmétique : « sans
+ * représentation » devient une propriété qu'on peut vérifier — le dernier
+ * maillon est publié ou il ne l'est pas — au lieu d'un cas qu'on espère ne
+ * jamais atteindre.
+ */
+export const GENERIC_PLAN_SYMBOL =
+  BINDINGS?.fallback ?? 'architecture.placed-object';
+
+/** Les correspondances telles que le fichier les écrit, sans rien réparer. */
+export function rawPlanBindings(): PlanBindingFile['bindings'] {
+  return BINDINGS?.bindings ?? { families: {}, categories: {} };
+}
+
+/** Par quel maillon de la chaîne une chose a obtenu son glyphe. */
+export type PlanSymbolSource = 'FAMILY' | 'CATEGORY' | 'GENERIC';
+
+/**
+ * Le même résultat, en disant par où il est passé.
+ *
+ * Une couverture ne se mesure pas en comptant les glyphes rendus : ils sont
+ * tous rendus. Ce qui se compte, c'est le maillon — combien de familles ont
+ * leur propre dessin, combien se contentent de celui de leur catégorie,
+ * combien n'ont que le carré.
+ */
+export function planSymbolSource(subject: {
+  readonly familyId?: string | undefined;
+  readonly category?: string | undefined;
+}): PlanSymbolSource {
+  const { families, categories } = rawPlanBindings();
+  if (
+    subject.familyId !== undefined &&
+    families[subject.familyId] !== undefined
+  )
+    return 'FAMILY';
+  if (
+    subject.category !== undefined &&
+    categories[subject.category] !== undefined
+  )
+    return 'CATEGORY';
+  return 'GENERIC';
+}
+
+/**
+ * Le glyphe de plan d'une chose, et la chaîne de repli qui l'y mène.
+ *
+ * Trois maillons, du plus précis au moins, dans cet ordre et sans exception :
+ * le dessin de la famille, celui de sa catégorie, puis le glyphe générique
+ * nommé. Le troisième ne rate jamais tant qu'il est publié, ce qui est
+ * exactement ce qu'on attend d'un dernier recours : une chose posée dans une
+ * maison est toujours dessinée, même mal.
+ *
+ * La catégorie est facultative parce que tous les appelants ne l'ont pas — le
+ * plan la porte sur la copie de la fiche que le projet garde, d'autres n'ont
+ * que l'identifiant de famille. Un appelant qui ne la donne pas saute le
+ * deuxième maillon ; il n'en reçoit pas un faux.
+ */
+export function planSymbolFor(subject: {
+  readonly familyId?: string | undefined;
+  readonly category?: string | undefined;
+}): string {
+  const { families, categories } = rawPlanBindings();
+  if (subject.familyId !== undefined) {
+    const held = families[subject.familyId];
+    if (held !== undefined) return held;
+  }
+  if (subject.category !== undefined) {
+    const held = categories[subject.category];
+    if (held !== undefined) return held;
+  }
+  return GENERIC_PLAN_SYMBOL;
+}
+
+/**
+ * Tout ce qui cloche dans les correspondances, rapporté et non lancé.
+ *
+ * Une correspondance qui nomme un glyphe absent ne casse rien : la chaîne rend
+ * un identifiant que le plan ne trouve pas, et la chose se dessine comme un
+ * carré — c'est-à-dire comme avant, sans que personne ne l'apprenne. C'est
+ * précisément la panne muette qu'un catalogue doit refuser.
+ */
+export function planBindingIssues(
+  bindings: PlanBindingFile['bindings'] = rawPlanBindings(),
+  known: ReadonlySet<string> = new Set(
+    rawGenericSymbolEntries().map(({ id }) => id),
+  ),
+): readonly SymbolIssue[] {
+  const issues: SymbolIssue[] = [];
+  for (const [niveau, table] of [
+    ['families', bindings.families],
+    ['categories', bindings.categories],
+  ] as const)
+    for (const [clef, symbolId] of Object.entries(table))
+      if (!known.has(symbolId))
+        issues.push({
+          symbolId,
+          path: `bindings/${niveau}/${clef}`,
+          message: `names a glyph the library does not hold`,
+        });
+  if (!known.has(GENERIC_PLAN_SYMBOL))
+    issues.push({
+      symbolId: GENERIC_PLAN_SYMBOL,
+      path: 'fallback',
+      message: 'is the last resort of the chain and is not published',
+    });
+  return issues;
+}
+
 function validateSymbolDefinition(definition: SymbolDefinition): void {
   if (
     definition.id.trim() === '' ||
@@ -393,17 +558,30 @@ interface SymbolFile {
 const DISCOVERED = import.meta.glob('../data/symbols/**/*.json', {
   eager: true,
   import: 'default',
-}) as Readonly<Record<string, SymbolFile>>;
+}) as Readonly<Record<string, SymbolFile | undefined>>;
 
-const SYMBOL_FILES: readonly SymbolFile[] = Object.keys(DISCOVERED)
-  .sort()
-  .map((path) => DISCOVERED[path]!);
+/**
+ * Les fichiers de glyphes, c'est-à-dire ceux qui en portent.
+ *
+ * Le dossier tient aussi les correspondances — quel glyphe dessine quelle
+ * famille — qui ne sont pas des glyphes et n'ont pas de version de catalogue à
+ * elles. Reconnues à ce qu'elles ne déclarent pas de `symbols` plutôt qu'à
+ * leur nom : un fichier de plus reste un `git add`, et un fichier mal nommé
+ * n'entre pas dans la bibliothèque en silence.
+ */
+const SYMBOL_PATHS: readonly string[] = Object.keys(DISCOVERED)
+  .filter((path) => Array.isArray(DISCOVERED[path]?.symbols))
+  .sort();
+
+const SYMBOL_FILES: readonly SymbolFile[] = SYMBOL_PATHS.map(
+  (path) => DISCOVERED[path]!,
+);
 
 /** The files this library is made of, in a stable order. */
 export function symbolCatalogSources(): readonly string[] {
-  return Object.keys(DISCOVERED)
-    .map((path) => path.replace('../', 'packages/drawing-engine/'))
-    .sort();
+  return SYMBOL_PATHS.map((path) =>
+    path.replace('../', 'packages/drawing-engine/'),
+  );
 }
 
 /** Every symbol as the files state them, unchecked and unrepaired. */

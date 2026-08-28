@@ -19,7 +19,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "DISTRIBUTION_BOARD"
+      "category": "DISTRIBUTION_BOARD",
+      "graphics": {
+        "planSymbol": "symbol-distribution-board"
+      }
     },
     {
       "id": "SERVICE_METER",
@@ -63,7 +66,10 @@
         "CALCULATION": "NONE"
       },
       "category": "PROTECTION_DEVICE",
-      "optionalPorts": ["EARTH"]
+      "optionalPorts": ["EARTH"],
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "AGCP",
@@ -85,7 +91,10 @@
         "CALCULATION": "NONE"
       },
       "category": "PROTECTION_DEVICE",
-      "optionalPorts": ["EARTH"]
+      "optionalPorts": ["EARTH"],
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "MAIN_DISTRIBUTION_BOARD",
@@ -115,7 +124,7 @@
         "CALCULATION": "PARTIAL"
       },
       "graphics": {
-        "planSymbol": "symbol-distribution-board"
+        "planSymbol": "architecture.fixture.distribution-board"
       }
     },
     {
@@ -144,7 +153,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "DISTRIBUTION_BOARD"
+      "category": "DISTRIBUTION_BOARD",
+      "graphics": {
+        "planSymbol": "architecture.fixture.distribution-board"
+      }
     },
     {
       "id": "SPD",
@@ -165,7 +177,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PROTECTION_DEVICE"
+      "category": "PROTECTION_DEVICE",
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "MAIN_ISOLATOR",
@@ -187,7 +202,10 @@
         "CALCULATION": "NONE"
       },
       "category": "PROTECTION_DEVICE",
-      "optionalPorts": ["EARTH"]
+      "optionalPorts": ["EARTH"],
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "ENERGY_METER",
@@ -274,7 +292,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PROTECTION_DEVICE"
+      "category": "PROTECTION_DEVICE",
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "RCD",
@@ -294,7 +315,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PROTECTION_DEVICE"
+      "category": "PROTECTION_DEVICE",
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "RCBO",
@@ -314,7 +338,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PROTECTION_DEVICE"
+      "category": "PROTECTION_DEVICE",
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "MCCB",
@@ -334,7 +361,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PROTECTION_DEVICE"
+      "category": "PROTECTION_DEVICE",
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "CONTACTOR",
@@ -355,7 +385,10 @@
         "CALCULATION": "NONE"
       },
       "category": "CONTROL_DEVICE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "RELAY",
@@ -376,7 +409,10 @@
         "CALCULATION": "NONE"
       },
       "category": "CONTROL_DEVICE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "TIMER",
@@ -397,7 +433,10 @@
         "CALCULATION": "NONE"
       },
       "category": "CONTROL_DEVICE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "LOAD_SHEDDING_RELAY",
@@ -418,7 +457,10 @@
         "CALCULATION": "NONE"
       },
       "category": "CONTROL_DEVICE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "SURGE_PROTECTOR",
@@ -438,7 +480,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PROTECTION_DEVICE"
+      "category": "PROTECTION_DEVICE",
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "ARC_FAULT_DEVICE",
@@ -458,7 +503,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PROTECTION_DEVICE"
+      "category": "PROTECTION_DEVICE",
+      "graphics": {
+        "planSymbol": "symbol-circuit-breaker"
+      }
     },
     {
       "id": "JUNCTION_BOX",
@@ -647,7 +695,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SOCKET"
+      "category": "SOCKET",
+      "graphics": {
+        "planSymbol": "symbol-socket"
+      }
     },
     {
       "id": "USB_SOCKET",
@@ -668,7 +719,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SOCKET"
+      "category": "SOCKET",
+      "graphics": {
+        "planSymbol": "symbol-socket"
+      }
     },
     {
       "id": "EXTERIOR_SOCKET",
@@ -689,7 +743,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SOCKET"
+      "category": "SOCKET",
+      "graphics": {
+        "planSymbol": "symbol-socket"
+      }
     },
     {
       "id": "SPECIAL_SOCKET",
@@ -710,7 +767,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SOCKET"
+      "category": "SOCKET",
+      "graphics": {
+        "planSymbol": "symbol-socket"
+      }
     },
     {
       "id": "COOKER_OUTLET",
@@ -731,7 +791,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SOCKET"
+      "category": "SOCKET",
+      "graphics": {
+        "planSymbol": "symbol-socket"
+      }
     },
     {
       "id": "CABLE_OUTLET",
@@ -752,7 +815,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "SOCKET"
+      "category": "SOCKET",
+      "graphics": {
+        "planSymbol": "symbol-socket"
+      }
     },
     {
       "id": "SWITCH",
@@ -773,7 +839,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "CONTROL_DEVICE"
+      "category": "CONTROL_DEVICE",
+      "graphics": {
+        "planSymbol": "electrical.switch"
+      }
     },
     {
       "id": "DOUBLE_SWITCH",
@@ -801,7 +870,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "CONTROL_DEVICE"
+      "category": "CONTROL_DEVICE",
+      "graphics": {
+        "planSymbol": "electrical.switch"
+      }
     },
     {
       "id": "TWO_WAY_SWITCH",
@@ -829,7 +901,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "CONTROL_DEVICE"
+      "category": "CONTROL_DEVICE",
+      "graphics": {
+        "planSymbol": "electrical.switch"
+      }
     },
     {
       "id": "INTERMEDIATE_SWITCH",
@@ -861,7 +936,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "CONTROL_DEVICE"
+      "category": "CONTROL_DEVICE",
+      "graphics": {
+        "planSymbol": "electrical.switch"
+      }
     },
     {
       "id": "PUSH_BUTTON",
@@ -882,7 +960,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "CONTROL_DEVICE"
+      "category": "CONTROL_DEVICE",
+      "graphics": {
+        "planSymbol": "electrical.switch"
+      }
     },
     {
       "id": "DIMMER",
@@ -904,7 +985,10 @@
         "CALCULATION": "NONE"
       },
       "category": "CONTROL_DEVICE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "electrical.switch"
+      }
     },
     {
       "id": "ROLLER_SHUTTER_SWITCH",
@@ -933,7 +1017,10 @@
         "CALCULATION": "NONE"
       },
       "category": "CONTROL_DEVICE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "electrical.switch"
+      }
     },
     {
       "id": "OVEN",
@@ -977,7 +1064,10 @@
         "CALCULATION": "NONE"
       },
       "category": "APPLIANCE",
-      "optionalPorts": ["EARTH"]
+      "optionalPorts": ["EARTH"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.hob"
+      }
     },
     {
       "id": "REFRIGERATOR",
@@ -1043,7 +1133,10 @@
         "CALCULATION": "NONE"
       },
       "category": "APPLIANCE",
-      "optionalPorts": ["EARTH"]
+      "optionalPorts": ["EARTH"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.washing-machine"
+      }
     },
     {
       "id": "DISHWASHER",
@@ -1065,7 +1158,10 @@
         "CALCULATION": "NONE"
       },
       "category": "APPLIANCE",
-      "optionalPorts": ["EARTH"]
+      "optionalPorts": ["EARTH"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.dishwasher"
+      }
     },
     {
       "id": "DRYER",
@@ -1416,7 +1512,10 @@
         "CALCULATION": "NONE"
       },
       "category": "LUMINAIRE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-luminaire"
+      }
     },
     {
       "id": "SPOTLIGHT",
@@ -1438,7 +1537,10 @@
         "CALCULATION": "NONE"
       },
       "category": "LUMINAIRE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-luminaire"
+      }
     },
     {
       "id": "PENDANT",
@@ -1460,7 +1562,10 @@
         "CALCULATION": "NONE"
       },
       "category": "LUMINAIRE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-luminaire"
+      }
     },
     {
       "id": "WALL_LIGHT",
@@ -1482,7 +1587,10 @@
         "CALCULATION": "NONE"
       },
       "category": "LUMINAIRE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-luminaire"
+      }
     },
     {
       "id": "LED_STRIP",
@@ -1526,7 +1634,10 @@
         "CALCULATION": "NONE"
       },
       "category": "LUMINAIRE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-luminaire"
+      }
     },
     {
       "id": "EXTERIOR_LIGHT",
@@ -1548,7 +1659,10 @@
         "CALCULATION": "NONE"
       },
       "category": "LUMINAIRE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-luminaire"
+      }
     },
     {
       "id": "EMERGENCY_LIGHT",
@@ -1570,7 +1684,10 @@
         "CALCULATION": "NONE"
       },
       "category": "LUMINAIRE",
-      "optionalPorts": ["CONTROL"]
+      "optionalPorts": ["CONTROL"],
+      "graphics": {
+        "planSymbol": "symbol-luminaire"
+      }
     },
     {
       "id": "PRESENCE_SENSOR",

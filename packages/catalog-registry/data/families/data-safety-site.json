@@ -910,7 +910,10 @@
       "optionalPorts": ["DRY_CONTACT", "BUS"],
       "lifecycle": "DEPRECATED",
       "replacedBy": "EMERGENCY_LIGHT",
-      "retiredReason": "un bloc autonome d’éclairage de sécurité est un luminaire, décrit une fois"
+      "retiredReason": "un bloc autonome d’éclairage de sécurité est un luminaire, décrit une fois",
+      "graphics": {
+        "planSymbol": "symbol-luminaire"
+      }
     },
     {
       "id": "EMERGENCY_STOP",
@@ -1242,7 +1245,10 @@
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
       "category": "HEAT_PUMP",
-      "optionalPorts": ["CONDENSATE", "REFRIGERANT_LIQUID", "REFRIGERANT_GAS"]
+      "optionalPorts": ["CONDENSATE", "REFRIGERANT_LIQUID", "REFRIGERANT_GAS"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.heat-pump-outdoor"
+      }
     },
     {
       "id": "GROUND_PV_ARRAY",
@@ -1263,7 +1269,10 @@
         "MODEL": "PARTIAL"
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
-      "category": "PV_MODULE"
+      "category": "PV_MODULE",
+      "graphics": {
+        "planSymbol": "symbol-pv-module"
+      }
     },
     {
       "id": "SITE_RAINWATER_TANK",
@@ -1285,7 +1294,10 @@
       },
       "hint": "Le terrain porte des obstacles ; un équipement extérieur reste posé comme un composant de niveau.",
       "category": "RAINWATER_TANK",
-      "optionalPorts": ["ELECTRICAL_AC"]
+      "optionalPorts": ["ELECTRICAL_AC"],
+      "graphics": {
+        "planSymbol": "symbol-rainwater-tank"
+      }
     },
     {
       "id": "WELL",
@@ -1399,7 +1411,10 @@
       "category": "SOCKET",
       "lifecycle": "DEPRECATED",
       "replacedBy": "EXTERIOR_SOCKET",
-      "retiredReason": "une prise étanche est le même objet, dehors comme dedans : c’est son indice de protection qui le dit"
+      "retiredReason": "une prise étanche est le même objet, dehors comme dedans : c’est son indice de protection qui le dit",
+      "graphics": {
+        "planSymbol": "symbol-socket"
+      }
     },
     {
       "id": "SITE_EXTERIOR_LIGHT",
@@ -1424,7 +1439,10 @@
       "optionalPorts": ["CONTROL", "WIRELESS"],
       "lifecycle": "DEPRECATED",
       "replacedBy": "EXTERIOR_LIGHT",
-      "retiredReason": "un luminaire extérieur est le même objet, qu’il soit décrit par le lot éclairage ou par le plan de masse"
+      "retiredReason": "un luminaire extérieur est le même objet, qu’il soit décrit par le lot éclairage ou par le plan de masse",
+      "graphics": {
+        "planSymbol": "symbol-luminaire"
+      }
     },
     {
       "id": "STRUCTURAL_COLUMN",

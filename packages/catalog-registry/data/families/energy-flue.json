@@ -55,7 +55,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PV_MODULE"
+      "category": "PV_MODULE",
+      "graphics": {
+        "planSymbol": "symbol-pv-module"
+      }
     },
     {
       "id": "PV_STRING",
@@ -82,7 +85,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PV_MODULE"
+      "category": "PV_MODULE",
+      "graphics": {
+        "planSymbol": "symbol-pv-module"
+      }
     },
     {
       "id": "ROOF_RAIL",
@@ -226,7 +232,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "INVERTER"
+      "category": "INVERTER",
+      "graphics": {
+        "planSymbol": "symbol-inverter"
+      }
     },
     {
       "id": "STRING_INVERTER",
@@ -301,7 +310,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "INVERTER"
+      "category": "INVERTER",
+      "graphics": {
+        "planSymbol": "symbol-inverter"
+      }
     },
     {
       "id": "DC_COMBINER",
@@ -336,7 +348,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "DISTRIBUTION_BOARD"
+      "category": "DISTRIBUTION_BOARD",
+      "graphics": {
+        "planSymbol": "symbol-distribution-board"
+      }
     },
     {
       "id": "DC_ISOLATOR",
@@ -472,7 +487,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "DISTRIBUTION_BOARD"
+      "category": "DISTRIBUTION_BOARD",
+      "graphics": {
+        "planSymbol": "symbol-distribution-board"
+      }
     },
     {
       "id": "AC_SPD",
@@ -609,7 +627,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "BATTERY"
+      "category": "BATTERY",
+      "graphics": {
+        "planSymbol": "symbol-battery"
+      }
     },
     {
       "id": "BATTERY_PACK",
@@ -667,7 +688,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "BATTERY"
+      "category": "BATTERY",
+      "graphics": {
+        "planSymbol": "symbol-battery"
+      }
     },
     {
       "id": "BMS",
@@ -805,7 +829,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "INVERTER"
+      "category": "INVERTER",
+      "graphics": {
+        "planSymbol": "symbol-inverter"
+      }
     },
     {
       "id": "BACKUP_GATEWAY",
@@ -840,7 +867,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "DISTRIBUTION_BOARD"
+      "category": "DISTRIBUTION_BOARD",
+      "graphics": {
+        "planSymbol": "symbol-distribution-board"
+      }
     },
     {
       "id": "ATS",
@@ -898,7 +928,10 @@
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
       "category": "STOVE",
-      "optionalPorts": ["COMBUSTION_AIR"]
+      "optionalPorts": ["COMBUSTION_AIR"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.stove"
+      }
     },
     {
       "id": "PELLET_STOVE",
@@ -920,7 +953,10 @@
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
       "category": "STOVE",
-      "optionalPorts": ["COMBUSTION_AIR", "FUEL_PELLET"]
+      "optionalPorts": ["COMBUSTION_AIR", "FUEL_PELLET"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.stove"
+      }
     },
     {
       "id": "WOOD_INSERT",
@@ -1008,7 +1044,10 @@
       },
       "hint": "Ni l’appareil ni son conduit n’existent aujourd’hui dans le modèle.",
       "category": "STOVE",
-      "optionalPorts": ["COMBUSTION_AIR"]
+      "optionalPorts": ["COMBUSTION_AIR"],
+      "graphics": {
+        "planSymbol": "architecture.fixture.stove"
+      }
     },
     {
       "id": "STOVE_COLLAR",

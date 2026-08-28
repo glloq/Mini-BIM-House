@@ -342,7 +342,10 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["SOILWATER_INLET", "SOILWATER"],
-      "category": "VALVE"
+      "category": "VALVE",
+      "graphics": {
+        "planSymbol": "water.valve"
+      }
     },
     {
       "id": "LIFTING_STATION",
@@ -363,7 +366,10 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["DRAIN_VENT", "SOILWATER_INLET"],
-      "category": "PUMP"
+      "category": "PUMP",
+      "graphics": {
+        "planSymbol": "symbol-pump"
+      }
     },
     {
       "id": "SEWAGE_PUMP",
@@ -384,7 +390,10 @@
         "MODEL": "PARTIAL"
       },
       "optionalPorts": ["SOILWATER_INLET"],
-      "category": "PUMP"
+      "category": "PUMP",
+      "graphics": {
+        "planSymbol": "symbol-pump"
+      }
     },
     {
       "id": "PUBLIC_SEWER_CONNECTION",
@@ -758,7 +767,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "RAINWATER_TANK"
+      "category": "RAINWATER_TANK",
+      "graphics": {
+        "planSymbol": "symbol-rainwater-tank"
+      }
     },
     {
       "id": "RAINWATER_PUMP",
@@ -779,7 +791,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PUMP"
+      "category": "PUMP",
+      "graphics": {
+        "planSymbol": "symbol-pump"
+      }
     },
     {
       "id": "RAINWATER_BOOSTER",
@@ -800,7 +815,10 @@
         "MODEL": "PARTIAL",
         "CALCULATION": "NONE"
       },
-      "category": "PUMP"
+      "category": "PUMP",
+      "graphics": {
+        "planSymbol": "symbol-pump"
+      }
     },
     {
       "id": "OVERFLOW",

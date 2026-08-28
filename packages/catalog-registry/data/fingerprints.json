@@ -628,6 +628,7 @@
     "SYMBOL:architecture.fixture.washing-machine@1.0.0": "da591c40f9d4fafb",
     "SYMBOL:architecture.fixture.wc@1.0.0": "bed22c7f5383477e",
     "SYMBOL:architecture.north@1.0.0": "ec9646ed11d8cd65",
+    "SYMBOL:architecture.placed-object@1.0.0": "1ce355e855387042",
     "SYMBOL:architecture.room-marker@1.0.0": "15f7d90ef859dab1",
     "SYMBOL:electrical.light-point@1.0.0": "89395a9c96d1681e",
     "SYMBOL:electrical.socket@1.0.0": "0a8a73031d74eb74",
