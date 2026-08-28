@@ -4,6 +4,7 @@ import type { ProjectCommand } from '@house-technical-designer/editor-core';
 import {
   ARCHITECTURAL_CLEAN_SCREEN,
   graphicProfileBundle,
+  graphicProfileForStage,
   renderSemanticSceneToSvg,
   type ScenePrimitive,
 } from '@house-technical-designer/drawing-engine';
@@ -226,12 +227,31 @@ export function PlanCanvas({
   overlay,
   clearanceGroups = [],
 }: PlanCanvasProps) {
-  // A charter the application does not ship is not a reason to draw nothing:
-  // the drawing falls back on the one a plan of a house is read with.
-  const charter =
-    (graphicProfileId === undefined
-      ? undefined
-      : graphicProfileBundle(graphicProfileId)) ?? ARCHITECTURAL_CLEAN_SCREEN;
+  /*
+   * La charte, telle qu'elle se lit depuis l'espace ouvert.
+   *
+   * Deux décisions, et aucune n'est prise ici. Quelle charte : celle que la
+   * vue nomme, ou celle avec laquelle on lit un plan de maison quand cette
+   * version ne connaît pas la sienne — une charte absente n'est pas une raison
+   * de ne rien dessiner. Comment elle se lit : le moteur graphique met en
+   * avant ce que cet espace possède et laisse le reste en arrière, ce qui est
+   * un changement de profil de rendu et non une couleur écrite dans un
+   * composant.
+   *
+   * Mémorisée parce que tout le plan en dépend : une charte reconstruite à
+   * chaque frappe redessinerait la maison à chaque frappe.
+   */
+  const charter = useMemo(
+    () =>
+      graphicProfileForStage(
+        (graphicProfileId === undefined
+          ? undefined
+          : graphicProfileBundle(graphicProfileId)) ??
+          ARCHITECTURAL_CLEAN_SCREEN,
+        stage,
+      ),
+    [graphicProfileId, stage],
+  );
   const container = useRef<HTMLDivElement>(null);
   const panOrigin = useRef<{ x: number; y: number } | undefined>(undefined);
   /** The handle being dragged, and where it started. */
@@ -654,14 +674,18 @@ export function PlanCanvas({
    * que je viens de fermer ». La seconde n'avait aucune réponse sur le plan —
    * une parcelle finie était un trait pointillé pâle et rien d'autre.
    *
+   * L'espace ouvert en fait partie : l'aire de la parcelle se lit au Terrain,
+   * pas en travers du plan du bâtiment. C'est `surface-labels.ts` qui tranche,
+   * ici on lui dit d'où on regarde.
+   *
    * `Aucune` les éteint aussi : un dessin nu est un dessin nu.
    */
   const surfaces = useMemo(
     () =>
       editor.dimensionMode === 'NONE'
         ? []
-        : surfaceLabels(project, editor.levelId, editor.selection),
-    [editor.dimensionMode, editor.levelId, editor.selection, project],
+        : surfaceLabels(project, editor.levelId, editor.selection, { stage }),
+    [editor.dimensionMode, editor.levelId, editor.selection, project, stage],
   );
 
   /*

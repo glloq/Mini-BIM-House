@@ -1,23 +1,35 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  ARCHITECTURAL_CLEAN_SCREEN,
   FR_INITIAL_PRINT,
   FR_INITIAL_SCREEN,
   GENERIC_TECHNICAL_PRINT,
   GENERIC_TECHNICAL_SCREEN,
   GRAPHIC_PROFILE_REGISTRY,
+  drawingEmphasisIn,
   graphicProfileBundle,
   graphicProfileForMode,
+  graphicProfileForStage,
   graphicProfilesForMode,
   validateGraphicProfileBundle,
 } from './graphic-profiles.js';
+import {
+  GRAPHIC_ROLE_RULES,
+  drawingSpaceOf,
+  type DrawingSpaceId,
+} from './role-tokens.js';
 import {
   createSemanticScene,
   drawingViewId,
   graphicProfileId,
   type DrawingView,
+  type ScenePrimitive,
 } from './scene.js';
-import { renderSemanticSceneToSvg } from './svg-renderer.js';
+import { resolveGraphicToken } from './style-resolver.js';
+import { renderSemanticSceneToSvg, type SvgStyle } from './svg-renderer.js';
+
+type Drawn = Pick<ScenePrimitive, 'semanticRole' | 'layer' | 'metadata'>;
 
 describe('graphic profiles v1', () => {
   it.each([
@@ -164,15 +176,17 @@ describe('the charters this version ships', () => {
 
 describe('specialisations a charter may state', () => {
   it('leaves the four technical charters exactly as they were', () => {
-    // The technical charters state no rule: anything they draw differently
-    // after the resolver exists is a regression, not a feature.
+    // Les chartes techniques n'énoncent aucune règle à elles : les seules
+    // qu'elles portent sont celles qui définissent les rôles graphiques, et
+    // qui sont les mêmes partout. Tout ce qu'elles dessineraient autrement
+    // reste une régression, pas une fonctionnalité.
     for (const entry of [
       GENERIC_TECHNICAL_SCREEN,
       GENERIC_TECHNICAL_PRINT,
       FR_INITIAL_SCREEN,
       FR_INITIAL_PRINT,
     ])
-      expect(entry.profile.styleRules ?? []).toEqual([]);
+      expect(entry.profile.styleRules ?? []).toEqual([...GRAPHIC_ROLE_RULES]);
   });
 
   it('refuses a rule that would replace every role at once', () => {
@@ -223,5 +237,197 @@ describe('specialisations a charter may state', () => {
         },
       }),
     ).toThrow('invalid font weight');
+  });
+});
+
+/*
+ * Ce qui suit tient la moitié visible de la règle des espaces : le même objet
+ * se dessine autrement selon l'espace ouvert. Ces épreuves échouent si le
+ * dégradé disparaît, et pas seulement s'il change de valeurs.
+ */
+const parcelGround = {
+  semanticRole: 'SITE',
+  layer: 'site.parcel',
+  metadata: { ground: true },
+} as const satisfies Drawn;
+const parcelBoundary = {
+  semanticRole: 'SITE',
+  layer: 'site.parcel',
+} as const satisfies Drawn;
+const outerWall = {
+  semanticRole: 'WALL_CUT',
+  layer: 'architecture.walls',
+  metadata: { role: 'EXTERIOR' },
+} as const satisfies Drawn;
+const duct = {
+  semanticRole: 'VENT_SUPPLY',
+  layer: 'ventilation.ducts',
+  metadata: { discipline: 'VENTILATION' },
+} as const satisfies Drawn;
+const bed = {
+  semanticRole: 'SYMBOL',
+  layer: 'components.placed',
+  metadata: { category: 'FURNITURE' },
+} as const satisfies Drawn;
+const radiator = {
+  semanticRole: 'ANALYSIS_MEDIUM',
+  layer: 'components.placed',
+  metadata: { category: 'HEATING' },
+} as const satisfies Drawn;
+const roomArea = {
+  semanticRole: 'ANNOTATION',
+  layer: 'architecture.space-labels',
+  metadata: { labelPart: 'AREA' },
+} as const satisfies Drawn;
+
+/** Ce avec quoi ce dessin est tracé, dans cet espace. */
+const drawnIn = (stage: DrawingSpaceId, subject: Drawn) => {
+  const bundle = graphicProfileForStage(ARCHITECTURAL_CLEAN_SCREEN, stage);
+  const token = resolveGraphicToken(bundle.profile, subject);
+  return { token: token!, style: bundle.styles.tokens[token!]! };
+};
+
+/** À quel point un dessin est présent : c'est ce que le dégradé fait varier. */
+const presence = (style: SvgStyle): number => style.opacity ?? 1;
+
+describe('le dessin dit ce qui est actif, et ce qui est du contexte', () => {
+  it('dessine la parcelle telle quelle au Terrain, et en retrait ailleurs', () => {
+    // La parcelle appartient au Terrain. Ailleurs elle reste visible — on
+    // implante une maison sur un terrain — mais elle cesse d'être le sujet.
+    const inSite = drawnIn('SITE', parcelGround);
+    expect(inSite.token).toBe('site-parcel');
+    expect(inSite.style).toEqual(
+      ARCHITECTURAL_CLEAN_SCREEN.styles.tokens['site-parcel'],
+    );
+    for (const stage of ['BUILDING', 'FITTING', 'SYSTEMS'] as const) {
+      const elsewhere = drawnIn(stage, parcelGround);
+      expect(elsewhere.token).not.toBe('site-parcel');
+      expect(presence(elsewhere.style)).toBeLessThan(presence(inSite.style));
+    }
+  });
+
+  it('range chaque espace derrière celui qui est ouvert, dans cet ordre', () => {
+    // Actif, référence, puis faible : trois niveaux, et l'ordre est la règle.
+    // Deux suffiraient à faire disparaître ce qu'on route contre.
+    expect(presence(drawnIn('BUILDING', outerWall).style)).toBeGreaterThan(
+      presence(drawnIn('SYSTEMS', outerWall).style),
+    );
+    expect(presence(drawnIn('SYSTEMS', outerWall).style)).toBeGreaterThan(
+      presence(drawnIn('SYSTEMS', parcelGround).style),
+    );
+  });
+
+  it('garde les murs lisibles quand ils ne sont que la référence', () => {
+    // Un mur de référence qu'on n'aurait plus vu aurait rendu inutile le fait
+    // de l'avoir gardé : on route une gaine contre un mur, pas contre du vide.
+    const reference = drawnIn('SYSTEMS', outerWall);
+    expect(presence(reference.style)).toBeGreaterThan(0.4);
+    expect(reference.style.stroke).not.toBe('none');
+    expect(reference.style.strokeWidthPaperMm).toBeGreaterThan(0.2);
+  });
+
+  it('décolore ce qui recule au lieu de l’effacer', () => {
+    const active = ARCHITECTURAL_CLEAN_SCREEN.styles.tokens['wall-exterior']!;
+    const reference = drawnIn('SYSTEMS', outerWall).style;
+    const spread = (hex: string): number => {
+      const channels = [1, 3, 5].map((index) =>
+        Number.parseInt(hex.slice(index, index + 2), 16),
+      );
+      return Math.max(...channels) - Math.min(...channels);
+    };
+    expect(reference.stroke).not.toBe(active.stroke);
+    expect(spread(reference.stroke!)).toBeLessThan(spread(active.stroke!));
+  });
+
+  it('sépare le mobilier des équipements posés, qui se dessinent pareil', () => {
+    // Un lit et un radiateur partagent le jeton `symbol` : c'est la charte qui
+    // les dessine pareil, pas le modèle qui les confond. Aux Systèmes le
+    // radiateur est le sujet, le lit est ce contre quoi on ne passe pas.
+    expect(presence(drawnIn('SYSTEMS', radiator).style)).toBeGreaterThan(
+      presence(drawnIn('SYSTEMS', bed).style),
+    );
+    expect(presence(drawnIn('FITTING', bed).style)).toBeGreaterThan(
+      presence(drawnIn('FITTING', radiator).style),
+    );
+  });
+
+  it('n’estompe jamais ce qui est dit sur le dessin', () => {
+    // Une cote, une annotation et l'aire d'une pièce ne sont d'aucun espace :
+    // les griser reviendrait à masquer le constat qu'on est venu lire.
+    for (const stage of ['SITE', 'BUILDING', 'FITTING', 'SYSTEMS'] as const) {
+      expect(drawnIn(stage, roomArea).token).toBe('space-label-area');
+      expect(
+        drawnIn(stage, {
+          semanticRole: 'DIMENSION',
+          layer: 'annotation.dimensions',
+        }).token,
+      ).toBe('dimension');
+    }
+  });
+
+  it('laisse le plan entier aux espaces qui le regardent en entier', () => {
+    // Griser la moitié du plan pendant qu'on cherche pourquoi une pièce est
+    // trop froide reviendrait à cacher la réponse.
+    for (const stage of ['PROJECT', 'CHECKS', 'DOCUMENTS'] as const)
+      expect(graphicProfileForStage(ARCHITECTURAL_CLEAN_SCREEN, stage)).toBe(
+        ARCHITECTURAL_CLEAN_SCREEN,
+      );
+  });
+
+  it('ne change pas de charte pour autant', () => {
+    // L'espace ouvert est un état d'écran : une vue enregistrée nomme une
+    // charte, et le rendu refuse de dessiner si les deux cessent de coïncider.
+    for (const stage of ['SITE', 'BUILDING', 'FITTING', 'SYSTEMS'] as const) {
+      const derived = graphicProfileForStage(ARCHITECTURAL_CLEAN_SCREEN, stage);
+      expect(derived.id).toBe(ARCHITECTURAL_CLEAN_SCREEN.id);
+      expect(derived.profile.id).toBe(ARCHITECTURAL_CLEAN_SCREEN.profile.id);
+      expect(derived.family).toBe(ARCHITECTURAL_CLEAN_SCREEN.family);
+      expect(() => validateGraphicProfileBundle(derived)).not.toThrow();
+    }
+  });
+
+  it('rend la même charte à la même question', () => {
+    // Tout le plan en dépend : une charte reconstruite à chaque frappe
+    // redessinerait la maison à chaque frappe.
+    expect(graphicProfileForStage(GENERIC_TECHNICAL_SCREEN, 'SITE')).toBe(
+      graphicProfileForStage(GENERIC_TECHNICAL_SCREEN, 'SITE'),
+    );
+  });
+
+  it('dégrade aussi les chartes qui n’énoncent presque aucune règle', () => {
+    // Le dégradé passe par les jetons de rôle autant que par les règles :
+    // une charte sans spécialisation doit reculer comme les autres.
+    const bundle = graphicProfileForStage(GENERIC_TECHNICAL_SCREEN, 'BUILDING');
+    const token = resolveGraphicToken(bundle.profile, duct)!;
+    expect(token).not.toBe('vent-supply');
+    expect(presence(bundle.styles.tokens[token]!)).toBeLessThan(1);
+    expect(resolveGraphicToken(bundle.profile, outerWall)).toBe('wall-cut');
+  });
+
+  it('reconnaît à qui appartient un dessin, primitive ou règle', () => {
+    expect(drawingSpaceOf(parcelBoundary)).toBe('SITE');
+    expect(drawingSpaceOf(outerWall)).toBe('BUILDING');
+    expect(drawingSpaceOf(bed)).toBe('FITTING');
+    expect(drawingSpaceOf(radiator)).toBe('SYSTEMS');
+    // Une pièce porte elle aussi une `category` : la lire hors du calque des
+    // objets posés rangerait une chambre parmi ce qu'aucun métier ne réclame.
+    expect(
+      drawingSpaceOf({
+        semanticRole: 'SPACE_FILL',
+        layer: 'architecture.spaces',
+        metadata: { category: 'BEDROOM' },
+      }),
+    ).toBe('BUILDING');
+    // Une règle qui vise à la fois du mobilier et une chaudière ne relève
+    // d'aucun espace, et se dessine donc en entier partout.
+    expect(
+      drawingSpaceOf({
+        layer: 'components.placed',
+        metadata: { category: ['FURNITURE', 'HEATING'] },
+      }),
+    ).toBeUndefined();
+    expect(drawingEmphasisIn('SYSTEMS', { semanticRole: 'DIMENSION' })).toBe(
+      'ACTIVE',
+    );
   });
 });
