@@ -36,13 +36,13 @@ export class AddOpeningCommand implements EditorCommand {
     if (state.openings.some(({ id }) => id === this.opening.id))
       return {
         valid: false,
-        errors: [`Opening ${this.opening.id} already exists.`],
+        errors: [`L’ouverture ${this.opening.id} existe déjà.`],
       };
     const host = state.walls.find(({ id }) => id === this.opening.host.id);
     if (host === undefined)
       return {
         valid: false,
-        errors: [`Host wall ${this.opening.host.id} does not exist.`],
+        errors: [`Le mur porteur ${this.opening.host.id} n’existe pas.`],
       };
     const issues = validateOpening(this.opening, host);
     return issues.length === 0
@@ -72,7 +72,7 @@ export class DeleteOpeningCommand implements EditorCommand {
     if (opening === undefined)
       return {
         valid: false,
-        errors: [`Opening ${this.openingId} does not exist.`],
+        errors: [`L’ouverture ${this.openingId} n’existe pas.`],
       };
     /*
      * Défaire une suppression repose l'ouverture, et reposer passe par
@@ -126,12 +126,14 @@ export function createOpeningInsertionCommand(
   options: OpeningInsertionOptions,
 ): AddOpeningCommand | undefined {
   if (!Number.isFinite(point.x) || !Number.isFinite(point.y))
-    throw new RangeError('Insertion point must be finite.');
+    throw new RangeError('Le point de pose doit être mesurable.');
   if (
     !Number.isFinite(options.maximumHostDistanceMm) ||
     options.maximumHostDistanceMm < 0
   )
-    throw new RangeError('Host distance must be finite and non-negative.');
+    throw new RangeError(
+      'La distance le long du mur doit être un nombre fini et positif ou nul.',
+    );
   const placements = walls
     .map((host) => projectToWall(point, host))
     .filter((value): value is OpeningPlacement => value !== undefined);

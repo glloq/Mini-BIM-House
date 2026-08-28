@@ -257,13 +257,13 @@ export class ProjectEditorCommand implements ProjectCommand {
   validate(project: Project): CommandValidation {
     const state = this.extract(project);
     return state === undefined
-      ? { valid: false, errors: [`Unknown level ${this.levelId}.`] }
+      ? { valid: false, errors: [`Niveau inconnu : ${this.levelId}.`] }
       : this.command.validate(state);
   }
   execute(project: Project): ProjectCommandExecution {
     const state = this.extract(project);
     if (state === undefined)
-      throw new RangeError(`Unknown level ${this.levelId}.`);
+      throw new RangeError(`Niveau inconnu : ${this.levelId}.`);
     const execution = this.command.execute(state);
     const levels = project.building.levels.map((level) =>
       level.id === this.levelId
