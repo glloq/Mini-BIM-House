@@ -65,8 +65,16 @@ export function DomainPicker({ scope, onChange, present }: DomainPickerProps) {
             {domains.map((id) => {
               const descriptor = designDomain(id);
               const enabled = domainEnabled(scope, id);
-              // Architecture is never off. Showing its box greyed says so;
-              // hiding it would leave people looking for what is missing.
+              /*
+               * Architecture is never off. Showing its box greyed says so;
+               * hiding it would leave people looking for what is missing.
+               *
+               * Grisée, elle disait qu'on ne peut pas la décocher, et pas
+               * pourquoi. Une case qui refuse sans motif se lit comme une
+               * panne : on reclique, on cherche le réglage qui la libère, il
+               * n'existe pas. La raison tient en une phrase, elle est portée
+               * par la case.
+               */
               const locked = id === 'ARCHITECTURE';
               return (
                 <label key={id} className="checkbox domain-entry">
@@ -74,6 +82,12 @@ export function DomainPicker({ scope, onChange, present }: DomainPickerProps) {
                     type="checkbox"
                     checked={enabled}
                     disabled={locked}
+                    {...(locked
+                      ? {
+                          title:
+                            'L’architecture est toujours en jeu : un projet est un bâtiment avant d’être des réseaux.',
+                        }
+                      : {})}
                     onChange={(event) =>
                       onChange(
                         event.target.checked
