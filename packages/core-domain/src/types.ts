@@ -156,6 +156,30 @@ export interface SiteUnderlay {
   readonly heightMm: number;
   /** Son opacité, de 0 à 1. Un calque de papier se voit à travers. */
   readonly opacity?: number;
+  /**
+   * De combien la feuille est tournée, en degrés, dans le sens des aiguilles
+   * d'une montre à l'écran.
+   *
+   * Un cadastre est rarement nord en haut, et une photo d'esquisse ne l'est
+   * jamais : sans cet angle, aligner une rue sur un mur demandait de retourner
+   * l'image dans un autre logiciel avant de l'importer. Absent veut dire
+   * droite — ce que dit tout fichier écrit jusqu'ici, et ce qui reste vrai de
+   * l'immense majorité des relevés.
+   */
+  readonly rotationDeg?: number;
+  /**
+   * Ce qui empêche une image calée de bouger par accident.
+   *
+   * Caler un relevé est un travail de quelques minutes que le moindre curseur
+   * qui dérape efface. Le verrou est ce qui rend la calibration durable : tant
+   * qu'il est mis, rien ne déplace, ne redimensionne ni ne tourne l'image. La
+   * transparence, elle, reste réglable — elle ne déplace rien, et c'est ce
+   * qu'on veut pouvoir faire pour regarder dessous sans tout rouvrir.
+   *
+   * Absent veut dire libre : aucun fichier existant n'est verrouillé
+   * rétroactivement.
+   */
+  readonly locked?: boolean;
   /** Ce que c'est, pour le retrouver : « cadastre.png ». */
   readonly name?: string;
 }

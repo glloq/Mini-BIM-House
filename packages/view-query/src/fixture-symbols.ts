@@ -57,7 +57,7 @@ import {
  */
 export function architecturalFixtureSymbol(
   familyId: string | undefined,
-  category?: string | undefined,
+  category?: string,
 ): string | undefined {
   const subject = { familyId, category };
   return planSymbolSource(subject) === 'GENERIC'

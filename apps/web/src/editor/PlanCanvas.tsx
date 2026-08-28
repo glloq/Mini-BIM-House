@@ -307,6 +307,19 @@ export function PlanCanvas({
     | undefined
   >(undefined);
 
+  /**
+   * À qui appartient le prochain clic, quand ce n'est pas au dessin.
+   *
+   * Le panneau de l'image de fond a besoin de deux points du plan pour caler
+   * un relevé, et il ne sait pas transformer un clic en millimètres — c'est la
+   * surface qui sait. Elle prête donc son prochain clic à qui le demande : un
+   * seul, consommé aussitôt, et le geste reprend son cours normal.
+   *
+   * Une référence et non un état : l'attente ne change rien à ce qui est
+   * dessiné, et un rendu de plus à chaque demande ne servirait personne.
+   */
+  const lendPoint = useRef<((pointMm: Point2D) => void) | undefined>(undefined);
+
   /** The rubber band, drawn the way every other preview is. */
   const band = useMemo<readonly ScenePrimitive[]>(() => {
     if (editor.selectionBox === undefined) return [];
@@ -861,6 +874,17 @@ export function PlanCanvas({
       }
       const model = modelPointOf(event);
       if (model === undefined) return;
+      // Un point promis à l'image de fond : ce clic est pour elle et pour elle
+      // seule — il ne sélectionne rien, ne pose aucun sommet, et la promesse
+      // est tenue une fois puis oubliée. Le point est celui du curseur et non
+      // celui de l'accroche : une calibration accrochée à la grille se
+      // trouverait recalée au carreau le plus proche sans que personne le voie.
+      const lent = lendPoint.current;
+      if (lent !== undefined) {
+        lendPoint.current = undefined;
+        lent(model);
+        return;
+      }
       if (editor.activeTool === 'SELECT') {
         const under = pickPrimitive(
           plan.primitives,
@@ -1575,6 +1599,12 @@ export function PlanCanvas({
           onCommand={(command) => onCommand(command)}
           onMessage={(message) => onMessage?.(message)}
           originMm={editor.camera.centerModelMm}
+          onRequestPoint={(receive) => {
+            lendPoint.current = receive;
+            return () => {
+              if (lendPoint.current === receive) lendPoint.current = undefined;
+            };
+          }}
         />
       )}
       {aids.includes('NORTH') && onCommand !== undefined && (
