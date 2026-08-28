@@ -6,6 +6,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./files": "./src/files.ts",
     "./browser": "./src/browser.ts"
   },
   "scripts": {

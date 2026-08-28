@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadProjectJson, serializeProjectFile } from './project-io.js';
+import { loadProjectJson, serializeProjectFile } from './file-io.js';
 
 const level = {
   id: 'ground',
@@ -80,7 +80,7 @@ function stair(
 function file(levels: readonly unknown[], extra: object = {}) {
   return {
     format: 'house-technical-designer-project' as const,
-    schemaVersion: '1.2.0',
+    schemaVersion: '1.3.0',
     project: {
       id: 'project',
       metadata: {
@@ -168,7 +168,7 @@ describe('structural validation of a project file', () => {
             id: 'window',
             type: 'OPENING',
             openingType: 'WINDOW',
-            hostElementId: 'wall-ground',
+            host: { kind: 'WALL', id: 'wall-ground' },
             offsetAlongHostMm: 1000,
             sillHeightMm: 900,
             widthMm: 1200,
@@ -178,7 +178,7 @@ describe('structural validation of a project file', () => {
       },
     ]);
     expect(issues(crossLevel)).toEqual([
-      '/project/building/levels/1/openings/0/hostElementId is stored on level first but hosted by wall wall-ground of another level',
+      '/project/building/levels/1/openings/0/host is stored on level first but hosted by wall wall-ground of another level',
     ]);
   });
 
@@ -1128,7 +1128,7 @@ describe('the pointers no specific rule happened to cover', () => {
     id: 'window',
     type: 'OPENING',
     openingType: 'WINDOW',
-    hostElementId: 'wall-ground',
+    host: { kind: 'WALL', id: 'wall-ground' },
     offsetAlongHostMm: 1000,
     sillHeightMm: 900,
     widthMm: 1200,
@@ -1157,8 +1157,8 @@ describe('the pointers no specific rule happened to cover', () => {
     // knows an opening must be hosted on one; the generic pass must not say it
     // a second time in weaker words.
     expect(
-      issues(withOpening({ hostElementId: 'nowhere' })).filter((message) =>
-        message.includes('nowhere'),
+      issues(withOpening({ host: { kind: 'WALL', id: 'nowhere' } })).filter(
+        (message) => message.includes('nowhere'),
       ),
     ).toHaveLength(1);
   });

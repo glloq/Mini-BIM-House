@@ -20,15 +20,9 @@ import {
   validateDrawingView,
   validateRegulatoryContext,
 } from '@house-technical-designer/core-domain';
-import validateProjectSchema from './generated-project-validator.js';
-import {
-  DEFAULT_PROJECT_MIGRATIONS,
-  runMigrationChain,
-  type MigrationJournalEntry,
-  type ProjectMigration,
-} from './migrations.js';
+import type { MigrationJournalEntry } from './migrations.js';
 
-export const CURRENT_PROJECT_SCHEMA_VERSION = '1.2.0';
+export const CURRENT_PROJECT_SCHEMA_VERSION = '1.3.0';
 
 /**
  * Bounds an imported file has to respect.
@@ -132,75 +126,6 @@ export type ProjectLoadResult =
   | { readonly status: 'MIGRATION_ERROR'; readonly message: string }
   | { readonly status: 'TOO_LARGE'; readonly breach: ProjectLimitBreach };
 
-export function loadProjectJson(
-  source: string,
-  migrations: readonly ProjectMigration[] = DEFAULT_PROJECT_MIGRATIONS,
-  limits: ProjectImportLimits = DEFAULT_PROJECT_IMPORT_LIMITS,
-): ProjectLoadResult {
-  if (source.length > limits.maximumCharacters)
-    return {
-      status: 'TOO_LARGE',
-      breach: {
-        limit: 'maximumCharacters',
-        label: 'caractères',
-        actual: source.length,
-        maximum: limits.maximumCharacters,
-      },
-    };
-  let value: unknown;
-  try {
-    value = JSON.parse(source) as unknown;
-  } catch (error: unknown) {
-    return {
-      status: 'INVALID_JSON',
-      message: error instanceof Error ? error.message : 'Invalid JSON.',
-    };
-  }
-  if (!isRecord(value) || typeof value.schemaVersion !== 'string') {
-    const issues = validateProjectFile(value);
-    return { status: 'INVALID_PROJECT', issues };
-  }
-  if (!/^\d+\.\d+\.\d+$/u.test(value.schemaVersion)) {
-    return {
-      status: 'INVALID_PROJECT',
-      issues: [
-        { path: '/schemaVersion', message: 'must be semantic version x.y.z' },
-      ],
-    };
-  }
-  if (compareSemver(value.schemaVersion, CURRENT_PROJECT_SCHEMA_VERSION) > 0) {
-    return {
-      status: 'UNSUPPORTED_FUTURE_SCHEMA',
-      schemaVersion: value.schemaVersion,
-    };
-  }
-  let migrationJournal: readonly MigrationJournalEntry[] = [];
-  if (value.schemaVersion !== CURRENT_PROJECT_SCHEMA_VERSION) {
-    const migrated = runMigrationChain(
-      value,
-      CURRENT_PROJECT_SCHEMA_VERSION,
-      migrations,
-    );
-    if (migrated.status !== 'OK') {
-      return {
-        status: 'MIGRATION_ERROR',
-        message:
-          migrated.status === 'MIGRATION_NOT_FOUND'
-            ? `No migration path from ${migrated.from} to ${migrated.target}.`
-            : `${migrated.migrationId}: ${migrated.message}`,
-      };
-    }
-    value = migrated.value;
-    migrationJournal = migrated.journal;
-  }
-  const issues = validateProjectFile(value);
-  if (issues.length > 0) return { status: 'INVALID_PROJECT', issues };
-  const file = value as ProjectFile;
-  const breach = exceededLimit(file, limits);
-  if (breach !== undefined) return { status: 'TOO_LARGE', breach };
-  return { status: 'OK', file: structuredClone(file), migrationJournal };
-}
-
 /** What each family is called, so a refusal names the thing rather than a code. */
 const FAMILY_LABELS: Readonly<Record<EntityFamily, string>> = {
   PROJECT: 'projets',
@@ -298,24 +223,6 @@ export function exceededLimit(
       maximum: limits.maximumGeometryPoints,
     };
   return undefined;
-}
-
-/** Validates with the compiled canonical JSON Schema, then checks project-wide references. */
-export function validateProjectFile(
-  value: unknown,
-): readonly ProjectValidationIssue[] {
-  if (!validateProjectSchema(value))
-    return (validateProjectSchema.errors ?? []).map((error) => ({
-      path:
-        error.keyword === 'required' &&
-        typeof error.params.missingProperty === 'string'
-          ? `${error.instancePath}/${error.params.missingProperty}`
-          : error.instancePath === ''
-            ? '/'
-            : error.instancePath,
-      message: error.message ?? 'does not satisfy the project schema',
-    }));
-  return validateProjectReferences(value as ProjectFile);
 }
 
 /**
@@ -499,15 +406,23 @@ export function validateProjectReferences(
         });
     });
     level.openings.forEach((opening, index) => {
-      if (!walls.has(opening.hostElementId))
+      // `host.id` désigne un mur **ou** un pan : ici on vérifie le mur, et
+      // une ouverture de toiture n'a rien à faire dans cette boucle.
+      if (opening.host.kind !== 'WALL') return;
+      // `host.id` désigne un mur **ou** un pan de toiture : c'est une chaîne,
+      // et l'ensemble des murs se lit donc comme un ensemble de chaînes.
+      const hostId = opening.host.id;
+      const knownWalls: ReadonlySet<string> = walls;
+      const wallsHere: ReadonlySet<string> = levelWalls;
+      if (!knownWalls.has(hostId))
         issues.push({
-          path: `${base}/openings/${index}/hostElementId`,
-          message: `references unknown wall ${opening.hostElementId}`,
+          path: `${base}/openings/${index}/host`,
+          message: `references unknown wall ${opening.host.id}`,
         });
-      else if (!levelWalls.has(opening.hostElementId))
+      else if (!wallsHere.has(hostId))
         issues.push({
-          path: `${base}/openings/${index}/hostElementId`,
-          message: `is stored on level ${level.id} but hosted by wall ${opening.hostElementId} of another level`,
+          path: `${base}/openings/${index}/host`,
+          message: `is stored on level ${level.id} but hosted by wall ${opening.host.id} of another level`,
         });
     });
     level.annotations.forEach((annotation, index) => {
@@ -893,49 +808,4 @@ export function validateProjectReferences(
       });
 
   return issues;
-}
-
-export function serializeProjectFile(file: unknown, indentation = 2): string {
-  const issues = validateProjectFile(file);
-  if (issues.length > 0) throw new ProjectSerializationError(issues);
-  const validatedFile = file as ProjectFile;
-  if (validatedFile.schemaVersion !== CURRENT_PROJECT_SCHEMA_VERSION)
-    throw new RangeError(
-      `Cannot save schema version ${validatedFile.schemaVersion}.`,
-    );
-  if (!Number.isInteger(indentation) || indentation < 0 || indentation > 10)
-    throw new RangeError('Indentation must be an integer from 0 to 10.');
-  return `${JSON.stringify(canonicalize(validatedFile), null, indentation)}\n`;
-}
-
-export class ProjectSerializationError extends Error {
-  constructor(readonly issues: readonly ProjectValidationIssue[]) {
-    super(issues.map(({ path, message }) => `${path}: ${message}`).join('; '));
-    this.name = 'ProjectSerializationError';
-  }
-}
-
-function canonicalize(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonicalize);
-  if (isRecord(value))
-    return Object.fromEntries(
-      Object.keys(value)
-        .sort()
-        .map((key) => [key, canonicalize(value[key])]),
-    );
-  return value;
-}
-
-function compareSemver(first: string, second: string): number {
-  const left = first.split('.').map(Number);
-  const right = second.split('.').map(Number);
-  for (let index = 0; index < 3; index += 1) {
-    const difference = left[index]! - right[index]!;
-    if (difference !== 0) return difference;
-  }
-  return 0;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

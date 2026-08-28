@@ -12,6 +12,7 @@ import type { Point2D } from '@house-technical-designer/geometry';
 import { polygonSurface } from './polygon-surface.js';
 import {
   isTextNote,
+  isWallOpening,
   roofEaveOutline,
   structuralFootprint,
 } from '@house-technical-designer/core-domain';
@@ -98,7 +99,9 @@ export function openingBounds(
   const level = levelOf(project, levelId);
   const opening = level?.openings.find(({ id }) => id === objectId);
   if (level === undefined || opening === undefined) return undefined;
-  const host = level.walls.find(({ id }) => id === opening.hostElementId);
+  // Ces repères courent le long d'un mur ; une fenêtre de toit n'en a pas.
+  if (!isWallOpening(opening)) return undefined;
+  const host = level.walls.find(({ id }) => id === opening.host.id);
   if (host === undefined) return undefined;
   const start = openingAnchor(host.path.points, opening.offsetAlongHostMm, 0);
   const end = openingAnchor(
@@ -430,7 +433,7 @@ export function wallRelationships(
   const wall = level?.walls.find(({ id }) => id === objectId);
   if (level === undefined || wall === undefined) return [];
   const openings = level.openings
-    .filter(({ hostElementId }) => hostElementId === wall.id)
+    .filter(({ host }) => host.id === wall.id)
     .map(({ id }) => id as string);
   return openings.length === 0
     ? []
@@ -446,7 +449,7 @@ export function openingRelationships(
   const level = levelOf(project, levelId);
   const opening = level?.openings.find(({ id }) => id === objectId);
   if (level === undefined || opening === undefined) return [];
-  const host = level.walls.find(({ id }) => id === opening.hostElementId);
+  const host = level.walls.find(({ id }) => id === opening.host.id);
   return host === undefined ? [] : [{ role: 'Mur hôte', objectIds: [host.id] }];
 }
 

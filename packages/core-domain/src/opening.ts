@@ -64,19 +64,121 @@ export function doorSwingOf(opening: Opening): Required<DoorSwing> {
   };
 }
 
-export interface Opening {
+/**
+ * Ce qu'une ouverture perce, et non plus « quel mur ».
+ *
+ * `hostElementId: WallId` disait « une ouverture est dans un mur », et toute
+ * la chaîne le supposait : validation, plan, coupe, enveloppe, métrés,
+ * transformations. Les familles `WINDOW_ROOF` et `SKYLIGHT` existent pourtant
+ * dans la nomenclature, avec leurs propriétés, et déclarent `ROOF` parmi leurs
+ * supports — le modèle ne permettait simplement pas de les poser.
+ *
+ * Une référence discriminée plutôt qu'un identifiant nu : le compilateur
+ * demande alors, à chaque endroit qui suppose un mur, de le dire. C'était le
+ * but — il y en avait soixante-dix-huit, et aucun ne se voyait.
+ *
+ * **Et deux façons de se repérer, parce qu'il y en a deux.** Une baie
+ * verticale se donne par une distance le long du mur et une allège ; une
+ * fenêtre de toit se donne dans le plan du pan, qui est incliné — le long de
+ * l'égout et en remontant le rampant, comme un couvreur l'implante. Réunir les
+ * deux dans les mêmes champs serait mentir sur ce qu'ils mesurent, donc chaque
+ * variante porte le sien, et le compilateur demande à chaque lecture de dire
+ * laquelle elle traite.
+ */
+export type OpeningHostKind = 'WALL' | 'ROOF';
+
+/** Le mur percé. */
+export interface WallOpeningHost {
+  readonly kind: 'WALL';
+  readonly id: string;
+}
+
+/** Le pan de toiture percé. */
+export interface RoofOpeningHost {
+  readonly kind: 'ROOF';
+  readonly id: string;
+}
+
+export type OpeningHost = WallOpeningHost | RoofOpeningHost;
+
+/**
+ * Où une fenêtre de toit est posée dans le pan qui la porte.
+ *
+ * Les deux longueurs qu'un couvreur trace sur le rampant : le long de l'égout
+ * depuis son début, et en remontant la pente. La seconde est une **longueur
+ * vraie**, mesurée dans le plan incliné et non sa projection au sol — c'est
+ * ainsi qu'une fenêtre de toit est vendue, posée et vérifiée, et c'est la
+ * seule qui reste juste quand la pente change.
+ */
+export interface RoofOpeningPlacement {
+  /** Le long de l'égout, depuis son premier sommet. */
+  readonly alongEaveMm: number;
+  /** En remontant le rampant depuis l'égout, en longueur vraie. */
+  readonly upSlopeMm: number;
+}
+
+interface OpeningBase {
   readonly id: OpeningId;
   readonly type: 'OPENING';
   readonly openingType: OpeningType;
-  readonly hostElementId: WallId;
-  /** Distance from the start of the host reference path to the opening start. */
-  readonly offsetAlongHostMm: number;
-  readonly sillHeightMm: number;
   readonly widthMm: number;
   readonly heightMm: number;
   readonly definitionId?: string;
   /** Doors only, and optional: an unstated swing is the default one. */
   readonly swing?: DoorSwing;
+}
+
+export interface WallOpening extends OpeningBase {
+  readonly host: WallOpeningHost;
+  /** Distance from the start of the host reference path to the opening start. */
+  readonly offsetAlongHostMm: number;
+  readonly sillHeightMm: number;
+}
+
+export interface RoofOpening extends OpeningBase {
+  readonly host: RoofOpeningHost;
+  readonly placement: RoofOpeningPlacement;
+}
+
+export type Opening = WallOpening | RoofOpening;
+
+/** Si cette ouverture perce un mur, et le dit au compilateur. */
+export function isWallOpening(opening: Opening): opening is WallOpening {
+  return opening.host.kind === 'WALL';
+}
+
+/** Si cette ouverture perce un pan de toiture. */
+export function isRoofOpening(opening: Opening): opening is RoofOpening {
+  return opening.host.kind === 'ROOF';
+}
+
+/**
+ * Le mur qu'elle perce, quand elle en perce un.
+ *
+ * Rend `undefined` pour une ouverture de toiture, ce qui oblige l'appelant à
+ * dire ce qu'il en fait plutôt qu'à la traiter comme un mur qui n'existe pas.
+ */
+export function wallHostId(opening: Opening): WallId | undefined {
+  return opening.host.kind === 'WALL' ? (opening.host.id as WallId) : undefined;
+}
+
+/**
+ * Les baies d'un mur, et rien d'autre.
+ *
+ * Écrit une fois ici parce qu'il l'était douze fois ailleurs, chaque fois sous
+ * la forme `openings.filter(({ host }) => host.id === wall.id)` — qui ne
+ * regarde pas le genre de l'hôte. Deux identifiants d'espaces différents n'ont
+ * aucune raison de coïncider, mais rien ne l'interdisait, et un `filter` qui
+ * repose sur le fait que ça n'arrive pas est un `filter` qui ment.
+ */
+export function wallOpenings(
+  openings: readonly Opening[],
+  wallId: string,
+): readonly WallOpening[] {
+  return openings.filter(
+    (opening): opening is WallOpening =>
+      opening.host.kind === 'WALL' && opening.host.id === wallId,
+  );
 }
 
 export type OpeningIssueCode =
@@ -94,14 +196,14 @@ export interface OpeningIssue {
 }
 
 export function validateOpening(
-  opening: Opening,
+  opening: WallOpening,
   host: Wall,
 ): readonly OpeningIssue[] {
   const issues: OpeningIssue[] = [];
-  if (opening.hostElementId !== host.id)
+  if (opening.host.kind !== 'WALL' || opening.host.id !== host.id)
     issues.push({
       code: 'WRONG_HOST',
-      path: 'hostElementId',
+      path: 'host',
       message: 'does not reference the supplied wall',
     });
   if (
@@ -208,7 +310,7 @@ export type WallAreaResult =
 
 export function calculateWallNetArea(
   wall: Wall,
-  openings: readonly Opening[],
+  openings: readonly WallOpening[],
 ): WallAreaResult {
   if (wall.heightMode !== 'EXPLICIT')
     return { status: 'UNKNOWN', reason: 'WALL_HEIGHT_REQUIRES_LEVELS' };
@@ -239,7 +341,7 @@ export function calculateWallNetArea(
   };
 }
 
-function overlaps(first: Opening, second: Opening): boolean {
+function overlaps(first: WallOpening, second: WallOpening): boolean {
   const horizontal =
     first.offsetAlongHostMm < second.offsetAlongHostMm + second.widthMm &&
     second.offsetAlongHostMm < first.offsetAlongHostMm + first.widthMm;

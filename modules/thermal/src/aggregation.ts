@@ -67,7 +67,8 @@ export function aggregateThermalEnvelope(
   if (input.bridgeMode === 'NONE') {
     diagnostics.push({
       code: 'THERMAL_BRIDGE_NOT_INCLUDED',
-      message: 'Thermal bridges were not assessed and are excluded.',
+      message:
+        'Les ponts thermiques ne sont pas évalués : ils sont exclus du résultat.',
     });
   } else {
     for (const bridge of input.linearBridges ?? []) {

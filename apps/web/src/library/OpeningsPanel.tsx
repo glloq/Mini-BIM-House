@@ -119,8 +119,15 @@ export function OpeningsPanel({ project, onCommand }: OpeningsPanelProps) {
                   className="secondary"
                   // A model a window is drawn with cannot be removed: the
                   // command refuses it, and offering the button anyway would
-                  // be offering a refusal.
+                  // be offering a refusal — muette, tant que la raison n'était
+                  // écrite que dans ce commentaire.
                   disabled={used.has(opening.id)}
+                  {...(used.has(opening.id)
+                    ? {
+                        title:
+                          'Ce modèle est posé dans le bâtiment : retirez d’abord les ouvertures qui l’emploient.',
+                      }
+                    : {})}
                   onClick={() => {
                     onCommand(new RemoveOpeningTypeCommand(opening.id));
                   }}

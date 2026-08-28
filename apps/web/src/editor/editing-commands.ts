@@ -17,18 +17,23 @@ import type {
   Stair,
   StructuralMember,
   Wall,
+  WallOpening,
 } from '@house-technical-designer/core-domain';
 import {
   dimensionId,
   entityId,
+  allRoofPlanes,
   hostAccepts,
+  isWallOpening,
   levelHosts,
+  roofPlaneFrame,
 } from '@house-technical-designer/core-domain';
 import {
   AddComponentCommand,
   AddDimensionCommand,
   AddOpeningCommand,
   AddRoofCommand,
+  AddRoofOpeningCommand,
   AddRoofStructureCommand,
   AddSlabCommand,
   AddSiteObstacleCommand,
@@ -59,6 +64,7 @@ import {
 } from '@house-technical-designer/editor-core';
 import { polygonSurface } from './polygon-surface.js';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
+import { polygonContains } from '@house-technical-designer/geometry';
 import type { GeometryEdit } from './grips.js';
 import {
   OBJECT_EDITORS,
@@ -1190,11 +1196,11 @@ export function addOpeningCommand(
   const command = createOpeningInsertionCommand(point, level.walls, {
     maximumHostDistanceMm: MAXIMUM_HOST_DISTANCE_MM,
     commandId: () => `add-opening:${openingId}`,
-    createOpening: (placement): Opening => ({
+    createOpening: (placement): WallOpening => ({
       id: entityId<'Opening'>(openingId),
       type: 'OPENING',
       openingType: draft.openingType,
-      hostElementId: placement.host.id,
+      host: { kind: 'WALL' as const, id: placement.host.id },
       offsetAlongHostMm: Math.max(
         0,
         Math.round(placement.offsetAlongHostMm - draft.widthMm / 2),
@@ -1217,6 +1223,79 @@ export function addOpeningCommand(
       level.id,
       command,
     ),
+  };
+}
+
+/** Ce que l'outil « fenêtre de toit » demande. */
+export interface RoofOpeningToolDraft {
+  readonly openingType: 'WINDOW' | 'VOID';
+  readonly widthMm: number;
+  readonly heightMm: number;
+}
+
+/**
+ * Poser une fenêtre là où l'on a cliqué sur un pan.
+ *
+ * Le clic est en plan ; la fenêtre se repère dans le pan, qui est incliné. La
+ * conversion se fait ici, et dans le bon sens : la distance du clic à l'égout,
+ * mesurée au sol, est la **projection** de ce qu'on remonte sur le rampant, et
+ * la diviser par le cosinus est ce qui met la fenêtre là où le doigt était.
+ *
+ * Le clic vise le milieu de la fenêtre, comme pour une baie de mur : c'est
+ * ainsi qu'on la pose du regard, et recentrer ici évite d'avoir à viser un
+ * coin. Ce qui déborderait du pan est refusé par la commande, avec ce qui
+ * déborde.
+ */
+export function addRoofOpeningCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  point: Point2D,
+  draft: RoofOpeningToolDraft,
+  openingId: string,
+): EditingCommandResult {
+  const level = levelOf(file.project, levelId);
+  if (level === undefined)
+    return { status: 'ERROR', message: 'Le projet ne contient aucun niveau.' };
+  const planes = allRoofPlanes(level);
+  if (planes.length === 0)
+    return {
+      status: 'ERROR',
+      message: 'Aucune toiture sur ce niveau : dessinez-en une d’abord.',
+    };
+  const plane = planes.find(({ footprint }) =>
+    polygonContains(footprint, point),
+  );
+  if (plane === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Cliquez dans un pan de toiture pour y poser une fenêtre.',
+    };
+  const frame = roofPlaneFrame(plane);
+  if (frame === undefined)
+    return {
+      status: 'ERROR',
+      message: `Le pan ${plane.id} est plat : il ne porte pas de fenêtre de toit.`,
+    };
+  const offset = {
+    x: point.x - frame.eaveStart.x,
+    y: point.y - frame.eaveStart.y,
+  };
+  const alongMm = offset.x * frame.along.x + offset.y * frame.along.y;
+  const upMm = offset.x * frame.upSlope.x + offset.y * frame.upSlope.y;
+  const cosine = Math.cos((plane.slopeDeg * Math.PI) / 180);
+  // Pas de `ProjectEditorCommand` ici : celle-ci travaille déjà sur le projet
+  // entier, parce que les pans dont elle a besoin sont dérivés d'une toiture.
+  return {
+    status: 'OK',
+    command: new AddRoofOpeningCommand(level.id, {
+      id: openingId,
+      planeId: plane.id,
+      openingType: draft.openingType,
+      alongEaveMm: Math.max(0, Math.round(alongMm - draft.widthMm / 2)),
+      upSlopeMm: Math.max(0, Math.round(upMm / cosine - draft.heightMm / 2)),
+      widthMm: draft.widthMm,
+      heightMm: draft.heightMm,
+    }),
   };
 }
 
@@ -1589,8 +1668,7 @@ export function copyObjects(
     walls,
     openings: level.openings.filter(
       (opening) =>
-        chosen.has(opening.id as string) &&
-        hosts.has(opening.hostElementId as string),
+        chosen.has(opening.id as string) && hosts.has(opening.host.id),
     ),
     slabs: kept(level.slabs),
     roofs: kept(level.roofs),
@@ -1716,7 +1794,10 @@ export function pasteClipboardCommand(
     );
   }
   for (const opening of clipboard.openings) {
-    const host = copiedWalls.get(opening.hostElementId);
+    // Coller une fenêtre de toit demanderait de coller le pan qui la porte, et
+    // un pan est dérivé d'une toiture : ce n'est pas un objet du presse-papier.
+    if (!isWallOpening(opening)) continue;
+    const host = copiedWalls.get(opening.host.id);
     if (host === undefined) continue;
     const copyId = newId('opening');
     createdIds.push(copyId);
@@ -1729,7 +1810,7 @@ export function pasteClipboardCommand(
           ...opening,
           id: copyId as Opening['id'],
           // An opening belongs to its wall; the wall is what belongs to a level.
-          hostElementId: host as Opening['hostElementId'],
+          host: { kind: 'WALL' as const, id: host },
         }),
       ),
     );

@@ -86,9 +86,14 @@
             "minimum": 0,
             "maximum": 1
           }
+        },
+        "reactionToFire": {
+          "description": "L'euroclasse de réaction au feu, telle que les fiches l'écrivent — « A1 », « B-s1,d0 ». Quatre-vingt-dix fiches la portaient et le schéma ne la déclarait pas.",
+          "type": "string"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": true,
+      "description": "Les propriétés physiques du matériau. Ce sac reste **ouvert**, et c'est une décision : les fiches parlent la langue du registre de propriétés — `thermalConductivity`, `density`, `vaporResistanceFactor` — tandis que le modèle garde les siennes — `lambdaWmK`, `densityKgM3`, `mu` — parce qu'elles sont dans tous les fichiers déjà écrits. `MODEL_FIELD`, dans `packages/materials`, est le seul endroit où les deux se rencontrent. Les fermer ici reviendrait à choisir un des deux vocabulaires sans la migration de format qui va avec. Les propriétés nommées ci-dessous restent typées : un sac ouvert n'est pas un sac sans règles."
     },
     "sources": {
       "type": "array",
@@ -123,7 +128,7 @@
             "type": "string"
           }
         },
-        "additionalProperties": true
+        "additionalProperties": false
       }
     },
     "appearance": {
@@ -136,8 +141,8 @@
           "type": "string"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

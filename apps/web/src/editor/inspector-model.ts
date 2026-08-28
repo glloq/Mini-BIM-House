@@ -11,8 +11,10 @@ import {
   isTextNote,
   roofEaveOutline,
   roofRidgeElevationMm,
+  isWallOpening,
   resolveDimension,
   stairDimensions,
+  wallOpenings,
 } from '@house-technical-designer/core-domain';
 import { routeFall } from '@house-technical-designer/editor-core';
 import { serializedTotalThicknessM } from '@house-technical-designer/assemblies';
@@ -110,9 +112,7 @@ export function wallSubject(
         points[index]!.y - points[index - 1]!.y,
       );
     const heightMm = wall.heightMode === 'EXPLICIT' ? wall.heightMm : undefined;
-    const openings = level.openings.filter(
-      ({ hostElementId }) => hostElementId === wall.id,
-    );
+    const openings = wallOpenings(level.openings, wall.id);
     const area = calculateWallNetArea(wall, openings);
     const view =
       assembly === undefined ? undefined : assemblyView(project, assembly);
@@ -222,15 +222,36 @@ export function openingSubject(
     return {
       objectId,
       kind: 'OPENING',
-      title: `${opening.openingType === 'DOOR' ? 'Porte' : 'Fenêtre'} ${opening.id}`,
+      title: `${
+        opening.openingType === 'DOOR'
+          ? 'Porte'
+          : isWallOpening(opening)
+            ? 'Fenêtre'
+            : 'Fenêtre de toit'
+      } ${opening.id}`,
       sections: [
         {
           title: 'Géométrie',
           fields: [
             field('Largeur', `${opening.widthMm} mm`),
             field('Hauteur', `${opening.heightMm} mm`),
-            field('Allège', `${opening.sillHeightMm} mm`),
-            field('Position sur le mur', `${opening.offsetAlongHostMm} mm`),
+            // Une baie se repère sur le mur, une fenêtre de toit sur le pan :
+            // deux jeux de champs, parce que ce sont deux mesures.
+            ...(isWallOpening(opening)
+              ? [
+                  field('Allège', `${opening.sillHeightMm} mm`),
+                  field(
+                    'Position sur le mur',
+                    `${opening.offsetAlongHostMm} mm`,
+                  ),
+                ]
+              : [
+                  field(
+                    'Le long de l’égout',
+                    `${opening.placement.alongEaveMm} mm`,
+                  ),
+                  field('Sur le rampant', `${opening.placement.upSlopeMm} mm`),
+                ]),
           ],
         },
         {
@@ -246,7 +267,10 @@ export function openingSubject(
           title: 'Références',
           advanced: true,
           fields: [
-            field('Mur porteur', opening.hostElementId),
+            field(
+              isWallOpening(opening) ? 'Mur porteur' : 'Pan de toiture',
+              opening.host.id,
+            ),
             field('Niveau', level.name),
           ],
         },

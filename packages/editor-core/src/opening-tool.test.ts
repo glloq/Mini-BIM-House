@@ -5,7 +5,7 @@ import {
 } from '@house-technical-designer/assemblies';
 import {
   entityId,
-  type Opening,
+  type WallOpening,
   type Wall,
 } from '@house-technical-designer/core-domain';
 import {
@@ -48,11 +48,11 @@ const initial: EditorProjectState = {
 const createOpening = (placement: {
   host: Wall;
   offsetAlongHostMm: number;
-}): Opening => ({
+}): WallOpening => ({
   id: entityId<'Opening'>('opening'),
   type: 'OPENING',
   openingType: 'WINDOW',
-  hostElementId: placement.host.id,
+  host: { kind: 'WALL', id: placement.host.id },
   offsetAlongHostMm: placement.offsetAlongHostMm,
   sillHeightMm: 900,
   widthMm: 1000,
@@ -67,7 +67,7 @@ describe('opening insertion tool', () => {
       createOpening,
     });
     expect(command?.opening).toMatchObject({
-      hostElementId: wall.id,
+      host: { kind: 'WALL', id: wall.id },
       offsetAlongHostMm: 1200,
     });
   });

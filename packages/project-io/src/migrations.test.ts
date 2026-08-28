@@ -2,10 +2,10 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_PROJECT_MIGRATIONS,
-  loadProjectJson,
   migration110To120,
   runMigrationChain,
 } from './index.js';
+import { loadProjectJson } from './file-io.js';
 
 const oldSource = readFileSync(
   new URL('../test/fixtures/v0.9.0/project.json', import.meta.url),
@@ -20,7 +20,7 @@ const expected = JSON.parse(
 /** What loading an old file now produces: the whole chain, not one step. */
 const current = JSON.parse(
   readFileSync(
-    new URL('../test/fixtures/v1.2.0/project.json', import.meta.url),
+    new URL('../test/fixtures/v1.3.0/project.json', import.meta.url),
     'utf8',
   ),
 ) as unknown;
@@ -51,6 +51,7 @@ describe('project migrations', () => {
         { from: '0.9.0', to: '1.0.0' },
         { from: '1.0.0', to: '1.1.0' },
         { from: '1.1.0', to: '1.2.0' },
+        { from: '1.2.0', to: '1.3.0' },
       ],
     });
   });

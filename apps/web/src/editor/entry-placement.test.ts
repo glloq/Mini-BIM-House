@@ -220,3 +220,61 @@ describe('ce que les outils laissent derrière eux', () => {
       expect(declared.has(entry.toolId), entry.toolId).toBe(true);
   });
 });
+
+/**
+ * Les entrées que la maison de démonstration rend inertes au rez-de-chaussée.
+ *
+ * La boucle du dessus travaille sur le premier niveau, et c'est le bon choix :
+ * c'est là qu'on dessine. Une fenêtre de toit y est donc inerte à bon droit —
+ * il n'y a pas de toiture — et la boucle se contente de vérifier qu'elle dit
+ * pourquoi. Ce qu'elle ne vérifie pas est que l'entrée **pose** quelque chose
+ * quand la condition est remplie, ce qui est exactement ce qu'un bouton doit
+ * faire. La toiture de cette maison est à l'étage : on l'y éprouve.
+ */
+describe('ce qu’un étage sous les combles laisse poser', () => {
+  const attic = project.building.levels.find(
+    ({ roofs, roofStructures }) =>
+      roofs.length > 0 || (roofStructures ?? []).length > 0,
+  )!;
+
+  it('la maison de démonstration a bien un niveau avec une toiture', () => {
+    expect(attic).toBeDefined();
+    expect(designStateOf(project, attic.id).roofSurfaceCount).toBeGreaterThan(
+      0,
+    );
+  });
+
+  it.each(['building.roof-window', 'building.roof-void'])(
+    '%s pose une ouverture dans un pan',
+    (entryId) => {
+      const entry = allToolboxEntries().find(({ id }) => id === entryId)!;
+      const state = designStateOf(project, attic.id);
+      expect(availabilityOf(entry, state).enabled, entryId).toBe(true);
+      const plane = attic.roofs[0]!;
+      // Au milieu du pan : un clic ordinaire, ni sur l'égout ni au faîtage.
+      const centre = plane.footprint.outer.reduce(
+        (total, point) => ({
+          x: total.x + point.x / plane.footprint.outer.length,
+          y: total.y + point.y / plane.footprint.outer.length,
+        }),
+        { x: 0, y: 0 },
+      );
+      const placement = placeEntry(file, attic.id, entry, {
+        points: [centre],
+      });
+      expect(placement.refusal, entryId).toBeUndefined();
+      expect(placement.changed, entryId).toBe(true);
+      expect(placement.created, entryId).toEqual(['OPENING']);
+    },
+  );
+
+  it('refuse un clic hors de toute toiture, et le dit', () => {
+    const entry = allToolboxEntries().find(
+      ({ id }) => id === 'building.roof-window',
+    )!;
+    const placement = placeEntry(file, attic.id, entry, {
+      points: [{ x: -50_000, y: -50_000 }],
+    });
+    expect(placement.refusal).toMatch(/pan de toiture/u);
+  });
+});

@@ -327,10 +327,66 @@ export const migration110To120: ProjectMigration = {
   },
 };
 
+/**
+ * `hostElementId` devient `host`, une référence qui dit **quoi**.
+ *
+ * Une ouverture pointait un mur par un identifiant nu, et toute la chaîne
+ * supposait donc qu'une ouverture est dans un mur : validation, plan, coupe,
+ * enveloppe, métrés, transformations. Les fenêtres de toit existent dans la
+ * nomenclature depuis longtemps, avec leurs propriétés et `ROOF` parmi leurs
+ * supports ; le modèle ne permettait pas de les poser.
+ *
+ * Ce que les fichiers écrits jusqu'ici contiennent est, sans exception, une
+ * ouverture de mur : la migration l'écrit, et n'a rien à deviner.
+ */
+export const migration120To130: ProjectMigration = {
+  id: 'project-1.2.0-to-1.3.0',
+  from: '1.2.0',
+  to: '1.3.0',
+  migrate(input: unknown): unknown {
+    if (!isRecord(input) || !isRecord(input.project))
+      throw new TypeError('A 1.2.0 file must contain a project.');
+    const project = input.project;
+    const building = isRecord(project.building) ? project.building : undefined;
+    const levels =
+      building !== undefined && Array.isArray(building.levels)
+        ? (building.levels as readonly unknown[]).map((level) => {
+            if (!isRecord(level) || !Array.isArray(level.openings))
+              return level;
+            return {
+              ...level,
+              openings: (level.openings as readonly unknown[]).map(
+                (opening) => {
+                  if (!isRecord(opening) || opening.host !== undefined)
+                    return opening;
+                  const { hostElementId, ...rest } = opening;
+                  // Une ouverture sans hôte reste sans hôte : la validation le
+                  // dira, et inventer un mur serait pire que le constat.
+                  if (typeof hostElementId !== 'string') return opening;
+                  return { ...rest, host: { kind: 'WALL', id: hostElementId } };
+                },
+              ),
+            };
+          })
+        : undefined;
+    return {
+      ...input,
+      schemaVersion: '1.3.0',
+      project: {
+        ...project,
+        ...(building === undefined || levels === undefined
+          ? {}
+          : { building: { ...building, levels } }),
+      },
+    };
+  },
+};
+
 export const DEFAULT_PROJECT_MIGRATIONS: readonly ProjectMigration[] = [
   migration090To100,
   migration100To110,
   migration110To120,
+  migration120To130,
 ];
 
 function isRecord(value: unknown): value is Record<string, unknown> {

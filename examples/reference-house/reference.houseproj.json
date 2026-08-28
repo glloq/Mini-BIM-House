@@ -1,6 +1,6 @@
 {
   "format": "house-technical-designer-project",
-  "schemaVersion": "1.2.0",
+  "schemaVersion": "1.3.0",
   "applicationVersion": "0.1.0",
   "project": {
     "id": "reference-house",
@@ -246,34 +246,43 @@
               "id": "opening-entry",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-south",
               "offsetAlongHostMm": 1000,
               "sillHeightMm": 0,
               "widthMm": 900,
               "heightMm": 2100,
-              "definitionId": "generic-entrance-door"
+              "definitionId": "generic-entrance-door",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-south"
+              }
             },
             {
               "id": "opening-living",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-west",
               "offsetAlongHostMm": 1000,
               "sillHeightMm": 900,
               "widthMm": 1800,
               "heightMm": 1200,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-west"
+              }
             },
             {
               "id": "opening-bedroom",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-north",
               "offsetAlongHostMm": 1000,
               "sillHeightMm": 900,
               "widthMm": 1400,
               "heightMm": 1200,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-north"
+              }
             }
           ],
           "slabs": [
@@ -529,11 +538,11 @@
               "definitionId": "generic-dhw-tank",
               "name": "Ballon ECS",
               "position": {
-                "x": 9200,
-                "y": 4500
+                "x": 9500,
+                "y": 6800
               },
               "elevationMm": 0,
-              "rotationDeg": 0,
+              "rotationDeg": 180,
               "spaceId": "space-bathroom"
             },
             {
@@ -562,7 +571,7 @@
               "name": "Onduleur",
               "position": {
                 "x": 9200,
-                "y": 1500
+                "y": 2400
               },
               "elevationMm": 1200,
               "rotationDeg": 0
@@ -575,7 +584,7 @@
               "definitionId": "generic-air-water-heat-pump",
               "name": "Pompe à chaleur air/eau",
               "position": {
-                "x": 500,
+                "x": 11500,
                 "y": 6500
               },
               "elevationMm": 0,
@@ -589,8 +598,8 @@
               "definitionId": "generic-heating-buffer-tank",
               "name": "Ballon tampon",
               "position": {
-                "x": 1200,
-                "y": 6200
+                "x": 3800,
+                "y": 7300
               },
               "elevationMm": 0,
               "rotationDeg": 0
@@ -603,8 +612,8 @@
               "definitionId": "generic-circulator-pump",
               "name": "Circulateur de chauffage",
               "position": {
-                "x": 1500,
-                "y": 6000
+                "x": 3800,
+                "y": 6300
               },
               "elevationMm": 0,
               "rotationDeg": 0
@@ -740,7 +749,8 @@
                 "y": 5600
               },
               "elevationMm": 1300,
-              "rotationDeg": 0
+              "rotationDeg": 0,
+              "housedInId": "component-board"
             },
             {
               "id": "component-socket-living",
@@ -765,7 +775,7 @@
               "definitionId": "generic-socket",
               "name": "Prise cuisine",
               "position": {
-                "x": 6600,
+                "x": 5600,
                 "y": 300
               },
               "elevationMm": 300,
@@ -916,45 +926,57 @@
               "id": "opening-bedroom-one",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-first-south",
               "offsetAlongHostMm": 1500,
               "sillHeightMm": 900,
               "widthMm": 1400,
               "heightMm": 1300,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-first-south"
+              }
             },
             {
               "id": "opening-bedroom-two",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-first-south",
               "offsetAlongHostMm": 6500,
               "sillHeightMm": 900,
               "widthMm": 1400,
               "heightMm": 1300,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-first-south"
+              }
             },
             {
               "id": "opening-first-bath",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-first-north",
               "offsetAlongHostMm": 2000,
               "sillHeightMm": 1400,
               "widthMm": 800,
               "heightMm": 800,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-first-north"
+              }
             },
             {
               "id": "opening-first-landing",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-first-partition",
               "offsetAlongHostMm": 3000,
               "sillHeightMm": 0,
               "widthMm": 830,
               "heightMm": 2040,
-              "definitionId": "generic-entrance-door"
+              "definitionId": "generic-entrance-door",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-first-partition"
+              }
             }
           ],
           "slabs": [
@@ -10232,16 +10254,6 @@
             }
           },
           {
-            "id": "wastewater:stack",
-            "kind": "INSPECTION_CHAMBER",
-            "position": {
-              "x": 7500,
-              "y": 5200,
-              "z": 2900
-            },
-            "levelId": "first"
-          },
-          {
             "id": "wastewater:first-basin",
             "kind": "FIXTURE",
             "position": {
@@ -10270,104 +10282,178 @@
               "fixtureType": "BATH",
               "dischargeUnits": 2
             }
+          },
+          {
+            "id": "wastewater:stack-head",
+            "kind": "STACK",
+            "position": {
+              "x": 7500,
+              "y": 5200,
+              "z": 3090
+            },
+            "levelId": "first"
+          },
+          {
+            "id": "wastewater:stack-mid",
+            "kind": "STACK",
+            "position": {
+              "x": 7500,
+              "y": 5200,
+              "z": 2915
+            },
+            "levelId": "first"
+          },
+          {
+            "id": "wastewater:stack-foot",
+            "kind": "STACK",
+            "position": {
+              "x": 7500,
+              "y": 5200,
+              "z": -200
+            },
+            "levelId": "ground"
           }
         ],
         "ports": [
           {
             "id": "wastewater:collector-out",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:outlet-in",
             "nodeId": "wastewater:outlet",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:sink-out",
             "nodeId": "wastewater:sink",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:collector-in-sink",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:basin-out",
             "nodeId": "wastewater:basin",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:collector-in-basin",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:shower-out",
             "nodeId": "wastewater:shower",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:collector-in-shower",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:wc-out",
             "nodeId": "wastewater:wc",
+            "portTypeId": "SOILWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:collector-in-wc",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:first-basin-out",
             "nodeId": "wastewater:first-basin",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
-          },
-          {
-            "id": "wastewater:stack-in-basin",
-            "nodeId": "wastewater:stack",
-            "role": "FLOW",
-            "direction": "IN"
           },
           {
             "id": "wastewater:first-bath-out",
             "nodeId": "wastewater:first-bath",
-            "role": "FLOW",
-            "direction": "OUT"
-          },
-          {
-            "id": "wastewater:stack-in-bath",
-            "nodeId": "wastewater:stack",
-            "role": "FLOW",
-            "direction": "IN"
-          },
-          {
-            "id": "wastewater:stack-out",
-            "nodeId": "wastewater:stack",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:collector-in-stack",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
+          },
+          {
+            "id": "wastewater:stack-head-in-basin",
+            "nodeId": "wastewater:stack-head",
+            "portTypeId": "WASTEWATER_INLET",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:stack-head-out",
+            "nodeId": "wastewater:stack-head",
+            "portTypeId": "WASTEWATER",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:stack-mid-in-head",
+            "nodeId": "wastewater:stack-mid",
+            "portTypeId": "WASTEWATER_INLET",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:stack-mid-in-bath",
+            "nodeId": "wastewater:stack-mid",
+            "portTypeId": "WASTEWATER_INLET",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:stack-mid-out",
+            "nodeId": "wastewater:stack-mid",
+            "portTypeId": "WASTEWATER",
+            "role": "FLOW",
+            "direction": "OUT"
+          },
+          {
+            "id": "wastewater:stack-foot-in",
+            "nodeId": "wastewater:stack-foot",
+            "portTypeId": "WASTEWATER_INLET",
+            "role": "FLOW",
+            "direction": "IN"
+          },
+          {
+            "id": "wastewater:stack-foot-out",
+            "nodeId": "wastewater:stack-foot",
+            "portTypeId": "WASTEWATER",
+            "role": "FLOW",
+            "direction": "OUT"
           }
         ],
         "edges": [
@@ -10388,11 +10474,10 @@
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-100",
             "properties": {
-              "internalDiameterM": 0.1,
               "materialId": "pvc"
-            },
-            "productId": "waste-pipe-pvc-100"
+            }
           },
           {
             "id": "wastewater:branch-sink",
@@ -10411,11 +10496,10 @@
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-40",
             "properties": {
-              "internalDiameterM": 0.04,
               "materialId": "pvc"
-            },
-            "productId": "waste-pipe-pvc-40"
+            }
           },
           {
             "id": "wastewater:branch-basin",
@@ -10434,11 +10518,10 @@
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-40",
             "properties": {
-              "internalDiameterM": 0.04,
               "materialId": "pvc"
-            },
-            "productId": "waste-pipe-pvc-40"
+            }
           },
           {
             "id": "wastewater:branch-shower",
@@ -10457,11 +10540,10 @@
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-50",
             "properties": {
-              "internalDiameterM": 0.04,
               "materialId": "pvc"
-            },
-            "productId": "waste-pipe-pvc-50"
+            }
           },
           {
             "id": "wastewater:branch-wc",
@@ -10480,16 +10562,15 @@
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-100",
             "properties": {
-              "internalDiameterM": 0.1,
               "materialId": "pvc"
-            },
-            "productId": "waste-pipe-pvc-100"
+            }
           },
           {
             "id": "wastewater:branch-first-basin",
             "fromPortId": "wastewater:first-basin-out",
-            "toPortId": "wastewater:stack-in-basin",
+            "toPortId": "wastewater:stack-head-in-basin",
             "path": [
               {
                 "x": 2000,
@@ -10499,20 +10580,19 @@
               {
                 "x": 7500,
                 "y": 5200,
-                "z": 3050
+                "z": 3090
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-40",
             "properties": {
-              "nominalDiameterMm": 40,
               "slopePercent": 2
-            },
-            "productId": "waste-pipe-pvc-40"
+            }
           },
           {
             "id": "wastewater:branch-first-bath",
             "fromPortId": "wastewater:first-bath-out",
-            "toPortId": "wastewater:stack-in-bath",
+            "toPortId": "wastewater:stack-mid-in-bath",
             "path": [
               {
                 "x": 1000,
@@ -10522,25 +10602,45 @@
               {
                 "x": 7500,
                 "y": 5200,
-                "z": 3000
+                "z": 2915
               }
             ],
             "kind": "GRAVITY_PIPE",
+            "productId": "waste-pipe-pvc-50",
             "properties": {
-              "nominalDiameterMm": 50,
               "slopePercent": 2
-            },
-            "productId": "waste-pipe-pvc-50"
+            }
           },
           {
-            "id": "wastewater:stack-run",
-            "fromPortId": "wastewater:stack-out",
-            "toPortId": "wastewater:collector-in-stack",
+            "id": "wastewater:stack-upper",
+            "kind": "GRAVITY_PIPE",
+            "fromPortId": "wastewater:stack-head-out",
+            "toPortId": "wastewater:stack-mid-in-head",
             "path": [
               {
                 "x": 7500,
                 "y": 5200,
-                "z": 2900
+                "z": 3090
+              },
+              {
+                "x": 7500,
+                "y": 5200,
+                "z": 2915
+              }
+            ],
+            "productId": "waste-pipe-pvc-100",
+            "properties": {}
+          },
+          {
+            "id": "wastewater:stack-drop",
+            "kind": "GRAVITY_PIPE",
+            "fromPortId": "wastewater:stack-mid-out",
+            "toPortId": "wastewater:stack-foot-in",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5200,
+                "z": 2915
               },
               {
                 "x": 7500,
@@ -10548,12 +10648,30 @@
                 "z": -200
               }
             ],
+            "productId": "waste-pipe-pvc-100",
+            "properties": {}
+          },
+          {
+            "id": "wastewater:stack-collector",
             "kind": "GRAVITY_PIPE",
+            "fromPortId": "wastewater:stack-foot-out",
+            "toPortId": "wastewater:collector-in-stack",
+            "path": [
+              {
+                "x": 7500,
+                "y": 5200,
+                "z": -200
+              },
+              {
+                "x": 9500,
+                "y": 7900,
+                "z": -350
+              }
+            ],
+            "productId": "waste-pipe-pvc-100",
             "properties": {
-              "nominalDiameterMm": 100,
-              "slopePercent": 100
-            },
-            "productId": "waste-pipe-pvc-100"
+              "slopePercent": 4.5
+            }
           }
         ]
       },
@@ -11144,48 +11262,56 @@
           {
             "id": "electrical:circuit-out-bedroom-one",
             "nodeId": "electrical:lighting-circuit",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "OUT"
           },
           {
             "id": "electrical:luminaire-bedroom-one-in",
             "nodeId": "electrical:luminaire-bedroom-one",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "IN"
           },
           {
             "id": "electrical:circuit-out-bedroom-two",
             "nodeId": "electrical:lighting-circuit",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "OUT"
           },
           {
             "id": "electrical:luminaire-bedroom-two-in",
             "nodeId": "electrical:luminaire-bedroom-two",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "IN"
           },
           {
             "id": "electrical:circuit-out-first-bath",
             "nodeId": "electrical:lighting-circuit",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "OUT"
           },
           {
             "id": "electrical:luminaire-first-bath-in",
             "nodeId": "electrical:luminaire-first-bath",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "IN"
           },
           {
             "id": "electrical:circuit-out-landing",
             "nodeId": "electrical:lighting-circuit",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "OUT"
           },
           {
             "id": "electrical:luminaire-landing-in",
             "nodeId": "electrical:luminaire-landing",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "IN"
           }
@@ -11583,7 +11709,8 @@
         "settings": {
           "runoffCoefficient": 0.9,
           "preFilterEfficiency": 0.95,
-          "dailyDemandL": 120
+          "dailyDemandL": 120,
+          "initialVolumeL": 2500
         }
       },
       "photovoltaic": {

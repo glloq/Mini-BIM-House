@@ -85,7 +85,7 @@ function house(overrides: Partial<Level> = {}): Project {
               id: entityId<'Opening'>('window'),
               type: 'OPENING',
               openingType: 'WINDOW',
-              hostElementId: entityId<'Wall'>('wall-south'),
+              host: { kind: 'WALL', id: entityId<'Wall'>('wall-south') },
               offsetAlongHostMm: 1000,
               sillHeightMm: 900,
               widthMm: 2000,
@@ -272,5 +272,34 @@ describe('what separates the house from the outside', () => {
   it('adds up only what it could measure', () => {
     // 21 of wall, 4 of window, 80 of roof, 80 of floor.
     expect(envelopeAreaM2(resolveEnvelope(house()))).toBeCloseTo(185, 6);
+  });
+
+  it('compte une fenêtre de toit, qui donne sur le dehors par définition', () => {
+    /*
+     * Le tri se faisait sur « le mur qu'elle perce est-il extérieur », et une
+     * fenêtre de toit ne perce pas de mur : elle disparaissait de l'enveloppe
+     * sans un mot. C'est l'élément le plus cher au mètre carré — un vitrage
+     * incliné perd plus qu'un vitrage vertical et capte plus de soleil — donc
+     * l'oublier fausse le chauffage dans un sens et les apports dans l'autre.
+     */
+    const withRoofWindow = house({
+      openings: [
+        {
+          id: entityId<'Opening'>('velux'),
+          type: 'OPENING',
+          openingType: 'WINDOW',
+          host: { kind: 'ROOF', id: 'roof' },
+          placement: { alongEaveMm: 1000, upSlopeMm: 1000 },
+          widthMm: 1000,
+          heightMm: 1200,
+        },
+      ],
+    });
+    const counted = resolveEnvelope(withRoofWindow).find(
+      ({ sourceEntityId }) => sourceEntityId === 'velux',
+    );
+    expect(counted).toBeDefined();
+    expect(counted?.netAreaM2).toBeCloseTo(1.2, 6);
+    expect(counted?.boundaryCondition).toBe('EXTERIOR');
   });
 });

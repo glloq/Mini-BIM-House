@@ -1187,7 +1187,8 @@ Bâtiment — et sept espaces, treize destinations, une trentaine de sous-partie
 et deux cent quarante entrées font bien plus d'un écran.
 
 `scripts/audit-layout.mjs` (`npm run audit:layout`) les visite tous, à cinq
-tailles de fenêtre, ouvre chaque entrée, chaque menu, chaque dépliage de
+tailles de fenêtre, **sur deux projets** — un projet neuf et la maison de
+démonstration — ouvre chaque entrée, chaque menu, chaque dépliage de
 l'inspecteur, et cherche deux défauts qu'un œil pardonne parce qu'il ne les
 voit pas :
 
@@ -1207,10 +1208,20 @@ causes :
 | L'inspecteur prenait la moitié de l'écran               | Le plan tombait de 597 px à 255 sous 1 050 px de large                           |
 | « Affichage » avait la taille d'un bouton de formulaire | Son propre haut, rogné de dix pixels                                             |
 
-Vingt minutes de parcours : c'est un audit, pas une porte.
-`apps/web/src/ux/reachable-layout.test.ts` reprend les quatre règles qui en
-sortent et les tient en une seconde — une feuille de style se relit mal, et une
-règle qui disparaît ne se voit pas.
+Le second projet est arrivé après coup, et il a rapporté tout de suite. L'audit
+n'ouvrait que la maison de démonstration : c'est le pire cas pour beaucoup de
+choses — deux niveaux, six réseaux, des tableaux longs — et le meilleur pour
+une, rien n'y manque. Le premier écran de tout le monde est l'autre, où les
+listes sont vides et où les outils en main ne sont pas les mêmes. Sur un projet
+neuf, le filtre de l'outil Sélection — « Tous les objets », « Ouverture »,
+« Trémie »… — sortait de trente pixels à droite du plan sur un écran de 390 px,
+sur huit écrans, parce qu'un `max-width: 9rem` fait 144 px et qu'une largeur de
+`<select>` est celle de sa plus longue option. Une ligne : `min(9rem, 100%)`.
+
+Vingt minutes de parcours, quarante depuis qu'ils sont deux : c'est un audit,
+pas une porte. `apps/web/src/ux/reachable-layout.test.ts` reprend les quatre
+règles qui en sortent et les tient en une seconde — une feuille de style se
+relit mal, et une règle qui disparaît ne se voit pas.
 
 ### 14.2 Ce qu'on peut ajouter, et ce qu'on ne peut pas
 
@@ -1247,7 +1258,37 @@ coudes, les tés et les vannes appartiennent à une **conduite** — on les pose
 traçant, pas en cliquant — et les trente-cinq types de menuiserie demandent
 qu'une ouverture porte une fiche, ce que le modèle ne sait pas encore.
 
-### 14.3 Ce que coûte un ajout
+### 14.3 Ce que le premier écran emporte
+
+Le budget de bundle dit **combien** pèse le premier chargement ; il ne dit
+jamais **quoi**. Deux fois de suite, du code qu'un commentaire annonçait comme
+chargé à la demande s'est révélé y être depuis toujours :
+
+| Ce qui y était sans raison    | Poids compressé | Trouvé       |
+| ----------------------------- | --------------- | ------------ |
+| Le validateur compilé par Ajv | ~31 kio         | par accident |
+| Les seize moteurs de calcul   | ~27 kio         | par accident |
+
+Les deux pesaient plus que ce que la plupart des optimisations d'interface
+économisent, et les deux ont été trouvés en cherchant autre chose. Le budget
+voyait le poids et pas la cause : il disait « ça a grossi », jamais « les
+moteurs sont revenus ».
+
+`scripts/audit-first-screen.mjs` (`npm run audit:first-screen`) le dit. Il part
+de `main.tsx`, ne suit que les importations **statiques** — un `import(...)`
+est la frontière qu'on mesure, un `import type` disparaît à la compilation —
+et rapporte ce qui arrive, groupé par paquet. Avec un nom, il rend la chaîne
+qui y mène : la réponse à « mais qu'est-ce qui importe ça ? ».
+
+`scripts/first-screen.test.mjs` en fait une porte, sans build et en quelques
+millisecondes : les seize moteurs n'ont pas le droit d'y revenir, le validateur
+non plus, la maison de démonstration non plus, et des adaptateurs de calcul
+seul leur registre passe. Le dix-septième moteur, le thermique, y est **à bon
+droit** — cliquer un mur montre la résistance et le U de sa composition — et
+un test le dit aussi : une règle qui les interdirait tous serait fausse, et
+finirait contournée.
+
+### 14.4 Ce que coûte un ajout
 
 Poser se mesure en trois nombres, et `adding-cost.test.ts` les tient :
 

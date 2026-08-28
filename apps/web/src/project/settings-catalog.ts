@@ -1,8 +1,16 @@
 import type { JsonValue, Project } from '@house-technical-designer/core-domain';
+/*
+ * Le registre seul, et non le barillet.
+ *
+ * Lire un libellé et une méthode par le barillet emportait les dix-sept
+ * moteurs de calcul — thermique, hydraulique, électrique, acoustique — au
+ * premier écran, parce que cet écran-ci est atteint depuis les vérifications,
+ * qui sont dans la coque. Le sous-chemin `registry` ne contient que des noms.
+ */
 import {
-  PROJECT_CALCULATION_MODULES,
+  calculationModuleContract,
   calculationModuleLabel,
-} from '@house-technical-designer/calculation-adapters';
+} from '@house-technical-designer/calculation-adapters/registry';
 
 /**
  * One scalar a module reads from the project settings.
@@ -289,6 +297,13 @@ const MODULE_SETTINGS_ENTRIES: readonly ModuleSettingsEntry[] = [
         label: 'Besoin journalier',
         unit: 'L',
       },
+      {
+        key: 'initialVolumeL',
+        kind: 'NUMBER',
+        label: 'Volume au premier jour',
+        unit: 'L',
+        hint: 'Ce que la cuve contient quand la simulation commence. Une cuve vide noircit les premières semaines, une cuve pleine les embellit : le bilan ne choisit ni l’un ni l’autre.',
+      },
     ],
   },
   {
@@ -435,14 +450,7 @@ export const MODULE_SETTINGS: readonly ModuleSettingsDescriptor[] =
   }));
 
 /** The method and version a module declares, so a settings entry can name them. */
-export function moduleContract(
-  moduleId: string,
-): { readonly methodId: string; readonly version: string } | undefined {
-  const module = PROJECT_CALCULATION_MODULES.find(({ id }) => id === moduleId);
-  return module === undefined
-    ? undefined
-    : { methodId: module.methodId, version: module.version };
-}
+export const moduleContract = calculationModuleContract;
 
 /** Current settings of a module, or an empty record when it has none yet. */
 export function moduleSettings(

@@ -200,8 +200,80 @@ export const BUDGETS = {
    * ligne de registre, et `entry-placement.test.ts` les pose toutes pour de
    * bon. Deux kio pour soixante-treize gestes qui demandaient d'ouvrir la
    * nomenclature.
+   *
+   * Et un avec `OpeningHost`. Une ouverture pointait un mur par un
+   * identifiant nu ; elle dit maintenant **quoi** elle perce, et l'objet
+   * `{ kind, id }` s'écrit à chaque endroit qui en pose une. C'est le prix
+   * d'une hypothèse retirée du modèle, et c'est le dernier kio qu'on paie
+   * ainsi : le suivant devra être financé par le découpage des catalogues en
+   * chargement à la demande, et non par un budget qu'on relève.
+   *
+   * Et quatre avec le format durci. Soixante-treize objets du schéma se
+   * ferment, et Ajv émet un contrôle de propriétés pour chacun : le validateur
+   * compilé pèse quatre kio de plus, au premier écran parce que `project-io`
+   * est importé au chargement.
+   *
+   * **J'avais écrit que le kio précédent serait le dernier payé ainsi.** Il ne
+   * l'est pas, et le dire vaut mieux que de le maquiller : ces quatre kio
+   * achètent un format qui refuse `definitonId`, ce qui est un meilleur marché
+   * que le précédent. Mais la dette est réelle et elle a un nom : sortir la
+   * validation du chargement initial, comme `autosave` en est sorti — un
+   * sous-chemin `project-io/validation`, et l'application qui l'appelle au
+   * moment où elle ouvre un fichier plutôt qu'au moment où elle démarre. Tant
+   * que ce n'est pas fait, aucun budget ne doit plus monter.
+   *
+   * Et un avec le moteur de toiture — le squelette droit pondéré, qui trouve
+   * où les pans se rencontrent sur un contour quelconque. Il monte au premier
+   * écran parce que le plan dessine des toitures.
+   *
+   * **La règle du paragraphe précédent est donc enfreinte, et voici pourquoi
+   * la sortie de la validation n'a pas eu lieu ici.** Elle n'est pas un
+   * sous-chemin à ajouter, comme `browser` l'était : `scenarios.ts` et
+   * `container.ts` importent tous deux `project-io.ts`, qui charge le
+   * validateur compilé à la racine du module. Sortir le validateur demande de
+   * couper `project-io.ts` en deux — ce qui touche la sérialisation, la
+   * lecture et les conteneurs — et mérite son propre changement plutôt que
+   * d'être bâclé au passage d'un moteur de toiture. C'est le premier de la
+   * dette, et il reste le premier.
+   *
+   * **Cette dette est payée, et ce nombre baisse de trente et un kio.** Le
+   * découpage a eu lieu : `file-io.ts` porte la lecture, l'écriture et la
+   * validation d'un fichier, `container.ts` l'archive qui le transporte, et
+   * les deux vivent derrière `@house-technical-designer/project-io/files`.
+   * Le barillet du paquet ne les réexporte plus, donc rien n'y touche par
+   * accident. L'application les charge à trois endroits, et chacun est un
+   * geste : enregistrer, exporter, importer. La sauvegarde locale les charge
+   * elle aussi à la demande — ses deux usages sont dans des fonctions `async`,
+   * et une reprise de session attend déjà IndexedDB.
+   *
+   * Ce qui a été mesuré : le premier écran passe de 304 à 273 kio, et le
+   * validateur compilé se retrouve dans un fichier à lui, chargé le jour où
+   * quelqu'un ouvre un projet. Personne ne le télécharge pour regarder un
+   * plan.
+   *
+   * Ce chiffre est donc un plafond de nouveau serré, à cinq kio du réel. La
+   * règle reprend sa valeur : le prochain kio du premier écran devra être
+   * financé par ce qui en sort, et non par ce budget.
+   *
+   * **Et il l'a été : les dix-sept moteurs de calcul en sortent, et ce nombre
+   * baisse de vingt-sept kio de plus.** Ils n'auraient jamais dû y être. Le
+   * fichier qui les nomme — `module-registry.ts` — promettait dans son en-tête
+   * de n'importer rien, « pour que nommer un module coûte quelques centaines
+   * d'octets plutôt que dix-sept moteurs de calcul ». La promesse était tenue
+   * par le fichier et défaite par le paquet : le barillet le réexportait à
+   * côté des moteurs, et l'écran des réglages importait le barillet pour lire
+   * un libellé et une méthode. Thermique, hydraulique, électrique, acoustique
+   * arrivaient donc au premier écran de quelqu'un qui n'ouvre jamais l'onglet
+   * des calculs.
+   *
+   * Le sous-chemin `calculation-adapters/registry` ne contient que des noms —
+   * identifiant, libellé, méthode, version — et `registry-only.test.ts` tient
+   * les deux moitiés de la promesse : le fichier reste sans dépendance, et ce
+   * qu'il déclare est ce que les moteurs déclarent.
+   *
+   * Le plafond redescend donc à 254, de nouveau à quelques kio du réel.
    */
-  initialGzipBytes: 296 * 1024,
+  initialGzipBytes: 254 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -327,8 +399,80 @@ export const BUDGETS = {
    *
    * Et un avec les soixante-treize entrées nommées, comptées au chargement
    * initial ci-dessus : le registre vit dans le premier écran.
+   *
+   * Et un avec la sortie de la validation. C'est exactement l'échange que ce
+   * budget existe pour rendre visible, et il se lit en une ligne : le total
+   * monte d'un kio, le premier écran descend de trente et un. Ce qui quitte
+   * le premier téléchargement doit bien atterrir quelque part, avec le peu de
+   * colle qu'un fichier de plus demande ; il atterrit à la demande.
+   *
+   * Et un avec les noues. Le squelette droit sait désormais scinder son front
+   * sur un sommet rentrant, ce qui donne à un L, un U, un T et une croix leurs
+   * pans, leurs noues et leur faîtage — les formes de maison qui viennent
+   * juste après le rectangle, et qui jusque-là ne comptaient nulle part. Il
+   * monte au premier écran parce que le plan dessine des toitures, et le
+   * premier écran tient quand même dans son plafond : le kio se voit ici et
+   * pas là-haut.
+   *
+   * Et deux avec les fenêtres de toit. Une ouverture dit maintenant **comment**
+   * elle se repère et non seulement ce qu'elle perce : le long d'un mur avec
+   * son allège, ou dans le plan du pan, le long de l'égout et en remontant le
+   * rampant. Le second repère demande la géométrie du pan — trouver son égout
+   * depuis l'azimut, raccourcir la montée de la pente, vérifier que les quatre
+   * coins tiennent dans le pan — et le plan les dessine. Deux kio pour une
+   * famille d'ouvertures que la nomenclature nommait depuis toujours et que le
+   * modèle ne savait pas poser.
+   *
+   * Et un avec l'outil qui les pose. « Ouverture de toit » existait déjà dans
+   * la boîte : elle prenait l'outil qui perce un mur, demandait une toiture
+   * pour s'activer, et posait la fenêtre dans le mur le plus proche du clic —
+   * on visait le toit, la fenêtre arrivait au rez-de-chaussée. Le kio paie un
+   * vrai outil, sa commande, et le clic converti dans le repère du pan.
+   *
+   * Et un avec les circuits qui se ramifient. Le moteur électrique ne savait
+   * additionner qu'une guirlande, et faisait passer le courant total du
+   * circuit dans chacun de ses tronçons : tout circuit de maison — où l'on
+   * tire une dérivation par pièce — ressortait sans aucune chute de tension.
+   * Il lit maintenant l'arbre que le réseau déclare, fait porter à chaque
+   * tronçon le courant des seules charges qu'il alimente, et rend la chute de
+   * la charge la plus défavorisée. Le kio arrive à la demande, avec les dix-
+   * sept moteurs de calcul, et pas au premier écran.
+   *
+   * Et le total **baisse** d'un kio en sortant les moteurs du premier écran :
+   * réunis dans un seul fichier chargé à la demande, ils cessent d'être
+   * dupliqués entre la coque et le morceau des calculs. C'est rare — la
+   * plupart des sorties coûtent un peu de colle — et c'est ce qui arrive quand
+   * ce qui sortait était une duplication plutôt qu'un poids propre.
+   *
+   * Et un demi-kio pour une chute d'évacuation et un niveau de cuve. Le moteur
+   * refusait un tuyau vertical — « pente indéfinie » — ce qui mettait en
+   * défaut le réseau de toute maison à étage, la maison de démonstration
+   * comprise ; et le volume du premier jour d'une cuve d'eau de pluie n'avait
+   * aucun endroit où se dire, parce qu'il était cherché sur la fiche du
+   * fabricant alors que c'est une décision de celui qui simule.
+   *
+   * Et un avec le métier d'un constat. La page « Études » lisait le métier
+   * d'une ligne en regardant si l'identifiant du constat commençait par son
+   * nom, alors qu'un identifiant commence par sa source : aucun constat n'a
+   * jamais correspondu, chaque métier comptait zéro écart, et la page ne
+   * pouvait afficher que des coches vertes — y compris sur un projet neuf qui
+   * en listait quarante-sept juste en dessous. Le champ est porté par le
+   * constat maintenant, posé par le code qui sait, et un quatrième état dit
+   * « non vérifiable » là où « tenu » mentait. Le kio arrive à la demande,
+   * avec l'écran des vérifications : le premier écran ne bouge pas d'un
+   * dixième.
+   *
+   * Et un avec ce que douze contrôles refusaient de dire. Un bouton grisé sans
+   * motif se lit comme une panne : on reclique, on cherche le réglage qui le
+   * libère, il n'existe pas. Douze le faisaient — « Relier », « Ajouter le
+   * changement », « Exporter en CSV », la case Architecture du périmètre — et
+   * neuf d'entre eux étaient invisibles au balayage parce qu'il attendait la
+   * case de l'écran et non l'écran, donc auditait la phrase d'attente sur onze
+   * destinations sur treize. Une phrase par refus, portée par le contrôle, et
+   * un projet neuf mené à dessiner plutôt qu'aux réglages d'un bâtiment qui
+   * n'existe pas. Tout arrive à la demande, avec les écrans concernés.
    */
-  totalGzipBytes: 478 * 1024,
+  totalGzipBytes: 493 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

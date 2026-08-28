@@ -1,14 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { ENTITY_FAMILIES } from '@house-technical-designer/core-domain';
-import {
-  DEFAULT_PROJECT_IMPORT_LIMITS,
-  loadProjectJson,
-  serializeProjectFile,
-} from './project-io.js';
+import { DEFAULT_PROJECT_IMPORT_LIMITS } from './project-io.js';
+import { loadProjectJson, serializeProjectFile } from './file-io.js';
 
 const fixture = {
   format: 'house-technical-designer-project' as const,
-  schemaVersion: '1.2.0',
+  schemaVersion: '1.3.0',
   project: {
     id: 'project',
     metadata: {
@@ -99,7 +96,7 @@ const populatedFixture = {
               id: 'window',
               type: 'OPENING',
               openingType: 'WINDOW',
-              hostElementId: 'wall',
+              host: { kind: 'WALL', id: 'wall' },
               offsetAlongHostMm: 1000,
               sillHeightMm: 900,
               widthMm: 1200,

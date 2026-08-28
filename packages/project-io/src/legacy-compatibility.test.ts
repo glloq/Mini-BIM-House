@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { LEGACY_EXTENSION, loadProjectJson } from './index.js';
+import { LEGACY_EXTENSION } from './index.js';
+import { loadProjectJson } from './file-io.js';
 
 function fixture(name: string): string {
   return readFileSync(
@@ -23,10 +24,11 @@ describe('files written under the 1.0.0 contract', () => {
     const result = loadProjectJson(fixture('typed-1.0.0.json'));
     expect(result.status).toBe('OK');
     if (result.status !== 'OK') return;
-    expect(result.file.schemaVersion).toBe('1.2.0');
+    expect(result.file.schemaVersion).toBe('1.3.0');
     expect(result.migrationJournal).toEqual([
       { migrationId: 'project-1.0.0-to-1.1.0', from: '1.0.0', to: '1.1.0' },
       { migrationId: 'project-1.1.0-to-1.2.0', from: '1.1.0', to: '1.2.0' },
+      { migrationId: 'project-1.2.0-to-1.3.0', from: '1.2.0', to: '1.3.0' },
     ]);
     // Read, not merely carried: the stair is now a stair.
     const stair = result.file.project.building.levels[0]!.stairs[0]!;
@@ -60,11 +62,12 @@ describe('files written under the 1.0.0 contract', () => {
     expect(result.migrationJournal?.map(({ to }) => to)).toEqual([
       '1.1.0',
       '1.2.0',
+      '1.3.0',
     ]);
   });
 
   it('leaves a file already at the current version alone', () => {
-    const current = fixture('typed-1.0.0.json').replace('"1.0.0"', '"1.2.0"');
+    const current = fixture('typed-1.0.0.json').replace('"1.0.0"', '"1.3.0"');
     const result = loadProjectJson(current);
     expect(result.status).toBe('OK');
     if (result.status !== 'OK') return;

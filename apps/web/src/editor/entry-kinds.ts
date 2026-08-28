@@ -20,6 +20,9 @@ const TOOL_CREATES: Readonly<Record<string, readonly ObjectKind[]>> = {
   WALL_RUN: ['WALL'],
   WALL_RECTANGLE: ['WALL'],
   OPENING: ['OPENING'],
+  // Une fenêtre de toit est une ouverture comme une autre pour qui la
+  // désigne : ce qui change est ce qu'elle perce, pas ce qu'elle est.
+  ROOF_OPENING: ['OPENING'],
   SPACE: ['SPACE'],
   MERGE_SPACES: ['SPACE'],
   SLAB: ['SLAB'],

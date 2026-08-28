@@ -1566,6 +1566,15 @@ button.icon {
   color: var(--ink-strong);
   font-weight: 700;
 }
+/*
+ * Un constat non vérifiable se lit, sans crier. Il n'est pas un défaut — c'est
+ * une donnée qui manque — donc il ne prend pas le gras de l'écart, mais il ne
+ * reste pas non plus dans la teinte effacée du reste, qui le ferait passer pour
+ * une ligne sans nouvelle.
+ */
+.study-line.UNVERIFIED .study-line-state {
+  color: var(--ink-strong);
+}
 .study-figures {
   display: flex;
   margin: 0;
@@ -2797,9 +2806,22 @@ legend {
   font-size: 0.68rem;
   font-weight: 700;
 }
+/*
+ * Neuf rem au plus, et jamais plus que la place donnée.
+ *
+ * `max-width: 9rem` seul ne suffit pas : la largeur d'un `<select>` est celle
+ * de sa plus longue option, et neuf rem font 144 px. Le filtre de l'outil
+ * Sélection — « Tous les objets », « Ouverture », « Trémie »… — sortait donc de
+ * trente pixels à droite du plan sur un écran de 390 px, rogné par le cadre du
+ * plan et sans rien qui défile pour aller le chercher.
+ *
+ * Le défaut ne se voyait pas parce que l'audit de mise en page n'ouvre que la
+ * maison de démonstration : il fallait un projet **neuf**, où l'outil Sélection
+ * est celui qu'on a en main, pour que ce champ soit à l'écran.
+ */
 .tool-header select,
 .tool-header input {
-  max-width: 9rem;
+  max-width: min(9rem, 100%);
   padding: 0.15rem 0.3rem;
   font-size: 0.72rem;
 }

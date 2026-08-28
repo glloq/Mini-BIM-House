@@ -1,6 +1,26 @@
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 import { openModelTree } from './panels.js';
+
+/**
+ * Attendre l'espace de travail, et non la case qui va le porter.
+ *
+ * Chaque espace arrive à la demande, et `LazyWorkspace` rend tout de suite la
+ * case — `.canvas-panel` — avec « Chargement de l'espace de travail… » dedans.
+ * Attendre que cette case soit visible n'attend donc rien : elle l'est avant
+ * que l'écran existe.
+ *
+ * Ça se paie en tests qui croient regarder treize écrans et en regardent
+ * quatre. L'audit d'accessibilité et le balayage des contrôles muets faisaient
+ * exactement ça : sur onze destinations sur treize, ils auditaient la phrase
+ * d'attente.
+ */
+export async function workspaceReady(page: Page): Promise<void> {
+  await expect(page.locator('.canvas-panel')).toBeVisible();
+  await expect(
+    page.getByText('Chargement de l’espace de travail…'),
+  ).toHaveCount(0);
+}
 
 /**
  * Ouvrir une destination, comme une personne le fait.

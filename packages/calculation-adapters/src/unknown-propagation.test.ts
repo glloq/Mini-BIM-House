@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { Project } from '@house-technical-designer/core-domain';
 import { equipmentKindOf } from '@house-technical-designer/core-domain';
-import { loadProjectJson } from '@house-technical-designer/project-io';
+import { loadProjectJson } from '@house-technical-designer/project-io/files';
 
 import { createProjectCalculationContext } from './project-context.js';
 import { buildProjectCalculationInputs } from './project-inputs.js';

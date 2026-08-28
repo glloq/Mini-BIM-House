@@ -259,11 +259,40 @@ function findUnreachable() {
   return problems;
 }
 
-async function loadDemo(page, port) {
+/**
+ * Deux projets, et non un.
+ *
+ * L'audit n'ouvrait que la maison de démonstration. C'est le pire cas pour
+ * beaucoup de choses — deux niveaux, six réseaux, des tableaux longs — et le
+ * meilleur pour une : rien n'y manque. Le premier écran de tout le monde est
+ * l'autre, un projet **neuf**, où les listes sont vides, les panneaux courts,
+ * et surtout où les outils en main ne sont pas les mêmes.
+ *
+ * Ce qu'il a fallu pour trouver le premier défaut : le filtre de l'outil
+ * Sélection sortait de trente pixels à droite du plan sur un écran de 390 px,
+ * sur huit écrans. Il n'apparaissait pas sur la maison de démonstration parce
+ * que ce n'est pas là qu'on a cet outil en main.
+ */
+const STARTS = [
+  { label: 'projet neuf', load: async () => {} },
+  {
+    label: 'maison de démonstration',
+    load: async (page) => {
+      await page.getByRole('button', { name: 'Fichier' }).click();
+      await page
+        .getByRole('menuitem', { name: 'Maison de démonstration' })
+        .click();
+      await page
+        .getByRole('status')
+        .filter({ hasText: 'démonstration' })
+        .waitFor();
+    },
+  },
+];
+
+async function loadStart(page, port, start) {
   await page.goto(`http://127.0.0.1:${port}/`);
-  await page.getByRole('button', { name: 'Fichier' }).click();
-  await page.getByRole('menuitem', { name: 'Maison de démonstration' }).click();
-  await page.getByRole('status').filter({ hasText: 'démonstration' }).waitFor();
+  await start.load(page);
 }
 
 async function openStage(page, stage) {
@@ -341,11 +370,11 @@ async function auditScreen(page, found, format, screen) {
     found.push({ ...problem, format: format.label, screen });
 }
 
-async function auditFormat(page, port, format) {
+async function auditFormat(page, port, format, start) {
   const found = [];
-  process.stderr.write(`  ${format.label} : les écrans\n`);
+  process.stderr.write(`  ${format.label} · ${start.label} : les écrans\n`);
   await page.setViewportSize({ width: format.width, height: format.height });
-  await loadDemo(page, port);
+  await loadStart(page, port, start);
   for (const stage of STAGES) {
     await openStage(page, stage);
     await openPanel(page);
@@ -415,7 +444,15 @@ async function auditFormat(page, port, format) {
       }
     }
   }
-  return found;
+  return named(found, start);
+}
+
+/** Le rapport dit sur quel projet : « Terrain » seul ne distingue pas les deux. */
+function named(found, start) {
+  return found.map((problem) => ({
+    ...problem,
+    screen: `${start.label} · ${problem.screen}`,
+  }));
 }
 
 /**
@@ -426,11 +463,13 @@ async function auditFormat(page, port, format) {
  * en `absolute` — c'est-à-dire là où une mise en page se casse le plus
  * facilement.
  */
-async function auditOverlays(page, port, format) {
+async function auditOverlays(page, port, format, start) {
   const found = [];
-  process.stderr.write(`  ${format.label} : ce qui s’ouvre par-dessus\n`);
+  process.stderr.write(
+    `  ${format.label} · ${start.label} : ce qui s’ouvre par-dessus\n`,
+  );
   await page.setViewportSize({ width: format.width, height: format.height });
-  await loadDemo(page, port);
+  await loadStart(page, port, start);
 
   const at = (screen, locator, label) =>
     tryClick(locator, found, format, screen, label);
@@ -514,7 +553,7 @@ async function auditOverlays(page, port, format) {
     (await at('arborescence du projet', tree.first(), 'Éléments du projet'))
   )
     await auditScreen(page, found, format, 'arborescence du projet');
-  return found;
+  return named(found, start);
 }
 
 const server = await serveDist().catch((error) => {
@@ -541,10 +580,11 @@ const browser = await chromium
 
 const page = await browser.newPage();
 const problems = [];
-for (const format of FORMATS) {
-  problems.push(...(await auditFormat(page, port, format)));
-  problems.push(...(await auditOverlays(page, port, format)));
-}
+for (const format of FORMATS)
+  for (const start of STARTS) {
+    problems.push(...(await auditFormat(page, port, format, start)));
+    problems.push(...(await auditOverlays(page, port, format, start)));
+  }
 await browser.close();
 server.close();
 

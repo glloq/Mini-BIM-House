@@ -76,6 +76,20 @@ export function DocumentsPanel({
   const [preview, setPreview] = useState<string>();
 
   /**
+   * Pourquoi « Ajouter une feuille » refuse, quand il refuse.
+   *
+   * `undefined` veut dire qu'il accepte. Deux conditions, une phrase chacune,
+   * et l'ordre compte : sans vue enregistrée, le titre ne servirait à rien, donc
+   * c'est celle-là qu'on dit en premier.
+   */
+  const sheetRefusal: string | undefined =
+    views.length === 0
+      ? 'Une feuille porte des vues : enregistrez-en une d’abord.'
+      : sheetTitle.trim() === ''
+        ? 'Donnez un titre à la feuille.'
+        : undefined;
+
+  /**
    * Saves a sheet after laying its viewports out again.
    *
    * Every frame follows from the paper, its orientation and how many views
@@ -315,9 +329,22 @@ export function DocumentsPanel({
               ))}
             </select>
           </label>
+          {/*
+           * Un bouton qui refuse dit pourquoi, et dit le bon pourquoi.
+           *
+           * Il refusait pour deux raisons — aucune vue enregistrée, ou pas de
+           * titre — et l'indication posée en dessous n'en couvrait qu'une, la
+           * première. Avec une vue et sans titre, le bouton était mort et rien
+           * à l'écran ne l'expliquait : on reclique, on ne trouve pas.
+           *
+           * Le motif est calculé une fois, porté par le bouton, et repris par
+           * l'indication en dessous — une seule phrase, à deux endroits, plutôt
+           * que deux phrases qui divergent.
+           */}
           <button
             type="button"
-            disabled={views.length === 0 || sheetTitle.trim() === ''}
+            disabled={sheetRefusal !== undefined}
+            {...(sheetRefusal === undefined ? {} : { title: sheetRefusal })}
             onClick={() => {
               const first = views[0];
               if (first === undefined) return;
@@ -342,11 +369,7 @@ export function DocumentsPanel({
             Ajouter une feuille
           </button>
         </div>
-        {views.length === 0 && (
-          <p className="hint">
-            Une feuille porte des vues : enregistrez-en une d’abord.
-          </p>
-        )}
+        {sheetRefusal !== undefined && <p className="hint">{sheetRefusal}</p>}
         {sheets.length === 0 ? (
           <p className="empty-state">Aucune feuille.</p>
         ) : (
@@ -546,6 +569,9 @@ export function DocumentsPanel({
           <button
             type="button"
             disabled={sheets.length === 0}
+            {...(sheets.length === 0
+              ? { title: 'Le dossier est vide : composez une feuille d’abord.' }
+              : {})}
             onClick={() => onExport(sheets)}
           >
             Exporter le dossier en PDF

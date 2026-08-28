@@ -21,7 +21,10 @@ import type {
   RoofPlane,
   Wall,
 } from '@house-technical-designer/core-domain';
-import { allRoofPlanes } from '@house-technical-designer/core-domain';
+import {
+  allRoofPlanes,
+  wallOpenings,
+} from '@house-technical-designer/core-domain';
 import type { Assembly } from '@house-technical-designer/assemblies';
 import { totalThicknessMillimetres } from '@house-technical-designer/assemblies';
 import { numericValue } from '@house-technical-designer/units';
@@ -328,13 +331,11 @@ export function buildSectionView(
       for (const [index, crossing] of marks.entries()) {
         // The openings the saw went through: they interrupt the masonry, so
         // the band is drawn in pieces and the gap is drawn as an opening.
-        const holes = level.openings
-          .filter(({ hostElementId }) => hostElementId === wall.id)
-          .filter(
-            (opening) =>
-              crossing.alongHost >= opening.offsetAlongHostMm &&
-              crossing.alongHost <= opening.offsetAlongHostMm + opening.widthMm,
-          );
+        const holes = wallOpenings(level.openings, wall.id).filter(
+          (opening) =>
+            crossing.alongHost >= opening.offsetAlongHostMm &&
+            crossing.alongHost <= opening.offsetAlongHostMm + opening.widthMm,
+        );
         const left = crossing.along - half;
         const right = crossing.along + half;
         const bands: { readonly bottom: number; readonly top: number }[] = [];
@@ -523,8 +524,7 @@ export function buildElevationView(
       const wallLength = pathLength(wall.path.points);
       if (wallLength < 1) continue;
       const foreshortened = (right - left) / wallLength;
-      for (const opening of level.openings) {
-        if (opening.hostElementId !== wall.id) continue;
+      for (const opening of wallOpenings(level.openings, wall.id)) {
         const start = left + opening.offsetAlongHostMm * foreshortened;
         const sill = base + opening.sillHeightMm;
         if (!withinRange(range, sill, sill + opening.heightMm)) continue;

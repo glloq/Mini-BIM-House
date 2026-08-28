@@ -188,6 +188,53 @@ describe('branching off a run that already exists', () => {
     ).toHaveLength(1);
   });
 
+  it('donne à la pièce le genre de ce que le tronçon porte', () => {
+    /*
+     * Insérer une pièce dans un tuyau ne change pas ce qu'il transporte.
+     *
+     * Elle était fabriquée depuis le gabarit de la discipline, qui ne connaît
+     * qu'un genre par métier. Dériver le collecteur **unitaire** de la maison
+     * de référence — celui qui porte les eaux usées et les eaux-vannes
+     * réunies — créait donc un regard à ports d'eaux usées au milieu, et la
+     * liaison était refusée : « COMBINED_WASTEWATER et GREYWATER ne sont pas
+     * le même service ».
+     */
+    const source = project();
+    const drainage = (source.systems ?? []).find(
+      ({ id }) => id === 'wastewater',
+    )!;
+    const run = drainage.edges.find(({ id }) => id === 'wastewater:outfall')!;
+    const genreOf = (portId: string): string | undefined =>
+      drainage.ports.find(({ id }) => id === portId)?.portTypeId;
+    expect(genreOf(run.fromPortId)).toBe('WASTEWATER_COMBINED');
+
+    const result = branchCommand(
+      source,
+      'wastewater:outfall',
+      { x: 9700, y: 7900 },
+      { nodeId: 'node-unitaire', newId },
+    );
+    if (result.status !== 'OK') throw new Error(result.message);
+    const dispatcher = new ProjectCommandDispatcher(source);
+    // Rien ne doit être refusé : les deux moitiés reproduisent la paire
+    // d'origine, donc elles valent exactement ce qu'elle valait.
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+
+    const after = (dispatcher.project.systems ?? []).find(
+      ({ id }) => id === 'wastewater',
+    )!;
+    const fitting = after.ports.filter(
+      ({ nodeId }) => nodeId === 'node-unitaire',
+    );
+    const onTheRun = fitting.filter(({ id }) => !id.endsWith('-out-branch'));
+    for (const port of onTheRun)
+      expect(port.portTypeId, port.id).toMatch(/^WASTEWATER_COMBINED/u);
+    // Et le piquage neuf garde le genre du métier : ce qu'on y raccordera est
+    // un appareil de plus, pas la suite du collecteur.
+    const spur = fitting.find(({ id }) => id.endsWith('-out-branch'))!;
+    expect(spur.portTypeId).not.toBe('WASTEWATER_COMBINED');
+  });
+
   it('puts the fitting on the run, at the nearest point to the click', () => {
     const result = branchCommand(
       project(),

@@ -54,18 +54,46 @@ async function pointOn(
   page: Page,
   id: string,
 ): Promise<{ x: number; y: number }> {
-  return page.evaluate((wanted) => {
-    const shape = document.getElementById(wanted)?.getBoundingClientRect();
-    const frame = document
-      .querySelector('.plan-canvas')
-      ?.getBoundingClientRect();
-    if (shape === undefined || frame === undefined)
-      throw new Error(`Introuvable : ${wanted}`);
-    return {
-      x: shape.x - frame.x + shape.width / 2,
-      y: shape.y - frame.y + shape.height / 2,
-    };
-  }, id);
+  /*
+   * Deux mesures d'affilée qui s'accordent, et non une seule.
+   *
+   * Le point est relevé, puis le clic est envoyé : entre les deux, le plan
+   * peut encore bouger. Un morceau de code chargé à la demande qui arrive
+   * remplit un panneau, le panneau redimensionne le plan, et la projection
+   * change — le clic part alors sur les coordonnées d'avant et n'atteint plus
+   * rien. Cela ne se voyait qu'en charge, quand les morceaux arrivent tard :
+   * un parcours sur deux échouait, et les deux autres passaient, ce qui est la
+   * pire forme d'échec parce qu'on la prend pour du hasard.
+   *
+   * Attendre que deux relevés successifs donnent le même point est la
+   * définition de « le plan a fini de bouger ». C'est plus sûr qu'un délai,
+   * qui serait toujours trop court sur une machine chargée et toujours trop
+   * long sur les autres.
+   */
+  const measure = async (): Promise<{ x: number; y: number }> =>
+    page.evaluate((wanted) => {
+      const shape = document.getElementById(wanted)?.getBoundingClientRect();
+      const frame = document
+        .querySelector('.plan-canvas')
+        ?.getBoundingClientRect();
+      if (shape === undefined || frame === undefined)
+        throw new Error(`Introuvable : ${wanted}`);
+      return {
+        x: shape.x - frame.x + shape.width / 2,
+        y: shape.y - frame.y + shape.height / 2,
+      };
+    }, id);
+  let previous = await measure();
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const current = await measure();
+    if (
+      Math.abs(current.x - previous.x) < 0.5 &&
+      Math.abs(current.y - previous.y) < 0.5
+    )
+      return current;
+    previous = current;
+  }
+  return previous;
 }
 
 test('T1 — un projet neuf, quatre murs, une porte, une fenêtre, une pièce', async ({
@@ -196,9 +224,22 @@ test('T4 — un mur, son assemblage, sa suppression, et le retour', async ({
   await loadDemoProject(page);
   const canvas = page.locator('.plan-canvas');
   const beforeWall = await clicksSoFar(page);
-  await canvas.click({ position: await pointOn(page, 'wall:wall-south') });
+  const aimedAt = await pointOn(page, 'wall:wall-south');
+  await canvas.click({ position: aimedAt });
   const inspector = page.locator('.inspector-subject');
-  await expect(inspector).toContainText('Mur');
+  /*
+   * Le point visé est nommé dans l'échec, et c'est délibéré.
+   *
+   * Ce parcours échoue environ une fois sur six, et seulement quand les deux
+   * projets tournent ensemble — donc en charge. Il n'a jamais échoué sous
+   * observation : impossible d'en lire le message. Ce qu'on peut faire, faute
+   * de le reproduire, c'est le rendre lisible quand il se reproduira tout
+   * seul : où l'on a visé, et ce que le plan montrait à cet endroit.
+   */
+  await expect(
+    inspector,
+    `visé (${aimedAt.x.toFixed(1)}, ${aimedAt.y.toFixed(1)}) sur .plan-canvas`,
+  ).toContainText('Mur');
 
   // Deux clics pour atteindre l'assemblage d'un mur : le mur, puis le champ.
   // Il fallait quitter le plan, trouver la fiche, puis revenir.
@@ -208,7 +249,12 @@ test('T4 — un mur, son assemblage, sa suppression, et le retour', async ({
   ).toBeVisible();
   // Un clic sur le mur, et l'assemblage est là. Il fallait quatre gestes et un
   // retour : quitter le plan, trouver la fiche, revenir.
-  expect((await clicksSoFar(page)) - beforeWall).toBe(1);
+  //
+  // Le compte est relevé dans la page, sur `pointerdown` : si Playwright devait
+  // rejouer son clic — ce qu'il fait quand l'élément n'est pas encore stable —
+  // il en compterait deux, et le message le dirait.
+  const spent = (await clicksSoFar(page)) - beforeWall;
+  expect(spent, `gestes dépensés pour atteindre l’assemblage`).toBe(1);
 
   const before = await page
     .locator('[data-role="WALL_CUT"][id^="wall:"]')

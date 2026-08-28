@@ -16,6 +16,7 @@ import type {
   StairLanding,
   StairType,
   StructuralMember,
+  RoofOpening,
   StructuralMemberKind,
   TextNote,
   Wall,
@@ -24,8 +25,11 @@ import {
   detectSpaceBoundaries,
   entityId,
   isComponentCategory,
+  allRoofPlanes,
   hostAccepts,
+  isWallOpening,
   levelHosts,
+  validateRoofOpening,
   HOST_TYPE_LABELS,
   isDimension,
   isDimensionType,
@@ -1739,8 +1743,10 @@ export class UpdateOpeningCommand extends BuildingCommand {
     const offset = this.patch.offsetAlongHostMm;
     if (offset !== undefined && (!Number.isFinite(offset) || offset < 0))
       errors.push('La position sur le mur doit être positive ou nulle.');
-    const host = level.walls.find(({ id }) => id === opening.hostElementId);
-    if (host !== undefined) {
+    const host = isWallOpening(opening)
+      ? level.walls.find(({ id }) => id === opening.host.id)
+      : undefined;
+    if (host !== undefined && isWallOpening(opening)) {
       const next = { ...opening, ...this.patch };
       const start = host.path.points[0];
       const end = host.path.points.at(-1);
@@ -2101,6 +2107,108 @@ export class UpdateDimensionCommand extends BuildingCommand {
             : { overrideText: text }),
         };
       }),
+    }));
+  }
+}
+
+/** Ce qu'il faut savoir pour poser une fenêtre de toit. */
+export interface RoofOpeningDraft {
+  readonly id: string;
+  readonly planeId: string;
+  readonly openingType: 'WINDOW' | 'VOID';
+  readonly alongEaveMm: number;
+  readonly upSlopeMm: number;
+  readonly widthMm: number;
+  readonly heightMm: number;
+  readonly definitionId?: string;
+}
+
+function roofOpeningOf(draft: RoofOpeningDraft): RoofOpening {
+  return {
+    id: draft.id as RoofOpening['id'],
+    type: 'OPENING',
+    openingType: draft.openingType,
+    host: { kind: 'ROOF', id: draft.planeId },
+    placement: { alongEaveMm: draft.alongEaveMm, upSlopeMm: draft.upSlopeMm },
+    widthMm: draft.widthMm,
+    heightMm: draft.heightMm,
+    ...(draft.definitionId === undefined
+      ? {}
+      : { definitionId: draft.definitionId }),
+  };
+}
+
+/**
+ * Poser une fenêtre dans un pan de toiture.
+ *
+ * Une commande de projet et non d'éditeur, pour une raison qui décide : l'état
+ * que les commandes d'éditeur manipulent ne contient que des murs, et les pans
+ * d'une toiture sont **dérivés** de son contour. Vérifier qu'une fenêtre tient
+ * dans son pan demande donc de refaire cette dérivation, ce qui n'est possible
+ * qu'ici, avec le projet entier sous la main.
+ *
+ * Et il faut la vérifier. Une fenêtre posée au-delà du faîtage se dessine très
+ * bien, se compte dans l'enveloppe, et n'existe pas.
+ */
+export class AddRoofOpeningCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly draft: RoofOpeningDraft,
+  ) {
+    super(`roof-opening:add:${draft.id}`, 'Poser une fenêtre de toit');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level === undefined)
+      return rejected(`Le niveau ${this.levelId} est introuvable.`);
+    if (level.openings.some(({ id }) => id === this.draft.id))
+      return rejected(`L'ouverture ${this.draft.id} existe déjà.`);
+    const plane = allRoofPlanes(level).find(
+      ({ id }) => id === this.draft.planeId,
+    );
+    if (plane === undefined)
+      return rejected(
+        `Le pan de toiture ${this.draft.planeId} est introuvable sur ce niveau.`,
+      );
+    const issues = validateRoofOpening(roofOpeningOf(this.draft), plane);
+    return issues.length > 0
+      ? rejected(...issues.map(({ path, message }) => `${path}: ${message}`))
+      : ok();
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      openings: [...level.openings, roofOpeningOf(this.draft)],
+    }));
+  }
+}
+
+/**
+ * Retirer une ouverture, quelle qu'elle soit.
+ *
+ * `DeleteOpeningCommand` de l'éditeur ne connaît que les murs, parce que son
+ * inverse repose sur une commande qui vérifie un mur. Celle-ci travaille sur le
+ * projet, donc elle sait défaire les deux.
+ */
+export class RemoveOpeningCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly openingId: string,
+  ) {
+    super(`opening:remove:${openingId}`, 'Retirer une ouverture');
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level === undefined)
+      return rejected(`Le niveau ${this.levelId} est introuvable.`);
+    return level.openings.some(({ id }) => id === this.openingId)
+      ? ok()
+      : rejected(`L'ouverture ${this.openingId} est introuvable.`);
+  }
+  protected apply(project: Project): Project {
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      openings: level.openings.filter(({ id }) => id !== this.openingId),
     }));
   }
 }

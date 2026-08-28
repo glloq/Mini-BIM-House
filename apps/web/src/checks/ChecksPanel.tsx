@@ -1,5 +1,8 @@
 import { useMemo, useState } from 'react';
-import type { Project } from '@house-technical-designer/core-domain';
+import {
+  domainsPresentIn,
+  type Project,
+} from '@house-technical-designer/core-domain';
 import type { CalculationRun } from '../calculations/calculation-runner.js';
 import {
   projectChecks,
@@ -40,7 +43,7 @@ export function ChecksPanel({
    * Ce que le bâtiment dessiné donne, avant ce qui ne va pas.
    *
    * La liste des constats répond à « qu'est-ce qui cloche » ; elle ne répond
-   * pas à « où en est ma maison ». Une ligne par métier en jeu, trois états, et
+   * pas à « où en est ma maison ». Une ligne par métier en jeu, quatre états, et
    * les deux surfaces qu'on cite quand on parle d'une maison.
    */
   const lines = useMemo(
@@ -48,6 +51,27 @@ export function ChecksPanel({
     [checks, project, run],
   );
   const figures = useMemo(() => studyFigures(project), [project]);
+  /*
+   * Un fichier qui ne contient encore rien, et ce que cet écran doit en dire.
+   *
+   * Un projet neuf ouvre « Études » sur quarante-sept constats. Aucun n'est un
+   * défaut — ce sont tous des « non vérifiable » — et trente-neuf de leurs
+   * boutons mènent aux réglages de calcul, au jeu climatique ou aux
+   * équipements. Or aucun réglage ne calcule quoi que ce soit sur un fichier
+   * qui n'a ni mur, ni pièce, ni réseau : renseigner le nombre d'occupants
+   * d'une maison sans pièce ne rapproche de rien.
+   *
+   * Les constats restent affichés — cacher ce que l'application sait serait
+   * l'erreur inverse — mais ils ne sont plus la première chose qu'on lit.
+   *
+   * `domainsPresentIn` est ce que le **fichier** contient, par opposition au
+   * périmètre, qui est ce sur quoi on a décidé de travailler. Vide veut donc
+   * dire vide, et non « hors périmètre ».
+   */
+  const holdsNothing = useMemo(
+    () => domainsPresentIn(project).length === 0,
+    [project],
+  );
   const shown: readonly CheckItem[] = onlyFailures
     ? checks.filter(({ status }) => status === 'FAIL')
     : checks;
@@ -69,6 +93,25 @@ export function ChecksPanel({
         </label>
       </header>
 
+      {holdsNothing && (
+        <div className="empty-state">
+          <strong>Ce projet ne contient encore aucun objet.</strong>
+          <span>
+            Les {summary.total} constats ci-dessous ne signalent pas un défaut :
+            ils réclament des données pour un bâtiment qui n’existe pas encore.
+            Le premier geste n’est pas d’ouvrir les réglages, c’est de dessiner.
+          </span>
+          <span>
+            <button
+              type="button"
+              onClick={() => onFix({ label: 'Ouvrir le plan', tab: 'plan' })}
+            >
+              Ouvrir le plan
+            </button>
+          </span>
+        </div>
+      )}
+
       <section className="study-overview" aria-label="Vue d’ensemble">
         <ul className="study-lines">
           {lines.map((line) => (
@@ -78,6 +121,14 @@ export function ChecksPanel({
                 {line.state === 'HELD' && '✓'}
                 {line.state === 'GAP' &&
                   `⚠ ${line.gaps} point${line.gaps > 1 ? 's' : ''}`}
+                {/*
+                 * « Non vérifiable » n'est pas un écart et ne se compte pas
+                 * comme tel : l'application a regardé, et il lui manque une
+                 * donnée pour conclure. Le dire avec le nombre évite la coche
+                 * verte qui s'affichait ici au-dessus de quarante-sept lignes.
+                 */}
+                {line.state === 'UNVERIFIED' &&
+                  `? ${line.unknowns} non vérifiable${line.unknowns > 1 ? 's' : ''}`}
                 {line.state === 'AVAILABLE' && '● calcul disponible'}
               </span>
             </li>

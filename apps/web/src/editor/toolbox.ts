@@ -163,6 +163,13 @@ const HAS_WALL: EntryNeeds = {
   enabledWhen: (state) => state.wallCount > 0,
   requires: { reason: 'Tracez d’abord un mur.', entryId: 'building.wall' },
 };
+const HAS_ROOF: EntryNeeds = {
+  enabledWhen: (state) => state.roofSurfaceCount > 0,
+  requires: {
+    reason: 'Dessinez d’abord une toiture.',
+    entryId: 'building.roof',
+  },
+};
 const TWO_LEVELS: EntryNeeds = {
   enabledWhen: (state) => state.levelCount >= 2,
   requires: {
@@ -781,21 +788,36 @@ const STAGE_SECTIONS: Readonly<
           'ROOF',
           { outline: 'POINTS' },
         ),
+        /*
+         * « Ouverture de toit » prenait l'outil `OPENING`, qui perce le mur le
+         * plus proche du clic. La tuile disait toiture, demandait une toiture
+         * pour s'activer, et posait une fenêtre dans un mur : on cliquait sur
+         * le toit et la fenêtre apparaissait au rez-de-chaussée. Elle prend
+         * maintenant l'outil qui perce un pan.
+         */
+        entry(
+          'building.roof-window',
+          'ROOF_OPENING',
+          'Fenêtre de toit',
+          'Poser une fenêtre dans un pan de toiture',
+          'WINDOW',
+          { openingType: 'WINDOW', widthMm: '780', heightMm: '1180' },
+          // Pas de famille de catalogue, comme aucune entrée d'ouverture n'en
+          // porte : l'outil ne sait pas encore installer une menuiserie et la
+          // poser du même geste. La lui donner ici seulement ferait une
+          // exception que rien ne justifie.
+          undefined,
+          HAS_ROOF,
+        ),
         entry(
           'building.roof-void',
-          'OPENING',
-          'Ouverture de toit',
-          'Percer une toiture',
+          'ROOF_OPENING',
+          'Trémie de toit',
+          'Percer un pan de toiture',
           'VOID',
-          { openingType: 'VOID' },
+          { openingType: 'VOID', widthMm: '1000', heightMm: '1000' },
           undefined,
-          {
-            enabledWhen: (state) => state.roofSurfaceCount > 0,
-            requires: {
-              reason: 'Dessinez d’abord une toiture.',
-              entryId: 'building.roof',
-            },
-          },
+          HAS_ROOF,
         ),
       ],
     },

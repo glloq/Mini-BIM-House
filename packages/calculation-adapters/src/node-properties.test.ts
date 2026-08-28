@@ -22,6 +22,26 @@ function base(): Project {
   return structuredClone(createPreReferenceProject().project);
 }
 
+/**
+ * Le même nœud, ses valeurs remises **sur** le nœud.
+ *
+ * C'est la forme des fichiers écrits avant que `properties` existe, et le
+ * lecteur doit continuer à la comprendre. L'empreinte partagée, elle, est
+ * désormais canonique — un schéma fermé ne tolère plus qu'un nœud porte des
+ * champs que le modèle ne déclare pas — donc l'ancienne forme se fabrique ici
+ * plutôt que de se subir là-bas.
+ */
+function flattenedOntoNode(network: TechnicalNetwork): TechnicalNetwork {
+  return {
+    ...network,
+    nodes: network.nodes.map((node) => {
+      const { properties, ...core } = node;
+      if (properties === undefined) return node;
+      return { ...core, ...properties };
+    }),
+  };
+}
+
 /** The same node value, stated in the record instead of on the node. */
 function movedIntoProperties(network: TechnicalNetwork): TechnicalNetwork {
   const core = new Set([
@@ -72,10 +92,14 @@ describe('where a node states its properties', () => {
   });
 
   it('still reads a file written before that record existed', () => {
-    // The fixture states the flow as a field of the node itself.
     const project = base();
-    expect(project.systems?.[0]?.nodes[1]?.properties).toBeUndefined();
-    expect(flowsOf(inputs(project))).toEqual([0.2]);
+    const legacy: Project = {
+      ...project,
+      systems: (project.systems ?? []).map(flattenedOntoNode),
+    };
+    // Le débit est écrit sur le nœud lui-même, comme avant `properties`.
+    expect(legacy.systems?.[0]?.nodes[1]?.properties).toBeUndefined();
+    expect(flowsOf(inputs(legacy))).toEqual([0.2]);
   });
 
   it('reports a diameter nobody stated instead of choosing one', () => {

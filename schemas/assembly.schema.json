@@ -79,7 +79,7 @@
             "type": "boolean"
           }
         },
-        "additionalProperties": true
+        "additionalProperties": false
       }
     },
     "metadata": {
@@ -97,5 +97,5 @@
       "type": "object"
     }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

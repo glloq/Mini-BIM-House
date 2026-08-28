@@ -3,12 +3,13 @@ import type {
   Dimension,
   EquipmentDefinition,
   Level,
-  Opening,
   Project,
   Space,
   TechnicalNetwork,
+  RoofPlane,
   TextNote,
   Wall,
+  WallOpening,
 } from '@house-technical-designer/core-domain';
 import {
   deriveRoofPlanes,
@@ -16,10 +17,12 @@ import {
   DEFAULT_NOTE_HEIGHT_MM,
   isDimension,
   isTextNote,
+  isWallOpening,
   resolveDimension,
   portAnchors,
   resolveStraightWallJoin,
   roofEaveOutline,
+  roofOpeningGeometry,
   structuralFootprint,
   validateWall,
   resolveSpaceGeometry,
@@ -423,7 +426,7 @@ function joinPatch(
  * window glazing line that tells the two apart on a plan.
  */
 function openingPrimitives(
-  opening: Opening,
+  opening: WallOpening,
   host: Wall | undefined,
   assembly: Assembly | undefined,
   familyId: string | undefined,
@@ -484,7 +487,7 @@ function openingPrimitives(
         widthMm: opening.widthMm,
         heightMm: opening.heightMm,
         sillHeightMm: opening.sillHeightMm,
-        hostElementId: opening.hostElementId,
+        hostElementId: opening.host.id,
       },
     },
   ];
@@ -1556,8 +1559,18 @@ function directionAlong(
  * A ridge this version cannot solve is simply absent — the eaves are still
  * exact, and a line drawn where no plane meets would be worse than no line.
  */
-function roofStructurePrimitives(level: Level): readonly PrimitiveDraft[] {
+function roofStructurePrimitives(
+  level: Level,
+  issues: PlanViewIssue[],
+): readonly PrimitiveDraft[] {
   const drafts: PrimitiveDraft[] = [];
+  /*
+   * Les pans que ce niveau porte, dessinés une fois et retenus : une fenêtre
+   * de toit se dessine dans le sien, et le retrouver demande la toiture dont
+   * il est dérivé. Les chercher pour chaque fenêtre relancerait un squelette
+   * droit par ouverture.
+   */
+  const planes = new Map<string, RoofPlane>();
   for (const roof of level.roofStructures ?? []) {
     drafts.push({
       id: `roof-structure:${roof.id}`,
@@ -1570,7 +1583,8 @@ function roofStructurePrimitives(level: Level): readonly PrimitiveDraft[] {
       metadata: { sides: roof.edges.length },
     });
     const topology = deriveRoofPlanes(roof);
-    for (const plane of topology.planes)
+    for (const plane of topology.planes) {
+      planes.set(plane.id, plane);
       drafts.push({
         id: `roof-structure-plane:${plane.id}`,
         sourceObjectId: roof.id,
@@ -1585,6 +1599,65 @@ function roofStructurePrimitives(level: Level): readonly PrimitiveDraft[] {
           derived: topology.status === 'DERIVED',
         },
       });
+    }
+  }
+  for (const plane of level.roofs) planes.set(plane.id, plane);
+  drafts.push(...roofOpeningPrimitives(level, planes, issues));
+  return drafts;
+}
+
+/**
+ * Les fenêtres de toit, dessinées dans le pan qui les porte.
+ *
+ * Un plan de toiture les montre en projection : un rectangle raccourci par la
+ * pente, à l'endroit du rampant où elles sont implantées. C'est ce qu'un
+ * couvreur lit pour les positionner, et c'est aussi ce que le plan doit
+ * montrer pour qu'on voie qu'elles sont là.
+ */
+function roofOpeningPrimitives(
+  level: Level,
+  planes: ReadonlyMap<string, RoofPlane>,
+  issues: PlanViewIssue[],
+): readonly PrimitiveDraft[] {
+  const drafts: PrimitiveDraft[] = [];
+  for (const opening of level.openings) {
+    if (isWallOpening(opening)) continue;
+    const plane = planes.get(opening.host.id);
+    if (plane === undefined) {
+      issues.push({
+        code: 'VIEW_UNRESOLVED_HOST',
+        objectId: opening.id,
+        message: `La fenêtre de toit ${opening.id} ne désigne aucun pan du niveau.`,
+      });
+      continue;
+    }
+    const geometry = roofOpeningGeometry(opening, plane);
+    if (geometry === undefined) {
+      // Un pan sans rampant ne porte pas de fenêtre de toit ; le dire vaut
+      // mieux que de poser un rectangle quelque part.
+      issues.push({
+        code: 'VIEW_UNRESOLVED_HOST',
+        objectId: opening.id,
+        message: `Le pan ${plane.id} n'a pas de rampant : la fenêtre ${opening.id} n'est pas dessinable.`,
+      });
+      continue;
+    }
+    drafts.push({
+      id: `roof-opening:${opening.id}`,
+      sourceObjectId: opening.id,
+      semanticRole: 'OPENING',
+      geometry: { kind: 'POLYGON', polygon: geometry.footprint },
+      layer: 'architecture.openings',
+      zIndex: 31,
+      discipline: 'ARCHITECTURE',
+      metadata: {
+        openingType: opening.openingType,
+        widthMm: opening.widthMm,
+        heightMm: opening.heightMm,
+        hostElementId: opening.host.id,
+        lowerEdgeElevationMm: Math.round(geometry.lowerEdgeElevationMm),
+      },
+    });
   }
   return drafts;
 }
@@ -1988,7 +2061,8 @@ export function buildPlanView(
       );
     }
     for (const opening of level.openings) {
-      const host = level.walls.find(({ id }) => id === opening.hostElementId);
+      if (!isWallOpening(opening)) continue;
+      const host = level.walls.find(({ id }) => id === opening.host.id);
       drafts.push(
         ...openingPrimitives(
           opening,
@@ -2019,7 +2093,7 @@ export function buildPlanView(
       ...componentPrimitives(level, equipment, options.scale ?? DEFAULT_SCALE),
     );
     drafts.push(...stairPrimitives(level));
-    drafts.push(...roofStructurePrimitives(level));
+    drafts.push(...roofStructurePrimitives(level, issues));
     drafts.push(...structurePrimitives(level));
   }
   drafts.push(...sitePrimitives(project));

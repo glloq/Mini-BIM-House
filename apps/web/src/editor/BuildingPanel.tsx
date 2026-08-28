@@ -284,6 +284,12 @@ export function BuildingPanel({
                 id="building-contour"
                 value={rooms.length === 0 ? '' : String(contourIndex)}
                 disabled={rooms.length === 0}
+                {...(rooms.length === 0
+                  ? {
+                      title:
+                        'Les murs de ce niveau ne délimitent pas encore de contour fermé.',
+                    }
+                  : {})}
                 onChange={(event) =>
                   setContourIndex(Number(event.target.value))
                 }
@@ -411,10 +417,22 @@ export function BuildingPanel({
                 }
               />
             </label>
+            {/*
+             * Deux raisons de refuser, donc deux phrases : dire « il manque
+             * quelque chose » sans dire quoi laisse chercher dans les deux.
+             */}
             <button
               type="button"
               className="secondary"
               disabled={contour === undefined || roofAssemblyId === ''}
+              {...(contour === undefined
+                ? {
+                    title:
+                      'Un pan se pose sur une empreinte : les murs de ce niveau ne délimitent pas encore de contour fermé.',
+                  }
+                : roofAssemblyId === ''
+                  ? { title: 'Choisissez la composition du pan.' }
+                  : {})}
               onClick={() => {
                 const room = contour;
                 if (room === undefined) return;
@@ -575,6 +593,12 @@ export function BuildingPanel({
                   type="button"
                   className="secondary"
                   disabled={room.existingSpaceId !== undefined}
+                  {...(room.existingSpaceId === undefined
+                    ? {}
+                    : {
+                        title:
+                          'Ce contour porte déjà une pièce : elle se modifie sur le plan.',
+                      })}
                   onClick={() => {
                     const name = `${CATEGORY_LABELS[category]} ${level.spaces.length + 1}`;
                     onCommand(

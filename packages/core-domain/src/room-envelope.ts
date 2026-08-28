@@ -92,7 +92,7 @@ export function envelopeByRoom(project: Project): readonly RoomEnvelope[] {
     // The wall an opening was cut into, so a window follows its wall.
     const openingWall = new Map<string, string>();
     for (const opening of level.openings)
-      openingWall.set(opening.id, opening.hostElementId);
+      openingWall.set(opening.id, opening.host.id);
 
     for (const space of level.spaces) {
       const share = totalArea > 0 ? (areas.get(space.id) ?? 0) / totalArea : 0;

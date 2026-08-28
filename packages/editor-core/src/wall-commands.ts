@@ -1,6 +1,9 @@
 import {
+  isWallOpening,
   validateOpening,
   validateWall,
+  wallOpenings,
+  type Opening,
   type Wall,
 } from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
@@ -56,9 +59,7 @@ export class DeleteWallCommand implements EditorCommand {
   validate(state: EditorProjectState): CommandValidation {
     if (!state.walls.some(({ id }) => id === this.wallId))
       return { valid: false, errors: [`Wall ${this.wallId} does not exist.`] };
-    const dependants = state.openings.filter(
-      ({ hostElementId }) => hostElementId === this.wallId,
-    );
+    const dependants = wallOpenings(state.openings, this.wallId);
     const dimensions = state.dimensions.filter(
       ({ first, second }) =>
         first.wallId === this.wallId || second.wallId === this.wallId,
@@ -186,9 +187,7 @@ export class MoveWallPointCommand implements EditorCommand {
         valid: false,
         errors: issues.map(({ path, message }) => `${path}: ${message}`),
       };
-    const hosted = state.openings.filter(
-      ({ hostElementId }) => hostElementId === this.wallId,
-    );
+    const hosted = wallOpenings(state.openings, this.wallId);
     const errors = hosted.flatMap((opening) =>
       validateOpening(opening, next).map(
         ({ message }) => `Opening ${opening.id} ${message}.`,
@@ -269,13 +268,12 @@ export class SetWallPathCommand implements EditorCommand {
         valid: false,
         errors: issues.map(({ path, message }) => `${path}: ${message}`),
       };
-    const errors = state.openings
-      .filter(({ hostElementId }) => hostElementId === this.wallId)
-      .flatMap((opening) =>
+    const errors = wallOpenings(state.openings, this.wallId).flatMap(
+      (opening) =>
         validateOpening(opening, next).map(
           ({ message }) => `Opening ${opening.id} ${message}.`,
         ),
-      );
+    );
     return errors.length === 0 ? { valid: true } : { valid: false, errors };
   }
   execute(state: EditorProjectState): CommandExecution {
@@ -376,9 +374,8 @@ export class SplitWallCommand implements EditorCommand {
         valid: false,
         errors: ['The split point must fall inside the wall.'],
       };
-    const crossed = state.openings.filter(
+    const crossed = wallOpenings(state.openings, this.wallId).filter(
       (opening) =>
-        opening.hostElementId === this.wallId &&
         opening.offsetAlongHostMm < cut.distanceMm &&
         opening.offsetAlongHostMm + opening.widthMm > cut.distanceMm,
     );
@@ -406,13 +403,14 @@ export class SplitWallCommand implements EditorCommand {
     const cut = this.cut(state);
     if (cut === undefined)
       throw new Error('Split wall executed without validation.');
-    const openings = state.openings.map((opening) => {
-      if (opening.hostElementId !== this.wallId) return opening;
+    const openings: readonly Opening[] = state.openings.map((opening) => {
+      if (!isWallOpening(opening) || opening.host.id !== this.wallId)
+        return opening;
       return opening.offsetAlongHostMm < cut.distanceMm
         ? opening
         : {
             ...opening,
-            hostElementId: this.newWallId,
+            host: { kind: 'WALL' as const, id: this.newWallId },
             offsetAlongHostMm: opening.offsetAlongHostMm - cut.distanceMm,
           };
     });

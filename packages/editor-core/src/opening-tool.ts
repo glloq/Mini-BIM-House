@@ -1,7 +1,9 @@
 import {
+  isWallOpening,
   validateOpening,
   type Opening,
   type Wall,
+  type WallOpening,
 } from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
 import type {
@@ -22,7 +24,13 @@ export class AddOpeningCommand implements EditorCommand {
   readonly label = 'Add opening';
   constructor(
     readonly id: string,
-    readonly opening: Opening,
+    /*
+     * Une baie de mur, et non une ouverture quelconque. L'état que cette
+     * commande manipule ne contient que des murs : elle n'aurait pas de quoi
+     * vérifier qu'une fenêtre de toit tombe dans son pan, et poser sans
+     * vérifier est ce que le reste de ce fichier refuse de faire.
+     */
+    readonly opening: WallOpening,
   ) {}
   validate(state: EditorProjectState): CommandValidation {
     if (state.openings.some(({ id }) => id === this.opening.id))
@@ -30,13 +38,11 @@ export class AddOpeningCommand implements EditorCommand {
         valid: false,
         errors: [`Opening ${this.opening.id} already exists.`],
       };
-    const host = state.walls.find(
-      ({ id }) => id === this.opening.hostElementId,
-    );
+    const host = state.walls.find(({ id }) => id === this.opening.host.id);
     if (host === undefined)
       return {
         valid: false,
-        errors: [`Host wall ${this.opening.hostElementId} does not exist.`],
+        errors: [`Host wall ${this.opening.host.id} does not exist.`],
       };
     const issues = validateOpening(this.opening, host);
     return issues.length === 0
@@ -50,7 +56,7 @@ export class AddOpeningCommand implements EditorCommand {
     return {
       nextState: { ...state, openings: [...state.openings, this.opening] },
       inverse: new DeleteOpeningCommand(`${this.id}:inverse`, this.opening.id),
-      changes: openingChanges(this.opening.id, this.opening.hostElementId),
+      changes: openingChanges(this.opening.id, this.opening.host.id),
     };
   }
 }
@@ -62,21 +68,41 @@ export class DeleteOpeningCommand implements EditorCommand {
     readonly openingId: Opening['id'],
   ) {}
   validate(state: EditorProjectState): CommandValidation {
-    return state.openings.some(({ id }) => id === this.openingId)
+    const opening = state.openings.find(({ id }) => id === this.openingId);
+    if (opening === undefined)
+      return {
+        valid: false,
+        errors: [`Opening ${this.openingId} does not exist.`],
+      };
+    /*
+     * Défaire une suppression repose l'ouverture, et reposer passe par
+     * `AddOpeningCommand`, qui vérifie un mur. Cet état ne contient pas de
+     * pans de toiture : accepter la suppression ici donnerait une action
+     * qu'on ne peut pas annuler, ce qui est pire que de la refuser.
+     */
+    return isWallOpening(opening)
       ? { valid: true }
-      : { valid: false, errors: [`Opening ${this.openingId} does not exist.`] };
+      : {
+          valid: false,
+          errors: [
+            `L'ouverture ${this.openingId} perce une toiture ; cet éditeur ne connaît que les murs.`,
+          ],
+        };
   }
   execute(state: EditorProjectState): CommandExecution {
     const opening = state.openings.find(({ id }) => id === this.openingId);
-    if (opening === undefined)
+    if (opening === undefined || !isWallOpening(opening))
       throw new Error('Delete opening executed without validation.');
     return {
       nextState: {
         ...state,
         openings: state.openings.filter(({ id }) => id !== this.openingId),
       },
+      // Défaire une suppression repose la même ouverture. Une fenêtre de toit
+      // ne repasse pas par cette commande — cet état ne connaît pas de pans —
+      // donc elle n'est pas non plus supprimable par elle.
       inverse: new AddOpeningCommand(`${this.id}:inverse`, opening),
-      changes: openingChanges(opening.id, opening.hostElementId),
+      changes: openingChanges(opening.id, opening.host.id),
     };
   }
 }
@@ -91,7 +117,7 @@ export interface OpeningPlacement {
 export interface OpeningInsertionOptions {
   readonly maximumHostDistanceMm: number;
   readonly commandId: () => string;
-  readonly createOpening: (placement: OpeningPlacement) => Opening;
+  readonly createOpening: (placement: OpeningPlacement) => WallOpening;
 }
 
 export function createOpeningInsertionCommand(

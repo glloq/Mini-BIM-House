@@ -548,6 +548,32 @@ export function domainOfComponentCategory(
 }
 
 /**
+ * Which trade a calculation module answers for.
+ *
+ * L'inverse de `calculationModules`, construit une fois. Il fallait bien le
+ * construire : un constat de calcul porte un identifiant de module — `heating`,
+ * `dhw`, `iaq` — et rien d'autre ne dit à quel métier il parle. Le déduire du
+ * nom marcherait pour `heating` et échouerait pour `iaq`, ce qui est la pire
+ * des deux issues : ça marche assez pour qu'on ne vérifie pas.
+ *
+ * Un module qu'aucun domaine ne réclame n'a pas de métier, et c'est une
+ * réponse : `undefined` plutôt qu'un domaine choisi par défaut.
+ */
+const DOMAIN_OF_MODULE: ReadonlyMap<string, DesignDomainId> = new Map(
+  DESIGN_DOMAIN_IDS.flatMap((id) =>
+    (designDomain(id).calculationModules ?? []).map(
+      (moduleId) => [moduleId, id] as const,
+    ),
+  ),
+);
+
+export function domainOfCalculationModule(
+  moduleId: string,
+): DesignDomainId | undefined {
+  return DOMAIN_OF_MODULE.get(moduleId);
+}
+
+/**
  * The trades this project actually holds something of.
  *
  * The scope is a decision about what to work on; this is a fact about what is

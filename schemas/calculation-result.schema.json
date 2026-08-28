@@ -72,7 +72,7 @@
             }
           }
         },
-        "additionalProperties": true
+        "additionalProperties": false
       }
     },
     "assumptions": {
@@ -89,7 +89,35 @@
     },
     "computedAt": {
       "type": "string"
+    },
+    "trace": {
+      "description": "D'où le résultat vient : ses formules, ses sources, et les empreintes de ce dont il dépend. Le moteur l'écrit depuis longtemps ; le schéma ne le déclarait pas.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dependencyFingerprints"
+      ],
+      "properties": {
+        "formulas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sourceIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dependencyFingerprints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

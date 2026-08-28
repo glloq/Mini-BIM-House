@@ -3,7 +3,7 @@ import {
   buildPlanView,
   defaultVisibility,
 } from '@house-technical-designer/view-query';
-import { serializeProjectFile } from '@house-technical-designer/project-io';
+import { serializeProjectFile } from '@house-technical-designer/project-io/files';
 import { projectChecks } from './checks/checks-model.js';
 import { largeHouse } from './large-house.js';
 
@@ -22,7 +22,7 @@ describe('a house nobody would call small', () => {
     expect(() =>
       serializeProjectFile({
         format: 'house-technical-designer-project',
-        schemaVersion: '1.2.0',
+        schemaVersion: '1.3.0',
         project: house,
         references: {},
         extensions: {},

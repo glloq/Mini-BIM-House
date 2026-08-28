@@ -338,6 +338,12 @@ export function ScenariosPanel({
                   type={target?.numeric === true ? 'number' : 'text'}
                   step="any"
                   disabled={target === undefined}
+                  {...(target === undefined
+                    ? {
+                        title:
+                          'Désignez d’abord ce que le scénario fait varier.',
+                      }
+                    : {})}
                   placeholder={target?.currentValue ?? ''}
                   value={targetValue}
                   onChange={(event) => setTargetValue(event.target.value)}
@@ -359,7 +365,13 @@ export function ScenariosPanel({
                 </select>
               )}
             </div>
-            <button type="submit" disabled={target === undefined}>
+            <button
+              type="submit"
+              disabled={target === undefined}
+              {...(target === undefined
+                ? { title: 'Désignez d’abord ce que le scénario fait varier.' }
+                : {})}
+            >
               Ajouter le changement
             </button>
           </form>

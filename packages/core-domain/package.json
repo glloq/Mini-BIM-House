@@ -11,6 +11,7 @@
     "@house-technical-designer/assemblies": "0.1.0",
     "@house-technical-designer/geometry": "0.1.0",
     "@house-technical-designer/materials": "0.1.0",
+    "@house-technical-designer/roof-geometry": "0.1.0",
     "@house-technical-designer/technical-types": "0.1.0",
     "@house-technical-designer/units": "0.1.0"
   },

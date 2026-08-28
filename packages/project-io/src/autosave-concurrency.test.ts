@@ -6,11 +6,11 @@ import {
   recoverAutosave,
   type AutosaveStore,
 } from './autosave.js';
-import { loadProjectJson } from './project-io.js';
+import { loadProjectJson } from './file-io.js';
 
 const raw = {
   format: 'house-technical-designer-project',
-  schemaVersion: '1.2.0',
+  schemaVersion: '1.3.0',
   project: {
     id: 'project',
     metadata: {

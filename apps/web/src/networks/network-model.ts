@@ -436,14 +436,43 @@ export function branchCommand(
     position,
   };
   const ports = templatePorts(node.id, template, network.systemType);
-  const inlet = ports.find(({ direction }) => direction === 'IN');
-  const outlet = ports.find(({ direction }) => direction === 'OUT');
-  if (inlet === undefined || outlet === undefined)
+  const templateInlet = ports.find(({ direction }) => direction === 'IN');
+  const templateOutlet = ports.find(({ direction }) => direction === 'OUT');
+  if (templateInlet === undefined || templateOutlet === undefined)
     return {
       status: 'ERROR',
       message: 'La pièce de dérivation doit avoir une entrée et une sortie.',
     };
-  const spare = { ...outlet, id: `${node.id}-out-branch` };
+  /*
+   * Insérer une pièce dans un tronçon ne change pas ce que le tronçon porte.
+   *
+   * La pièce était fabriquée depuis le gabarit de la discipline, qui ne connaît
+   * qu'un genre par métier — pour les évacuations, des eaux usées. Dériver un
+   * collecteur **unitaire** créait donc un regard à ports d'eaux usées au
+   * milieu d'un tuyau qui porte aussi des eaux-vannes, et la liaison était
+   * refusée : « COMBINED_WASTEWATER et GREYWATER ne sont pas le même service ».
+   *
+   * Les deux ports du tronçon reprennent donc ceux qu'ils remplacent : l'entrée
+   * prend le genre de l'extrémité aval, la sortie celui de l'extrémité amont.
+   * Les deux moitiés reproduisent alors exactement la paire d'origine, donc
+   * elles sont valides si et seulement si elle l'était.
+   *
+   * Le piquage neuf, lui, garde le genre du gabarit : ce qu'on y raccordera est
+   * un appareil de plus, et c'est le métier qui dit avec quoi on se dérive.
+   */
+  const carried = (portId: string): string | undefined =>
+    network.ports.find(({ id }) => id === portId)?.portTypeId;
+  const upstream = carried(edge.fromPortId);
+  const downstream = carried(edge.toPortId);
+  const inlet = {
+    ...templateInlet,
+    ...(downstream === undefined ? {} : { portTypeId: downstream }),
+  };
+  const outlet = {
+    ...templateOutlet,
+    ...(upstream === undefined ? {} : { portTypeId: upstream }),
+  };
+  const spare = { ...templateOutlet, id: `${node.id}-out-branch` };
   const kind = NETWORK_EDGE_KINDS[network.discipline];
   return {
     status: 'OK',
@@ -452,7 +481,7 @@ export function branchCommand(
       'Dériver un tronçon',
       [
         new RemoveNetworkEdgeCommand(network.id, edge.id),
-        new AddNetworkNodeCommand(network.id, node, [...ports, spare]),
+        new AddNetworkNodeCommand(network.id, node, [inlet, outlet, spare]),
         new ConnectNetworkPortsCommand(network.id, {
           id: ids.newId('edge'),
           fromPortId: edge.fromPortId,

@@ -1,6 +1,7 @@
 import type { Level, Project } from './types.js';
 import type { Slab } from './slab.js';
 import { allRoofPlanes } from './roof.js';
+import { isWallOpening } from './opening.js';
 import {
   resolveRoofGeometry,
   resolveWallGeometry,
@@ -173,7 +174,15 @@ export function resolveEnvelope(project: Project): readonly EnvelopeElement[] {
     // A window taken out of a wall is not a hole in the house: it is a window,
     // and it carries a transmittance of its own.
     for (const opening of level.openings) {
-      if (!exterior.has(opening.hostElementId)) continue;
+      /*
+       * Une baie compte si le mur qu'elle perce est extérieur ; une fenêtre de
+       * toit compte toujours, parce qu'un pan de toiture donne sur le dehors
+       * par définition — et parce qu'elle est chère : un vitrage incliné perd
+       * plus qu'un vitrage vertical et capte plus de soleil. La sauter en
+       * silence, ce que faisait le `has` seul, retirait de l'enveloppe l'élément
+       * qui pèse le plus par mètre carré.
+       */
+      if (isWallOpening(opening) && !exterior.has(opening.host.id)) continue;
       const areaM2 = (opening.widthMm * opening.heightMm) / 1_000_000;
       elements.push({
         id: `envelope:opening:${opening.id}`,

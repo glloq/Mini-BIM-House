@@ -3,6 +3,10 @@ import {
   type Point3D,
 } from '@house-technical-designer/geometry';
 import {
+  resolveCircuitTopology,
+  type TopologyFailure,
+} from './circuit-topology.js';
+import {
   millimetres,
   millimetresToMetres,
   numericValue,
@@ -28,8 +32,42 @@ export interface CableElectricalInput {
 export interface ElectricalCircuitCalculationInput {
   readonly circuit: ElectricalCircuit;
   readonly loads: readonly ElectricalLoad[];
-  /** Ordered cable segments forming one continuous series path. */
+  /**
+   * Les tronçons du circuit.
+   *
+   * Sans topologie, ils doivent former une suite ordonnée et continue, et
+   * chacun porte alors le courant total — c'est le contrat d'origine, et il
+   * est conservé pour qui l'utilise encore. Avec topologie, l'ordre n'a plus
+   * d'importance : l'arbre se lit sur la géométrie.
+   */
   readonly cables: readonly CableElectricalInput[];
+  /**
+   * Ce que le réseau déclare relier, et d'où le circuit part.
+   *
+   * La donner change ce qui est calculé, et pour le mieux : le circuit est
+   * alors traité comme l'arbre qu'il est, chaque tronçon portant le courant
+   * des seules charges qu'il alimente, et la chute rendue est celle de la
+   * charge la plus défavorisée. Sans elle, l'ancien contrat tient — une suite
+   * ordonnée de câbles, le courant total dans chacun.
+   *
+   * La connectivité est **déclarée** et non déduite du dessin. Les deux
+   * peuvent diverger : dans la maison de démonstration, quatre câbles ont un
+   * tracé qui part à un mètre du nœud dont ils déclarent partir. La géométrie
+   * ne sert donc qu'à la longueur.
+   */
+  readonly topology?: CircuitTopologyInput;
+}
+
+/** Ce que le réseau déclare d'un circuit : qui relie quoi, et depuis où. */
+export interface CircuitTopologyInput {
+  /** Le nœud d'où le circuit part : le tableau, ou sa protection. */
+  readonly rootNodeId: string;
+  /** Les deux nœuds que chaque câble relie, par identifiant de câble. */
+  readonly cableEnds: Readonly<
+    Record<string, { readonly from: string; readonly to: string }>
+  >;
+  /** Le nœud qui porte chaque charge, par identifiant de charge. */
+  readonly loadNodes: Readonly<Record<string, string>>;
 }
 
 export interface ElectricalCableResult {
@@ -52,6 +90,14 @@ export interface ElectricalCircuitResult {
   readonly designCurrentA?: number;
   readonly voltageDropV?: number;
   readonly voltageDropPercent?: number;
+  /**
+   * La charge qui subit cette chute.
+   *
+   * Sur un arbre, la chute du circuit est celle du point le plus défavorisé,
+   * et savoir lequel est la moitié utile du résultat : c'est ce point qu'on va
+   * rapprocher, ou dont on va grossir le câble.
+   */
+  readonly worstLoadId?: string;
   readonly cables: readonly ElectricalCableResult[];
   readonly warnings: readonly ElectricalCalculationWarning[];
 }
@@ -62,7 +108,9 @@ export interface ElectricalCalculationWarning {
     | 'ELEC_UNKNOWN_DEMAND_FACTOR'
     | 'ELEC_UNKNOWN_POWER_FACTOR'
     | 'ELEC_UNKNOWN_RESISTANCE'
-    | 'ELEC_UNSUPPORTED_CONFIGURATION';
+    | 'ELEC_UNSUPPORTED_CONFIGURATION'
+    /** Les câbles ne forment pas un arbre : rien ne s'y calcule. */
+    | 'ELEC_UNRESOLVED_TOPOLOGY';
   readonly objectId: string;
   readonly message: string;
 }
@@ -151,17 +199,62 @@ export function calculateElectricalCircuit(
       : designApparentPowerVA /
         (currentVoltageFactor(circuit.phases, circuit.voltageReference) *
           circuit.voltageV);
-  const cables = input.cables.map((cable) =>
-    calculateCableVoltageDrop(cable, circuit, designCurrentA),
-  );
-  const isSeriesPath = hasContinuousSeriesPath(input.cables);
-  const voltageDropV =
-    cables.length === 0 ||
-    !isSeriesPath ||
-    cables.some(({ voltageDropV }) => voltageDropV === undefined)
+  const factor = pathFactorOf(circuit);
+  /*
+   * Deux façons de traiter le même circuit, et la première est la bonne.
+   *
+   * Avec la topologie, le circuit est l'arbre qu'il est : chaque tronçon porte
+   * le courant des seules charges qu'il alimente, et la chute rendue est celle
+   * de la charge la plus défavorisée. Sans elle, l'ancien contrat tient — une
+   * suite ordonnée, le courant total partout — parce qu'un appelant qui ne
+   * donne pas de géométrie n'a pas de quoi faire mieux, et qu'un résultat
+   * majorant vaut mieux qu'un refus silencieux.
+   */
+  const declared = input.topology;
+  const tree =
+    declared === undefined
       ? undefined
-      : cables.reduce((total, cable) => total + cable.voltageDropV!, 0);
-  if (cables.length === 0)
+      : resolveCircuitTopology(
+          input.cables.map(({ cable, conductorResistanceOhmPerM }) => {
+            const ends = declared.cableEnds[cable.id];
+            return {
+              cableId: cable.id,
+              // Un câble dont le réseau ne dit pas ce qu'il relie ne mène
+              // nulle part : le circuit ressortira « déconnecté », ce qui est
+              // vrai, plutôt que raccroché au hasard.
+              fromNodeId: ends?.from ?? `${cable.id}:from`,
+              toNodeId: ends?.to ?? `${cable.id}:to`,
+              path: cable.path,
+              ...(conductorResistanceOhmPerM === undefined
+                ? {}
+                : { resistanceOhmPerM: conductorResistanceOhmPerM }),
+            };
+          }),
+          input.loads.map((load) => {
+            const currentA = loadCurrentA(load, circuit);
+            return {
+              loadId: load.loadId,
+              nodeId: declared.loadNodes[load.loadId] ?? load.loadId,
+              ...(currentA === undefined ? {} : { currentA }),
+            };
+          }),
+          declared.rootNodeId,
+          factor,
+        );
+
+  const cables = input.cables.map((cable) =>
+    calculateCableVoltageDrop(
+      cable,
+      factor,
+      tree?.status === 'RESOLVED'
+        ? tree.currentByCable.get(cable.cable.id)
+        : designCurrentA,
+    ),
+  );
+
+  let voltageDropV: number | undefined;
+  let worstLoadId: string | undefined;
+  if (input.cables.length === 0)
     warnings.push(
       warning(
         'ELEC_UNSUPPORTED_CONFIGURATION',
@@ -169,14 +262,31 @@ export function calculateElectricalCircuit(
         'Circuit has no cable path to evaluate.',
       ),
     );
-  else if (!isSeriesPath)
-    warnings.push(
-      warning(
-        'ELEC_UNSUPPORTED_CONFIGURATION',
-        circuit.id,
-        'Cable inputs must form one ordered continuous series path; branched paths require a per-branch calculation.',
-      ),
-    );
+  else if (tree !== undefined) {
+    if (tree.status === 'UNRESOLVED')
+      warnings.push(
+        warning('ELEC_UNRESOLVED_TOPOLOGY', circuit.id, TOPOLOGY[tree.reason]),
+      );
+    else {
+      voltageDropV = tree.worstDropV;
+      worstLoadId = tree.worstLoadId;
+    }
+  } else {
+    const isSeriesPath = hasContinuousSeriesPath(input.cables);
+    if (!isSeriesPath)
+      warnings.push(
+        warning(
+          'ELEC_UNSUPPORTED_CONFIGURATION',
+          circuit.id,
+          'Cable inputs must form one ordered continuous series path; branched paths require a per-branch calculation.',
+        ),
+      );
+    else if (!cables.some(({ voltageDropV: drop }) => drop === undefined))
+      voltageDropV = cables.reduce(
+        (total, cable) => total + cable.voltageDropV!,
+        0,
+      );
+  }
   const cableWarnings = cables.flatMap(({ warnings: entries }) => entries);
   const allWarnings = [...warnings, ...cableWarnings];
   return {
@@ -200,9 +310,50 @@ export function calculateElectricalCircuit(
           voltageDropV,
           voltageDropPercent: (voltageDropV / circuit.voltageV) * 100,
         }),
+    ...(worstLoadId === undefined ? {} : { worstLoadId }),
     cables,
     warnings: allWarnings,
   };
+}
+
+/** Ce que chaque défaut de topologie dit, en une phrase lisible. */
+const TOPOLOGY: Readonly<Record<TopologyFailure, string>> = {
+  DISCONNECTED:
+    'Les câbles du circuit ne se rejoignent pas tous : un tronçon ne remonte à aucun tableau.',
+  LOOP: 'Les câbles du circuit referment une boucle ; un anneau partage le courant entre deux chemins et se calcule autrement.',
+  LOAD_OFF_PATH:
+    'Une charge du circuit n’est posée à l’extrémité d’aucun de ses câbles.',
+};
+
+/**
+ * Aller et retour, ou racine de trois.
+ *
+ * En monophasé, le courant fait deux fois le trajet — la phase et le neutre —
+ * donc la chute compte deux longueurs. En triphasé équilibré, le neutre ne
+ * porte rien, et le facteur est √3 entre phases, 1 par rapport au neutre.
+ */
+function pathFactorOf(circuit: ElectricalCircuit): number {
+  if (circuit.phases !== 3) return 2;
+  return circuit.voltageReference === 'PHASE_PHASE' ? Math.sqrt(3) : 1;
+}
+
+/** Le courant d'emploi d'une charge, quand tout ce qu'il faut est dit. */
+function loadCurrentA(
+  load: ElectricalLoad,
+  circuit: ElectricalCircuit,
+): number | undefined {
+  if (
+    load.activePowerW === undefined ||
+    load.demandFactor === undefined ||
+    load.powerFactor === undefined
+  )
+    return undefined;
+  return (
+    (load.activePowerW * load.demandFactor) /
+    load.powerFactor /
+    (currentVoltageFactor(circuit.phases, circuit.voltageReference) *
+      circuit.voltageV)
+  );
 }
 
 function hasContinuousSeriesPath(
@@ -239,7 +390,7 @@ export function electricalPathLengthM(path: readonly Point3D[]): number {
 
 function calculateCableVoltageDrop(
   input: CableElectricalInput,
-  circuit: ElectricalCircuit,
+  pathFactor: number,
   currentA: number | undefined,
 ): ElectricalCableResult {
   const lengthM = electricalPathLengthM(input.cable.path);
@@ -265,12 +416,6 @@ function calculateCableVoltageDrop(
       ],
     };
   nonNegative(input.conductorResistanceOhmPerM, 'conductor resistance');
-  const pathFactor =
-    circuit.phases === 3
-      ? circuit.voltageReference === 'PHASE_PHASE'
-        ? Math.sqrt(3)
-        : 1
-      : 2;
   return {
     cableId: input.cable.id,
     status: 'OK',

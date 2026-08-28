@@ -18,10 +18,8 @@ import {
   UpdateLevelCommand,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
-import {
-  CURRENT_PROJECT_SCHEMA_VERSION,
-  validateProjectFile,
-} from '@house-technical-designer/project-io';
+import { CURRENT_PROJECT_SCHEMA_VERSION } from '@house-technical-designer/project-io';
+import { validateProjectFile } from '@house-technical-designer/project-io/files';
 import { populatedProject } from '../test-support/populated-project.js';
 
 function asFile(project: Project): ProjectFile {

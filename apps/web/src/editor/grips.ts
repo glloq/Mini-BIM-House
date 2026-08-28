@@ -1,4 +1,5 @@
 import type { Project } from '@house-technical-designer/core-domain';
+import { isWallOpening } from '@house-technical-designer/core-domain';
 import { edgeMidpoints } from '@house-technical-designer/editor-core';
 import type { Point2D } from '@house-technical-designer/geometry';
 
@@ -200,7 +201,10 @@ export function openingGrips(
   if (level === undefined) return undefined;
   const opening = level.openings.find(({ id }) => id === objectId);
   if (opening !== undefined) {
-    const host = level.walls.find(({ id }) => id === opening.hostElementId);
+    // Une poignée déplace une baie le long de son mur : une fenêtre de toit
+    // se déplace dans son pan, ce qui est un autre geste et n'existe pas ici.
+    if (!isWallOpening(opening)) return undefined;
+    const host = level.walls.find(({ id }) => id === opening.host.id);
     const anchor =
       host === undefined
         ? undefined

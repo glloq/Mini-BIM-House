@@ -1,6 +1,7 @@
 import {
   entityId,
   isDimension,
+  isWallOpening,
   levelEntities,
   type EntityFamily,
   type Level,
@@ -187,11 +188,29 @@ export function duplicatedLevel(
         id: entityId<'Wall'>(copied(wall.id)),
         levelId,
       })),
-      openings: source.openings.map((opening) => ({
-        ...opening,
-        id: entityId<'Opening'>(copied(opening.id)),
-        hostElementId: entityId<'Wall'>(copied(opening.hostElementId)),
-      })),
+      /*
+       * Recopier un niveau recopie ses murs, donc ses baies suivent leur mur
+       * copié. Une fenêtre de toit ne suit pas : son pan est dérivé d'une
+       * toiture, qui est recopiée plus bas avec son propre identifiant, et
+       * lui coller un hôte de mur en ferait un objet qui n'existe pas. Elle
+       * garde donc son hôte, que la toiture copiée fournira.
+       */
+      openings: source.openings.map((opening) =>
+        isWallOpening(opening)
+          ? {
+              ...opening,
+              id: entityId<'Opening'>(copied(opening.id)),
+              host: {
+                kind: 'WALL' as const,
+                id: entityId<'Wall'>(copied(opening.host.id)),
+              },
+            }
+          : {
+              ...opening,
+              id: entityId<'Opening'>(copied(opening.id)),
+              host: { kind: 'ROOF' as const, id: copied(opening.host.id) },
+            },
+      ),
       slabs: source.slabs.map((slab) => ({
         ...slab,
         id: entityId<'Slab'>(copied(slab.id)),

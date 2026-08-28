@@ -1,6 +1,17 @@
 import type { ProjectFile } from '@house-technical-designer/core-domain';
 import type { MigrationJournalEntry } from './migrations.js';
-import { loadProjectJson, serializeProjectFile } from './project-io.js';
+/*
+ * Lire et écrire un fichier de projet, chargés au moment où on le fait.
+ *
+ * La sauvegarde locale est ce qui restait à tenir le validateur compilé dans
+ * le premier écran : l'application importe `autosave` pour installer sa file
+ * d'attente, et emportait avec elle quatre cent trente-huit kilo-octets dont
+ * elle n'a besoin qu'à la première modification — mille cinq cents
+ * millisecondes après, au plus tôt — ou à une reprise de session, qui attend
+ * déjà IndexedDB. Les deux usages sont dans des fonctions `async` ; le
+ * chargement s'y fait donc sur place, et rien ne change pour l'appelant.
+ */
+const fileIo = () => import('./file-io.js');
 
 export interface AutosaveStore {
   get(key: string): Promise<string | undefined>;
@@ -69,7 +80,7 @@ export async function autosaveProject(
   const record: AutosaveRecord = {
     format: 'house-technical-designer-autosave',
     savedAt,
-    projectJson: serializeProjectFile(file),
+    projectJson: (await fileIo()).serializeProjectFile(file),
     climateJson: [...climateJson],
   };
   const current = await store.get(key);
@@ -119,7 +130,7 @@ async function readSnapshot(
   ) {
     return { status: 'CORRUPT', message: 'Autosave envelope is invalid.' };
   }
-  const loaded = loadProjectJson(record.projectJson);
+  const loaded = (await fileIo()).loadProjectJson(record.projectJson);
   if (loaded.status !== 'OK')
     return {
       status: 'CORRUPT',

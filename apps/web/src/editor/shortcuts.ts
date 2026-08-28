@@ -10,6 +10,7 @@ export type ShortcutCommandId =
   | 'tool.wallRun'
   | 'tool.wallRectangle'
   | 'tool.opening'
+  | 'tool.roofOpening'
   | 'tool.space'
   | 'tool.slab'
   | 'tool.slabHole'
@@ -70,6 +71,15 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
     group: 'Outils',
   },
   { id: 'tool.opening', label: 'Ouverture', key: 'o', group: 'Outils' },
+  // Une ouverture, mais dans un pan : la même lettre avec Maj, comme les murs
+  // rectangle sont sous « Maj + W ».
+  {
+    id: 'tool.roofOpening',
+    label: 'Fenêtre de toit',
+    key: 'o',
+    shift: true,
+    group: 'Outils',
+  },
   { id: 'tool.space', label: 'Pièce', key: 'i', group: 'Outils' },
   { id: 'tool.slab', label: 'Dalle', key: 'l', group: 'Outils' },
   {

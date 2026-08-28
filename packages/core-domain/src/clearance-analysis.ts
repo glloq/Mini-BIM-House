@@ -59,6 +59,25 @@ function placementOf(placed: ResolvedPlacedEquipment) {
 export function clearanceReport(project: Project): ClearanceReport {
   const zones: ClearanceZoneInstance[] = [];
   const unmeasured: UnmeasuredClearance[] = [];
+  /*
+   * Ce qui est logé dans quoi, et pourquoi cela regarde les dégagements.
+   *
+   * Un disjoncteur monté dans son tableau occupe le volume du tableau : c'est
+   * le montage, pas une collision. La géométrie ne peut pas faire la
+   * différence — deux boîtes se recouvrent, un point — et c'est le modèle qui
+   * la fait, en disant que l'un loge l'autre.
+   *
+   * La paire logeur/logé est la seule qui soit ignorée. Les dégagements du
+   * tableau valent toujours contre tout le reste : c'est devant le tableau
+   * qu'on se tient, et le fait qu'un disjoncteur soit dedans n'y change rien.
+   */
+  const housing = new Map<string, string>();
+  for (const level of project.building.levels)
+    for (const component of level.components ?? [])
+      if (component.housedInId !== undefined)
+        housing.set(component.id, component.housedInId);
+  const together = (first: string, second: string): boolean =>
+    housing.get(first) === second || housing.get(second) === first;
   for (const placed of placedEquipment(project)) {
     const placement = placementOf(placed);
     if (placement === undefined) continue;
@@ -73,5 +92,11 @@ export function clearanceReport(project: Project): ClearanceReport {
           message: `${CLEARANCE_LABELS[zone.zone]} : ce modèle en demande une et personne n'a dit combien.`,
         });
   }
-  return { zones, conflicts: clearanceConflicts(zones), unmeasured };
+  return {
+    zones,
+    conflicts: clearanceConflicts(zones).filter(
+      ({ first, second }) => !together(first.objectId, second.objectId),
+    ),
+    unmeasured,
+  };
 }

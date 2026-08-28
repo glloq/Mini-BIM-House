@@ -15,7 +15,7 @@ import {
 import {
   loadProjectJson,
   serializeProjectFile,
-} from '@house-technical-designer/project-io';
+} from '@house-technical-designer/project-io/files';
 import type { ClimateDataset } from '@house-technical-designer/climate';
 import { PROJECT_CALCULATION_MODULES } from './modules.js';
 import { PROJECT_CALCULATION_MODULE_IDS } from './project-inputs.js';
@@ -548,7 +548,7 @@ describe('the whole envelope, checked by hand', () => {
                 id: entityId<'Opening'>('glazing'),
                 type: 'OPENING',
                 openingType: 'WINDOW',
-                hostElementId: entityId<'Wall'>('w-s'),
+                host: { kind: 'WALL', id: entityId<'Wall'>('w-s') },
                 offsetAlongHostMm: 1000,
                 sillHeightMm: 500,
                 widthMm: 2000,

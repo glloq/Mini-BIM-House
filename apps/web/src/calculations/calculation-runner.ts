@@ -31,6 +31,14 @@ export interface ModuleRun {
   /** Inputs the project could not provide for this module. */
   readonly missing: readonly MissingCalculationInput[];
   readonly inputs: CalculationJson;
+  /**
+   * Whether the answer came from the cache rather than from a fresh run.
+   *
+   * Not a curiosity: it is the difference between « seventeen modules ran »
+   * and « five did ». Carrying it here is what lets a test assert the second
+   * rather than hope for it.
+   */
+  readonly reused: boolean;
 }
 
 export interface CalculationRun {
@@ -45,6 +53,8 @@ export interface CalculationRun {
   readonly climateFingerprint: string;
   readonly startedAt: string;
   readonly completedAt: string;
+  /** Modules that had to be computed again for this run. */
+  readonly recomputed: readonly string[];
 }
 
 /**
@@ -123,29 +133,21 @@ export async function runProjectCalculations(
   climate: readonly ClimateDataset[],
 ): Promise<CalculationRun> {
   const startedAt = new Date().toISOString();
-  const [{ CalculationOrchestrator }, adapters] = await Promise.all([
-    import('@house-technical-designer/calculation-core'),
-    import('@house-technical-designer/calculation-adapters'),
-  ]);
-  const {
-    PROJECT_CALCULATION_MODULES,
-    PROJECT_CALCULATION_MODULE_IDS,
-    buildProjectCalculationInputs,
-    calculationModuleLabel,
-    createProjectCalculationContext,
-  } = adapters;
-  const context = createProjectCalculationContext(project, { climate });
-  const built = buildProjectCalculationInputs(context);
-  const engine = new CalculationOrchestrator();
-  for (const module of PROJECT_CALCULATION_MODULES) engine.register(module);
+  const engine = await sharedEngine();
+  const { calculationModuleLabel, moduleIds } = engine;
+  const built = engine.build(project, climate);
   const runs: ModuleRun[] = [];
-  for (const moduleId of PROJECT_CALCULATION_MODULE_IDS) {
+  for (const moduleId of moduleIds) {
     const missing = built.missing.filter(
       (entry) => entry.moduleId === moduleId,
     );
     const label = calculationModuleLabel(moduleId);
     const inputs = built.inputs[moduleId] ?? null;
-    const outcome = await engine.calculateModule(moduleId, built.inputs, {});
+    const outcome = await engine.orchestrator.calculateModule(
+      moduleId,
+      built.inputs,
+      {},
+    );
     if (outcome.status === 'ERROR') {
       runs.push({
         moduleId,
@@ -154,6 +156,8 @@ export async function runProjectCalculations(
         message: outcome.message,
         missing,
         inputs,
+        // A refusal is not a result, so there is nothing to have reused.
+        reused: false,
       });
       continue;
     }
@@ -164,6 +168,7 @@ export async function runProjectCalculations(
       result: outcome.result,
       missing,
       inputs,
+      reused: outcome.cacheHit,
     });
   }
   return {
@@ -175,7 +180,94 @@ export async function runProjectCalculations(
     climateFingerprint: climateSignature(climate),
     startedAt,
     completedAt: new Date().toISOString(),
+    recomputed: runs
+      .filter(({ reused }) => !reused)
+      .map(({ moduleId }) => moduleId),
   };
+}
+
+/**
+ * L'orchestrateur, et le fait qu'il n'y en ait qu'un.
+ *
+ * Il en était créé un neuf à chaque exécution, donc avec un cache vide, donc
+ * les dix-sept modules recalculaient tout à chaque révision du projet. Le
+ * cache existait pourtant, et il était déjà exact : les résultats sont
+ * adressés par l'empreinte de ce qui les produit — version du module, entrées,
+ * réglages, empreintes des dépendances. Déplacer un mur change les entrées de
+ * `thermal`, donc son empreinte, donc celles des quatre modules qui en
+ * dépendent ; les douze autres retrouvent la leur inchangée.
+ *
+ * C'est ce qui rend l'invalidation sélective **sans rien déclarer**. Une liste
+ * de chemins écrite à la main — « ce module dépend de `building.levels.walls` »
+ * — dérive dès qu'un module lit une valeur de plus, et rien ne le dit : les
+ * résultats deviennent faux en silence, ce qui est pire que de tout
+ * recalculer. L'empreinte, elle, est dérivée de ce qui est réellement passé au
+ * module, donc elle ne peut pas mentir. `inputPaths` reste sur les modules
+ * comme documentation ; ce n'est pas ce qui décide.
+ *
+ * Ce qui est gardé entre deux exécutions est donc le cache, et rien d'autre :
+ * le projet et le climat sont relus à chaque appel, et un résultat n'est
+ * réutilisé que si son empreinte est identique.
+ */
+interface SharedEngine {
+  readonly orchestrator: import('@house-technical-designer/calculation-core').CalculationOrchestrator;
+  readonly moduleIds: readonly string[];
+  readonly calculationModuleLabel: (moduleId: string) => string;
+  readonly build: (
+    project: Project,
+    climate: readonly ClimateDataset[],
+  ) => ProjectCalculationInputs;
+}
+
+let engineOnce: Promise<SharedEngine> | undefined;
+
+async function sharedEngine(): Promise<SharedEngine> {
+  engineOnce ??= (async (): Promise<SharedEngine> => {
+    const [{ CalculationOrchestrator }, adapters] = await Promise.all([
+      import('@house-technical-designer/calculation-core'),
+      import('@house-technical-designer/calculation-adapters'),
+    ]);
+    const {
+      PROJECT_CALCULATION_MODULES,
+      PROJECT_CALCULATION_MODULE_IDS,
+      buildProjectCalculationInputs,
+      calculationModuleLabel,
+      createProjectCalculationContext,
+    } = adapters;
+    const orchestrator = new CalculationOrchestrator();
+    for (const module of PROJECT_CALCULATION_MODULES)
+      orchestrator.register(module);
+    return {
+      orchestrator,
+      moduleIds: PROJECT_CALCULATION_MODULE_IDS,
+      calculationModuleLabel,
+      build: (project, climate) =>
+        buildProjectCalculationInputs(
+          createProjectCalculationContext(project, { climate }),
+        ),
+    };
+  })();
+  return engineOnce;
+}
+
+/**
+ * Jette ce qui a été gardé.
+ *
+ * Le seul appelant légitime est un test : chacun doit partir d'un cache vide,
+ * sans quoi l'ordre des tests décide de leurs résultats. L'application, elle,
+ * n'a aucune raison de le faire — un cache adressé par le contenu ne devient
+ * jamais faux.
+ */
+export async function resetCalculationEngine(): Promise<void> {
+  if (engineOnce === undefined) return;
+  (await engineOnce).orchestrator.clearCache();
+}
+
+/** Ce que le cache a évité depuis le début de la séance. */
+export async function calculationCacheStatistics(): Promise<
+  import('@house-technical-designer/calculation-core').CalculationCacheStatistics
+> {
+  return (await sharedEngine()).orchestrator.statistics();
 }
 
 function number(value: CalculationJson | undefined): number | undefined {

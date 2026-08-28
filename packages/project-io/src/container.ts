@@ -1,9 +1,6 @@
 import type { ProjectFile } from '@house-technical-designer/core-domain';
-import {
-  loadProjectJson,
-  serializeProjectFile,
-  type ProjectLoadResult,
-} from './project-io.js';
+import { loadProjectJson, serializeProjectFile } from './file-io.js';
+import type { ProjectLoadResult } from './project-io.js';
 import type { MigrationJournalEntry } from './migrations.js';
 import {
   looksLikeZip,
