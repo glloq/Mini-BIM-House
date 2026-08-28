@@ -1,5 +1,19 @@
 name: CI
 
+# Une erreur par exécution, ou toutes en une seule.
+#
+# Tout tenait dans un job `validate` qui enchaînait quinze commandes : un
+# `format:check` rouge arrêtait la course, et on ne savait ni si TypeScript
+# passait, ni les schémas, ni les catalogues, ni les tests. On corrigeait, on
+# relançait, on découvrait la suivante — quatre allers-retours pour quatre
+# fautes qu'une seule exécution aurait pu dire ensemble.
+#
+# Les contrôles sont donc découpés par **ce qu'ils vérifient**, et non par ce
+# qu'ils coûtent : la forme, les types, les contrats de données, les tests, le
+# produit, le navigateur. Ils sont indépendants, donc parallèles, donc tous
+# rapportés. `release-gate` est le seul à les attendre tous — c'est lui qu'on
+# rend obligatoire sur la branche, une case au lieu de six.
+
 on:
   push:
     branches: [main]
@@ -9,7 +23,7 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  format-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,29 +36,94 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run format:check
+      # `if: always()` : la mise en forme et les règles de code sont deux
+      # questions, et savoir la seconde ne doit pas dépendre de la première.
       - run: npm run lint
+        if: always()
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
       - run: npm run typecheck
+
+  contracts:
+    # Ce que les données promettent, et que ni les types ni les tests du moteur
+    # ne voient : une famille qui nomme un port que personne ne définit, une
+    # fiche dont les propriétés ne sont pas celles de son schéma, un manifeste
+    # qui décrit la version d'avant.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
       - run: npm run validate:schemas
-      # The data has its own gate: a family naming a port nobody defined, or a
-      # catalogue entry whose properties are not the ones its schema declares,
-      # is wrong in a way no type-check and no unit test of the engine sees.
       - run: npm run validate:catalog
+        if: always()
       - run: npm run validate:docs
-      # The manifest says what is installed; a manifest nobody checks is a
-      # manifest that describes a previous release.
+        if: always()
       - run: npm run catalog:manifest -- --check
+        if: always()
       # « Ajouter des fiches ne demande aucune modification de TypeScript » :
       # ce test écrit un fichier que rien n'a jamais annoncé et demande à la
       # chaîne réelle si elle le trouve. Il tourne seul parce qu'il touche le
       # dépôt pendant qu'il s'exécute.
       - run: npm run test:discovery
-      # The catalogue measured at the size it is meant to reach. Not a
-      # threshold — machines differ — but a run that fails loudly the day
-      # indexing ten thousand entries stops finishing at all.
-      - run: npm run benchmark
+        if: always()
+
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # La couverture **est** la suite, mesurée : lancer `npm test` puis
+      # `test:coverage` faisait tourner deux mille quatre cents tests deux fois
+      # pour le même verdict.
       - run: npm run test:coverage
+
+  measures:
+    # Ce qui se mesure plutôt que se juger : le temps que met le catalogue à la
+    # taille qu'il doit atteindre, et les licences de ce qu'on embarque.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Pas un seuil — les machines diffèrent — mais une exécution qui échoue
+      # bruyamment le jour où indexer dix mille fiches cesse de terminer.
+      - run: npm run benchmark
       - run: npm run audit:licenses
-      - run: npm test
+        if: always()
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
       - run: npm run build
 
   browser:
@@ -65,6 +144,7 @@ jobs:
       # Ce que la coque coûte à l'écran, mesuré plutôt qu'estimé : une barre
       # qui repasse à deux rangées ne se voit dans aucune revue de diff.
       - run: npm run measure:shell -- --check
+        if: always()
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -72,3 +152,19 @@ jobs:
           name: playwright-report
           path: playwright-report
           retention-days: 7
+
+  # La seule case à rendre obligatoire sur la branche : elle échoue dès qu'un
+  # des six échoue, et elle ne dit rien de plus qu'eux. Le déploiement Pages
+  # attend « CI », donc il attend celle-ci.
+  release-gate:
+    runs-on: ubuntu-latest
+    needs: [format-lint, typecheck, contracts, unit, measures, build, browser]
+    if: always()
+    steps:
+      - name: Refuser si un contrôle a échoué
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "true" ]; then
+            echo "Un contrôle au moins a échoué ; voir les jobs ci-dessus."
+            exit 1
+          fi
+          echo "Tous les contrôles sont passés."

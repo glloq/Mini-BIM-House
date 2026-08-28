@@ -17,8 +17,8 @@ branche et sur chaque demande de fusion.
 - `npm run validate:docs` — `node scripts/validation-report.mjs --check`
 - `npm run catalog:manifest` — `vite-node scripts/catalog-manifest.ts`
 - `npm run test:discovery` — `vitest run --config vitest.discovery.config.ts`
-- `npm run benchmark` — `vitest bench --run`
 - `npm run test:coverage` — `vitest run --coverage`
+- `npm run benchmark` — `vitest bench --run`
 - `npm run audit:licenses` — `node scripts/audit-licenses.mjs`
 - `npm run build` — `npm run build --workspaces --if-present`
 - `npm run check:bundle` — `node scripts/check-bundle-budget.mjs`
