@@ -1979,6 +1979,19 @@ legend {
 .inspector-subject .actions {
   margin-top: 0.75rem;
 }
+/*
+ * Ce qu'on ne peut pas modifier d'ici, et l'endroit où on le peut.
+ *
+ * La phrase prend la place de la section « Modifier » qui a disparu, et le
+ * bouton qui mène chez le propriétaire a besoin de s'en détacher : collé sous
+ * le texte, il se lit comme la suite de la phrase plutôt que comme le geste
+ * qu'elle propose.
+ */
+.inspector-readonly {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+}
 
 /* The checks list: a finding, where it comes from, and how to act on it. */
 .alert-list li.check-unknown .badge.unknown {
