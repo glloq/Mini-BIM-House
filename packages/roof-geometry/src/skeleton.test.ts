@@ -181,22 +181,236 @@ describe('des pentes différentes', () => {
   });
 });
 
+/** L'aire couverte par les pans, qui doit être celle du contour. */
+const covered = (result: ReturnType<typeof straightSkeleton>): number =>
+  result.status === 'UNRESOLVED'
+    ? 0
+    : result.faces.reduce(
+        (total, face) => total + Math.abs(signedArea(face.outline)),
+        0,
+      );
+
 describe('un contour rentrant', () => {
-  it('trouve la noue d’un L, et dit ce qu’il n’a pas fermé', () => {
+  it('résout un L, noue comprise', () => {
     const result = straightSkeleton(L_SHAPE, evenly(6));
-    // Une noue existe : c'est le fait, et le moteur la nomme.
-    expect(result.status).not.toBe('UNRESOLVED');
-    if (result.status === 'UNRESOLVED') return;
-    expect(result.arcs.some(({ kind }) => kind === 'VALLEY')).toBe(true);
-    if (result.status === 'PARTIAL')
-      expect(result.reason.length).toBeGreaterThan(20);
+    expect(result.status).toBe('RESOLVED');
+    if (result.status !== 'RESOLVED') return;
+    expect(result.arcs.filter(({ kind }) => kind === 'VALLEY')).toHaveLength(1);
+    // Six côtés, six pans, et l'emprise couverte une fois exactement.
+    expect(result.faces).toHaveLength(6);
+    expect(covered(result)).toBeCloseTo(Math.abs(signedArea(L_SHAPE)), 6);
+  });
+
+  it('place la noue d’un L là où elle doit être', () => {
+    /*
+     * Ce L a deux branches de largeur deux : tout son squelette est à la
+     * hauteur un, et cinq événements y tombent au même instant. C'est le cas
+     * dégénéré par excellence, et c'est celui qu'une maison réelle présente
+     * dès que ses deux ailes ont la même épaisseur.
+     */
+    const result = straightSkeleton(L_SHAPE, evenly(6));
+    if (result.status !== 'RESOLVED') return;
+    const valley = result.arcs.find(({ kind }) => kind === 'VALLEY')!;
+    // Elle part du sommet rentrant (2, 2) et rejoint le nœud (1, 1).
+    const ends = [valley.from, valley.to].sort((a, b) => a.x - b.x);
+    expect(ends[0]!.x).toBeCloseTo(1, 6);
+    expect(ends[0]!.y).toBeCloseTo(1, 6);
+    expect(ends[1]!.x).toBeCloseTo(2, 6);
+    expect(ends[1]!.y).toBeCloseTo(2, 6);
+    expect(result.peakHeight).toBeCloseTo(1, 6);
   });
 
   it('trouve les deux noues d’un U', () => {
     const result = straightSkeleton(U_SHAPE, evenly(8));
-    expect(result.status).not.toBe('UNRESOLVED');
-    if (result.status === 'UNRESOLVED') return;
-    expect(result.arcs.some(({ kind }) => kind === 'VALLEY')).toBe(true);
+    expect(result.status).toBe('RESOLVED');
+    if (result.status !== 'RESOLVED') return;
+    expect(result.arcs.filter(({ kind }) => kind === 'VALLEY')).toHaveLength(2);
+    expect(covered(result)).toBeCloseTo(Math.abs(signedArea(U_SHAPE)), 6);
+  });
+
+  it('résout un T, dont la noue tombe sur un côté parallèle', () => {
+    /*
+     * Le pied du T bute sur la barre, et le côté qui l'y amène est exactement
+     * antiparallèle à celui qu'il atteint : il n'y a pas de sommet entre ces
+     * deux-là, la bande se referme d'un coup. Le cas se traite comme un
+     * faîtage de rectangle, et non comme un refus.
+     */
+    const T = [
+      { x: 0, y: 0 },
+      { x: 9, y: 0 },
+      { x: 9, y: 3 },
+      { x: 6, y: 3 },
+      { x: 6, y: 8 },
+      { x: 3, y: 8 },
+      { x: 3, y: 3 },
+      { x: 0, y: 3 },
+    ];
+    const result = straightSkeleton(T, evenly(8));
+    expect(result.status).toBe('RESOLVED');
+    if (result.status !== 'RESOLVED') return;
+    expect(result.arcs.filter(({ kind }) => kind === 'VALLEY')).toHaveLength(2);
+    expect(covered(result)).toBeCloseTo(Math.abs(signedArea(T)), 6);
+  });
+
+  it('résout une croix, avec ses quatre noues', () => {
+    const cross = [
+      { x: 3, y: 0 },
+      { x: 6, y: 0 },
+      { x: 6, y: 3 },
+      { x: 9, y: 3 },
+      { x: 9, y: 6 },
+      { x: 6, y: 6 },
+      { x: 6, y: 9 },
+      { x: 3, y: 9 },
+      { x: 3, y: 6 },
+      { x: 0, y: 6 },
+      { x: 0, y: 3 },
+      { x: 3, y: 3 },
+    ];
+    const result = straightSkeleton(cross, evenly(12));
+    expect(result.status).toBe('RESOLVED');
+    if (result.status !== 'RESOLVED') return;
+    expect(result.arcs.filter(({ kind }) => kind === 'VALLEY')).toHaveLength(4);
+    expect(covered(result)).toBeCloseTo(Math.abs(signedArea(cross)), 6);
+  });
+
+  it('résout un contour rentrant à pentes différentes', () => {
+    // Une noue entre deux pans de pentes inégales ne descend pas à 45° : elle
+    // penche vers le pan le plus raide, et le moteur doit le savoir.
+    const result = straightSkeleton(L_SHAPE, [
+      { speed: 1 },
+      { speed: 0.7 },
+      { speed: 1.3 },
+      { speed: 1 },
+      { speed: 0.5 },
+      { speed: 1 },
+    ]);
+    expect(result.status).toBe('RESOLVED');
+    if (result.status !== 'RESOLVED') return;
+    expect(covered(result)).toBeCloseTo(Math.abs(signedArea(L_SHAPE)), 6);
+  });
+});
+
+describe('ce que les pans doivent respecter, quel que soit le contour', () => {
+  /*
+   * Douze contours, dont neuf que le convexe ne couvrait pas. Compter les
+   * faces ne dit rien : quatre pans qui se recouvrent au milieu comptent deux
+   * fois la même surface, et tout ce qui en découle — métrés, enveloppe
+   * thermique, apports solaires — est faux sans que rien ne le dise. Ce qui
+   * le dit est l'aire couverte, et elle est vérifiée ici comme elle l'est
+   * dans le moteur lui-même.
+   */
+  const CASES: readonly (readonly [string, readonly Point2D[]])[] = [
+    ['rectangle', RECTANGLE],
+    ['L', L_SHAPE],
+    ['U', U_SHAPE],
+    [
+      'L dissymétrique',
+      [
+        { x: 0, y: 0 },
+        { x: 10, y: 0 },
+        { x: 10, y: 3 },
+        { x: 4, y: 3 },
+        { x: 4, y: 9 },
+        { x: 0, y: 9 },
+      ],
+    ],
+    [
+      'Z',
+      [
+        { x: 0, y: 0 },
+        { x: 6, y: 0 },
+        { x: 6, y: 4 },
+        { x: 10, y: 4 },
+        { x: 10, y: 8 },
+        { x: 4, y: 8 },
+        { x: 4, y: 4 },
+        { x: 0, y: 4 },
+      ],
+    ],
+    [
+      'escalier',
+      [
+        { x: 0, y: 0 },
+        { x: 9, y: 0 },
+        { x: 9, y: 3 },
+        { x: 6, y: 3 },
+        { x: 6, y: 6 },
+        { x: 3, y: 6 },
+        { x: 3, y: 9 },
+        { x: 0, y: 9 },
+      ],
+    ],
+    [
+      'encoche',
+      [
+        { x: 0, y: 0 },
+        { x: 10, y: 0 },
+        { x: 10, y: 6 },
+        { x: 6, y: 6 },
+        { x: 6, y: 4 },
+        { x: 4, y: 4 },
+        { x: 4, y: 6 },
+        { x: 0, y: 6 },
+      ],
+    ],
+    [
+      'triangle',
+      [
+        { x: 0, y: 0 },
+        { x: 6, y: 0 },
+        { x: 3, y: 5 },
+      ],
+    ],
+  ];
+
+  it.each(CASES)('couvre exactement l’emprise : %s', (_name, outline) => {
+    const result = straightSkeleton(outline, evenly(outline.length));
+    expect(result.status).toBe('RESOLVED');
+    expect(covered(result)).toBeCloseTo(Math.abs(signedArea(outline)), 6);
+  });
+
+  it.each(CASES)('couvre encore avec des pentes inégales : %s', (_name, o) => {
+    const result = straightSkeleton(
+      o,
+      o.map((_, index) => ({ speed: 0.8 + 0.15 * index })),
+    );
+    // Ce qui n'est pas résolu est dit, jamais approximé : la seule chose
+    // interdite est de rendre `RESOLVED` sur des pans qui ne couvrent pas.
+    if (result.status === 'RESOLVED')
+      expect(covered(result)).toBeCloseTo(Math.abs(signedArea(o)), 6);
+    else expect(result.status).not.toBe('RESOLVED');
+  });
+
+  it('refuse plutôt que de rendre des pans qui ne couvrent pas', () => {
+    /*
+     * Une croix dont les douze côtés ont douze pentes très différentes : le
+     * moteur y manque un événement, et il le dit. C'est la garantie qui
+     * compte — pas qu'il résolve tout, mais qu'il ne rende jamais une
+     * toiture fausse qu'on ne pourrait pas distinguer d'une juste.
+     */
+    const cross = [
+      { x: 3, y: 0 },
+      { x: 6, y: 0 },
+      { x: 6, y: 3 },
+      { x: 9, y: 3 },
+      { x: 9, y: 6 },
+      { x: 6, y: 6 },
+      { x: 6, y: 9 },
+      { x: 3, y: 9 },
+      { x: 3, y: 6 },
+      { x: 0, y: 6 },
+      { x: 0, y: 3 },
+      { x: 3, y: 3 },
+    ];
+    const result = straightSkeleton(
+      cross,
+      cross.map((_, index) => ({ speed: 0.6 + 0.23 * index })),
+    );
+    expect(result.status).toBe('PARTIAL');
+    if (result.status !== 'PARTIAL') return;
+    // La raison donne les deux nombres, pour qu'on sache de combien.
+    expect(result.reason).toMatch(/couvrent/u);
   });
 });
 

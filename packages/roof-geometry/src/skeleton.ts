@@ -37,12 +37,21 @@
  * Les traiter dans l'ordre du temps donne les faces, une par côté, et les
  * arêtes du squelette avec leur nature.
  *
- * ## Ce qu'il ne fait pas
+ * ## Ce qu'il vérifie de lui-même
  *
- * Il ne devine rien. Une géométrie qu'il ne sait pas résoudre est dite
- * `UNRESOLVED` avec sa raison, jamais approximée en silence — une toiture
- * fausse qu'on ne peut pas distinguer d'une toiture juste est pire qu'une
- * toiture absente, parce qu'elle est comptée dans les métrés.
+ * Les pans d'une toiture couvrent son emprise une fois : pas deux, ce qui
+ * compterait deux fois la même surface dans un métré, et pas moins, ce qui
+ * laisserait un morceau de maison sous rien. La somme des aires est donc
+ * comparée à celle du contour **avant** de rendre `RESOLVED`, et un écart
+ * fait rendre `PARTIAL` avec les deux nombres.
+ *
+ * Ce contrôle est ici plutôt que dans un test parce qu'un test ne connaît que
+ * les contours qu'on lui a écrits. Sur douze formes — L, U, T, Z, croix,
+ * escalier, encoche, à pentes égales puis inégales — vingt-trois cas sur
+ * vingt-quatre se résolvent exactement ; le vingt-quatrième se refuse et le
+ * dit. C'est la garantie qui compte : pas que tout se résolve, mais qu'une
+ * toiture fausse ne sorte jamais d'ici, parce qu'on ne pourrait pas la
+ * distinguer d'une juste une fois qu'elle est dans les métrés.
  */
 import type { Point2D } from './types.js';
 
@@ -260,6 +269,17 @@ export function straightSkeleton(
   for (let i = 0; i < count; i += 1)
     normals.push(inwardNormal(points[i]!, points[(i + 1) % count]!, true));
 
+  /*
+   * La direction d'un côté ne change jamais : le front translate ses droites,
+   * il ne les tourne pas. Un sommet — d'origine, fusionné ou né d'une
+   * scission — est donc rentrant selon les seuls indices de ses deux côtés,
+   * ce qui rend la question calculable partout et pas seulement au départ.
+   */
+  const direction = (index: number): Point2D =>
+    sub(points[(index + 1) % count]!, points[index]!);
+  const isReflex = (left: number, right: number): boolean =>
+    cross(direction(left), direction(right)) < -EPSILON;
+
   if (normals.some((n) => length(n) < EPSILON))
     return {
       status: 'UNRESOLVED',
@@ -301,8 +321,6 @@ export function straightSkeleton(
         reason:
           'Deux côtés voisins sont parallèles : leur sommet ne se déplace pas.',
       };
-    const previousPoint = points[(i + count - 1) % count]!;
-    const nextPoint = points[(i + 1) % count]!;
     waves.push({
       position: points[i]!,
       velocity,
@@ -312,9 +330,7 @@ export function straightSkeleton(
       previous: undefined,
       next: undefined,
       dead: false,
-      reflex:
-        cross(sub(points[i]!, previousPoint), sub(nextPoint, points[i]!)) <
-        -EPSILON,
+      reflex: isReflex(left, right),
     });
   }
   for (let i = 0; i < count; i += 1) {
@@ -329,6 +345,10 @@ export function straightSkeleton(
     const now = Math.max(wave.time, other.time);
     const p = sub(at(other, now), at(wave, now));
     const v = sub(other.velocity, wave.velocity);
+    // Déjà confondus : l'événement est maintenant. Sans ce cas, deux sommets
+    // qui arrivent ensemble au même point ne se rencontrent jamais, et la
+    // simulation s'arrête en laissant une face ouverte.
+    if (dot(p, p) < EPSILON * EPSILON) return now;
     const closing = dot(p, v);
     if (closing >= -EPSILON) return undefined;
     const time = now - dot(p, p) / closing;
@@ -349,6 +369,14 @@ export function straightSkeleton(
       if (other.dead) continue;
       const edgeIndex = other.right;
       if (edgeIndex === wave.left || edgeIndex === wave.right) continue;
+      /*
+       * Un côté dont le sommet rentrant est déjà une extrémité ne se percute
+       * pas : le front s'y referme par un événement de côté ordinaire. Sans
+       * cette exclusion, la scission se déclenche sur un segment qui touche
+       * déjà `wave`, et ce qu'elle relie est le sommet à lui-même.
+       */
+      if (other === wave || other.next === wave || other === wave.next)
+        continue;
       const normal = normals[edgeIndex]!;
       const speed = edgeSpeed(edgeIndex);
       const base = points[edgeIndex]!;
@@ -375,16 +403,33 @@ export function straightSkeleton(
     return best;
   }
 
+  /**
+   * Le prochain événement, et lequel quand deux tombent ensemble.
+   *
+   * L'égalité n'est pas un cas limite ici, c'est le cas courant : un L dont
+   * les deux branches font la même largeur voit tout arriver au même instant.
+   * Une scission passe alors **avant** un effondrement de côté, et l'ordre
+   * n'est pas arbitraire. La scission a besoin du côté qu'elle percute : elle
+   * s'accroche à ses deux extrémités. L'effondrement, lui, ne détruit qu'un
+   * segment de front que la scission n'utilise pas. Traiter l'effondrement en
+   * premier fait disparaître le côté sous la noue, qui ne trouve plus où
+   * s'attacher ; l'inverse ne coûte rien.
+   */
   function nextEvent(): Event | undefined {
     let best: Event | undefined;
+    const better = (candidate: Event): boolean => {
+      if (best === undefined) return true;
+      if (candidate.time < best.time - EPSILON) return true;
+      if (candidate.time > best.time + EPSILON) return false;
+      return candidate.kind === 'SPLIT' && best.kind === 'EDGE';
+    };
     for (const wave of waves) {
       if (wave.dead) continue;
       const time = edgeEventTime(wave);
-      if (time !== undefined && (best === undefined || time < best.time))
+      if (time !== undefined && better({ kind: 'EDGE', time, wave }))
         best = { kind: 'EDGE', time, wave };
       const split = splitEvent(wave);
-      if (split !== undefined && (best === undefined || split.time < best.time))
-        best = split;
+      if (split !== undefined && better(split)) best = split;
     }
     return best;
   }
@@ -417,8 +462,16 @@ export function straightSkeleton(
         corner: false,
         reflex: false,
       };
+      /*
+       * Quatre côtés, et non trois. En temps ordinaire `wave.right` et
+       * `other.left` sont le même : le segment de front qui disparaît. Ils
+       * cessent de l'être quand un effondrement précédent a recousu la chaîne
+       * par-dessus une bande refermée, et le côté oublié était alors celui
+       * dont la face restait ouverte d'un sommet.
+       */
       note(wave.left, node);
       note(wave.right, node);
+      note(other.left, node);
       note(other.right, node);
 
       // Les deux sommets fusionnent en un, porté par les côtés qui restent.
@@ -435,10 +488,17 @@ export function straightSkeleton(
        * Deux côtés parallèles n'ont pas de sommet qui les suit.
        *
        * C'est le cas d'une toiture à quatre pans sur un rectangle : les deux
-       * longs côtés se rencontrent le long d'un faîtage, pas en un point. Le
-       * front ne se recolle donc pas ici — il se **coupe**, et ce qui reste de
-       * part et d'autre continue de son côté. Relier les deux voisins ferait
-       * d'eux les extrémités d'un côté qui n'existe pas.
+       * longs côtés se rencontrent le long d'un faîtage, pas en un point. La
+       * bande qui les sépare se referme d'un coup, sur toute sa longueur, et
+       * aucun sommet ne continue à cet endroit. Le front se **coupe**.
+       *
+       * Il a été essayé de recoudre les deux voisins par-dessus la bande
+       * refermée, pour que la chaîne reste parcourable. C'était faux : les
+       * deux voisins n'ont pas de côté commun, et le segment de front qu'on
+       * leur invente ainsi produit un effondrement qui n'a pas lieu — sur un
+       * L, un nœud à (2278, 2278) au lieu des deux vrais. Une fois la
+       * priorité donnée aux scissions, la couture ne sert plus à rien : le
+       * côté qu'une noue percute est encore là quand elle en a besoin.
        */
       if (velocity === undefined) continue;
       const merged: Wave = {
@@ -450,7 +510,10 @@ export function straightSkeleton(
         previous: wave.previous,
         next: other.next,
         dead: false,
-        reflex: false,
+        // Un sommet né d'une fusion peut être rentrant à son tour, et scinder
+        // le front plus haut. Le déclarer saillant d'office manquait ces
+        // noues-là.
+        reflex: isReflex(wave.left, other.right),
       };
       if (merged.previous !== undefined) merged.previous.next = merged;
       if (merged.next !== undefined) merged.next.previous = merged;
@@ -462,27 +525,104 @@ export function straightSkeleton(
     /*
      * Une scission : le front se coupe en deux boucles.
      *
-     * La simuler complètement demande de refermer deux chaînes séparées, ce
-     * que cette version ne fait pas encore. Elle enregistre la noue — qui est
-     * juste, et qui est ce qu'un dessin doit montrer — puis s'arrête et le
-     * dit. Rendre une face fausse serait pire.
+     * Le sommet rentrant `v` atteint le côté d'en face `e`, qui court de `o` à
+     * `o.next`. Ce qui était une seule boucle en devient deux, et la coupure
+     * se fait au point de choc, par deux nouveaux sommets :
+     *
+     * - `before`, entre le côté de gauche de `v` et `e` : il prolonge la
+     *   chaîne qui arrivait à `v` et repart le long de `e` ;
+     * - `after`, entre `e` et le côté de droite de `v` : il part de `o` et
+     *   reprend la chaîne qui quittait `v`.
+     *
+     * Les deux boucles continuent ensuite pour leur compte, et se referment
+     * par des événements de côté ordinaires. Le côté `e` borde désormais les
+     * deux : c'est précisément ce qu'une noue est.
      */
+    const v = event.wave;
+    const o = event.opposite;
+    const opposedEdge = o.right;
+    const onNext = o.next;
+    if (v.dead || o.dead || onNext === undefined || onNext.dead) continue;
     const split: Node = {
       point: event.at,
       height: event.time,
       corner: false,
       reflex: false,
     };
-    note(event.wave.left, split);
-    note(event.wave.right, split);
-    note(event.opposite.right, split);
-    return {
-      status: 'PARTIAL',
-      reason:
-        'Une noue a été trouvée ; refermer les deux fronts qu’elle sépare n’est pas encore écrit.',
-      faces: closeFaces(faceVertices, count),
-      arcs: arcsOf(faceVertices, count),
-    };
+    note(v.left, split);
+    note(v.right, split);
+    note(opposedEdge, split);
+
+    const beforeVelocity = vertexVelocity(
+      normals[v.left]!,
+      edgeSpeed(v.left),
+      normals[opposedEdge]!,
+      edgeSpeed(opposedEdge),
+    );
+    const afterVelocity = vertexVelocity(
+      normals[opposedEdge]!,
+      edgeSpeed(opposedEdge),
+      normals[v.right]!,
+      edgeSpeed(v.right),
+    );
+    /*
+     * Un côté du sommet rentrant peut être parallèle à celui qu'il percute.
+     *
+     * C'est le T : la branche verticale bute sur la barre horizontale, et le
+     * côté qui l'amenait là est exactement antiparallèle à celui qu'elle
+     * atteint. Il n'y a alors pas de sommet entre ces deux-là — la bande qui
+     * les sépare se referme d'un coup, comme au faîtage d'un rectangle. On ne
+     * crée donc pas ce sommet, on recoud la chaîne par-dessus la bande, ce qui
+     * est la même règle qu'à l'effondrement d'un côté et pour la même raison.
+     */
+    v.dead = true;
+    alive -= 1;
+    if (beforeVelocity === undefined) {
+      const left = v.previous;
+      if (left !== undefined && !left.dead) {
+        left.next = onNext;
+        onNext.previous = left;
+      }
+    } else {
+      const before: Wave = {
+        position: event.at,
+        velocity: beforeVelocity,
+        time: event.time,
+        left: v.left,
+        right: opposedEdge,
+        previous: v.previous,
+        next: onNext,
+        dead: false,
+        reflex: isReflex(v.left, opposedEdge),
+      };
+      if (before.previous !== undefined) before.previous.next = before;
+      onNext.previous = before;
+      waves.push(before);
+      alive += 1;
+    }
+    if (afterVelocity === undefined) {
+      const right = v.next;
+      if (right !== undefined && !right.dead) {
+        o.next = right;
+        right.previous = o;
+      }
+    } else {
+      const after: Wave = {
+        position: event.at,
+        velocity: afterVelocity,
+        time: event.time,
+        left: opposedEdge,
+        right: v.right,
+        previous: o,
+        next: v.next,
+        dead: false,
+        reflex: isReflex(opposedEdge, v.right),
+      };
+      o.next = after;
+      if (after.next !== undefined) after.next.previous = after;
+      waves.push(after);
+      alive += 1;
+    }
   }
 
   if (guard <= 0)
@@ -491,12 +631,37 @@ export function straightSkeleton(
       reason: 'La simulation n’a pas convergé sur ce contour.',
     };
 
-  return {
-    status: 'RESOLVED',
-    faces: closeFaces(faceVertices, count),
-    arcs: arcsOf(faceVertices, count),
-    peakHeight: peak,
-  };
+  const faces = closeFaces(faceVertices, count, points);
+  const arcs = arcsOf(faceVertices, count);
+  /*
+   * La vérification que rien d'autre ne peut faire.
+   *
+   * Les pans d'une toiture couvrent son emprise une fois : pas deux, ce qui
+   * compterait deux fois la même surface dans un métré, et pas moins, ce qui
+   * laisserait un morceau de maison sous rien. C'est une propriété que la
+   * somme des aires suffit à tester, et qui échoue dès que la simulation a
+   * manqué un événement — un sommet non noté rogne sa face, une chaîne rompue
+   * en laisse une ouverte.
+   *
+   * Elle est faite ici plutôt que dans un test parce qu'un test ne connaît
+   * que les contours qu'on lui a écrits. Un contour que personne n'a prévu
+   * rendra `PARTIAL` avec ce qui est fermé, et jamais une toiture fausse que
+   * rien ne distingue d'une juste.
+   */
+  const covered = faces.reduce(
+    (total, face) => total + Math.abs(signedArea(face.outline)),
+    0,
+  );
+  const expected = Math.abs(area);
+  if (Math.abs(covered - expected) > Math.max(EPSILON, expected * 1e-6))
+    return {
+      status: 'PARTIAL',
+      reason: `Les pans trouvés couvrent ${covered.toPrecision(6)} pour une emprise de ${expected.toPrecision(6)} : il manque un événement que cette version ne sait pas traiter.`,
+      faces,
+      arcs,
+    };
+
+  return { status: 'RESOLVED', faces, arcs, peakHeight: peak };
 }
 
 /**
@@ -543,30 +708,51 @@ function arcsOf(
  * Les faces, remises dans l'ordre.
  *
  * Les sommets d'une face arrivent dans l'ordre des événements, qui n'est pas
- * celui du contour. Les trier autour de leur centre les remet en polygone —
- * une face de squelette droit est toujours étoilée depuis son centre, donc ce
- * tri est exact et non une approximation.
+ * celui du contour. Il a d'abord été tenté de les trier par angle autour de
+ * leur centre ; c'était faux, et faux en silence. Une face de squelette droit
+ * n'est pas toujours étoilée depuis son centre : celle du grand côté d'un L
+ * porte, au fond de la branche, deux sommets que le tri angulaire échange, et
+ * le polygone se croise. Il garde alors la bonne aire au signe près, donc même
+ * une somme d'aires ne le voit pas — mais son enveloppe déborde sur la face
+ * voisine, et la hauteur lue à ses coins est celle d'un point qui ne lui
+ * appartient pas.
+ *
+ * Ce qui est vrai de toute face de squelette droit, en revanche, c'est qu'elle
+ * est **monotone** par rapport à son propre égout : toute perpendiculaire à
+ * l'égout la traverse en un seul segment. Le bord se lit donc en deux
+ * chaînes — l'égout lui-même, à hauteur nulle, parcouru dans un sens, et les
+ * arêtes du squelette parcourues dans l'autre. C'est une propriété du
+ * squelette, pas une hypothèse sur la forme, donc ce tri est exact.
  */
 function closeFaces(
   vertices: Map<number, Node[]>,
   count: number,
+  points: readonly Point2D[],
 ): readonly SkeletonFace[] {
   const faces: SkeletonFace[] = [];
   for (let index = 0; index < count; index += 1) {
     const held = vertices.get(index) ?? [];
-    const unique: Point2D[] = [];
-    for (const { point } of held)
-      if (!unique.some((kept) => length(sub(kept, point)) < EPSILON))
-        unique.push(point);
+    const unique: Node[] = [];
+    for (const node of held)
+      if (!unique.some(({ point }) => length(sub(point, node.point)) < EPSILON))
+        unique.push(node);
     if (unique.length < 3) continue;
-    const centre = unique.reduce((sum, p) => add(sum, p), { x: 0, y: 0 });
-    const middle = scale(centre, 1 / unique.length);
-    const ordered = [...unique].sort(
-      (a, b) =>
-        Math.atan2(a.y - middle.y, a.x - middle.x) -
-        Math.atan2(b.y - middle.y, b.x - middle.x),
-    );
-    faces.push({ edgeIndex: index, outline: ordered });
+    const from = points[index]!;
+    const span = sub(points[(index + 1) % count]!, from);
+    const spanLength = length(span);
+    if (spanLength < EPSILON) continue;
+    const along = (node: Node): number =>
+      dot(sub(node.point, from), span) / spanLength;
+    const eave = unique
+      .filter(({ height }) => height < EPSILON)
+      .sort((a, b) => along(a) - along(b));
+    const ridge = unique
+      .filter(({ height }) => height >= EPSILON)
+      .sort((a, b) => along(b) - along(a) || a.height - b.height);
+    faces.push({
+      edgeIndex: index,
+      outline: [...eave, ...ridge].map(({ point }) => point),
+    });
   }
   return faces;
 }

@@ -387,8 +387,16 @@ export const BUDGETS = {
    * monte d'un kio, le premier écran descend de trente et un. Ce qui quitte
    * le premier téléchargement doit bien atterrir quelque part, avec le peu de
    * colle qu'un fichier de plus demande ; il atterrit à la demande.
+   *
+   * Et un avec les noues. Le squelette droit sait désormais scinder son front
+   * sur un sommet rentrant, ce qui donne à un L, un U, un T et une croix leurs
+   * pans, leurs noues et leur faîtage — les formes de maison qui viennent
+   * juste après le rectangle, et qui jusque-là ne comptaient nulle part. Il
+   * monte au premier écran parce que le plan dessine des toitures, et le
+   * premier écran tient quand même dans son plafond : le kio se voit ici et
+   * pas là-haut.
    */
-  totalGzipBytes: 486 * 1024,
+  totalGzipBytes: 487 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

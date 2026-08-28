@@ -344,9 +344,14 @@ function fromSkeleton(
  *
  * The construction is exact for any convex outline, whatever the mix of sloped
  * and gable sides and whatever the pitches: a gable raises no surface, so the
- * sides that do slope share the whole roof between them. A non-convex outline
- * needs a straight skeleton, which this version does not compute; it says so,
- * and what it says is then kept out of every area the project counts.
+ * sides that do slope share the whole roof between them.
+ *
+ * Un contour rentrant demande un squelette droit, et `roof-geometry` le
+ * calcule : un L, un U, un T, une croix rendent leurs pans, leurs noues et
+ * leur faîtage comme un rectangle rend les siens. Le moteur vérifie lui-même
+ * que ce qu'il rend couvre l'emprise une fois, et ce qu'il ne sait pas fermer
+ * ressort `NOT_DERIVABLE` avec sa raison — donc hors de toute aire que le
+ * projet compte, plutôt que dedans et faux.
  */
 export function deriveRoofPlanes(roof: Roof): RoofTopology {
   const outline = roof.footprint.outer;

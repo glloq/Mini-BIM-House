@@ -18,7 +18,10 @@ const RECTANGLE = [
   { x: 0, y: 8000 },
 ];
 
-function roof(edges: readonly RoofEdge[], outer = RECTANGLE): Roof {
+function roof(
+  edges: readonly RoofEdge[],
+  outer: readonly { x: number; y: number }[] = RECTANGLE,
+): Roof {
   return {
     id: entityId<'Roof'>('roof'),
     type: 'ROOF',
@@ -29,6 +32,16 @@ function roof(edges: readonly RoofEdge[], outer = RECTANGLE): Roof {
     baseElevationMm: 2500,
   };
 }
+
+/** Un L : deux ailes, un sommet rentrant, donc une noue. */
+const L_SHAPE = [
+  { x: 0, y: 0 },
+  { x: 10_000, y: 0 },
+  { x: 10_000, y: 4000 },
+  { x: 5000, y: 4000 },
+  { x: 5000, y: 8000 },
+  { x: 0, y: 8000 },
+];
 
 const sloped = (slopeDeg: number, overhangMm = 0): RoofEdge => ({
   kind: 'SLOPED',
@@ -135,34 +148,26 @@ describe('the planes a roof is made of', () => {
     expect(Math.abs(result.planes[1]!.azimuthDeg)).toBeCloseTo(90, 6);
   });
 
-  it('résout ce qu’un L a de résoluble, et dit le reste', () => {
-    const lShape = [
-      { x: 0, y: 0 },
-      { x: 10_000, y: 0 },
-      { x: 10_000, y: 4000 },
-      { x: 5000, y: 4000 },
-      { x: 5000, y: 8000 },
-      { x: 0, y: 8000 },
-    ];
+  it('donne six pans à un L, et la noue qui va avec', () => {
+    /*
+     * Un L a une noue, et le squelette droit la trouve, la place et referme
+     * les deux fronts qu'elle sépare. Ce test disait l'inverse — que ces pans
+     * restaient hors de toute aire comptée — et il ne le dit plus : un L est
+     * la forme de maison la plus courante après le rectangle.
+     */
     const result = deriveRoofPlanes(
       roof(
-        lShape.map(() => sloped(30)),
-        lShape,
+        L_SHAPE.map(() => sloped(30)),
+        L_SHAPE,
       ),
     );
-    /*
-     * Un L a une noue, et le squelette droit la trouve. Ce qu'il ne sait pas
-     * encore, c'est refermer les deux fronts qu'elle sépare — il le dit, et
-     * `NOT_DERIVABLE` garde ces pans hors de toute aire comptée.
-     *
-     * Ce qui a changé : la raison ne parle plus de convexité, mais de ce qui
-     * manque vraiment. « Cette version ne sait faire que le convexe » était
-     * vrai avant le moteur de toiture ; ce ne l'est plus.
-     */
-    expect(result.status).toBe('NOT_DERIVABLE');
-    if (result.status !== 'NOT_DERIVABLE') return;
-    expect(result.reason).toContain('noue');
-    expect(result.planes.length).toBeGreaterThan(0);
+    expect(result.status).toBe('DERIVED');
+    expect(result.planes).toHaveLength(6);
+    const covered = result.planes.reduce(
+      (total, plane) => total + areaOf(plane.footprint.outer),
+      0,
+    );
+    expect(covered).toBeCloseTo(areaOf(L_SHAPE), 3);
   });
 });
 
@@ -189,23 +194,20 @@ describe('how high a roof stands', () => {
     expect(height!).toBeGreaterThan(2500);
   });
 
-  it('says nothing rather than guessing on an outline it cannot solve', () => {
-    const lShape = [
-      { x: 0, y: 0 },
-      { x: 10_000, y: 0 },
-      { x: 10_000, y: 4000 },
-      { x: 5000, y: 4000 },
-      { x: 5000, y: 8000 },
-      { x: 0, y: 8000 },
-    ];
-    expect(
-      roofRidgeElevationMm(
-        roof(
-          lShape.map(() => sloped(30)),
-          lShape,
-        ),
+  it('mesure le faîtage d’un L à son endroit le plus large', () => {
+    /*
+     * Le point le plus haut d'une toiture de pente uniforme est celui qui est
+     * le plus loin de tout égout : le centre du plus grand cercle inscrit. Sur
+     * ce L, l'aile verticale fait cinq mètres de large, donc deux mètres
+     * cinquante — c'est plus que les deux mètres de la barre horizontale.
+     */
+    const height = roofRidgeElevationMm(
+      roof(
+        L_SHAPE.map(() => sloped(30)),
+        L_SHAPE,
       ),
-    ).toBeUndefined();
+    );
+    expect(height).toBeCloseTo(2500 + 2500 * Math.tan(Math.PI / 6), 3);
   });
 });
 
@@ -319,6 +321,84 @@ describe('the invariants of a derived roof', () => {
     expect(areaOf(steep.footprint.outer)).toBeLessThan(
       areaOf(shallow.footprint.outer),
     );
+  });
+
+  const CONCAVE: readonly (readonly [
+    string,
+    readonly { x: number; y: number }[],
+  ])[] = [
+    ['un L', L_SHAPE],
+    [
+      'un U',
+      [
+        { x: 0, y: 0 },
+        { x: 12_000, y: 0 },
+        { x: 12_000, y: 9000 },
+        { x: 9000, y: 9000 },
+        { x: 9000, y: 3000 },
+        { x: 3000, y: 3000 },
+        { x: 3000, y: 9000 },
+        { x: 0, y: 9000 },
+      ],
+    ],
+    [
+      'un T',
+      [
+        { x: 0, y: 0 },
+        { x: 12_000, y: 0 },
+        { x: 12_000, y: 4000 },
+        { x: 8000, y: 4000 },
+        { x: 8000, y: 10_000 },
+        { x: 4000, y: 10_000 },
+        { x: 4000, y: 4000 },
+        { x: 0, y: 4000 },
+      ],
+    ],
+  ];
+
+  it.each(CONCAVE)(
+    'couvre exactement l’emprise rentrante : %s',
+    (_n, outer) => {
+      const subject = roof(
+        outer.map(() => sloped(32)),
+        outer,
+      );
+      const result = deriveRoofPlanes(subject);
+      expect(result.status).toBe('DERIVED');
+      const covered = result.planes.reduce(
+        (total, plane) => total + areaOf(plane.footprint.outer),
+        0,
+      );
+      expect(covered).toBeCloseTo(areaOf(roofEaveOutline(subject).outer), 3);
+    },
+  );
+
+  it.each(CONCAVE)('ne fait se chevaucher aucun pan rentrant : %s', (_n, o) => {
+    /*
+     * L'aire seule ne suffit pas : deux pans mal ordonnés peuvent se croiser
+     * et garder la bonne somme. Ce test regarde le milieu de chaque pan et
+     * exige qu'il n'appartienne qu'à lui — c'est ce qui a attrapé un tri des
+     * sommets par angle qui échangeait deux points au fond d'une branche.
+     */
+    const result = deriveRoofPlanes(
+      roof(
+        o.map(() => sloped(32)),
+        o,
+      ),
+    );
+    for (const plane of result.planes) {
+      const centre = plane.footprint.outer.reduce(
+        (total, point) => ({
+          x: total.x + point.x / plane.footprint.outer.length,
+          y: total.y + point.y / plane.footprint.outer.length,
+        }),
+        { x: 0, y: 0 },
+      );
+      const holders = result.planes.filter((candidate) =>
+        inside(centre, candidate.footprint.outer),
+      );
+      expect(holders.map(({ id }) => id)).toEqual([plane.id]);
+    }
   });
 
   it('covers the overhang as well as the outline', () => {
