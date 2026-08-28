@@ -200,8 +200,15 @@ export const BUDGETS = {
    * ligne de registre, et `entry-placement.test.ts` les pose toutes pour de
    * bon. Deux kio pour soixante-treize gestes qui demandaient d'ouvrir la
    * nomenclature.
+   *
+   * Et un avec `OpeningHost`. Une ouverture pointait un mur par un
+   * identifiant nu ; elle dit maintenant **quoi** elle perce, et l'objet
+   * `{ kind, id }` s'écrit à chaque endroit qui en pose une. C'est le prix
+   * d'une hypothèse retirée du modèle, et c'est le dernier kio qu'on paie
+   * ainsi : le suivant devra être financé par le découpage des catalogues en
+   * chargement à la demande, et non par un budget qu'on relève.
    */
-  initialGzipBytes: 296 * 1024,
+  initialGzipBytes: 297 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -328,7 +335,7 @@ export const BUDGETS = {
    * Et un avec les soixante-treize entrées nommées, comptées au chargement
    * initial ci-dessus : le registre vit dans le premier écran.
    */
-  totalGzipBytes: 478 * 1024,
+  totalGzipBytes: 479 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

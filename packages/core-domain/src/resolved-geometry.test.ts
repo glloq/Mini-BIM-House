@@ -198,7 +198,7 @@ describe('how high a wall stands', () => {
             id: entityId<'Opening'>('window'),
             type: 'OPENING',
             openingType: 'WINDOW',
-            hostElementId: entityId<'Wall'>('wall-south'),
+            host: { kind: 'WALL', id: entityId<'Wall'>('wall-south') },
             offsetAlongHostMm: 1000,
             sillHeightMm: 900,
             widthMm: 2000,

@@ -1,6 +1,6 @@
 {
   "format": "house-technical-designer-project",
-  "schemaVersion": "1.2.0",
+  "schemaVersion": "1.3.0",
   "applicationVersion": "0.1.0",
   "project": {
     "id": "reference-house",
@@ -246,34 +246,43 @@
               "id": "opening-entry",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-south",
               "offsetAlongHostMm": 1000,
               "sillHeightMm": 0,
               "widthMm": 900,
               "heightMm": 2100,
-              "definitionId": "generic-entrance-door"
+              "definitionId": "generic-entrance-door",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-south"
+              }
             },
             {
               "id": "opening-living",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-west",
               "offsetAlongHostMm": 1000,
               "sillHeightMm": 900,
               "widthMm": 1800,
               "heightMm": 1200,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-west"
+              }
             },
             {
               "id": "opening-bedroom",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-north",
               "offsetAlongHostMm": 1000,
               "sillHeightMm": 900,
               "widthMm": 1400,
               "heightMm": 1200,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-north"
+              }
             }
           ],
           "slabs": [
@@ -916,45 +925,57 @@
               "id": "opening-bedroom-one",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-first-south",
               "offsetAlongHostMm": 1500,
               "sillHeightMm": 900,
               "widthMm": 1400,
               "heightMm": 1300,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-first-south"
+              }
             },
             {
               "id": "opening-bedroom-two",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-first-south",
               "offsetAlongHostMm": 6500,
               "sillHeightMm": 900,
               "widthMm": 1400,
               "heightMm": 1300,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-first-south"
+              }
             },
             {
               "id": "opening-first-bath",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-first-north",
               "offsetAlongHostMm": 2000,
               "sillHeightMm": 1400,
               "widthMm": 800,
               "heightMm": 800,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-first-north"
+              }
             },
             {
               "id": "opening-first-landing",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-first-partition",
               "offsetAlongHostMm": 3000,
               "sillHeightMm": 0,
               "widthMm": 830,
               "heightMm": 2040,
-              "definitionId": "generic-entrance-door"
+              "definitionId": "generic-entrance-door",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-first-partition"
+              }
             }
           ],
           "slabs": [

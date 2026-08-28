@@ -106,9 +106,7 @@ export function calculateWallQuantities(
       });
       continue;
     }
-    const hostedOpenings = openings.filter(
-      ({ hostElementId }) => hostElementId === wall.id,
-    );
+    const hostedOpenings = openings.filter(({ host }) => host.id === wall.id);
     const area = calculateWallNetArea(wall, hostedOpenings);
     if (area.status !== 'OK') {
       warnings.push({

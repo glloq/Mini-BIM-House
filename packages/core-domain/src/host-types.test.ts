@@ -41,7 +41,7 @@ function level(): Level {
         id: entityId<'Opening'>('opening-entry'),
         type: 'OPENING',
         openingType: 'DOOR',
-        hostElementId: entityId<'Wall'>('wall-south'),
+        host: { kind: 'WALL', id: entityId<'Wall'>('wall-south') },
         offsetAlongHostMm: 1000,
         sillHeightMm: 0,
         widthMm: 900,

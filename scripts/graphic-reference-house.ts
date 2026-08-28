@@ -702,7 +702,7 @@ const level = {
     id: opening.id,
     type: 'OPENING',
     openingType: opening.openingType,
-    hostElementId: opening.host,
+    host: { kind: 'WALL', id: opening.host },
     offsetAlongHostMm: opening.offsetAlongHostMm,
     sillHeightMm: opening.sillHeightMm,
     widthMm: opening.widthMm,

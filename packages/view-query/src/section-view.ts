@@ -329,7 +329,7 @@ export function buildSectionView(
         // The openings the saw went through: they interrupt the masonry, so
         // the band is drawn in pieces and the gap is drawn as an opening.
         const holes = level.openings
-          .filter(({ hostElementId }) => hostElementId === wall.id)
+          .filter(({ host }) => host.id === wall.id)
           .filter(
             (opening) =>
               crossing.alongHost >= opening.offsetAlongHostMm &&
@@ -524,7 +524,7 @@ export function buildElevationView(
       if (wallLength < 1) continue;
       const foreshortened = (right - left) / wallLength;
       for (const opening of level.openings) {
-        if (opening.hostElementId !== wall.id) continue;
+        if (opening.host.id !== wall.id) continue;
         const start = left + opening.offsetAlongHostMm * foreshortened;
         const sill = base + opening.sillHeightMm;
         if (!withinRange(range, sill, sill + opening.heightMm)) continue;

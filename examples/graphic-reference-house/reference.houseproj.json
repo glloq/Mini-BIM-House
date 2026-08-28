@@ -1,6 +1,6 @@
 {
   "format": "house-technical-designer-project",
-  "schemaVersion": "1.2.0",
+  "schemaVersion": "1.3.0",
   "applicationVersion": "0.1.0",
   "project": {
     "id": "graphic-reference-house",
@@ -430,29 +430,34 @@
               "id": "opening-bay-living",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-south",
               "offsetAlongHostMm": 1200,
               "sillHeightMm": 0,
               "widthMm": 2400,
               "heightMm": 2200,
-              "definitionId": "generic-window-bay-triple"
+              "definitionId": "generic-window-bay-triple",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-south"
+              }
             },
             {
               "id": "opening-french-door",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-south",
               "offsetAlongHostMm": 4200,
               "sillHeightMm": 0,
               "widthMm": 1600,
               "heightMm": 2150,
-              "definitionId": "generic-french-door-double"
+              "definitionId": "generic-french-door-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-south"
+              }
             },
             {
               "id": "opening-entry",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-south",
               "offsetAlongHostMm": 6050,
               "sillHeightMm": 0,
               "widthMm": 830,
@@ -461,112 +466,142 @@
               "swing": {
                 "hinge": "START",
                 "opensTo": "LEFT_OF_HOST"
+              },
+              "host": {
+                "kind": "WALL",
+                "id": "wall-south"
               }
             },
             {
               "id": "opening-window-office",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-south",
               "offsetAlongHostMm": 8700,
               "sillHeightMm": 900,
               "widthMm": 1200,
               "heightMm": 1300,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-south"
+              }
             },
             {
               "id": "opening-garage-door",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-south",
               "offsetAlongHostMm": 10400,
               "sillHeightMm": 0,
               "widthMm": 2400,
               "heightMm": 2100,
-              "definitionId": "generic-garage-door-sectional"
+              "definitionId": "generic-garage-door-sectional",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-south"
+              }
             },
             {
               "id": "opening-window-living-west",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-west",
               "offsetAlongHostMm": 6500,
               "sillHeightMm": 900,
               "widthMm": 1400,
               "heightMm": 1300,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-west"
+              }
             },
             {
               "id": "opening-window-bed-1-west",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-west",
               "offsetAlongHostMm": 400,
               "sillHeightMm": 900,
               "widthMm": 1200,
               "heightMm": 1300,
-              "definitionId": "generic-window-tilt-turn-triple"
+              "definitionId": "generic-window-tilt-turn-triple",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-west"
+              }
             },
             {
               "id": "opening-window-bed-1",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-north",
               "offsetAlongHostMm": 10800,
               "sillHeightMm": 900,
               "widthMm": 1200,
               "heightMm": 1300,
-              "definitionId": "generic-window-tilt-turn-triple"
+              "definitionId": "generic-window-tilt-turn-triple",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-north"
+              }
             },
             {
               "id": "opening-window-bed-2",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-north",
               "offsetAlongHostMm": 8000,
               "sillHeightMm": 900,
               "widthMm": 1400,
               "heightMm": 1300,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-north"
+              }
             },
             {
               "id": "opening-window-bed-3",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-north",
               "offsetAlongHostMm": 5900,
               "sillHeightMm": 900,
               "widthMm": 1000,
               "heightMm": 1300,
-              "definitionId": "generic-window-casement-double"
+              "definitionId": "generic-window-casement-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-north"
+              }
             },
             {
               "id": "opening-window-bath",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-north",
               "offsetAlongHostMm": 3800,
               "sillHeightMm": 1400,
               "widthMm": 800,
               "heightMm": 800,
-              "definitionId": "generic-window-fixed-double"
+              "definitionId": "generic-window-fixed-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-north"
+              }
             },
             {
               "id": "opening-window-garage",
               "type": "OPENING",
               "openingType": "WINDOW",
-              "hostElementId": "wall-north",
               "offsetAlongHostMm": 1500,
               "sillHeightMm": 1400,
               "widthMm": 1000,
               "heightMm": 800,
-              "definitionId": "generic-window-fixed-double"
+              "definitionId": "generic-window-fixed-double",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-north"
+              }
             },
             {
               "id": "door-living",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-corridor-south",
               "offsetAlongHostMm": 1800,
               "sillHeightMm": 0,
               "widthMm": 830,
@@ -575,13 +610,16 @@
               "swing": {
                 "hinge": "START",
                 "opensTo": "RIGHT_OF_HOST"
+              },
+              "host": {
+                "kind": "WALL",
+                "id": "wall-corridor-south"
               }
             },
             {
               "id": "door-hall",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-corridor-south",
               "offsetAlongHostMm": 6100,
               "sillHeightMm": 0,
               "widthMm": 830,
@@ -590,13 +628,16 @@
               "swing": {
                 "hinge": "END",
                 "opensTo": "RIGHT_OF_HOST"
+              },
+              "host": {
+                "kind": "WALL",
+                "id": "wall-corridor-south"
               }
             },
             {
               "id": "door-office",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-corridor-south",
               "offsetAlongHostMm": 8800,
               "sillHeightMm": 0,
               "widthMm": 830,
@@ -605,13 +646,16 @@
               "swing": {
                 "hinge": "START",
                 "opensTo": "RIGHT_OF_HOST"
+              },
+              "host": {
+                "kind": "WALL",
+                "id": "wall-corridor-south"
               }
             },
             {
               "id": "door-bed-1",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-corridor-north",
               "offsetAlongHostMm": 1200,
               "sillHeightMm": 0,
               "widthMm": 830,
@@ -620,13 +664,16 @@
               "swing": {
                 "hinge": "START",
                 "opensTo": "LEFT_OF_HOST"
+              },
+              "host": {
+                "kind": "WALL",
+                "id": "wall-corridor-north"
               }
             },
             {
               "id": "door-bed-2",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-corridor-north",
               "offsetAlongHostMm": 4200,
               "sillHeightMm": 0,
               "widthMm": 830,
@@ -635,13 +682,16 @@
               "swing": {
                 "hinge": "END",
                 "opensTo": "LEFT_OF_HOST"
+              },
+              "host": {
+                "kind": "WALL",
+                "id": "wall-corridor-north"
               }
             },
             {
               "id": "door-bed-3",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-corridor-north",
               "offsetAlongHostMm": 6700,
               "sillHeightMm": 0,
               "widthMm": 830,
@@ -650,13 +700,16 @@
               "swing": {
                 "hinge": "START",
                 "opensTo": "LEFT_OF_HOST"
+              },
+              "host": {
+                "kind": "WALL",
+                "id": "wall-corridor-north"
               }
             },
             {
               "id": "door-bath",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-corridor-north",
               "offsetAlongHostMm": 8600,
               "sillHeightMm": 0,
               "widthMm": 830,
@@ -665,13 +718,16 @@
               "swing": {
                 "hinge": "END",
                 "opensTo": "LEFT_OF_HOST"
+              },
+              "host": {
+                "kind": "WALL",
+                "id": "wall-corridor-north"
               }
             },
             {
               "id": "door-wc",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-hall-east",
               "offsetAlongHostMm": 300,
               "sillHeightMm": 0,
               "widthMm": 730,
@@ -680,13 +736,16 @@
               "swing": {
                 "hinge": "END",
                 "opensTo": "RIGHT_OF_HOST"
+              },
+              "host": {
+                "kind": "WALL",
+                "id": "wall-hall-east"
               }
             },
             {
               "id": "door-cellier",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-hall-east",
               "offsetAlongHostMm": 2400,
               "sillHeightMm": 0,
               "widthMm": 730,
@@ -695,18 +754,25 @@
               "swing": {
                 "hinge": "START",
                 "opensTo": "RIGHT_OF_HOST"
+              },
+              "host": {
+                "kind": "WALL",
+                "id": "wall-hall-east"
               }
             },
             {
               "id": "door-garage-service",
               "type": "OPENING",
               "openingType": "DOOR",
-              "hostElementId": "wall-garage",
               "offsetAlongHostMm": 4800,
               "sillHeightMm": 0,
               "widthMm": 900,
               "heightMm": 2040,
-              "definitionId": "generic-door-sliding"
+              "definitionId": "generic-door-sliding",
+              "host": {
+                "kind": "WALL",
+                "id": "wall-garage"
+              }
             }
           ],
           "slabs": [
@@ -3637,7 +3703,7 @@
         "methodId": "co2-mass-balance-v1",
         "precisionTarget": "ENGINEERING",
         "settings": {
-          "co2GenerationM3sPerOccupant": 0.0000047,
+          "co2GenerationM3sPerOccupant": 4.7e-06,
           "initialConcentrationPpm": 500,
           "durationHours": 8,
           "occupantsByCategory": {

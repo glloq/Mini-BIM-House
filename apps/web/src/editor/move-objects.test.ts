@@ -144,7 +144,7 @@ describe('copying a selection a little to the side', () => {
     const opened = file();
     const host = opened.project.building.levels[0]!.openings.find(
       ({ id }) => id === 'opening-entry',
-    )!.hostElementId;
+    )!.host.id;
     const result = duplicateObjectsCommand(
       opened,
       'ground',
@@ -159,7 +159,7 @@ describe('copying a selection a little to the side', () => {
     const copied = dispatcher.project.building.levels[0]!.openings.find(
       ({ id }) => id === 'opening-copy',
     )!;
-    expect(copied.hostElementId).toBe('wall-copy');
+    expect(copied.host.id).toBe('wall-copy');
   });
 
   it('refuses an opening whose wall is not being copied, and says why', () => {

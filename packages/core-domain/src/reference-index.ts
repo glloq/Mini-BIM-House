@@ -106,8 +106,8 @@ export function projectReferences(
       const from = { id: opening.id as string, family: 'OPENING' as const };
       add(
         from,
-        opening.hostElementId,
-        `${at}/openings/${opening.id}/hostElementId`,
+        opening.host.id,
+        `${at}/openings/${opening.id}/host`,
         'le mur qu’elle perce',
       );
       add(

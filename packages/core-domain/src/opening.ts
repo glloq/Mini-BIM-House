@@ -64,11 +64,55 @@ export function doorSwingOf(opening: Opening): Required<DoorSwing> {
   };
 }
 
+/**
+ * Ce qu'une ouverture perce, et non plus « quel mur ».
+ *
+ * `hostElementId: WallId` disait « une ouverture est dans un mur », et toute
+ * la chaîne le supposait : validation, plan, coupe, enveloppe, métrés,
+ * transformations. Les familles `WINDOW_ROOF` et `SKYLIGHT` existent pourtant
+ * dans la nomenclature, avec leurs propriétés, et déclarent `ROOF` parmi leurs
+ * supports — le modèle ne permettait simplement pas de les poser.
+ *
+ * Une référence discriminée plutôt qu'un identifiant nu : le compilateur
+ * demande alors, à chaque endroit qui suppose un mur, de le dire. C'était le
+ * but — il y en avait soixante-dix-huit, et aucun ne se voyait.
+ *
+ * **La position reste sur l'ouverture pour l'instant.** Une baie verticale se
+ * repère par une distance le long du mur et une allège ; une fenêtre de toit
+ * se repère dans le plan du pan, qui est incliné. Ce sont deux placements
+ * différents, et les réunir serait mentir — mais les séparer touche deux cent
+ * quarante endroits de plus, et la géométrie de toiture quelconque n'est pas
+ * encore écrite. `WallOpeningPlacement` est donc nommé ici, occupé par les
+ * champs actuels, et la seconde étape le déplacera sur la variante.
+ */
+export type OpeningHostKind = 'WALL' | 'ROOF';
+
+export interface OpeningHost {
+  readonly kind: OpeningHostKind;
+  /** Le mur ou le pan de toiture percé. */
+  readonly id: string;
+}
+
+/** Si cette ouverture perce un mur — la seule que la géométrie sait poser. */
+export function isWallOpening(opening: Opening): boolean {
+  return opening.host.kind === 'WALL';
+}
+
+/**
+ * Le mur qu'elle perce, quand elle en perce un.
+ *
+ * Rend `undefined` pour une ouverture de toiture, ce qui oblige l'appelant à
+ * dire ce qu'il en fait plutôt qu'à la traiter comme un mur qui n'existe pas.
+ */
+export function wallHostId(opening: Opening): WallId | undefined {
+  return opening.host.kind === 'WALL' ? (opening.host.id as WallId) : undefined;
+}
+
 export interface Opening {
   readonly id: OpeningId;
   readonly type: 'OPENING';
   readonly openingType: OpeningType;
-  readonly hostElementId: WallId;
+  readonly host: OpeningHost;
   /** Distance from the start of the host reference path to the opening start. */
   readonly offsetAlongHostMm: number;
   readonly sillHeightMm: number;
@@ -98,10 +142,10 @@ export function validateOpening(
   host: Wall,
 ): readonly OpeningIssue[] {
   const issues: OpeningIssue[] = [];
-  if (opening.hostElementId !== host.id)
+  if (opening.host.kind !== 'WALL' || opening.host.id !== host.id)
     issues.push({
       code: 'WRONG_HOST',
-      path: 'hostElementId',
+      path: 'host',
       message: 'does not reference the supplied wall',
     });
   if (

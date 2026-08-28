@@ -200,7 +200,7 @@ export function openingGrips(
   if (level === undefined) return undefined;
   const opening = level.openings.find(({ id }) => id === objectId);
   if (opening !== undefined) {
-    const host = level.walls.find(({ id }) => id === opening.hostElementId);
+    const host = level.walls.find(({ id }) => id === opening.host.id);
     const anchor =
       host === undefined
         ? undefined

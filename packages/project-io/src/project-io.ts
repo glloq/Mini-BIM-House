@@ -28,7 +28,7 @@ import {
   type ProjectMigration,
 } from './migrations.js';
 
-export const CURRENT_PROJECT_SCHEMA_VERSION = '1.2.0';
+export const CURRENT_PROJECT_SCHEMA_VERSION = '1.3.0';
 
 /**
  * Bounds an imported file has to respect.
@@ -499,15 +499,23 @@ export function validateProjectReferences(
         });
     });
     level.openings.forEach((opening, index) => {
-      if (!walls.has(opening.hostElementId))
+      // `host.id` désigne un mur **ou** un pan : ici on vérifie le mur, et
+      // une ouverture de toiture n'a rien à faire dans cette boucle.
+      if (opening.host.kind !== 'WALL') return;
+      // `host.id` désigne un mur **ou** un pan de toiture : c'est une chaîne,
+      // et l'ensemble des murs se lit donc comme un ensemble de chaînes.
+      const hostId = opening.host.id;
+      const knownWalls: ReadonlySet<string> = walls;
+      const wallsHere: ReadonlySet<string> = levelWalls;
+      if (!knownWalls.has(hostId))
         issues.push({
-          path: `${base}/openings/${index}/hostElementId`,
-          message: `references unknown wall ${opening.hostElementId}`,
+          path: `${base}/openings/${index}/host`,
+          message: `references unknown wall ${opening.host.id}`,
         });
-      else if (!levelWalls.has(opening.hostElementId))
+      else if (!wallsHere.has(hostId))
         issues.push({
-          path: `${base}/openings/${index}/hostElementId`,
-          message: `is stored on level ${level.id} but hosted by wall ${opening.hostElementId} of another level`,
+          path: `${base}/openings/${index}/host`,
+          message: `is stored on level ${level.id} but hosted by wall ${opening.host.id} of another level`,
         });
     });
     level.annotations.forEach((annotation, index) => {

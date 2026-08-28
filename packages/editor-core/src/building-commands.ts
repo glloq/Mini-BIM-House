@@ -1739,7 +1739,7 @@ export class UpdateOpeningCommand extends BuildingCommand {
     const offset = this.patch.offsetAlongHostMm;
     if (offset !== undefined && (!Number.isFinite(offset) || offset < 0))
       errors.push('La position sur le mur doit être positive ou nulle.');
-    const host = level.walls.find(({ id }) => id === opening.hostElementId);
+    const host = level.walls.find(({ id }) => id === opening.host.id);
     if (host !== undefined) {
       const next = { ...opening, ...this.patch };
       const start = host.path.points[0];

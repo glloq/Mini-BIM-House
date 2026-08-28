@@ -47,7 +47,7 @@ const opening: Opening = {
   id: entityId<'Opening'>('opening'),
   type: 'OPENING',
   openingType: 'WINDOW',
-  hostElementId: wall.id,
+  host: { kind: 'WALL', id: wall.id },
   offsetAlongHostMm: 1000,
   sillHeightMm: 900,
   widthMm: 1200,

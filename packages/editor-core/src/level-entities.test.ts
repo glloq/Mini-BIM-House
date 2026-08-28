@@ -56,7 +56,7 @@ function full(): Level {
         id: entityId<'Opening'>('door'),
         type: 'OPENING',
         openingType: 'DOOR',
-        hostElementId: entityId<'Wall'>('wall'),
+        host: { kind: 'WALL', id: entityId<'Wall'>('wall') },
         offsetAlongHostMm: 1000,
         sillHeightMm: 0,
         widthMm: 900,
@@ -255,7 +255,7 @@ describe('what a storey holds, when it moves, is copied or deleted', () => {
     // Left as they were, every copied radiator would hang on the storey below.
     expect(component.hostObjectId).toBe('wall@upper');
     expect(component.spaceId).toBe('room@upper');
-    expect(copy.openings[0]!.hostElementId).toBe('wall@upper');
+    expect(copy.openings[0]!.host.id).toBe('wall@upper');
     // A stair climbs to whatever storey is above where the copy lands.
     expect(copy.stairs[0]!.topLevelId).toBe('roof-level');
   });

@@ -110,9 +110,7 @@ export function wallSubject(
         points[index]!.y - points[index - 1]!.y,
       );
     const heightMm = wall.heightMode === 'EXPLICIT' ? wall.heightMm : undefined;
-    const openings = level.openings.filter(
-      ({ hostElementId }) => hostElementId === wall.id,
-    );
+    const openings = level.openings.filter(({ host }) => host.id === wall.id);
     const area = calculateWallNetArea(wall, openings);
     const view =
       assembly === undefined ? undefined : assemblyView(project, assembly);
@@ -246,7 +244,7 @@ export function openingSubject(
           title: 'Références',
           advanced: true,
           fields: [
-            field('Mur porteur', opening.hostElementId),
+            field('Mur porteur', opening.host.id),
             field('Niveau', level.name),
           ],
         },

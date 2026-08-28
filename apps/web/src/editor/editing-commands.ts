@@ -1194,7 +1194,7 @@ export function addOpeningCommand(
       id: entityId<'Opening'>(openingId),
       type: 'OPENING',
       openingType: draft.openingType,
-      hostElementId: placement.host.id,
+      host: { kind: 'WALL', id: placement.host.id },
       offsetAlongHostMm: Math.max(
         0,
         Math.round(placement.offsetAlongHostMm - draft.widthMm / 2),
@@ -1589,8 +1589,7 @@ export function copyObjects(
     walls,
     openings: level.openings.filter(
       (opening) =>
-        chosen.has(opening.id as string) &&
-        hosts.has(opening.hostElementId as string),
+        chosen.has(opening.id as string) && hosts.has(opening.host.id),
     ),
     slabs: kept(level.slabs),
     roofs: kept(level.roofs),
@@ -1716,7 +1715,7 @@ export function pasteClipboardCommand(
     );
   }
   for (const opening of clipboard.openings) {
-    const host = copiedWalls.get(opening.hostElementId);
+    const host = copiedWalls.get(opening.host.id);
     if (host === undefined) continue;
     const copyId = newId('opening');
     createdIds.push(copyId);
@@ -1729,7 +1728,7 @@ export function pasteClipboardCommand(
           ...opening,
           id: copyId as Opening['id'],
           // An opening belongs to its wall; the wall is what belongs to a level.
-          hostElementId: host as Opening['hostElementId'],
+          host: { kind: 'WALL', id: host },
         }),
       ),
     );

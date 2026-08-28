@@ -612,7 +612,7 @@ export const openingDuplicate: DuplicateProvider = (
     ({ id }) => id === objectId,
   );
   if (opening === undefined) return undefined;
-  const host = copies.get(opening.hostElementId);
+  const host = copies.get(opening.host.id);
   if (host === undefined)
     return {
       status: 'REFUSED',
@@ -629,7 +629,7 @@ export const openingDuplicate: DuplicateProvider = (
       new AddOpeningCommand(`opening:duplicate:${copyId}`, {
         ...opening,
         id: copyId as (typeof opening)['id'],
-        hostElementId: host as (typeof opening)['hostElementId'],
+        host: { kind: 'WALL', id: host },
       }),
     ),
   );

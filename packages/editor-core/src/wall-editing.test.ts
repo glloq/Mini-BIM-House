@@ -33,7 +33,7 @@ function opening(id: string, offsetAlongHostMm: number): Opening {
     id: entityId<'Opening'>(id),
     type: 'OPENING',
     openingType: 'WINDOW',
-    hostElementId: entityId<'Wall'>('wall'),
+    host: { kind: 'WALL', id: entityId<'Wall'>('wall') },
     offsetAlongHostMm,
     sillHeightMm: 900,
     widthMm: 1000,
@@ -157,13 +157,13 @@ describe('cutting a wall in two', () => {
     const next = apply(command, from);
     expect(next.openings[0]).toMatchObject({
       id: 'near',
-      hostElementId: 'wall',
+      host: { kind: 'WALL', id: 'wall' },
       offsetAlongHostMm: 500,
     });
     // Measured from the start of the piece that now hosts it.
     expect(next.openings[1]).toMatchObject({
       id: 'far',
-      hostElementId: 'wall-b',
+      host: { kind: 'WALL', id: 'wall-b' },
       offsetAlongHostMm: 1000,
     });
   });
@@ -191,8 +191,8 @@ describe('cutting a wall in two', () => {
     expect(back.walls.map(({ id }) => id)).toEqual(['wall']);
     expect(back.walls[0]?.path.points[1]).toEqual({ x: 6000, y: 0 });
     expect(
-      back.openings.map(({ hostElementId, offsetAlongHostMm }) => [
-        hostElementId,
+      back.openings.map(({ host, offsetAlongHostMm }) => [
+        host.id,
         offsetAlongHostMm,
       ]),
     ).toEqual([

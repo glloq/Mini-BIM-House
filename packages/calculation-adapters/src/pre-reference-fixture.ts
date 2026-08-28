@@ -298,7 +298,7 @@ export function createPreReferenceProject(): ProjectFile {
   };
   return {
     format: 'house-technical-designer-project',
-    schemaVersion: '1.2.0',
+    schemaVersion: '1.3.0',
     project: {
       id: entityId<'Project'>('pre-reference'),
       metadata: {
@@ -377,7 +377,7 @@ export function createPreReferenceProject(): ProjectFile {
                 id: entityId<'Opening'>('window'),
                 type: 'OPENING',
                 openingType: 'WINDOW',
-                hostElementId: entityId<'Wall'>('wall'),
+                host: { kind: 'WALL', id: entityId<'Wall'>('wall') },
                 offsetAlongHostMm: 1000,
                 sillHeightMm: 900,
                 widthMm: 1200,

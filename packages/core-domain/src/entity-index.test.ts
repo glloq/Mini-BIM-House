@@ -50,7 +50,7 @@ export function populated(): Project {
         id: entityId<'Opening'>('opening-entry'),
         type: 'OPENING' as const,
         openingType: 'DOOR' as const,
-        hostElementId: entityId<'Wall'>('wall-south'),
+        host: { kind: 'WALL' as const, id: entityId<'Wall'>('wall-south') },
         offsetAlongHostMm: 1000,
         sillHeightMm: 0,
         widthMm: 900,

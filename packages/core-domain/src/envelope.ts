@@ -173,7 +173,7 @@ export function resolveEnvelope(project: Project): readonly EnvelopeElement[] {
     // A window taken out of a wall is not a hole in the house: it is a window,
     // and it carries a transmittance of its own.
     for (const opening of level.openings) {
-      if (!exterior.has(opening.hostElementId)) continue;
+      if (!exterior.has(opening.host.id)) continue;
       const areaM2 = (opening.widthMm * opening.heightMm) / 1_000_000;
       elements.push({
         id: `envelope:opening:${opening.id}`,

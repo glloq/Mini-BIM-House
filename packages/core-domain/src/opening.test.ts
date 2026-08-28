@@ -31,7 +31,7 @@ const opening: Opening = {
   id: entityId<'Opening'>('window'),
   type: 'OPENING',
   openingType: 'WINDOW',
-  hostElementId: wall.id,
+  host: { kind: 'WALL', id: wall.id },
   offsetAlongHostMm: 1000,
   sillHeightMm: 900,
   widthMm: 1200,
@@ -69,7 +69,7 @@ describe('hosted openings', () => {
   it('reports a mismatched host', () => {
     expect(
       validateOpening(
-        { ...opening, hostElementId: entityId<'Wall'>('other') },
+        { ...opening, host: { kind: 'WALL', id: entityId<'Wall'>('other') } },
         wall,
       ),
     ).toContainEqual(expect.objectContaining({ code: 'WRONG_HOST' }));

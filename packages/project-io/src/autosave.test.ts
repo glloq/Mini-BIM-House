@@ -10,7 +10,7 @@ import { loadProjectJson } from './project-io.js';
 
 const rawFile = {
   format: 'house-technical-designer-project',
-  schemaVersion: '1.2.0',
+  schemaVersion: '1.3.0',
   project: {
     id: 'project',
     metadata: {

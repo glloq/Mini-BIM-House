@@ -138,7 +138,7 @@ describe('emptying a numeric field, then saving and reloading', () => {
 
     const serialized = serializeProjectFile({
       format: 'house-technical-designer-project',
-      schemaVersion: '1.2.0',
+      schemaVersion: '1.3.0',
       applicationVersion: '0.1.0',
       project: commands.project,
     });

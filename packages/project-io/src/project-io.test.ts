@@ -8,7 +8,7 @@ import {
 
 const fixture = {
   format: 'house-technical-designer-project' as const,
-  schemaVersion: '1.2.0',
+  schemaVersion: '1.3.0',
   project: {
     id: 'project',
     metadata: {
@@ -99,7 +99,7 @@ const populatedFixture = {
               id: 'window',
               type: 'OPENING',
               openingType: 'WINDOW',
-              hostElementId: 'wall',
+              host: { kind: 'WALL', id: 'wall' },
               offsetAlongHostMm: 1000,
               sillHeightMm: 900,
               widthMm: 1200,

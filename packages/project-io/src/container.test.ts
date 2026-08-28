@@ -17,7 +17,7 @@ const LIMITS = DEFAULT_ZIP_LIMITS;
 
 const file = {
   format: 'house-technical-designer-project' as const,
-  schemaVersion: '1.2.0',
+  schemaVersion: '1.3.0',
   applicationVersion: '0.1.0',
   project: {
     id: 'project',
@@ -206,8 +206,9 @@ describe('a container carrying an older project', () => {
       { migrationId: 'project-0.9.0-to-1.0.0', from: '0.9.0', to: '1.0.0' },
       { migrationId: 'project-1.0.0-to-1.1.0', from: '1.0.0', to: '1.1.0' },
       { migrationId: 'project-1.1.0-to-1.2.0', from: '1.1.0', to: '1.2.0' },
+      { migrationId: 'project-1.2.0-to-1.3.0', from: '1.2.0', to: '1.3.0' },
     ]);
-    expect(result.container.file.schemaVersion).toBe('1.2.0');
+    expect(result.container.file.schemaVersion).toBe('1.3.0');
     expect(result.container.file.project.metadata.name).toBe('Maison portable');
   });
 

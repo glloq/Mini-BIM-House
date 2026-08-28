@@ -548,7 +548,7 @@ describe('the whole envelope, checked by hand', () => {
                 id: entityId<'Opening'>('glazing'),
                 type: 'OPENING',
                 openingType: 'WINDOW',
-                hostElementId: entityId<'Wall'>('w-s'),
+                host: { kind: 'WALL', id: entityId<'Wall'>('w-s') },
                 offsetAlongHostMm: 1000,
                 sillHeightMm: 500,
                 widthMm: 2000,

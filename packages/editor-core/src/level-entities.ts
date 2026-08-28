@@ -190,7 +190,7 @@ export function duplicatedLevel(
       openings: source.openings.map((opening) => ({
         ...opening,
         id: entityId<'Opening'>(copied(opening.id)),
-        hostElementId: entityId<'Wall'>(copied(opening.hostElementId)),
+        host: { kind: 'WALL', id: entityId<'Wall'>(copied(opening.host.id)) },
       })),
       slabs: source.slabs.map((slab) => ({
         ...slab,

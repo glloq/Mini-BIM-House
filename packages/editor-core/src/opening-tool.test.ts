@@ -52,7 +52,7 @@ const createOpening = (placement: {
   id: entityId<'Opening'>('opening'),
   type: 'OPENING',
   openingType: 'WINDOW',
-  hostElementId: placement.host.id,
+  host: { kind: 'WALL', id: placement.host.id },
   offsetAlongHostMm: placement.offsetAlongHostMm,
   sillHeightMm: 900,
   widthMm: 1000,
@@ -67,7 +67,7 @@ describe('opening insertion tool', () => {
       createOpening,
     });
     expect(command?.opening).toMatchObject({
-      hostElementId: wall.id,
+      host: { kind: 'WALL', id: wall.id },
       offsetAlongHostMm: 1200,
     });
   });

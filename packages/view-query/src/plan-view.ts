@@ -484,7 +484,7 @@ function openingPrimitives(
         widthMm: opening.widthMm,
         heightMm: opening.heightMm,
         sillHeightMm: opening.sillHeightMm,
-        hostElementId: opening.hostElementId,
+        hostElementId: opening.host.id,
       },
     },
   ];
@@ -1988,7 +1988,7 @@ export function buildPlanView(
       );
     }
     for (const opening of level.openings) {
-      const host = level.walls.find(({ id }) => id === opening.hostElementId);
+      const host = level.walls.find(({ id }) => id === opening.host.id);
       drafts.push(
         ...openingPrimitives(
           opening,

@@ -57,7 +57,7 @@ export class DeleteWallCommand implements EditorCommand {
     if (!state.walls.some(({ id }) => id === this.wallId))
       return { valid: false, errors: [`Wall ${this.wallId} does not exist.`] };
     const dependants = state.openings.filter(
-      ({ hostElementId }) => hostElementId === this.wallId,
+      ({ host }) => host.id === this.wallId,
     );
     const dimensions = state.dimensions.filter(
       ({ first, second }) =>
@@ -186,9 +186,7 @@ export class MoveWallPointCommand implements EditorCommand {
         valid: false,
         errors: issues.map(({ path, message }) => `${path}: ${message}`),
       };
-    const hosted = state.openings.filter(
-      ({ hostElementId }) => hostElementId === this.wallId,
-    );
+    const hosted = state.openings.filter(({ host }) => host.id === this.wallId);
     const errors = hosted.flatMap((opening) =>
       validateOpening(opening, next).map(
         ({ message }) => `Opening ${opening.id} ${message}.`,
@@ -270,7 +268,7 @@ export class SetWallPathCommand implements EditorCommand {
         errors: issues.map(({ path, message }) => `${path}: ${message}`),
       };
     const errors = state.openings
-      .filter(({ hostElementId }) => hostElementId === this.wallId)
+      .filter(({ host }) => host.id === this.wallId)
       .flatMap((opening) =>
         validateOpening(opening, next).map(
           ({ message }) => `Opening ${opening.id} ${message}.`,
@@ -378,7 +376,7 @@ export class SplitWallCommand implements EditorCommand {
       };
     const crossed = state.openings.filter(
       (opening) =>
-        opening.hostElementId === this.wallId &&
+        opening.host.id === this.wallId &&
         opening.offsetAlongHostMm < cut.distanceMm &&
         opening.offsetAlongHostMm + opening.widthMm > cut.distanceMm,
     );
@@ -407,12 +405,12 @@ export class SplitWallCommand implements EditorCommand {
     if (cut === undefined)
       throw new Error('Split wall executed without validation.');
     const openings = state.openings.map((opening) => {
-      if (opening.hostElementId !== this.wallId) return opening;
+      if (opening.host.id !== this.wallId) return opening;
       return opening.offsetAlongHostMm < cut.distanceMm
         ? opening
         : {
             ...opening,
-            hostElementId: this.newWallId,
+            host: { kind: 'WALL' as const, id: this.newWallId },
             offsetAlongHostMm: opening.offsetAlongHostMm - cut.distanceMm,
           };
     });

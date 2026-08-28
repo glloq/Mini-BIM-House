@@ -75,7 +75,7 @@ function project(): Project {
               id: 'opening',
               type: 'OPENING',
               openingType: 'WINDOW',
-              hostElementId: 'wall',
+              host: { kind: 'WALL', id: 'wall' },
               offsetAlongHostMm: 500,
               sillHeightMm: 900,
               widthMm: 1000,

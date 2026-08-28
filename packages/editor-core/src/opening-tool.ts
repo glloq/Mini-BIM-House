@@ -30,13 +30,11 @@ export class AddOpeningCommand implements EditorCommand {
         valid: false,
         errors: [`Opening ${this.opening.id} already exists.`],
       };
-    const host = state.walls.find(
-      ({ id }) => id === this.opening.hostElementId,
-    );
+    const host = state.walls.find(({ id }) => id === this.opening.host.id);
     if (host === undefined)
       return {
         valid: false,
-        errors: [`Host wall ${this.opening.hostElementId} does not exist.`],
+        errors: [`Host wall ${this.opening.host.id} does not exist.`],
       };
     const issues = validateOpening(this.opening, host);
     return issues.length === 0
@@ -50,7 +48,7 @@ export class AddOpeningCommand implements EditorCommand {
     return {
       nextState: { ...state, openings: [...state.openings, this.opening] },
       inverse: new DeleteOpeningCommand(`${this.id}:inverse`, this.opening.id),
-      changes: openingChanges(this.opening.id, this.opening.hostElementId),
+      changes: openingChanges(this.opening.id, this.opening.host.id),
     };
   }
 }
@@ -76,7 +74,7 @@ export class DeleteOpeningCommand implements EditorCommand {
         openings: state.openings.filter(({ id }) => id !== this.openingId),
       },
       inverse: new AddOpeningCommand(`${this.id}:inverse`, opening),
-      changes: openingChanges(opening.id, opening.hostElementId),
+      changes: openingChanges(opening.id, opening.host.id),
     };
   }
 }

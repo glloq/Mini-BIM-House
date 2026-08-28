@@ -125,7 +125,7 @@
         "id",
         "type",
         "openingType",
-        "hostElementId",
+        "host",
         "offsetAlongHostMm",
         "sillHeightMm",
         "widthMm",
@@ -146,8 +146,15 @@
             "OTHER"
           ]
         },
-        "hostElementId": {
-          "type": "string"
+        "host": {
+          "description": "Ce que l'ouverture perce : un mur, ou un pan de toiture. Une référence discriminée plutôt qu'un identifiant nu, parce que « une ouverture est dans un mur » était une hypothèse de toute la chaîne et que les fenêtres de toit existent.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "id"],
+          "properties": {
+            "kind": { "type": "string", "enum": ["WALL", "ROOF"] },
+            "id": { "type": "string" }
+          }
         },
         "offsetAlongHostMm": {
           "type": "number",

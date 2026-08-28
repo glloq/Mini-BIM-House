@@ -139,7 +139,7 @@ export function resolveOpeningGeometry(
   return {
     openingId: opening.id,
     levelId: level.id,
-    hostElementId: opening.hostElementId,
+    hostElementId: opening.host.id,
     openingType: opening.openingType,
     widthM: opening.widthMm / 1000,
     heightM: opening.heightMm / 1000,
@@ -155,9 +155,7 @@ export function resolveWallGeometry(
 ): ResolvedWallGeometry {
   const heightMm = resolveWallHeightMm(project, wall);
   const lengthM = wallLengthM(wall);
-  const hosted = level.openings.filter(
-    ({ hostElementId }) => hostElementId === wall.id,
-  );
+  const hosted = level.openings.filter(({ host }) => host.id === wall.id);
   const openingAreaM2 = hosted.reduce(
     (sum, opening) => sum + squareMetres(opening.widthMm * opening.heightMm),
     0,
