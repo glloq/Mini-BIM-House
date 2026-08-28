@@ -483,7 +483,7 @@ function heatingInput(context: ProjectCalculationContext): CalculationJson {
   const indoorC = settings.requiredNumber(
     'heating',
     'designIndoorTemperatureC',
-    'Set the design indoor temperature in the heating module settings.',
+    'Donnez la température intérieure de base dans les réglages du chauffage.',
   );
   let outdoorC = settings.optionalNumber(
     'heating',
@@ -506,7 +506,7 @@ function heatingInput(context: ProjectCalculationContext): CalculationJson {
       'heating',
       'designOutdoorTemperatureC',
       'CLIMATE_DATASET',
-      'No design outdoor temperature: provide a climate dataset or an explicit module setting.',
+      'Aucune température extérieure de base : chargez un jeu de données climatiques, ou donnez-la dans les réglages du chauffage.',
     );
   const ventilationFlows = spaceVentilationFlowsM3h(context);
   const recoveryEfficiency = settings.optionalNumber(
@@ -687,17 +687,17 @@ function lightingInput(context: ProjectCalculationContext): CalculationJson {
       'lighting',
       'placements',
       'PROJECT',
-      'No luminaire node is placed on the electrical network.',
+      'Aucun luminaire n’est posé sur le réseau électrique.',
     );
   const utilizationFactor = settings.requiredNumber(
     'lighting',
     'utilizationFactor',
-    'Set the lighting utilisation factor in the module settings.',
+    'Donnez le facteur d’utilance dans les réglages de l’éclairage.',
   );
   const maintenanceFactor = settings.requiredNumber(
     'lighting',
     'maintenanceFactor',
-    'Set the lighting maintenance factor in the module settings.',
+    'Donnez le facteur de maintenance dans les réglages de l’éclairage.',
   );
   const operatingHoursByPeriod = settings.optionalNumber(
     'lighting',
@@ -751,7 +751,7 @@ function ventilationInput(context: ProjectCalculationContext): CalculationJson {
       'ventilation',
       'network',
       'PROJECT',
-      'The project has no ventilation network.',
+      'Le projet n’a aucun réseau de ventilation.',
     );
     return { segments: [] };
   }
@@ -884,7 +884,7 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
       'water',
       'network',
       'PROJECT',
-      'The project has no water network.',
+      'Le projet n’a aucun réseau d’eau.',
     );
     return { segments: [] };
   }
@@ -892,7 +892,7 @@ function waterInput(context: ProjectCalculationContext): CalculationJson {
   const simultaneity = settings.requiredNumber(
     'water',
     'simultaneityFactor',
-    'Set the water simultaneity factor in the module settings.',
+    'Donnez le coefficient de simultanéité dans les réglages de l’eau.',
   );
   const nodeFlow = new Map(
     networks.flatMap((network) =>
@@ -983,14 +983,14 @@ function wastewaterInput(context: ProjectCalculationContext): CalculationJson {
       'wastewater',
       'network',
       'PROJECT',
-      'The project has no wastewater network.',
+      'Le projet n’a aucun réseau d’évacuation.',
     );
     return { segments: [] };
   }
   const flowPerUnit = settings.requiredNumber(
     'wastewater',
     'designFlowM3sPerDischargeUnit',
-    'Set the discharge-unit to design-flow factor in the wastewater module settings.',
+    'Donnez le débit par unité de vidange dans les réglages des évacuations.',
   );
   const minimumSlope = settings.optionalNumber('wastewater', 'minimumSlope');
   // Systems are assessed together but stay separate graphs: each one drains to
@@ -1122,9 +1122,9 @@ function theOnly<T extends { readonly id: string }>(
     moduleId,
     key,
     'EQUIPMENT',
-    `The project declares ${items.length} ${what} (${items
+    `Le projet déclare ${items.length} ${what} (${items
       .map(({ id }) => id)
-      .join(', ')}); state which one this module applies to.`,
+      .join(', ')}) : dites laquelle ce module doit prendre.`,
   );
   return undefined;
 }
@@ -1224,7 +1224,7 @@ function electricalInput(context: ProjectCalculationContext): CalculationJson {
       'electrical',
       'network',
       'PROJECT',
-      'The project has no electrical network.',
+      'Le projet n’a aucun réseau électrique.',
     );
     return { circuits: [] };
   }
@@ -1418,7 +1418,7 @@ function electricalInput(context: ProjectCalculationContext): CalculationJson {
       'electrical',
       'circuits',
       'PROJECT',
-      'No electrical network declares a circuit node.',
+      'Aucun réseau électrique ne déclare de circuit.',
     );
   return {
     networkIds: networks.map(({ id }) => id),
@@ -1444,7 +1444,7 @@ function rainwaterInput(context: ProjectCalculationContext): CalculationJson {
       'rainwater',
       'climate',
       'CLIMATE_DATASET',
-      'Rainwater harvesting needs a precipitation dataset for the site.',
+      'La récupération d’eau de pluie demande les précipitations du site : chargez un jeu de données climatiques.',
     );
   else
     settings.note(
@@ -1458,7 +1458,7 @@ function rainwaterInput(context: ProjectCalculationContext): CalculationJson {
     'RAINWATER_TANK',
     'rainwater',
     'tank',
-    'rainwater tanks',
+    'cuves de récupération',
   );
   const nominalVolumeL = equipmentNumber(
     context,
@@ -1471,29 +1471,29 @@ function rainwaterInput(context: ProjectCalculationContext): CalculationJson {
       'rainwater',
       'tank/nominalVolumeL',
       'EQUIPMENT',
-      'No rainwater tank equipment declares a nominal volume.',
+      'Aucune cuve de récupération ne déclare son volume nominal.',
     );
   const runoffCoefficient = settings.requiredNumber(
     'rainwater',
     'runoffCoefficient',
-    'Set the roof runoff coefficient in the rainwater module settings.',
+    'Donnez le coefficient de ruissellement dans les réglages de l’eau de pluie.',
   );
   const preFilterEfficiency = settings.requiredNumber(
     'rainwater',
     'preFilterEfficiency',
-    'Set the pre-filter efficiency in the rainwater module settings.',
+    'Donnez le rendement du préfiltre dans les réglages de l’eau de pluie.',
   );
   const dailyDemandL = settings.requiredNumber(
     'rainwater',
     'dailyDemandL',
-    'Set the non-potable daily demand in the rainwater module settings.',
+    'Donnez le besoin journalier en eau non potable dans les réglages de l’eau de pluie.',
   );
   if (context.roofs.length === 0)
     settings.reportMissing(
       'rainwater',
       'surfaces',
       'PROJECT',
-      'The project declares no roof plane to collect rain from.',
+      'Le projet ne déclare aucun pan de toiture d’où collecter la pluie.',
     );
   const hours = periodHours(climate);
   return {
@@ -1541,17 +1541,17 @@ function iaqInput(context: ProjectCalculationContext): CalculationJson {
   const generationM3sPerOccupant = settings.requiredNumber(
     'iaq',
     'co2GenerationM3sPerOccupant',
-    'Set the CO₂ generation rate per occupant in the IAQ module settings.',
+    'Donnez la production de CO₂ par occupant dans les réglages de la qualité de l’air.',
   );
   const initialConcentrationPpm = settings.requiredNumber(
     'iaq',
     'initialConcentrationPpm',
-    'Set the initial indoor CO₂ concentration in the IAQ module settings.',
+    'Donnez la concentration initiale de CO₂ dans les réglages de la qualité de l’air.',
   );
   const durationHours = settings.requiredNumber(
     'iaq',
     'durationHours',
-    'Set the simulated duration in the IAQ module settings.',
+    'Donnez la durée simulée dans les réglages de la qualité de l’air.',
   );
   const flows = spaceVentilationFlowsM3h(context);
   const rooms = context.spaces.map((space) => {
@@ -1642,7 +1642,7 @@ function photovoltaicInput(
       declaredPower.status === 'UNKNOWN' &&
         declaredPower.missingSourceIds.length > 0
         ? describeUnknown(declaredPower)
-        : 'No photovoltaic equipment declares an installed peak power.',
+        : 'Aucun équipement photovoltaïque ne déclare sa puissance crête installée.',
     );
   else if (modules.placed > 1)
     settings.note(
@@ -1654,7 +1654,7 @@ function photovoltaicInput(
   const performanceRatio = settings.requiredNumber(
     'photovoltaic',
     'performanceRatio',
-    'Set the photovoltaic performance ratio in the module settings.',
+    'Donnez le ratio de performance dans les réglages du photovoltaïque.',
   );
   const climate = context.climate;
   if (climate === undefined)
@@ -1662,7 +1662,7 @@ function photovoltaicInput(
       'photovoltaic',
       'irradiation',
       'CLIMATE_DATASET',
-      'Photovoltaic production needs an irradiation dataset for the site.',
+      'La production photovoltaïque demande l’ensoleillement du site : chargez un jeu de données climatiques.',
     );
   else {
     settings.note(
@@ -1752,8 +1752,13 @@ function batteryInput(context: ProjectCalculationContext): CalculationJson {
   // The battery that is actually installed, when one is. A library holding two
   // models and a house holding one is not an ambiguous house.
   const battery =
-    theOnlyPlaced(context, 'BATTERY', 'battery', 'battery', 'batteries') ??
-    context.battery;
+    theOnlyPlaced(
+      context,
+      'BATTERY',
+      'battery',
+      'battery',
+      'batteries de stockage',
+    ) ?? context.battery;
   // What is standing, before what is catalogued: a state of charge is an
   // instance property — the registry says so — so the fiche cannot state it and
   // the battery in the building must. Reading only the definition asked a
@@ -1775,7 +1780,7 @@ function batteryInput(context: ProjectCalculationContext): CalculationJson {
         'battery',
         property,
         'EQUIPMENT',
-        `Battery equipment declares no ${property}.`,
+        `La batterie ne déclare pas ${property}.`,
       );
     return value;
   };
@@ -1799,7 +1804,7 @@ function batteryInput(context: ProjectCalculationContext): CalculationJson {
       'battery',
       'periodHours',
       'CLIMATE_DATASET',
-      'Storage dispatch needs a uniform sub-daily climate dataset; monthly normals cannot resolve charge and discharge.',
+      'Le pilotage du stockage demande un climat au pas infra-journalier régulier : des moyennes mensuelles ne distinguent pas la charge de la décharge.',
     );
   else
     settings.note(
@@ -1839,7 +1844,7 @@ function energyBalanceInput(
       'energy-balance',
       'periods',
       'CLIMATE_DATASET',
-      'The energy ledger is built over the periods of a uniform climate dataset.',
+      'Le bilan énergétique se construit sur les périodes d’un climat au pas régulier.',
     );
   else
     settings.note(
@@ -1886,12 +1891,12 @@ function hygrothermalInput(
   const indoorTemperatureC = settings.requiredNumber(
     'hygrothermal',
     'indoorTemperatureC',
-    'Set the indoor design temperature in the hygrothermal module settings.',
+    'Donnez la température intérieure de calcul dans les réglages de l’hygrothermie.',
   );
   const indoorRelativeHumidity = settings.requiredNumber(
     'hygrothermal',
     'indoorRelativeHumidity',
-    'Set the indoor relative humidity in the hygrothermal module settings.',
+    'Donnez l’humidité relative intérieure dans les réglages de l’hygrothermie.',
   );
   const climate = context.climate;
   const outdoorTemperatureC =
@@ -1905,14 +1910,14 @@ function hygrothermalInput(
       'hygrothermal',
       'outdoorTemperatureC',
       'CLIMATE_DATASET',
-      'No outdoor temperature is available for the condensation assessment.',
+      'Aucune température extérieure n’est disponible pour l’étude des condensations.',
     );
   if (outdoorRelativeHumidity === undefined)
     settings.reportMissing(
       'hygrothermal',
       'outdoorRelativeHumidity',
       'CLIMATE_DATASET',
-      'No outdoor relative humidity is available for the condensation assessment.',
+      'Aucune humidité relative extérieure n’est disponible pour l’étude des condensations.',
     );
   const assemblies = context.exteriorWalls.map((wall) => {
     for (const layer of wall.layers)
@@ -1963,7 +1968,7 @@ function acousticsInput(context: ProjectCalculationContext): CalculationJson {
       'acoustics',
       'bandsHz',
       'MODULE_SETTINGS',
-      'Set the octave bands to assess in the acoustics module settings.',
+      'Donnez les bandes d’octave à étudier dans les réglages de l’acoustique.',
     );
   const absorptionByMaterial = new Map(
     context.materials.map((material) => [
@@ -2019,39 +2024,39 @@ function dhwInput(context: ProjectCalculationContext): CalculationJson {
   const litresPerOccupant = settings.requiredNumber(
     'dhw',
     'dailyUseVolumeLPerOccupant',
-    'Set the daily hot water volume per occupant in the DHW module settings.',
+    'Donnez le volume d’eau chaude journalier par occupant dans les réglages de l’ECS.',
   );
   const occupants = settings.requiredNumber(
     'dhw',
     'householdOccupants',
-    'Declare the household occupancy in the DHW module settings.',
+    'Déclarez le nombre d’occupants dans les réglages de l’ECS.',
   );
   const coldWaterTemperatureC = settings.requiredNumber(
     'dhw',
     'coldWaterTemperatureC',
-    'Set the cold water inlet temperature in the DHW module settings.',
+    'Donnez la température d’eau froide d’arrivée dans les réglages de l’ECS.',
   );
   const useTemperatureC = settings.requiredNumber(
     'dhw',
     'useTemperatureC',
-    'Set the hot water use temperature in the DHW module settings.',
+    'Donnez la température d’eau chaude à l’usage dans les réglages de l’ECS.',
   );
   const storageTemperatureC = settings.requiredNumber(
     'dhw',
     'storageTemperatureC',
-    'Set the storage temperature in the DHW module settings.',
+    'Donnez la température de stockage dans les réglages de l’ECS.',
   );
   const annualOperatingDays = settings.requiredNumber(
     'dhw',
     'annualOperatingDays',
-    'Set the number of operating days per year in the DHW module settings.',
+    'Donnez le nombre de jours de fonctionnement par an dans les réglages de l’ECS.',
   );
   const tank = theOnlyPlaced(
     context,
     'DHW_TANK',
     'dhw',
     'tank',
-    'hot water tanks',
+    'ballons d’eau chaude',
   );
   const tankVolumeL = equipmentNumber(context, tank, 'tankVolumeL', 'dhw');
   const usefulHeatingPowerW = equipmentNumber(
@@ -2065,7 +2070,7 @@ function dhwInput(context: ProjectCalculationContext): CalculationJson {
       'dhw',
       'tank',
       'EQUIPMENT',
-      'No hot water tank equipment declares a volume and a useful heating power.',
+      'Aucun ballon d’eau chaude ne déclare à la fois son volume et sa puissance utile.',
     );
   return {
     ...(litresPerOccupant === undefined || occupants === undefined
@@ -2170,7 +2175,7 @@ function costInput(context: ProjectCalculationContext): CalculationJson {
       'cost',
       'unitPriceByMaterial',
       'MODULE_SETTINGS',
-      'Declare unit prices per material, per cubic metre of installed material, in the cost module settings.',
+      'Déclarez un prix unitaire par matériau, au mètre cube posé, dans les réglages du coût.',
     );
 
   const priced: PricedLine[] = [];
@@ -2272,14 +2277,14 @@ function environmentalInput(
       'environmental',
       'gwpPerUnitByMaterial',
       'MODULE_SETTINGS',
-      'Declare environmental impact factors per material, with their source.',
+      'Déclarez un facteur d’impact par matériau, avec sa source.',
     );
   if (declarationSource === undefined)
     settings.reportMissing(
       'environmental',
       'declarationSource',
       'MODULE_SETTINGS',
-      'Environmental factors must name the declaration they come from.',
+      'Un facteur d’impact doit nommer la déclaration dont il vient.',
     );
   const lines = context.quantities.filter(
     (line) => line.quantityType === 'VOLUME' && line.materialId !== undefined,

@@ -170,7 +170,7 @@ export const thermalAdapter: CalculationModule = {
       return invalid({
         path: '/elements',
         message:
-          'At least one exterior wall with a resolved assembly is required.',
+          'Il faut au moins un mur extérieur dont la composition est résolue.',
       });
     return requireNumbers(input, [
       'insideSurfaceResistanceM2KW',
@@ -287,7 +287,7 @@ export const thermalAdapter: CalculationModule = {
       assumptions: declaredConstants(
         data,
         ['insideSurfaceResistanceM2KW', 'outsideSurfaceResistanceM2KW'],
-        'project calculation settings or ISO 6946 surface resistances',
+        'réglages de calcul du projet, ou résistances superficielles ISO 6946',
       ),
       references: [
         {
@@ -319,7 +319,8 @@ export const heatingAdapter: CalculationModule = {
     if (rows(data.rooms).length === 0)
       return invalid({
         path: '/rooms',
-        message: 'The project declares no space to compute a heating load for.',
+        message:
+          'Le projet ne déclare aucune pièce dont calculer la charge de chauffage.',
       });
     return requireNumbers(input, [
       'designIndoorTemperatureC',
@@ -367,14 +368,14 @@ export const heatingAdapter: CalculationModule = {
       warnings.push(
         missingWarning(
           'HEATING_MISSING_TRANSMISSION',
-          'The thermal module could not resolve the envelope heat transfer coefficient.',
+          'Le module thermique n’a pas pu résoudre le coefficient de déperdition de l’enveloppe.',
         ),
       );
     if (totalFloorAreaM2 <= 0)
       warnings.push(
         missingWarning(
           'HEATING_MISSING_FLOOR_AREA',
-          'Spaces declare no floor area, so envelope losses cannot be allocated per room.',
+          'Les pièces ne déclarent aucune surface : les déperditions ne peuvent pas être réparties pièce par pièce.',
         ),
       );
     const rooms = roomRows.map((room) => {
@@ -495,18 +496,18 @@ export const heatingAdapter: CalculationModule = {
             ? 'per-room-envelope'
             : `per-room-envelope; floor-area-prorata for ${estimated.join(', ')}`,
           estimated.length === 0
-            ? 'Each room is charged its own walls and openings, and its share of what is above and below.'
-            : 'Each room is charged its own walls and openings; the rooms named fell back to a share of the building total, because the walls of their storey do not enclose them.',
+            ? 'Chaque pièce porte ses propres murs et ouvertures, plus sa part de ce qui est au-dessus et au-dessous.'
+            : 'Chaque pièce porte ses propres murs et ouvertures ; celles qui sont nommées ont dû se rabattre sur une part du total du bâtiment, parce que les murs de leur niveau ne les enferment pas.',
         ),
         assumption(
           'designIndoorTemperatureC',
           indoorC,
-          'project calculation settings',
+          'réglages de calcul du projet',
         ),
         assumption(
           'designOutdoorTemperatureC',
           outdoorC,
-          'project calculation settings or climate dataset',
+          'réglages de calcul du projet, ou jeu de données climatiques',
         ),
         ...declaredConstants(
           data,
@@ -578,7 +579,7 @@ export const dhwAdapter: CalculationModule = {
         assumption(
           'dailyUseVolumeL',
           number(data.dailyUseVolumeL)!,
-          'occupancy and per-occupant volume from the project calculation settings',
+          'occupation et volume par occupant, réglages de calcul du projet',
         ),
         ...declaredConstants(
           data,
@@ -615,7 +616,7 @@ export const lightingAdapter: CalculationModule = {
     if (rows(data.placements).length === 0)
       return invalid({
         path: '/placements',
-        message: 'No luminaire is placed on the electrical network.',
+        message: 'Aucun luminaire n’est posé sur le réseau électrique.',
       });
     return requireNumbers(input, ['utilizationFactor', 'maintenanceFactor']);
   },
@@ -719,7 +720,7 @@ export const lightingAdapter: CalculationModule = {
       assumptions: declaredConstants(
         data,
         ['utilizationFactor', 'maintenanceFactor'],
-        'project calculation settings',
+        'réglages de calcul du projet',
       ),
       references: [
         {
@@ -755,7 +756,7 @@ export const electricalAdapter: CalculationModule = {
     if (rows(data.circuits).length === 0)
       return invalid({
         path: '/circuits',
-        message: 'The project declares no electrical circuit to assess.',
+        message: 'Le projet ne déclare aucun circuit électrique à étudier.',
       });
     return requireNumbers(input, [
       'copperResistivityOhmMm2PerM',
@@ -954,7 +955,7 @@ export const ventilationAdapter: CalculationModule = {
     if (rows(data.segments).length === 0)
       return invalid({
         path: '/segments',
-        message: 'The project has no ventilation duct to size.',
+        message: 'Le projet n’a aucun conduit de ventilation à dimensionner.',
       });
     return requireNumbers(input, ['airDensityKgM3', 'dynamicViscosityPaS']);
   },
@@ -1104,7 +1105,7 @@ export const iaqAdapter: CalculationModule = {
       return invalid({
         path: '/rooms',
         message:
-          'The project declares no space to assess indoor air quality in.',
+          'Le projet ne déclare aucune pièce où étudier la qualité de l’air.',
       });
     return requireNumbers(input, [
       'co2GenerationM3sPerOccupant',
@@ -1180,7 +1181,7 @@ export const iaqAdapter: CalculationModule = {
             'initialConcentrationPpm',
             'durationHours',
           ],
-          'project calculation settings',
+          'réglages de calcul du projet',
         ),
         ...declaredConstants(
           data,
@@ -1190,7 +1191,7 @@ export const iaqAdapter: CalculationModule = {
         assumption(
           'occupancyProfile',
           'constant',
-          'Occupancy and CO₂ generation are held constant over the simulated duration.',
+          'L’occupation et la production de CO₂ sont tenues constantes sur toute la durée simulée.',
         ),
       ],
       references: [
@@ -1215,7 +1216,7 @@ export const waterAdapter: CalculationModule = {
     if (rows(data.segments).length === 0)
       return invalid({
         path: '/segments',
-        message: 'The project has no water pipe to size.',
+        message: 'Le projet n’a aucune canalisation d’eau à dimensionner.',
       });
     return requireNumbers(input, [
       'fluidDensityKgM3',
@@ -1307,7 +1308,7 @@ export const waterAdapter: CalculationModule = {
         ...declaredConstants(
           data,
           ['simultaneityFactor'],
-          'project calculation settings',
+          'réglages de calcul du projet',
         ),
       ],
       references: [
@@ -1332,7 +1333,7 @@ export const wastewaterAdapter: CalculationModule = {
     if (rows(data.edges).length === 0)
       return invalid({
         path: '/edges',
-        message: 'The project has no gravity pipe to assess.',
+        message: 'Le projet n’a aucune canalisation gravitaire à étudier.',
       });
     return requireNumbers(input, ['designFlowM3sPerDischargeUnit']);
   },
@@ -1446,7 +1447,7 @@ export const wastewaterAdapter: CalculationModule = {
       assumptions: declaredConstants(
         data,
         ['designFlowM3sPerDischargeUnit', 'minimumSlope'],
-        'project calculation settings',
+        'réglages de calcul du projet',
       ),
       references: [
         {
@@ -1477,12 +1478,14 @@ export const rainwaterAdapter: CalculationModule = {
     if (rows(data.surfaces).length === 0)
       return invalid({
         path: '/surfaces',
-        message: 'The project declares no roof plane to collect rain from.',
+        message:
+          'Le projet ne déclare aucun pan de toiture d’où collecter la pluie.',
       });
     if (list(data.precipitationMm) === undefined)
       return invalid({
         path: '/precipitationMm',
-        message: 'A climate dataset with precipitation is required.',
+        message:
+          'Il faut un jeu de données climatiques qui porte les précipitations.',
       });
     return requireNumbers(input, ['nominalVolumeL', 'dailyDemandL']);
   },
@@ -1553,12 +1556,12 @@ export const rainwaterAdapter: CalculationModule = {
         ...declaredConstants(
           data,
           ['dailyDemandL', 'nominalVolumeL', 'initialVolumeL'],
-          'project calculation settings and rainwater tank equipment',
+          'réglages de calcul du projet et fiche de la cuve',
         ),
         assumption(
           'demandProfile',
           'uniform-daily',
-          'Non-potable demand is spread uniformly across each climate period.',
+          'Le besoin en eau non potable est réparti uniformément sur chaque période du climat.',
         ),
       ],
       references: [
@@ -1592,7 +1595,7 @@ export const photovoltaicAdapter: CalculationModule = {
       return invalid({
         path: '/irradiationWhM2',
         message:
-          'A complete irradiation series from the climate dataset is required.',
+          'Il faut une série d’ensoleillement complète dans le jeu de données climatiques.',
       });
     return requireNumbers(input, ['installedPowerWp', 'performanceRatio']);
   },
@@ -1659,12 +1662,12 @@ export const photovoltaicAdapter: CalculationModule = {
         ...declaredConstants(
           data,
           ['performanceRatio'],
-          'project calculation settings',
+          'réglages de calcul du projet',
         ),
         assumption(
           'planeIrradiation',
           'global-horizontal',
-          'Plane-of-array irradiation is taken as the global horizontal irradiance of the dataset; no transposition to the roof tilt is applied.',
+          'L’ensoleillement dans le plan des modules est pris égal au rayonnement global horizontal du jeu de données : aucune transposition vers l’inclinaison de la toiture n’est appliquée.',
         ),
       ],
       references: [
@@ -1709,7 +1712,7 @@ export const batteryAdapter: CalculationModule = {
       warnings.push(
         missingWarning(
           'BATTERY_NO_UNIFORM_TIME_STEP',
-          'Storage dispatch needs a uniform sub-daily time step; the energy ledger will report storage as not assessed.',
+          'Le pilotage du stockage demande un pas de temps infra-journalier régulier : le bilan énergétique rapportera le stockage comme non évalué.',
         ),
       );
     return {
@@ -1769,12 +1772,12 @@ export const energyBalanceAdapter: CalculationModule = {
       return invalid({
         path: '/periodHours',
         message:
-          'A climate dataset with resolvable period durations is required.',
+          'Il faut un jeu de données climatiques dont les durées de période sont résolubles.',
       });
     if (hours.some((value) => value !== hours[0]))
       return invalid({
         path: '/periodHours',
-        message: 'The energy ledger requires a uniform time step.',
+        message: 'Le bilan énergétique demande un pas de temps régulier.',
       });
     return requireNumbers(input, ['heatingSetpointTemperatureC']);
   },
@@ -1801,7 +1804,7 @@ export const energyBalanceAdapter: CalculationModule = {
       warnings.push(
         missingWarning(
           'ENERGY_MISSING_HEATING_COEFFICIENT',
-          'The heating module could not resolve a building heat transfer coefficient.',
+          'Le module de chauffage n’a pas pu résoudre le coefficient de déperdition du bâtiment.',
         ),
       );
     const heatingWh = periods.map((_, index) => {
@@ -1813,7 +1816,7 @@ export const energyBalanceAdapter: CalculationModule = {
       warnings.push(
         missingWarning(
           'ENERGY_MISSING_OUTDOOR_TEMPERATURE',
-          'The climate dataset has gaps in its outdoor temperature series.',
+          'La série de températures extérieures du jeu de données climatiques a des trous.',
         ),
       );
 
@@ -1832,7 +1835,7 @@ export const energyBalanceAdapter: CalculationModule = {
       warnings.push(
         missingWarning(
           'ENERGY_MISSING_LIGHTING_PROFILE',
-          'Lighting operating hours are not declared, so lighting energy is unknown.',
+          'Les heures de fonctionnement de l’éclairage ne sont pas déclarées : son énergie reste inconnue.',
         ),
       );
 
@@ -1877,7 +1880,7 @@ export const energyBalanceAdapter: CalculationModule = {
       warnings.push(
         missingWarning(
           'ENERGY_STORAGE_NOT_ASSESSED',
-          'The battery time step does not match the ledger time step; storage dispatch is not assessed.',
+          'Le pas de temps de la batterie ne correspond pas à celui du bilan : le pilotage du stockage n’est pas évalué.',
         ),
       );
 
@@ -1977,22 +1980,22 @@ export const energyBalanceAdapter: CalculationModule = {
         assumption(
           'heatingEnergyMethod',
           'degree-hours-v1',
-          'Heating energy is the building heat transfer coefficient times the positive setpoint-to-outdoor temperature difference over each period; solar and internal gains are not credited.',
+          'L’énergie de chauffage est le coefficient de déperdition du bâtiment multiplié par l’écart positif entre consigne et extérieur sur chaque période : ni les apports solaires ni les apports internes ne sont comptés.',
         ),
         assumption(
           'dhwProfile',
           'uniform-annual',
-          'Domestic hot water energy is spread uniformly over the year.',
+          'L’énergie d’eau chaude sanitaire est répartie uniformément sur l’année.',
         ),
         assumption(
           'ventilationProfile',
           'continuous',
-          'Ventilation fans are assumed to run continuously at their nominal power.',
+          'Les ventilateurs sont supposés tourner en continu à leur puissance nominale.',
         ),
         ...declaredConstants(
           data,
           ['heatingSetpointTemperatureC'],
-          'project calculation settings',
+          'réglages de calcul du projet',
         ),
       ],
       references: [
@@ -2020,7 +2023,7 @@ export const hygrothermalAdapter: CalculationModule = {
     if (rows(data.assemblies).length === 0)
       return invalid({
         path: '/assemblies',
-        message: 'At least one exterior assembly is required.',
+        message: 'Il faut au moins une composition donnant sur l’extérieur.',
       });
     return requireNumbers(input, [
       'indoorTemperatureC',
@@ -2106,7 +2109,7 @@ export const hygrothermalAdapter: CalculationModule = {
         ...warnings,
         missingWarning(
           'HYGROTHERMAL_METHOD_LIMITS',
-          'Steady-state vapour diffusion only: no moisture storage, no air leakage, no rain, no dynamic drying.',
+          'Diffusion de vapeur en régime permanent seulement : ni stockage d’humidité, ni fuites d’air, ni pluie, ni séchage dynamique.',
         ),
       ],
       assumptions: [
@@ -2118,7 +2121,7 @@ export const hygrothermalAdapter: CalculationModule = {
             'outdoorTemperatureC',
             'outdoorRelativeHumidity',
           ],
-          'project calculation settings and climate dataset',
+          'réglages de calcul du projet et jeu de données climatiques',
         ),
         ...declaredConstants(
           data,
@@ -2151,7 +2154,7 @@ export const acousticsAdapter: CalculationModule = {
     if (rows(data.rooms).length === 0)
       return invalid({
         path: '/rooms',
-        message: 'The project declares no space to assess.',
+        message: 'Le projet ne déclare aucune pièce à étudier.',
       });
     const bands = numbers(data.bandsHz);
     if (
@@ -2237,7 +2240,7 @@ export const acousticsAdapter: CalculationModule = {
           reverberationConstant: number(data.reverberationConstant)!,
           bandsHz: bands,
           assumptions: [
-            'Diffuse field, uniform absorption over floor, ceiling and walls.',
+            'Champ diffus, absorption uniforme sur le sol, le plafond et les murs.',
           ],
         },
       );
@@ -2267,7 +2270,7 @@ export const acousticsAdapter: CalculationModule = {
         assumption(
           'surfaceComposition',
           'floor-ceiling-walls',
-          'Room surfaces are derived from the space polygon and the storey height; furniture and openings are not modelled.',
+          'Les surfaces de la pièce sont dérivées de son contour et de la hauteur du niveau : ni le mobilier ni les ouvertures ne sont modélisés.',
         ),
       ],
       references: [{ id: 'sabine', title: 'Sabine reverberation time' }],
@@ -2290,13 +2293,13 @@ export const costAdapter: CalculationModule = {
     if (rows(data.quantities).length === 0)
       return invalid({
         path: '/quantities',
-        message: 'The project takeoff produced no priced quantity.',
+        message: 'Le métré du projet n’a produit aucune quantité chiffrable.',
       });
     if (!isRecord(data.unitPriceByMaterial))
       return invalid({
         path: '/unitPriceByMaterial',
         message:
-          'Declare unit prices per material in the cost module settings.',
+          'Déclarez un prix unitaire par matériau dans les réglages du coût.',
       });
     return ok();
   },
@@ -2334,7 +2337,7 @@ export const costAdapter: CalculationModule = {
           ...(wasteFactor === undefined ? {} : { wasteFactor }),
           source: {
             sourceType: 'USER' as const,
-            reference: 'project calculation settings',
+            reference: 'réglages de calcul du projet',
           },
         };
       }),
@@ -2369,15 +2372,15 @@ export const costAdapter: CalculationModule = {
       assumptions: [
         assumption(
           'priceSource',
-          'project calculation settings',
-          'Unit prices are user-declared and carry no supplier quotation.',
+          'réglages de calcul du projet',
+          'Les prix unitaires sont déclarés par l’utilisateur et ne viennent d’aucun devis de fournisseur.',
         ),
         assumption(
           'labourScope',
           labourDeclared ? 'declared' : 'excluded',
           labourDeclared
-            ? 'Labour prices come from the project calculation settings.'
-            : 'No labour price is declared, so the estimate covers materials only.',
+            ? 'Les prix de main-d’œuvre viennent des réglages de calcul du projet.'
+            : 'Aucun prix de main-d’œuvre n’est déclaré : l’estimation ne couvre que les matériaux.',
         ),
       ],
       references: [],
@@ -2400,18 +2403,19 @@ export const environmentalAdapter: CalculationModule = {
     if (rows(data.quantities).length === 0)
       return invalid({
         path: '/quantities',
-        message: 'The project takeoff produced no quantity to assess.',
+        message: 'Le métré du projet n’a produit aucune quantité à étudier.',
       });
     if (!isRecord(data.gwpPerUnitByMaterial))
       return invalid({
         path: '/gwpPerUnitByMaterial',
-        message: 'Declare impact factors per material in the module settings.',
+        message:
+          'Déclarez un facteur d’impact par matériau dans les réglages du module.',
       });
     if (string(data.declarationSource) === undefined)
       return invalid({
         path: '/declarationSource',
         message:
-          'Environmental factors must name the declaration they come from.',
+          'Un facteur d’impact doit nommer la déclaration dont il vient.',
       });
     return ok();
   },
@@ -2491,14 +2495,14 @@ export const environmentalAdapter: CalculationModule = {
         ),
         missingWarning(
           'ENV_GENERIC_DATA',
-          `Impacts come from default environmental data (${source}) and must not be read as manufacturer declarations.`,
+          `Les impacts viennent de données environnementales par défaut (${source}) et ne doivent pas être lus comme des déclarations de fabricant.`,
         ),
       ],
       assumptions: [
         assumption(
           'lifeCycleStages',
           'PRODUCT',
-          'Only the product stage is accounted for; construction, use and end of life are excluded.',
+          'Seule l’étape de production est comptée : la mise en œuvre, l’usage et la fin de vie sont exclus.',
         ),
       ],
       references: [],
