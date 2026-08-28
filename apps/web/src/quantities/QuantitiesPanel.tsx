@@ -36,6 +36,12 @@ export function QuantitiesPanel({
             type="button"
             className="secondary"
             disabled={report.lines.length === 0}
+            {...(report.lines.length === 0
+              ? {
+                  title:
+                    'La nomenclature est vide : rien de ce qui est dessiné ne porte encore de matière.',
+                }
+              : {})}
             onClick={() =>
               onExportCsv(
                 bomToCsv(report),

@@ -3,7 +3,11 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { fileAction } from './support/file-menu.js';
 
-import { DESTINATIONS, openDestination } from './support/navigation.js';
+import {
+  DESTINATIONS,
+  openDestination,
+  workspaceReady,
+} from './support/navigation.js';
 
 /**
  * What an automated audit can check, checked on every workspace.
@@ -44,8 +48,16 @@ test('every workspace passes the automated accessibility rules', async ({
 
   for (const destination of DESTINATIONS) {
     await openDestination(page, destination);
-    // The panel arrives on demand; auditing before it is there audits nothing.
-    await expect(page.locator('.canvas-panel')).toBeVisible();
+    /*
+     * The panel arrives on demand; auditing before it is there audits nothing.
+     *
+     * Et c'est très exactement ce qui se passait. `.canvas-panel` est rendue
+     * tout de suite, avec « Chargement de l'espace de travail… » dedans :
+     * l'attendre visible n'attend rien. Sur onze destinations sur treize, cet
+     * audit analysait la phrase d'attente et déclarait treize espaces
+     * conformes.
+     */
+    await workspaceReady(page);
     const { violations } = await audit(page);
     expect(
       violations,

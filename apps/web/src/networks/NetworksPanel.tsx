@@ -727,6 +727,9 @@ export function NetworksPanel({
                     id="network-to-port"
                     value={toPortId}
                     disabled={fromPortId === ''}
+                    {...(fromPortId === ''
+                      ? { title: 'Choisissez d’abord le port de départ.' }
+                      : {})}
                     onChange={(event) => setToPortId(event.target.value)}
                   >
                     <option value="">Choisir un port</option>
@@ -740,6 +743,12 @@ export function NetworksPanel({
                 <button
                   type="submit"
                   disabled={fromPortId === '' || toPortId === ''}
+                  {...(fromPortId === '' || toPortId === ''
+                    ? {
+                        title:
+                          'Un tronçon relie deux ports : désignez le départ et l’arrivée.',
+                      }
+                    : {})}
                 >
                   Relier
                 </button>

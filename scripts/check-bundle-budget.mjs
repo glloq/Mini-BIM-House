@@ -461,8 +461,18 @@ export const BUDGETS = {
    * « non vérifiable » là où « tenu » mentait. Le kio arrive à la demande,
    * avec l'écran des vérifications : le premier écran ne bouge pas d'un
    * dixième.
+   *
+   * Et un avec ce que douze contrôles refusaient de dire. Un bouton grisé sans
+   * motif se lit comme une panne : on reclique, on cherche le réglage qui le
+   * libère, il n'existe pas. Douze le faisaient — « Relier », « Ajouter le
+   * changement », « Exporter en CSV », la case Architecture du périmètre — et
+   * neuf d'entre eux étaient invisibles au balayage parce qu'il attendait la
+   * case de l'écran et non l'écran, donc auditait la phrase d'attente sur onze
+   * destinations sur treize. Une phrase par refus, portée par le contrôle, et
+   * un projet neuf mené à dessiner plutôt qu'aux réglages d'un bâtiment qui
+   * n'existe pas. Tout arrive à la demande, avec les écrans concernés.
    */
-  totalGzipBytes: 492 * 1024,
+  totalGzipBytes: 493 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */
