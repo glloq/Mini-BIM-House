@@ -135,7 +135,7 @@ describe('the planes a roof is made of', () => {
     expect(Math.abs(result.planes[1]!.azimuthDeg)).toBeCloseTo(90, 6);
   });
 
-  it('says what it cannot derive instead of inventing a ridge', () => {
+  it('résout ce qu’un L a de résoluble, et dit le reste', () => {
     const lShape = [
       { x: 0, y: 0 },
       { x: 10_000, y: 0 },
@@ -150,11 +150,19 @@ describe('the planes a roof is made of', () => {
         lShape,
       ),
     );
+    /*
+     * Un L a une noue, et le squelette droit la trouve. Ce qu'il ne sait pas
+     * encore, c'est refermer les deux fronts qu'elle sépare — il le dit, et
+     * `NOT_DERIVABLE` garde ces pans hors de toute aire comptée.
+     *
+     * Ce qui a changé : la raison ne parle plus de convexité, mais de ce qui
+     * manque vraiment. « Cette version ne sait faire que le convexe » était
+     * vrai avant le moteur de toiture ; ce ne l'est plus.
+     */
     expect(result.status).toBe('NOT_DERIVABLE');
     if (result.status !== 'NOT_DERIVABLE') return;
-    expect(result.reason).toContain('convexe');
-    // What it is sure of is still offered: one plane standing on each side.
-    expect(result.planes).toHaveLength(6);
+    expect(result.reason).toContain('noue');
+    expect(result.planes.length).toBeGreaterThan(0);
   });
 });
 

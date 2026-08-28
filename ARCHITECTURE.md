@@ -62,6 +62,7 @@ Ce que cela veut dire, concrètement :
 | Paquet                                  | Ce qu'il tient                                                                  |
 | --------------------------------------- | ------------------------------------------------------------------------------- |
 | `geometry`                              | primitives 2D : polygones, segments, tolérances                                 |
+| `roof-geometry`                         | le squelette droit pondéré : où les pans d'une toiture se rencontrent           |
 | `units`                                 | grandeurs typées et conversions                                                 |
 | `climate`                               | jeux climatiques, regroupement par lieu et empreintes                           |
 | `technical-types`                       | genres de raccordement, dégagements, registres, sans dépendance                 |

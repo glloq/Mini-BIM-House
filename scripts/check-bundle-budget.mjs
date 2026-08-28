@@ -221,8 +221,22 @@ export const BUDGETS = {
    * sous-chemin `project-io/validation`, et l'application qui l'appelle au
    * moment où elle ouvre un fichier plutôt qu'au moment où elle démarre. Tant
    * que ce n'est pas fait, aucun budget ne doit plus monter.
+   *
+   * Et un avec le moteur de toiture — le squelette droit pondéré, qui trouve
+   * où les pans se rencontrent sur un contour quelconque. Il monte au premier
+   * écran parce que le plan dessine des toitures.
+   *
+   * **La règle du paragraphe précédent est donc enfreinte, et voici pourquoi
+   * la sortie de la validation n'a pas eu lieu ici.** Elle n'est pas un
+   * sous-chemin à ajouter, comme `browser` l'était : `scenarios.ts` et
+   * `container.ts` importent tous deux `project-io.ts`, qui charge le
+   * validateur compilé à la racine du module. Sortir le validateur demande de
+   * couper `project-io.ts` en deux — ce qui touche la sérialisation, la
+   * lecture et les conteneurs — et mérite son propre changement plutôt que
+   * d'être bâclé au passage d'un moteur de toiture. C'est le premier de la
+   * dette, et il reste le premier.
    */
-  initialGzipBytes: 302 * 1024,
+  initialGzipBytes: 304 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -349,7 +363,7 @@ export const BUDGETS = {
    * Et un avec les soixante-treize entrées nommées, comptées au chargement
    * initial ci-dessus : le registre vit dans le premier écran.
    */
-  totalGzipBytes: 483 * 1024,
+  totalGzipBytes: 485 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

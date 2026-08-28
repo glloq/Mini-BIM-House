@@ -4,6 +4,8 @@ import {
   type Polygon2D,
 } from '@house-technical-designer/geometry';
 import type { AssemblyId } from '@house-technical-designer/assemblies';
+import { straightSkeleton } from '@house-technical-designer/roof-geometry';
+
 import type { LevelId, RoofId } from './ids.js';
 import type { RoofPlane } from './roof-plane.js';
 import { entityId } from './ids.js';
@@ -300,6 +302,37 @@ function eaveLinesOf(
 }
 
 /**
+ * Les pans d'un contour rentrant, lus du squelette droit.
+ *
+ * `roof-geometry` travaille en vitesses — de combien un côté recule par unité
+ * de hauteur — parce que c'est ce qui fait avancer un front d'onde. Une pente
+ * de θ recule de `1 / tan θ` ; un pignon ne recule pas, sa vitesse est nulle,
+ * et il borne la toiture sans lui donner de surface.
+ */
+function fromSkeleton(
+  roof: Roof,
+  eave: readonly Point2D[],
+  planeOf: (index: number, face: readonly Point2D[]) => RoofPlane,
+  unresolved: (reason: string) => RoofTopology,
+): RoofTopology {
+  const speeds = roof.edges.map((edge) => {
+    if (edge.kind !== 'SLOPED') return { speed: 0 };
+    const tangent = Math.tan((edge.slopeDeg * Math.PI) / 180);
+    return {
+      speed: Number.isFinite(tangent) && tangent > 0 ? 1 / tangent : 0,
+    };
+  });
+  const skeleton = straightSkeleton(eave, speeds);
+  if (skeleton.status === 'UNRESOLVED') return unresolved(skeleton.reason);
+  const planes = skeleton.faces
+    .filter(({ edgeIndex }) => roof.edges[edgeIndex]?.kind === 'SLOPED')
+    .map(({ edgeIndex, outline }) => planeOf(edgeIndex, outline));
+  if (skeleton.status === 'PARTIAL')
+    return { status: 'NOT_DERIVABLE', reason: skeleton.reason, planes };
+  return { status: 'DERIVED', planes };
+}
+
+/**
  * The planes a roof is made of, derived and never stored.
  *
  * A roof is the lowest of the surfaces climbing from its eaves: at any point
@@ -353,10 +386,21 @@ export function deriveRoofPlanes(roof: Roof): RoofTopology {
     ),
   });
 
-  if (!isConvex(eave))
-    return unresolved(
-      'Cette version ne déduit la rencontre des pans que sur un contour convexe.',
-    );
+  /*
+   * Un contour rentrant ne se découpe pas en demi-plans.
+   *
+   * La construction ci-dessous est exacte tant que l'aire est convexe : la
+   * face d'un pan y est l'intersection des demi-plans « je monte plus bas que
+   * l'autre », et une intersection de demi-plans est convexe. Sur un L, la
+   * droite qui porte un côté laisse une partie de l'aire de son mauvais côté,
+   * et la distance signée y devient négative : le pan gagnerait un morceau
+   * qu'il ne couvre pas.
+   *
+   * C'est le squelette droit pondéré qui répond là — un paquet à part, éprouvé
+   * sur le rectangle, le carré, le L, le U et les pièges connus — et ce qu'il
+   * ne sait pas conclure, il le dit.
+   */
+  if (!isConvex(eave)) return fromSkeleton(roof, eave, planeOf, unresolved);
   if (lines.some(({ tangent }) => !Number.isFinite(tangent) || tangent <= 0))
     return unresolved(
       'Une pente nulle ou plate ne fait pas se rencontrer les pans.',
