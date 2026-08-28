@@ -10317,120 +10317,140 @@
           {
             "id": "wastewater:collector-out",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:outlet-in",
             "nodeId": "wastewater:outlet",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:sink-out",
             "nodeId": "wastewater:sink",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:collector-in-sink",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:basin-out",
             "nodeId": "wastewater:basin",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:collector-in-basin",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:shower-out",
             "nodeId": "wastewater:shower",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:collector-in-shower",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:wc-out",
             "nodeId": "wastewater:wc",
+            "portTypeId": "SOILWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:collector-in-wc",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:first-basin-out",
             "nodeId": "wastewater:first-basin",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:first-bath-out",
             "nodeId": "wastewater:first-bath",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:collector-in-stack",
             "nodeId": "wastewater:collector",
+            "portTypeId": "WASTEWATER_COMBINED_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:stack-head-in-basin",
             "nodeId": "wastewater:stack-head",
+            "portTypeId": "WASTEWATER_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:stack-head-out",
             "nodeId": "wastewater:stack-head",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:stack-mid-in-head",
             "nodeId": "wastewater:stack-mid",
+            "portTypeId": "WASTEWATER_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:stack-mid-in-bath",
             "nodeId": "wastewater:stack-mid",
+            "portTypeId": "WASTEWATER_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:stack-mid-out",
             "nodeId": "wastewater:stack-mid",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           },
           {
             "id": "wastewater:stack-foot-in",
             "nodeId": "wastewater:stack-foot",
+            "portTypeId": "WASTEWATER_INLET",
             "role": "FLOW",
             "direction": "IN"
           },
           {
             "id": "wastewater:stack-foot-out",
             "nodeId": "wastewater:stack-foot",
+            "portTypeId": "WASTEWATER",
             "role": "FLOW",
             "direction": "OUT"
           }
@@ -11241,48 +11261,56 @@
           {
             "id": "electrical:circuit-out-bedroom-one",
             "nodeId": "electrical:lighting-circuit",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "OUT"
           },
           {
             "id": "electrical:luminaire-bedroom-one-in",
             "nodeId": "electrical:luminaire-bedroom-one",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "IN"
           },
           {
             "id": "electrical:circuit-out-bedroom-two",
             "nodeId": "electrical:lighting-circuit",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "OUT"
           },
           {
             "id": "electrical:luminaire-bedroom-two-in",
             "nodeId": "electrical:luminaire-bedroom-two",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "IN"
           },
           {
             "id": "electrical:circuit-out-first-bath",
             "nodeId": "electrical:lighting-circuit",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "OUT"
           },
           {
             "id": "electrical:luminaire-first-bath-in",
             "nodeId": "electrical:luminaire-first-bath",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "IN"
           },
           {
             "id": "electrical:circuit-out-landing",
             "nodeId": "electrical:lighting-circuit",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "OUT"
           },
           {
             "id": "electrical:luminaire-landing-in",
             "nodeId": "electrical:luminaire-landing",
+            "portTypeId": "ELECTRICAL_AC",
             "role": "POWER",
             "direction": "IN"
           }

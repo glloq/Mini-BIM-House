@@ -27,6 +27,20 @@
  *
  * Avec un nom de paquet ou un bout de chemin, il rend la chaîne la plus courte
  * qui y mène — la réponse à « mais qu'est-ce qui importe ça ? ».
+ *
+ * ## Ce qu'il ne dit pas
+ *
+ * **Atteignable n'est pas pesant, et une chaîne n'est pas la seule.** Ce qu'il
+ * rapporte est ce que le premier écran peut atteindre ; le regroupeur, lui,
+ * élague ce dont personne ne se sert et partage ce que plusieurs morceaux
+ * demandent. Couper la chaîne qu'il montre ne fait donc maigrir le premier
+ * écran que si c'était **la** chaîne — coupé une fois pour de vrai, le vue de
+ * coupe est restée, atteinte par ailleurs, et le budget n'a pas bougé d'un
+ * octet.
+ *
+ * Il sert donc à trouver ce qui n'a rien à faire là et à comprendre par où
+ * c'est arrivé. Le juge du poids reste `check:bundle`, et la bonne façon de
+ * s'en servir est : trouver ici, décider, couper, **remesurer là-bas**.
  */
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve, relative } from 'node:path';

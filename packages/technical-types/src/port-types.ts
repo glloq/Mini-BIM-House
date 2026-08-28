@@ -49,6 +49,8 @@ export const PORT_SERVICES = [
   'NON_POTABLE',
   'GREYWATER',
   'BLACKWATER',
+  /** Les deux réunies, ce qu'un réseau unitaire transporte en aval du regard. */
+  'COMBINED_WASTEWATER',
   'DRAIN_VENT',
   'CONDENSATE',
   'RAINWATER',
@@ -204,6 +206,41 @@ export const PORT_TYPES = [
     service: 'BLACKWATER',
     direction: 'IN',
     connectionClass: 'PIPE_GRAVITY',
+  },
+  /*
+   * Un réseau unitaire, qui est le cas courant d'une maison.
+   *
+   * `WastewaterSystemType` connaît `COMBINED_WASTEWATER` depuis toujours, et
+   * aucun type de port ne savait le dire : en aval du regard, un tuyau porte
+   * les eaux usées **et** les eaux-vannes, et le modèle n'avait que les deux
+   * séparément. Raccorder un lavabo au même regard que le WC était donc refusé
+   * — dans la maison de référence elle-même, où plus rien ne pouvait être
+   * vérifié faute de types déclarés.
+   *
+   * L'arrivée unitaire est le seul endroit où deux services se rejoignent, et
+   * elle le dit : c'est exactement ce que `convertsTo` décrit — « énoncé
+   * seulement là où une liaison traverse les services exprès ». Un regard
+   * unitaire est ce croisement, comme un onduleur en est un entre le continu
+   * et l'alternatif.
+   */
+  {
+    id: 'WASTEWATER_COMBINED',
+    label: 'Eaux usées unitaires',
+    domain: 'WASTEWATER',
+    medium: 'WASTEWATER',
+    service: 'COMBINED_WASTEWATER',
+    direction: 'OUT',
+    connectionClass: 'PIPE_GRAVITY',
+  },
+  {
+    id: 'WASTEWATER_COMBINED_INLET',
+    label: 'Arrivée unitaire',
+    domain: 'WASTEWATER',
+    medium: 'WASTEWATER',
+    service: 'COMBINED_WASTEWATER',
+    direction: 'IN',
+    connectionClass: 'PIPE_GRAVITY',
+    convertsTo: ['WASTEWATER', 'SOILWATER', 'CONDENSATE'],
   },
   {
     id: 'DRAIN_VENT',

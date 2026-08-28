@@ -126,3 +126,54 @@ describe('ce que les évacuations de la maison de référence valent', () => {
         expect(segment.slope as number, String(segment.id)).toBeGreaterThan(0);
   });
 });
+
+/**
+ * Ce que les réseaux de la maison de référence savent dire d'eux-mêmes.
+ *
+ * Un port qui ne déclare pas son genre ne peut pas être vérifié : la
+ * vérification répond « rien ne dit si les deux se raccordent », ce qui n'est
+ * ni un succès ni un échec, et se lit comme un silence. La maison de référence
+ * avait vingt raccordements dans cet état — toutes les évacuations, toute la
+ * ventilation, et la moitié de l'électricité, ajoutée à l'étage sans que
+ * personne ne suive.
+ */
+describe('les réseaux de la maison de référence', () => {
+  const house = () => {
+    const result = loadDemoProject();
+    if (result.status !== 'OK') throw new Error(result.message);
+    return result.file.project;
+  };
+
+  /*
+   * La ventilation reste à typer, et pour une raison qui demande son propre
+   * changement : ses tronçons sont dessinés depuis le caisson vers les bouches
+   * alors que l'air d'une extraction va dans l'autre sens. Typer ses ports
+   * selon la physique demande de retourner le graphe, que le module de
+   * ventilation lit — c'est un chantier, pas un oubli.
+   */
+  const NOT_YET_TYPED = new Set(['ventilation']);
+
+  it.each(['water', 'wastewater', 'electrical'])(
+    'dit ce que chaque port de %s transporte',
+    (networkId) => {
+      const network = (house().systems ?? []).find(
+        ({ id }) => id === networkId,
+      )!;
+      const untyped = network.ports.filter(
+        ({ portTypeId }) => portTypeId === undefined,
+      );
+      expect(untyped.map(({ id }) => id)).toEqual([]);
+    },
+  );
+
+  it('n’en laisse qu’un seul non typé, et il est nommé', () => {
+    // L'inverse : si la ventilation venait à être typée, cette liste devrait
+    // être vidée plutôt que de rester là à décrire un état révolu.
+    const remaining = (house().systems ?? [])
+      .filter(({ ports }) =>
+        ports.some(({ portTypeId }) => portTypeId === undefined),
+      )
+      .map(({ id }) => id);
+    expect(remaining).toEqual([...NOT_YET_TYPED]);
+  });
+});
