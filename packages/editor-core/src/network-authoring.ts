@@ -87,6 +87,33 @@ const TEMPLATES: Readonly<
       label: 'Regard',
       ports: [FLOW_SINK, FLOW_SOURCE],
     },
+    /*
+     * La colonne de chute, qui reçoit à chaque étage et redistribue vers le bas.
+     *
+     * Le genre `STACK` était dessiné — la maison de référence en porte trois,
+     * en tête, en milieu et en pied — et aucun gabarit ne le nommait. Rien ne
+     * disait donc qu'une colonne **reçoit et redistribue**, et tout ce qui pose
+     * la question — `branchingTemplate`, le point d'accroche d'un raccordement,
+     * l'étiquette d'un nœud dans le panneau — la traitait comme un genre
+     * inconnu, c'est-à-dire comme rien.
+     *
+     * Ce que ça coûtait se mesure : le lavabo du premier étage marchait 12,3 m
+     * jusqu'au regard du rez-de-chaussée — soit toute la maison en plan, plus
+     * la descente d'un étage — alors que la colonne passe à moins de sept
+     * mètres de lui et descend précisément pour ça. Une colonne sans gabarit
+     * est une colonne que personne ne peut rejoindre.
+     *
+     * Une entrée et une sortie, comme le regard : c'est ce qu'une colonne est.
+     * Elle est placée **après** le regard pour que `branchingTemplate` — qui
+     * prend le premier gabarit qui reçoit et distribue — continue de rendre le
+     * regard : dériver un collecteur enterré pose un regard de visite, pas une
+     * colonne, et l'ordre de cette liste est la seule chose qui le dise.
+     */
+    {
+      kind: 'STACK',
+      label: 'Colonne de chute',
+      ports: [FLOW_SINK, FLOW_SOURCE],
+    },
     { kind: 'OUTLET', label: 'Exutoire', ports: [FLOW_SINK] },
   ],
   RAINWATER: [
@@ -157,6 +184,28 @@ export const NETWORK_DISCIPLINE_LABELS: Readonly<
  * A system this does not name is left alone rather than given a kind that
  * happens to look plausible: an unnamed port is a port nothing claims to
  * understand, which is honest, and a wrong one is not.
+ *
+ * ## Une ligne type les **deux** bouts d'un même tronçon
+ *
+ * C'est la règle que ce tableau doit tenir et qui n'était écrite nulle part :
+ * `templatePorts` en tire l'entrée **et** la sortie de chaque nœud d'un même
+ * réseau, donc les deux genres d'une ligne finissent face à face sur un
+ * tronçon. Or `connectionRefusal` refuse deux genres qui ne servent pas le
+ * même service. Une ligne dont les deux entrées ne partagent pas leur service
+ * décrit un **appareil** — les deux faces d'une VMC, l'aller et le retour d'un
+ * bouclage — et pas un réseau : elle produit des nœuds qui ne se raccordent
+ * pas entre eux.
+ *
+ * `COMBINED_WASTEWATER` la tenait déjà — les deux entrées y servaient les eaux
+ * usées — et disait néanmoins la mauvaise chose ; voir son commentaire. Quatre
+ * lignes ne la tiennent pas : `EXTRACT`, `HOT_WATER_LOOP`, `BALANCED` et
+ * `BALANCED_HEAT_RECOVERY` nomment les deux faces d'un **appareil** — le groupe
+ * de VMC aspire de l'extrait et rejette du vicié, un bouclage part en ECS et
+ * revient en bouclage — de sorte que deux nœuds tirés de la même ligne ne se
+ * raccordent pas entre eux. Elles restent en l'état ici : les corriger demande
+ * de décider ce qu'un réseau à deux antennes est, ce qui est une décision et
+ * pas une correction. Ce que `slotPortType`, du côté de l'application, sait
+ * contourner en lisant ce que le nœud rejoint porte déjà.
  */
 const SYSTEM_PORT_TYPES: Readonly<
   Record<string, { readonly out: string; readonly in: string }>
@@ -168,12 +217,47 @@ const SYSTEM_PORT_TYPES: Readonly<
   RADIATOR_LOOP: { out: 'HEATING_FLOW', in: 'HEATING_RETURN' },
   UNDERFLOOR_LOOP: { out: 'HEATING_FLOW', in: 'HEATING_RETURN' },
   PRIMARY_LOOP: { out: 'PRIMARY_FLOW', in: 'PRIMARY_RETURN' },
-  COMBINED_WASTEWATER: { out: 'WASTEWATER', in: 'WASTEWATER_INLET' },
+  /*
+   * Un réseau unitaire porte des eaux usées **et** des eaux-vannes.
+   *
+   * C'est ce que « unitaire » veut dire, et cette ligne disait le contraire :
+   * elle donnait des genres d'eaux usées séparées — `GREYWATER` des deux
+   * côtés. Un regard posé par l'outil sur le réseau unitaire de la maison de
+   * référence recevait donc une arrivée d'eaux **usées**, et refusait ensuite
+   * l'évacuation d'un WC : « BLACKWATER et GREYWATER ne sont pas le même
+   * service ». Le refus était juste ; la prémisse ne l'était pas.
+   *
+   * Le registre nomme les deux genres qu'il faut depuis qu'il connaît
+   * `COMBINED_WASTEWATER`, et l'arrivée unitaire déclare `convertsTo` — c'est
+   * elle, et elle seule, qui a le droit de recevoir des eaux usées comme des
+   * eaux-vannes. Le tableau la nomme enfin.
+   */
+  COMBINED_WASTEWATER: {
+    out: 'WASTEWATER_COMBINED',
+    in: 'WASTEWATER_COMBINED_INLET',
+  },
   GREY_WATER: { out: 'WASTEWATER', in: 'WASTEWATER_INLET' },
   BLACK_WATER: { out: 'SOILWATER', in: 'SOILWATER_INLET' },
   ROOF_DRAINAGE: { out: 'RAINWATER_OUT', in: 'RAINWATER_IN' },
   HARVESTING: { out: 'RAINWATER_OUT', in: 'RAINWATER_IN' },
-  EXTRACT: { out: 'AIR_EXHAUST', in: 'AIR_EXTRACT' },
+  /*
+   * Une extraction qui ne se raccordait pas à elle-même.
+   *
+   * `AIR_EXHAUST` nomme le **rejet à l'extérieur** : c'est ce que le groupe
+   * envoie en toiture ou en façade, et c'est un raccordement du groupe, pas ce
+   * qu'une gaine transporte. Le tableau le donnait pourtant comme le départ de
+   * tout nœud d'extraction, si bien qu'un groupe posé par l'outil offrait
+   * `AIR_EXHAUST` en sortie quand une bouche attendait `AIR_EXTRACT` en
+   * entrée : les deux ne sont pas le même service, et **le premier conduit
+   * d'un réseau d'extraction neuf était refusé**. Mesuré : les deux ports que
+   * les gabarits produisent ne sont pas raccordables.
+   *
+   * C'est la même faute que celle du réseau unitaire juste au-dessus — nommer
+   * les deux faces d'un appareil au lieu de nommer ce qui circule entre deux
+   * appareils. Le départ est donc l'air extrait côté organe, l'arrivée l'air
+   * extrait côté bouche, et un réseau d'extraction se trace.
+   */
+  EXTRACT: { out: 'AIR_EXTRACT_OUTLET', in: 'AIR_EXTRACT' },
   SUPPLY: { out: 'AIR_SUPPLY', in: 'AIR_SUPPLY_INLET' },
   BALANCED: { out: 'AIR_SUPPLY', in: 'AIR_EXTRACT' },
   BALANCED_HEAT_RECOVERY: { out: 'AIR_SUPPLY', in: 'AIR_EXTRACT' },
@@ -456,10 +540,29 @@ export function branchingTemplate(
   );
 }
 
-/** The point of a route nearest a place the user pointed at. */
+/**
+ * The point of a route nearest a place the user pointed at.
+ *
+ * ## Ce qu'une colonne verticale fait de cette question
+ *
+ * Une chute, une descente d'eaux pluviales, un fourreau entre deux étages : un
+ * tronçon qui monte tout droit **est un point en plan**. Chacun de ses points
+ * est alors exactement aussi proche que les autres de l'endroit visé, et cette
+ * fonction répondait « le premier », c'est-à-dire l'extrémité par laquelle le
+ * tracé a été saisi. Sur la colonne de chute de la maison de référence, cela
+ * répondait la tête de colonne — sous le toit — à qui visait le lavabo du
+ * rez-de-chaussée, et le raccordement était refusé parce que rien ne s'écoule
+ * vers le haut.
+ *
+ * `atHeightMm` départage donc, et seulement là où le plan ne départage rien :
+ * la hauteur visée est projetée sur le segment et bornée à ses deux bouts. Sans
+ * elle, la réponse reste celle d'avant — un clic sur un plan ne dit pas de
+ * hauteur, et il n'y a pas à en inventer une.
+ */
 export function nearestPointOnRoute(
   route: readonly Point3D[],
   at: Point2D,
+  atHeightMm?: number,
 ): Point3D | undefined {
   let best: { readonly point: Point3D; readonly distance: number } | undefined;
   for (let index = 1; index < route.length; index += 1) {
@@ -470,7 +573,7 @@ export function nearestPointOnRoute(
     const lengthSquared = dx * dx + dy * dy;
     const ratio =
       lengthSquared === 0
-        ? 0
+        ? heightRatio(from.z, to.z, atHeightMm)
         : Math.min(
             1,
             Math.max(
@@ -488,4 +591,20 @@ export function nearestPointOnRoute(
       best = { point, distance };
   }
   return best?.point;
+}
+
+/**
+ * Où se placer le long d'un segment que le plan ne départage pas.
+ *
+ * Zéro quand rien n'est demandé ou quand le segment ne monte pas non plus :
+ * c'est la réponse qu'on donnait, et un segment réduit à un point n'a pas
+ * d'autre endroit à proposer.
+ */
+function heightRatio(
+  fromZ: number,
+  toZ: number,
+  atHeightMm: number | undefined,
+): number {
+  if (atHeightMm === undefined || toZ === fromZ) return 0;
+  return Math.min(1, Math.max(0, (atHeightMm - fromZ) / (toZ - fromZ)));
 }

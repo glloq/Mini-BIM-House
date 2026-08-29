@@ -731,8 +731,8 @@
               "definitionId": "generic-distribution-board",
               "name": "Tableau de répartition",
               "position": {
-                "x": 600,
-                "y": 5600
+                "x": 8000,
+                "y": 400
               },
               "elevationMm": 1200,
               "rotationDeg": 0
@@ -745,8 +745,8 @@
               "definitionId": "generic-miniature-circuit-breaker",
               "name": "Disjoncteur divisionnaire",
               "position": {
-                "x": 620,
-                "y": 5600
+                "x": 8020,
+                "y": 400
               },
               "elevationMm": 1300,
               "rotationDeg": 0,
@@ -2079,7 +2079,7 @@
         "familyId": "HEAT_PUMP_AIR_WATER_MONOBLOC",
         "kind": "HEAT_PUMP",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Pompe à chaleur air/eau",
         "category": "HEAT_PUMP",
         "dimensions": {
@@ -2113,7 +2113,7 @@
             "position": {
               "x": -400,
               "y": 0,
-              "z": -350
+              "z": 50
             }
           },
           {
@@ -2122,7 +2122,7 @@
             "position": {
               "x": 400,
               "y": 0,
-              "z": -350
+              "z": 50
             }
           },
           {
@@ -2131,7 +2131,7 @@
             "position": {
               "x": 0,
               "y": 200,
-              "z": -350
+              "z": 50
             }
           }
         ],
@@ -2261,7 +2261,7 @@
         "familyId": "BUFFER_TANK",
         "kind": "VESSEL",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Ballon tampon",
         "category": "VESSEL",
         "dimensions": {
@@ -2289,7 +2289,7 @@
             "position": {
               "x": -300,
               "y": 0,
-              "z": 500
+              "z": 1200
             }
           },
           {
@@ -2298,7 +2298,7 @@
             "position": {
               "x": -300,
               "y": 0,
-              "z": -500
+              "z": 200
             }
           },
           {
@@ -2307,7 +2307,7 @@
             "position": {
               "x": 300,
               "y": 0,
-              "z": 500
+              "z": 1200
             }
           },
           {
@@ -2316,7 +2316,7 @@
             "position": {
               "x": 300,
               "y": 0,
-              "z": -500
+              "z": 200
             }
           }
         ],
@@ -2364,7 +2364,7 @@
         "familyId": "CIRCULATOR",
         "kind": "PUMP",
         "catalogKind": "GENERIC",
-        "version": "1.2.0",
+        "version": "1.3.0",
         "name": "Circulateur de chauffage",
         "category": "PUMP",
         "dimensions": {
@@ -2394,7 +2394,7 @@
             "position": {
               "x": -90,
               "y": 0,
-              "z": 0
+              "z": 90
             }
           },
           {
@@ -2403,7 +2403,7 @@
             "position": {
               "x": 90,
               "y": 0,
-              "z": 0
+              "z": 90
             }
           },
           {
@@ -2412,7 +2412,7 @@
             "position": {
               "x": -90,
               "y": 0,
-              "z": 0
+              "z": 90
             }
           }
         ],
@@ -2518,7 +2518,7 @@
         "familyId": "RADIATOR",
         "kind": "RADIATOR",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Radiateur eau chaude",
         "category": "RADIATOR",
         "dimensions": {
@@ -2549,7 +2549,7 @@
             "position": {
               "x": -480,
               "y": 0,
-              "z": -280
+              "z": 20
             }
           },
           {
@@ -2558,7 +2558,7 @@
             "position": {
               "x": 480,
               "y": 0,
-              "z": -280
+              "z": 20
             }
           }
         ],
@@ -2631,7 +2631,7 @@
         "familyId": "TOWEL_RADIATOR",
         "kind": "RADIATOR",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Sèche-serviettes eau chaude",
         "category": "RADIATOR",
         "dimensions": {
@@ -2661,7 +2661,7 @@
             "position": {
               "x": -250,
               "y": 0,
-              "z": -600
+              "z": 0
             }
           },
           {
@@ -2670,7 +2670,7 @@
             "position": {
               "x": 250,
               "y": 0,
-              "z": -600
+              "z": 0
             }
           }
         ],
@@ -2748,7 +2748,7 @@
         "familyId": "ELECTRIC_DHW_TANK",
         "kind": "DHW_TANK",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Ballon d’eau chaude sanitaire",
         "category": "DHW_TANK",
         "dimensions": {
@@ -2778,7 +2778,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -740
+              "z": 10
             }
           },
           {
@@ -2787,7 +2787,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 740
+              "z": 1490
             }
           },
           {
@@ -2796,7 +2796,7 @@
             "position": {
               "x": 280,
               "y": 0,
-              "z": 0
+              "z": 750
             }
           }
         ],
@@ -2862,7 +2862,7 @@
         "familyId": "EXTRACT_VENTILATION_UNIT",
         "kind": "VENTILATION_UNIT",
         "catalogKind": "GENERIC",
-        "version": "1.2.0",
+        "version": "1.3.0",
         "name": "VMC simple flux hygroréglable",
         "category": "VENTILATION_UNIT",
         "dimensions": {
@@ -2896,7 +2896,7 @@
             "position": {
               "x": -240,
               "y": 0,
-              "z": 0
+              "z": 150
             }
           },
           {
@@ -2905,7 +2905,7 @@
             "position": {
               "x": 240,
               "y": 0,
-              "z": 0
+              "z": 150
             }
           },
           {
@@ -2914,7 +2914,7 @@
             "position": {
               "x": -240,
               "y": 0,
-              "z": 0
+              "z": 150
             }
           }
         ],
@@ -3025,7 +3025,7 @@
         "familyId": "EXTRACT_TERMINAL",
         "kind": "AIR_TERMINAL",
         "catalogKind": "GENERIC",
-        "version": "1.2.0",
+        "version": "1.3.0",
         "name": "Bouche d’extraction",
         "category": "AIR_TERMINAL",
         "dimensions": {
@@ -3058,7 +3058,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -30
+              "z": 0
             }
           }
         ],
@@ -3117,7 +3117,7 @@
         "familyId": "RAINWATER_TANK",
         "kind": "RAINWATER_TANK",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Cuve de récupération d’eau de pluie",
         "category": "RAINWATER_TANK",
         "dimensions": {
@@ -3147,7 +3147,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 800
+              "z": 1700
             }
           },
           {
@@ -3156,7 +3156,7 @@
             "position": {
               "x": 900,
               "y": 0,
-              "z": 700
+              "z": 1600
             }
           },
           {
@@ -3165,7 +3165,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -800
+              "z": 100
             }
           }
         ],
@@ -3213,7 +3213,7 @@
         "familyId": "WASHBASIN",
         "kind": "SANITARY_FIXTURE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Lavabo",
         "category": "SANITARY_FIXTURE",
         "dimensions": {
@@ -3243,7 +3243,7 @@
             "position": {
               "x": -100,
               "y": 0,
-              "z": -300
+              "z": 125
             }
           },
           {
@@ -3252,7 +3252,7 @@
             "position": {
               "x": 100,
               "y": 0,
-              "z": -300
+              "z": 125
             }
           },
           {
@@ -3261,7 +3261,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -400
+              "z": 25
             }
           }
         ],
@@ -3326,7 +3326,7 @@
         "familyId": "SHOWER_TRAY",
         "kind": "SANITARY_FIXTURE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Receveur de douche 900 × 900",
         "category": "SANITARY_FIXTURE",
         "dimensions": {
@@ -3355,7 +3355,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -30
+              "z": 0
             }
           }
         ],
@@ -3413,7 +3413,7 @@
         "familyId": "WC",
         "kind": "SANITARY_FIXTURE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "WC à réservoir",
         "category": "SANITARY_FIXTURE",
         "dimensions": {
@@ -3443,7 +3443,7 @@
             "position": {
               "x": 0,
               "y": 300,
-              "z": -300
+              "z": 100
             }
           },
           {
@@ -3452,7 +3452,7 @@
             "position": {
               "x": 0,
               "y": 250,
-              "z": -350
+              "z": 50
             }
           }
         ],
@@ -3519,7 +3519,7 @@
         "familyId": "KITCHEN_SINK",
         "kind": "SANITARY_FIXTURE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Évier de cuisine",
         "category": "SANITARY_FIXTURE",
         "dimensions": {
@@ -3549,7 +3549,7 @@
             "position": {
               "x": -100,
               "y": 0,
-              "z": -300
+              "z": 150
             }
           },
           {
@@ -3558,7 +3558,7 @@
             "position": {
               "x": 100,
               "y": 0,
-              "z": -300
+              "z": 150
             }
           },
           {
@@ -3567,7 +3567,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -450
+              "z": 0
             }
           }
         ],
@@ -3632,7 +3632,7 @@
         "familyId": "MAIN_DISTRIBUTION_BOARD",
         "kind": "DISTRIBUTION_BOARD",
         "catalogKind": "GENERIC",
-        "version": "1.2.0",
+        "version": "1.3.0",
         "name": "Tableau de répartition",
         "category": "DISTRIBUTION_BOARD",
         "dimensions": {
@@ -3663,7 +3663,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 225
+              "z": 450
             }
           },
           {
@@ -3672,7 +3672,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -225
+              "z": 0
             }
           },
           {
@@ -3681,7 +3681,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 225
+              "z": 450
             }
           }
         ],
@@ -3754,7 +3754,7 @@
         "familyId": "MCB",
         "kind": "PROTECTION_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Disjoncteur divisionnaire",
         "category": "PROTECTION_DEVICE",
         "dimensions": {
@@ -3779,7 +3779,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 42
+              "z": 84.5
             }
           },
           {
@@ -3788,7 +3788,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -42
+              "z": 0.5
             }
           }
         ],
@@ -3835,7 +3835,7 @@
         "familyId": "SOCKET_16A",
         "kind": "SOCKET",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Prise de courant 16 A",
         "category": "SOCKET",
         "dimensions": {
@@ -3864,7 +3864,7 @@
             "position": {
               "x": 0,
               "y": -20,
-              "z": 0
+              "z": 40
             }
           },
           {
@@ -3873,7 +3873,7 @@
             "position": {
               "x": 0,
               "y": -20,
-              "z": 0
+              "z": 40
             }
           }
         ],
@@ -3932,7 +3932,7 @@
         "familyId": "CEILING_LIGHT",
         "kind": "LUMINAIRE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Plafonnier LED",
         "category": "LUMINAIRE",
         "dimensions": {
@@ -3963,7 +3963,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 30
+              "z": 60
             }
           }
         ],
@@ -4029,7 +4029,7 @@
         "familyId": "PV_ARRAY",
         "kind": "PV_MODULE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Champ photovoltaïque",
         "category": "PV_MODULE",
         "dimensions": {
@@ -4058,7 +4058,7 @@
             "position": {
               "x": -3402,
               "y": 0,
-              "z": -1722
+              "z": 0
             }
           },
           {
@@ -4067,7 +4067,7 @@
             "position": {
               "x": 3402,
               "y": 0,
-              "z": -1722
+              "z": 0
             }
           }
         ],
@@ -4147,7 +4147,7 @@
         "familyId": "STRING_INVERTER",
         "kind": "INVERTER",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Onduleur photovoltaïque",
         "category": "INVERTER",
         "dimensions": {
@@ -4177,7 +4177,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -275
+              "z": 0
             }
           },
           {
@@ -4186,7 +4186,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 275
+              "z": 550
             }
           },
           {
@@ -4195,7 +4195,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 275
+              "z": 550
             }
           }
         ],
@@ -4257,7 +4257,7 @@
         "familyId": "BATTERY_RACK",
         "kind": "BATTERY",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Armoire batterie",
         "category": "BATTERY",
         "dimensions": {
@@ -4287,7 +4287,7 @@
             "position": {
               "x": 0,
               "y": -300,
-              "z": -700
+              "z": 0
             }
           },
           {
@@ -4296,7 +4296,7 @@
             "position": {
               "x": 150,
               "y": -300,
-              "z": -700
+              "z": 0
             }
           },
           {
@@ -4305,7 +4305,7 @@
             "position": {
               "x": -150,
               "y": -300,
-              "z": -700
+              "z": 0
             }
           }
         ],
@@ -4421,7 +4421,7 @@
         "familyId": "FIBER_TERMINATION",
         "kind": "DATA_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Point de terminaison optique",
         "category": "DATA_DEVICE",
         "dimensions": {
@@ -4450,7 +4450,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -50
+              "z": 0
             }
           },
           {
@@ -4459,7 +4459,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 50
+              "z": 100
             }
           }
         ],
@@ -4493,7 +4493,7 @@
         "familyId": "SWITCH",
         "kind": "CONTROL_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Interrupteur simple allumage",
         "category": "CONTROL_DEVICE",
         "dimensions": {
@@ -4521,7 +4521,7 @@
             "position": {
               "x": 0,
               "y": -20,
-              "z": 0
+              "z": 40
             }
           },
           {
@@ -4530,7 +4530,7 @@
             "position": {
               "x": 0,
               "y": -20,
-              "z": -20
+              "z": 20
             }
           }
         ],
@@ -4589,7 +4589,7 @@
         "familyId": "DISHWASHER",
         "kind": "APPLIANCE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Lave-vaisselle",
         "category": "APPLIANCE",
         "dimensions": {
@@ -4619,7 +4619,7 @@
             "position": {
               "x": 0,
               "y": 300,
-              "z": -425
+              "z": 0
             }
           },
           {
@@ -4628,7 +4628,7 @@
             "position": {
               "x": 0,
               "y": 300,
-              "z": -425
+              "z": 0
             }
           }
         ],
@@ -4669,7 +4669,7 @@
         "familyId": "WASHING_MACHINE",
         "kind": "APPLIANCE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Lave-linge",
         "category": "APPLIANCE",
         "dimensions": {
@@ -4699,7 +4699,7 @@
             "position": {
               "x": 0,
               "y": 300,
-              "z": -425
+              "z": 0
             }
           },
           {
@@ -4708,7 +4708,7 @@
             "position": {
               "x": 0,
               "y": 300,
-              "z": -425
+              "z": 0
             }
           }
         ],
@@ -4749,7 +4749,7 @@
         "familyId": "DRYER",
         "kind": "APPLIANCE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Sèche-linge",
         "category": "APPLIANCE",
         "dimensions": {
@@ -4779,7 +4779,7 @@
             "position": {
               "x": 0,
               "y": 300,
-              "z": -425
+              "z": 0
             }
           },
           {
@@ -4788,7 +4788,7 @@
             "position": {
               "x": 0,
               "y": 300,
-              "z": -425
+              "z": 0
             }
           }
         ],
@@ -4829,7 +4829,7 @@
         "familyId": "REFRIGERATOR",
         "kind": "APPLIANCE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Réfrigérateur",
         "category": "APPLIANCE",
         "dimensions": {
@@ -4859,7 +4859,7 @@
             "position": {
               "x": 0,
               "y": 325,
-              "z": -900
+              "z": 0
             }
           },
           {
@@ -4868,7 +4868,7 @@
             "position": {
               "x": 0,
               "y": 325,
-              "z": -900
+              "z": 0
             }
           }
         ],
@@ -4915,7 +4915,7 @@
         "familyId": "FREEZER",
         "kind": "APPLIANCE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Congélateur armoire",
         "category": "APPLIANCE",
         "dimensions": {
@@ -4945,7 +4945,7 @@
             "position": {
               "x": 0,
               "y": 325,
-              "z": -850
+              "z": 0
             }
           },
           {
@@ -4954,7 +4954,7 @@
             "position": {
               "x": 0,
               "y": 325,
-              "z": -850
+              "z": 0
             }
           }
         ],
@@ -5001,7 +5001,7 @@
         "familyId": "OVEN",
         "kind": "APPLIANCE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Four encastrable",
         "category": "APPLIANCE",
         "dimensions": {
@@ -5031,7 +5031,7 @@
             "position": {
               "x": 0,
               "y": 285,
-              "z": -297.5
+              "z": 0
             }
           },
           {
@@ -5040,7 +5040,7 @@
             "position": {
               "x": 0,
               "y": 285,
-              "z": -297.5
+              "z": 0
             }
           }
         ],
@@ -5081,7 +5081,7 @@
         "familyId": "HOB",
         "kind": "APPLIANCE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Plaque de cuisson à induction",
         "category": "APPLIANCE",
         "dimensions": {
@@ -5111,7 +5111,7 @@
             "position": {
               "x": 0,
               "y": 260,
-              "z": -30
+              "z": 0
             }
           },
           {
@@ -5120,7 +5120,7 @@
             "position": {
               "x": 0,
               "y": 260,
-              "z": -30
+              "z": 0
             }
           }
         ],
@@ -5161,7 +5161,7 @@
         "familyId": "MICROWAVE",
         "kind": "APPLIANCE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Four à micro-ondes",
         "category": "APPLIANCE",
         "dimensions": {
@@ -5191,7 +5191,7 @@
             "position": {
               "x": 0,
               "y": 200,
-              "z": -150
+              "z": 0
             }
           },
           {
@@ -5200,7 +5200,7 @@
             "position": {
               "x": 0,
               "y": 200,
-              "z": -150
+              "z": 0
             }
           }
         ],
@@ -5817,7 +5817,7 @@
         "familyId": "UNDERFLOOR_HEATING",
         "kind": "UNDERFLOOR_HEATING",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Plancher chauffant à eau",
         "category": "UNDERFLOOR_HEATING",
         "dimensions": {
@@ -5847,7 +5847,7 @@
             "position": {
               "x": -500,
               "y": 0,
-              "z": -45
+              "z": 0
             }
           },
           {
@@ -5856,7 +5856,7 @@
             "position": {
               "x": 500,
               "y": 0,
-              "z": -45
+              "z": 0
             }
           }
         ],
@@ -5915,7 +5915,7 @@
         "familyId": "BATHTUB",
         "kind": "SANITARY_FIXTURE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Baignoire 170 × 75",
         "category": "SANITARY_FIXTURE",
         "dimensions": {
@@ -5944,7 +5944,7 @@
             "position": {
               "x": 0,
               "y": 375,
-              "z": 0
+              "z": 300
             }
           },
           {
@@ -5953,7 +5953,7 @@
             "position": {
               "x": 0,
               "y": 375,
-              "z": 0
+              "z": 300
             }
           },
           {
@@ -5962,7 +5962,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -300
+              "z": 0
             }
           }
         ],
@@ -6026,7 +6026,7 @@
         "familyId": "OUTDOOR_TAP",
         "kind": "SANITARY_FIXTURE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Robinet extérieur",
         "category": "SANITARY_FIXTURE",
         "dimensions": {
@@ -6055,7 +6055,7 @@
             "position": {
               "x": 0,
               "y": 50,
-              "z": 0
+              "z": 75
             }
           }
         ],
@@ -6101,7 +6101,7 @@
         "familyId": "WATER_PUBLIC_CONNECTION",
         "kind": "SITE_FEATURE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Branchement public DN 25",
         "category": "SITE_FEATURE",
         "dimensions": {
@@ -6130,7 +6130,7 @@
             "position": {
               "x": -300,
               "y": 0,
-              "z": 0
+              "z": 100
             }
           },
           {
@@ -6139,7 +6139,7 @@
             "position": {
               "x": 300,
               "y": 0,
-              "z": 0
+              "z": 100
             }
           }
         ],
@@ -6174,7 +6174,7 @@
         "familyId": "BOREHOLE",
         "kind": "SITE_FEATURE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Tête de forage équipée",
         "category": "SITE_FEATURE",
         "dimensions": {
@@ -6202,7 +6202,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 500
+              "z": 1000
             }
           },
           {
@@ -6211,7 +6211,7 @@
             "position": {
               "x": 0,
               "y": 150,
-              "z": 0
+              "z": 500
             }
           }
         ],
@@ -6238,7 +6238,7 @@
         "familyId": "WELL",
         "kind": "SITE_FEATURE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Puits busé Ø 1 000",
         "category": "SITE_FEATURE",
         "dimensions": {
@@ -6266,7 +6266,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 750
+              "z": 1500
             }
           },
           {
@@ -6275,7 +6275,7 @@
             "position": {
               "x": 0,
               "y": 500,
-              "z": 0
+              "z": 750
             }
           }
         ],
@@ -6310,7 +6310,7 @@
         "familyId": "ELECTRICAL_SERVICE_BOX",
         "kind": "DISTRIBUTION_BOARD",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Coffret de branchement en limite de propriété",
         "category": "DISTRIBUTION_BOARD",
         "dimensions": {
@@ -6338,7 +6338,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -350
+              "z": 0
             }
           },
           {
@@ -6347,7 +6347,7 @@
             "position": {
               "x": 0,
               "y": 125,
-              "z": -200
+              "z": 150
             }
           },
           {
@@ -6356,7 +6356,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -350
+              "z": 0
             }
           }
         ],
@@ -6403,7 +6403,7 @@
         "familyId": "SITE_EV_CHARGER",
         "kind": "APPLIANCE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Borne de recharge sur pied 7,4 kW",
         "category": "APPLIANCE",
         "dimensions": {
@@ -6431,7 +6431,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -650
+              "z": 0
             }
           },
           {
@@ -6440,7 +6440,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -650
+              "z": 0
             }
           }
         ],
@@ -6481,7 +6481,7 @@
         "familyId": "SITE_EXTERIOR_LIGHT",
         "kind": "LUMINAIRE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Applique extérieure",
         "category": "LUMINAIRE",
         "dimensions": {
@@ -6509,7 +6509,7 @@
             "position": {
               "x": 0,
               "y": 100,
-              "z": 0
+              "z": 125
             }
           }
         ],
@@ -6561,7 +6561,7 @@
         "familyId": "SITE_EXTERIOR_SOCKET",
         "kind": "SOCKET",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Prise extérieure étanche IP 55",
         "category": "SOCKET",
         "dimensions": {
@@ -6589,7 +6589,7 @@
             "position": {
               "x": 0,
               "y": 40,
-              "z": 0
+              "z": 50
             }
           }
         ],
@@ -6641,7 +6641,7 @@
         "familyId": "SITE_SEPTIC_TANK",
         "kind": "DRAINAGE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Fosse toutes eaux de parcelle 3 000 L",
         "category": "DRAINAGE",
         "dimensions": {
@@ -6669,7 +6669,7 @@
             "position": {
               "x": -1000,
               "y": 0,
-              "z": 500
+              "z": 1300
             }
           },
           {
@@ -6678,7 +6678,7 @@
             "position": {
               "x": 1000,
               "y": 0,
-              "z": 450
+              "z": 1250
             }
           }
         ],
@@ -6724,7 +6724,7 @@
         "familyId": "SITE_RAINWATER_CHAMBER",
         "kind": "RAINWATER_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Regard pluvial 400 × 400",
         "category": "RAINWATER_DEVICE",
         "dimensions": {
@@ -6752,7 +6752,7 @@
             "position": {
               "x": -200,
               "y": 0,
-              "z": 0
+              "z": 300
             }
           },
           {
@@ -6761,7 +6761,7 @@
             "position": {
               "x": 200,
               "y": 0,
-              "z": -50
+              "z": 250
             }
           }
         ],
@@ -6796,7 +6796,7 @@
         "familyId": "PUBLIC_SEWER_CONNECTION",
         "kind": "DRAINAGE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Branchement au collecteur public DN 160",
         "category": "DRAINAGE",
         "dimensions": {
@@ -6825,7 +6825,7 @@
             "position": {
               "x": -500,
               "y": 0,
-              "z": 0
+              "z": 85
             }
           }
         ],
@@ -6866,7 +6866,7 @@
         "familyId": "RJ45_SOCKET",
         "kind": "DATA_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Prise RJ45 catégorie 6",
         "category": "DATA_DEVICE",
         "dimensions": {
@@ -6895,7 +6895,7 @@
             "position": {
               "x": 0,
               "y": 22.5,
-              "z": 0
+              "z": 40
             }
           }
         ],
@@ -6929,7 +6929,7 @@
         "familyId": "NETWORK_RACK",
         "kind": "DATA_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Coffret de communication",
         "category": "DATA_DEVICE",
         "dimensions": {
@@ -6958,7 +6958,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -300
+              "z": 0
             }
           },
           {
@@ -6967,7 +6967,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 300
+              "z": 600
             }
           },
           {
@@ -6976,7 +6976,7 @@
             "position": {
               "x": 0,
               "y": 100,
-              "z": -250
+              "z": 50
             }
           }
         ],
@@ -7011,7 +7011,7 @@
         "familyId": "ROUTER",
         "kind": "DATA_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Routeur d’accès fibre",
         "category": "DATA_DEVICE",
         "dimensions": {
@@ -7040,7 +7040,7 @@
             "position": {
               "x": 0,
               "y": 115,
-              "z": 10
+              "z": 40
             }
           },
           {
@@ -7049,7 +7049,7 @@
             "position": {
               "x": 0,
               "y": 115,
-              "z": -10
+              "z": 20
             }
           },
           {
@@ -7058,7 +7058,7 @@
             "position": {
               "x": 0,
               "y": 115,
-              "z": -20
+              "z": 10
             }
           }
         ],
@@ -7086,7 +7086,7 @@
         "familyId": "WIFI_ACCESS_POINT",
         "kind": "DATA_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Point d’accès Wi-Fi de plafond",
         "category": "DATA_DEVICE",
         "dimensions": {
@@ -7115,7 +7115,7 @@
             "position": {
               "x": 0,
               "y": 90,
-              "z": 0
+              "z": 20
             }
           },
           {
@@ -7124,7 +7124,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 20
             }
           }
         ],
@@ -7164,7 +7164,7 @@
         "familyId": "JUNCTION_BOX",
         "kind": "CABLE_ROUTING",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Boîte de dérivation 100 × 100",
         "category": "CABLE_ROUTING",
         "dimensions": {
@@ -7193,7 +7193,7 @@
             "position": {
               "x": -50,
               "y": 0,
-              "z": 0
+              "z": 25
             }
           },
           {
@@ -7202,7 +7202,7 @@
             "position": {
               "x": 50,
               "y": 0,
-              "z": 0
+              "z": 25
             }
           }
         ],
@@ -7244,7 +7244,7 @@
         "familyId": "DOUBLE_SOCKET",
         "kind": "SOCKET",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Prise double 16 A",
         "category": "SOCKET",
         "dimensions": {
@@ -7272,7 +7272,7 @@
             "position": {
               "x": 0,
               "y": -20,
-              "z": 0
+              "z": 40
             }
           },
           {
@@ -7281,7 +7281,7 @@
             "position": {
               "x": 0,
               "y": -20,
-              "z": 0
+              "z": 40
             }
           }
         ],
@@ -7340,7 +7340,7 @@
         "familyId": "TWO_WAY_SWITCH",
         "kind": "CONTROL_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Interrupteur va-et-vient",
         "category": "CONTROL_DEVICE",
         "dimensions": {
@@ -7368,7 +7368,7 @@
             "position": {
               "x": 0,
               "y": -20,
-              "z": 0
+              "z": 40
             }
           },
           {
@@ -7377,7 +7377,7 @@
             "position": {
               "x": 0,
               "y": -20,
-              "z": -20
+              "z": 20
             }
           },
           {
@@ -7386,7 +7386,7 @@
             "position": {
               "x": 0,
               "y": -20,
-              "z": -40
+              "z": 0
             }
           }
         ],
@@ -7445,7 +7445,7 @@
         "familyId": "WOOD_STOVE",
         "kind": "STOVE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Poêle à bûches 8 kW",
         "category": "STOVE",
         "dimensions": {
@@ -7476,7 +7476,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 500
+              "z": 1000
             }
           },
           {
@@ -7485,7 +7485,7 @@
             "position": {
               "x": 0,
               "y": 250,
-              "z": -400
+              "z": 100
             }
           }
         ],
@@ -7556,7 +7556,7 @@
         "familyId": "PELLET_STOVE",
         "kind": "STOVE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Poêle à granulés 8 kW",
         "category": "STOVE",
         "dimensions": {
@@ -7587,7 +7587,7 @@
             "position": {
               "x": 0,
               "y": 275,
-              "z": 400
+              "z": 950
             }
           },
           {
@@ -7596,7 +7596,7 @@
             "position": {
               "x": 0,
               "y": 275,
-              "z": -450
+              "z": 100
             }
           },
           {
@@ -7605,7 +7605,7 @@
             "position": {
               "x": 0,
               "y": 275,
-              "z": -500
+              "z": 50
             }
           }
         ],
@@ -7672,7 +7672,7 @@
         "familyId": "WOOD_INSERT",
         "kind": "STOVE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Insert bois 10 kW",
         "category": "STOVE",
         "dimensions": {
@@ -7703,7 +7703,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 325
+              "z": 650
             }
           },
           {
@@ -7712,7 +7712,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -325
+              "z": 0
             }
           }
         ],
@@ -7784,7 +7784,7 @@
         "familyId": "CHIMNEY_TERMINAL",
         "kind": "FLUE_COMPONENT",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Sortie de toit Ø 150",
         "category": "FLUE_COMPONENT",
         "dimensions": {
@@ -7814,7 +7814,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -450
+              "z": 0
             }
           }
         ],
@@ -7849,7 +7849,7 @@
         "familyId": "ROOM_THERMOSTAT",
         "kind": "CONTROL_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Thermostat d’ambiance",
         "category": "CONTROL_DEVICE",
         "dimensions": {
@@ -7877,7 +7877,7 @@
             "position": {
               "x": 0,
               "y": -15,
-              "z": 0
+              "z": 43
             }
           }
         ],
@@ -7919,7 +7919,7 @@
         "familyId": "HEATING_MANIFOLD",
         "kind": "FITTING",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Collecteur de chauffage 3 départs",
         "category": "FITTING",
         "dimensions": {
@@ -7947,7 +7947,7 @@
             "position": {
               "x": -250,
               "y": 0,
-              "z": 40
+              "z": 120
             }
           },
           {
@@ -7956,7 +7956,7 @@
             "position": {
               "x": -250,
               "y": 0,
-              "z": -40
+              "z": 40
             }
           },
           {
@@ -7965,7 +7965,7 @@
             "position": {
               "x": -100,
               "y": 0,
-              "z": 80
+              "z": 160
             }
           },
           {
@@ -7974,7 +7974,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 80
+              "z": 160
             }
           },
           {
@@ -7983,7 +7983,7 @@
             "position": {
               "x": 100,
               "y": 0,
-              "z": 80
+              "z": 160
             }
           },
           {
@@ -7992,7 +7992,7 @@
             "position": {
               "x": -100,
               "y": 0,
-              "z": -80
+              "z": 0
             }
           },
           {
@@ -8001,7 +8001,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -80
+              "z": 0
             }
           },
           {
@@ -8010,7 +8010,7 @@
             "position": {
               "x": 100,
               "y": 0,
-              "z": -80
+              "z": 0
             }
           }
         ],
@@ -8046,7 +8046,7 @@
         "familyId": "DOWNLIGHT",
         "kind": "LUMINAIRE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Spot encastré LED",
         "category": "LUMINAIRE",
         "dimensions": {
@@ -8076,7 +8076,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 27.5
+              "z": 55
             }
           }
         ],
@@ -8154,7 +8154,7 @@
         "familyId": "PENDANT",
         "kind": "LUMINAIRE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Suspension",
         "category": "LUMINAIRE",
         "dimensions": {
@@ -8184,7 +8184,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 200
+              "z": 400
             }
           }
         ],
@@ -8244,7 +8244,7 @@
         "familyId": "WALL_LIGHT",
         "kind": "LUMINAIRE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Applique murale LED",
         "category": "LUMINAIRE",
         "dimensions": {
@@ -8274,7 +8274,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 125
+              "z": 250
             }
           }
         ],
@@ -8340,7 +8340,7 @@
         "familyId": "GUTTER",
         "kind": "RAINWATER_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Gouttière demi-ronde DN 125",
         "category": "RAINWATER_DEVICE",
         "dimensions": {
@@ -8369,7 +8369,7 @@
             "position": {
               "x": -3000,
               "y": 0,
-              "z": 0
+              "z": 62.5
             }
           },
           {
@@ -8378,7 +8378,7 @@
             "position": {
               "x": 3000,
               "y": 0,
-              "z": 0
+              "z": 62.5
             }
           }
         ],
@@ -8413,7 +8413,7 @@
         "familyId": "DOWNPIPE",
         "kind": "RAINWATER_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Descente DN 100",
         "category": "RAINWATER_DEVICE",
         "dimensions": {
@@ -8442,7 +8442,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 1500
+              "z": 3000
             }
           },
           {
@@ -8451,7 +8451,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -1500
+              "z": 0
             }
           }
         ],
@@ -8486,7 +8486,7 @@
         "familyId": "RAIN_FILTER",
         "kind": "RAINWATER_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Filtre à eaux pluviales",
         "category": "RAINWATER_DEVICE",
         "dimensions": {
@@ -8515,7 +8515,7 @@
             "position": {
               "x": -150,
               "y": 0,
-              "z": 0
+              "z": 200
             }
           },
           {
@@ -8524,7 +8524,7 @@
             "position": {
               "x": 150,
               "y": 0,
-              "z": 0
+              "z": 200
             }
           }
         ],
@@ -8715,7 +8715,7 @@
         "familyId": "ALARM_PANEL",
         "kind": "SAFETY_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Centrale d’alarme",
         "category": "SAFETY_DEVICE",
         "dimensions": {
@@ -8743,7 +8743,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -125
+              "z": 0
             }
           },
           {
@@ -8752,7 +8752,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 0
+              "z": 125
             }
           }
         ],
@@ -8787,7 +8787,7 @@
         "familyId": "DC_COMBINER",
         "kind": "DISTRIBUTION_BOARD",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Coffret de regroupement continu",
         "category": "DISTRIBUTION_BOARD",
         "dimensions": {
@@ -8816,7 +8816,7 @@
             "position": {
               "x": -120,
               "y": 0,
-              "z": -200
+              "z": 0
             }
           },
           {
@@ -8825,7 +8825,7 @@
             "position": {
               "x": -60,
               "y": 0,
-              "z": -200
+              "z": 0
             }
           },
           {
@@ -8834,7 +8834,7 @@
             "position": {
               "x": 90,
               "y": 0,
-              "z": -200
+              "z": 0
             }
           },
           {
@@ -8843,7 +8843,7 @@
             "position": {
               "x": 140,
               "y": 0,
-              "z": -200
+              "z": 0
             }
           }
         ],
@@ -8891,7 +8891,7 @@
         "familyId": "PRODUCTION_METER",
         "kind": "METER",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Compteur de production",
         "category": "METER",
         "dimensions": {
@@ -8920,7 +8920,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 65
+              "z": 130
             }
           },
           {
@@ -8929,7 +8929,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -65
+              "z": 0
             }
           },
           {
@@ -8938,7 +8938,7 @@
             "position": {
               "x": 36,
               "y": 0,
-              "z": -65
+              "z": 0
             }
           }
         ],
@@ -8980,7 +8980,7 @@
         "familyId": "BATTERY_INVERTER",
         "kind": "INVERTER",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Onduleur de batterie",
         "category": "INVERTER",
         "dimensions": {
@@ -9010,7 +9010,7 @@
             "position": {
               "x": -150,
               "y": 0,
-              "z": -300
+              "z": 0
             }
           },
           {
@@ -9019,7 +9019,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -300
+              "z": 0
             }
           },
           {
@@ -9028,7 +9028,7 @@
             "position": {
               "x": 150,
               "y": 0,
-              "z": -300
+              "z": 0
             }
           },
           {
@@ -9037,7 +9037,7 @@
             "position": {
               "x": 195,
               "y": 0,
-              "z": -300
+              "z": 0
             }
           }
         ],
@@ -9105,7 +9105,7 @@
         "familyId": "BATTERY_ISOLATOR",
         "kind": "PROTECTION_DEVICE",
         "catalogKind": "GENERIC",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Sectionneur batterie",
         "category": "PROTECTION_DEVICE",
         "dimensions": {
@@ -9135,7 +9135,7 @@
             "position": {
               "x": -55,
               "y": 0,
-              "z": -80
+              "z": 0
             }
           },
           {
@@ -9144,7 +9144,7 @@
             "position": {
               "x": 55,
               "y": 0,
-              "z": -80
+              "z": 0
             }
           }
         ],
@@ -9261,7 +9261,7 @@
         "familyId": "EXHAUST_TERMINAL",
         "kind": "AIR_TERMINAL",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Rejet en toiture",
         "category": "AIR_TERMINAL",
         "dimensions": {
@@ -9293,7 +9293,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -200
+              "z": 0
             }
           }
         ],
@@ -9352,7 +9352,7 @@
         "familyId": "SUPPLY_TERMINAL",
         "kind": "AIR_TERMINAL",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Bouche de soufflage",
         "category": "AIR_TERMINAL",
         "dimensions": {
@@ -9384,7 +9384,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -30
+              "z": 0
             }
           }
         ],
@@ -9443,7 +9443,7 @@
         "familyId": "TRAP",
         "kind": "DRAINAGE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Siphon DN 40",
         "category": "DRAINAGE",
         "dimensions": {
@@ -9472,7 +9472,7 @@
             "position": {
               "x": -60,
               "y": 0,
-              "z": 0
+              "z": 100
             }
           },
           {
@@ -9481,7 +9481,7 @@
             "position": {
               "x": 60,
               "y": 0,
-              "z": 0
+              "z": 100
             }
           }
         ],
@@ -9522,7 +9522,7 @@
         "familyId": "WASTE_STACK",
         "kind": "DRAINAGE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Chute eaux usées DN 100",
         "category": "DRAINAGE",
         "dimensions": {
@@ -9551,7 +9551,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 1500
+              "z": 3000
             }
           },
           {
@@ -9560,7 +9560,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": -1500
+              "z": 0
             }
           },
           {
@@ -9569,7 +9569,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 1500
+              "z": 3000
             }
           }
         ],
@@ -9610,7 +9610,7 @@
         "familyId": "VENT_STACK",
         "kind": "DRAINAGE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Ventilation primaire DN 100",
         "category": "DRAINAGE",
         "dimensions": {
@@ -9639,7 +9639,7 @@
             "position": {
               "x": 0,
               "y": 0,
-              "z": 1000
+              "z": 2000
             }
           }
         ],
@@ -9674,7 +9674,7 @@
         "familyId": "INSPECTION_CHAMBER",
         "kind": "DRAINAGE",
         "catalogKind": "GENERIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "name": "Regard de visite 400 × 400",
         "category": "DRAINAGE",
         "dimensions": {
@@ -9703,7 +9703,7 @@
             "position": {
               "x": -200,
               "y": 0,
-              "z": 0
+              "z": 300
             }
           },
           {
@@ -9712,7 +9712,7 @@
             "position": {
               "x": 200,
               "y": 0,
-              "z": 0
+              "z": 300
             }
           }
         ],
@@ -10832,61 +10832,71 @@
             "id": "ventilation:unit-out",
             "nodeId": "ventilation:unit",
             "role": "AIR",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "AIR_EXTRACT_OUTLET"
           },
           {
             "id": "ventilation:junction-in",
             "nodeId": "ventilation:junction",
             "role": "AIR",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "AIR_EXTRACT"
           },
           {
             "id": "ventilation:junction-out-kitchen",
             "nodeId": "ventilation:junction",
             "role": "AIR",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "AIR_EXTRACT_OUTLET"
           },
           {
             "id": "ventilation:junction-out-bathroom",
             "nodeId": "ventilation:junction",
             "role": "AIR",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "AIR_EXTRACT_OUTLET"
           },
           {
             "id": "ventilation:kitchen-in",
             "nodeId": "ventilation:extract-kitchen",
             "role": "AIR",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "AIR_EXTRACT"
           },
           {
             "id": "ventilation:bathroom-in",
             "nodeId": "ventilation:extract-bathroom",
             "role": "AIR",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "AIR_EXTRACT"
           },
           {
             "id": "ventilation:junction-out-riser",
             "nodeId": "ventilation:junction",
             "role": "AIR",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "AIR_EXTRACT_OUTLET"
           },
           {
             "id": "ventilation:riser-in",
             "nodeId": "ventilation:riser",
             "role": "AIR",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "AIR_EXTRACT"
           },
           {
             "id": "ventilation:riser-out-bath",
             "nodeId": "ventilation:riser",
             "role": "AIR",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "AIR_EXTRACT_OUTLET"
           },
           {
             "id": "ventilation:first-bath-in",
             "nodeId": "ventilation:extract-first-bath",
             "role": "AIR",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "AIR_EXTRACT"
           }
         ],
         "edges": [

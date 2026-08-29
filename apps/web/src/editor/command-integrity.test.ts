@@ -14,6 +14,7 @@ import {
   RemoveEquipmentCommand,
   RemoveLevelCommand,
   RemoveSpaceCommand,
+  SetSpaceLabelOffsetCommand,
   UpdateComponentCommand,
   UpdateLevelCommand,
   type ProjectCommand,
@@ -110,6 +111,24 @@ const COMMANDS: readonly {
           ],
         },
       }),
+  },
+  {
+    name: 'déplacer l’étiquette d’une pièce',
+    /*
+     * Une décision de dessin, portée par le projet.
+     *
+     * Elle est ici pour une raison précise : c'est le seul champ que quelqu'un
+     * ait ajouté récemment au modèle des pièces, et un champ qu'un schéma ne
+     * connaît pas produit un fichier que l'application refuse de relire — sans
+     * que rien, au moment où l'on déplace l'étiquette, ne le laisse deviner.
+     * C'est exactement ce que ce tableau existe pour attraper.
+     */
+    command: (project) =>
+      new SetSpaceLabelOffsetCommand(
+        'ground',
+        project.building.levels[0]?.spaces[0]?.id ?? 'none',
+        { x: -640, y: 900 },
+      ),
   },
 ];
 

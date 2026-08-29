@@ -37,6 +37,21 @@ export interface PolygonSurface {
   readonly levelId?: string;
   /** L'anneau qu'on modifie — l'extérieur, ou le trou pour une trémie. */
   readonly outline: readonly Point2D[];
+  /**
+   * Ce qui perce cet anneau, quand quelque chose le perce.
+   *
+   * `outline` est l'anneau qu'on **corrige**, et il le reste : une poignée
+   * déplace un sommet de cet anneau-là, et rien d'autre. Mais ce qu'on **lit**
+   * d'une surface — son aire, l'endroit où son étiquette se pose — dépend
+   * aussi de ce qui la troue, et cette information s'arrêtait ici. Une dalle
+   * de quatre-vingts mètres carrés percée d'une trémie de neuf en annonçait
+   * quatre-vingts, et posait son étiquette au milieu du trou : deux erreurs
+   * pour une seule cause.
+   *
+   * Absent quand la surface n'a pas de trou — et pour une trémie elle-même,
+   * qui est un anneau plein.
+   */
+  readonly holes?: readonly (readonly Point2D[])[];
   /** Le contour réécrit, remis là où il vit. */
   readonly withOutline: (outline: readonly Point2D[]) => ProjectCommand;
 }
@@ -115,6 +130,9 @@ export function polygonSurface(
         label: 'Dalle',
         levelId: level.id,
         outline: slab.polygon.outer,
+        ...(slab.polygon.holes === undefined || slab.polygon.holes.length === 0
+          ? {}
+          : { holes: slab.polygon.holes }),
         withOutline: (outline) =>
           new UpdateSlabCommand(level.id, slab.id, {
             polygon: {
@@ -131,6 +149,10 @@ export function polygonSurface(
         label: 'Toiture',
         levelId: level.id,
         outline: roof.footprint.outer,
+        ...(roof.footprint.holes === undefined ||
+        roof.footprint.holes.length === 0
+          ? {}
+          : { holes: roof.footprint.holes }),
         withOutline: (outline) =>
           new UpdateRoofCommand(level.id, roof.id, {
             footprint: {
@@ -149,6 +171,9 @@ export function polygonSurface(
       kind: 'SITE',
       label: 'Parcelle',
       outline: parcel.outer,
+      ...(parcel.holes === undefined || parcel.holes.length === 0
+        ? {}
+        : { holes: parcel.holes }),
       // La parcelle ne se déplace pas — c'est la limite du sol — mais ses
       // sommets se corrigent : un bornage se relève, il ne se retrace pas.
       withOutline: (outline) => new SetParcelBoundaryCommand(outline),
@@ -164,6 +189,10 @@ export function polygonSurface(
       kind: 'SITE',
       label: obstacle.name ?? 'Emprise',
       outline: obstacle.boundary.outer,
+      ...(obstacle.boundary.holes === undefined ||
+      obstacle.boundary.holes.length === 0
+        ? {}
+        : { holes: obstacle.boundary.holes }),
       withOutline: (outline) =>
         new UpdateSiteObstacleCommand(obstacle.id, { outline }),
     };

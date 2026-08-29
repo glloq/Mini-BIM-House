@@ -25,6 +25,7 @@ import { edgePropertySchema } from '@house-technical-designer/editor-core';
 import {
   MoveWallPointCommand,
   ProjectEditorCommand,
+  SetSpaceLabelOffsetCommand,
   UpdateSiteObstacleCommand,
   UpdateDimensionCommand,
   UpdateNetworkEdgeCommand,
@@ -569,9 +570,74 @@ export function spaceEditsFor(
           apply: (value) =>
             new UpdateSpaceCommand(level.id, space.id, { category: value }),
         },
+        ...labelOffsetEdits(level, space),
       ];
   }
   return undefined;
+}
+
+/**
+ * L'écart de l'étiquette, quand la pièce en porte un.
+ *
+ * **Pourquoi ces champs n'apparaissent que là.** Une pièce que personne n'a
+ * corrigée n'a pas d'écart, et un « Décalage X : 0 mm » sur chacune des onze
+ * pièces d'un plan serait vingt-deux lignes qui ne disent rien. Ils
+ * apparaissent quand quelqu'un a bougé l'étiquette — c'est-à-dire quand il y a
+ * quelque chose à relire, à corriger au millimètre, ou à défaire.
+ *
+ * **Pourquoi ils existent quand même, puisqu'on a le geste.** Le geste est à
+ * la souris, et l'alt-clic qui remet à zéro ne s'annonce nulle part sinon
+ * dans une infobulle. Ces deux champs sont l'autre chemin : au clavier, et
+ * écrit. Ramener les deux à zéro retire le champ tout à fait — la commande
+ * traite `{0, 0}` comme n'importe quel autre écart, mais l'absence et le zéro
+ * finissent au même endroit à l'écran, et personne n'a à connaître la
+ * différence pour s'en servir.
+ *
+ * **Pas de `scenarioPath`.** Un scénario fait varier ce qui décide de la
+ * maison — une épaisseur, un assemblage, un débit. Où le texte d'un plan est
+ * posé n'en fait pas partie, et le chemin par défaut n'adresse rien dans le
+ * fichier : la propriété n'est donc pas offerte comme cible de variante, ce
+ * qui est exactement ce qu'on veut.
+ *
+ * **Ce qui n'est pas ici :** la position de l'étiquette. Ce que l'inspecteur
+ * montre est l'écart depuis le point que le dessin calcule, parce que c'est
+ * cela seul que le fichier garde ; la position se recalcule à chaque dessin et
+ * suit la pièce quand un mur bouge.
+ */
+function labelOffsetEdits(
+  level: Level,
+  space: Level['spaces'][number],
+): readonly InspectorEdit[] {
+  const offset = space.labelOffsetMm;
+  if (offset === undefined) return [];
+  const moved = (next: { readonly x: number; readonly y: number }) =>
+    next.x === 0 && next.y === 0
+      ? new SetSpaceLabelOffsetCommand(level.id, space.id)
+      : new SetSpaceLabelOffsetCommand(level.id, space.id, next);
+  return [
+    {
+      id: 'labelOffsetX',
+      semanticId: 'space.labelOffsetMm.x',
+      label: 'Décalage étiquette X',
+      hint: 'Depuis le point que le plan calcule. Zéro sur les deux axes la replace.',
+      control: { kind: 'NUMBER', value: offset.x, unit: 'mm', step: 10 },
+      apply: (value) => {
+        const next = parsed(value);
+        return next === undefined ? undefined : moved({ x: next, y: offset.y });
+      },
+    },
+    {
+      id: 'labelOffsetY',
+      semanticId: 'space.labelOffsetMm.y',
+      label: 'Décalage étiquette Y',
+      hint: 'Depuis le point que le plan calcule. Zéro sur les deux axes la replace.',
+      control: { kind: 'NUMBER', value: offset.y, unit: 'mm', step: 10 },
+      apply: (value) => {
+        const next = parsed(value);
+        return next === undefined ? undefined : moved({ x: offset.x, y: next });
+      },
+    },
+  ];
 }
 
 /** Les propriétés modifiables d’une dalle. */

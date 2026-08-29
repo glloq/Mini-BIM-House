@@ -125,6 +125,63 @@ describe('ce que chaque surface porte, écrit dessus', () => {
     expect(polygonContains({ outer: corners }, label!.at)).toBe(true);
   });
 
+  it('déduit les trémies de l’aire, et n’écrit pas l’étiquette dedans', () => {
+    /*
+     * Deux erreurs pour une seule cause.
+     *
+     * Le contour d'une dalle s'arrêtait à son anneau extérieur. Une dalle de
+     * quatre-vingts mètres carrés percée d'une trémie de neuf annonçait donc
+     * quatre-vingts — un chiffre faux, écrit sur le dessin, et repris tel quel
+     * par qui le lit — et posait son étiquette au point le plus au large de
+     * cet anneau, c'est-à-dire au centre de la dalle, c'est-à-dire dans la
+     * trémie. Le calcul d'aire savait pourtant déduire les trous depuis
+     * toujours ; c'est le contour qui ne les transportait pas.
+     */
+    const slab = level.slabs[0]!;
+    const outer = slab.polygon.outer;
+    const xs = outer.map(({ x }) => x);
+    const ys = outer.map(({ y }) => y);
+    const centre = {
+      x: (Math.min(...xs) + Math.max(...xs)) / 2,
+      y: (Math.min(...ys) + Math.max(...ys)) / 2,
+    };
+    // Trois mètres sur trois, au milieu : la trémie d'un escalier.
+    const hole = [
+      { x: centre.x - 1500, y: centre.y - 1500 },
+      { x: centre.x + 1500, y: centre.y - 1500 },
+      { x: centre.x + 1500, y: centre.y + 1500 },
+      { x: centre.x - 1500, y: centre.y + 1500 },
+    ];
+    const pierced: Project = {
+      ...project,
+      building: {
+        ...project.building,
+        levels: [
+          {
+            ...level,
+            slabs: [
+              { ...slab, polygon: { ...slab.polygon, holes: [hole] } },
+              ...level.slabs.slice(1),
+            ],
+          },
+          ...project.building.levels.slice(1),
+        ],
+      },
+    };
+    const whole = surfaceLabels(project, level.id, [slabId], {
+      stage: 'BUILDING',
+    })[0]!;
+    const holed = surfaceLabels(pierced, level.id, [slabId], {
+      stage: 'BUILDING',
+    })[0]!;
+
+    expect(holed.areaM2).toBeCloseTo(whole.areaM2 - 9, 6);
+    // Et l'étiquette n'est plus dans le vide : sans les trous, elle se posait
+    // exactement au centre, qui est le centre de la trémie.
+    expect(polygonContains({ outer: hole }, holed.at)).toBe(false);
+    expect(polygonContains({ outer, holes: [hole] }, holed.at)).toBe(true);
+  });
+
   it('recalcule l’aire au lieu de la retenir', () => {
     // Une aire écrite dans le modèle serait fausse au premier sommet déplacé.
     const outer = project.site.parcelBoundary!.outer;

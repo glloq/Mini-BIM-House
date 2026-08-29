@@ -89,6 +89,44 @@ describe('generic equipment catalogue', () => {
       genericEquipmentCatalog().filter(({ ports }) => ports.length > 0).length,
     ).toBeGreaterThan(0);
   });
+
+  it('situe chaque raccordement depuis l’origine de l’appareil, donc dans son volume', () => {
+    /*
+     * Le repère, tenu par le catalogue entier et non par une phrase.
+     *
+     * `EquipmentPortDefinition.position` dit d'où part le décalage :
+     * l'origine de l'appareil, celle que la pose situe — centre de l'emprise
+     * en x et y, dessous en z. Il s'ensuit qu'un raccordement est dans le
+     * volume que la fiche déclare, et c'est vérifiable ; c'est même la seule
+     * raison de préférer ce repère-là à celui du centre de la boîte, que le
+     * catalogue tenait sans que personne l'ait écrit.
+     *
+     * Ce que ce contrôle aurait dit avant la reprise : 288 raccordements de
+     * 175 fiches sous leur propre appareil — l'eau froide d'un ballon de
+     * 1 500 mm à −740, le départ d'un radiateur de 600 mm à −280, la sortie du
+     * WC 350 mm sous sa cuvette. Aucun n'était une faute d'un auteur : tous
+     * comptaient depuis le centre, faute d'un repère énoncé.
+     */
+    let checked = 0;
+    for (const definition of genericEquipmentCatalog())
+      for (const port of definition.ports) {
+        const { x, y, z } = port.position;
+        const where = `${definition.id}/${port.id}`;
+        const { widthMm, depthMm, heightMm } = definition.dimensions ?? {};
+        checked += 1;
+        // Sous l'origine, c'est sous l'appareil : la borne basse ne demande
+        // aucune dimension pour être vraie.
+        expect(z, where).toBeGreaterThanOrEqual(0);
+        if (heightMm !== undefined)
+          expect(z, where).toBeLessThanOrEqual(heightMm);
+        if (widthMm !== undefined)
+          expect(Math.abs(x), where).toBeLessThanOrEqual(widthMm / 2);
+        if (depthMm !== undefined)
+          expect(Math.abs(y), where).toBeLessThanOrEqual(depthMm / 2);
+      }
+    // Un contrôle qui ne regarde rien passe : le catalogue en compte 799.
+    expect(checked).toBe(799);
+  });
 });
 
 describe('equipment definition validation', () => {
@@ -140,6 +178,60 @@ describe('equipment definition validation', () => {
         dimensions: { widthMm: 0 },
       }).map(({ code }) => code),
     ).toContain('EQUIPMENT_INVALID_DIMENSION');
+  });
+
+  it('refuse un raccordement placé hors du volume de l’appareil', () => {
+    /*
+     * Les trois façons de sortir de l'appareil, et la seule qui se juge sans
+     * dimension.
+     *
+     * Les chiffres ne sont pas inventés : ce sont ceux que `generic-wc`
+     * portait — une sortie 350 mm sous une cuvette de 800 mm de haut, parce
+     * qu'elle était comptée depuis le centre de la boîte. Sur la maison de
+     * référence, cela mettait l'évacuation au radier du regard, et le
+     * raccordement était refusé par « rien ne s'écoule vers le haut ».
+     */
+    const base = pump();
+    const withPort = (
+      position: { x: number; y: number; z: number },
+      dimensions?: EquipmentDefinition['dimensions'],
+    ): EquipmentDefinition => ({
+      ...base,
+      ...(dimensions === undefined ? {} : { dimensions }),
+      ports: [{ ...base.ports[0]!, position }],
+    });
+    const codes = (definition: EquipmentDefinition) =>
+      validateEquipmentDefinition(definition).map(({ code }) => code);
+
+    const body = { widthMm: 380, depthMm: 700, heightMm: 800 };
+    expect(codes(withPort({ x: 0, y: 250, z: -350 }, body))).toContain(
+      'EQUIPMENT_PORT_OUTSIDE_BODY',
+    );
+    expect(codes(withPort({ x: 0, y: 250, z: 900 }, body))).toContain(
+      'EQUIPMENT_PORT_OUTSIDE_BODY',
+    );
+    expect(codes(withPort({ x: 300, y: 0, z: 50 }, body))).toContain(
+      'EQUIPMENT_PORT_OUTSIDE_BODY',
+    );
+    expect(codes(withPort({ x: 0, y: 400, z: 50 }, body))).toContain(
+      'EQUIPMENT_PORT_OUTSIDE_BODY',
+    );
+    // Le raccordement corrigé — 50 mm au-dessus du plancher — passe.
+    expect(codes(withPort({ x: 0, y: 250, z: 50 }, body))).not.toContain(
+      'EQUIPMENT_PORT_OUTSIDE_BODY',
+    );
+    // Une fiche sans corps ne borne rien vers le haut, et borne toujours vers
+    // le bas : six fiches déclarent des ports sans déclarer de hauteur, et
+    // « sous l'origine » reste faux pour elles.
+    const { dimensions: _stated, ...bodiless } = base;
+    const somewhere = (z: number): EquipmentDefinition => ({
+      ...bodiless,
+      ports: [{ ...base.ports[0]!, position: { x: 0, y: 0, z } }],
+    });
+    expect(codes(somewhere(100_000))).not.toContain(
+      'EQUIPMENT_PORT_OUTSIDE_BODY',
+    );
+    expect(codes(somewhere(-100))).toContain('EQUIPMENT_PORT_OUTSIDE_BODY');
   });
 
   it('rejects a curve whose points do not match its axes', () => {

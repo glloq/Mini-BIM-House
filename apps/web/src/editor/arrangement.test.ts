@@ -424,17 +424,33 @@ describe('sur la maison de référence', () => {
   }
 
   it('aligne les prises que la trame de 100 mm ne sait pas rejoindre', () => {
-    // La maquette porte deux prises à x = 600 et x = 620, sur la même
-    // ordonnée. Vingt millimètres : la trame n'offre que 600 et 700, donc
-    // s'accrocher pour aligner sur celle de droite laisse 20 mm d'écart.
-    const sockets = (ground.components ?? []).filter(
+    /*
+     * La paire se cherche par ce qui la définit, non par où elle se trouve.
+     *
+     * La maquette porte deux appareils électriques distants de vingt
+     * millimètres sur la même ordonnée. Vingt millimètres : la trame n'offre
+     * que deux multiples de cent de part et d'autre, donc s'accrocher pour
+     * aligner l'un sur l'autre laisse toujours un écart.
+     *
+     * Le test les cherchait à une abscisse écrite en dur ; le jour où la
+     * maquette a déplacé le tableau électrique de neuf mètres pour le mettre
+     * en face de son propre nœud, il ne trouvait plus personne et échouait
+     * sur une donnée corrigée. Ce qu'il mesure n'a rien à voir avec l'endroit :
+     * c'est l'écart que la trame ne sait pas rejoindre.
+     */
+    const electrical = (ground.components ?? []).filter(
       ({ category }) => category === 'ELECTRICAL',
     );
-    const pair = arranged(
-      sockets
-        .filter(({ position }) => Math.abs(position.x - 610) < 100)
-        .map(({ id }) => id),
+    const closest = electrical.flatMap((one, index) =>
+      electrical.slice(index + 1).flatMap((other) => {
+        const apart = Math.abs(one.position.x - other.position.x);
+        return apart > 0 && apart < 100 && one.position.y === other.position.y
+          ? [[one.id, other.id] as const]
+          : [];
+      }),
     );
+    expect(closest).toHaveLength(1);
+    const pair = arranged([...closest[0]!]);
     expect(pair).toHaveLength(2);
     const before = pair.map(({ bounds }) => bounds.min.x);
     expect(Math.max(...before) - Math.min(...before)).toBe(20);

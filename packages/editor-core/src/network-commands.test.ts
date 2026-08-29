@@ -518,7 +518,15 @@ describe('what a network may be joined to', () => {
       networkNodeTemplates('VENTILATION')[0]!,
       'EXTRACT',
     );
-    expect(extract?.portTypeId).toBe('AIR_EXHAUST');
+    /*
+     * Ce qu'une gaine transporte, et non ce que le groupe rejette dehors.
+     *
+     * Le départ d'un nœud d'extraction valait `AIR_EXHAUST` — le rejet
+     * extérieur, qui est un raccordement du groupe. Une bouche attendant
+     * `AIR_EXTRACT`, le premier conduit d'un réseau neuf était refusé : deux
+     * services différents.
+     */
+    expect(extract?.portTypeId).toBe('AIR_EXTRACT_OUTLET');
   });
 
   it('leaves a system it does not know unnamed rather than guessing', () => {

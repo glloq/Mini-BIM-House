@@ -4,7 +4,7 @@
       "id": "generic-room-temperature-sensor",
       "familyId": "DATA_TEMPERATURE_SENSOR",
       "name": "Sonde de température d’ambiance",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 85,
         "depthMm": 25,
@@ -17,7 +17,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 42.5
           }
         }
       ],
@@ -38,7 +38,7 @@
       "id": "generic-room-humidity-sensor",
       "familyId": "HUMIDITY_SENSOR",
       "name": "Sonde d’humidité d’ambiance",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 85,
         "depthMm": 25,
@@ -51,7 +51,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 42.5
           }
         }
       ],
@@ -70,7 +70,7 @@
       "id": "generic-water-leak-sensor",
       "familyId": "LEAK_SENSOR",
       "name": "Détecteur de fuite d’eau",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 60,
         "depthMm": 20,
@@ -83,7 +83,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 30
           }
         }
       ],
@@ -102,7 +102,7 @@
       "id": "generic-window-contact",
       "familyId": "WINDOW_SENSOR",
       "name": "Contact d’ouvrant",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 70,
         "depthMm": 20,
@@ -115,7 +115,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 10
           }
         }
       ],
@@ -134,7 +134,7 @@
       "id": "generic-motion-sensor",
       "familyId": "MOTION_SENSOR",
       "name": "Détecteur de mouvement",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 60,
         "depthMm": 50,
@@ -147,7 +147,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 50
           }
         }
       ],
@@ -169,7 +169,7 @@
       "id": "generic-data-presence-sensor",
       "familyId": "DATA_PRESENCE_SENSOR",
       "name": "Détecteur de présence de plafond",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 100,
         "depthMm": 40,
@@ -182,7 +182,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 50
           }
         }
       ],
@@ -204,7 +204,7 @@
       "id": "generic-co2-sensor",
       "familyId": "CO2_SENSOR",
       "name": "Sonde de CO₂ d’ambiance",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 85,
         "depthMm": 30,
@@ -217,7 +217,7 @@
           "position": {
             "x": 0,
             "y": 15,
-            "z": 0
+            "z": 42.5
           }
         },
         {
@@ -226,7 +226,7 @@
           "position": {
             "x": 0,
             "y": 15,
-            "z": -20
+            "z": 22.5
           }
         }
       ],
@@ -245,7 +245,7 @@
       "id": "generic-modular-actuator",
       "familyId": "ACTUATOR",
       "name": "Actionneur modulaire",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 90,
         "depthMm": 60,
@@ -258,7 +258,7 @@
           "position": {
             "x": 0,
             "y": -30,
-            "z": 0
+            "z": 22.5
           }
         },
         {
@@ -267,7 +267,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 22.5
+            "z": 45
           }
         }
       ],
@@ -286,7 +286,7 @@
       "id": "generic-roller-shutter-motor",
       "familyId": "ROLLER_SHUTTER_ACTUATOR",
       "name": "Motorisation tubulaire de volet roulant",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 500,
         "depthMm": 45,
@@ -299,7 +299,7 @@
           "position": {
             "x": -250,
             "y": 0,
-            "z": 0
+            "z": 22.5
           }
         },
         {
@@ -308,7 +308,7 @@
           "position": {
             "x": -250,
             "y": 0,
-            "z": -10
+            "z": 12.5
           }
         }
       ],
@@ -327,7 +327,7 @@
       "id": "generic-command-relay",
       "familyId": "DATA_RELAY",
       "name": "Relais de commande",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 90,
         "depthMm": 60,
@@ -340,7 +340,7 @@
           "position": {
             "x": 0,
             "y": -30,
-            "z": 0
+            "z": 22.5
           }
         },
         {
@@ -349,7 +349,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 22.5
+            "z": 45
           }
         }
       ],
@@ -368,7 +368,7 @@
       "id": "generic-ip-camera",
       "familyId": "CAMERA",
       "name": "Caméra IP sur PoE",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 120,
         "depthMm": 120,
@@ -381,7 +381,7 @@
           "position": {
             "x": 0,
             "y": 60,
-            "z": 0
+            "z": 45
           }
         }
       ],
@@ -401,7 +401,7 @@
       "id": "generic-coax-socket",
       "familyId": "COAX_SOCKET",
       "name": "Prise coaxiale TV",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 45,
@@ -414,7 +414,7 @@
           "position": {
             "x": 0,
             "y": 22.5,
-            "z": 0
+            "z": 40
           }
         }
       ],
@@ -434,7 +434,7 @@
       "id": "generic-rj45-socket",
       "familyId": "RJ45_SOCKET",
       "name": "Prise RJ45 catégorie 6",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 45,
@@ -447,7 +447,7 @@
           "position": {
             "x": 0,
             "y": 22.5,
-            "z": 0
+            "z": 40
           }
         }
       ],
@@ -467,7 +467,7 @@
       "id": "generic-optical-termination",
       "familyId": "FIBER_TERMINATION",
       "name": "Point de terminaison optique",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 150,
         "depthMm": 35,
@@ -480,7 +480,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -50
+            "z": 0
           }
         },
         {
@@ -489,7 +489,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 50
+            "z": 100
           }
         }
       ],
@@ -509,7 +509,7 @@
       "id": "generic-network-switch-8",
       "familyId": "NETWORK_SWITCH",
       "name": "Commutateur 8 ports",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 220,
         "depthMm": 130,
@@ -522,7 +522,7 @@
           "position": {
             "x": 0,
             "y": -65,
-            "z": 10
+            "z": 32.5
           }
         },
         {
@@ -531,7 +531,7 @@
           "position": {
             "x": 0,
             "y": -65,
-            "z": -10
+            "z": 12.5
           }
         },
         {
@@ -540,7 +540,7 @@
           "position": {
             "x": 0,
             "y": 65,
-            "z": 0
+            "z": 22.5
           }
         }
       ],
@@ -567,7 +567,7 @@
       "id": "generic-patch-panel-12",
       "familyId": "PATCH_PANEL",
       "name": "Panneau de brassage 12 ports",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 483,
         "depthMm": 110,
@@ -580,7 +580,7 @@
           "position": {
             "x": 0,
             "y": 55,
-            "z": 0
+            "z": 22
           }
         },
         {
@@ -589,7 +589,7 @@
           "position": {
             "x": 0,
             "y": -55,
-            "z": 0
+            "z": 22
           }
         }
       ],
@@ -616,7 +616,7 @@
       "id": "generic-communication-enclosure",
       "familyId": "NETWORK_RACK",
       "name": "Coffret de communication",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 450,
         "depthMm": 200,
@@ -629,7 +629,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -300
+            "z": 0
           }
         },
         {
@@ -638,7 +638,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 300
+            "z": 600
           }
         },
         {
@@ -647,7 +647,7 @@
           "position": {
             "x": 0,
             "y": 100,
-            "z": -250
+            "z": 50
           }
         }
       ],
@@ -673,7 +673,7 @@
       "id": "generic-access-router",
       "familyId": "ROUTER",
       "name": "Routeur d’accès fibre",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 230,
         "depthMm": 230,
@@ -686,7 +686,7 @@
           "position": {
             "x": 0,
             "y": 115,
-            "z": 10
+            "z": 40
           }
         },
         {
@@ -695,7 +695,7 @@
           "position": {
             "x": 0,
             "y": 115,
-            "z": -10
+            "z": 20
           }
         },
         {
@@ -704,7 +704,7 @@
           "position": {
             "x": 0,
             "y": 115,
-            "z": -20
+            "z": 10
           }
         }
       ],
@@ -723,7 +723,7 @@
       "id": "generic-wifi-access-point",
       "familyId": "WIFI_ACCESS_POINT",
       "name": "Point d’accès Wi-Fi de plafond",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 180,
         "depthMm": 180,
@@ -736,7 +736,7 @@
           "position": {
             "x": 0,
             "y": 90,
-            "z": 0
+            "z": 20
           }
         },
         {
@@ -745,7 +745,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 20
           }
         }
       ],
@@ -766,7 +766,7 @@
       "id": "generic-intercom-handset",
       "familyId": "INTERCOM",
       "name": "Combiné d’interphone",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 120,
         "depthMm": 40,
@@ -779,7 +779,7 @@
           "position": {
             "x": 0,
             "y": 20,
-            "z": 0
+            "z": 100
           }
         }
       ],
@@ -798,7 +798,7 @@
       "id": "generic-video-door-station",
       "familyId": "VIDEO_DOORBELL",
       "name": "Platine de rue vidéo IP",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 130,
         "depthMm": 40,
@@ -811,7 +811,7 @@
           "position": {
             "x": 0,
             "y": 20,
-            "z": 0
+            "z": 110
           }
         }
       ],
@@ -831,7 +831,7 @@
       "id": "generic-knx-module",
       "familyId": "KNX_DEVICE",
       "name": "Module KNX modulaire",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 72,
         "depthMm": 60,
@@ -844,7 +844,7 @@
           "position": {
             "x": 0,
             "y": -30,
-            "z": 0
+            "z": 45
           }
         },
         {
@@ -853,7 +853,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 45
+            "z": 90
           }
         }
       ],
@@ -873,7 +873,7 @@
       "id": "generic-modbus-module",
       "familyId": "MODBUS_DEVICE",
       "name": "Module Modbus RTU",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 72,
         "depthMm": 60,
@@ -886,7 +886,7 @@
           "position": {
             "x": 0,
             "y": -30,
-            "z": 0
+            "z": 45
           }
         },
         {
@@ -895,7 +895,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 45
+            "z": 90
           }
         }
       ],
@@ -915,7 +915,7 @@
       "id": "generic-zigbee-device",
       "familyId": "ZIGBEE_DEVICE",
       "name": "Équipement Zigbee",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 30,
@@ -928,7 +928,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 40
           }
         }
       ],
@@ -947,7 +947,7 @@
       "id": "generic-thread-device",
       "familyId": "THREAD_DEVICE",
       "name": "Équipement Thread",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 30,
@@ -960,7 +960,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 40
           }
         }
       ],
@@ -979,7 +979,7 @@
       "id": "generic-matter-device",
       "familyId": "MATTER_DEVICE",
       "name": "Équipement Matter",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 30,
@@ -992,7 +992,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 40
           }
         }
       ],

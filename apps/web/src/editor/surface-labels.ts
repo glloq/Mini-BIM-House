@@ -36,6 +36,7 @@
  */
 import type { Project } from '@house-technical-designer/core-domain';
 import type { Point2D } from '@house-technical-designer/geometry';
+import { polygonArea } from '@house-technical-designer/geometry';
 
 import type { CreationStageId } from '../ux/creation-stages.js';
 
@@ -98,11 +99,30 @@ export function surfaceLabels(
       if (options.stage !== 'SITE') continue;
     } else if (!selected) continue;
     const facts = polygonFacts(surface.outline);
-    if (facts === undefined || facts.areaM2 < minimum) continue;
+    if (facts === undefined) continue;
+    /*
+     * L'aire nette, trous déduits.
+     *
+     * `polygonFacts` répond sur l'anneau qu'on corrige — ses sommets, ses
+     * côtés, ses angles — et c'est bien ce qu'on lui demande partout ailleurs.
+     * Mais l'aire écrite sur le plan est celle de la **surface**, et une dalle
+     * de quatre-vingts mètres carrés percée d'une trémie de neuf en fait
+     * soixante et onze. Elle en annonçait quatre-vingts : un chiffre faux, lu
+     * sur le dessin, et repris tel quel par qui le lit.
+     *
+     * Le calcul existait déjà et savait déduire les trous ; c'est le contour
+     * qui s'arrêtait en chemin.
+     */
+    const shape = {
+      outer: surface.outline,
+      ...(surface.holes === undefined ? {} : { holes: surface.holes }),
+    };
+    const areaM2 = polygonArea(shape) / 1e6;
+    if (areaM2 < minimum) continue;
     labels.push({
       objectId,
       label: surface.label,
-      areaM2: facts.areaM2,
+      areaM2,
       /*
        * Le point le plus au large, comme pour une pièce.
        *
@@ -111,13 +131,13 @@ export function surfaceLabels(
        * dont un côté porte plus de sommets que les autres — ce qui arrive dès
        * qu'on en scinde un — voyait son étiquette dériver vers ce côté.
        *
-       * `outline` est un anneau nu, d'où l'enveloppe. Réserve à lever un
-       * jour : `polygon-surface.ts` ne rend que le contour extérieur d'une
-       * dalle, si bien qu'une trémie qui la perce est déjà perdue avant
-       * d'arriver ici. L'étiquette se pose donc au large du contour sans
-       * savoir qu'il est percé — mieux qu'avant, pas encore juste.
+       * Les trous comptent : une étiquette posée au milieu d'une trémie est
+       * écrite sur un vide. C'est exactement ce qui arrivait tant que le
+       * contour s'arrêtait à son anneau extérieur — le point le plus au large
+       * d'une dalle carrée est son centre, et c'est là qu'on perce une trémie
+       * d'escalier.
        */
-      at: labelAnchor({ outer: surface.outline }),
+      at: labelAnchor(shape),
       selected,
     });
   }

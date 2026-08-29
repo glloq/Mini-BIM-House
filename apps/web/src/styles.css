@@ -1342,6 +1342,25 @@ button.icon {
 .room-label-add:hover {
   text-decoration: underline;
 }
+
+/*
+ * Une étiquette qu'on peut prendre le dit, et une étiquette déplacée aussi.
+ *
+ * Les étiquettes laissent passer le pointeur vers le sol qu'elles nomment —
+ * sans quoi on ne pourrait pas désigner la pièce à travers son propre nom.
+ * Celles qu'on peut saisir font l'inverse, et rien ne le laissait deviner : un
+ * geste qui n'existe que si on l'essaie n'existe pas. Le point qui suit le nom
+ * d'une étiquette déplacée dit, lui, que sa place vient d'une décision et non
+ * du calcul — sans quoi on la croirait mal posée et on la déplacerait encore.
+ */
+.room-label-movable:hover {
+  text-decoration: underline dotted var(--line);
+}
+
+.room-label-moved .room-label-name::after {
+  content: ' ·';
+  color: var(--line);
+}
 .snap-marker {
   position: absolute;
   width: 12px;
@@ -3732,6 +3751,61 @@ button.ghost:disabled {
   min-width: 0;
   min-height: 0;
   padding: 0.1rem 0.4rem;
+}
+/*
+ * Quand l'outil a des menus, la bande prend une largeur décidée d'avance —
+ * et non celle de ce qu'elle porte.
+ *
+ * C'est ce qui **ancre** les menus. Sans cela la barre est large comme son
+ * contenu, et son contenu grandit en cours de tracé : au premier sommet posé
+ * elle gagne « Fermer la surface », « Annuler dernier sommet », « Annuler le
+ * tracé » et les mesures, et pousse d'autant les listes de l'outil —
+ * l'assemblage, le contour — vers la droite, c'est-à-dire sous le pointeur, au
+ * milieu du geste. Mesuré au banc d'essai sur la maison de démonstration avec
+ * l'outil Dalle : **277 px au premier clic**, 290 au deuxième, 335 au
+ * troisième, dans une bande de 1 036 px. C'est la règle en tête de
+ * `ContextToolBar` — « Nothing to show still takes its place » — appliquée à
+ * la bande mais pas à son contenu.
+ *
+ * Les deux autres sorties ont été écartées. **Réserver** la place de ces
+ * boutons-là voudrait dire les montrer grisés dès qu'on prend l'outil, et
+ * « Annuler le tracé » grisé avant qu'un tracé existe est précisément le
+ * bouton qui ne fait rien que `tool-instruction.ts` refuse déjà d'offrir ;
+ * cela ne réglerait d'ailleurs ni la phrase, qui change de longueur à chaque
+ * clic, ni les mesures, qui en changent à chaque pixel parcouru.
+ * **Réordonner** — les menus devant, par `order` — mettrait l'ordre visuel en
+ * désaccord avec l'ordre du document, que le clavier suit.
+ *
+ * D'où vient la largeur : la barre, une fois le tracé commencé, occupe 663 px
+ * des 1 020 px utiles de la bande, soit un peu moins des deux tiers. On lui
+ * donne donc les deux tiers — ce qui la laisse entière à toutes les largeurs
+ * proportionnellement — sans jamais dépasser les 42 rem qu'elle réclame, pour
+ * qu'un grand écran rende le surplus aux menus au lieu de l'étaler. Ce qui ne
+ * tiendrait pas se coupe : c'est la phrase qui cède, elle est faite pour.
+ *
+ * `:has` parce que la question ne se pose que là : sans menus à protéger, la
+ * barre reprend la largeur de son contenu plutôt que d'étaler un cadre vide
+ * sur les deux tiers du dessin.
+ */
+.tool-line:has(> .tool-group) .context-tool-bar {
+  flex: 0 0 min(65%, 42rem);
+}
+/*
+ * Et le mou va à la phrase, pas aux boutons.
+ *
+ * La bande étant maintenant plus large que ce qu'elle porte, il faut dire qui
+ * prend le mou : la phrase le prend, parce qu'elle est la seule chose qu'on
+ * lit et la seule qu'on accepte de voir coupée — c'est déjà ce que dit son
+ * `text-overflow`. Les groupes de boutons restent donc collés là où ils sont,
+ * au lieu de flotter au gré de la longueur du texte.
+ */
+.tool-line .context-tool-bar > .context-instruction {
+  flex: 1 1 auto;
+}
+/* Les menus prennent ce qui reste, et se serrent plutôt que de déborder. */
+.tool-line > .tool-group {
+  min-width: 0;
+  flex: 1 1 0;
 }
 .tool-line .context-tool-bar.is-empty {
   display: none;

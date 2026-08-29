@@ -399,18 +399,85 @@ export function routeCommand(
 }
 
 /**
+ * La pièce que ce tronçon-ci demande, quand il en demande une autre que celle
+ * de son métier.
+ *
+ * `branchingTemplate` répond par discipline : pour les évacuations, un regard
+ * de visite. C'est juste sur un collecteur enterré et faux au milieu d'une
+ * colonne de chute, où l'on pose une culotte — et c'est ce qui arrivait depuis
+ * qu'une évacuation peut se dériver : « Raccorder au réseau » plantait un
+ * regard à mi-hauteur d'une chute, entre deux étages.
+ *
+ * Le tronçon dit lui-même ce qu'il est, par les deux nœuds qu'il relie : quand
+ * ils sont du même genre et que ce genre reçoit et redistribue, la pièce est de
+ * ce genre-là. Deux nœuds de colonne encadrent un morceau de colonne. Quand ils
+ * diffèrent — une source et une nourrice, un circuit et un luminaire, un regard
+ * et un exutoire — le tronçon n'est le prolongement d'aucun des deux, et c'est
+ * la pièce du métier qui s'impose.
+ */
+function fittingLike(
+  network: TechnicalNetwork,
+  edge: NetworkEdge,
+): NetworkNodeTemplate | undefined {
+  const kindAt = (portId: string): string | undefined => {
+    const nodeId = network.ports.find(({ id }) => id === portId)?.nodeId;
+    return network.nodes.find(({ id }) => id === nodeId)?.kind;
+  };
+  const from = kindAt(edge.fromPortId);
+  if (from === undefined || from !== kindAt(edge.toPortId)) return undefined;
+  const template = templateFor(network, from);
+  return template !== undefined &&
+    template.ports.some(({ direction }) => direction === 'IN') &&
+    template.ports.some(({ direction }) => direction === 'OUT')
+    ? template
+    : undefined;
+}
+
+/**
  * Splits a run where the user pointed, so a branch can leave from there.
  *
  * A tee is not a shape drawn on a pipe: it is a fitting with a way in and two
  * ways out. The run is cut at that fitting and rebuilt in two, and the spare
  * outlet is left open — which is exactly what an unfinished branch looks like,
  * and what the Networks workspace already reports as one.
+ *
+ * ## De quel côté le piquage regarde
+ *
+ * Le piquage neuf regardait toujours vers l'aval, et cette pièce ne savait donc
+ * dériver que des réseaux **sous pression** : on se pique sur une eau froide
+ * pour aller alimenter quelque chose. Une évacuation se dérive dans l'autre
+ * sens — on ne part pas de la colonne vers le lavabo, c'est le lavabo qui y
+ * arrive — et il n'y avait aucune façon de le demander.
+ *
+ * Ce que ça coûtait se compte : sur la maison de référence, les huit
+ * évacuations proposées par « Raccorder au réseau » allaient toutes au regard,
+ * y compris celles des appareils qu'une colonne de chute longe à moins de deux
+ * mètres, parce que la seule autre façon de rejoindre un réseau — se dériver —
+ * n'existait pas pour elles.
+ *
+ * `ids.facing` dit donc de quel côté le piquage regarde. Il vaut `'OUT'` par
+ * défaut, qui est ce que faisait cette commande et ce que l'outil « Dériver »
+ * continue de demander : un piquage armé pour alimenter.
  */
 export function branchCommand(
   project: Project,
   edgeId: string,
-  at: Point2D,
-  ids: { readonly nodeId: string; readonly newId: (prefix: string) => string },
+  /*
+   * L'endroit visé, avec sa hauteur quand l'appelant en a une.
+   *
+   * Un clic sur le plan n'en a pas et n'en invente pas ; un raccordement
+   * calculé, si. Elle ne sert qu'à départager un tronçon qui monte tout droit —
+   * une colonne de chute est un point en plan, et sans hauteur `nearestPointOnRoute`
+   * répondait son extrémité de saisie, c'est-à-dire la tête de colonne pour qui
+   * visait le rez-de-chaussée.
+   */
+  at: Point2D & { readonly z?: number },
+  ids: {
+    readonly nodeId: string;
+    readonly newId: (prefix: string) => string;
+    /** Le sens du piquage neuf : un départ (défaut) ou une arrivée. */
+    readonly facing?: 'IN' | 'OUT';
+  },
 ): NetworkCommandResult {
   const network = (project.systems ?? []).find((candidate) =>
     candidate.edges.some(({ id }) => id === edgeId),
@@ -421,13 +488,14 @@ export function branchCommand(
       status: 'ERROR',
       message: `Le tronçon ${edgeId} est introuvable.`,
     };
-  const template = branchingTemplate(network.discipline);
+  const template =
+    fittingLike(network, edge) ?? branchingTemplate(network.discipline);
   if (template === undefined)
     return {
       status: 'ERROR',
       message: `La discipline ${NETWORK_DISCIPLINE_LABELS[network.discipline]} n’a pas de pièce de dérivation.`,
     };
-  const position = nearestPointOnRoute(edge.path, at);
+  const position = nearestPointOnRoute(edge.path, at, at.z);
   if (position === undefined)
     return { status: 'ERROR', message: 'Ce tronçon n’a pas de tracé.' };
   const node: NetworkNode = {
@@ -472,7 +540,20 @@ export function branchCommand(
     ...templateOutlet,
     ...(upstream === undefined ? {} : { portTypeId: upstream }),
   };
-  const spare = { ...templateOutlet, id: `${node.id}-out-branch` };
+  /*
+   * Le piquage neuf, qui est le seul port que la dérivation laisse libre.
+   *
+   * Il garde le genre du **gabarit** et non celui du tronçon coupé, pour la
+   * raison dite plus haut : ce qu'on y raccordera est un appareil de plus, et
+   * c'est le métier qui dit avec quoi on se dérive. Son identifiant nomme le
+   * sens, pour qu'un piquage entrant et un piquage sortant du même nœud ne
+   * s'écrivent pas au même endroit.
+   */
+  const facing = ids.facing ?? 'OUT';
+  const spare =
+    facing === 'OUT'
+      ? { ...templateOutlet, id: `${node.id}-out-branch` }
+      : { ...templateInlet, id: `${node.id}-in-branch` };
   const kind = NETWORK_EDGE_KINDS[network.discipline];
   return {
     status: 'OK',

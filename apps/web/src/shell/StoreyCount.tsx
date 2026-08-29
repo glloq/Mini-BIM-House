@@ -71,14 +71,19 @@ export function StoreyCount({
       <span className="storey-value">{count}</span>
       <button
         type="button"
-        title="Ajouter un niveau, copie du rez-de-chaussée"
+        // Ce que la copie emporte, dit avant le clic — et surtout ce qu'elle
+        // n'emporte pas. Une copie qui ramènerait la pompe à chaleur, le
+        // ballon et le tableau du dessous serait une surprise à défaire à la
+        // main, appareil par appareil.
+        title="Ajouter un niveau : le bâti du rez-de-chaussée, sans les appareils ni les réseaux"
         aria-label="Ajouter un niveau"
         onClick={() => change(count + 1)}
       >
         +
       </button>
       <small className="storey-hint">
-        Un niveau ajouté reprend le rez-de-chaussée : murs, dalles, pièces.
+        Un niveau ajouté reprend le bâti du rez-de-chaussée — murs, dalles,
+        pièces — et lui seul : les appareils et les réseaux restent où ils sont.
       </small>
     </div>
   );

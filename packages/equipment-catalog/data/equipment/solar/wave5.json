@@ -4,7 +4,7 @@
       "id": "generic-pv-array",
       "familyId": "PV_ARRAY",
       "name": "Champ photovoltaïque",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -21,7 +21,7 @@
           "position": {
             "x": -3402,
             "y": 0,
-            "z": -1722
+            "z": 0
           }
         },
         {
@@ -30,7 +30,7 @@
           "position": {
             "x": 3402,
             "y": 0,
-            "z": -1722
+            "z": 0
           }
         }
       ],
@@ -67,7 +67,7 @@
       "id": "generic-pv-string",
       "familyId": "PV_STRING",
       "name": "Chaîne photovoltaïque",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -84,7 +84,7 @@
           "position": {
             "x": -2268,
             "y": 0,
-            "z": -1722
+            "z": 0
           }
         },
         {
@@ -93,7 +93,7 @@
           "position": {
             "x": 2268,
             "y": 0,
-            "z": -1722
+            "z": 0
           }
         }
       ],
@@ -128,7 +128,7 @@
       "id": "generic-hybrid-inverter",
       "familyId": "HYBRID_INVERTER",
       "name": "Onduleur hybride",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -145,7 +145,7 @@
           "position": {
             "x": -200,
             "y": 0,
-            "z": -325
+            "z": 0
           }
         },
         {
@@ -154,7 +154,7 @@
           "position": {
             "x": -130,
             "y": 0,
-            "z": -325
+            "z": 0
           }
         },
         {
@@ -163,7 +163,7 @@
           "position": {
             "x": -40,
             "y": 0,
-            "z": -325
+            "z": 0
           }
         },
         {
@@ -172,7 +172,7 @@
           "position": {
             "x": 90,
             "y": 0,
-            "z": -325
+            "z": 0
           }
         },
         {
@@ -181,7 +181,7 @@
           "position": {
             "x": 170,
             "y": 0,
-            "z": -325
+            "z": 0
           }
         },
         {
@@ -190,7 +190,7 @@
           "position": {
             "x": 220,
             "y": 0,
-            "z": -325
+            "z": 0
           }
         }
       ],
@@ -224,7 +224,7 @@
       "id": "generic-microinverter",
       "familyId": "MICROINVERTER",
       "name": "Micro-onduleur",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -241,7 +241,7 @@
           "position": {
             "x": -110,
             "y": 0,
-            "z": 0
+            "z": 17.5
           }
         },
         {
@@ -250,7 +250,7 @@
           "position": {
             "x": 110,
             "y": 0,
-            "z": 0
+            "z": 17.5
           }
         },
         {
@@ -259,7 +259,7 @@
           "position": {
             "x": 110,
             "y": 50,
-            "z": 0
+            "z": 17.5
           }
         }
       ],
@@ -291,7 +291,7 @@
       "id": "generic-optimizer",
       "familyId": "OPTIMIZER",
       "name": "Optimiseur de puissance",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -308,7 +308,7 @@
           "position": {
             "x": -65,
             "y": 0,
-            "z": 0
+            "z": 15
           }
         },
         {
@@ -317,7 +317,7 @@
           "position": {
             "x": 65,
             "y": 0,
-            "z": 0
+            "z": 15
           }
         }
       ],
@@ -340,7 +340,7 @@
       "id": "generic-dc-combiner",
       "familyId": "DC_COMBINER",
       "name": "Coffret de regroupement continu",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -357,7 +357,7 @@
           "position": {
             "x": -120,
             "y": 0,
-            "z": -200
+            "z": 0
           }
         },
         {
@@ -366,7 +366,7 @@
           "position": {
             "x": -60,
             "y": 0,
-            "z": -200
+            "z": 0
           }
         },
         {
@@ -375,7 +375,7 @@
           "position": {
             "x": 90,
             "y": 0,
-            "z": -200
+            "z": 0
           }
         },
         {
@@ -384,7 +384,7 @@
           "position": {
             "x": 140,
             "y": 0,
-            "z": -200
+            "z": 0
           }
         }
       ],
@@ -414,7 +414,7 @@
       "id": "generic-dc-isolator",
       "familyId": "DC_ISOLATOR",
       "name": "Sectionneur continu",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -431,7 +431,7 @@
           "position": {
             "x": -55,
             "y": 0,
-            "z": -80
+            "z": 0
           }
         },
         {
@@ -440,7 +440,7 @@
           "position": {
             "x": 55,
             "y": 0,
-            "z": -80
+            "z": 0
           }
         }
       ],
@@ -464,7 +464,7 @@
       "id": "generic-dc-fuse",
       "familyId": "DC_FUSE",
       "name": "Porte-fusible de chaîne",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -481,7 +481,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 45
+            "z": 90
           }
         },
         {
@@ -490,7 +490,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -45
+            "z": 0
           }
         }
       ],
@@ -514,7 +514,7 @@
       "id": "generic-dc-spd",
       "familyId": "DC_SPD",
       "name": "Parafoudre continu",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -531,7 +531,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 45
+            "z": 90
           }
         },
         {
@@ -540,7 +540,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -45
+            "z": 0
           }
         }
       ],
@@ -570,7 +570,7 @@
       "id": "generic-ac-isolator",
       "familyId": "AC_ISOLATOR",
       "name": "Sectionneur alternatif",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -587,7 +587,7 @@
           "position": {
             "x": -55,
             "y": 0,
-            "z": -80
+            "z": 0
           }
         },
         {
@@ -596,7 +596,7 @@
           "position": {
             "x": 55,
             "y": 0,
-            "z": -80
+            "z": 0
           }
         },
         {
@@ -605,7 +605,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -80
+            "z": 0
           }
         }
       ],
@@ -629,7 +629,7 @@
       "id": "generic-ac-panel",
       "familyId": "AC_PANEL",
       "name": "Coffret de protection alternatif",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -646,7 +646,7 @@
           "position": {
             "x": -100,
             "y": 0,
-            "z": -200
+            "z": 0
           }
         },
         {
@@ -655,7 +655,7 @@
           "position": {
             "x": 100,
             "y": 0,
-            "z": -200
+            "z": 0
           }
         },
         {
@@ -664,7 +664,7 @@
           "position": {
             "x": 140,
             "y": 0,
-            "z": -200
+            "z": 0
           }
         }
       ],
@@ -694,7 +694,7 @@
       "id": "generic-ac-spd",
       "familyId": "AC_SPD",
       "name": "Parafoudre alternatif",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -711,7 +711,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 45
+            "z": 90
           }
         },
         {
@@ -720,7 +720,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -45
+            "z": 0
           }
         }
       ],
@@ -750,7 +750,7 @@
       "id": "generic-production-meter",
       "familyId": "PRODUCTION_METER",
       "name": "Compteur de production",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -767,7 +767,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 65
+            "z": 130
           }
         },
         {
@@ -776,7 +776,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -65
+            "z": 0
           }
         },
         {
@@ -785,7 +785,7 @@
           "position": {
             "x": 36,
             "y": 0,
-            "z": -65
+            "z": 0
           }
         }
       ],
@@ -809,7 +809,7 @@
       "id": "generic-export-limiter",
       "familyId": "EXPORT_LIMITER",
       "name": "Limiteur d’injection",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -826,7 +826,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -60
+            "z": 0
           }
         },
         {
@@ -835,7 +835,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 60
+            "z": 120
           }
         }
       ],
@@ -858,7 +858,7 @@
       "id": "generic-ground-mount",
       "familyId": "GROUND_MOUNT",
       "name": "Structure photovoltaïque au sol",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -875,7 +875,7 @@
           "position": {
             "x": 0,
             "y": 1500,
-            "z": -1100
+            "z": 0
           }
         }
       ],

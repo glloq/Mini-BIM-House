@@ -103,11 +103,26 @@ test('ferme une toiture en recliquant son premier sommet', async ({ page }) => {
   // un sommet de plus au même endroit.
   await page.locator('.plan-canvas').click({ position: placed[0]! });
   await expect(page.getByRole('status')).toContainText(/toiture/iu);
-  // Et le tracé est bien fini : l'outil repart de sa première étape, qui dit
-  // désormais de quel objet elle parle plutôt que le rang du clic.
-  await expect(page.locator('.context-instruction')).toContainText(
-    'premier coin de la toiture',
-  );
+  /*
+   * Et le tracé est bien fini : la toiture est là, désignée, et l'outil est
+   * reposé.
+   *
+   * Ce test attendait le contraire — que l'outil reparte à son premier coin —
+   * et il avait raison de le décrire, puisque c'est ce qui se produisait. Mais
+   * rien ne le décidait : le code voulait reposer l'outil après une surface
+   * fermée et cherchait la surface neuve dans un état que la commande n'avait
+   * pas encore mis à jour. Il la trouvait quelquefois. Fermer une trémie par
+   * son bouton reposait l'outil, fermer un pan en recliquant son coin ne le
+   * reposait pas : deux gestes qui font la même chose, séparés par le seul
+   * minutage.
+   *
+   * Le geste est maintenant le même dans les deux cas, et ce qu'on vient de
+   * fermer se corrige tout de suite — c'est ce que le retour à la Sélection
+   * sert à obtenir, ses poignées ne se dessinant qu'au repos.
+   */
+  await expect(page.locator('.inspector-subject')).toContainText(/toiture/iu);
+  // L'outil est reposé : la rangée n'annonce plus d'étape à venir.
+  await expect(page.locator('.context-instruction')).toHaveCount(0);
 });
 
 test('ferme une parcelle par Entrée, et la retire sommet par sommet', async ({

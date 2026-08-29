@@ -252,9 +252,62 @@ describe('le registre des actions', () => {
     const after = (applied.building.levels[0]!.components ?? [])
       .filter(({ id }) => ids.includes(id as string))
       .map(({ position }) => position.x);
-    // Le plus à gauche de ces prises est à x = 600 ; toutes y sont, à zéro
-    // près, là où la trame de 100 mm en laissait vingt.
-    expect(new Set(after)).toEqual(new Set([600]));
+    /*
+     * Toutes à la même abscisse, exactement, et c'est celle du plus à gauche.
+     *
+     * Le chiffre était écrit en dur ; il est demandé à la maquette, parce que
+     * ce qui se vérifie ici n'est pas où elles atterrissent mais qu'elles
+     * atterrissent **ensemble** et sur la référence, là où la trame de cent
+     * millimètres laissait vingt millimètres d'écart.
+     */
+    const leftmost = Math.min(...components.map(({ position }) => position.x));
+    expect(new Set(after)).toEqual(new Set([leftmost]));
+  });
+
+  it('refuse de ranger un tronçon, qui n’a pas de position à lui', () => {
+    /*
+     * Un rangement n'est pas un convoi.
+     *
+     * Un tronçon de réseau peut emporter ses coins intermédiaires quand ses
+     * deux nœuds voyagent avec lui — c'est ce qui garde sa forme à un tracé
+     * qu'on déplace en entier. Un rangement, lui, donne à chaque objet son
+     * propre écart : les nœuds étaient bien désignés avec le tronçon, mais ils
+     * n'allaient pas au même endroit. Les coins partaient d'un côté, les nœuds
+     * de l'autre, et le tracé se déchirait sans qu'aucun refus ne soit
+     * prononcé — un dessin faux, obtenu par un bouton qui avait l'air d'avoir
+     * marché.
+     */
+    const network = (house.systems ?? [])[0]!;
+    const edge = network.edges[0]!;
+    const nodeOfPort = new Map(
+      network.ports.map((port) => [port.id, port.nodeId]),
+    );
+    const ends = [
+      nodeOfPort.get(edge.fromPortId)!,
+      nodeOfPort.get(edge.toPortId)!,
+    ];
+    /*
+     * Un quatrième objet, plus à droite que tout le reste.
+     *
+     * L'emprise d'un tronçon est exactement celle de ses deux nœuds : à eux
+     * trois seuls, le tronçon est toujours à la référence et ne reçoit jamais
+     * d'écart. Il en faut un quatrième pour que le rangement demande au
+     * tronçon de bouger — et c'est là que les écarts divergent : le tronçon
+     * reçoit deux mètres, l'un de ses nœuds neuf.
+     */
+    const plan = arrangementPlan(
+      {
+        project: house,
+        levelId,
+        selection: [edge.id, ...ends, 'component-vmc'],
+        host: recorder().host,
+      },
+      { kind: 'ALIGN', intent: 'RIGHT' },
+      'Aligner à droite',
+    );
+    expect(plan.status).toBe('REFUSED');
+    if (plan.status !== 'REFUSED') return;
+    expect(plan.message).toContain('n’a pas de position à lui');
   });
 
   it('dit pourquoi il refuse, plutôt que de griser sans motif', () => {

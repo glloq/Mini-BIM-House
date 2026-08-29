@@ -5,10 +5,14 @@ import {
   routeFall,
   routeThrough,
   slopedRoute,
+  systemPortType,
 } from '@house-technical-designer/editor-core';
-import { portAnchors } from '@house-technical-designer/core-domain';
+import {
+  portAnchors,
+  portsConnectable,
+} from '@house-technical-designer/core-domain';
 import { loadDemoProject } from '../demo-project.js';
-import { branchCommand, routeCommand } from './network-model.js';
+import { branchCommand, nodeKindLabel, routeCommand } from './network-model.js';
 import { routeGrips } from '../editor/grips.js';
 import {
   boundsOf,
@@ -229,10 +233,204 @@ describe('branching off a run that already exists', () => {
     const onTheRun = fitting.filter(({ id }) => !id.endsWith('-out-branch'));
     for (const port of onTheRun)
       expect(port.portTypeId, port.id).toMatch(/^WASTEWATER_COMBINED/u);
-    // Et le piquage neuf garde le genre du métier : ce qu'on y raccordera est
-    // un appareil de plus, pas la suite du collecteur.
+    /*
+     * Et le piquage neuf garde le genre du **métier**, qui dit maintenant la
+     * même chose que le tronçon coupé.
+     *
+     * L'assertion était « surtout pas le genre du tronçon », parce que la table
+     * des genres donnait alors des eaux usées séparées à un réseau unitaire et
+     * que les deux sources ne pouvaient pas coïncider. Elles coïncident depuis
+     * que la table sait ce qu'« unitaire » veut dire, et c'est le contraire
+     * qu'il faut vérifier : sur un collecteur unitaire, le piquage neuf reçoit
+     * de l'unitaire, donc les eaux-vannes d'un WC comme les eaux usées d'un
+     * lavabo. Ce qui compte est qu'il vienne du gabarit ; on le vérifie en le
+     * comparant à ce que le gabarit produit, et non au tronçon.
+     */
     const spur = fitting.find(({ id }) => id.endsWith('-out-branch'))!;
-    expect(spur.portTypeId).not.toBe('WASTEWATER_COMBINED');
+    expect(spur.portTypeId).toBe(systemPortType(drainage.systemType, 'OUT'));
+    expect(spur.portTypeId).toBe('WASTEWATER_COMBINED');
+  });
+
+  it('pose un piquage entrant quand on le lui demande, et sortant sinon', () => {
+    /*
+     * Une évacuation ne se dérive pas comme une eau froide.
+     *
+     * `branchCommand` laissait toujours un piquage **sortant** : c'est ce qu'il
+     * faut pour aller alimenter un appareil, et jamais pour recevoir ce qu'il
+     * évacue. Un lavabo ne pouvait donc pas se piquer sur la colonne qui passe
+     * derrière lui — il n'y avait aucune façon de demander l'autre sens — et
+     * les huit évacuations que « Raccorder au réseau » proposait sur la maison
+     * de référence allaient toutes au regard, à l'autre bout de la maison.
+     */
+    const source = project();
+    const inlet = branchCommand(
+      source,
+      'wastewater:outfall',
+      { x: 9700, y: 7900 },
+      { nodeId: 'node-arrivee', newId, facing: 'IN' },
+    );
+    if (inlet.status !== 'OK') throw new Error(inlet.message);
+    const dispatcher = new ProjectCommandDispatcher(source);
+    expect(dispatcher.dispatch(inlet.command).status).toBe('APPLIED');
+    const after = (dispatcher.project.systems ?? []).find(
+      ({ id }) => id === 'wastewater',
+    )!;
+    const spare = after.ports.filter(
+      ({ nodeId, id }) => nodeId === 'node-arrivee' && id.endsWith('-branch'),
+    );
+    expect(spare).toHaveLength(1);
+    expect(spare[0]?.direction).toBe('IN');
+    /*
+     * Et c'est une arrivée **unitaire**, qui est ce qu'un réseau unitaire
+     * reçoit : les eaux-vannes d'un WC y entrent comme les eaux usées d'un
+     * lavabo. La table des genres donnait à ce réseau des eaux usées séparées,
+     * et un WC piqué là était refusé — « BLACKWATER et GREYWATER ne sont pas
+     * le même service » — alors que c'est exactement ce qu'un piquage sur un
+     * collecteur unitaire sert à faire.
+     */
+    expect(spare[0]?.portTypeId).toBe(systemPortType(after.systemType, 'IN'));
+    expect(spare[0]?.portTypeId).toBe('WASTEWATER_COMBINED_INLET');
+    const soil = {
+      id: 'wc-out',
+      nodeId: 'wc',
+      portTypeId: 'SOILWATER',
+      role: 'BLACKWATER',
+      direction: 'OUT' as const,
+    };
+    expect(portsConnectable(soil, spare[0]!)).toBe(true);
+
+    // Sans rien demander, le piquage reste un départ : c'est ce que l'outil
+    // « Dériver » continue de faire d'un simple clic sur un tronçon.
+    const byDefault = branchCommand(
+      project(),
+      'wastewater:outfall',
+      { x: 9700, y: 7900 },
+      { nodeId: 'node-depart', newId },
+    );
+    if (byDefault.status !== 'OK') throw new Error(byDefault.message);
+    const other = new ProjectCommandDispatcher(project());
+    other.dispatch(byDefault.command);
+    const departure = (other.project.systems ?? [])
+      .flatMap(({ ports }) => ports)
+      .filter(
+        ({ nodeId, id }) => nodeId === 'node-depart' && id.endsWith('-branch'),
+      );
+    expect(departure).toHaveLength(1);
+    expect(departure[0]?.direction).toBe('OUT');
+  });
+
+  it('pose une colonne dans une colonne, et un regard dans un collecteur', () => {
+    /*
+     * `branchingTemplate` répond par discipline : pour les évacuations, un
+     * regard de visite. C'est juste sur un collecteur enterré et absurde à
+     * mi-hauteur d'une chute, entre deux étages — et c'est ce que la dérivation
+     * y plantait dès qu'une évacuation a pu se dériver.
+     *
+     * Le genre `STACK` a maintenant un gabarit qui dit qu'une colonne reçoit et
+     * redistribue, et le tronçon dit lui-même ce qu'il est par les deux nœuds
+     * qu'il relie : `wastewater:stack-drop` court d'un nœud de colonne à un
+     * autre, `wastewater:outfall` d'un regard à un exutoire.
+     */
+    const inStack = branchCommand(
+      project(),
+      'wastewater:stack-drop',
+      { x: 7500, y: 5200, z: 1000 },
+      { nodeId: 'node-culotte', newId, facing: 'IN' },
+    );
+    if (inStack.status !== 'OK') throw new Error(inStack.message);
+    const stacked = new ProjectCommandDispatcher(project());
+    stacked.dispatch(inStack.command);
+    expect(
+      (stacked.project.systems ?? [])
+        .flatMap(({ nodes }) => nodes)
+        .find(({ id }) => id === 'node-culotte')?.kind,
+    ).toBe('STACK');
+
+    const inCollector = branchCommand(
+      project(),
+      'wastewater:outfall',
+      { x: 9700, y: 7900 },
+      { nodeId: 'node-regard', newId },
+    );
+    if (inCollector.status !== 'OK') throw new Error(inCollector.message);
+    const collected = new ProjectCommandDispatcher(project());
+    collected.dispatch(inCollector.command);
+    expect(
+      (collected.project.systems ?? [])
+        .flatMap(({ nodes }) => nodes)
+        .find(({ id }) => id === 'node-regard')?.kind,
+    ).toBe('INSPECTION_CHAMBER');
+  });
+
+  it('nomme une colonne de chute par son nom dans le panneau', () => {
+    // Le genre `STACK` était dessiné trois fois dans cette maison et n'avait
+    // aucun gabarit : le panneau des réseaux affichait « STACK », qui est un
+    // identifiant et pas un mot de plan.
+    const drainage = (project().systems ?? []).find(
+      ({ id }) => id === 'wastewater',
+    )!;
+    const stacks = drainage.nodes.filter(({ kind }) => kind === 'STACK');
+    expect(stacks).toHaveLength(3);
+    for (const node of stacks)
+      expect(nodeKindLabel(drainage, node.kind)).toBe('Colonne de chute');
+  });
+
+  it('se pique à la hauteur demandée sur une colonne, qui est un point en plan', () => {
+    /*
+     * Une chute monte tout droit : en plan, elle **est** un point, et chacun de
+     * ses points est aussi proche que les autres de l'endroit visé.
+     * `nearestPointOnRoute` répondait donc « le premier », c'est-à-dire
+     * l'extrémité par laquelle le tracé a été saisi — la tête de colonne pour
+     * qui vise le rez-de-chaussée, d'où un raccordement refusé parce que rien
+     * ne s'écoule vers le haut.
+     */
+    const source = project();
+    const drainage = (source.systems ?? []).find(
+      ({ id }) => id === 'wastewater',
+    )!;
+    const stack = drainage.edges.find(
+      ({ id }) => id === 'wastewater:stack-drop',
+    )!;
+    const [top, bottom] = [stack.path[0]!, stack.path[stack.path.length - 1]!];
+    expect(top.x).toBe(bottom.x);
+    expect(top.y).toBe(bottom.y);
+
+    // Mille millimètres : une hauteur d'étage intermédiaire, franchement entre
+    // les deux bouts de la chute — qui descend de 2 915 à −200 — pour que ce
+    // qu'on lit soit la hauteur demandée et non une extrémité atteinte par
+    // bornage.
+    const aimed = branchCommand(
+      source,
+      'wastewater:stack-drop',
+      { x: top.x, y: top.y, z: 1000 },
+      { nodeId: 'node-culotte', newId, facing: 'IN' },
+    );
+    if (aimed.status !== 'OK') throw new Error(aimed.message);
+    const dispatcher = new ProjectCommandDispatcher(source);
+    expect(dispatcher.dispatch(aimed.command).status).toBe('APPLIED');
+    const fitting = (dispatcher.project.systems ?? [])
+      .flatMap(({ nodes }) => nodes)
+      .find(({ id }) => id === 'node-culotte')!;
+    expect(fitting.position.z).toBe(1000);
+    expect(fitting.position.x).toBe(top.x);
+
+    /*
+     * Sans hauteur, la réponse est celle d'avant : la tête de colonne, qui est
+     * l'extrémité par laquelle le tracé a été saisi. Elle ne se dérive pas —
+     * une des deux moitiés serait longue de zéro et le modèle la refuse, à
+     * juste titre —, et c'est précisément pourquoi une colonne était
+     * inaccessible avant qu'on puisse viser une hauteur.
+     */
+    const flat = branchCommand(
+      project(),
+      'wastewater:stack-drop',
+      { x: top.x, y: top.y },
+      { nodeId: 'node-culotte', newId },
+    );
+    if (flat.status !== 'OK') throw new Error(flat.message);
+    expect(
+      new ProjectCommandDispatcher(project()).dispatch(flat.command).status,
+    ).not.toBe('APPLIED');
   });
 
   it('puts the fitting on the run, at the nearest point to the click', () => {

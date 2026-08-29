@@ -83,6 +83,11 @@ export function placementAngleDeg(
 /**
  * L'orientation après un appui sur `R`, ou sur `Maj+R` pour tourner à rebours.
  *
+ * Les deux touches ne sont pas décidées ici : elles sont déclarées dans
+ * `shortcuts.ts` comme accords de la situation « pose en cours »
+ * (`place.turn`, `place.turnBack`), et c'est de là que la boîte d'orientation
+ * tire aussi la ligne qui les annonce. Ce module ne connaît que des quarts.
+ *
  * Un quart de tour tourne ce qu'on voit : si un cap a été tapé, c'est lui qui
  * tourne — sans quoi la touche paraîtrait ne rien faire, l'angle tapé
  * l'emportant sur l'écart. Le cap reste alors un cap, simplement augmenté.

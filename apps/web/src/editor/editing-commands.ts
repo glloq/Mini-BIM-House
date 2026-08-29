@@ -124,6 +124,22 @@ export interface OpeningToolDraft {
   readonly widthMm: number;
   readonly heightMm: number;
   readonly sillHeightMm: number;
+  /**
+   * La menuiserie posée avec l'ouverture, quand le projet en tient une.
+   *
+   * `Opening.definitionId` porte la transmission thermique de la baie : c'est
+   * lui, et rien d'autre, qui dit à l'enveloppe ce que cette fenêtre laisse
+   * passer. L'outil ne le demandait pas, donc toute fenêtre dessinée arrivait
+   * dans le bilan comme une inconnue, jusqu'à ce que quelqu'un revienne la
+   * désigner pour la renseigner — un rattrapage qui suppose qu'on se souvienne
+   * de le faire, baie par baie.
+   *
+   * Facultatif, et il doit le rester : un projet dont la bibliothèque de
+   * menuiseries est vide n'a rien à écrire ici, et écrire l'identifiant d'une
+   * menuiserie que le fichier ne porte pas serait une référence en l'air — le
+   * modèle la refuserait, à juste titre.
+   */
+  readonly definitionId?: string;
 }
 
 function levelOf(project: Project, levelId: string | undefined) {
@@ -133,7 +149,28 @@ function levelOf(project: Project, levelId: string | undefined) {
 }
 
 export type EditingCommandResult =
-  | { readonly status: 'OK'; readonly command: ProjectCommand }
+  | {
+      readonly status: 'OK';
+      readonly command: ProjectCommand;
+      /**
+       * Ce que la commande fait naître, quand elle sait déjà le nommer.
+       *
+       * Répéter, coller et dupliquer inventent les identifiants de leurs
+       * copies : ils les tiennent, et les taire obligeait l'application à les
+       * redécouvrir en comparant le projet avant et après. `DuplicationResult`
+       * disait déjà `createdIds`, mais le registre d'outils ne transportait
+       * qu'une commande — si bien que l'outil « Répéter » posait huit copies
+       * dont aucune n'était désignée, alors que le même geste par `Ctrl+D` les
+       * désignait toutes.
+       *
+       * Facultatif, et destiné à le rester : une commande qui ne sait pas le
+       * dire ne ment pas, et ce qu'elle a créé se lit alors dans le projet —
+       * voir `objectsCreatedSince` dans `tool-registry.ts`. Ce champ n'est donc
+       * pas une obligation nouvelle faite à trente commandes, c'est un
+       * raccourci exact pour celles qui l'ont sous la main.
+       */
+      readonly createdIds?: readonly string[];
+    }
   | { readonly status: 'ERROR'; readonly message: string };
 
 /** Builds the command that adds a wall between two drafted points. */
@@ -1282,6 +1319,17 @@ export function addOpeningCommand(
       sillHeightMm: draft.sillHeightMm,
       widthMm: draft.widthMm,
       heightMm: draft.heightMm,
+      /*
+       * La menuiserie n'est écrite que si l'outil en a désigné une.
+       *
+       * `exactOptionalPropertyTypes` interdit d'écrire `definitionId:
+       * undefined` : le champ absent et le champ vide ne veulent pas dire la
+       * même chose pour le modèle, et une baie qui déclarerait pointer nulle
+       * part serait refusée à la validation.
+       */
+      ...(draft.definitionId === undefined || draft.definitionId === ''
+        ? {}
+        : { definitionId: draft.definitionId }),
     }),
   });
   if (command === undefined)

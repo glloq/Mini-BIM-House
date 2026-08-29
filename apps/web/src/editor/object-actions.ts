@@ -331,15 +331,29 @@ export function arrangementPlan(
     };
   const outcome = arrangementOutcome(context, intent);
   if (outcome.status === 'REFUSED') return outcome;
-  const travelling = new Set(selection);
   const commands: ProjectCommand[] = [];
   for (const [objectId, deltaMm] of outcome.deltas) {
+    /*
+     * Chaque objet voyage seul, et c'est ce qu'il faut annoncer.
+     *
+     * Le dernier argument dit ce qui se déplace **du même mouvement**, et non
+     * ce qui est désigné. Les deux coïncident pour un déplacement d'ensemble ;
+     * un rangement les sépare, puisqu'il donne à chacun son propre écart.
+     *
+     * Annoncer la sélection entière laissait passer un tronçon de réseau : la
+     * famille l'autorise à emporter ses coins intermédiaires quand ses deux
+     * nœuds l'accompagnent, ce qui était vrai au sens de « désignés » et faux
+     * au sens qui compte. Les coins partaient d'un côté, les nœuds de l'autre,
+     * et le tracé se déchirait sans qu'aucun refus ne soit prononcé. Un
+     * ensemble d'un seul objet dit la vérité, et la famille refuse alors le
+     * tronçon en expliquant qu'il n'a pas de position à lui.
+     */
     const carried = transformCommandsFor(
       project,
       levelId,
       objectId,
       { kind: 'TRANSLATE', deltaMm },
-      travelling,
+      new Set([objectId]),
     );
     if (carried === undefined)
       return {

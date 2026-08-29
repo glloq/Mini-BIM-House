@@ -118,6 +118,16 @@ export async function chooseTool(page: Page, label: string): Promise<void> {
  * devenue un sommaire dans la colonne, où l'ouverte montre ce qu'elle pose.
  */
 export async function openSection(page: Page, label: string): Promise<void> {
+  /*
+   * La colonne montre une chose à la fois, et poser désigne ce qu'on a posé.
+   *
+   * Elle passe donc aux propriétés dès qu'un objet naît sous le curseur, et le
+   * sommaire des sous-parties n'est plus là : le chercher sans avoir redit
+   * qu'on vient poser, c'est l'attendre dans un écran qu'on regarde ailleurs.
+   * `chooseTool` le fait déjà ; celle-ci l'oubliait, et ne se voyait pas tant
+   * que rien ne désignait à notre place.
+   */
+  await openTools(page);
   const summary = page
     .getByRole('navigation', { name: 'Sous-parties' })
     .getByLabel(label, { exact: true });

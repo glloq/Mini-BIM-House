@@ -1,6 +1,8 @@
 import type {
   ComponentCategory,
   DimensionType,
+  OpeningDefinition,
+  Project,
   ProjectFile,
   SiteObstacleKind,
   SlabRole,
@@ -54,7 +56,7 @@ import {
   isSurfaceSiteKind,
 } from './site-footprints.js';
 import type { ToolOptionDefinition } from './tool-options.js';
-import { OBJECT_FAMILIES, boundsOf } from './object-editors.js';
+import { OBJECT_FAMILIES, boundsOf, listedFamilies } from './object-editors.js';
 import { repeatPlacements } from './arrangement.js';
 import {
   COMPONENT_CATEGORY_OPTIONS,
@@ -249,6 +251,29 @@ export interface EditorToolDefinition {
    */
   readonly completionMode?: 'CLOSE_POLYGON';
   /**
+   * Un outil dont une pose appelle la suivante, et qui ne désigne donc rien.
+   *
+   * La règle générale est l'inverse — **ce qu'on vient de poser est ce qu'on
+   * veut regarder** — et elle vaut pour presque tout : on perce une fenêtre
+   * pour lui choisir sa menuiserie, on pose un escalier pour régler sa
+   * hauteur de marche, on ferme une dalle pour voir ses poignées. Poser sans
+   * désigner oblige à reprendre la Sélection puis à viser ce qu'on vient de
+   * faire, c'est-à-dire à payer deux gestes pour revenir sur un objet qu'on
+   * n'a jamais quitté des yeux.
+   *
+   * L'exception est le tracé qu'on enchaîne. Un mur continu et un tronçon de
+   * réseau ne produisent pas un objet à regarder mais une suite d'objets, et
+   * l'`Entrée` qui achève l'un est le geste qui précède immédiatement le
+   * départ du suivant : y désigner douze murs remplacerait la sélection par
+   * une fournée dont on n'inspecte rien, et ferait basculer la colonne sur des
+   * propriétés qu'on n'a pas demandées au moment précis où l'on vise le
+   * prochain coin.
+   *
+   * C'est donc une exception étroite, et un test la tient étroite : seul un
+   * tracé ouvert qui ne se referme pas peut la déclarer.
+   */
+  readonly chained?: true;
+  /**
    * Whether the point being drafted follows the angle and length constraints.
    *
    * A wall is drawn along the building axes. A dimension is not drawn at all:
@@ -302,6 +327,35 @@ function levelOf(context: ToolCommandContext) {
   return context.levelId === undefined
     ? levels[0]
     : levels.find(({ id }) => id === context.levelId);
+}
+
+/**
+ * Ce que le catalogue du projet appelle une porte, une fenêtre.
+ *
+ * Le catalogue range ses menuiseries en trois catégories — `WINDOW`, `DOOR` et
+ * `SOLAR_PROTECTION` — et l'outil ne perce que deux sortes de baies. Le
+ * rapprochement tient donc en deux lignes, et il est écrit ici plutôt que
+ * deviné dans l'option : le jour où le catalogue distinguera la porte-fenêtre
+ * de la porte, c'est cette table qui changera, à un seul endroit.
+ *
+ * Une protection solaire n'est jamais proposée : un volet n'est pas ce qu'on
+ * perce dans un mur, il se pose sur la baie qui est déjà là. L'inspecteur
+ * l'écarte de la même façon, et pour la même raison.
+ */
+const JOINERY_CATEGORY_OF: Readonly<Record<string, string>> = {
+  DOOR: 'DOOR',
+  WINDOW: 'WINDOW',
+};
+
+function joineryFor(
+  project: Project,
+  openingType: string,
+): readonly OpeningDefinition[] {
+  const wanted = JOINERY_CATEGORY_OF[openingType];
+  if (wanted === undefined) return [];
+  return (project.openingTypes ?? []).filter(
+    ({ category }) => category === wanted,
+  );
 }
 
 export const EDITOR_TOOLS = [
@@ -422,6 +476,9 @@ export const EDITOR_TOOLS = [
     ],
     level: 'QUICK',
     openEnded: true,
+    // Un mur continu se dessine par tronçons, et l'`Entrée` qui achève un
+    // pan de façade précède le départ du suivant : voir `chained`.
+    chained: true,
     drawsWalls: true,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
@@ -615,6 +672,60 @@ export const EDITOR_TOOLS = [
         fallback: () => 'WINDOW',
       },
       {
+        key: 'definitionId',
+        kind: 'SELECT',
+        label: 'Menuiserie',
+        hint: 'Le modèle du catalogue : c’est lui qui porte la transmission thermique de la baie.',
+        /*
+         * Offerte d'emblée, au même titre que l'assemblage d'un mur.
+         *
+         * `ADVANCED` dit « le repli répond juste dans l'immense majorité des
+         * poses » — voir `tool-options.ts`. Ce n'est pas le cas ici : le repli
+         * répond *quelque chose* plutôt que rien, et ce quelque chose est la
+         * première menuiserie du catalogue, c'est-à-dire un choix par défaut
+         * et non un choix juste. Une baie coulissante aluminium et une fenêtre
+         * bois double vitrage ne donnent pas le même Uw ; ce qui les sépare
+         * est exactement ce que le bilan thermique lira. C'est donc la même
+         * question que l'assemblage pour un mur — de quoi est fait ce qu'on
+         * dessine — et l'assemblage est offert d'emblée.
+         *
+         * Et le coût de se tromper n'est pas symétrique : une allège mal
+         * réglée se voit en coupe, une menuiserie mal choisie ne se voit nulle
+         * part et ressort dans un calcul, six écrans plus loin.
+         */
+        level: 'PRIMARY',
+        /*
+         * Ce que le projet tient, pour la catégorie qu'on est en train de
+         * percer, et rien d'autre : proposer une porte d'entrée à une fenêtre
+         * serait offrir une réponse fausse au moment où l'on décide.
+         *
+         * Aucune entrée « Aucune » n'est proposée, et c'est délibéré :
+         * `optionValue` traite la chaîne vide comme « non renseigné » et
+         * retombe sur le repli, donc un choix « Aucune » ne tiendrait pas — on
+         * le choisirait, et la pose suivante reprendrait la menuiserie du
+         * repli sans rien dire. Un choix qu'on ne peut pas garder ne doit pas
+         * être offert. Reste l'inspecteur, qui, lui, sait écrire « Aucune »
+         * parce qu'il écrit dans le modèle et non dans un brouillon d'outil.
+         */
+        choices: ({ project, value }) =>
+          joineryFor(project, value('openingType')).map(({ id, name }) => ({
+            value: id,
+            label: name,
+          })),
+        /*
+         * La première menuiserie qui convient, exactement comme l'assemblage
+         * d'un mur prend la première composition de mur du projet.
+         *
+         * Vide quand le projet n'en tient aucune qui convienne : la commande
+         * omet alors le champ plutôt que de pointer une référence en l'air. Un
+         * projet neuf en tient trois — une fenêtre, une porte d'entrée, une
+         * porte intérieure — donc le cas vide est celui d'une bibliothèque
+         * qu'on a vidée soi-même.
+         */
+        fallback: ({ project, value }) =>
+          joineryFor(project, value('openingType'))[0]?.id ?? '',
+      },
+      {
         key: 'widthMm',
         kind: 'NUMBER',
         label: 'Largeur',
@@ -661,6 +772,9 @@ export const EDITOR_TOOLS = [
           widthMm: context.optionNumber('widthMm') ?? 0,
           heightMm: context.optionNumber('heightMm') ?? 0,
           sillHeightMm: context.optionNumber('sillHeightMm') ?? 0,
+          // Vide quand le projet ne tient aucune menuiserie de cette
+          // catégorie ; la commande sait alors ne rien écrire.
+          definitionId: context.option('definitionId'),
         },
         context.newId('opening'),
       ),
@@ -1991,6 +2105,10 @@ export const EDITOR_TOOLS = [
       },
     ],
     openEnded: true,
+    // Un réseau se tire tronçon après tronçon, du départ vers chaque
+    // arrivée : ce qu'on vient de fermer n'est pas ce qu'on va regarder,
+    // c'est ce d'où l'on repart. Voir `chained`.
+    chained: true,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
     options: [
@@ -2428,6 +2546,70 @@ export function completionModeOf(tool: EditorTool): CompletionMode | undefined {
 /** Ce que le bouton dit, et ce que la phrase dit : le même mot. */
 export function completionLabel(mode: CompletionMode): string {
   return mode === 'CLOSE_POLYGON' ? 'Fermer la surface' : 'Terminer le tracé';
+}
+
+/**
+ * Si ce que cet outil vient de poser doit être désigné.
+ *
+ * **Ce qu'on vient de poser est ce qu'on veut regarder.** C'est la règle, et
+ * elle n'était tenue que par les surfaces fermées : une trémie se désignait
+ * toute seule — parce que `finishRun` comparait les surfaces du niveau avant
+ * et après —, une fenêtre, un composant, une pièce, un escalier, non. Poser
+ * coûtait donc deux gestes de plus dès qu'on voulait régler ce qu'on venait de
+ * faire : reprendre la Sélection, puis viser ce qu'on avait sous les yeux.
+ *
+ * La réponse est déclarée par le registre plutôt que devinée par l'écran :
+ * l'outil dit s'il enchaîne, comme il dit déjà s'il dessine un mur ou s'il ne
+ * fait que lire. Un outil qui ne crée rien — la Sélection — et un outil qui
+ * lit sans écrire — la Mesure — n'ont rien à désigner ; le reste désigne, sauf
+ * les tracés ouverts qui déclarent `chained`.
+ */
+export function designatesWhatItCreates(tool: EditorTool): boolean {
+  const definition = toolDefinition(tool);
+  if (definition.reads === true) return false;
+  if (definition.createCommand === undefined) return false;
+  return definition.chained !== true;
+}
+
+/**
+ * Tout ce que le projet porte de désignable, sur ce niveau, à cet instant.
+ *
+ * Rien n'est énuméré ici : ce sont les familles d'objets qui listent, et elles
+ * le font déjà pour l'arborescence et pour la palette. Une famille ajoutée
+ * demain entre donc dans le relevé sans que personne ait à y penser, ce qui
+ * est exactement la raison d'être du registre d'objets.
+ */
+export function placedObjectIds(
+  project: Project,
+  levelId: string | undefined,
+): ReadonlySet<string> {
+  return new Set(
+    listedFamilies(project, levelId).flatMap((family) =>
+      family.objects.map(({ objectId }) => objectId),
+    ),
+  );
+}
+
+/**
+ * Ce qui est apparu depuis ce relevé.
+ *
+ * Comparer avant et après ne demande à aucune commande de se souvenir de ce
+ * qu'elle a fait — c'est déjà ainsi que `finishRun` retrouvait la surface
+ * qu'on venait de fermer, et la seule chose que cette fonction change est
+ * qu'elle regarde toutes les familles au lieu des seules surfaces.
+ *
+ * Une commande qui sait nommer ses créations reste préférable : elle est
+ * exacte et ne coûte rien — voir `createdIds` dans `editing-commands.ts`. Ceci
+ * est le repli, pour les trente autres.
+ */
+export function objectsCreatedSince(
+  before: ReadonlySet<string>,
+  project: Project,
+  levelId: string | undefined,
+): readonly string[] {
+  return [...placedObjectIds(project, levelId)].filter(
+    (objectId) => !before.has(objectId),
+  );
 }
 
 /** Whether what this tool drafts is a wall, thickness and all. */

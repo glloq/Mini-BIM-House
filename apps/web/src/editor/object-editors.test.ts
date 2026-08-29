@@ -53,6 +53,48 @@ describe('the object families the editor knows', () => {
     }
   });
 
+  it('n’offre le décalage d’étiquette qu’à une pièce qui en porte un', () => {
+    /*
+     * Un champ qui ne sert qu'à défaire.
+     *
+     * L'étiquette d'une pièce se pose toute seule au point le plus au large de
+     * son contour, et se déplace à la souris quand ce point tombe mal — sur un
+     * luminaire de plafond, sur le débattement d'une porte. Offrir deux champs
+     * de coordonnées à toutes les pièces ferait deux lignes de bruit
+     * permanent dans l'inspecteur pour un geste qu'on fait rarement et qui se
+     * fait mieux à la main.
+     *
+     * Ils paraissent donc là où ils ont quelque chose à dire : sur une pièce
+     * dont quelqu'un a déplacé l'étiquette, pour la corriger au millimètre ou
+     * la remettre à zéro sans souris.
+     */
+    const project = demo();
+    const level = project.building.levels[0]!;
+    const room = level.spaces[0]!;
+    expect(editsFor(project, room.id).map(({ id }) => id)).not.toContain(
+      'labelOffsetX',
+    );
+    const moved = {
+      ...project,
+      building: {
+        ...project.building,
+        levels: [
+          {
+            ...level,
+            spaces: [
+              { ...room, labelOffsetMm: { x: 300, y: 0 } },
+              ...level.spaces.slice(1),
+            ],
+          },
+          ...project.building.levels.slice(1),
+        ],
+      },
+    };
+    expect(editsFor(moved, room.id).map(({ id }) => id)).toContain(
+      'labelOffsetX',
+    );
+  });
+
   it('routes each family to its own properties', () => {
     const project = demo();
     expect(editsFor(project, 'roof-south').map(({ id }) => id)).toContain(

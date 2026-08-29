@@ -86,9 +86,12 @@ import {
 import type { InspectorEdit } from './editor/inspector-edits.js';
 import type { CheckFix } from './checks/checks-model.js';
 import {
+  designatesWhatItCreates,
   completionModeOf,
   isOpenEnded,
+  objectsCreatedSince,
   optionsOf,
+  placedObjectIds,
   requiredPoints,
   toolDefinition,
 } from './editor/tool-registry.js';
@@ -231,7 +234,6 @@ import {
 } from './ux/destinations.js';
 import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
-import { surfaceIds } from './editor/polygon-surface.js';
 import {
   componentDrafts,
   draftsForEntry,
@@ -484,11 +486,31 @@ function App() {
   /*
    * La sous-partie dont on est en train de lire la nomenclature.
    *
-   * Une sous-partie nomme trois à huit familles ; le métier en tient quarante.
-   * « Autre… » ouvre les autres, filtrées sur ce métier-là.
+   * Une sous-partie nomme trois à huit familles ; ses métiers en tiennent
+   * plusieurs dizaines. « Autre… » ouvre les autres, filtrées sur ces
+   * métiers-là.
+   *
+   * Des métiers, au pluriel, parce qu'une sous-partie n'en sert pas qu'un : la
+   * salle de bain pose du sanitaire *et* du mobilier, la cuisine de
+   * l'électroménager *et* du mobilier. N'en porter qu'un laissait l'autre
+   * moitié de ce qu'elle pose derrière un élargissement à la main que personne
+   * ne devine, sur le chemin de toutes les familles que la boîte à outils ne
+   * nomme pas — c'est-à-dire l'immense majorité des cinq cent vingt-sept.
+   *
+   * Ce sont des chaînes, et rien d'autre : la nomenclature pèse soixante et
+   * onze kio, ce fichier est le premier écran, et la bibliothèque qui la lit
+   * est chargée à la demande précisément pour qu'elle n'y entre jamais. Le
+   * métier unique reste porté à côté de la liste — la coque peut n'envoyer que
+   * lui, et c'est encore ce qu'elle fait tant que « Autre… » ne passe pas la
+   * liste entière.
    */
   const [browsing, setBrowsing] = useState<
-    { readonly label: string; readonly domain?: DesignDomainId } | undefined
+    | {
+        readonly label: string;
+        readonly domain?: DesignDomainId;
+        readonly domains?: readonly DesignDomainId[];
+      }
+    | undefined
   >(undefined);
   const [displayOpen, setDisplayOpen] = useState(false);
   /*
@@ -930,6 +952,7 @@ function App() {
   const mode = columnMode({
     subjectKey: columnSubject,
     alwaysProperties: propertiesAlways,
+    toolInHand: tab === 'plan' && editor.activeTool !== 'SELECT',
     ...(columnChoice === undefined ? {} : { choice: columnChoice }),
   });
   /*
@@ -1045,8 +1068,42 @@ function App() {
    */
   const showProperties = useCallback((): void => {
     setColumnChoice(undefined);
+    /*
+     * Et l'outil se repose, parce qu'on vient de dire qu'on va regarder.
+     *
+     * La colonne garde les outils tant qu'un outil est en main — sans quoi
+     * poser un objet remplacerait la boîte au moment où l'on s'en sert. Les
+     * quatre chemins qui aboutissent ici disent tous la même chose : « amène-
+     * moi sur cet objet-là » — la palette, le menu d'un objet, le passage
+     * dans l'espace qui le possède, l'arborescence. Aucun ne veut dire « et
+     * continue de poser des murs ». Reposer l'outil est donc ce que le geste
+     * demande, et non un effet de bord : ce serait sans cela un écran qui
+     * mène quelqu'un jusqu'à un objet et lui montre autre chose.
+     */
+    dispatchEditor({ type: 'SET_TOOL', tool: 'SELECT' });
     changeLayout({ sidebarShown: true });
   }, [changeLayout]);
+
+  /**
+   * Cliquer un objet est une demande de le voir, même s'il était déjà désigné.
+   *
+   * La colonne retient ce qu'on lui a demandé de montrer **pour un sujet
+   * donné**, et c'est ce qui la rend paisible : on repasse aux outils pendant
+   * qu'un mur est désigné, et elle y reste tant que ce mur est le sujet.
+   *
+   * Depuis que poser un objet le désigne, cette mémoire se retournait contre
+   * son propriétaire : on pose un mur — il est désigné —, on revient aux
+   * outils, et recliquer ce mur pour le régler ne montrait plus rien. Le sujet
+   * n'avait pas changé, donc la préférence tenait, et les propriétés
+   * n'arrivaient jamais. Rien à l'écran ne pouvait le faire comprendre.
+   *
+   * Le clic efface donc la préférence sans rien ouvrir d'autre : à la
+   * différence de `showProperties`, il ne déplie pas la colonne repliée d'un
+   * téléphone, où un clic sur le plan doit pouvoir rester un clic sur le plan.
+   */
+  const forgetColumnChoice = useCallback((): void => {
+    setColumnChoice(undefined);
+  }, []);
 
   /** The object whose actions are open, and where the menu sits. */
   const [objectMenu, setObjectMenu] = useState<
@@ -1459,6 +1516,14 @@ function App() {
    */
   const createRoomAt = useCallback(
     (at: { x: number; y: number }) => {
+      /*
+       * L'identifiant est décidé ici, donc il n'y a rien à retrouver.
+       *
+       * `commitPoints` compare le projet avant et après parce qu'une commande
+       * d'outil ne dit pas ce qu'elle a créé ; ici, c'est nous qui le nommons,
+       * et le relire dans le projet serait chercher ce qu'on tient déjà.
+       */
+      const spaceId = `space-${crypto.randomUUID()}`;
       const result = addSpaceAtPointCommand(
         session.current.file,
         activeLevelId,
@@ -1467,13 +1532,33 @@ function App() {
         // s'appelle quelque chose. « Pièce » est un nom de travail qu'on
         // change dans l'inspecteur, pas un vide qu'on laisse.
         { name: 'Pièce', category: 'OTHER' },
-        `space-${crypto.randomUUID()}`,
+        spaceId,
       );
       if (result.status === 'ERROR') {
         setMessage(result.message);
         return;
       }
-      runCommand(result.command);
+      if (!runCommand(result.command)) return;
+      /*
+       * La pièce créée est désignée, et l'outil revient à la Sélection.
+       *
+       * Le geste ne vient pas de la boîte à outils : il vient de l'étiquette
+       * posée sur le contour, qu'on clique en plein tracé de murs. La pièce
+       * portait donc le nom de travail « Pièce » et personne ne la regardait —
+       * l'outil des murs restait armé, si bien que le clic suivant, celui qui
+       * visait la pièce pour la renommer, traçait un mur de plus. Il fallait
+       * reprendre la Sélection, viser, puis seulement nommer : trois gestes
+       * pour revenir sur ce qu'on venait de faire.
+       *
+       * Revenir à la Sélection est ici la suite du geste et non une décision
+       * prise à la place de l'utilisateur : créer une pièce depuis son
+       * étiquette n'est pas « poser des pièces à la chaîne », c'est une
+       * parenthèse dans un tracé de murs — et la seule chose qu'on veuille
+       * faire ensuite est lui donner son nom. C'est déjà ce que fait
+       * `finishRun` pour une surface qu'on vient de fermer.
+       */
+      dispatchEditor({ type: 'SET_TOOL', tool: 'SELECT' });
+      dispatchEditor({ type: 'SELECT', objectId: spaceId });
     },
     [activeLevelId, runCommand],
   );
@@ -1509,6 +1594,20 @@ function App() {
         dispatchEditor({ type: 'CANCEL' });
         return;
       }
+      /*
+       * Ce que le niveau porte avant le geste, pour savoir ce qu'il a fait
+       * naître.
+       *
+       * Relevé avant l'appel et non après : une commande qui échoue laisse le
+       * projet tel quel, et la comparaison rendra donc une liste vide — rien
+       * n'est désigné, ce qui est la bonne réponse. Le relevé n'est pris que
+       * pour les outils qui désignent, parce qu'il parcourt toutes les
+       * familles du niveau et qu'un mur continu n'en a aucun usage.
+       */
+      const designates = designatesWhatItCreates(editor.activeTool);
+      const before = designates
+        ? placedObjectIds(session.current.file.project, activeLevelId)
+        : undefined;
       const result = tool.createCommand?.({
         file: session.current.file,
         ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
@@ -1549,7 +1648,42 @@ function App() {
         setMessage(result.message);
         return;
       }
-      runCommand(result.command);
+      if (!runCommand(result.command)) return;
+      // Pas de relevé, pas de désignation : c'est un outil qui enchaîne, et il
+      // l'a dit avant qu'on ne pose.
+      if (before === undefined) return;
+      /*
+       * Ce qu'on vient de poser est ce qu'on veut regarder.
+       *
+       * Une fenêtre percée n'avait pas de menuiserie et n'était pas désignée :
+       * pour lui en donner une il fallait reprendre la Sélection, viser
+       * l'ouverture, puis seulement choisir — deux gestes de rattrapage pour
+       * un objet qu'on n'avait pas quitté des yeux. La même chose valait pour
+       * un composant, un escalier, un poteau : seule une surface fermée se
+       * désignait, et uniquement parce que `finishRun` comparait les surfaces
+       * avant et après.
+       *
+       * L'outil reste celui qu'on avait pris, et ce n'est pas un oubli :
+       * poser cinq prises à la suite doit rester cinq clics. Désigner suffit à
+       * faire paraître les propriétés dans la colonne — c'est ce qu'elle fait
+       * à toute sélection — sans rien retirer de ce qu'on était en train de
+       * faire. Seule une surface fermée revient à la Sélection, parce que ses
+       * poignées ne se dessinent qu'au repos ; c'est `finishRun` qui le dit.
+       *
+       * Une commande qui sait nommer ses créations est crue sur parole :
+       * « Répéter » rend les identifiants de ses huit copies, et les
+       * redécouvrir en comparant coûterait un parcours de tout le niveau pour
+       * retrouver ce qu'elle tenait déjà.
+       */
+      const created =
+        result.createdIds ??
+        objectsCreatedSince(
+          before,
+          session.current.file.project,
+          activeLevelId,
+        );
+      if (created.length === 0) return;
+      dispatchEditor({ type: 'SELECT_MANY', objectIds: created });
     },
     [
       activeLevelId,
@@ -1825,25 +1959,28 @@ function App() {
      * même où l'objet venait d'exister. Le prendre répond aux deux questions
      * qui suivent : est-ce que c'est reconnu, et comment je le corrige.
      *
-     * Une commande ne rend pas l'identifiant de ce qu'elle a fait ; le
-     * comparer avant/après ne demande à aucune commande de s'en souvenir.
+     * La désignation elle-même n'est plus faite ici : `commitPoints` la fait
+     * pour tout outil qui pose, en comparant le projet avant et après, et ce
+     * qui était vrai d'une surface fermée l'est de tout ce qu'on pose.
+     *
+     * Reste le retour à la Sélection, qui appartient en propre à une surface
+     * fermée : ses poignées ne se dessinent que dans l'état de repos, qui est
+     * celui où on la corrige.
+     *
+     * Il est désormais inconditionnel, et c'est une correction. Le code
+     * d'avant cherchait la surface neuve dans `session.current` juste après
+     * avoir lancé la commande — parfois elle y était, parfois la mise à jour
+     * n'était pas encore passée. Fermer une trémie par son bouton reposait
+     * donc l'outil, fermer un pan de toiture en recliquant son premier coin
+     * ne le reposait pas, et rien dans le code ne décidait cela : c'était le
+     * minutage. Deux gestes qui font la même chose la faisaient
+     * différemment, et personne ne pouvait le prévoir.
      */
-    const before = new Set(
-      surfaceIds(session.current.file.project, activeLevelId),
-    );
     commitPoints(editor.pendingPoints, editor.pendingPicks);
     dispatchEditor({ type: 'FINISH_RUN' });
     if (completionModeOf(editor.activeTool) !== 'CLOSE_POLYGON') return;
-    const made = surfaceIds(session.current.file.project, activeLevelId).find(
-      (id) => !before.has(id),
-    );
-    if (made === undefined) return;
-    // Et la sélection, pour que ses poignées soient là : elles ne se
-    // dessinent que dans l'état de repos, qui est celui où l'on corrige.
     dispatchEditor({ type: 'SET_TOOL', tool: 'SELECT' });
-    dispatchEditor({ type: 'SELECT', objectId: made });
   }, [
-    activeLevelId,
     commitPoints,
     editor.activeTool,
     editor.pendingPicks,
@@ -2386,8 +2523,11 @@ function App() {
       for (const objectId of objectIds)
         dispatchEditor({ type: 'SELECT', objectId, additive: true });
       setTab('plan');
+      // Choisir un objet dans l'arborescence est une demande de le voir : on
+      // n'y descend pas pour continuer à poser des murs.
+      showProperties();
     },
-    [setTab],
+    [setTab, showProperties],
   );
 
   /** Takes the user where a finding can actually be dealt with. */
@@ -3096,6 +3236,7 @@ function App() {
                 stage={navigation.stage}
                 onMessage={setMessage}
                 onCommitPoints={commitPoints}
+                onDesignate={forgetColumnChoice}
                 onPlacementRotation={(rotationDeg) => {
                   placementRotation.current = rotationDeg;
                 }}
@@ -3333,11 +3474,15 @@ function App() {
                     ? {}
                     : { levelId: activeLevelId })}
                   selection={editor.selection}
-                  onSelectObject={(objectId) =>
-                    dispatchEditor({ type: 'SELECT', objectId })
-                  }
+                  onSelectObject={(objectId) => {
+                    dispatchEditor({ type: 'SELECT', objectId });
+                    // Chercher un objet dans l'arborescence est une demande de
+                    // le voir : personne n'y descend pour continuer à poser.
+                    showProperties();
+                  }}
                   onFrameObject={(objectId) => {
                     dispatchEditor({ type: 'SELECT', objectId });
+                    showProperties();
                     zoomSelection();
                   }}
                   onOpenDocuments={() => {
@@ -3381,6 +3526,9 @@ function App() {
                 {...(browsing.domain === undefined
                   ? {}
                   : { domain: browsing.domain })}
+                {...(browsing.domains === undefined
+                  ? {}
+                  : { domains: browsing.domains })}
                 onCommand={runCommand}
                 onMessage={setMessage}
                 onClose={() => setBrowsing(undefined)}

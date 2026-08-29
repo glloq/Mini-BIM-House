@@ -16,7 +16,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -275
+            "z": 0
           }
         },
         {
@@ -25,7 +25,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 275
+            "z": 550
           }
         },
         {
@@ -34,7 +34,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 275
+            "z": 550
           }
         }
       ],
@@ -54,7 +54,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "electrical.equipment"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -85,7 +85,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -861
+            "z": 0
           }
         },
         {
@@ -94,7 +94,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -861
+            "z": 0
           }
         }
       ],
@@ -117,7 +117,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "solar.modules"
       },
-      "version": "1.2.0",
+      "version": "1.3.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

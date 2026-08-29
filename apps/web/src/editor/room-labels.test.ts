@@ -63,6 +63,56 @@ function ring(
   ]);
 }
 
+/** Un écart franc, assez grand pour qu'aucun arrondi ne le fasse passer. */
+const ECART: Point2D = { x: -640, y: 900 };
+
+/** La même maison, une de ses pièces portant l'écart qu'on lui donne. */
+function withOffset(
+  project: Project,
+  spaceId: string,
+  labelOffsetMm: Point2D,
+): Project {
+  return {
+    ...project,
+    building: {
+      ...project.building,
+      levels: project.building.levels.map((level) => ({
+        ...level,
+        spaces: level.spaces.map((space) =>
+          space.id === spaceId ? { ...space, labelOffsetMm } : space,
+        ),
+      })),
+    },
+  };
+}
+
+/**
+ * La même maison, tous ses murs poussés vers l'est.
+ *
+ * Le niveau entier plutôt qu'un mur : ce qu'on veut mesurer est qu'une pièce
+ * qui bouge emmène son étiquette, et déplacer un seul mur changerait aussi la
+ * forme du contour — donc le point le plus au large — ce qui mélangerait deux
+ * effets dans une seule mesure.
+ */
+function shiftedEast(project: Project, byMm: number): Project {
+  return {
+    ...project,
+    building: {
+      ...project.building,
+      levels: project.building.levels.map((level) => ({
+        ...level,
+        walls: level.walls.map((wall) => ({
+          ...wall,
+          path: {
+            ...wall.path,
+            points: wall.path.points.map(({ x, y }) => ({ x: x + byMm, y })),
+          },
+        })),
+      })),
+    },
+  };
+}
+
 /** La moyenne des sommets : ce que la pose faisait avant. */
 function vertexAverage(points: readonly Point2D[]): Point2D {
   return points.reduce(
@@ -178,6 +228,97 @@ describe('what the plan writes on a closed contour', () => {
     expect(
       Math.abs(vertexAverage(splitContour.polygon.outer).y - here.y),
     ).toBeGreaterThan(1_000);
+  });
+
+  it("pose l'étiquette au point calculé plus l'écart que la pièce porte", () => {
+    /*
+     * Le cas que la mesure a trouvé : sur les deux maisons de référence, cinq
+     * étiquettes sur dix-sept tombent à l'intérieur d'un objet déjà dessiné —
+     * quatre sur le symbole d'un luminaire de plafond, une sur le débattement
+     * de la porte des WC. Aucun calcul ne tranche : la pièce porte donc
+     * l'écart qu'une personne a demandé, et la pose l'ajoute au point calculé.
+     */
+    const before = roomLabels(house(), undefined).find(
+      ({ spaceId }) => spaceId !== undefined,
+    )!;
+    expect(before.offsetMm).toBeUndefined();
+    expect(before.at).toEqual(before.anchorAt);
+
+    const moved = roomLabels(
+      withOffset(house(), before.spaceId!, ECART),
+      undefined,
+    ).find(({ spaceId }) => spaceId === before.spaceId)!;
+    expect(moved.anchorAt).toEqual(before.anchorAt);
+    expect(moved.offsetMm).toEqual(ECART);
+    expect(moved.at).toEqual({
+      x: before.anchorAt.x + ECART.x,
+      y: before.anchorAt.y + ECART.y,
+    });
+  });
+
+  it("garde l'étiquette déplacée avec sa pièce quand un mur bouge", () => {
+    /*
+     * Le cœur du sujet, et la raison pour laquelle c'est un **écart** qui est
+     * enregistré et non une position.
+     *
+     * On déplace le niveau entier d'un mètre vers l'est : chaque pièce s'en va
+     * avec ses murs, et l'étiquette déplacée doit s'en aller avec elle. Une
+     * position absolue enregistrée resterait exactement où elle était — c'est
+     * ce que la dernière assertion mesure, en comparant à la position d'avant
+     * le déplacement.
+     */
+    const spaceId = roomLabels(house(), undefined).find(
+      ({ spaceId: id }) => id !== undefined,
+    )!.spaceId!;
+    const before = roomLabels(
+      withOffset(house(), spaceId, ECART),
+      undefined,
+    ).find((label) => label.spaceId === spaceId)!;
+    const after = roomLabels(
+      shiftedEast(withOffset(house(), spaceId, ECART), 1_000),
+      undefined,
+    ).find((label) => label.spaceId === spaceId)!;
+
+    // L'étiquette a suivi la pièce, écart compris.
+    expect(after.at.x - before.at.x).toBeCloseTo(1_000, 6);
+    expect(after.at.y - before.at.y).toBeCloseTo(0, 6);
+    expect(after.at).toEqual({
+      x: after.anchorAt.x + ECART.x,
+      y: after.anchorAt.y + ECART.y,
+    });
+    // L'écart, lui, n'a pas bougé : c'est une intention, pas une coordonnée.
+    expect(after.offsetMm).toEqual(ECART);
+    /*
+     * Et il faut bien qu'une position enregistrée, elle, reste derrière :
+     * sinon ce test ne mesure rien. `before.at` est exactement ce qu'un
+     * champ « position de l'étiquette » aurait gardé dans le fichier — un
+     * mètre à l'ouest de là où l'étiquette doit maintenant être.
+     */
+    expect(before.at.x).not.toBeCloseTo(after.at.x, 6);
+  });
+
+  it("ouvre un fichier écrit avant que l'écart existe", () => {
+    /*
+     * La maison de référence est un tel fichier : aucune de ses pièces ne
+     * porte `labelOffsetMm`. Elle traverse la même validation qu'un fichier
+     * importé — `loadDemoProject` passe par `loadProjectJson` — donc ce test
+     * dit que le champ est bien facultatif dans le contrat persisté, et pas
+     * seulement dans le type TypeScript.
+     */
+    const loaded = loadDemoProject();
+    expect(loaded.status).toBe('OK');
+    if (loaded.status !== 'OK') return;
+    const spaces = loaded.file.project.building.levels.flatMap(
+      (level) => level.spaces,
+    );
+    expect(spaces.length).toBeGreaterThan(0);
+    for (const space of spaces)
+      expect(Object.hasOwn(space, 'labelOffsetMm')).toBe(false);
+    // Et le plan se lit quand même : chaque étiquette est posée au calcul.
+    for (const label of roomLabels(loaded.file.project, undefined)) {
+      expect(label.offsetMm).toBeUndefined();
+      expect(label.at).toEqual(label.anchorAt);
+    }
   });
 
   it('says nothing about a cupboard', () => {

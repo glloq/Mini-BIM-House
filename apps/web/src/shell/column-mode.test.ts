@@ -4,9 +4,13 @@ import { columnMode, subjectKey } from './column-mode.js';
 
 describe('ce que la colonne de gauche montre', () => {
   it('montre les outils au repos : une application de dessin sert à dessiner', () => {
-    expect(columnMode({ subjectKey: '', alwaysProperties: false })).toBe(
-      'TOOLS',
-    );
+    expect(
+      columnMode({
+        subjectKey: '',
+        alwaysProperties: false,
+        toolInHand: false,
+      }),
+    ).toBe('TOOLS');
   });
 
   it('passe aux propriétés dès qu’on désigne quelque chose', () => {
@@ -17,14 +21,55 @@ describe('ce que la colonne de gauche montre', () => {
       columnMode({
         subjectKey: subjectKey(['wall:wall-south'], undefined),
         alwaysProperties: false,
+        toolInHand: false,
+      }),
+    ).toBe('PROPERTIES');
+  });
+
+  it('garde les outils tant qu’un outil est en main', () => {
+    /*
+     * Poser désigne ce qu'on vient de poser, et c'est juste : on veut voir ce
+     * qu'on a fait. Faire basculer la colonne avec, en revanche, remplace la
+     * boîte à outils au moment précis où l'on s'en sert — on pose un mur, on
+     * veut poser une porte, et le sommaire des sous-parties n'est plus là.
+     * Mesuré : un geste de plus par objet posé après le premier.
+     *
+     * L'outil en main l'emporte donc sur la sélection ; il ne l'efface pas.
+     * Ce qu'on vient de poser reste désigné, avec ses poignées et ses actions,
+     * et ses propriétés sont à un clic.
+     */
+    const subject = subjectKey(['wall:wall-south'], undefined);
+    expect(
+      columnMode({
+        subjectKey: subject,
+        alwaysProperties: false,
+        toolInHand: true,
+      }),
+    ).toBe('TOOLS');
+    // Et l'outil reposé rend la main au sujet, sans qu'on ait rien à demander.
+    expect(
+      columnMode({
+        subjectKey: subject,
+        alwaysProperties: false,
+        toolInHand: false,
+      }),
+    ).toBe('PROPERTIES');
+    // Ce qu'on a réclamé à la main l'emporte toujours, outil ou non : on peut
+    // vouloir lire un mur pendant qu'on en trace un autre.
+    expect(
+      columnMode({
+        subjectKey: subject,
+        alwaysProperties: false,
+        toolInHand: true,
+        choice: { mode: 'PROPERTIES', subjectKey: subject },
       }),
     ).toBe('PROPERTIES');
   });
 
   it('montre les propriétés hors du plan, où il n’y a rien à poser', () => {
-    expect(columnMode({ subjectKey: '', alwaysProperties: true })).toBe(
-      'PROPERTIES',
-    );
+    expect(
+      columnMode({ subjectKey: '', alwaysProperties: true, toolInHand: false }),
+    ).toBe('PROPERTIES');
   });
 
   it('tient le mode réclamé à la main pour la sélection qu’on avait sous les yeux', () => {
@@ -35,6 +80,7 @@ describe('ce que la colonne de gauche montre', () => {
       columnMode({
         subjectKey: subject,
         alwaysProperties: false,
+        toolInHand: false,
         choice: { mode: 'TOOLS', subjectKey: subject },
       }),
     ).toBe('TOOLS');
@@ -47,6 +93,7 @@ describe('ce que la colonne de gauche montre', () => {
       columnMode({
         subjectKey: subjectKey(['wall:wall-north'], undefined),
         alwaysProperties: false,
+        toolInHand: false,
         choice: {
           mode: 'TOOLS',
           subjectKey: subjectKey(['wall:wall-south'], undefined),
@@ -62,6 +109,7 @@ describe('ce que la colonne de gauche montre', () => {
       columnMode({
         subjectKey: '',
         alwaysProperties: false,
+        toolInHand: false,
         choice: { mode: 'PROPERTIES', subjectKey: '' },
       }),
     ).toBe('PROPERTIES');
@@ -78,6 +126,7 @@ describe('ce que la colonne de gauche montre', () => {
       columnMode({
         subjectKey: asked,
         alwaysProperties: false,
+        toolInHand: false,
         choice: { mode: 'TOOLS', subjectKey: designated },
       }),
     ).toBe('PROPERTIES');

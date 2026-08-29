@@ -4,7 +4,7 @@
       "id": "generic-battery-cell",
       "familyId": "BATTERY_CELL",
       "name": "Cellule lithium fer phosphate",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -21,7 +21,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 100
+            "z": 200
           }
         }
       ],
@@ -54,7 +54,7 @@
       "id": "generic-battery-module",
       "familyId": "BATTERY_MODULE",
       "name": "Module batterie 19 pouces",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -71,7 +71,7 @@
           "position": {
             "x": -120,
             "y": -225,
-            "z": 0
+            "z": 66.5
           }
         },
         {
@@ -80,7 +80,7 @@
           "position": {
             "x": 120,
             "y": -225,
-            "z": 0
+            "z": 66.5
           }
         },
         {
@@ -89,7 +89,7 @@
           "position": {
             "x": 0,
             "y": -225,
-            "z": -66
+            "z": 0.5
           }
         }
       ],
@@ -132,7 +132,7 @@
       "id": "generic-battery-rack",
       "familyId": "BATTERY_RACK",
       "name": "Armoire batterie",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -149,7 +149,7 @@
           "position": {
             "x": 0,
             "y": -300,
-            "z": -700
+            "z": 0
           }
         },
         {
@@ -158,7 +158,7 @@
           "position": {
             "x": 150,
             "y": -300,
-            "z": -700
+            "z": 0
           }
         },
         {
@@ -167,7 +167,7 @@
           "position": {
             "x": -150,
             "y": -300,
-            "z": -700
+            "z": 0
           }
         }
       ],
@@ -220,7 +220,7 @@
       "id": "generic-bms",
       "familyId": "BMS",
       "name": "Système de gestion de batterie",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -237,7 +237,7 @@
           "position": {
             "x": -125,
             "y": 0,
-            "z": -90
+            "z": 0
           }
         },
         {
@@ -246,7 +246,7 @@
           "position": {
             "x": 125,
             "y": 0,
-            "z": -90
+            "z": 0
           }
         }
       ],
@@ -270,7 +270,7 @@
       "id": "generic-battery-inverter",
       "familyId": "BATTERY_INVERTER",
       "name": "Onduleur de batterie",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -287,7 +287,7 @@
           "position": {
             "x": -150,
             "y": 0,
-            "z": -300
+            "z": 0
           }
         },
         {
@@ -296,7 +296,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -300
+            "z": 0
           }
         },
         {
@@ -305,7 +305,7 @@
           "position": {
             "x": 150,
             "y": 0,
-            "z": -300
+            "z": 0
           }
         },
         {
@@ -314,7 +314,7 @@
           "position": {
             "x": 195,
             "y": 0,
-            "z": -300
+            "z": 0
           }
         }
       ],
@@ -354,7 +354,7 @@
       "id": "generic-battery-isolator",
       "familyId": "BATTERY_ISOLATOR",
       "name": "Sectionneur batterie",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -371,7 +371,7 @@
           "position": {
             "x": -55,
             "y": 0,
-            "z": -80
+            "z": 0
           }
         },
         {
@@ -380,7 +380,7 @@
           "position": {
             "x": 55,
             "y": 0,
-            "z": -80
+            "z": 0
           }
         }
       ],
@@ -403,7 +403,7 @@
       "id": "generic-battery-breaker",
       "familyId": "BATTERY_BREAKER",
       "name": "Disjoncteur batterie",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -420,7 +420,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 65
+            "z": 130
           }
         },
         {
@@ -429,7 +429,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -65
+            "z": 0
           }
         }
       ],
@@ -453,7 +453,7 @@
       "id": "generic-battery-fuse",
       "familyId": "BATTERY_FUSE",
       "name": "Fusible batterie",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -470,7 +470,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 60
+            "z": 120
           }
         },
         {
@@ -479,7 +479,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -60
+            "z": 0
           }
         }
       ],
@@ -503,7 +503,7 @@
       "id": "generic-backup-gateway",
       "familyId": "BACKUP_GATEWAY",
       "name": "Coffret de secours",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -520,7 +520,7 @@
           "position": {
             "x": -140,
             "y": 0,
-            "z": -300
+            "z": 0
           }
         },
         {
@@ -529,7 +529,7 @@
           "position": {
             "x": 140,
             "y": 0,
-            "z": -300
+            "z": 0
           }
         },
         {
@@ -538,7 +538,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 300
+            "z": 600
           }
         },
         {
@@ -547,7 +547,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -300
+            "z": 0
           }
         }
       ],
@@ -578,7 +578,7 @@
       "id": "generic-ats",
       "familyId": "ATS",
       "name": "Inverseur de source",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -595,7 +595,7 @@
           "position": {
             "x": -90,
             "y": 0,
-            "z": 150
+            "z": 300
           }
         },
         {
@@ -604,7 +604,7 @@
           "position": {
             "x": 90,
             "y": 0,
-            "z": 150
+            "z": 300
           }
         },
         {
@@ -613,7 +613,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -150
+            "z": 0
           }
         },
         {
@@ -622,7 +622,7 @@
           "position": {
             "x": 90,
             "y": 0,
-            "z": -150
+            "z": 0
           }
         },
         {
@@ -631,7 +631,7 @@
           "position": {
             "x": -90,
             "y": 0,
-            "z": -150
+            "z": 0
           }
         }
       ],

@@ -5,7 +5,12 @@ import {
 } from '@house-technical-designer/editor-core';
 import { loadDemoProject } from '../demo-project.js';
 import { SHORTCUTS } from './shortcuts.js';
-import { optionValue, storageKeyOf, type ToolDrafts } from './tool-options.js';
+import {
+  optionNumber,
+  optionValue,
+  storageKeyOf,
+  type ToolDrafts,
+} from './tool-options.js';
 import { toolOptionLayout } from './option-visibility.js';
 import { OBJECT_FAMILIES } from './object-editors.js';
 import { stepCoherenceProblem } from './interaction-steps.js';
@@ -17,6 +22,9 @@ import {
   completionLabel,
   completionModeOf,
   constrainsDrafting,
+  designatesWhatItCreates,
+  objectsCreatedSince,
+  placedObjectIds,
   isOpenEnded,
   interactionOf,
   interactionStepAt,
@@ -978,3 +986,241 @@ describe('ce qu’un outil demande, et quand il le demande', () => {
     }
   });
 });
+
+describe('ce qu’on vient de poser est ce qu’on veut regarder', () => {
+  /** Les outils qui posent quelque chose : ni la Sélection, ni la Mesure. */
+  function placingTools() {
+    return EDITOR_TOOLS.filter(
+      (tool) =>
+        toolDefinition(tool.id).createCommand !== undefined &&
+        toolDefinition(tool.id).reads !== true,
+    );
+  }
+
+  it('désigne ce que pose chaque outil, hormis les tracés qu’on enchaîne', () => {
+    /*
+     * Avant : quatre outils sur les trente et un qui posent désignaient ce
+     * qu'ils venaient de créer — les quatre surfaces fermées, et uniquement
+     * parce que `finishRun` comparait les surfaces du niveau avant et après.
+     * Percer une fenêtre, poser un meuble, monter un escalier ou dresser un
+     * poteau ne désignait rien : régler ce qu'on venait de faire coûtait deux
+     * gestes de rattrapage — reprendre la Sélection, puis viser.
+     *
+     * La liste des exceptions est écrite en toutes lettres, et non comptée :
+     * un outil qui cesserait de désigner doit apparaître ici, sous son nom, et
+     * non se fondre dans un nombre qu'on ajuste.
+     */
+    const silent = placingTools()
+      .map(({ id }) => id)
+      .filter((id) => !designatesWhatItCreates(id));
+    expect(silent).toEqual(['WALL_RUN', 'NETWORK_ROUTE']);
+    expect(
+      placingTools().filter(({ id }) => designatesWhatItCreates(id)),
+    ).toHaveLength(placingTools().length - silent.length);
+  });
+
+  it('ne laisse rien de ce qui ne pose pas prétendre désigner', () => {
+    // La Sélection ne crée rien et la Mesure ne fait que lire : ni l'une ni
+    // l'autre n'a d'objet neuf à donner à regarder.
+    for (const tool of EDITOR_TOOLS)
+      if (!placingTools().some(({ id }) => id === tool.id))
+        expect(designatesWhatItCreates(tool.id), tool.id).toBe(false);
+  });
+
+  it('ne laisse déclarer « enchaîné » qu’à un tracé ouvert qui ne se referme pas', () => {
+    /*
+     * L'exception doit rester étroite. Un outil ordinaire qui se déclarerait
+     * enchaîné retirerait la désignation sans que rien ne le dise, et la règle
+     * se viderait outil par outil. Un tracé qu'on enchaîne est, par
+     * construction, un tracé qu'on achève soi-même et qui ne se referme pas.
+     */
+    for (const tool of EDITOR_TOOLS) {
+      if (toolDefinition(tool.id).chained !== true) continue;
+      expect(isOpenEnded(tool.id), tool.id).toBe(true);
+      expect(completionModeOf(tool.id), tool.id).toBe('FINISH_PATH');
+    }
+  });
+
+  it('retrouve dans le projet ce qu’une commande d’outil a fait naître', () => {
+    /*
+     * Aucune commande n'a à se souvenir de ce qu'elle a fait : ce sont les
+     * familles d'objets qui listent, et comparer deux relevés suffit. C'est ce
+     * que faisait déjà `finishRun` pour les surfaces ; la seule chose qui
+     * change est qu'on regarde toutes les familles au lieu d'une.
+     */
+    const opened = file();
+    const before = placedObjectIds(opened.project, 'ground');
+    const result = toolDefinition('OPENING').createCommand?.(
+      openingContext(opened, {}),
+    );
+    expect(result?.status).toBe('OK');
+    if (result?.status !== 'OK') return;
+    const dispatcher = new ProjectCommandDispatcher(opened.project);
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+    expect(objectsCreatedSince(before, dispatcher.project, 'ground')).toEqual([
+      'opening-test',
+    ]);
+    // Et rien ne naît d'un projet qu'on n'a pas touché : sans quoi toute pose
+    // désignerait n'importe quoi.
+    expect(objectsCreatedSince(before, opened.project, 'ground')).toEqual([]);
+  });
+
+  it('croit sur parole la commande qui sait nommer ses copies', () => {
+    /*
+     * « Répéter » rend `createdIds` depuis toujours ; le registre ne
+     * transportait qu'une commande, si bien que huit copies se posaient sans
+     * qu'aucune soit désignée — alors que le même geste par `Ctrl+D` les
+     * désigne toutes. Ce que la commande nomme et ce que le projet a gagné
+     * doivent être la même chose, sinon croire l'une reviendrait à ignorer
+     * l'autre.
+     */
+    const opened = file();
+    const before = placedObjectIds(opened.project, 'ground');
+    let issued = 0;
+    const result = toolDefinition('REPEAT').createCommand?.({
+      ...context({
+        file: opened,
+        points: [
+          { x: 0, y: 0 },
+          { x: 1500, y: 0 },
+        ],
+      }),
+      picks: ['component-luminaire-living'],
+      optionNumber: (key) => (key === 'count' ? 3 : undefined),
+      newId: (prefix) => `${prefix}-repetee-${(issued += 1)}`,
+    });
+    expect(result?.status).toBe('OK');
+    if (result?.status !== 'OK') return;
+    expect(result.createdIds).toHaveLength(3);
+    const dispatcher = new ProjectCommandDispatcher(opened.project);
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+    expect([...(result.createdIds ?? [])].sort()).toEqual(
+      [...objectsCreatedSince(before, dispatcher.project, 'ground')].sort(),
+    );
+  });
+});
+
+/** Le contexte de l'outil Ouverture : un clic sur un mur, et ses options. */
+function openingContext(
+  opened: ReturnType<typeof file>,
+  drafts: ToolDrafts,
+): ToolCommandContext {
+  return {
+    ...context({ file: opened, points: [{ x: 5000, y: 0 }] }),
+    picks: ['wall-south'],
+    option: (key) =>
+      optionValue(opened.project, 'OPENING', optionsOf('OPENING'), drafts, key),
+    optionNumber: (key) =>
+      optionNumber(
+        opened.project,
+        'OPENING',
+        optionsOf('OPENING'),
+        drafts,
+        key,
+      ),
+    newId: (prefix) => `${prefix}-test`,
+  };
+}
+
+/** L'ouverture que la pose vient d'écrire dans le projet. */
+function posedOpening(opened: ReturnType<typeof file>, drafts: ToolDrafts) {
+  const result = toolDefinition('OPENING').createCommand?.(
+    openingContext(opened, drafts),
+  );
+  expect(result?.status).toBe('OK');
+  if (result?.status !== 'OK') throw new Error('la pose a été refusée');
+  const dispatcher = new ProjectCommandDispatcher(opened.project);
+  expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+  return dispatcher.project.building.levels
+    .flatMap((level) => level.openings)
+    .find(({ id }) => id === 'opening-test');
+}
+
+describe('la menuiserie que l’outil Ouverture pose', () => {
+  it('remplit la menuiserie comme il remplit déjà largeur, hauteur et allège', () => {
+    /*
+     * Le champ existait sur le modèle, l'inspecteur savait l'écrire, et
+     * l'outil ne le demandait pas : toute fenêtre dessinée était donc une
+     * inconnue du bilan thermique jusqu'à ce que quelqu'un revienne la
+     * désigner. Sept ouvertures sur sept de la maison de démonstration
+     * portent une menuiserie ; aucune de celles qu'on dessinait n'en portait.
+     */
+    expect(posedOpening(file(), {})?.definitionId).toBe(
+      'generic-window-casement-double',
+    );
+  });
+
+  it('choisit dans la catégorie de ce qu’on perce, porte ou fenêtre', () => {
+    // Une porte ne prend pas la menuiserie d'une fenêtre : ce serait offrir
+    // une réponse fausse au moment même où l'on décide.
+    const opened = file();
+    const held = {
+      [storageKeyOf('OPENING', openingOption('openingType'))]: 'DOOR',
+    };
+    const definitionId = posedOpening(opened, held)?.definitionId;
+    expect(definitionId).toBeDefined();
+    expect(
+      (opened.project.openingTypes ?? []).find(({ id }) => id === definitionId)
+        ?.category,
+    ).toBe('DOOR');
+  });
+
+  it('n’offre au choix que les menuiseries qui conviennent', () => {
+    const opened = file();
+    const held = {
+      [storageKeyOf('OPENING', openingOption('openingType'))]: 'DOOR',
+    };
+    const offered = openingOption('definitionId').choices?.({
+      project: opened.project,
+      value: (key) =>
+        optionValue(opened.project, 'OPENING', optionsOf('OPENING'), held, key),
+    });
+    expect(offered?.length).toBeGreaterThan(0);
+    for (const { value } of offered ?? [])
+      expect(
+        (opened.project.openingTypes ?? []).find(({ id }) => id === value)
+          ?.category,
+        value,
+      ).toBe('DOOR');
+  });
+
+  it('n’écrit aucune menuiserie quand le projet n’en tient aucune', () => {
+    /*
+     * Un projet dont la bibliothèque de menuiseries est vide n'a rien à
+     * écrire : pointer un identifiant que le fichier ne porte pas serait une
+     * référence en l'air, et le modèle la refuserait — à juste titre.
+     */
+    const opened = file();
+    const empty = {
+      ...opened,
+      project: { ...opened.project, openingTypes: [] },
+    };
+    expect(posedOpening(empty, {})?.definitionId).toBeUndefined();
+  });
+
+  it('offre la menuiserie d’emblée, et non derrière « Plus de réglages »', () => {
+    /*
+     * Ce que la baie laisse passer se décide en la posant, comme
+     * l'assemblage d'un mur : une allège mal réglée se voit en coupe, une
+     * menuiserie mal choisie ne se voit nulle part et ressort dans un calcul,
+     * six écrans plus loin.
+     */
+    const layout = toolOptionLayout(
+      file().project,
+      'OPENING',
+      optionsOf('OPENING'),
+      {},
+    );
+    expect(layout.primary.map(({ option }) => option.key)).toContain(
+      'definitionId',
+    );
+    expect(layout.advanced.map(({ option }) => option.key)).not.toContain(
+      'definitionId',
+    );
+  });
+});
+
+/** Une option de l'outil Ouverture, par sa clé. */
+function openingOption(key: string) {
+  return optionsOf('OPENING').find((option) => option.key === key)!;
+}

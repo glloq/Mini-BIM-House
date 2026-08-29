@@ -16,7 +16,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 30
+            "z": 60
           }
         }
       ],
@@ -37,7 +37,7 @@
         "planFootprint": "CIRCLE",
         "layer": "electrical.lighting"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

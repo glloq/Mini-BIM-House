@@ -4,7 +4,7 @@
       "id": "generic-borehole-head",
       "familyId": "BOREHOLE",
       "name": "Tête de forage équipée",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 300,
@@ -17,7 +17,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 500
+            "z": 1000
           }
         },
         {
@@ -26,7 +26,7 @@
           "position": {
             "x": 0,
             "y": 150,
-            "z": 0
+            "z": 500
           }
         }
       ],
@@ -50,7 +50,7 @@
       "id": "generic-well",
       "familyId": "WELL",
       "name": "Puits busé Ø 1 000",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 1000,
         "depthMm": 1000,
@@ -63,7 +63,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 750
+            "z": 1500
           }
         },
         {
@@ -72,7 +72,7 @@
           "position": {
             "x": 0,
             "y": 500,
-            "z": 0
+            "z": 750
           }
         }
       ],
@@ -98,7 +98,7 @@
       "id": "generic-service-connection-box",
       "familyId": "ELECTRICAL_SERVICE_BOX",
       "name": "Coffret de branchement en limite de propriété",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 500,
         "depthMm": 250,
@@ -111,7 +111,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -350
+            "z": 0
           }
         },
         {
@@ -120,7 +120,7 @@
           "position": {
             "x": 0,
             "y": 125,
-            "z": -200
+            "z": 150
           }
         },
         {
@@ -129,7 +129,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -350
+            "z": 0
           }
         }
       ],
@@ -157,7 +157,7 @@
       "id": "generic-utility-meter",
       "familyId": "UTILITY_METER",
       "name": "Compteur de concession",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 250,
         "depthMm": 120,
@@ -170,7 +170,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -200
+            "z": 0
           }
         },
         {
@@ -179,7 +179,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 200
+            "z": 400
           }
         }
       ],
@@ -207,7 +207,7 @@
       "id": "generic-earth-rod-2m",
       "familyId": "SITE_EARTH_ROD",
       "name": "Piquet de terre 2 m",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 25,
         "depthMm": 25,
@@ -220,7 +220,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 1000
+            "z": 2000
           }
         }
       ],
@@ -239,7 +239,7 @@
       "id": "generic-ev-charging-station-7kw",
       "familyId": "SITE_EV_CHARGER",
       "name": "Borne de recharge sur pied 7,4 kW",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 200,
@@ -252,7 +252,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -650
+            "z": 0
           }
         },
         {
@@ -261,7 +261,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -650
+            "z": 0
           }
         }
       ],
@@ -288,7 +288,7 @@
       "id": "generic-exterior-wall-luminaire",
       "familyId": "SITE_EXTERIOR_LIGHT",
       "name": "Applique extérieure",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 150,
         "depthMm": 200,
@@ -301,7 +301,7 @@
           "position": {
             "x": 0,
             "y": 100,
-            "z": 0
+            "z": 125
           }
         }
       ],
@@ -329,7 +329,7 @@
       "id": "generic-exterior-socket-ip55",
       "familyId": "SITE_EXTERIOR_SOCKET",
       "name": "Prise extérieure étanche IP 55",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 100,
         "depthMm": 80,
@@ -342,7 +342,7 @@
           "position": {
             "x": 0,
             "y": 40,
-            "z": 0
+            "z": 50
           }
         }
       ],
@@ -370,7 +370,7 @@
       "id": "generic-outdoor-monobloc-heat-pump",
       "familyId": "OUTDOOR_HEAT_PUMP",
       "name": "Unité extérieure monobloc air/eau",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 1100,
         "depthMm": 450,
@@ -383,7 +383,7 @@
           "position": {
             "x": 0,
             "y": 225,
-            "z": -200
+            "z": 250
           }
         },
         {
@@ -392,7 +392,7 @@
           "position": {
             "x": 0,
             "y": 225,
-            "z": -300
+            "z": 150
           }
         },
         {
@@ -401,7 +401,7 @@
           "position": {
             "x": 0,
             "y": 225,
-            "z": -400
+            "z": 50
           }
         }
       ],
@@ -441,7 +441,7 @@
       "id": "generic-ground-mounted-pv-array",
       "familyId": "GROUND_PV_ARRAY",
       "name": "Champ photovoltaïque au sol",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 6000,
         "depthMm": 3000,
@@ -454,7 +454,7 @@
           "position": {
             "x": 0,
             "y": 1500,
-            "z": 0
+            "z": 750
           }
         },
         {
@@ -463,7 +463,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -750
+            "z": 0
           }
         }
       ],
@@ -501,7 +501,7 @@
       "id": "generic-sewer-chamber-400",
       "familyId": "SEWER_CHAMBER",
       "name": "Regard d’assainissement 400 × 400",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 400,
         "depthMm": 400,
@@ -514,7 +514,7 @@
           "position": {
             "x": -200,
             "y": 0,
-            "z": 0
+            "z": 300
           }
         },
         {
@@ -523,7 +523,7 @@
           "position": {
             "x": 200,
             "y": 0,
-            "z": -50
+            "z": 250
           }
         }
       ],
@@ -549,7 +549,7 @@
       "id": "generic-septic-tank-3000l",
       "familyId": "SITE_SEPTIC_TANK",
       "name": "Fosse toutes eaux de parcelle 3 000 L",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 2000,
         "depthMm": 1300,
@@ -562,7 +562,7 @@
           "position": {
             "x": -1000,
             "y": 0,
-            "z": 500
+            "z": 1300
           }
         },
         {
@@ -571,7 +571,7 @@
           "position": {
             "x": 1000,
             "y": 0,
-            "z": 450
+            "z": 1250
           }
         }
       ],
@@ -603,7 +603,7 @@
       "id": "generic-micro-treatment-plant-5eh",
       "familyId": "SITE_MICRO_TREATMENT_PLANT",
       "name": "Micro-station d’épuration 5 EH",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 1800,
         "depthMm": 1500,
@@ -616,7 +616,7 @@
           "position": {
             "x": -900,
             "y": 0,
-            "z": 600
+            "z": 1600
           }
         },
         {
@@ -625,7 +625,7 @@
           "position": {
             "x": 900,
             "y": 0,
-            "z": 500
+            "z": 1500
           }
         },
         {
@@ -634,7 +634,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 1000
+            "z": 2000
           }
         }
       ],
@@ -666,7 +666,7 @@
       "id": "generic-perimeter-drain-100",
       "familyId": "SITE_DRAIN",
       "name": "Drain périphérique Ø 100",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 100,
         "depthMm": 100,
@@ -679,7 +679,7 @@
           "position": {
             "x": 50,
             "y": 0,
-            "z": 0
+            "z": 500
           }
         }
       ],
@@ -698,7 +698,7 @@
       "id": "generic-rainwater-chamber-400",
       "familyId": "SITE_RAINWATER_CHAMBER",
       "name": "Regard pluvial 400 × 400",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 400,
         "depthMm": 400,
@@ -711,7 +711,7 @@
           "position": {
             "x": -200,
             "y": 0,
-            "z": 0
+            "z": 300
           }
         },
         {
@@ -720,7 +720,7 @@
           "position": {
             "x": 200,
             "y": 0,
-            "z": -50
+            "z": 250
           }
         }
       ],
@@ -746,7 +746,7 @@
       "id": "generic-buried-rainwater-tank-5000l",
       "familyId": "SITE_RAINWATER_TANK",
       "name": "Cuve de récupération enterrée 5 000 L",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 2200,
         "depthMm": 1600,
@@ -759,7 +759,7 @@
           "position": {
             "x": -1100,
             "y": 0,
-            "z": 700
+            "z": 1600
           }
         },
         {
@@ -768,7 +768,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 900
+            "z": 1800
           }
         },
         {
@@ -777,7 +777,7 @@
           "position": {
             "x": 1100,
             "y": 0,
-            "z": 650
+            "z": 1550
           }
         }
       ],
@@ -810,7 +810,7 @@
       "id": "generic-outdoor-water-meter",
       "familyId": "SITE_WATER_METER",
       "name": "Compteur d’eau en regard",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 250,
         "depthMm": 110,
@@ -823,7 +823,7 @@
           "position": {
             "x": -125,
             "y": 0,
-            "z": 0
+            "z": 55
           }
         },
         {
@@ -832,7 +832,7 @@
           "position": {
             "x": 125,
             "y": 0,
-            "z": 0
+            "z": 55
           }
         }
       ],
@@ -859,7 +859,7 @@
       "id": "generic-water-chamber-400",
       "familyId": "WATER_CHAMBER",
       "name": "Regard d’eau 400 × 400",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 400,
         "depthMm": 400,
@@ -872,7 +872,7 @@
           "position": {
             "x": -200,
             "y": 0,
-            "z": 0
+            "z": 250
           }
         },
         {
@@ -881,7 +881,7 @@
           "position": {
             "x": 200,
             "y": 0,
-            "z": 0
+            "z": 250
           }
         }
       ],

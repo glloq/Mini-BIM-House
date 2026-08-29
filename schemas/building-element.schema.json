@@ -411,6 +411,9 @@
         },
         "anchor": {
           "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point2D"
+        },
+        "labelOffsetMm": {
+          "$ref": "https://house-technical-designer.local/schemas/geometry.schema.json#/$defs/Point2D"
         }
       },
       "additionalProperties": false

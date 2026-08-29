@@ -142,7 +142,49 @@ export interface EquipmentPortDefinition {
    * one of its types is a port nothing can check.
    */
   readonly portTypeId: string;
-  /** Port position relative to the equipment origin, in millimetres. */
+  /**
+   * Où ce raccordement se trouve sur l'appareil, **depuis son origine**, en
+   * millimètres.
+   *
+   * ## L'origine, et pourquoi c'est celle-là
+   *
+   * L'origine d'un appareil est le point que la pose situe, et il n'y en a
+   * qu'un dans ce modèle : le **centre de l'emprise** en x et y, le **dessous**
+   * en z. Ce n'est pas une convention inventée ici, c'est celle que le modèle
+   * applique déjà à ce même appareil :
+   *
+   * - `ComponentInstance.position` est le centre de l'emprise — c'est ce que
+   *   `componentGhostOutline` dessine avant le clic, un rectangle centré ;
+   * - `ComponentInstance.elevationMm` est le dessous — `ClearancePlacement` le
+   *   dit mot pour mot (« the underside, above the storey ») et
+   *   `clearanceZones` construit le volume de l'appareil de `elevationMm` à
+   *   `elevationMm + heightMm` ;
+   * - `resolveOne` additionne les deux et rend `position`, à quoi un lecteur
+   *   n'a plus qu'à ajouter ce décalage-ci.
+   *
+   * D'où la propriété que ce champ tient désormais, et qu'un contrôle vérifie
+   * fiche par fiche (`EQUIPMENT_PORT_OUTSIDE_BODY`) : **le raccordement est
+   * dans le volume de l'appareil**, soit `|x| ≤ largeur/2`, `|y| ≤ profondeur/2`
+   * et `0 ≤ z ≤ hauteur`. Un siphon est au bas de l'appareil, donc à z petit ;
+   * l'eau chaude d'un ballon est en haut, donc à z proche de sa hauteur.
+   *
+   * ## Ce que ce champ voulait dire avant, et ce que ça coûtait
+   *
+   * Rien n'était écrit, et le catalogue s'était donné un autre repère : sur 789
+   * ports positionnés, 788 comptaient z depuis le **centre** de la boîte —
+   * l'eau froide d'un ballon de 1 500 mm à `z: -740`, le départ d'un radiateur
+   * de 600 mm à `z: -280`. Les deux repères tombent d'accord en x et en y et
+   * seulement là ; en z, 288 raccordements de 175 fiches se retrouvaient donc
+   * **sous** l'appareil qui les porte, et le seul lecteur du champ — le nœud
+   * que « Raccorder au réseau » pose — les plaçait sous le plancher : la sortie
+   * du WC de la maison de référence tombait 350 mm sous la dalle, au radier du
+   * regard, et son raccordement était refusé — à juste titre.
+   *
+   * Le repère du centre ne demandait pas seulement une addition de plus à
+   * chaque lecture : il est **illisible sans les dimensions**, et six fiches
+   * déclarent des ports sans déclarer de hauteur. Un décalage qu'on ne peut
+   * pas interpréter vaut zéro, et zéro est faux.
+   */
   readonly position: Point3D;
   readonly direction?: EquipmentDirection;
   readonly connectionType?: string;
@@ -311,6 +353,7 @@ export type EquipmentIssueCode =
   | 'EQUIPMENT_INVALID_VERSION'
   | 'EQUIPMENT_DUPLICATE_ID'
   | 'EQUIPMENT_DUPLICATE_PORT'
+  | 'EQUIPMENT_PORT_OUTSIDE_BODY'
   | 'EQUIPMENT_INVALID_DIMENSION'
   | 'EQUIPMENT_INVALID_PROPERTY'
   | 'EQUIPMENT_UNSOURCED_PROPERTY'

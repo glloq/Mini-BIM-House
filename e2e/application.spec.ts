@@ -3917,7 +3917,10 @@ test('pose depuis la nomenclature ce qu’aucun bouton ne nomme', async ({
   await openStage(page, 'Systèmes');
   await openSection(page, 'Électricité');
   const parts = page.getByRole('navigation', { name: 'Sous-parties' });
-  await parts.getByRole('button', { name: 'Autre…' }).click();
+  // Chaque « Autre… » dit de quelle sous-partie il ouvre le reste : plusieurs
+  // replis peuvent être ouverts, et trois boutons du même nom ne se
+  // distingueraient qu'à l'œil.
+  await parts.getByRole('button', { name: 'Autre… — Électricité' }).click();
 
   // Ouverte sur le métier de la sous-partie : cinq cents familles à plat sont
   // une liste qu'on ne lit pas.
