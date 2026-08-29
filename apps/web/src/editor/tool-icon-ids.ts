@@ -63,6 +63,7 @@ export const TOOL_ICONS = [
   'SPLIT',
   'ROTATE',
   'MIRROR',
+  'REPEAT',
   'DIMENSION',
   'NOTE',
 ] as const;

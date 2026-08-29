@@ -31,6 +31,8 @@ import {
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 
+import { chooseHost } from './host-choice.js';
+
 /**
  * How a selection is being transformed.
  *
@@ -540,9 +542,21 @@ export const networkTransform: TransformProvider = (
       nodeOfPort.get(edge.fromPortId),
       nodeOfPort.get(edge.toPortId),
     ];
+    /*
+     * `selection` est ce qui voyage **du même mouvement**, et non ce qui est
+     * désigné.
+     *
+     * La distinction n'était pas visible tant que le seul appelant était un
+     * déplacement d'ensemble, où les deux coïncident. Un rangement — aligner,
+     * répartir — donne à chaque objet son propre écart : ses objets sont
+     * désignés ensemble et ne voyagent pas ensemble. Un tronçon qui accepterait
+     * là son écart à lui verrait ses coins intermédiaires partir d'un côté
+     * pendant que ses nœuds partent de l'autre, et le tracé se déchirerait
+     * sans qu'aucun refus ne soit prononcé.
+     */
     if (!ends.every((end) => end !== undefined && selection.has(end)))
       return refused(
-        'Un tronçon suit les nœuds qu’il relie : sélectionnez-les avec lui.',
+        'Un tronçon n’a pas de position à lui : il suit les nœuds qu’il relie. Déplacez-les, ou rangez-les.',
       );
     // The ends are moved by their own nodes; only the corners in between are
     // this segment's to carry.
@@ -835,19 +849,55 @@ export const componentDuplicate: DuplicateProvider = (
   );
   if (component === undefined) return undefined;
   const copyId = newId('component');
-  const host =
+  const at = {
+    x: component.position.x + deltaMm.x,
+    y: component.position.y + deltaMm.y,
+  };
+  /*
+   * Le support de la copie : celui de l'original s'il en a un, sinon celui
+   * qu'on trouve là où la copie se pose.
+   *
+   * Un original qui nomme son support garde le sien — et sa copie suit la
+   * copie de ce support, quand les deux voyagent ensemble : recopier un mur
+   * et sa prise doit donner la prise sur le nouveau mur, pas sur l'ancien.
+   *
+   * Reste le cas de l'original qui n'en nomme aucun, qui est celui de la
+   * maison de référence : ses vingt-trois appareils sont posés sans support,
+   * et la fiche d'un plafonnier exige un mur ou une dalle. La copie était
+   * donc refusée — « Ce modèle se fixe à : Mur, Dalle » — alors que
+   * l'original, lui, est là. On ne pouvait dupliquer aucun équipement de
+   * cette maison, et personne ne s'en était aperçu parce que le refus est
+   * exact : c'est bien la copie qui manque de support, pas la duplication qui
+   * a tort.
+   *
+   * La copie demande donc son support à la règle qui répond déjà pour une
+   * pose — la même, dans le même fichier, avec l'aperçu qui la montre — au
+   * point où elle arrive. Un plafonnier recopié tombe sur la dalle qu'il
+   * survole ; une prise recopiée le long d'un mur reste sur ce mur.
+   */
+  const carried =
     component.hostObjectId === undefined
       ? undefined
       : (copies.get(component.hostObjectId) ?? component.hostObjectId);
+  const level = levelOf(project, levelId);
+  const host =
+    carried ??
+    (level === undefined
+      ? undefined
+      : chooseHost(
+          level,
+          at,
+          undefined,
+          (project.equipment ?? []).find(
+            ({ id }) => id === component.definitionId,
+          )?.allowedHosts,
+        ).hostObjectId);
   return duplicated(
     copyId,
     new AddComponentCommand(levelId, {
       id: copyId,
       category: component.category,
-      position: {
-        x: component.position.x + deltaMm.x,
-        y: component.position.y + deltaMm.y,
-      },
+      position: at,
       rotationDeg: component.rotationDeg,
       elevationMm: component.elevationMm,
       ...(component.name === undefined ? {} : { name: component.name }),

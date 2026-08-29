@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import type { AddComponentCommand } from '@house-technical-designer/editor-core';
+import {
+  ProjectCommandDispatcher,
+  type AddComponentCommand,
+} from '@house-technical-designer/editor-core';
 import { loadDemoProject } from '../demo-project.js';
 import { SHORTCUTS } from './shortcuts.js';
 import { optionValue, storageKeyOf, type ToolDrafts } from './tool-options.js';
@@ -289,6 +292,235 @@ describe('the tools the editor offers', () => {
         optionValue(opened.project, 'NETWORK', optionsOf('NETWORK'), {}, key),
     });
     expect(result?.status).toBe('OK');
+  });
+});
+
+/**
+ * Répéter : un objet désigné, un pas montré, et autant de copies qu'on veut.
+ *
+ * Le geste qui manquait. Poser six poteaux régulièrement espacés le long
+ * d'une portée coûtait treize gestes et douze entrées d'historique — un
+ * `Ctrl+D` et un glissé par copie —, et chaque glissé se posait sur la trame
+ * de 100 mm, si bien que les intervalles d'une portée de 10 m divisée en sept
+ * mesuraient 1 400 ou 1 500 mm là où le calcul demandait 1 428,57 mm.
+ *
+ * Ce que ces tests tiennent : deux clics, une entrée d'historique, et des
+ * copies posées à l'endroit exact que le pas décrit.
+ */
+describe('répéter un objet le long d’une portée', () => {
+  /** Un identifiant neuf à chaque appel, comme l'application en fabrique. */
+  function newIds(): (prefix: string) => string {
+    let issued = 0;
+    return (prefix) => {
+      issued += 1;
+      return `${prefix}-copie-${issued}`;
+    };
+  }
+
+  /** Le contexte d'une répétition : l'objet visé, les deux clics, le nombre. */
+  function repeating(
+    opened: ReturnType<typeof file>,
+    objectId: string,
+    stepMm: { x: number; y: number },
+    count: number,
+  ): ToolCommandContext {
+    return {
+      ...context({
+        file: opened,
+        points: [
+          { x: 0, y: 0 },
+          { x: stepMm.x, y: stepMm.y },
+        ],
+      }),
+      picks: [objectId],
+      optionNumber: (key) => (key === 'count' ? count : undefined),
+      newId: newIds(),
+    };
+  }
+
+  it('pose N copies en une seule entrée d’historique', () => {
+    /*
+     * Douze copies, une annulation.
+     *
+     * À la main, douze copies régulières coûtaient vingt-quatre entrées
+     * d'historique — une duplication et un déplacement chacune — et les
+     * défaire demandait vingt-quatre `Ctrl+Z`. C'est le chiffre que ce test
+     * remplace.
+     */
+    const opened = file();
+    const before = opened.project.building.levels[0]!.components ?? [];
+    const result = toolDefinition('REPEAT').createCommand?.(
+      repeating(opened, 'component-luminaire-living', { x: 1500, y: 0 }, 12),
+    );
+    expect(result?.status).toBe('OK');
+    if (result?.status !== 'OK') return;
+    const dispatcher = new ProjectCommandDispatcher(opened.project);
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+    const after = dispatcher.project.building.levels[0]!.components ?? [];
+    expect(after.length - before.length).toBe(12);
+    // Une annulation, et les douze s'en vont ensemble.
+    expect(dispatcher.undo().status).toBe('APPLIED');
+    expect(
+      (dispatcher.project.building.levels[0]!.components ?? []).length,
+    ).toBe(before.length);
+  });
+
+  it('prend pour pas la différence entre les deux clics, sans dérive', () => {
+    /*
+     * Le pas de la portée du mur sud : 10 000 mm en sept intervalles, soit
+     * 1 428,571… mm, que la trame de 100 mm ne sait pas viser. Les six copies
+     * tombent aux six multiples exacts de ce pas, et non aux multiples de
+     * 1 400 ou de 1 500 que six glissés à la souris auraient donnés.
+     */
+    const opened = file();
+    const stepMm = 10_000 / 7;
+    const source = (opened.project.building.levels[0]!.components ?? []).find(
+      ({ id }) => id === 'component-luminaire-living',
+    )!;
+    const result = toolDefinition('REPEAT').createCommand?.(
+      repeating(opened, source.id, { x: stepMm, y: 0 }, 6),
+    );
+    expect(result?.status).toBe('OK');
+    if (result?.status !== 'OK') return;
+    const dispatcher = new ProjectCommandDispatcher(opened.project);
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+    const posed = (dispatcher.project.building.levels[0]!.components ?? [])
+      .filter(({ id }) => id.startsWith('component-copie-'))
+      .map(({ position }) => position.x)
+      .sort((first, second) => first - second);
+    expect(posed).toHaveLength(6);
+    posed.forEach((x, index) =>
+      expect(x).toBeCloseTo(source.position.x + stepMm * (index + 1), 9),
+    );
+  });
+
+  it('recopie par la duplication de la famille, modèle et nom compris', () => {
+    /*
+     * Rien de la copie n'est écrit ici.
+     *
+     * Le plafonnier de la maison de référence porte un modèle de catalogue,
+     * un nom et une altitude. Les copies les gardent parce que c'est
+     * `componentDuplicate` qui les fabrique, champ par champ, à côté du reste
+     * de ce que la famille sait faire. Une recopie écrite ici aurait été une
+     * seconde duplication, en retard d'un champ dès le prochain ajout au
+     * modèle.
+     */
+    const opened = file();
+    const lamp = (opened.project.building.levels[0]!.components ?? []).find(
+      ({ id }) => id === 'component-luminaire-living',
+    )!;
+    const result = toolDefinition('REPEAT').createCommand?.(
+      repeating(opened, lamp.id, { x: 0, y: 1500 }, 3),
+    );
+    expect(result?.status).toBe('OK');
+    if (result?.status !== 'OK') return;
+    const dispatcher = new ProjectCommandDispatcher(opened.project);
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+    const copies = (
+      dispatcher.project.building.levels[0]!.components ?? []
+    ).filter(({ id }) => id.startsWith('component-copie-'));
+    expect(copies).toHaveLength(3);
+    for (const copy of copies) {
+      expect(copy.definitionId).toBe(lamp.definitionId);
+      expect(copy.name).toBe(lamp.name);
+      expect(copy.category).toBe(lamp.category);
+      expect(copy.elevationMm).toBe(lamp.elevationMm);
+      // Le pas n'a pas d'abscisse : rien ne bouge de ce côté-là.
+      expect(copy.position.x).toBe(lamp.position.x);
+    }
+    expect(
+      copies.map(({ position }) => position.y).sort((a, b) => a - b),
+    ).toEqual([
+      lamp.position.y + 1500,
+      lamp.position.y + 3000,
+      lamp.position.y + 4500,
+    ]);
+  });
+
+  it('répète un mur par la commande de sa famille', () => {
+    // Un mur recopié est un mur entier : son assemblage, son rôle et son
+    // tracé porté. C'est `wallDuplicate` qui le dit, pas cet outil.
+    const opened = file();
+    const ground = opened.project.building.levels[0]!;
+    const south = ground.walls.find(({ id }) => id === 'wall-south')!;
+    const result = toolDefinition('REPEAT').createCommand?.(
+      repeating(opened, south.id, { x: 0, y: -3000 }, 2),
+    );
+    expect(result?.status).toBe('OK');
+    if (result?.status !== 'OK') return;
+    const dispatcher = new ProjectCommandDispatcher(opened.project);
+    expect(dispatcher.dispatch(result.command).status).toBe('APPLIED');
+    const after = dispatcher.project.building.levels[0]!;
+    expect(after.walls.length - ground.walls.length).toBe(2);
+    const copies = after.walls.filter(({ id }) => id.startsWith('wall-copie-'));
+    for (const copy of copies) expect(copy.assemblyId).toBe(south.assemblyId);
+    expect(
+      copies.map(({ path }) => path.points[0]!.y).sort((a, b) => b - a),
+    ).toEqual([south.path.points[0]!.y - 3000, south.path.points[0]!.y - 6000]);
+  });
+
+  it('laisse la famille dire pourquoi elle ne se duplique pas', () => {
+    /*
+     * Une pièce est l'espace que ses murs enferment : aucune famille ne sait
+     * la recopier seule, et le refus doit se lire plutôt que se deviner. La
+     * phrase est celle de la duplication, pas une reformulation d'ici.
+     */
+    const opened = file();
+    const space = opened.project.building.levels[0]!.spaces[0]!;
+    const result = toolDefinition('REPEAT').createCommand?.(
+      repeating(opened, space.id, { x: 2000, y: 0 }, 3),
+    );
+    expect(result?.status).toBe('ERROR');
+    if (result?.status !== 'ERROR') return;
+    expect(result.message).toMatch(/ne se duplique pas/u);
+  });
+
+  it('refuse un pas nul plutôt que d’empiler les copies', () => {
+    const opened = file();
+    const result = toolDefinition('REPEAT').createCommand?.(
+      repeating(opened, 'component-luminaire-living', { x: 0, y: 0 }, 3),
+    );
+    expect(result?.status).toBe('ERROR');
+    if (result?.status !== 'ERROR') return;
+    expect(result.message).toMatch(/pas nul/u);
+  });
+
+  it('demande l’objet avant de répéter quoi que ce soit', () => {
+    const result = toolDefinition('REPEAT').createCommand?.(
+      context({
+        points: [
+          { x: 0, y: 0 },
+          { x: 1000, y: 0 },
+        ],
+      }),
+    );
+    expect(result?.status).toBe('ERROR');
+    if (result?.status !== 'ERROR') return;
+    expect(result.message).toMatch(/objet à répéter/u);
+  });
+
+  it('montre le pas au lieu de le faire taper, et accepte quand même un nombre', () => {
+    /*
+     * Les deux étapes de l'outil : on désigne, puis on montre où se pose la
+     * première copie. Le second clic accepte une valeur exacte — 1 428,57 mm
+     * ne se clique pas sur une trame de 100 mm —, ce qui est déclaré par
+     * l'étape et non deviné par l'écran.
+     */
+    const steps = interactionOf('REPEAT')!;
+    expect(steps.map(({ kind }) => kind)).toEqual(['PICK', 'POINT']);
+    expect(steps[0]!.prompt).toMatch(/répéter/u);
+    expect(steps[1]!.numericInput).toBe(true);
+    // Le nombre de copies est la seule question de l'outil : la replier
+    // aurait caché l'outil derrière « Plus de réglages ».
+    expect(optionsOf('REPEAT').map(({ key }) => key)).toEqual(['count']);
+    expect(optionsOf('REPEAT')[0]!.level).toBe('PRIMARY');
+  });
+
+  it('vit avec les autres modifications, et non avec ce qu’il pose', () => {
+    // Répéter est une modification comme Pivoter et Décaler : ce qu'on
+    // désigne existe déjà. C'est ce qui décide de l'espace où l'outil vit.
+    expect(toolDefinition('REPEAT').group).toBe('MODIFICATION');
+    expect(toolDefinition('ROTATE').group).toBe('MODIFICATION');
   });
 });
 

@@ -24,6 +24,7 @@ import {
   CONTEXT_BAR_LIMIT,
   CONTEXT_BAR_MINIMUM,
   OBJECT_ACTIONS,
+  arrangementPlan,
   contextBarActions,
   objectActionsFor,
   type ObjectActionContext,
@@ -46,7 +47,6 @@ function recorder(): {
     done,
     host: {
       transform: (kind) => done.push(`transform:${kind}`),
-      align: (edge) => done.push(`align:${edge}`),
       duplicate: () => done.push('duplicate'),
       remove: () => done.push('remove'),
       frame: (objectId) => done.push(`frame:${objectId}`),
@@ -88,6 +88,10 @@ const aWall = house.building.levels[0]!.walls[0]!.id;
 const anotherWall = house.building.levels[0]!.walls[1]!.id;
 const aRoom = house.building.levels[0]!.spaces[0]!.id;
 const anEdge = (house.systems ?? [])[0]!.edges[0]!.id;
+/** Trois murs : le plus petit ensemble sur lequel « répartir » veut dire quelque chose. */
+const threeWalls = house.building.levels[0]!.walls.slice(0, 3).map(
+  ({ id }) => id as string,
+);
 
 describe('le registre des actions', () => {
   it('mesure la maison entière, pour que le compte veuille dire quelque chose', () => {
@@ -172,13 +176,15 @@ describe('le registre des actions', () => {
     const alone = objectActionsFor(on([aWall])).map(({ id }) => id);
     expect(alone.filter((id) => id.startsWith('align.'))).toEqual([]);
     const pair = contextBarActions(objectActionsFor(on([aWall, anotherWall])));
-    // Quatre boutons qui ne diffèrent que par un bord sont un seul geste : ils
-    // sont repliés ensemble, plutôt qu'un seul promu par le budget.
+    // Six boutons qui ne diffèrent que par une direction sont un seul geste :
+    // ils sont repliés ensemble, plutôt qu'un seul promu par le budget.
     expect(pair.folded.map(({ id }) => id)).toEqual([
       'align.LEFT',
       'align.RIGHT',
       'align.TOP',
       'align.BOTTOM',
+      'align.CENTRE_X',
+      'align.CENTRE_Y',
     ]);
     expect(pair.shown.map(({ id }) => id)).toEqual([
       'rotate',
@@ -186,6 +192,226 @@ describe('le registre des actions', () => {
       'duplicate',
       'delete',
     ]);
+  });
+
+  it('n’offre la répartition qu’à partir de trois objets', () => {
+    // Entre deux objets il n'y a qu'un intervalle, et un seul intervalle est
+    // déjà régulier : le geste n'apparaît pas plutôt que d'apparaître gris
+    // pour toujours, ce qui ne dirait rien de ce qui manque.
+    const pair = objectActionsFor(on([aWall, anotherWall])).map(({ id }) => id);
+    expect(pair.filter((id) => id.startsWith('distribute.'))).toEqual([]);
+    const trio = objectActionsFor(on(threeWalls)).map(({ id }) => id);
+    expect(trio.filter((id) => id.startsWith('distribute.'))).toEqual([
+      'distribute.X',
+      'distribute.Y',
+    ]);
+  });
+
+  it('range six objets en une seule entrée d’historique', () => {
+    // Annuler l'alignement de six objets doit être un Ctrl+Z, pas six :
+    // l'historique dit ce qu'on a demandé, pas comment ça s'est exécuté.
+    const { host, done } = recorder();
+    const six = (house.building.levels[0]!.components ?? [])
+      .slice(0, 6)
+      .map(({ id }) => id as string);
+    expect(six).toHaveLength(6);
+    const context: ObjectActionContext = {
+      project: house,
+      levelId,
+      selection: six,
+      host,
+    };
+    const align = objectActionsFor(context).find(
+      ({ id }) => id === 'align.LEFT',
+    )!;
+    expect(align.enabled(context)).toBe(true);
+    align.run(context);
+    expect(done).toEqual(['run:Aligner à gauche']);
+  });
+
+  it('déplace les objets vers la référence, et vers elle seule', () => {
+    // Le rangement passe par les familles : ce que la commande porte est le
+    // déplacement que chaque famille a construit pour son propre objet.
+    const components = (house.building.levels[0]!.components ?? []).filter(
+      ({ category }) => category === 'ELECTRICAL',
+    );
+    const ids = components.map(({ id }) => id as string);
+    const context: ObjectActionContext = {
+      project: house,
+      levelId,
+      selection: ids,
+      host: recorder().host,
+    };
+    const plan = arrangementPlan(
+      context,
+      { kind: 'ALIGN', intent: 'LEFT' },
+      'Aligner à gauche',
+    );
+    if (plan.status === 'REFUSED') throw new Error(plan.message);
+    const applied = plan.command.execute(house).nextState;
+    const after = (applied.building.levels[0]!.components ?? [])
+      .filter(({ id }) => ids.includes(id as string))
+      .map(({ position }) => position.x);
+    // Le plus à gauche de ces prises est à x = 600 ; toutes y sont, à zéro
+    // près, là où la trame de 100 mm en laissait vingt.
+    expect(new Set(after)).toEqual(new Set([600]));
+  });
+
+  it('dit pourquoi il refuse, plutôt que de griser sans motif', () => {
+    // « Répartir » gris sur trois objets peut vouloir dire trois choses ; un
+    // bouton qui ne dit pas laquelle se lit comme une panne.
+    // Les trois premiers murs de la maison sont déjà régulièrement espacés en
+    // y : le bouton est gris, et il dit que c'est parce qu'il n'y a rien à
+    // faire — et non parce que le geste n'existe pas.
+    const context = on(threeWalls);
+    const distribute = objectActionsFor(context).find(
+      ({ id }) => id === 'distribute.Y',
+    )!;
+    expect(distribute.enabled(context)).toBe(false);
+    expect(distribute.unavailableReason?.(context)).toMatch(
+      /déjà répartis régulièrement/,
+    );
+    // Une pièce ne se déplace pas, et c'est la pièce qui le dit — pas nous.
+    const withRoom: ObjectActionContext = {
+      project: house,
+      levelId,
+      selection: [aWall, anotherWall, aRoom],
+      host: recorder().host,
+    };
+    const align = objectActionsFor(withRoom).find(
+      ({ id }) => id === 'align.CENTRE_X',
+    )!;
+    expect(align.enabled(withRoom)).toBe(false);
+    expect(align.unavailableReason?.(withRoom)).toMatch(/pièce/);
+  });
+
+  it('donne un motif à chaque rangement gris, et aucun quand il aboutit', () => {
+    // L'invariant qui tient les deux champs d'accord : un motif exactement
+    // quand le bouton est gris. Deux fonctions séparées finiraient par ne
+    // plus répondre la même chose.
+    const selections = [
+      [aWall, anotherWall],
+      threeWalls,
+      [aWall, anotherWall, aRoom],
+      (house.building.levels[0]!.components ?? [])
+        .slice(0, 4)
+        .map(({ id }) => id as string),
+    ];
+    for (const selection of selections) {
+      const context: ObjectActionContext = {
+        project: house,
+        levelId,
+        selection,
+        host: recorder().host,
+      };
+      for (const action of objectActionsFor(context)) {
+        if (
+          !action.id.startsWith('align.') &&
+          !action.id.startsWith('distribute.')
+        )
+          continue;
+        const reason = action.unavailableReason?.(context);
+        expect(
+          reason === undefined,
+          `${action.id} · ${selection.join(',')} · ${reason ?? ''}`,
+        ).toBe(action.enabled(context));
+      }
+    }
+  });
+
+  it('n’offre le raccordement qu’à un objet qui déclare des raccordements', () => {
+    /*
+     * Un lavabo se raccorde ; un mur, une pièce, un tronçon ne se raccordent
+     * pas. L'action ne s'affiche donc pas sur eux, plutôt que de s'y afficher
+     * grise en promettant un geste qu'aucun clic ne rendrait possible — c'est
+     * la règle qu'`appliesTo` porte depuis UX-17.
+     */
+    const offered = (objectId: string, level = levelId) =>
+      objectActionsFor({
+        project: house,
+        levelId: level,
+        selection: [objectId],
+        host: recorder().host,
+      }).map(({ id }) => id);
+    expect(offered('component-washbasin')).toContain('network.connect');
+    expect(offered(aWall)).not.toContain('network.connect');
+    expect(offered(aRoom)).not.toContain('network.connect');
+    expect(offered(anEdge)).not.toContain('network.connect');
+    // Et jamais sur plusieurs objets : un raccordement se demande appareil par
+    // appareil, parce que chacun rejoint son réseau à un endroit différent.
+    expect(
+      objectActionsFor(
+        on(['component-washbasin', 'component-kitchen-sink']),
+      ).map(({ id }) => id),
+    ).not.toContain('network.connect');
+  });
+
+  it('raccorde un lavabo à ses deux réseaux en une seule entrée d’historique', () => {
+    /*
+     * Un lavabo a une arrivée d'eau et une évacuation : les deux passent par
+     * `host.runCommand`, qui traverse la frontière d'édition, et n'y passent
+     * qu'une fois. Annuler le branchement ne doit pas demander deux
+     * annulations — encore moins six, puisque le raccordement pose deux nœuds,
+     * ajoute un port, dérive un tronçon et en trace deux.
+     */
+    const { host, done } = recorder();
+    const context: ObjectActionContext = {
+      project: house,
+      levelId,
+      selection: ['component-washbasin'],
+      host,
+    };
+    const connect = objectActionsFor(context).find(
+      ({ id }) => id === 'network.connect',
+    )!;
+    expect(connect.enabled(context)).toBe(true);
+    expect(connect.unavailableReason?.(context)).toBeUndefined();
+    connect.run(context);
+    expect(done).toEqual(['run:Raccorder aux réseaux']);
+  });
+
+  it('dit au radiateur ce qui manque au projet, plutôt que de griser sans motif', () => {
+    // Cette maison n'a pas de réseau de chauffage : ses radiateurs sont posés
+    // et ne mènent nulle part. Le bouton est là, il est gris, et il dit quoi
+    // faire — créer le réseau — au lieu de laisser chercher.
+    const context = on(['component-radiator-living']);
+    const connect = objectActionsFor(context).find(
+      ({ id }) => id === 'network.connect',
+    )!;
+    expect(connect.enabled(context)).toBe(false);
+    expect(connect.unavailableReason?.(context)).toMatch(
+      /Aucun réseau de chauffage/,
+    );
+    // Et un appareil déjà raccordé le dit aussi, avec le nœud qui le nomme.
+    const bound = on(['component-luminaire-living']);
+    const already = objectActionsFor(bound).find(
+      ({ id }) => id === 'network.connect',
+    )!;
+    expect(already.enabled(bound)).toBe(false);
+    expect(already.unavailableReason?.(bound)).toMatch(/déjà raccordé/);
+  });
+
+  it('donne un motif à chaque raccordement gris, et aucun quand il aboutit', () => {
+    // Le même invariant que pour les rangements : `enabled` et
+    // `unavailableReason` sortent d'un seul plan, et ne peuvent donc pas
+    // finir par ne plus répondre la même chose.
+    for (const level of house.building.levels)
+      for (const { id } of level.components ?? []) {
+        const context: ObjectActionContext = {
+          project: house,
+          levelId: level.id,
+          selection: [id],
+          host: recorder().host,
+        };
+        const connect = objectActionsFor(context).find(
+          ({ id: actionId }) => actionId === 'network.connect',
+        );
+        expect(connect, id).toBeDefined();
+        const reason = connect?.unavailableReason?.(context);
+        expect(reason === undefined, `${id} · ${reason ?? ''}`).toBe(
+          connect?.enabled(context),
+        );
+      }
   });
 
   it('ne propose rien sur une sélection vide', () => {

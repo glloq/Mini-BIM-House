@@ -124,7 +124,20 @@ export function ContextToolBar({
       type="button"
       className="secondary"
       disabled={!action.enabled(context)}
-      title={`${action.hint}${hint(action.shortcutId)}`}
+      /*
+       * Un bouton gris qui ne dit pas pourquoi se lit comme une panne.
+       *
+       * On reclique, on cherche le réglage qui le libérerait, il n'existe pas.
+       * Quand l'action déclare son motif, c'est lui qu'on lit — « Répartir
+       * demande au moins trois objets : avec deux, il n'y a qu'un intervalle,
+       * et un seul intervalle est déjà régulier » — et non ce qu'elle ferait
+       * si elle pouvait. Les gestes qui n'en déclarent pas gardent leur
+       * infobulle : le motif est facultatif, pas une phrase à inventer.
+       */
+      title={
+        action.unavailableReason?.(context) ??
+        `${action.hint}${hint(action.shortcutId)}`
+      }
       onClick={() => action.run(context)}
     >
       {action.label}

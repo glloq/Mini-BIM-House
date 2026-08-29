@@ -314,8 +314,29 @@ export const BUDGETS = {
    * sont les nombres qu'on tape pendant qu'on vise, donc du dessin, donc du
    * premier clic. Les déclarations qui vont avec sont dans le registre des
    * outils, qui est chargé avec la boîte. Le plafond passe à 263.
+   *
+   * Et un pour deux modules qui sont du dessin, donc du premier clic. Le
+   * rangement d'une sélection d'abord — aligner sur un bord ou sur un centre,
+   * répartir régulièrement — qui remplace des dizaines de déplacements à la
+   * souris, dont la trame de cent millimètres ne rattrapait de toute façon
+   * pas l'erreur. La pose des étiquettes ensuite : le point le plus au large
+   * d'un contour, qui est la seule façon d'écrire le nom d'une pièce en L
+   * dans la pièce et non chez la voisine. Le plafond passe à 264.
+   *
+   * Et cinq pour deux gestes qui décident **sur la sélection**, donc au
+   * premier objet désigné. Répéter d'abord — un outil du registre, qui est
+   * chargé avec la boîte. Le raccordement ensuite, qui pèse l'essentiel : il
+   * faut savoir, pour l'objet qu'on vient de désigner, quels réseaux le
+   * desservent, où il s'y accroche et par quel tracé, faute de quoi la barre
+   * ne peut ni montrer le bouton ni dire pourquoi il est gris. Ces trois
+   * questions ont volontairement **une seule** réponse — la même fonction sert
+   * à l'activation, au motif et à l'exécution, pour qu'ils ne puissent pas
+   * diverger — et cette réponse pèse ce qu'elle pèse. La différer voudrait
+   * dire montrer un bouton dont on ne sait pas encore s'il est possible, ce
+   * qui est précisément le défaut qu'on vient de corriger ailleurs. Le plafond
+   * passe à 269.
    */
-  initialGzipBytes: 263 * 1024,
+  initialGzipBytes: 269 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -562,8 +583,16 @@ export const BUDGETS = {
    * dessin que le plan prendra, résolu par la même chaîne. Cinq cent dix-huit
    * noms se ressemblent ; cinq cent dix-huit dessins non. Le total passe à
    * 508.
+   *
+   * Et un pour le rangement d'une sélection et la pose des étiquettes : le
+   * détail est au-dessus, au premier écran, où ils vivent tous les deux. Le
+   * total passe à 510.
+   *
+   * Et cinq pour l'outil Répéter et le raccordement d'un appareil à ses
+   * réseaux : le détail est au-dessus, au premier écran, où ils décident tous
+   * les deux sur la sélection. Le total passe à 515.
    */
-  totalGzipBytes: 508 * 1024,
+  totalGzipBytes: 515 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

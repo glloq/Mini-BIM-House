@@ -284,6 +284,31 @@ function fitCamera(camera: Camera2D, bounds: Bounds): Camera2D {
   };
 }
 
+/**
+ * La contrainte le temps d'un geste, sans changer le réglage.
+ *
+ * `Maj` est, partout ailleurs, la touche qui contraint : on la tient pour
+ * forcer un trait droit, on la lâche pour reprendre la main. Ici elle faisait
+ * glisser le plan — un panoramique, sur la touche que tout le monde tient en
+ * dessinant, si bien que vouloir un mur bien horizontal faisait fuir le dessin
+ * sous la main. Le panoramique a le bouton du milieu et la barre d'espace,
+ * qui sont ses gestes ; `Maj` revient à la contrainte.
+ *
+ * Elle **inverse** plutôt qu'elle n'impose. L'orthogonal est allumé par
+ * défaut : une touche qui l'imposerait ne ferait rien la plupart du temps, et
+ * ce dont on a besoin en dessinant, c'est justement de s'en échapper pour un
+ * seul segment — un rampant, une diagonale de charpente. Éteint, la même
+ * touche le rétablit pour un seul segment. Dans les deux sens, on tient la
+ * touche pour obtenir l'autre comportement et on la lâche pour revenir : le
+ * réglage lui-même n'est jamais modifié, donc jamais à remettre.
+ */
+export function snapWithHeldConstraint(
+  snap: SnapSettings,
+  held: boolean,
+): SnapSettings {
+  return held ? { ...snap, orthogonal: !snap.orthogonal } : snap;
+}
+
 /** Applies the orthogonal and length constraints to a drafted point. */
 export function constrainPoint(
   origin: Point2D,

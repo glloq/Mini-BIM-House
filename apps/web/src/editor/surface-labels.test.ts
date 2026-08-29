@@ -7,6 +7,8 @@
  * qui l'a arrêtée, et il échouerait si elle disparaissait.
  */
 import { describe, expect, it } from 'vitest';
+import type { Project } from '@house-technical-designer/core-domain';
+import { polygonContains } from '@house-technical-designer/geometry';
 
 import { CREATION_STAGES } from '../ux/creation-stages.js';
 import { loadDemoProject } from '../demo-project.js';
@@ -83,6 +85,44 @@ describe('ce que chaque surface porte, écrit dessus', () => {
         labelsIn(stage, [slabId]).map(({ objectId }) => objectId),
       ).toContain(slabId);
     }
+  });
+
+  it('pose l’étiquette dans la surface, même quand celle-ci est concave', () => {
+    /*
+     * La parcelle en L, qui est le cas où la moyenne des sommets ment.
+     *
+     * Elle n'est le centre de rien : sur un contour concave elle tombe dans
+     * l'échancrure, donc hors de la surface, et « Parcelle · 40,00 m² »
+     * s'écrivait chez le voisin. Le point le plus éloigné de tout bord est
+     * intérieur par construction.
+     */
+    const corners = [
+      { x: 0, y: 0 },
+      { x: 8000, y: 0 },
+      { x: 8000, y: 2000 },
+      { x: 2000, y: 2000 },
+      { x: 2000, y: 8000 },
+      { x: 0, y: 8000 },
+    ];
+    const average = corners.reduce(
+      (total, point) => ({
+        x: total.x + point.x / corners.length,
+        y: total.y + point.y / corners.length,
+      }),
+      { x: 0, y: 0 },
+    );
+    // Le test ne vaut que tant que l'ancienne pose échouait vraiment.
+    expect(polygonContains({ outer: corners }, average)).toBe(false);
+
+    const inL: Project = {
+      ...project,
+      site: { ...project.site, parcelBoundary: { outer: corners } },
+    };
+    const label = surfaceLabels(inL, level.id, [], { stage: 'SITE' }).find(
+      ({ objectId }) => objectId === 'site:parcel',
+    );
+    expect(label).toBeDefined();
+    expect(polygonContains({ outer: corners }, label!.at)).toBe(true);
   });
 
   it('recalcule l’aire au lieu de la retenir', () => {

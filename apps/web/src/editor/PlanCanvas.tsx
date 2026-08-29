@@ -78,6 +78,7 @@ import {
 import { shouldIgnoreTarget } from './shortcuts.js';
 import {
   resolveDraftPoint,
+  snapWithHeldConstraint,
   pointerModelPoint,
   requiredPoints,
 } from './editor-state.js';
@@ -455,6 +456,89 @@ export function PlanCanvas({
   }, [editor.activeTool, editor.pendingPoints.length]);
 
   /*
+   * Les deux touches qu'on **tient**, et ce qu'elles valent tant qu'on les
+   * tient.
+   *
+   * `Maj` inverse la contrainte d'angle le temps d'un segment ; la barre
+   * d'espace fait glisser le plan. Aucune des deux n'est un raccourci — elles
+   * ne déclenchent rien, elles changent le sens du geste en cours — et c'est
+   * pourquoi elles ne sont pas dans `shortcuts.ts`, qui associe une touche à
+   * une action.
+   *
+   * Elles sont relues sur chaque événement de pointeur en plus des
+   * événements clavier : une touche enfoncée pendant que le focus était
+   * ailleurs — dans un champ, dans un autre onglet — n'a produit aucun
+   * `keydown` ici, et le premier mouvement de souris doit suffire à remettre
+   * l'état d'accord avec la main. Le retour de focus les relâche, faute de
+   * quoi un `Maj` tenu pendant un changement de fenêtre resterait tenu pour
+   * toujours : le `keyup` part avec la fenêtre qu'on a quittée.
+   */
+  const [heldConstraint, setHeldConstraint] = useState(false);
+  const [heldPan, setHeldPan] = useState(false);
+
+  /**
+   * Noter la touche sans redessiner à chaque mouvement de souris.
+   *
+   * L'état ne change qu'aux transitions — on appuie, on relâche — alors que
+   * les événements qui le portent arrivent soixante fois par seconde tant que
+   * le pointeur bouge. Le miroir en référence est ce qui distingue les deux :
+   * sans lui, chaque `pointermove` demanderait un rendu pour réécrire la même
+   * valeur.
+   */
+  const constraintHeld = useRef(false);
+  const noteConstraint = useCallback((held: boolean) => {
+    if (constraintHeld.current === held) return;
+    constraintHeld.current = held;
+    setHeldConstraint(held);
+  }, []);
+
+  useEffect(() => {
+    function down(event: KeyboardEvent): void {
+      if (event.key === 'Shift') noteConstraint(true);
+      if (event.code !== 'Space') return;
+      const target = event.target as HTMLElement | null;
+      // Une barre d'espace appartient d'abord au bouton qui a le focus : elle
+      // l'active. On ne la prend que quand personne d'autre ne l'attend.
+      if (target?.tagName === 'BUTTON' || target?.tagName === 'SUMMARY') return;
+      if (shouldIgnoreTarget(target?.tagName, event)) return;
+      // Sans cela la page défile sous le plan pendant qu'on le fait glisser.
+      event.preventDefault();
+      setHeldPan(true);
+    }
+    function up(event: KeyboardEvent): void {
+      if (event.key === 'Shift') noteConstraint(false);
+      if (event.code === 'Space') setHeldPan(false);
+    }
+    function release(): void {
+      noteConstraint(false);
+      setHeldPan(false);
+    }
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    window.addEventListener('blur', release);
+    return () => {
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', release);
+    };
+  }, [noteConstraint]);
+
+  /**
+   * L'accrochage tel qu'il vaut à cet instant, touche tenue comprise.
+   *
+   * Un seul objet, lu par l'aperçu comme par le clic. Le fichier a déjà payé
+   * une fois le prix de trois lectures du même geste — « un dessin dont le
+   * fantôme n'est pas ce qui se pose est un dessin auquel personne ne se
+   * fie » — et une contrainte momentanée appliquée à l'un et pas à l'autre
+   * serait exactement cette faute, en pire : elle ne se verrait que quand on
+   * tient la touche.
+   */
+  const draftingSnap = useMemo(
+    () => snapWithHeldConstraint(editor.snap, heldConstraint),
+    [editor.snap, heldConstraint],
+  );
+
+  /*
    * `R` fait tourner ce qu'on s'apprête à poser, d'un quart de tour.
    *
    * C'est la convention de tous les logiciels de dessin, et la raccourcir
@@ -560,7 +644,7 @@ export function PlanCanvas({
       ...(editor.activeSnap === undefined
         ? {}
         : { snapped: editor.activeSnap.point }),
-      snap: editor.snap,
+      snap: draftingSnap,
       directInput: editor.directInput,
     });
     const footprint = drawsWalls(editor.activeTool)
@@ -719,7 +803,10 @@ export function PlanCanvas({
         state: 'GHOST' as const,
       },
     ];
-  }, [band, editor, wallThicknessMm]);
+    // `draftingSnap` et non `editor.snap` : l'aperçu doit se redessiner quand
+    // on tient `Maj`, alors que rien d'autre n'a bougé — ni le curseur, ni le
+    // projet, ni l'état de l'éditeur.
+  }, [band, draftingSnap, editor, wallThicknessMm]);
 
   const base: PlanViewResult = useMemo(
     () =>
@@ -1272,6 +1359,15 @@ export function PlanCanvas({
 
   const handleMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
+      /*
+       * La main a le dernier mot sur ce que le clavier a raconté.
+       *
+       * Une touche enfoncée pendant que le focus était ailleurs — dans un
+       * champ, dans une autre fenêtre — n'a produit aucun `keydown` ici, et
+       * l'aperçu se serait contraint à l'envers de ce que la main tient. Le
+       * premier mouvement de souris remet les deux d'accord.
+       */
+      noteConstraint(event.shiftKey);
       const bounds = container.current?.getBoundingClientRect();
       const model = modelPointOf(event);
       if (bounds === undefined || model === undefined) return;
@@ -1336,6 +1432,7 @@ export function PlanCanvas({
       editor.activeTool,
       editor.camera,
       modelPointOf,
+      noteConstraint,
       plan.primitives,
       snapFor,
     ],
@@ -1343,7 +1440,18 @@ export function PlanCanvas({
 
   const handleDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
-      if (event.button === 1 || event.shiftKey) {
+      // Le clic aussi : on peut appuyer sans avoir bougé d'un pixel.
+      noteConstraint(event.shiftKey);
+      /*
+       * Le panoramique : le bouton du milieu, ou la barre d'espace tenue.
+       *
+       * C'était `Maj`, qui est partout ailleurs la touche qui **contraint**.
+       * Vouloir un mur bien horizontal — le geste le plus courant du dessin —
+       * faisait donc fuir le plan sous la main, et rien à l'écran ne
+       * l'annonçait. Les deux gestes qui restent sont ceux que tout le monde
+       * connaît, et `Maj` est rendue à la contrainte.
+       */
+      if (event.button === 1 || heldPan) {
         panOrigin.current = { x: event.clientX, y: event.clientY };
         event.currentTarget.setPointerCapture(event.pointerId);
         return;
@@ -1426,7 +1534,7 @@ export function PlanCanvas({
         pendingPoints: editor.pendingPoints,
         raw: model,
         ...(snapped === undefined ? {} : { snapped }),
-        snap: editor.snap,
+        snap: draftingSnap,
         directInput: editor.directInput,
       });
       const points = [...editor.pendingPoints, point];
@@ -1453,8 +1561,11 @@ export function PlanCanvas({
     },
     [
       dispatch,
+      draftingSnap,
       editor,
+      heldPan,
       modelPointOf,
+      noteConstraint,
       onCommitPoints,
       onFinishRun,
       onMoveSelection,
@@ -1790,7 +1901,7 @@ export function PlanCanvas({
           ...(editor.activeSnap === undefined
             ? {}
             : { snapped: editor.activeSnap.point }),
-          snap: editor.snap,
+          snap: draftingSnap,
           directInput: editor.directInput,
         });
   const draftMeasures =
@@ -1950,7 +2061,12 @@ export function PlanCanvas({
   return (
     <div
       ref={container}
-      className={`plan-canvas tool-${editor.activeTool.toLowerCase()}`}
+      className={`plan-canvas tool-${editor.activeTool.toLowerCase()}${
+        // La main paraît dès que la barre d'espace est tenue, avant le premier
+        // mouvement : un geste dont on ne sait pas s'il est armé se tente, et
+        // se tenter coûte un déplacement qu'il faut ensuite annuler.
+        heldPan ? ' plan-canvas-panning' : ''
+      }`}
       role="application"
       aria-label="Plan du niveau"
       onPointerMove={handleMove}

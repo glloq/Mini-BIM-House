@@ -1193,6 +1193,23 @@ button.icon {
   background: #fbfdfc;
   touch-action: none;
 }
+
+/*
+ * La main, tant que la barre d'espace est tenue.
+ *
+ * Le panoramique était sur `Maj`, la touche qui contraint partout ailleurs, et
+ * rien ne l'annonçait : on tenait `Maj` pour un mur droit et le plan fuyait.
+ * Il est passé sur la barre d'espace et le bouton du milieu ; le curseur dit
+ * que le geste est armé, avant qu'on l'essaie.
+ */
+.plan-canvas-panning,
+.plan-canvas-panning * {
+  cursor: grab;
+}
+
+.plan-canvas-panning:active {
+  cursor: grabbing;
+}
 .plan-canvas.tool-wall,
 .plan-canvas.tool-opening,
 .plan-canvas.tool-dimension {
@@ -2307,6 +2324,16 @@ legend {
   padding: 0.5rem 0.6rem;
   gap: 0.3rem;
   box-shadow: 0 12px 28px rgba(20, 40, 32, 0.18);
+}
+
+/* Une phrase d'aide dans un panneau de réglages : elle explique, elle ne règle
+   rien, donc elle se lit plus doucement que ce qui l'entoure. */
+.status-help {
+  max-width: 22rem;
+  margin: 0.15rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  line-height: 1.35;
 }
 .status-snaps-list .status-number {
   display: inline-flex;

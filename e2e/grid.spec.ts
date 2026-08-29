@@ -81,8 +81,15 @@ test('se déplace avec le plan, du même nombre de pixels', async ({ page }) => 
   const box = (await canvas.boundingBox())!;
   const before = await verticals(page);
 
-  // Maj + glisser déplace le plan. Une image de fond serait restée sur place.
-  await page.keyboard.down('Shift');
+  /*
+   * Espace tenue + glisser déplace le plan. Une image de fond serait restée
+   * sur place.
+   *
+   * C'était `Maj`, qui est partout ailleurs la touche qui contraint : la tenir
+   * pour tracer un mur droit faisait fuir le dessin. Le panoramique a la barre
+   * d'espace et le bouton du milieu ; `Maj` inverse la contrainte d'angle.
+   */
+  await page.keyboard.down('Space');
   await page.mouse.move(box.x + box.width * 0.6, box.y + box.height * 0.5);
   await page.mouse.down();
   await page.mouse.move(
@@ -93,7 +100,7 @@ test('se déplace avec le plan, du même nombre de pixels', async ({ page }) => 
     },
   );
   await page.mouse.up();
-  await page.keyboard.up('Shift');
+  await page.keyboard.up('Space');
 
   await expect.poll(async () => (await verticals(page))[0]).not.toBe(before[0]);
   await expect(page.locator('.model-grid line').first()).toBeAttached();

@@ -15,13 +15,21 @@ import { detectRooms } from '@house-technical-designer/editor-core';
 import type { Point2D } from '@house-technical-designer/geometry';
 import type { Project } from '@house-technical-designer/core-domain';
 
+import { labelAnchor } from './label-placement.js';
+
 export interface RoomLabel {
   /** Ce qui l'identifie d'un rendu à l'autre. */
   readonly id: string;
   /** Le nom de la pièce, quand le contour en porte une. */
   readonly name?: string;
   readonly areaM2: number;
-  /** Le point du modèle où l'étiquette se pose. */
+  /**
+   * Le point du modèle où l'étiquette se pose.
+   *
+   * Le point le plus au large du contour, et non le milieu de sa boîte ni la
+   * moyenne de ses sommets : `label-placement.ts` dit pourquoi, et de combien
+   * les deux autres se trompent.
+   */
   readonly at: Point2D;
   /** L'espace qui couvre déjà ce contour, s'il y en a un. */
   readonly spaceId?: string;
@@ -30,18 +38,6 @@ export interface RoomLabel {
 /** La surface, écrite comme un plan l'écrit. */
 export function areaLabel(areaM2: number): string {
   return `${areaM2.toFixed(2).replace('.', ',')} m²`;
-}
-
-/** Le centre du contour, où l'étiquette se pose. */
-function centreOf(points: readonly Point2D[]): Point2D {
-  if (points.length === 0) return { x: 0, y: 0 };
-  return points.reduce(
-    (total, point) => ({
-      x: total.x + point.x / points.length,
-      y: total.y + point.y / points.length,
-    }),
-    { x: 0, y: 0 },
-  );
 }
 
 /**
@@ -76,7 +72,7 @@ export function roomLabels(
         id: room.existingSpaceId ?? `contour-${index}`,
         ...(name === undefined || name === '' ? {} : { name }),
         areaM2: room.areaM2,
-        at: centreOf(room.polygon.outer),
+        at: labelAnchor(room.polygon),
         ...(room.existingSpaceId === undefined
           ? {}
           : { spaceId: room.existingSpaceId }),

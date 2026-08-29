@@ -112,6 +112,9 @@ const AIMS: Readonly<Record<string, EntryAim>> = {
   TRIM: { picks: [level.walls[0]!.id, level.walls[1]!.id] },
   SPLIT: { picks: [level.walls[0]!.id] },
   OFFSET: { picks: [level.walls[0]!.id] },
+  // Répéter demande d'abord l'objet visé ; les deux points par défaut disent
+  // le pas qui sépare l'original de sa première copie.
+  REPEAT: { picks: [level.walls[0]!.id] },
   ROTATE: { selection: [level.walls[0]!.id] },
   MIRROR: { selection: [level.walls[0]!.id] },
   MERGE_SPACES: {
