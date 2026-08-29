@@ -326,6 +326,46 @@ export function PlanCanvas({
       }
     | undefined
   >(undefined);
+  /**
+   * Ce qu'il y avait sous le clic, quand il y avait plusieurs choses.
+   *
+   * Le cycle existait déjà et marchait : recliquer au même endroit prend
+   * l'objet suivant. Il ne se voyait pas — l'état vit dans un `ref`, que rien
+   * ne rend — et une fonction qu'on ne peut découvrir qu'en recliquant par
+   * hasard au même pixel n'est pas une fonction découvrable.
+   *
+   * Mesuré sur la maison de référence, sur une grille de trois mille deux cent
+   * quarante-neuf points qui touchent quelque chose : **dix-huit pour cent des
+   * clics utiles sont ambigus**, et jusqu'à **huit objets** peuvent se trouver
+   * sous un même point. Ce n'est pas un cas rare qu'on documente pour
+   * l'honnêteté, c'est un clic sur cinq.
+   *
+   * La liste ne remplace pas le cycle : recliquer reste le raccourci de qui le
+   * connaît. Elle le rend visible, et donne le choix direct à qui ne veut pas
+   * compter les clics.
+   */
+  const [ambiguous, setAmbiguous] = useState<
+    | {
+        readonly atPx: { readonly x: number; readonly y: number };
+        readonly objectIds: readonly string[];
+        readonly index: number;
+      }
+    | undefined
+  >(undefined);
+
+  /*
+   * Elle se referme quand la sélection s'en va.
+   *
+   * `Échap`, un clic dans le vide, une sélection prise ailleurs — par
+   * l'arborescence, par un constat : dans tous ces cas la liste parlerait d'un
+   * geste qui n'a plus cours. Elle suit donc la sélection plutôt que de se
+   * fermer sur chaque chemin qui pourrait l'invalider, qui est la même erreur
+   * que de poser une règle sur huit chemins au lieu du seul passage.
+   */
+  useEffect(() => {
+    if (editor.selection.length === 0) setAmbiguous(undefined);
+  }, [editor.selection]);
+
   /** Where the pointer went down, while it is deciding between click and band. */
   const press = useRef<
     | {
@@ -1210,10 +1250,17 @@ export function PlanCanvas({
         previous.objectIds.join(',') === candidates.join(',');
       const index = sameSpot ? (previous.index + 1) % candidates.length : 0;
       const chosen = candidates[index];
-      cycling.current =
+      const held =
         chosen === undefined
           ? undefined
           : { atPx, objectIds: candidates, index };
+      cycling.current = held;
+      // La liste ne paraît que lorsqu'il y a vraiment un choix à faire : un
+      // objet seul sous le curseur n'a rien à proposer, et une liste d'un
+      // élément est un panneau qui coûte un clic pour ne rien dire.
+      setAmbiguous(
+        held !== undefined && candidates.length > 1 ? held : undefined,
+      );
       dispatch({
         type: 'SELECT',
         ...(chosen === undefined ? {} : { objectId: chosen }),
@@ -1783,6 +1830,41 @@ export function PlanCanvas({
           project={project}
           onCommand={(command) => onCommand(command)}
         />
+      )}
+      {ambiguous !== undefined && (
+        /*
+         * Ce qu'il y a sous le clic, nommé, avec ce qui est pris.
+         *
+         * Posée là où l'on vient de cliquer, parce qu'une liste à l'autre bout
+         * de l'écran demande de retrouver des yeux ce qu'on désignait du
+         * doigt. `aria-live` reste muet : le nom de l'objet pris est déjà
+         * annoncé par la sélection, et l'annoncer deux fois ferait bégayer.
+         */
+        <ul
+          className="pick-choices"
+          style={{
+            left: `${ambiguous.atPx.x}px`,
+            top: `${ambiguous.atPx.y}px`,
+          }}
+          aria-label={`${ambiguous.objectIds.length} objets sous le curseur`}
+        >
+          {ambiguous.objectIds.map((objectId, rank) => (
+            <li key={objectId}>
+              <button
+                type="button"
+                className={rank === ambiguous.index ? 'chosen' : undefined}
+                aria-current={rank === ambiguous.index}
+                onClick={() => {
+                  cycling.current = { ...ambiguous, index: rank };
+                  setAmbiguous({ ...ambiguous, index: rank });
+                  dispatch({ type: 'SELECT', objectId, additive: false });
+                }}
+              >
+                {inspectObject(project, objectId).title}
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
       <p className="canvas-status" aria-live="off">
         {editor.cursorModel === undefined

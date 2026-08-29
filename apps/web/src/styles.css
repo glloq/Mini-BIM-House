@@ -3966,3 +3966,37 @@ button.ghost:disabled {
   font-size: 0.85rem;
   white-space: nowrap;
 }
+
+/*
+ * Ce qu'il y avait sous le clic, quand il y avait plusieurs choses.
+ *
+ * Posée à l'endroit cliqué, au-dessus du dessin mais sous ce qui s'ouvre par
+ * la barre : c'est une réponse à un geste, pas un panneau. Elle défile si huit
+ * objets se trouvent au même point — ce que la maison de référence sait faire.
+ */
+.pick-choices {
+  position: absolute;
+  z-index: 15;
+  max-height: 12rem;
+  margin: 0.4rem 0 0;
+  border: 1px solid var(--line, #dce4df);
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  overflow-y: auto;
+  background: var(--surface, #fff);
+  box-shadow: 0 6px 18px rgba(12, 24, 19, 0.18);
+  list-style: none;
+}
+.pick-choices button {
+  width: 100%;
+  border: 0;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  text-align: left;
+  background: none;
+}
+.pick-choices button.chosen {
+  border-radius: 0.35rem;
+  font-weight: 700;
+  background: #e4eae6;
+}
