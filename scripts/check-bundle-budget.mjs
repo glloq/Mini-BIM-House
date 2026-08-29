@@ -295,8 +295,16 @@ export const BUDGETS = {
    * aura et le refus quand il n'y en a pas. Les deux sont du premier écran par
    * nature : le premier est la phrase du premier outil qu'on prend, le second
    * est le dessin. Le plafond passe à 258.
+   *
+   * Puis trois pour deux choses qui vivent au premier écran par nature. Les
+   * géométries du terrain d'abord : un arbre se pose d'un clic et son houppier
+   * est dérivé, une haie et une clôture se tracent en polyligne, un portail en
+   * deux points — quatre outils de plus dans le registre, que la boîte offre
+   * dès l'ouverture. Le registre des actions ensuite : ce qu'une famille
+   * d'objet permet de faire, interrogé par la barre contextuelle, qui paraît
+   * au premier objet désigné. Le plafond passe à 261.
    */
-  initialGzipBytes: 258 * 1024,
+  initialGzipBytes: 261 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -512,6 +520,10 @@ export const BUDGETS = {
    * est au-dessus, dans le premier écran, où ils vivent tous les deux. Le
    * total passe à 503.
    *
+   * Et deux pour les géométries du terrain et le registre des actions : le
+   * détail est au-dessus, au premier écran, où ils vivent aussi. Le total
+   * passe à 505.
+   *
    * Et un avec ce que douze contrôles refusaient de dire. Un bouton grisé sans
    * motif se lit comme une panne : on reclique, on cherche le réglage qui le
    * libère, il n'existe pas. Douze le faisaient — « Relier », « Ajouter le
@@ -532,7 +544,7 @@ export const BUDGETS = {
    * premier écran parce que le verrou y est aussi : il vaut pour le premier
    * clic comme pour le millième.
    */
-  totalGzipBytes: 503 * 1024,
+  totalGzipBytes: 505 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

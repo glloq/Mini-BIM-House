@@ -2,6 +2,7 @@ import type {
   Level,
   Project,
   TextNote,
+  Wall,
 } from '@house-technical-designer/core-domain';
 import {
   UpdateWallCommand,
@@ -376,6 +377,26 @@ export function similarSlabs(
         candidate.role === slab.role,
     )
     .map(({ id }) => id as string);
+}
+
+/**
+ * Le mur droit que cet identifiant désigne, quand c'en est un.
+ *
+ * Décaler et scinder ne savent traiter qu'un mur à deux points, et le disent
+ * en refusant : « Le décalage parallèle demande un mur droit. » Un refus après
+ * coup se lit comme une panne, alors que la question se pose avant — le mur
+ * est déjà désigné, et on sait déjà combien il a de points. La barre s'en sert
+ * pour ne pas proposer ce que la commande rejettera.
+ */
+export function straightWallOf(
+  project: Project,
+  levelId: string,
+  objectId: string,
+): Wall | undefined {
+  const wall = levelOf(project, levelId)?.walls.find(
+    ({ id }) => id === objectId,
+  );
+  return wall !== undefined && wall.path.points.length === 2 ? wall : undefined;
 }
 
 /**

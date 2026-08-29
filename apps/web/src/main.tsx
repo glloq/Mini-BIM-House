@@ -72,6 +72,7 @@ import type { ClearanceGroupId } from './editor/clearance-overlay.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { ViewProperties } from './editor/ViewProperties.js';
 import { ContextToolBar } from './editor/ContextToolBar.js';
+import type { ObjectActionHost } from './editor/object-actions.js';
 import { ToolHeader } from './editor/ToolHeader.js';
 import { toolboxFor } from './editor/toolbox.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
@@ -1243,6 +1244,45 @@ function App() {
     if (!runCommand(result.command)) return;
     dispatchEditor({ type: 'SELECT_MANY', objectIds: result.createdIds });
   }, [activeLevelId, editor.selection, editor.snap.gridSpacingMm, runCommand]);
+
+  /**
+   * Ce que l'application sait faire de la sélection, offert au registre.
+   *
+   * Les gestes eux-mêmes ne bougent pas : dupliquer, supprimer, transformer,
+   * aligner, cadrer et désigner les semblables restent écrits une fois ici,
+   * avec leur historique, leurs messages et leur re-sélection. Ce qui change
+   * est qui décide de les proposer — `object-actions.ts` le décide pour tous
+   * les affichages, et `stage-editing.ts` retire ceux qui écrivent quand
+   * l'espace actif ne possède pas ce qui est désigné.
+   *
+   * Certains gestes demandent un point : décaler un mur, le scinder, dériver
+   * un tronçon. Ceux-là n'appellent pas une commande, ils prennent l'outil qui
+   * la construira — et c'est déjà tout ce qui manquait, puisque ces outils
+   * existaient et qu'on ne les trouvait qu'en fouillant la boîte à outils.
+   */
+  const selectionActions = useMemo<ObjectActionHost>(
+    () => ({
+      transform: transformSelection,
+      align: alignSelection,
+      duplicate: duplicateSelection,
+      remove: deleteSelection,
+      frame: frameObject,
+      selectSimilar,
+      startTool: (tool) => dispatchEditor({ type: 'SET_TOOL', tool }),
+      runCommand: (command) => {
+        runCommand(command);
+      },
+    }),
+    [
+      alignSelection,
+      deleteSelection,
+      duplicateSelection,
+      frameObject,
+      runCommand,
+      selectSimilar,
+      transformSelection,
+    ],
+  );
 
   /**
    * Aller modifier la sélection dans l'espace qui la possède.
@@ -2972,8 +3012,9 @@ function App() {
                     project={file.project}
                     editor={editor}
                     dispatch={dispatchEditor}
-                    onTransform={transformSelection}
-                    onAlign={alignSelection}
+                    stage={navigation.stage}
+                    levelId={activeLevelId}
+                    actions={selectionActions}
                     onCancel={() => dispatchEditor({ type: 'CANCEL' })}
                     onFinish={finishRun}
                   />

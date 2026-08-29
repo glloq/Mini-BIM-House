@@ -1309,16 +1309,27 @@ test('offsets, joins and aligns walls from the plan', async ({ page }) => {
   await page.getByRole('button', { name: 'Annuler', exact: true }).click();
   await expect(walls).toHaveCount(6);
 
-  // Aligner demande au moins deux objets, et le dit.
+  /*
+   * Aligner demande au moins deux objets — et ne s'affiche plus du tout tant
+   * qu'il n'y en a qu'un.
+   *
+   * La barre ne montre que les quelques actions qui comptent pour l'objet
+   * désigné, le reste derrière un « … ». Un alignement sur un objet seul
+   * n'aligne rien : le griser occupait une des cinq places pour un bouton dont
+   * la réponse est toujours non.
+   */
   await chooseTool(page, 'Sélection');
   await canvas.click({ position: await onWall('wall-partition-v', 0.5, 0.2) });
   await expect(
     page.getByRole('button', { name: 'Aligner à gauche' }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   await canvas.click({
     position: await onWall('wall-west', 0.5, 0.3),
     modifiers: ['ControlOrMeta'],
   });
+  // À deux, les quatre alignements sont là — repliés ensemble, parce qu'ils
+  // vont ensemble et qu'ils sont quatre.
+  await page.getByRole('button', { name: /^… \(/u }).click();
   await page.getByRole('button', { name: 'Aligner à gauche' }).click();
   await expect(page.getByRole('status')).toContainText('Aligner à gauche');
 
@@ -1934,7 +1945,11 @@ test('shows nothing above the plan until something is being done', async ({
       y: east.y - box.y + east.height * 0.25,
     },
   });
-  await expect(bar.getByRole('group', { name: 'Alignement' })).toBeVisible();
+  // Le groupe ne s'appelle plus « Alignement » : il ne porte plus seulement
+  // des alignements, mais ce que cet objet-là permet de faire.
+  await expect(
+    bar.getByRole('group', { name: 'Actions de la sélection' }),
+  ).toBeVisible();
   await expect(bar).not.toContainText('Quitter l’outil');
 
   // Un seul écran pour tout le monde : ce que l'étape ne propose pas est à un

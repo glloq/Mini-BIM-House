@@ -30,6 +30,7 @@ import {
   type CreationStageId,
 } from '../ux/creation-stages.js';
 import { ownerStageOf } from '../ux/ownership.js';
+import { objectActionsFor, type ObjectActionHost } from './object-actions.js';
 import {
   contextActionsFor,
   editsFor,
@@ -39,9 +40,22 @@ import {
   canDeleteInStage,
   contextActionsInStage,
   editsInStage,
+  objectActionsInStage,
   readOnlyNoticeFor,
   sharedEditsInStage,
 } from './stage-editing.js';
+
+/** Une coque qui ne fait rien : on compte ce qui est offert, pas ce qui suit. */
+const NOTHING: ObjectActionHost = {
+  transform: () => {},
+  align: () => {},
+  duplicate: () => {},
+  remove: () => {},
+  frame: () => {},
+  selectSimilar: () => {},
+  startTool: () => {},
+  runCommand: () => {},
+};
 
 const demo = loadDemoProject();
 if (demo.status === 'ERROR') throw new Error(demo.message);
@@ -118,6 +132,83 @@ describe("ce que l'espace actif laisse proposer", () => {
       ),
     );
     expect(offered).toEqual([]);
+  });
+
+  it("n'offre aucune action qui écrit hors de l'espace propriétaire", () => {
+    /*
+     * Le registre des actions décrit un geste une fois pour tous les
+     * affichages, et il ne connaît pas les espaces : c'est ici qu'il les
+     * rencontre. Une action qui écrit — transformer, dupliquer, supprimer,
+     * aligner, un geste de famille, ou même seulement **armer** l'outil qui
+     * écrira — n'a rien à faire dans une barre regardée depuis un espace qui
+     * ne possède pas l'objet, puisque la commande y sera refusée.
+     */
+    const offered = elsewhere().flatMap(([stage, objectId]) =>
+      LEVEL_IDS.flatMap((levelId) =>
+        objectActionsInStage(stage, {
+          project: house,
+          levelId,
+          selection: [objectId],
+          host: NOTHING,
+        })
+          .filter(({ writes }) => writes)
+          .map(({ id }) => `${stage}:${objectId}:${id}`),
+      ),
+    );
+    expect(offered).toEqual([]);
+  });
+
+  it('laisse partout ce qui ne fait que lire', () => {
+    /*
+     * L'inverse compte autant : on vient précisément lire un mur depuis
+     * Systèmes, et une barre qui n'offrirait plus rien ferait croire que
+     * l'objet n'est plus là. Cadrer et désigner les semblables restent.
+     */
+    for (const [stage, objectId] of elsewhere()) {
+      const offered = objectActionsInStage(stage, {
+        project: house,
+        levelId: LEVEL_IDS[0]!,
+        selection: [objectId],
+        host: NOTHING,
+      });
+      expect(
+        offered.map(({ id }) => id),
+        objectId,
+      ).toContain('frame');
+      expect(offered.every(({ writes }) => !writes)).toBe(true);
+    }
+  });
+
+  it("ne retire aucune action dans l'espace propriétaire", () => {
+    // La frontière filtre ; elle n'invente rien et ne retire rien chez soi.
+    for (const objectId of everything()) {
+      const owner = ownerStageOf(house, objectId);
+      if (owner === undefined) continue;
+      for (const levelId of LEVEL_IDS) {
+        const context = {
+          project: house,
+          levelId,
+          selection: [objectId],
+          host: NOTHING,
+        };
+        expect(
+          objectActionsInStage(owner, context).map(({ id }) => id),
+        ).toEqual(objectActionsFor(context).map(({ id }) => id));
+      }
+    }
+  });
+
+  it('retire tout ce qui écrit dès qu’un seul objet vient d’ailleurs', () => {
+    // Même règle que l'édition commune et la suppression : appliquer un geste
+    // à un objet sur deux laisserait une maison à moitié changée.
+    const mixed = ['wall-south', 'water:trunk'];
+    const offered = objectActionsInStage('BUILDING', {
+      project: house,
+      levelId: LEVEL_IDS[0]!,
+      selection: mixed,
+      host: NOTHING,
+    });
+    expect(offered.filter(({ writes }) => writes)).toEqual([]);
   });
 
   it('nomme le propriétaire et donne le bouton qui y mène', () => {
@@ -204,6 +295,20 @@ describe("l'inspecteur et le menu reçoivent vraiment l'espace", () => {
     expect(shell).not.toMatch(
       /editInOwnerStage = useCallback\([\s\S]{0,600}CLEAR_SELECTION/u,
     );
+  });
+
+  it('branche la barre contextuelle sur le registre, et sur la frontière', () => {
+    const bar = source('editor/ContextToolBar.tsx');
+    // Un registre que rien n'interroge ne vaut rien : la barre passe par lui,
+    // et elle y passe par `stage-editing.ts` plutôt qu'en direct.
+    expect(bar).toContain('objectActionsInStage(stage, context)');
+    expect(bar).toContain("from './stage-editing.js'");
+    expect(bar).not.toContain('objectActionsFor(');
+    // Et elle ne décide plus elle-même de ce qu'une sélection permet : plus de
+    // liste d'alignements ni de lecture directe des capacités.
+    expect(bar).not.toContain('selectionCapabilities');
+    expect(shell).toContain('actions={selectionActions}');
+    expect(shell).toContain('stage={navigation.stage}');
   });
 
   it("construit le menu contextuel avec l'espace actif", () => {
