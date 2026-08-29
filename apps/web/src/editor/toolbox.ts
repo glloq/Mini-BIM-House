@@ -300,13 +300,21 @@ const STAGE_SECTIONS: Readonly<
       label: 'Éléments',
       domain: 'SITE',
       entries: [
+        /*
+         * Un arbre se plante d'un clic, et non en trois sommets de polygone.
+         *
+         * L'entrée portait l'outil Terrain avec « Arbre » pré-choisi : le même
+         * contour fermé que la parcelle, c'est-à-dire trois clics au minimum
+         * pour obtenir un houppier triangulaire. Elle porte maintenant l'outil
+         * qui correspond au geste, et n'a plus rien à pré-remplir — la nature
+         * de ce qu'elle pose est celle de l'outil.
+         */
         entry(
           'site.tree',
-          'SITE',
+          'SITE_TREE',
           'Arbre',
-          'Poser un arbre, pour son ombre',
+          'Planter un arbre, pour son ombre',
           'TREE',
-          { target: 'OBSTACLE', kind: 'TREE' },
         ),
         entry(
           'site.neighbour',
@@ -333,22 +341,30 @@ const STAGE_SECTIONS: Readonly<
           'OTHER',
           'SITE_RAINWATER_TANK',
         ),
+        // Une haie et une clôture se suivent, elles ne se referment pas : leur
+        // emprise vient du tracé et d'une largeur, pas d'un aller-retour à la
+        // souris pour leur donner une épaisseur.
         entry(
           'site.hedge',
-          'SITE',
+          'SITE_HEDGE',
           'Haie',
-          'Tracer une haie, pour son ombre',
+          'Tracer une haie de bout en bout, pour son ombre',
           'TREE',
-          { target: 'OBSTACLE', kind: 'HEDGE' },
         ),
-        entry('site.fence', 'SITE', 'Clôture', 'Tracer une clôture', 'WALL', {
-          target: 'OBSTACLE',
-          kind: 'FENCE',
-        }),
-        entry('site.gate', 'SITE', 'Portail', 'Tracer un portail', 'DOOR', {
-          target: 'OBSTACLE',
-          kind: 'GATE',
-        }),
+        entry(
+          'site.fence',
+          'SITE_FENCE',
+          'Clôture',
+          'Tracer une clôture, poteau après poteau',
+          'WALL',
+        ),
+        entry(
+          'site.gate',
+          'SITE_GATE',
+          'Portail',
+          'Poser un portail entre ses deux montants',
+          'DOOR',
+        ),
       ],
     },
     {

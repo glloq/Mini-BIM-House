@@ -4,6 +4,8 @@ import { SHORTCUTS } from './shortcuts.js';
 import { optionValue } from './tool-options.js';
 import { OBJECT_FAMILIES } from './object-editors.js';
 import { stepCoherenceProblem } from './interaction-steps.js';
+import { SITE_OBSTACLE_KINDS } from '@house-technical-designer/core-domain';
+import { isSurfaceSiteKind } from './site-footprints.js';
 import {
   EDITOR_LEVELS,
   EDITOR_TOOLS,
@@ -19,6 +21,7 @@ import {
   requiredPoints,
   toolAtLevel,
   toolDefinition,
+  type EditorTool,
   toolsInGroup,
   toolsInGroupAtLevel,
   optionsOf,
@@ -509,5 +512,123 @@ describe('ce qu’un outil déclare attendre, clic par clic', () => {
     expect(interactionStepAt('SITE', 12)).toBe(last);
     // Un outil qui ne déclare rien ne répond rien, et le repli s'applique.
     expect(interactionStepAt('SELECT', 0)).toBeUndefined();
+  });
+});
+
+/**
+ * Un geste par objet du terrain, et non un geste pour tous.
+ *
+ * L'outil Terrain traçait tout ce qui entoure la maison de la même façon :
+ * trois sommets au minimum, et on referme. C'est le geste de la parcelle, du
+ * voisin, de la terrasse — ce n'est celui ni de l'arbre, ni de la haie, ni du
+ * portail, et le leur imposer demandait à quelqu'un de dessiner un houppier
+ * sommet par sommet. Ces tests tiennent la séparation par les deux bouts : ce
+ * que l'outil des surfaces n'offre plus, et ce que les outils du geste
+ * demandent.
+ */
+describe('ce que chaque chose du terrain demande pour être posée', () => {
+  /** Les natures que l'outil des surfaces accepte encore de tracer. */
+  function surfaceChoices(): readonly string[] {
+    const choices = optionsOf('SITE')
+      .find(({ key }) => key === 'kind')!
+      .choices?.({ project: file().project, value: () => '' });
+    return (choices ?? []).map(({ value }) => value);
+  }
+
+  it('ne propose plus de tracer un arbre en polygone fermé', () => {
+    // Le chemin par lequel un houppier pouvait naître triangulaire.
+    for (const kind of ['TREE', 'HEDGE', 'FENCE', 'GATE'])
+      expect(surfaceChoices(), kind).not.toContain(kind);
+    // Ce qui est vraiment une surface reste là où on le trace.
+    for (const kind of ['BUILDING', 'TERRACE', 'PATH', 'PARKING', 'EXCLUSION'])
+      expect(surfaceChoices(), kind).toContain(kind);
+  });
+
+  /**
+   * Ce qu'un outil du terrain pose vraiment, en le lui faisant faire.
+   *
+   * On lit la commande qu'il fabrique plutôt que ce qu'il déclare : c'est la
+   * seule lecture qu'un outil ne puisse pas démentir.
+   */
+  function kindPosedBy(toolId: EditorTool): string | undefined {
+    const result = toolDefinition(toolId).createCommand?.(
+      context({
+        points: [
+          { x: 0, y: 0 },
+          { x: 5000, y: 0 },
+          { x: 5000, y: 5000 },
+        ],
+        option: (key) =>
+          optionValue(file().project, toolId, optionsOf(toolId), {}, key),
+      }),
+    );
+    if (result === undefined || result.status !== 'OK') return undefined;
+    // La commande porte le brouillon qu'elle appliquera ; on le lit tel quel
+    // plutôt que de l'appliquer, parce que la question est ce que l'outil
+    // fabrique, pas ce que le projet en fait ensuite.
+    const posed = result.command as unknown as {
+      readonly draft?: { readonly kind?: string };
+    };
+    return posed.draft?.kind;
+  }
+
+  it('offre à chaque nature qui n’est pas une surface son propre outil', () => {
+    // Une nature retirée de la liste des surfaces sans outil qui la pose
+    // serait une chose qu'on ne peut plus dessiner du tout.
+    const posed = new Set(
+      EDITOR_TOOLS.filter(({ group }) => group === 'SITE').map(({ id }) =>
+        kindPosedBy(id),
+      ),
+    );
+    for (const kind of SITE_OBSTACLE_KINDS) {
+      if (isSurfaceSiteKind(kind)) continue;
+      expect(posed, kind).toContain(kind);
+    }
+  });
+
+  it('plante un arbre d’un seul clic', () => {
+    expect(requiredPoints('SITE_TREE')).toBe(1);
+    expect(isOpenEnded('SITE_TREE')).toBe(false);
+    expect(completionModeOf('SITE_TREE')).toBeUndefined();
+    // Et le diamètre du houppier est une saisie, pas une série de clics.
+    expect(optionsOf('SITE_TREE').map(({ key }) => key)).toContain(
+      'crownDiameterMm',
+    );
+  });
+
+  it('suit une haie et une clôture sans jamais les refermer', () => {
+    for (const tool of ['SITE_HEDGE', 'SITE_FENCE'] as const) {
+      expect(requiredPoints(tool), tool).toBe(2);
+      expect(isOpenEnded(tool), tool).toBe(true);
+      // Un tracé qu'on termine, pas une surface qu'on referme : proposer
+      // « Fermer la surface » pour une clôture serait proposer un aller-retour
+      // à la souris en guise d'épaisseur.
+      expect(completionModeOf(tool), tool).toBe('FINISH_PATH');
+    }
+    // La haie a une largeur ; la clôture est une ligne et n'en a pas.
+    expect(optionsOf('SITE_HEDGE').map(({ key }) => key)).toContain('widthMm');
+    expect(optionsOf('SITE_FENCE').map(({ key }) => key)).not.toContain(
+      'widthMm',
+    );
+  });
+
+  it('pose un portail entre deux points, et s’arrête là', () => {
+    expect(requiredPoints('SITE_GATE')).toBe(2);
+    expect(isOpenEnded('SITE_GATE')).toBe(false);
+  });
+
+  it('nomme l’objet dans chacune de ses phrases', () => {
+    // « Cliquez le premier point » ne dit pas ce qu'on est en train de poser.
+    // Un outil dont le geste est particulier doit nommer sa chose.
+    for (const [tool, mot] of [
+      ['SITE_TREE', /arbre/iu],
+      ['SITE_HEDGE', /haie/iu],
+      ['SITE_FENCE', /clôture|poteau/iu],
+      ['SITE_GATE', /portail|montant/iu],
+    ] as const) {
+      const steps = interactionOf(tool);
+      expect(steps, tool).toBeDefined();
+      for (const step of steps!) expect(step.prompt, tool).toMatch(mot);
+    }
   });
 });

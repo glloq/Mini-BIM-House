@@ -20,6 +20,10 @@ export type ShortcutCommandId =
   | 'tool.column'
   | 'tool.beam'
   | 'tool.site'
+  | 'tool.siteTree'
+  | 'tool.siteHedge'
+  | 'tool.siteFence'
+  | 'tool.siteGate'
   | 'tool.measure'
   | 'tool.mergeSpaces'
   | 'tool.dimension'
@@ -100,6 +104,45 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
     group: 'Outils',
   },
   { id: 'tool.site', label: 'Terrain', key: 'g', group: 'Outils' },
+  /*
+   * Ce qui pousse et ce qui clôt sur le terrain a sa propre touche.
+   *
+   * Ces quatre-là ne sont pas des réglages de l'outil Terrain : ce sont
+   * d'autres gestes — un clic pour un arbre, une polyligne pour une haie — et
+   * un geste qu'on ne peut pas atteindre au clavier est un geste qu'on ne fait
+   * qu'à la souris. L'initiale de chacun était prise (« a » l'escalier, « h »
+   * la mesure, « c » le mur continu, « p » pivoter), d'où la majuscule : c'est
+   * déjà la convention des variantes ici — Maj + W pour les murs rectangle,
+   * Maj + O pour la fenêtre de toit.
+   */
+  {
+    id: 'tool.siteTree',
+    label: 'Arbre',
+    key: 'a',
+    shift: true,
+    group: 'Outils',
+  },
+  {
+    id: 'tool.siteHedge',
+    label: 'Haie',
+    key: 'h',
+    shift: true,
+    group: 'Outils',
+  },
+  {
+    id: 'tool.siteFence',
+    label: 'Clôture',
+    key: 'c',
+    shift: true,
+    group: 'Outils',
+  },
+  {
+    id: 'tool.siteGate',
+    label: 'Portail',
+    key: 'p',
+    shift: true,
+    group: 'Outils',
+  },
   { id: 'tool.component', label: 'Composant', key: 'k', group: 'Outils' },
   // « h » comme « combien » : les lettres évidentes étaient prises, et une
   // mesure se prend assez souvent pour mériter la sienne.

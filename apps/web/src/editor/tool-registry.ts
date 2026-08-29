@@ -17,7 +17,9 @@ import {
   addOpeningCommand,
   addRoofOpeningCommand,
   addRoofStructureCommand,
+  addSiteAxisCommand,
   addSiteOutlineCommand,
+  addSiteTreeCommand,
   addSlabFromPointsCommand,
   addSpaceAtPointCommand,
   addStairCommand,
@@ -41,6 +43,15 @@ import {
 } from '../networks/network-model.js';
 import type { InteractionStep } from './interaction-steps.js';
 import { stepForClick } from './interaction-steps.js';
+import {
+  DEFAULT_CROWN_DIAMETER_MM,
+  DEFAULT_FENCE_HEIGHT_MM,
+  DEFAULT_HEDGE_HEIGHT_MM,
+  DEFAULT_HEDGE_WIDTH_MM,
+  DEFAULT_TREE_HEIGHT_MM,
+  LINE_FOOTPRINT_WIDTH_MM,
+  isSurfaceSiteKind,
+} from './site-footprints.js';
 import type { ToolOptionDefinition } from './tool-options.js';
 import { OBJECT_FAMILIES } from './object-editors.js';
 import {
@@ -1107,7 +1118,7 @@ export const EDITOR_TOOLS = [
     id: 'SITE',
     group: 'SITE',
     label: 'Terrain',
-    hint: 'Tracer la parcelle ou ce qui l’entoure · Entrée termine',
+    hint: 'Tracer la parcelle ou une surface du terrain · Entrée termine',
     shortcutId: 'tool.site',
     requiredPoints: 3,
     interaction: [
@@ -1133,8 +1144,20 @@ export const EDITOR_TOOLS = [
         key: 'kind',
         kind: 'SELECT',
         label: 'Nature',
-        hint: 'Un voisin, un arbre et une zone à laisser libre ne portent pas la même ombre.',
-        choices: () => SITE_OBSTACLE_OPTIONS,
+        hint: 'Un voisin, une terrasse et une zone à laisser libre ne portent pas la même ombre.',
+        /*
+         * Seulement ce qui se trace en refermant un contour.
+         *
+         * L'arbre, la haie, la clôture et le portail étaient offerts ici, et
+         * les choisir revenait à demander trois sommets de polygone pour
+         * planter un arbre. Ils ont leur outil, leur geste et leur nombre de
+         * clics ; les laisser dans cette liste serait laisser en place le
+         * chemin qu'on vient de retirer.
+         */
+        choices: () =>
+          SITE_OBSTACLE_OPTIONS.filter(({ value }) =>
+            isSurfaceSiteKind(value as SiteObstacleKind),
+          ),
         fallback: () => 'BUILDING',
       },
       {
@@ -1159,6 +1182,221 @@ export const EDITOR_TOOLS = [
         {
           target: context.option('target') === 'PARCEL' ? 'PARCEL' : 'OBSTACLE',
           kind: context.option('kind') as SiteObstacleKind,
+          ...(context.optionNumber('heightMm') === undefined
+            ? {}
+            : { heightMm: context.optionNumber('heightMm')! }),
+          ...(context.option('name') === ''
+            ? {}
+            : { name: context.option('name') }),
+        },
+        context.newId('obstacle'),
+      ),
+  },
+  /*
+   * Quatre outils pour quatre gestes, là où il n'y en avait qu'un.
+   *
+   * Ce ne sont pas quatre réglages du terrain : un arbre se plante d'un clic,
+   * une haie et une clôture se suivent, un portail tient entre deux montants.
+   * Le nombre de clics n'est pas une option d'un outil — c'est ce qu'un outil
+   * **est** —, et c'est pourquoi ils sont ici plutôt que dans une liste
+   * déroulante de « Terrain ». Leur emprise se dérive de ce qu'on a cliqué et
+   * de ce qu'on a saisi : voir `site-footprints.ts`, qui dit aussi pourquoi la
+   * largeur d'une haie ne se retrouve nulle part dans le fichier.
+   */
+  {
+    id: 'SITE_TREE',
+    group: 'SITE',
+    label: 'Arbre',
+    hint: 'Planter un arbre : un clic, un houppier, une hauteur',
+    shortcutId: 'tool.siteTree',
+    requiredPoints: 1,
+    interaction: [{ kind: 'POINT', prompt: 'Cliquez où planter l’arbre' }],
+    options: [
+      {
+        key: 'crownDiameterMm',
+        kind: 'NUMBER',
+        label: 'Houppier',
+        unit: 'mm',
+        min: 100,
+        step: 500,
+        hint: 'Le diamètre du feuillage : c’est lui qui dessine l’emprise, et il n’est pas conservé à côté d’elle.',
+        fallback: () => String(DEFAULT_CROWN_DIAMETER_MM),
+      },
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        step: 500,
+        hint: 'Sans hauteur, l’ombre de l’arbre n’est pas calculée.',
+        fallback: () => String(DEFAULT_TREE_HEIGHT_MM),
+      },
+      { key: 'name', kind: 'TEXT', label: 'Nom', fallback: () => '' },
+    ],
+    createCommand: (context) =>
+      addSiteTreeCommand(
+        context.points[0],
+        {
+          crownDiameterMm:
+            context.optionNumber('crownDiameterMm') ??
+            DEFAULT_CROWN_DIAMETER_MM,
+          ...(context.optionNumber('heightMm') === undefined
+            ? {}
+            : { heightMm: context.optionNumber('heightMm')! }),
+          ...(context.option('name') === ''
+            ? {}
+            : { name: context.option('name') }),
+        },
+        context.newId('obstacle'),
+      ),
+  },
+  {
+    id: 'SITE_HEDGE',
+    group: 'SITE',
+    label: 'Haie',
+    hint: 'Suivre une haie de bout en bout · Entrée termine',
+    shortcutId: 'tool.siteHedge',
+    // Deux points font déjà une haie ; le tracé continue tant qu'on clique.
+    requiredPoints: 2,
+    openEnded: true,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ de la haie' },
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez où la haie continue',
+        numericInput: true,
+      },
+    ],
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'widthMm',
+        kind: 'NUMBER',
+        label: 'Largeur',
+        unit: 'mm',
+        min: 50,
+        step: 100,
+        hint: 'L’épaisseur du feuillage de part et d’autre du tracé.',
+        fallback: () => String(DEFAULT_HEDGE_WIDTH_MM),
+      },
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        step: 100,
+        hint: 'Sans hauteur, l’ombre de la haie n’est pas calculée.',
+        fallback: () => String(DEFAULT_HEDGE_HEIGHT_MM),
+      },
+      { key: 'name', kind: 'TEXT', label: 'Nom', fallback: () => '' },
+    ],
+    createCommand: (context) =>
+      addSiteAxisCommand(
+        context.points,
+        {
+          kind: 'HEDGE',
+          widthMm: context.optionNumber('widthMm') ?? DEFAULT_HEDGE_WIDTH_MM,
+          ...(context.optionNumber('heightMm') === undefined
+            ? {}
+            : { heightMm: context.optionNumber('heightMm')! }),
+          ...(context.option('name') === ''
+            ? {}
+            : { name: context.option('name') }),
+        },
+        context.newId('obstacle'),
+      ),
+  },
+  {
+    id: 'SITE_FENCE',
+    group: 'SITE',
+    label: 'Clôture',
+    hint: 'Suivre une clôture, poteau après poteau · Entrée termine',
+    shortcutId: 'tool.siteFence',
+    requiredPoints: 2,
+    openEnded: true,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ de la clôture' },
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez le poteau suivant',
+        numericInput: true,
+      },
+    ],
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        step: 100,
+        hint: 'Sans hauteur, l’ombre de la clôture n’est pas calculée.',
+        fallback: () => String(DEFAULT_FENCE_HEIGHT_MM),
+      },
+      { key: 'name', kind: 'TEXT', label: 'Nom', fallback: () => '' },
+    ],
+    /*
+     * Aucune largeur à saisir : une clôture est une ligne.
+     *
+     * Ce qu'on trace est son axe, et l'épaisseur du trait est une convention
+     * du dessin plutôt qu'une mesure — voir `LINE_FOOTPRINT_WIDTH_MM`. La
+     * proposer en option inviterait à décrire deux fois la même chose.
+     */
+    createCommand: (context) =>
+      addSiteAxisCommand(
+        context.points,
+        {
+          kind: 'FENCE',
+          widthMm: LINE_FOOTPRINT_WIDTH_MM,
+          ...(context.optionNumber('heightMm') === undefined
+            ? {}
+            : { heightMm: context.optionNumber('heightMm')! }),
+          ...(context.option('name') === ''
+            ? {}
+            : { name: context.option('name') }),
+        },
+        context.newId('obstacle'),
+      ),
+  },
+  {
+    id: 'SITE_GATE',
+    group: 'SITE',
+    label: 'Portail',
+    hint: 'Poser un portail entre ses deux montants',
+    shortcutId: 'tool.siteGate',
+    // Deux points, et il se termine tout seul : un portail a une largeur, pas
+    // un parcours.
+    requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez un montant du portail' },
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez le montant opposé',
+        numericInput: true,
+      },
+    ],
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        step: 100,
+        hint: 'Sans hauteur, l’ombre du portail n’est pas calculée.',
+        fallback: () => String(DEFAULT_FENCE_HEIGHT_MM),
+      },
+      { key: 'name', kind: 'TEXT', label: 'Nom', fallback: () => '' },
+    ],
+    createCommand: (context) =>
+      addSiteAxisCommand(
+        context.points.slice(0, 2),
+        {
+          kind: 'GATE',
+          widthMm: LINE_FOOTPRINT_WIDTH_MM,
           ...(context.optionNumber('heightMm') === undefined
             ? {}
             : { heightMm: context.optionNumber('heightMm')! }),

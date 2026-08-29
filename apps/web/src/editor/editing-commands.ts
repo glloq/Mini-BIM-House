@@ -62,6 +62,11 @@ import {
 } from '@house-technical-designer/editor-core';
 import { chooseHost, type HostChoice } from './host-choice.js';
 import { polygonSurface } from './polygon-surface.js';
+import {
+  crownFootprint,
+  outlineRefusal,
+  ribbonFootprint,
+} from './site-footprints.js';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import { polygonContains } from '@house-technical-designer/geometry';
 import type { GeometryEdit } from './grips.js';
@@ -670,7 +675,15 @@ export function addStructuralMemberCommand(
   };
 }
 
-/** Draws the parcel, or something standing on the site around the house. */
+/**
+ * Trace la parcelle, ou une **surface** posée sur le terrain autour d'elle.
+ *
+ * Ce qui se referme : la parcelle, la terrasse, l'allée, le stationnement, le
+ * bâtiment voisin, la zone à laisser libre. Ce qui ne se referme pas — l'arbre
+ * qu'on plante d'un clic, la haie et la clôture qu'on suit, le portail entre
+ * ses deux montants — est refusé ici en nommant le geste qui convient, plutôt
+ * que d'accepter un triangle en guise de houppier.
+ */
 export function addSiteOutlineCommand(
   points: readonly Point2D[],
   draft: {
@@ -681,6 +694,12 @@ export function addSiteOutlineCommand(
   },
   obstacleId: string,
 ): EditingCommandResult {
+  // La parcelle est une limite, pas un obstacle : sa nature ne dit rien de la
+  // façon dont on la trace, et c'est toujours un contour fermé.
+  if (draft.target === 'OBSTACLE') {
+    const refusal = outlineRefusal(draft.kind);
+    if (refusal !== undefined) return { status: 'ERROR', message: refusal };
+  }
   if (points.length < 3)
     return { status: 'ERROR', message: 'Un contour demande trois points.' };
   const outline = points.map((point) => ({ ...point }));
@@ -698,6 +717,88 @@ export function addSiteOutlineCommand(
               : { heightMm: draft.heightMm }),
             ...(draft.name === undefined ? {} : { name: draft.name }),
           }),
+  };
+}
+
+/**
+ * Plante un arbre là où l'on a cliqué, houppier compris.
+ *
+ * Un clic, un diamètre, une hauteur. Le diamètre **n'est pas stocké** : il
+ * fabrique le contour du houppier et disparaît. Le polygone est la seule
+ * emprise que le modèle connaisse, donc la seule qui puisse être déplacée,
+ * mesurée et projetée en ombre — et deux réponses à « jusqu'où va cet arbre »
+ * finiraient par diverger dès le premier sommet tiré à la souris.
+ */
+export function addSiteTreeCommand(
+  point: Point2D | undefined,
+  draft: {
+    readonly crownDiameterMm: number;
+    readonly heightMm?: number;
+    readonly name?: string;
+  },
+  obstacleId: string,
+): EditingCommandResult {
+  if (point === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Cliquez l’endroit où planter l’arbre.',
+    };
+  const outline = crownFootprint(point, draft.crownDiameterMm);
+  if (outline === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Le diamètre du houppier doit être une longueur positive.',
+    };
+  return {
+    status: 'OK',
+    command: new AddSiteObstacleCommand({
+      id: obstacleId,
+      outline,
+      kind: 'TREE',
+      ...(draft.heightMm === undefined ? {} : { heightMm: draft.heightMm }),
+      ...(draft.name === undefined ? {} : { name: draft.name }),
+    }),
+  };
+}
+
+/**
+ * Pose ce qui suit un axe : une haie, une clôture, un portail.
+ *
+ * On clique la ligne — deux points pour un portail, autant qu'on veut pour une
+ * haie — et l'emprise est le ruban que cette ligne laisse à la largeur donnée.
+ * Là encore, ce qui est stocké est le ruban : la largeur a servi à le tracer
+ * et n'est pas conservée à côté de lui.
+ */
+export function addSiteAxisCommand(
+  points: readonly Point2D[],
+  draft: {
+    readonly kind: SiteObstacleKind;
+    readonly widthMm: number;
+    readonly heightMm?: number;
+    readonly name?: string;
+  },
+  obstacleId: string,
+): EditingCommandResult {
+  if (points.length < 2)
+    return {
+      status: 'ERROR',
+      message: 'Un tracé demande au moins deux points.',
+    };
+  const outline = ribbonFootprint(points, draft.widthMm);
+  if (outline === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Deux points confondus ne tracent aucune ligne.',
+    };
+  return {
+    status: 'OK',
+    command: new AddSiteObstacleCommand({
+      id: obstacleId,
+      outline,
+      kind: draft.kind,
+      ...(draft.heightMm === undefined ? {} : { heightMm: draft.heightMm }),
+      ...(draft.name === undefined ? {} : { name: draft.name }),
+    }),
   };
 }
 

@@ -40,6 +40,13 @@ const TOOL_CREATES: Readonly<Record<string, readonly ObjectKind[]>> = {
   NETWORK_ROUTE: ['NETWORK_NODE', 'NETWORK_EDGE'],
   NETWORK_BRANCH: ['NETWORK_NODE', 'NETWORK_EDGE'],
   SITE: ['SITE'],
+  // L'arbre, la haie, la clôture et le portail sont du terrain comme la
+  // parcelle : ce qui les distingue est le geste qui les pose, pas la famille
+  // d'objet qu'ils laissent derrière eux.
+  SITE_TREE: ['SITE'],
+  SITE_HEDGE: ['SITE'],
+  SITE_FENCE: ['SITE'],
+  SITE_GATE: ['SITE'],
   DIMENSION: ['DIMENSION'],
   NOTE: ['NOTE'],
   // Les outils qui reprennent ce qui existe : ils ne fabriquent pas une
