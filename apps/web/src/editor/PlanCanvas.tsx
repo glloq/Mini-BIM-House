@@ -476,9 +476,25 @@ export function PlanCanvas({
   const [heldConstraint, setHeldConstraint] = useState(false);
   const [heldPan, setHeldPan] = useState(false);
 
+  /**
+   * Noter la touche sans redessiner à chaque mouvement de souris.
+   *
+   * L'état ne change qu'aux transitions — on appuie, on relâche — alors que
+   * les événements qui le portent arrivent soixante fois par seconde tant que
+   * le pointeur bouge. Le miroir en référence est ce qui distingue les deux :
+   * sans lui, chaque `pointermove` demanderait un rendu pour réécrire la même
+   * valeur.
+   */
+  const constraintHeld = useRef(false);
+  const noteConstraint = useCallback((held: boolean) => {
+    if (constraintHeld.current === held) return;
+    constraintHeld.current = held;
+    setHeldConstraint(held);
+  }, []);
+
   useEffect(() => {
     function down(event: KeyboardEvent): void {
-      if (event.key === 'Shift') setHeldConstraint(true);
+      if (event.key === 'Shift') noteConstraint(true);
       if (event.code !== 'Space') return;
       const target = event.target as HTMLElement | null;
       // Une barre d'espace appartient d'abord au bouton qui a le focus : elle
@@ -490,11 +506,11 @@ export function PlanCanvas({
       setHeldPan(true);
     }
     function up(event: KeyboardEvent): void {
-      if (event.key === 'Shift') setHeldConstraint(false);
+      if (event.key === 'Shift') noteConstraint(false);
       if (event.code === 'Space') setHeldPan(false);
     }
     function release(): void {
-      setHeldConstraint(false);
+      noteConstraint(false);
       setHeldPan(false);
     }
     window.addEventListener('keydown', down);
@@ -505,7 +521,7 @@ export function PlanCanvas({
       window.removeEventListener('keyup', up);
       window.removeEventListener('blur', release);
     };
-  }, []);
+  }, [noteConstraint]);
 
   /**
    * L'accrochage tel qu'il vaut à cet instant, touche tenue comprise.
@@ -1343,6 +1359,15 @@ export function PlanCanvas({
 
   const handleMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
+      /*
+       * La main a le dernier mot sur ce que le clavier a raconté.
+       *
+       * Une touche enfoncée pendant que le focus était ailleurs — dans un
+       * champ, dans une autre fenêtre — n'a produit aucun `keydown` ici, et
+       * l'aperçu se serait contraint à l'envers de ce que la main tient. Le
+       * premier mouvement de souris remet les deux d'accord.
+       */
+      noteConstraint(event.shiftKey);
       const bounds = container.current?.getBoundingClientRect();
       const model = modelPointOf(event);
       if (bounds === undefined || model === undefined) return;
@@ -1407,6 +1432,7 @@ export function PlanCanvas({
       editor.activeTool,
       editor.camera,
       modelPointOf,
+      noteConstraint,
       plan.primitives,
       snapFor,
     ],
@@ -1414,6 +1440,8 @@ export function PlanCanvas({
 
   const handleDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
+      // Le clic aussi : on peut appuyer sans avoir bougé d'un pixel.
+      noteConstraint(event.shiftKey);
       /*
        * Le panoramique : le bouton du milieu, ou la barre d'espace tenue.
        *
@@ -1537,6 +1565,7 @@ export function PlanCanvas({
       editor,
       heldPan,
       modelPointOf,
+      noteConstraint,
       onCommitPoints,
       onFinishRun,
       onMoveSelection,

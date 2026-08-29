@@ -81,6 +81,43 @@ test('Maj tenue garde l’angle qu’on vise, et ne fait rien glisser', async ({
   expect(drawn.height).toBeGreaterThan(OBLIQUE_PX.dy / 2);
 });
 
+test('rattrape une touche tenue pendant que la fenêtre regardait ailleurs', async ({
+  page,
+}) => {
+  /*
+   * Le clavier peut mentir ; la main, non.
+   *
+   * Une touche enfoncée pendant que le focus était ailleurs — dans un champ,
+   * dans une autre fenêtre — n'a produit aucun `keydown` sur le plan, et le
+   * retour de fenêtre relâche tout ce qui était tenu, faute de quoi un `Maj`
+   * perdu resterait tenu pour toujours : son `keyup` part avec la fenêtre
+   * qu'on quitte. Reste alors le cas inverse — la touche est vraiment tenue,
+   * et le plan ne le sait pas.
+   *
+   * Le premier mouvement de souris remet les deux d'accord, parce qu'il porte
+   * l'état réel des modificateurs. Ce test met exprès le plan dans l'erreur —
+   * touche tenue, puis perte de fenêtre — et vérifie qu'un simple survol la
+   * corrige.
+   */
+  await wallTool(page);
+  const canvas = page.locator('.plan-canvas');
+  const box = (await canvas.boundingBox())!;
+  const from = { x: box.width * 0.3, y: box.height * 0.5 };
+  const to = { x: from.x + OBLIQUE_PX.dx, y: from.y + OBLIQUE_PX.dy };
+  await canvas.click({ position: from });
+
+  await page.keyboard.down('Shift');
+  // La fenêtre passe la main : tout ce qui était tenu est relâché, y compris
+  // ce qui l'est encore vraiment.
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  await canvas.hover({ position: to });
+  await canvas.click({ position: to });
+  await page.keyboard.up('Shift');
+
+  const drawn = (await page.locator('[id^="wall:"]').first().boundingBox())!;
+  expect(drawn.height).toBeGreaterThan(OBLIQUE_PX.dy / 2);
+});
+
 test('la barre d’espace fait glisser le plan, Maj ne le fait plus', async ({
   page,
 }) => {
