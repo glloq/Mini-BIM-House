@@ -75,7 +75,11 @@ import {
   withTypedMove,
   type TypedMove,
 } from './placement-values.js';
-import { shouldIgnoreTarget } from './shortcuts.js';
+import {
+  resolveShortcut,
+  shouldIgnoreTarget,
+  situationHint,
+} from './shortcuts.js';
 import {
   resolveDraftPoint,
   snapWithHeldConstraint,
@@ -548,29 +552,40 @@ export function PlanCanvas({
    * le tournais ? » est celle qu'on se pose, pas « et si je traçais un
    * réseau ? ». Hors de la pose, `R` reprend son sens habituel.
    *
+   * Ce qui a changé : la touche ne se reconnaît plus à un `'r'` écrit ici.
+   * Elle est déclarée dans `shortcuts.ts` — avec les autres, et avec la
+   * situation qui la rend vraie — et c'est le registre qui décide, ici comme
+   * ailleurs. La différence n'est pas de style : tant que la touche vivait
+   * dans ce fichier, elle n'était annoncée nulle part, la marche arrière
+   * n'était écrite qu'ici, et rien n'empêchait un futur accord de lui passer
+   * dessus sans qu'aucun test ne le voie. La ligne d'aide de la boîte
+   * d'orientation lit maintenant le même registre : l'écran et le clavier ne
+   * peuvent plus diverger.
+   *
+   * L'écoute reste en capture, et reste conditionnée à l'outil Composant :
+   * c'est ce qui fait que la coque, qui écoute la fenêtre en remontée et ne
+   * connaît aucune situation, ne voit jamais ces frappes-là — sans quoi le
+   * même appui choisirait l'outil Réseau dans le dos de la pose.
+   *
    * Ce qu'on tape dans un champ appartient au champ : `shouldIgnoreTarget`
    * est la règle que toute l'application applique déjà, et l'appliquer ici
    * évite qu'un « r » tapé dans une orientation fasse tourner le fantôme au
    * lieu de s'écrire.
-   *
-   * L'endroit propre pour cette touche est `shortcuts.ts`, avec les autres :
-   * tant qu'elle n'y est pas déclarée, elle ne paraît pas dans l'aide, et
-   * c'est une découverte de moins.
    */
   useEffect(() => {
     if (editor.activeTool !== 'COMPONENT') return;
     function turn(event: KeyboardEvent): void {
-      if (event.key.toLowerCase() !== 'r') return;
-      if (event.ctrlKey || event.metaKey || event.altKey) return;
       const target = event.target as HTMLElement | null;
       if (shouldIgnoreTarget(target?.tagName, event)) return;
-      event.preventDefault();
-      event.stopPropagation();
+      const command = resolveShortcut(event, { placingComponent: true });
       // Maj tourne à rebours : trois quarts de tour à droite pour revenir en
       // arrière est une gymnastique qu'aucun dessinateur n'accepte.
-      setOrientation((current) =>
-        turnedPlacement(current, event.shiftKey ? -1 : 1),
-      );
+      const quarters =
+        command === 'place.turn' ? 1 : command === 'place.turnBack' ? -1 : 0;
+      if (quarters === 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      setOrientation((current) => turnedPlacement(current, quarters));
     }
     window.addEventListener('keydown', turn, true);
     return () => window.removeEventListener('keydown', turn, true);
@@ -2187,7 +2202,10 @@ export function PlanCanvas({
           onCommit={placeAtCursor}
           onCancel={() => dispatch({ type: 'CANCEL' })}
           commitLabel="Poser"
-          hint="R : quart de tour"
+          // Écrit par le registre des raccourcis, et non recopié ici : la
+          // ligne dit les deux sens de rotation et suivrait un changement de
+          // touche sans qu'on ait à y penser.
+          hint={situationHint('PLACING_COMPONENT')}
           // Il ne prend pas le clavier : tant qu'on n'a rien tapé, la frappe
           // qui vient est « R », celle qui fait tourner ce qu'on regarde.
           takesFocus={false}
