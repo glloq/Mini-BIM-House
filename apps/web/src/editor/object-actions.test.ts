@@ -252,9 +252,16 @@ describe('le registre des actions', () => {
     const after = (applied.building.levels[0]!.components ?? [])
       .filter(({ id }) => ids.includes(id as string))
       .map(({ position }) => position.x);
-    // Le plus à gauche de ces prises est à x = 600 ; toutes y sont, à zéro
-    // près, là où la trame de 100 mm en laissait vingt.
-    expect(new Set(after)).toEqual(new Set([600]));
+    /*
+     * Toutes à la même abscisse, exactement, et c'est celle du plus à gauche.
+     *
+     * Le chiffre était écrit en dur ; il est demandé à la maquette, parce que
+     * ce qui se vérifie ici n'est pas où elles atterrissent mais qu'elles
+     * atterrissent **ensemble** et sur la référence, là où la trame de cent
+     * millimètres laissait vingt millimètres d'écart.
+     */
+    const leftmost = Math.min(...components.map(({ position }) => position.x));
+    expect(new Set(after)).toEqual(new Set([leftmost]));
   });
 
   it('refuse de ranger un tronçon, qui n’a pas de position à lui', () => {
