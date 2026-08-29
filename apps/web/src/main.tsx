@@ -157,7 +157,6 @@ import {
 import { CommandPalette } from './palette/CommandPalette.js';
 import { PanelSeparator } from './shell/PanelSeparator.js';
 import { StatusBar } from './shell/StatusBar.js';
-import { ProjectTree } from './shell/ProjectTree.js';
 import { SectionList } from './shell/SectionList.js';
 import { LevelRow } from './shell/LevelRow.js';
 import { StoreyCount } from './shell/StoreyCount.js';
@@ -179,6 +178,25 @@ import { StageBar } from './shell/StageBar.js';
 import { ContextPanel } from './shell/ContextPanel.js';
 import { ShellStatusBar } from './shell/ShellStatusBar.js';
 import { ProjectMenu } from './shell/ProjectMenu.js';
+import { ModelNavigator } from './shell/ModelNavigator.js';
+/*
+ * L'arborescence n'est plus dans le premier écran, ni dans ses octets.
+ *
+ * Elle est ouverte à la demande depuis la barre haute : la charger d'avance
+ * ferait payer à chaque première ouverture de l'application un panneau que la
+ * plupart des séances n'ouvrent jamais. C'est la même règle que pour la place
+ * qu'elle prenait dans la colonne, appliquée au poids.
+ */
+const ProjectTree = lazy(async () => ({
+  default: (await import('./shell/ProjectTree.js')).ProjectTree,
+}));
+import { isDrawerScreen } from './shell/narrow-screen.js';
+import {
+  columnMode,
+  subjectKey,
+  type ColumnChoice,
+  type ColumnMode,
+} from './shell/column-mode.js';
 
 import {
   activeDomain as activeDomainOf,
@@ -527,6 +545,23 @@ function App() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   /** Ce qu'on cherchait en ouvrant la palette, quand on le savait déjà. */
   const [paletteQuery, setPaletteQuery] = useState('');
+  /**
+   * Le navigateur du modèle, ouvert seulement quand on le demande.
+   *
+   * L'arborescence était un dépliage permanent de la colonne : replié il ne
+   * montrait rien et prenait quand même sa place, dans la colonne qui porte
+   * maintenant aussi les propriétés. Il n'est plus là qu'ouvert.
+   */
+  const [navigatorOpen, setNavigatorOpen] = useState(false);
+  /**
+   * Le mode qu'on a réclamé à la main, et à propos de quelle sélection.
+   *
+   * Sans ça, cliquer « Outils » alors qu'un mur est désigné ne tiendrait pas
+   * une seconde : la sélection redirait « propriétés » au rendu suivant. Avec,
+   * le choix vaut pour ce mur-là et se périme dès qu'on en désigne un autre —
+   * désigner un objet est une question, et elle mérite sa réponse.
+   */
+  const [columnChoice, setColumnChoice] = useState<ColumnChoice>();
   // How wide the panels are is a preference of the person, kept in the browser
   // and never in the project.
   const [layout, setLayout] = useState<WorkspaceLayout>(() =>
@@ -877,32 +912,74 @@ function App() {
   );
 
   /**
-   * L'inspecteur paraît quand on désigne quelque chose, et s'en va avec.
+   * Les propriétés paraissent quand on désigne quelque chose, et s'en vont
+   * avec — mais dans la colonne de gauche, et non plus dans une seconde.
    *
-   * Deux cent quatre-vingts pixels tenus en permanence pour afficher
-   * « Sélectionnez un objet » : sur un portable, un sixième de la fenêtre pour
-   * une phrase.
+   * L'inspecteur tenait 280 px à droite du dessin, plus son bord et sa
+   * gouttière : 294 px de plan repris dès qu'on cliquait un objet, c'est-à-dire
+   * à chaque geste. Le repli automatique n'y changeait rien — il ne rendait la
+   * largeur qu'au repos, et le repos n'est pas là où l'on travaille. La droite
+   * est désormais au plan sans condition, et la colonne de gauche montre les
+   * propriétés **à la place** des outils.
    *
-   * Le repli avait dû être **collant** — valable jusqu'à la première
-   * sélection, et plus jamais après — parce qu'un panneau qui va et vient
-   * redimensionnait le plan, et que le plan se remettait alors à l'échelle :
-   * le dessin sautait sous le pointeur au moment précis où l'on venait de
-   * viser. Ce n'était pas le panneau qui avait tort, c'était le
-   * redimensionnement ; il montre désormais plus ou moins de dessin sans rien
-   * remettre à l'échelle, et le panneau peut faire ce que V4 §21 demande :
-   * paraître à la sélection, disparaître au clic dans le vide.
-   *
-   * Le bouton « Inspecteur » devient une **épingle** : enfoncé, le panneau
-   * reste ouvert et montre les propriétés de la vue quand rien n'est désigné —
-   * un objet a des propriétés, une vue aussi. Au repos il n'est pas enfoncé,
-   * et le panneau suit la sélection.
+   * Ce qui suit reste la même règle qu'avant : paraître à la sélection,
+   * disparaître au clic dans le vide. Hors du plan, l'espace ouvert est
+   * lui-même le sujet — un tableau de quantités n'a pas d'outils à offrir.
    */
-  const inspectorHasSubject =
-    tab !== 'plan' ||
-    editor.selection.length > 0 ||
-    inspectedProperty !== undefined;
-  const inspectorShown = layout.inspectorShown || inspectorHasSubject;
-  const columns = gridColumns({ ...layout, inspectorShown });
+  const columnSubject = subjectKey(editor.selection, inspectedProperty);
+  const propertiesAlways = tab !== 'plan';
+  const mode = columnMode({
+    subjectKey: columnSubject,
+    alwaysProperties: propertiesAlways,
+    ...(columnChoice === undefined ? {} : { choice: columnChoice }),
+  });
+  /*
+   * La bascule n'existe que lorsqu'il y a deux choses à montrer.
+   *
+   * Au repos, rien n'est désigné : la colonne pose, et « Propriétés » n'aurait
+   * que les faits de la vue à offrir — l'étage, l'échelle, le rendu. Ils se
+   * demandent depuis la barre haute, où l'inspecteur avait déjà son bouton, et
+   * ne coûtent donc rien dans une colonne dont le budget est de dix boutons
+   * offerts d'un coup.
+   */
+  const modesOffered = mode === 'PROPERTIES' || columnSubject !== '';
+  const columns = gridColumns(layout);
+
+  /**
+   * Sur un téléphone, la colonne est un tiroir : il monte quand on désigne.
+   *
+   * La feuille de style fait du panneau une feuille montante sous 600 px et un
+   * tiroir latéral sous 900. Désigner un mur y répondrait donc dans un panneau
+   * fermé — la réponse serait là, invisible, et il faudrait deux gestes de
+   * plus pour la lire. Le tiroir s'ouvre de lui-même sur une nouvelle
+   * sélection, exactement comme le panneau de droite paraissait sur un écran
+   * large ; on le referme d'un geste vers le bas, du fond, ou avec Échap.
+   */
+  const shownSubject = useRef(columnSubject);
+  useEffect(() => {
+    if (columnSubject === shownSubject.current) return;
+    shownSubject.current = columnSubject;
+    /*
+     * Ne plus rien désigner met fin à l'épisode, et au choix qui allait avec.
+     *
+     * « Montre-moi les outils » vaut pour l'objet qu'on avait sous les yeux en
+     * le disant. Sans cet oubli, le choix survivait à la désélection : on
+     * reprenait le même mur plus tard et la colonne restait sur les outils,
+     * parce que le sujet était redevenu celui du choix. Ce qui n'est plus
+     * désigné n'est plus sous les yeux.
+     */
+    if (columnSubject === '') setColumnChoice(undefined);
+    /*
+     * La question se pose à l'instant du geste, et non au rendu d'avant.
+     *
+     * `useDrawerScreen` répond par un état, et un état vient d'un rendu :
+     * celui où la sélection change n'est pas forcément celui où la mesure de
+     * la fenêtre est arrivée. La feuille restait donc fermée sur le premier
+     * objet désigné après le chargement — le seul moment où quelqu'un
+     * découvre qu'elle monte.
+     */
+    else if (isDrawerScreen()) setMenuOpen(true);
+  }, [columnSubject]);
 
   /*
    * Ce qu'il reste à faire, par étape, dérivé du modèle.
@@ -951,9 +1028,6 @@ function App() {
         ...(patch.sidebarPx === undefined
           ? {}
           : { sidebarPx: boundedWidth(patch.sidebarPx) }),
-        ...(patch.inspectorPx === undefined
-          ? {}
-          : { inspectorPx: boundedWidth(patch.inspectorPx) }),
       };
       saveLayout(
         typeof localStorage === 'undefined' ? undefined : localStorage,
@@ -962,6 +1036,18 @@ function App() {
       return next;
     });
   }, []);
+
+  /**
+   * Montrer les propriétés de ce qui est désigné, quoi qu'on regardait avant.
+   *
+   * Emmener quelqu'un sur un objet sans lui montrer ce que l'objet est, c'est
+   * ne lui en montrer que la moitié : la palette de commandes, le menu d'un
+   * objet et le passage dans l'espace propriétaire finissent tous ici.
+   */
+  const showProperties = useCallback((): void => {
+    setColumnChoice(undefined);
+    changeLayout({ sidebarShown: true });
+  }, [changeLayout]);
 
   /** The object whose actions are open, and where the menu sits. */
   const [objectMenu, setObjectMenu] = useState<
@@ -1175,13 +1261,13 @@ function App() {
       setNavigation((current) =>
         navigationFor(current, { stage, destination: 'plan' }),
       );
-      changeLayout({ inspectorShown: true });
+      showProperties();
       setMenuOpen(false);
       setMessage(
         `${creationStage(stage).label} : la sélection y est modifiable.`,
       );
     },
-    [changeLayout],
+    [showProperties],
   );
 
   /**
@@ -1238,7 +1324,7 @@ function App() {
               {
                 id: 'inspect',
                 label: 'Voir les propriétés',
-                run: () => changeLayout({ inspectorShown: true }),
+                run: () => showProperties(),
               },
             ]),
         ...(editable
@@ -1303,7 +1389,7 @@ function App() {
     },
     [
       activeLevelId,
-      changeLayout,
+      showProperties,
       deleteSelection,
       duplicateSelection,
       editInOwnerStage,
@@ -2074,11 +2160,11 @@ function App() {
         if (bounds !== undefined)
           dispatchEditor({ type: 'ZOOM_SELECTION', bounds });
         // Showing an object without its properties is showing half of it.
-        changeLayout({ inspectorShown: true });
+        showProperties();
       }
       setInspectedProperty(target.propertyPath);
     },
-    [changeLayout, selectNetwork],
+    [showProperties, selectNetwork],
   );
 
   const paletteEntries = useMemo<readonly PaletteEntry[]>(
@@ -2172,7 +2258,13 @@ function App() {
       if (command === undefined) return;
       event.preventDefault();
       // Escape closes the drawer before it touches the drawing: the panel over
-      // the plan is what the user is looking at.
+      // the plan is what the user is looking at. Le navigateur du modèle
+      // passe en premier : il est posé par dessus le tiroir comme par dessus
+      // le dessin, et c'est donc lui qu'on ferme d'abord.
+      if (command === 'tool.select' && navigatorOpen) {
+        setNavigatorOpen(false);
+        return;
+      }
       if (command === 'tool.select' && menuOpen) {
         setMenuOpen(false);
         return;
@@ -2181,7 +2273,7 @@ function App() {
     }
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
-  }, [menuOpen, runShortcut]);
+  }, [menuOpen, navigatorOpen, runShortcut]);
 
   async function importProject(selected: File | undefined): Promise<void> {
     if (selected === undefined) return;
@@ -2473,13 +2565,86 @@ function App() {
     }
   };
 
+  /**
+   * Ce que la sélection est, montré là où étaient les outils.
+   *
+   * C'était la seconde colonne, à droite du dessin ; c'est le second mode de
+   * la seule qui reste. Rien de son contenu n'a changé — un objet a des
+   * propriétés, une vue aussi — seule sa place a changé, et avec elle les
+   * 294 px que le plan lui payait dès qu'on cliquait quelque chose.
+   */
+  const properties = (
+    <>
+      {/*
+       * La progression appartient aux propriétés de l'étape Projet.
+       *
+       * Elle était posée dans les enfants de la colonne, qui ne paraissent
+       * qu'en mode « Outils ». Or hors du plan, l'espace ouvert **est** le
+       * sujet — la colonne y montre donc les propriétés — et le guide
+       * disparaissait précisément là où il est la seule chose à lire. Ce que
+       * l'étape Projet a à dire de ce projet, c'est lui.
+       */}
+      {navigation.stage === 'PROJECT' && (
+        <WorkflowGuide project={file.project} onNavigate={navigateTo} />
+      )}
+      {tab === 'plan' ? (
+        <InspectorPanel
+          project={scenarioProject ?? file.project}
+          selection={editor.selection}
+          stage={navigation.stage}
+          atRest={
+            <ViewProperties
+              editor={editor}
+              levelName={
+                levels.find(({ id }) => id === activeLevelId)?.name ??
+                'aucun niveau'
+              }
+              {...(activeDomain === undefined
+                ? {}
+                : { domainLabel: designDomainLabel(activeDomain) })}
+              renderingId={rendering.id}
+            />
+          }
+          {...(inspectedProperty === undefined
+            ? {}
+            : { expandProperty: inspectedProperty })}
+          onOpenLibrary={(library) => {
+            setTab(library as DestinationId);
+            setMenuOpen(false);
+          }}
+          onEditInOwnerStage={editInOwnerStage}
+          onClear={() => dispatchEditor({ type: 'CLEAR_SELECTION' })}
+          onCommand={runCommand}
+          onMessage={setMessage}
+          onDelete={deleteSelection}
+          {...(scenarioMode === undefined ? {} : { onEdit: editInScenario })}
+        />
+      ) : (
+        <>
+          <h2>{file.project.metadata.name}</h2>
+          <dl className="metrics">
+            {Object.entries(summary).map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </>
+      )}
+      <p className="notice">
+        Les résultats calculés restent dérivés et ne sont pas enregistrés comme
+        source de vérité.
+      </p>
+    </>
+  );
+
   return (
     <AppShell
       columns={columns}
       contextPanelHidden={!layout.sidebarShown}
       drawerOpen={menuOpen}
       onCloseDrawer={() => setMenuOpen(false)}
-      inspectorHidden={!inspectorShown}
       topBar={
         <TopBar
           eyebrow="Mini BIM local-first"
@@ -2516,16 +2681,59 @@ function App() {
               >
                 Navigation
               </button>
+              {/*
+               * L'épingle des propriétés, à la place du bouton « Inspecteur ».
+               *
+               * Il ouvrait une seconde colonne ; il choisit maintenant ce que
+               * la seule montre. Sans rien de désigné, la colonne n'offre pas
+               * la bascule — elle n'aurait qu'une position pleine — et c'est
+               * donc d'ici qu'on demande à lire ce que le plan montre :
+               * l'étage, l'échelle, le rendu, les calques masqués.
+               */}
               <button
                 type="button"
                 className="secondary panel-toggle"
-                aria-pressed={layout.inspectorShown}
-                title="Afficher ou masquer l’inspecteur"
+                aria-pressed={mode === 'PROPERTIES'}
+                aria-controls="workspace-sidebar"
+                title="Montrer les propriétés dans la colonne"
                 onClick={() =>
-                  changeLayout({ inspectorShown: !layout.inspectorShown })
+                  setColumnChoice({
+                    mode: mode === 'PROPERTIES' ? 'TOOLS' : 'PROPERTIES',
+                    subjectKey: columnSubject,
+                  })
                 }
               >
-                Inspecteur
+                Propriétés
+              </button>
+              {/*
+               * L'arborescence s'ouvre d'ici, et de nulle part en permanence.
+               *
+               * Le bouton est dans la barre haute et non dans la colonne : la
+               * colonne a un budget de dix boutons offerts d'un coup, et
+               * chercher un objet dans tout le projet n'est pas une chose
+               * qu'on fait depuis l'étape où l'on est — c'est la question
+               * « où est-ce », qui vaut partout, comme la recherche juste à
+               * côté. L'une cherche par la place, l'autre par le nom.
+               */}
+              <button
+                type="button"
+                className="secondary"
+                aria-pressed={navigatorOpen}
+                /*
+                 * `aria-controls` ne se pose que sur ce qui existe.
+                 *
+                 * L'arborescence n'est dans le document que lorsqu'elle est
+                 * ouverte : annoncer en permanence qu'on la commande désigne
+                 * un identifiant introuvable, et un lecteur d'écran qui suit
+                 * ce lien n'arrive nulle part.
+                 */
+                {...(navigatorOpen
+                  ? { 'aria-controls': 'project-navigator' }
+                  : {})}
+                title="Parcourir les éléments du projet"
+                onClick={() => setNavigatorOpen((open) => !open)}
+              >
+                Éléments
               </button>
               <button className="secondary" onClick={undo}>
                 Annuler
@@ -2571,10 +2779,53 @@ function App() {
             setTab(next);
             setMenuOpen(false);
           }}
+          mode={mode}
+          onSelectMode={(next: ColumnMode) =>
+            setColumnChoice({ mode: next, subjectKey: columnSubject })
+          }
+          modesOffered={modesOffered}
+          properties={properties}
+          context={
+            tab === 'plan' ? (
+              <>
+                <LevelRow
+                  project={file.project}
+                  {...(activeLevelId === undefined
+                    ? {}
+                    : { levelId: activeLevelId })}
+                  onSelectLevel={(levelId) =>
+                    dispatchEditor({ type: 'SET_LEVEL', levelId })
+                  }
+                />
+                {(planAids.includes('ANALYSIS') ||
+                  scenarioMode !== undefined ||
+                  overlayId !== 'none') && (
+                  <OverlayControl
+                    overlayId={overlayId}
+                    onChange={setOverlayId}
+                    {...(drawnOverlay === undefined
+                      ? {}
+                      : { overlay: drawnOverlay })}
+                    warnings={overlayWarnings}
+                    onSelectObjects={(objectIds) => {
+                      // A remark becomes a correction the moment the plan shows
+                      // which objects it is about.
+                      dispatchEditor({ type: 'SELECT_MANY', objectIds });
+                      setTab('plan');
+                      zoomSelection();
+                    }}
+                    {...(climate.length === 0
+                      ? {
+                          unavailableReason:
+                            'Analyse indisponible : aucun résultat de module pour ce projet.',
+                        }
+                      : {})}
+                  />
+                )}
+              </>
+            ) : undefined
+          }
         >
-          {navigation.stage === 'PROJECT' && (
-            <WorkflowGuide project={file.project} onNavigate={navigateTo} />
-          )}
           {tab === 'plan' && (
             <>
               {/*
@@ -2586,15 +2837,6 @@ function App() {
                * toutes lettres ; l'arborescence reste dessous, à un dépliage,
                * pour retrouver et pour corriger.
                */}
-              <LevelRow
-                project={file.project}
-                {...(activeLevelId === undefined
-                  ? {}
-                  : { levelId: activeLevelId })}
-                onSelectLevel={(levelId) =>
-                  dispatchEditor({ type: 'SET_LEVEL', levelId })
-                }
-              />
               {/*
                 Combien d'étages, dans l'espace où l'on bâtit — et nulle part
                 ailleurs : c'est là qu'on se pose la question.
@@ -2629,39 +2871,6 @@ function App() {
                 }
                 onBrowseFamilies={setBrowsing}
               />
-              <details className="project-tree-fold">
-                <summary>Éléments du projet</summary>
-                <ProjectTree
-                  project={file.project}
-                  {...(activeLevelId === undefined
-                    ? {}
-                    : { levelId: activeLevelId })}
-                  selection={editor.selection}
-                  onSelectObject={(objectId) =>
-                    dispatchEditor({ type: 'SELECT', objectId })
-                  }
-                  onFrameObject={(objectId) => {
-                    dispatchEditor({ type: 'SELECT', objectId });
-                    zoomSelection();
-                  }}
-                  onOpenDocuments={() => setTab('documents')}
-                  libraries={librariesOfStage(navigation.stage).map((id) => ({
-                    id,
-                    label: DESTINATION_LABELS[id],
-                  }))}
-                  onOpenLibrary={(library) => {
-                    // Sur un téléphone le panneau est un tiroir : ouvrir une
-                    // destination le referme, sinon il reste devant ce qu'on
-                    // vient d'ouvrir.
-                    setTab(library as DestinationId);
-                    setMenuOpen(false);
-                  }}
-                  onSearch={(query) => {
-                    setPaletteQuery(query);
-                    setPaletteOpen(true);
-                  }}
-                />
-              </details>
               {(file.project.scenarios ?? []).length > 0 && (
                 <section
                   className="overlay-control"
@@ -2713,31 +2922,6 @@ function App() {
                 et sa légende ne peut pas disparaître parce qu'on regarde
                 l'espace du bâtiment.
               */}
-              {(planAids.includes('ANALYSIS') ||
-                scenarioMode !== undefined ||
-                overlayId !== 'none') && (
-                <OverlayControl
-                  overlayId={overlayId}
-                  onChange={setOverlayId}
-                  {...(drawnOverlay === undefined
-                    ? {}
-                    : { overlay: drawnOverlay })}
-                  warnings={overlayWarnings}
-                  onSelectObjects={(objectIds) => {
-                    // A remark becomes a correction the moment the plan shows
-                    // which objects it is about.
-                    dispatchEditor({ type: 'SELECT_MANY', objectIds });
-                    setTab('plan');
-                    zoomSelection();
-                  }}
-                  {...(climate.length === 0
-                    ? {
-                        unavailableReason:
-                          'Analyse indisponible : aucun résultat de module pour ce projet.',
-                      }
-                    : {})}
-                />
-              )}
             </>
           )}
         </ContextPanel>
@@ -3049,74 +3233,6 @@ function App() {
           )}
         </>
       }
-      inspectorSeparator={
-        inspectorShown ? (
-          <PanelSeparator
-            label="Redimensionner l’inspecteur"
-            widthPx={layout.inspectorPx}
-            grows="LEFT"
-            onResize={(inspectorPx) => changeLayout({ inspectorPx })}
-          />
-        ) : (
-          <div className="panel-edge-empty" />
-        )
-      }
-      inspector={
-        <>
-          <p className="panel-label">Inspecteur</p>
-          {tab === 'plan' ? (
-            <InspectorPanel
-              project={scenarioProject ?? file.project}
-              selection={editor.selection}
-              stage={navigation.stage}
-              atRest={
-                <ViewProperties
-                  editor={editor}
-                  levelName={
-                    levels.find(({ id }) => id === activeLevelId)?.name ??
-                    'aucun niveau'
-                  }
-                  {...(activeDomain === undefined
-                    ? {}
-                    : { domainLabel: designDomainLabel(activeDomain) })}
-                  renderingId={rendering.id}
-                />
-              }
-              {...(inspectedProperty === undefined
-                ? {}
-                : { expandProperty: inspectedProperty })}
-              onOpenLibrary={(library) => {
-                setTab(library as DestinationId);
-                setMenuOpen(false);
-              }}
-              onEditInOwnerStage={editInOwnerStage}
-              onClear={() => dispatchEditor({ type: 'CLEAR_SELECTION' })}
-              onCommand={runCommand}
-              onMessage={setMessage}
-              onDelete={deleteSelection}
-              {...(scenarioMode === undefined
-                ? {}
-                : { onEdit: editInScenario })}
-            />
-          ) : (
-            <>
-              <h2>{file.project.metadata.name}</h2>
-              <dl className="metrics">
-                {Object.entries(summary).map(([label, value]) => (
-                  <div key={label}>
-                    <dt>{label}</dt>
-                    <dd>{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </>
-          )}
-          <p className="notice">
-            Les résultats calculés restent dérivés et ne sont pas enregistrés
-            comme source de vérité.
-          </p>
-        </>
-      }
       statusBar={
         <ShellStatusBar
           projectName={file.project.metadata.name}
@@ -3136,6 +3252,59 @@ function App() {
       }
       overlays={
         <>
+          {/*
+           * L'arborescence, ouverte à la demande et par dessus le dessin.
+           *
+           * Elle était un dépliage permanent au bas de la colonne : replié il
+           * ne montrait rien et coûtait quand même sa rangée, son trait et sa
+           * marge, dans la seule colonne qui reste. Elle se pose contre le
+           * plan plutôt que sur la colonne, pour que désigner un mur dedans en
+           * montre les propriétés **à côté** plutôt que dessous.
+           */}
+          {navigatorOpen && (
+            <ModelNavigator
+              leftPx={layout.sidebarShown ? layout.sidebarPx + 20 : 12}
+              onClose={() => setNavigatorOpen(false)}
+            >
+              <Suspense fallback={<p className="hint">Chargement…</p>}>
+                <ProjectTree
+                  project={file.project}
+                  {...(activeLevelId === undefined
+                    ? {}
+                    : { levelId: activeLevelId })}
+                  selection={editor.selection}
+                  onSelectObject={(objectId) =>
+                    dispatchEditor({ type: 'SELECT', objectId })
+                  }
+                  onFrameObject={(objectId) => {
+                    dispatchEditor({ type: 'SELECT', objectId });
+                    zoomSelection();
+                  }}
+                  onOpenDocuments={() => {
+                    setTab('documents');
+                    setNavigatorOpen(false);
+                  }}
+                  libraries={librariesOfStage(navigation.stage).map((id) => ({
+                    id,
+                    label: DESTINATION_LABELS[id],
+                  }))}
+                  onOpenLibrary={(library) => {
+                    // Ouvrir une destination referme ce qui la cachait : le
+                    // navigateur est posé sur le plan, et sur un téléphone le
+                    // panneau est un tiroir.
+                    setTab(library as DestinationId);
+                    setNavigatorOpen(false);
+                    setMenuOpen(false);
+                  }}
+                  onSearch={(query) => {
+                    setPaletteQuery(query);
+                    setPaletteOpen(true);
+                    setNavigatorOpen(false);
+                  }}
+                />
+              </Suspense>
+            </ModelNavigator>
+          )}
           {/*
            * Le reste du métier, ouvert depuis la sous-partie qui le sert.
            *

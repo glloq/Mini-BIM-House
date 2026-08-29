@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 
 import { openStage } from './navigation.js';
+import { openTools } from './panels.js';
 
 /** Les sept espaces, dans l'ordre de la barre. */
 const SPACES = [
@@ -51,6 +52,14 @@ async function showPlan(page: Page): Promise<void> {
 
 async function sweepSections(page: Page, offered: Locator): Promise<boolean> {
   await showPlan(page);
+  /*
+   * La colonne montre une chose à la fois : ce qu'on pose, ou ce qu'on a
+   * désigné. Elle passe aux propriétés dès qu'on désigne un objet — c'est ce
+   * que faisait le panneau de droite, qui paraissait tout seul — et reprendre
+   * un outil demande donc de redire qu'on vient poser. Une personne clique
+   * « Outils » ; le test aussi.
+   */
+  await openTools(page);
   // Le dépliage laissé ouvert par la recherche précédente couvre la rangée des
   // sous-parties : on cherche dans un écran qu'on a soi-même masqué.
   const open = page.locator('.tool-header details.tool-more[open] > summary');

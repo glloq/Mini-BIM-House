@@ -492,6 +492,14 @@ export const BUDGETS = {
    * raison : un budget qui n'a pas vu le dernier commit n'est pas une
    * décision, c'est un chiffre périmé. Le plafond passe à 500, sur le réel.
    *
+   * Et un dernier pour la coque à une colonne : les deux modes de la colonne,
+   * le navigateur d'éléments qui remplace l'arborescence permanente, et ce
+   * qu'il a fallu pour que la rangée haute tienne sur un téléphone. Ce que ça
+   * rend est du dessin : la part du plan monte de deux points à chaque taille
+   * de fenêtre, et la colonne de droite — deux cent quatre-vingt-quatorze
+   * pixels dès qu'on cliquait un objet — n'existe plus. Le plafond passe à
+   * 501.
+   *
    * Et un avec ce que douze contrôles refusaient de dire. Un bouton grisé sans
    * motif se lit comme une panne : on reclique, on cherche le réglage qui le
    * libère, il n'existe pas. Douze le faisaient — « Relier », « Ajouter le
@@ -512,7 +520,7 @@ export const BUDGETS = {
    * premier écran parce que le verrou y est aussi : il vaut pour le premier
    * clic comme pour le millième.
    */
-  totalGzipBytes: 500 * 1024,
+  totalGzipBytes: 501 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

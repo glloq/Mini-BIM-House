@@ -1024,35 +1024,171 @@ test('remembers how wide the panels were made', async ({ page }) => {
     .toBeGreaterThan(before);
   const widened = (await sidebar.boundingBox())!.width;
 
-  // Rien n'est sélectionné : l'inspecteur s'est replié tout seul et a rendu sa
-  // largeur au dessin. Le bouton « Inspecteur » l'épingle ouvert pour qui veut
-  // l'avoir sous les yeux d'abord.
+  /*
+   * Il n'y a plus qu'une colonne, et elle est à gauche.
+   *
+   * L'inspecteur était une seconde colonne à droite du dessin, épinglable
+   * depuis la barre haute. Ce que le bouton commande maintenant, c'est ce que
+   * la colonne montre — ses propriétés à la place de ses outils — et la
+   * largeur du dessin n'y est plus pour rien.
+   */
   const canvas = page.locator('.canvas-panel');
-  await expect(page.locator('#inventory')).toBeHidden();
   const plan = (await canvas.boundingBox())!.width;
-  const inspectorToggle = page.getByRole('button', {
-    name: 'Inspecteur',
-    exact: true,
-  });
-  await inspectorToggle.click();
-  await expect(page.locator('#inventory')).toBeVisible();
-  await expect
-    .poll(async () => (await canvas.boundingBox())!.width)
-    .toBeLessThan(plan);
+  const properties = page
+    .locator('.app-header')
+    .getByRole('button', { name: 'Propriétés', exact: true });
+  await properties.click();
+  await expect(page.locator('.view-properties')).toBeVisible();
+  expect((await canvas.boundingBox())!.width).toBeCloseTo(plan, 0);
 
-  // Le refermer est une préférence : elle survit au rechargement, comme la
-  // largeur du panneau gauche. Elle est dans le navigateur, jamais dans le
-  // projet.
-  await inspectorToggle.click();
-  await expect(page.locator('#inventory')).toBeHidden();
-
+  // La largeur de la colonne, elle, reste une préférence : elle survit au
+  // rechargement. Elle est dans le navigateur, jamais dans le projet.
   await page.reload();
   await expect(page.getByRole('button', { name: 'Fichier' })).toBeVisible();
-  await expect(page.locator('#inventory')).toBeHidden();
   expect((await sidebar.boundingBox())!.width).toBeCloseTo(widened, 0);
+  expect(errors).toEqual([]);
+});
 
-  await inspectorToggle.click();
-  await expect(page.locator('#inventory')).toBeVisible();
+test('ne rend pas un pixel de plan quand on désigne un objet', async ({
+  page,
+}) => {
+  /*
+   * Ce que la colonne unique achète, mesuré.
+   *
+   * L'inspecteur prenait 280 px plus son bord plus sa gouttière — 294 px de
+   * dessin — dès qu'on cliquait un objet, c'est-à-dire à chaque geste de la
+   * journée. Le repli automatique ne rendait cette largeur qu'au repos, et le
+   * repos n'est pas là où l'on travaille.
+   */
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const before = (await canvas.boundingBox())!;
+
+  const wall = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: wall.x - before.x + wall.width * 0.25,
+      y: wall.y - before.y + wall.height / 2,
+    },
+  });
+  await expect(page.locator('.inspector-subject')).toContainText('wall-south');
+
+  // Les propriétés sont dans la colonne de gauche, à la place des outils : le
+  // dessin garde exactement la case qu'il avait.
+  const after = (await canvas.boundingBox())!;
+  expect(after.width).toBeCloseTo(before.width, 0);
+  expect(after.height).toBeCloseTo(before.height, 0);
+  expect(after.x).toBeCloseTo(before.x, 0);
+
+  // Et il n'y a plus rien à droite du dessin : le plan touche le bord.
+  const room = await page.evaluate(() => {
+    const plan = document
+      .querySelector('.plan-canvas')!
+      .getBoundingClientRect();
+    return window.innerWidth - plan.right;
+  });
+  expect(room).toBeLessThan(4);
+  expect(errors).toEqual([]);
+});
+
+test('montre les outils ou les propriétés, jamais l’un sous l’autre', async ({
+  page,
+}) => {
+  /*
+   * Une colonne de 220 px ne porte pas deux panneaux empilés : les propriétés
+   * d'un objet qu'on vient de cliquer se liraient cinq cents pixels plus bas,
+   * sous le sommaire des sous-parties. Elle en montre un à la fois, et
+   * désigner un objet suffit à demander le bon.
+   */
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const column = page.locator('#workspace-sidebar');
+
+  // Au repos, la colonne pose : la bascule n'existe même pas, parce qu'une
+  // bascule dont une position est vide n'en est pas une.
+  await expect(
+    column.getByRole('group', { name: 'Ce que la colonne montre' }),
+  ).toHaveCount(0);
+  await expect(
+    column.getByRole('navigation', { name: 'Sous-parties' }),
+  ).toBeVisible();
+
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const frame = (await canvas.boundingBox())!;
+  const wall = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  await canvas.click({
+    position: {
+      x: wall.x - frame.x + wall.width * 0.25,
+      y: wall.y - frame.y + wall.height / 2,
+    },
+  });
+
+  // Désigner un objet la fait passer aux propriétés, et offre les deux modes.
+  await expect(column.locator('.inspector-subject')).toContainText(
+    'wall-south',
+  );
+  await expect(
+    column.getByRole('navigation', { name: 'Sous-parties' }),
+  ).toHaveCount(0);
+
+  // Reprendre les outils est un clic, et ce choix vaut pour ce mur-là : il ne
+  // dit pas « ne me montre plus jamais un objet ».
+  await column.getByRole('button', { name: 'Outils', exact: true }).click();
+  await expect(
+    column.getByRole('navigation', { name: 'Sous-parties' }),
+  ).toBeVisible();
+  await expect(column.locator('.inspector-subject')).toHaveCount(0);
+
+  await canvas.click({ position: { x: 4, y: 4 } });
+  await canvas.click({
+    position: {
+      x: wall.x - frame.x + wall.width * 0.25,
+      y: wall.y - frame.y + wall.height / 2,
+    },
+  });
+  await expect(column.locator('.inspector-subject')).toContainText(
+    'wall-south',
+  );
+  expect(errors).toEqual([]);
+});
+
+test('n’offre l’arborescence qu’à la demande, et la rend à la demande', async ({
+  page,
+}) => {
+  /*
+   * « Éléments du projet » était un dépliage permanent au bas de la colonne :
+   * replié il ne montrait rien et prenait quand même sa rangée, son trait et
+   * sa marge — dans la seule colonne qui reste, celle qui porte aussi les
+   * propriétés. Retrouver un objet est un geste qu'on fait quelquefois.
+   */
+  const errors = watchConsole(page);
+  await loadDemo(page);
+  const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
+  await expect(tree).toHaveCount(0);
+  await expect(page.getByText('Éléments du projet')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Éléments', exact: true }).click();
+  await expect(tree).toBeVisible();
+
+  // Il est posé contre le dessin et non par dessus la colonne : désigner un
+  // mur dedans en montre les propriétés à côté, et non dessous.
+  const navigator = page.getByRole('dialog', { name: 'Éléments du projet' });
+  const column = (await page.locator('#workspace-sidebar').boundingBox())!;
+  expect((await navigator.boundingBox())!.x).toBeGreaterThanOrEqual(
+    column.x + column.width,
+  );
+  await tree.getByText(/^Murs/).click();
+  await tree.getByRole('button', { name: 'wall-south' }).click();
+  await expect(
+    page.locator('#workspace-sidebar .inspector-subject'),
+  ).toContainText('wall-south');
+
+  // Échap le referme avant de toucher au dessin : c'est lui qu'on regarde.
+  await page.keyboard.press('Escape');
+  await expect(tree).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

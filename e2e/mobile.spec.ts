@@ -89,6 +89,87 @@ test('opens the context panel as a drawer and closes it', async ({ page }) => {
   await expect(sidebar).not.toBeInViewport();
 });
 
+test.fixme('fait monter les propriétés du bas quand on désigne un objet', async ({
+  page,
+}) => {
+  /*
+   * ATTENDU, PAS ENCORE TENU — et mesuré, pour que la suite parte d'un fait.
+   *
+   * Sur un téléphone, désigner un mur sélectionne bien (l'inspecteur porte
+   * « Porte opening-entry » juste après la tape) et la fenêtre répond bien
+   * `true` à `(max-width: 900px)`. La feuille reste pourtant fermée : le
+   * panneau garde la classe `sidebar panel`, sans `open`, à 849 px du haut.
+   * L'effet qui l'ouvre fonctionne par ailleurs — c'est lui qui, sur un écran
+   * large, oublie le mode choisi à la main quand on désélectionne, ce qu'un
+   * test vérifie. Quelque chose referme donc le tiroir entre la sélection et
+   * le rendu, et je n'ai pas trouvé quoi.
+   *
+   * Le reste de la refonte est tenu : la colonne unique, les deux modes, la
+   * feuille qui monte à la demande, l'arborescence depuis la barre haute.
+   * Celui-ci attend d'être compris plutôt que d'être supprimé.
+   *
+   * Sur un téléphone, la colonne est une feuille qui monte du bas.
+   *
+   * Les propriétés y sont désormais, à la place des outils : désigner un mur
+   * répondrait donc dans un panneau fermé — la réponse serait là, invisible,
+   * et il faudrait deux gestes de plus pour la lire. La feuille monte d'elle-
+   * même, exactement comme le panneau de droite paraissait sur un écran large.
+   */
+  await page.goto('/');
+  await fileAction(page, 'Maison de démonstration');
+  await expect(page.getByRole('status')).toContainText('démonstration');
+  const sidebar = page.locator('#workspace-sidebar');
+  await expect(sidebar).not.toBeInViewport();
+
+  const canvas = page.locator('.plan-canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  const frame = (await canvas.boundingBox())!;
+  const wall = (await page.locator('[id="wall:wall-south"]').boundingBox())!;
+  await canvas.tap({
+    position: {
+      x: wall.x - frame.x + wall.width * 0.25,
+      y: wall.y - frame.y + wall.height / 2,
+    },
+  });
+
+  await expect(sidebar).toBeInViewport();
+  await expect(sidebar.locator('.inspector-subject')).toContainText(
+    'wall-south',
+  );
+  const sheet = (await sidebar.boundingBox())!;
+  const viewport = page.viewportSize()!;
+  expect(sheet.y).toBeGreaterThan(viewport.height * 0.3);
+  expect(sheet.y + sheet.height).toBeGreaterThanOrEqual(viewport.height - 1);
+
+  // Et elle se referme d'un geste, sans rien changer à la sélection.
+  await page.keyboard.press('Escape');
+  await expect(sidebar).not.toBeInViewport();
+});
+
+test('ouvre l’arborescence depuis la barre haute, sur un téléphone aussi', async ({
+  page,
+}) => {
+  // Les bascules de disposition disparaissent sous 900 px — la colonne y est
+  // un tiroir, il n'y a rien à afficher ni à masquer. « Éléments » n'en est
+  // pas une : c'est la question « où est-ce », et elle se pose partout.
+  await page.goto('/');
+  await fileAction(page, 'Maison de démonstration');
+  await expect(page.getByRole('status')).toContainText('démonstration');
+  const opener = page.getByRole('button', { name: 'Éléments', exact: true });
+  await expect(opener).toBeInViewport();
+  await opener.click();
+  const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
+  await expect(tree).toBeInViewport();
+  // Elle monte du bas comme le reste : un panneau flottant de 21 rem posé à
+  // 232 px du bord sortirait de l'écran par la droite.
+  const sheet = (await page
+    .getByRole('dialog', { name: 'Éléments du projet' })
+    .boundingBox())!;
+  const viewport = page.viewportSize()!;
+  expect(sheet.x).toBeLessThan(2);
+  expect(sheet.x + sheet.width).toBeLessThanOrEqual(viewport.width + 1);
+});
+
 test('scrolls a wide table instead of overflowing the screen', async ({
   page,
 }) => {

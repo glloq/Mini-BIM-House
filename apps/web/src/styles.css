@@ -93,13 +93,24 @@ button.secondary {
 }
 /* Un panneau défile chez lui plutôt que d'allonger la page. */
 .sidebar,
-.inspector,
 .canvas-panel {
   min-height: 0;
 }
-.sidebar,
-.inspector {
+/*
+ * Ce qui défile dans la colonne est le mode ouvert, pas la colonne.
+ *
+ * Une fiche de propriétés longue poussait le bas de la colonne hors de la
+ * fenêtre et emmenait avec elle la bascule « Outils / Propriétés » — la seule
+ * commande dont on a besoin quand on est perdu dans un panneau. La colonne est
+ * donc une pile de hauteur fixe dont le dernier étage prend ce qui reste et
+ * défile chez lui ; `overflow-y` reste sur la colonne pour ce qui refuserait
+ * de se laisser rétrécir, et parce que c'est ce qui rattrape le tiroir quand
+ * il est rangé hors de l'écran.
+ */
+.sidebar {
+  display: flex;
   overflow-y: auto;
+  flex-direction: column;
 }
 /*
  * Rien ne se pose au-dessus de rien.
@@ -227,15 +238,26 @@ h2 {
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
+/*
+ * La grille ne garde plus de douves autour d'elle.
+ *
+ * Huit pixels à gauche, huit à droite, huit en bas : une gouttière extérieure
+ * qui faisait flotter **deux** panneaux de part et d'autre du dessin. Il n'y
+ * en a plus qu'un, et il est d'un seul côté ; ce que le pourtour coûtait au
+ * plan — seize pixels de large et huit de haut, à toutes les tailles de
+ * fenêtre, celles où la colonne est un tiroir comprises — lui revient. Le
+ * cadre du panneau, son trait et son arrondi, suffisent à dire où le dessin
+ * commence : c'est ce que fait la maquette du §10, bord à bord.
+ *
+ * La gouttière **intérieure** reste : elle sépare la colonne du dessin, et
+ * c'est la seule qui sépare deux choses.
+ */
 .workspace-grid {
   display: grid;
   /* The remembered layout supplies the variable; this is what it starts from. */
-  grid-template-columns: var(
-    --workspace-columns,
-    220px 6px minmax(0, 1fr) 6px 280px
-  );
+  grid-template-columns: var(--workspace-columns, 220px 6px minmax(0, 1fr));
   gap: 0.5rem;
-  padding: 0 0.5rem 0.5rem;
+  padding: 0;
 }
 /*
  * The edge between a panel and the drawing.
@@ -262,14 +284,49 @@ h2 {
   border-color: #2f6f4f;
   color: #1f4c37;
 }
+/*
+ * Les deux métiers de la colonne, annoncés en toutes lettres.
+ *
+ * Elle pose et elle décrit, et elle le fait l'un après l'autre : 220 px de
+ * large ne portent pas deux panneaux empilés, et les propriétés d'un objet
+ * qu'on vient de cliquer ne se lisent pas cinq cents pixels plus bas, sous le
+ * sommaire des sous-parties. Deux boutons collés à ce qu'ils changent, et un
+ * trait qui dit lequel des deux on regarde.
+ */
+.column-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0.6rem -0.15rem 0.5rem;
+  gap: 0.15rem;
+}
+.column-modes button {
+  padding: 0.35rem 0.4rem;
+  border: 1px solid transparent;
+  border-bottom: 2px solid var(--line, #d3ddd7);
+  border-radius: 0.4rem 0.4rem 0 0;
+  background: transparent;
+  color: var(--ink-soft, #5a6860);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+.column-modes button.active {
+  border-bottom-color: #2f6f4f;
+  background: #eef4f0;
+  color: #1f4c37;
+}
+/* Le mode ouvert prend la hauteur qui reste, et défile chez lui. */
+.column-pane {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+}
 .panel {
   border: 1px solid #d3ddd7;
   border-radius: 1rem;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 15px 45px rgba(30, 55, 42, 0.06);
 }
-.sidebar,
-.inspector {
+.sidebar {
   padding: 1.1rem;
 }
 .sidebar nav {
@@ -440,8 +497,10 @@ h2 {
   color: #31443b;
   font-size: 1.1rem;
 }
-.inspector h2 {
+/* Le nom du projet, en tête des propriétés quand elles parlent du projet. */
+.column-pane h2 {
   margin: 0.4rem 0 1.2rem;
+  font-size: 1rem;
 }
 .metrics {
   display: grid;
@@ -501,20 +560,14 @@ h2 {
     display: none;
   }
   /*
-   * L'inspecteur passe sous le plan — et n'en prend pas la moitié.
+   * Les propriétés ne prennent plus une rangée sous le plan.
    *
-   * En rangée pleine largeur, la grille lui donnait autant de hauteur qu'au
-   * dessin : sur un écran de 768 px, désigner un mur faisait tomber le plan de
-   * 597 px à 255. Il gardait alors ses 240 px de minimum en **débordant** de
-   * sa case, et tout ce qui est posé sur son bord bas — le calque de fond, la
-   * rose des vents — passait sous la ligne de flottaison.
-   *
-   * Les propriétés d'un objet se lisent ; le plan se dessine.
+   * L'inspecteur y passait en pleine largeur, et la grille lui donnait autant
+   * de hauteur qu'au dessin : sur un écran de 768 px, désigner un mur faisait
+   * tomber le plan de 597 px à 255. Il n'y a plus de seconde colonne à
+   * replier : les propriétés sont dans celle de gauche, à la place des
+   * outils, et le plan garde sa case entière.
    */
-  .inspector {
-    grid-column: 1/-1;
-    max-height: 45vh;
-  }
   .metrics {
     grid-template-columns: repeat(6, 1fr);
   }
@@ -568,6 +621,50 @@ h2 {
   .app-header h1 {
     display: none;
   }
+  /*
+   * Et les commandes se serrent, plutôt que d'en perdre une.
+   *
+   * Six commandes à leur taille de bureau demandent cinq cent vingt-six pixels
+   * là où la rangée en offre trois cent huit. Elle défile — donc rien n'est
+   * perdu — mais elle défile jusqu'à sa fin, et « Panneau » et « Éléments » se
+   * retrouvent hors de l'écran, à gauche, au repos : le tiroir de navigation
+   * devenait inatteignable sur un téléphone.
+   *
+   * Serrer les six vaut mieux qu'en reléguer une dans un menu : sur un
+   * téléphone, ouvrir un menu pour annuler coûte deux gestes là où il en
+   * faut un, et annuler est ce qu'on fait le plus souvent après s'être trompé
+   * du doigt.
+   */
+  .app-header > .actions button {
+    padding: 0.2rem 0.35rem;
+    font-size: 0.7rem;
+  }
+  /*
+   * Et les deux qui ouvrent restent collées au bord, comme la rangée d'outils.
+   *
+   * Serrées, les six commandes demandent encore quatre cent quarante pixels
+   * pour trois cent huit : la rangée défile. Elle se met à sa fin dès qu'on
+   * touche « Fichier » — le navigateur amène ce qui a le focus dans le champ —
+   * et « Panneau » se retrouve alors hors de l'écran, à gauche. Le tiroir de
+   * navigation devenait inatteignable sur un téléphone, pour avoir ouvert un
+   * menu une fois.
+   *
+   * `.tool-row-end` résout déjà exactement cela au-dessus du plan : ce qui
+   * commande ne part pas hors de l'écran parce qu'il y a huit outils devant.
+   * Ce qui ouvre — le tiroir, les éléments — reste donc à gauche quoi qu'il
+   * arrive, et ce sont les commandes du milieu qui défilent.
+   */
+  .app-header > .actions > button:nth-child(-n + 2) {
+    position: sticky;
+    z-index: 1;
+    background: var(--surface, #fff);
+  }
+  .app-header > .actions > button:nth-child(1) {
+    left: 0;
+  }
+  .app-header > .actions > button:nth-child(2) {
+    left: 4.4rem;
+  }
   /* La barre de vue défile plutôt que de rogner, et « Affichage » reste au
      bord : un bouton coupé en deux est un bouton qu'on n'ose pas presser. */
   .canvas-panel > .view-bar {
@@ -579,10 +676,22 @@ h2 {
     padding-left: 0.4rem;
     background: var(--surface-raised);
   }
+  /*
+   * Le voile couvre le plan, jamais la barre qui l'a ouvert.
+   *
+   * Posé sur toute la fenêtre, il prenait aussi les clics de la rangée haute :
+   * le bouton « Panneau » était visible, cliquable en apparence, et le voile
+   * mangeait le geste. Ouvrir le tiroir revenait donc à ne plus pouvoir le
+   * refermer par où on l'avait ouvert — il fallait deviner qu'un clic sur le
+   * voile lui-même le ferme.
+   *
+   * Il commence donc sous la barre. Ce qu'il couvre est ce qu'il doit couvrir :
+   * le dessin et ses outils, pas les commandes de la coque.
+   */
   .drawer-backdrop {
     display: block;
     position: fixed;
-    inset: 0;
+    inset: 44px 0 0 0;
     z-index: 30;
     border: 0;
     padding: 0;
@@ -615,11 +724,6 @@ h2 {
   #plan {
     min-height: 65vh;
   }
-  /* The inspector reads as a panel under the plan rather than a third column. */
-  .inspector {
-    max-height: 45vh;
-    overflow-y: auto;
-  }
   .library-table {
     min-width: 32rem;
   }
@@ -634,6 +738,25 @@ h2 {
  * l'écran — ce que le §10 demande.
  */
 @media (max-width: 600px) {
+  /*
+   * Sur un téléphone, le nom de l'application cède la place aux gestes.
+   *
+   * La rangée haute porte six commandes — le tiroir, les éléments, annuler,
+   * rétablir, la recherche et le menu — soit un peu plus de cinq cents pixels
+   * pour trois cent quatre-vingt-dix disponibles. Elle défile, donc rien
+   * n'était perdu ; mais elle défilait **jusqu'à sa fin**, et les deux
+   * premières commandes se trouvaient hors de l'écran au repos, à gauche. Une
+   * commande qu'il faut faire glisser pour découvrir est une commande que
+   * personne ne découvre.
+   *
+   * Le titre mesure à lui seul ce qui manquait. Le commentaire de la rangée le
+   * disait déjà d'un écran de bureau — « un nom que personne ne relit » — et
+   * c'est encore plus vrai ici : l'onglet du navigateur le porte, et la barre
+   * est le seul endroit où l'on agit.
+   */
+  .app-header h1 {
+    display: none;
+  }
   .sidebar {
     inset: auto 0 0 0;
     width: auto;
@@ -643,10 +766,6 @@ h2 {
   }
   .sidebar.open {
     transform: none;
-  }
-  /* L'inspecteur aussi : deux feuilles, jamais deux colonnes empilées. */
-  .inspector {
-    max-height: 50vh;
   }
 }
 
@@ -2901,17 +3020,58 @@ legend {
   white-space: normal;
 }
 /*
- * Ce que le projet contient, dessous et replié.
+ * Ce que le projet contient, ouvert quand on le demande.
  *
- * Ce n'est pas une rétrogradation : retrouver un mur et poser un mur sont deux
- * gestes différents, et un seul des deux se fait à chaque minute.
+ * C'était un dépliage au bas de la colonne — replié il ne montrait rien et
+ * prenait quand même sa rangée, son trait et sa marge, en permanence, dans la
+ * seule colonne qui reste. Retrouver un mur et poser un mur sont deux gestes
+ * différents, et un seul des deux se fait à chaque minute : celui-là s'ouvre.
+ *
+ * Il se pose contre le dessin et non par dessus la colonne — `--navigator-left`
+ * est la largeur de la colonne, mesurée par la coque — pour que désigner un
+ * mur dedans en montre les propriétés à côté plutôt que dessous.
  */
-.project-tree-fold > summary {
-  padding: 0.3rem 0;
-  color: var(--ink-soft);
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
+.model-navigator {
+  position: fixed;
+  z-index: 32;
+  top: 5.5rem;
+  bottom: 3.5rem;
+  left: var(--navigator-left, 232px);
+  display: flex;
+  width: min(21rem, calc(100vw - var(--navigator-left, 232px) - 1rem));
+  flex-direction: column;
+  padding: 0.75rem 0.9rem;
+  overflow-y: auto;
+  gap: 0.5rem;
+  box-shadow: 0 18px 48px rgba(20, 40, 32, 0.24);
+}
+.model-navigator-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.model-navigator-head h2 {
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+/*
+ * Sur un écran étroit il monte du bas, comme le panneau de contexte.
+ *
+ * Une colonne flottante de 21 rem posée à 232 px du bord n'existe pas sur un
+ * téléphone : elle sortirait de l'écran par la droite, ce qui est exactement
+ * le défaut que l'audit de mise en page cherche.
+ */
+@media (max-width: 900px) {
+  .model-navigator {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    max-height: 70vh;
+    border-radius: 1rem 1rem 0 0;
+  }
 }
 .toolbox {
   display: flex;
@@ -3691,24 +3851,19 @@ button.ghost:disabled {
  * The four widths the arrangement has to answer for.
  *
  * ≥ 1400 : everything at its stated size.
- * 1000–1400 : the inspector gives back what it can, the plan takes it.
+ * 1000–1400 : la colonne garde sa largeur, le plan prend tout le reste.
  * 800–1000 : the panels become drawers; the stage bar stays.
  * < 800 : reading, not drawing.
  *
  * The rule the whole thing hangs on is that the desktop is not sacrificed for
  * a phone that will never draw a plan.
+ *
+ * Entre mille et mille quatre cents pixels, c'était l'inspecteur qui rendait
+ * de la largeur : il listait ce qui était déjà décidé pendant que le plan
+ * était l'endroit où l'on décide. Il n'y a plus de seconde colonne à plafonner
+ * — la droite est au plan à toutes les largeurs — et la première garde la
+ * largeur que la personne lui a réglée.
  */
-@media (min-width: 1000px) and (max-width: 1400px) {
-  /*
-   * The inspector is the one that can afford to lose width: it lists what is
-   * already decided, while the plan is where the deciding happens. Capped
-   * rather than fixed — the remembered widths are still the person's, and
-   * overriding the whole grid took their decision away.
-   */
-  .inspector {
-    max-width: 20rem;
-  }
-}
 @media (max-width: 800px) {
   /*
    * Below this width a plan cannot be drawn with any accuracy, so the
