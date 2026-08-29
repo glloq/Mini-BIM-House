@@ -158,6 +158,19 @@ export interface PlanCanvasProps {
   readonly onFinishRun?: () => void;
   /** Carries the whole selection, once a drag on it has been released. */
   readonly onMoveSelection?: (delta: { x: number; y: number }) => void;
+  /**
+   * Un clic vient de désigner un objet sur le plan.
+   *
+   * Distinct de la sélection elle-même, qui passe par `dispatch` : ce que
+   * cette annonce porte n'est pas « voilà ce qui est désigné » mais « on
+   * vient de le demander ». La colonne en a besoin, parce qu'elle retient ce
+   * qu'on lui a demandé de montrer **pour un sujet donné** : poser un mur le
+   * désigne, revenir aux outils note « outils, pour ce mur-ci », et recliquer
+   * le mur pour le régler ne changeait alors plus rien — le sujet était le
+   * même, la préférence tenait, et les propriétés ne s'ouvraient pas. Un clic
+   * qui désigne est une demande de voir, même quand il ne change rien.
+   */
+  readonly onDesignate?: (objectId: string) => void;
   /** Applies an edit typed on the drawing itself. */
   readonly onCommand?: (command: ProjectCommand) => boolean;
   /**
@@ -289,6 +302,7 @@ export function PlanCanvas({
   aids = [],
   stage,
   onMessage,
+  onDesignate,
   onObjectMenu,
   selectableFamily,
   graphicProfileId,
@@ -1660,8 +1674,11 @@ export function PlanCanvas({
         ...(chosen === undefined ? {} : { objectId: chosen }),
         additive,
       });
+      // Le vide ne se désigne pas : cliquer à côté désélectionne, et la
+      // colonne sait déjà quoi faire d'un sujet devenu vide.
+      if (chosen !== undefined) onDesignate?.(chosen);
     },
-    [dispatch, editor.camera, plan.primitives, selectable],
+    [dispatch, editor.camera, onDesignate, plan.primitives, selectable],
   );
 
   const handleUp = useCallback(

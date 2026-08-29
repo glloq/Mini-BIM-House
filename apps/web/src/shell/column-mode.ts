@@ -58,6 +58,25 @@ export interface ColumnModeInput {
    * même sans sélection — hors du plan, l'espace ouvert **est** le sujet.
    */
   readonly alwaysProperties: boolean;
+  /**
+   * Vrai quand un outil est en main, c'est-à-dire qu'on est en train de poser.
+   *
+   * C'est la nuance qui manquait quand poser s'est mis à désigner ce qu'on
+   * pose. Désigner est juste — on veut voir ce qu'on vient de faire, ses
+   * poignées, ses actions — mais faire basculer la colonne avec, c'est
+   * remplacer la boîte à outils au moment précis où l'on s'en sert : on pose
+   * un mur, on veut poser une porte, et le sommaire des sous-parties n'est
+   * plus là. Mesuré : un geste de plus pour chaque objet posé après le
+   * premier, sur un écran où poser est ce qu'on fait tout le temps.
+   *
+   * L'outil en main l'emporte donc sur la sélection. Ce n'est pas une
+   * exception : c'est la phrase de l'en-tête prise au mot — au repos, une
+   * application de dessin sert à régler ce qu'on a dessiné ; outil en main,
+   * elle sert à dessiner. Ce qu'on vient de poser reste désigné, avec ses
+   * poignées sur le plan et ses actions dans la barre ; ses propriétés sont à
+   * un clic, comme elles l'ont toujours été.
+   */
+  readonly toolInHand: boolean;
   readonly choice?: ColumnChoice;
 }
 
@@ -71,9 +90,13 @@ export interface ColumnModeInput {
 export function columnMode({
   subjectKey: subject,
   alwaysProperties,
+  toolInHand,
   choice,
 }: ColumnModeInput): ColumnMode {
   if (choice !== undefined && choice.subjectKey === subject) return choice.mode;
-  if (alwaysProperties || subject !== '') return 'PROPERTIES';
-  return 'TOOLS';
+  // Hors du plan, l'espace ouvert est le sujet et il n'y a pas d'outil : la
+  // question ne se pose pas.
+  if (alwaysProperties) return 'PROPERTIES';
+  if (toolInHand) return 'TOOLS';
+  return subject === '' ? 'TOOLS' : 'PROPERTIES';
 }

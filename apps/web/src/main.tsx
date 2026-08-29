@@ -86,8 +86,8 @@ import {
 import type { InspectorEdit } from './editor/inspector-edits.js';
 import type { CheckFix } from './checks/checks-model.js';
 import {
-  completionModeOf,
   designatesWhatItCreates,
+  completionModeOf,
   isOpenEnded,
   objectsCreatedSince,
   optionsOf,
@@ -932,6 +932,7 @@ function App() {
   const mode = columnMode({
     subjectKey: columnSubject,
     alwaysProperties: propertiesAlways,
+    toolInHand: tab === 'plan' && editor.activeTool !== 'SELECT',
     ...(columnChoice === undefined ? {} : { choice: columnChoice }),
   });
   /*
@@ -1047,8 +1048,42 @@ function App() {
    */
   const showProperties = useCallback((): void => {
     setColumnChoice(undefined);
+    /*
+     * Et l'outil se repose, parce qu'on vient de dire qu'on va regarder.
+     *
+     * La colonne garde les outils tant qu'un outil est en main — sans quoi
+     * poser un objet remplacerait la boîte au moment où l'on s'en sert. Les
+     * quatre chemins qui aboutissent ici disent tous la même chose : « amène-
+     * moi sur cet objet-là » — la palette, le menu d'un objet, le passage
+     * dans l'espace qui le possède, l'arborescence. Aucun ne veut dire « et
+     * continue de poser des murs ». Reposer l'outil est donc ce que le geste
+     * demande, et non un effet de bord : ce serait sans cela un écran qui
+     * mène quelqu'un jusqu'à un objet et lui montre autre chose.
+     */
+    dispatchEditor({ type: 'SET_TOOL', tool: 'SELECT' });
     changeLayout({ sidebarShown: true });
   }, [changeLayout]);
+
+  /**
+   * Cliquer un objet est une demande de le voir, même s'il était déjà désigné.
+   *
+   * La colonne retient ce qu'on lui a demandé de montrer **pour un sujet
+   * donné**, et c'est ce qui la rend paisible : on repasse aux outils pendant
+   * qu'un mur est désigné, et elle y reste tant que ce mur est le sujet.
+   *
+   * Depuis que poser un objet le désigne, cette mémoire se retournait contre
+   * son propriétaire : on pose un mur — il est désigné —, on revient aux
+   * outils, et recliquer ce mur pour le régler ne montrait plus rien. Le sujet
+   * n'avait pas changé, donc la préférence tenait, et les propriétés
+   * n'arrivaient jamais. Rien à l'écran ne pouvait le faire comprendre.
+   *
+   * Le clic efface donc la préférence sans rien ouvrir d'autre : à la
+   * différence de `showProperties`, il ne déplie pas la colonne repliée d'un
+   * téléphone, où un clic sur le plan doit pouvoir rester un clic sur le plan.
+   */
+  const forgetColumnChoice = useCallback((): void => {
+    setColumnChoice(undefined);
+  }, []);
 
   /** The object whose actions are open, and where the menu sits. */
   const [objectMenu, setObjectMenu] = useState<
@@ -1906,10 +1941,20 @@ function App() {
      *
      * La désignation elle-même n'est plus faite ici : `commitPoints` la fait
      * pour tout outil qui pose, en comparant le projet avant et après, et ce
-     * qui était vrai d'une surface fermée l'est de tout ce qu'on pose. Ne
-     * reste ici que ce qui appartient en propre à une surface fermée — le
-     * retour à la Sélection, parce que ses poignées ne se dessinent que dans
-     * l'état de repos, qui est celui où l'on corrige.
+     * qui était vrai d'une surface fermée l'est de tout ce qu'on pose.
+     *
+     * Reste le retour à la Sélection, qui appartient en propre à une surface
+     * fermée : ses poignées ne se dessinent que dans l'état de repos, qui est
+     * celui où on la corrige.
+     *
+     * Il est désormais inconditionnel, et c'est une correction. Le code
+     * d'avant cherchait la surface neuve dans `session.current` juste après
+     * avoir lancé la commande — parfois elle y était, parfois la mise à jour
+     * n'était pas encore passée. Fermer une trémie par son bouton reposait
+     * donc l'outil, fermer un pan de toiture en recliquant son premier coin
+     * ne le reposait pas, et rien dans le code ne décidait cela : c'était le
+     * minutage. Deux gestes qui font la même chose la faisaient
+     * différemment, et personne ne pouvait le prévoir.
      */
     commitPoints(editor.pendingPoints, editor.pendingPicks);
     dispatchEditor({ type: 'FINISH_RUN' });
@@ -2458,8 +2503,11 @@ function App() {
       for (const objectId of objectIds)
         dispatchEditor({ type: 'SELECT', objectId, additive: true });
       setTab('plan');
+      // Choisir un objet dans l'arborescence est une demande de le voir : on
+      // n'y descend pas pour continuer à poser des murs.
+      showProperties();
     },
-    [setTab],
+    [setTab, showProperties],
   );
 
   /** Takes the user where a finding can actually be dealt with. */
@@ -3168,6 +3216,7 @@ function App() {
                 stage={navigation.stage}
                 onMessage={setMessage}
                 onCommitPoints={commitPoints}
+                onDesignate={forgetColumnChoice}
                 onPlacementRotation={(rotationDeg) => {
                   placementRotation.current = rotationDeg;
                 }}
@@ -3405,11 +3454,15 @@ function App() {
                     ? {}
                     : { levelId: activeLevelId })}
                   selection={editor.selection}
-                  onSelectObject={(objectId) =>
-                    dispatchEditor({ type: 'SELECT', objectId })
-                  }
+                  onSelectObject={(objectId) => {
+                    dispatchEditor({ type: 'SELECT', objectId });
+                    // Chercher un objet dans l'arborescence est une demande de
+                    // le voir : personne n'y descend pour continuer à poser.
+                    showProperties();
+                  }}
                   onFrameObject={(objectId) => {
                     dispatchEditor({ type: 'SELECT', objectId });
+                    showProperties();
                     zoomSelection();
                   }}
                   onOpenDocuments={() => {

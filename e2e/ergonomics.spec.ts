@@ -297,6 +297,19 @@ test('percer une fenêtre, puis lui choisir une menuiserie', async ({
    * perce, et la baie est désignée en naissant. En choisir une autre reste un
    * geste, et un seul.
    */
+  /*
+   * Un geste pour ouvrir les propriétés, un pour changer de modèle.
+   *
+   * La colonne garde les outils tant qu'un outil est en main : on vient de
+   * percer une fenêtre, on va probablement en percer une autre, et lui
+   * remplacer la boîte par une fiche coûterait un geste à chaque ouverture
+   * suivante. La baie est désignée pour autant — ses poignées sont là, ses
+   * actions aussi — et ses propriétés sont à un clic.
+   */
+  await page
+    .locator('#workspace-sidebar')
+    .getByRole('button', { name: 'Propriétés', exact: true })
+    .click();
   const model = page.locator('#inspector-definitionId');
   await expect(model).not.toHaveValue('');
   await model.selectOption({ index: 1 });
@@ -305,7 +318,7 @@ test('percer une fenêtre, puis lui choisir une menuiserie', async ({
   await expectGestures(
     page,
     'percer une fenêtre, puis lui choisir une menuiserie',
-    5,
+    6,
   );
 });
 

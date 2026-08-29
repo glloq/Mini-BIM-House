@@ -280,7 +280,7 @@ describe('le registre des actions', () => {
     const network = (house.systems ?? [])[0]!;
     const edge = network.edges[0]!;
     const nodeOfPort = new Map(
-      network.ports.map((port) => [port.id as string, port.nodeId as string]),
+      network.ports.map((port) => [port.id, port.nodeId]),
     );
     const ends = [
       nodeOfPort.get(edge.fromPortId)!,

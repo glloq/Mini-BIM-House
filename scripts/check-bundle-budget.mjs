@@ -335,8 +335,15 @@ export const BUDGETS = {
    * dire montrer un bouton dont on ne sait pas encore s'il est possible, ce
    * qui est précisément le défaut qu'on vient de corriger ailleurs. Le plafond
    * passe à 269.
+   *
+   * Et un dernier pour ce que le premier écran doit désormais savoir de ce
+   * qu'on vient de poser : quels objets un niveau porte avant et après une
+   * commande, quelle menuiserie convient à ce qu'une ouverture perce, et si
+   * un outil est en main quand la colonne choisit ce qu'elle montre. Trois
+   * questions qui se posent au premier clic, donc trois réponses qui ne
+   * peuvent pas attendre. Le plafond passe à 270.
    */
-  initialGzipBytes: 269 * 1024,
+  initialGzipBytes: 270 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
