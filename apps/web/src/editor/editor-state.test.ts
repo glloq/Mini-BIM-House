@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   constrainPoint,
+  snapWithHeldConstraint,
   resolveDraftPoint,
   createEditorState,
   DEFAULT_SNAP,
@@ -264,6 +265,39 @@ describe('drawing constraints', () => {
       {},
     );
     expect(point.y).toBeCloseTo(60, 6);
+  });
+
+  it('rend la contrainte le temps d’une touche, dans les deux sens', () => {
+    /*
+     * `Maj` inverse, elle n'impose pas.
+     *
+     * L'orthogonal est allumé par défaut : une touche qui l'imposerait ne
+     * ferait rien la plupart du temps. Ce dont on a besoin en dessinant, c'est
+     * de s'en échapper pour un seul segment — un rampant, une diagonale de
+     * charpente — et de le rétablir pour un seul segment quand il est éteint.
+     */
+    const libre = constrainPoint(
+      { x: 0, y: 0 },
+      { x: 1000, y: 60 },
+      snapWithHeldConstraint(DEFAULT_SNAP, true),
+      {},
+    );
+    expect(libre.y).toBeCloseTo(60, 6);
+
+    const ramene = constrainPoint(
+      { x: 0, y: 0 },
+      { x: 1000, y: 60 },
+      snapWithHeldConstraint({ ...DEFAULT_SNAP, orthogonal: false }, true),
+      {},
+    );
+    expect(ramene.y).toBeCloseTo(0, 6);
+
+    // Et le réglage lui-même n'est jamais touché : une contrainte momentanée
+    // qui laisserait la case cochée à l'envers serait un réglage à remettre.
+    const settings = { ...DEFAULT_SNAP };
+    snapWithHeldConstraint(settings, true);
+    expect(settings.orthogonal).toBe(DEFAULT_SNAP.orthogonal);
+    expect(snapWithHeldConstraint(settings, false)).toBe(settings);
   });
 
   it('returns the target itself for a zero-length draft', () => {

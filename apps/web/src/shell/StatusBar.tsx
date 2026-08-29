@@ -79,8 +79,21 @@ export function StatusBar({ editor, dispatch, levelName }: StatusBarProps) {
        * C'est le seul accrochage qu'on allume et qu'on éteint en dessinant —
        * les autres se règlent une fois. Le mettre avec eux sous « Réglages »
        * le rendait deux clics plus loin que ce qu'il vaut.
+       *
+       * Et il n'a même plus besoin qu'on l'éteigne : `Maj` tenue l'inverse le
+       * temps d'un segment. La case reste, parce qu'un réglage qu'on ne peut
+       * obtenir qu'en tenant une touche est un réglage qu'on tient pendant
+       * une heure ; l'infobulle dit la touche, faute de quoi personne ne la
+       * découvre.
        */}
-      <label className="checkbox status-cell">
+      <label
+        className="checkbox status-cell"
+        title={
+          snap.orthogonal
+            ? 'Les angles suivent le pas angulaire. Maj tenue libère l’angle, le temps d’un segment.'
+            : 'Les angles sont libres. Maj tenue les ramène au pas angulaire, le temps d’un segment.'
+        }
+      >
         <input
           type="checkbox"
           disabled={!snap.enabled}
@@ -180,6 +193,21 @@ export function StatusBar({ editor, dispatch, levelName }: StatusBarProps) {
             />
             °
           </label>
+          {/*
+           * Les deux touches qu'on tient, écrites là où elles agissent.
+           *
+           * Elles ne sont pas dans la palette de commandes, et c'est juste :
+           * une touche tenue ne déclenche rien, elle change le sens du geste
+           * en cours. Mais elle ne s'apprend nulle part non plus, et le
+           * panoramique s'apprenait jusqu'ici en tenant `Maj` par hasard.
+           * Le repli des réglages d'accrochage est l'endroit où l'on vient
+           * quand on cherche comment le dessin se contraint.
+           */}
+          <p className="status-help">
+            <strong>Maj</strong> tenue inverse la contrainte d'angle, le temps
+            d'un segment. <strong>Espace</strong> tenue, ou le bouton du milieu,
+            fait glisser le plan.
+          </p>
         </div>
       </details>
       <label className="status-cell status-number">
