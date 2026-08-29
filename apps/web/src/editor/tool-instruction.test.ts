@@ -5,10 +5,11 @@ import {
   type EditorState,
   type EditorTool,
 } from './editor-state.js';
-import { toolInstruction } from './tool-instruction.js';
+import { defaultPointPrompt, toolInstruction } from './tool-instruction.js';
 import {
   completionModeOf,
   EDITOR_TOOLS,
+  interactionOf,
   isOpenEnded,
   requiredPoints,
 } from './tool-registry.js';
@@ -61,14 +62,73 @@ describe('what the active tool says it expects', () => {
   });
 
   it('counts what is left rather than what is asked', () => {
-    const wall = withTool('WALL', 1);
-    expect(toolInstruction(wall).next).toBe('Cliquez le second point.');
-    expect(toolInstruction(withTool('WALL', 0)).next).toBe(
-      'Cliquez le premier point.',
+    // Trois clics : celui qu'on fait est nommé, et ceux qui restent comptés.
+    expect(toolInstruction(withTool('DIMENSION', 1)).next).toContain(
+      '2 restant(s)',
     );
-    // Un outil d'un seul point dit ce qu'il pose, parce que « le premier
-    // point » d'un composant ne veut rien dire.
-    expect(toolInstruction(withTool('COMPONENT', 0)).next).toContain('poser');
+    expect(toolInstruction(withTool('DIMENSION', 0)).next).not.toContain(
+      'restant',
+    );
+    // Deux clics : « il en reste un » après le premier n'apprend rien.
+    expect(toolInstruction(withTool('WALL', 1)).next).not.toContain('restant');
+  });
+
+  it('dit ce que le clic vise, et non son rang, quand l’outil le déclare', () => {
+    // Le grief de fond : « premier point / second point » est exact et muet.
+    // Décaler demande un mur puis un côté, et ces deux gestes n'ont rien de
+    // commun ; les nommer par leur rang le cachait.
+    expect(toolInstruction(withTool('OFFSET', 0)).next).toBe(
+      'Cliquez le mur à décaler.',
+    );
+    expect(toolInstruction(withTool('OFFSET', 1)).next).toBe(
+      'Cliquez le côté du mur et la distance voulue.',
+    );
+    expect(toolInstruction(withTool('WALL', 0)).next).toBe(
+      'Cliquez le début du mur.',
+    );
+    expect(toolInstruction(withTool('WALL', 1)).next).toBe(
+      'Cliquez son extrémité.',
+    );
+    // Un outil d'un seul clic aussi : « où poser ouverture » ne disait pas
+    // qu'il faut viser un mur, et un clic dans le vide ne perçait rien.
+    expect(toolInstruction(withTool('OPENING', 0)).next).toBe(
+      'Cliquez le mur qui recevra la porte ou la fenêtre.',
+    );
+  });
+
+  it('emprunte les mots de l’outil sans lui laisser la phrase entière', () => {
+    // L'étape fournit ce que le clic vise ; ce qui est déjà posé, comment on
+    // referme et comment on sort restent composés ici. Un outil qui écrirait
+    // sa phrase complète serait un outil de plus à ne pas oublier de mettre à
+    // jour, et c'est exactement ce qu'on refuse.
+    const said = toolInstruction(withTool('SITE', 3));
+    expect(said.next).toBe(
+      'Cliquez le coin suivant — 3 posé(s), ou recliquez le premier sommet.',
+    );
+    expect(said.finish).toContain('Fermer la surface');
+  });
+
+  it('répète la dernière étape pour un tracé qui n’a pas de dernier clic', () => {
+    // Un mur continu n'a pas de trentième coin qui mérite sa propre phrase.
+    const steps = interactionOf('WALL_RUN')!;
+    const last = steps[steps.length - 1]!.prompt;
+    for (const placed of [2, 3, 9]) {
+      expect(toolInstruction(withTool('WALL_RUN', placed)).next).toContain(
+        last,
+      );
+    }
+  });
+
+  it('décrit par le rang l’outil qui ne déclare rien, exactement comme avant', () => {
+    // La promesse faite à tout outil ajouté demain sans étapes : la phrase
+    // dérivée du seul nombre de points, mot pour mot celle d'hier. On la
+    // vérifie ici plutôt qu'à travers le registre, dont la part d'outils non
+    // déclarés a vocation à tomber à zéro.
+    expect(defaultPointPrompt(0, 2)).toBe('Cliquez le premier point');
+    expect(defaultPointPrompt(1, 2)).toBe('Cliquez le second point');
+    expect(defaultPointPrompt(1, 3)).toBe('Cliquez le deuxième point');
+    expect(defaultPointPrompt(2, 3)).toBe('Cliquez le troisième point');
+    expect(defaultPointPrompt(5, 9)).toBe('Cliquez le 6ᵉ point');
   });
 
   it('nomme le geste qui achève, et il n’est jamais Ctrl+Entrée', () => {

@@ -103,9 +103,10 @@ test('ferme une toiture en recliquant son premier sommet', async ({ page }) => {
   // un sommet de plus au même endroit.
   await page.locator('.plan-canvas').click({ position: placed[0]! });
   await expect(page.getByRole('status')).toContainText(/toiture/iu);
-  // Et le tracé est bien fini : l'outil repart de son premier sommet.
+  // Et le tracé est bien fini : l'outil repart de sa première étape, qui dit
+  // désormais de quel objet elle parle plutôt que le rang du clic.
   await expect(page.locator('.context-instruction')).toContainText(
-    'premier sommet',
+    'premier coin de la toiture',
   );
 });
 

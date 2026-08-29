@@ -14,7 +14,12 @@ import {
   openLayerEditor,
   openModelTree,
 } from './support/panels.js';
-import { chooseTool, openSection, toolButton } from './support/tools.js';
+import {
+  chooseTool,
+  openSection,
+  toolButton,
+  toolField,
+} from './support/tools.js';
 
 /**
  * Console errors are a failure, not noise: a blank page caused by an unhandled
@@ -1309,16 +1314,27 @@ test('offsets, joins and aligns walls from the plan', async ({ page }) => {
   await page.getByRole('button', { name: 'Annuler', exact: true }).click();
   await expect(walls).toHaveCount(6);
 
-  // Aligner demande au moins deux objets, et le dit.
+  /*
+   * Aligner demande au moins deux objets — et ne s'affiche plus du tout tant
+   * qu'il n'y en a qu'un.
+   *
+   * La barre ne montre que les quelques actions qui comptent pour l'objet
+   * désigné, le reste derrière un « … ». Un alignement sur un objet seul
+   * n'aligne rien : le griser occupait une des cinq places pour un bouton dont
+   * la réponse est toujours non.
+   */
   await chooseTool(page, 'Sélection');
   await canvas.click({ position: await onWall('wall-partition-v', 0.5, 0.2) });
   await expect(
     page.getByRole('button', { name: 'Aligner à gauche' }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   await canvas.click({
     position: await onWall('wall-west', 0.5, 0.3),
     modifiers: ['ControlOrMeta'],
   });
+  // À deux, les quatre alignements sont là — repliés ensemble, parce qu'ils
+  // vont ensemble et qu'ils sont quatre.
+  await page.getByRole('button', { name: /^… \(/u }).click();
   await page.getByRole('button', { name: 'Aligner à gauche' }).click();
   await expect(page.getByRole('status')).toContainText('Aligner à gauche');
 
@@ -1575,7 +1591,9 @@ test('reaches a column and a component through the project tree', async ({
   // A name the reference house does not already hold: the tree lists what is
   // in the project, and two lines reading the same thing prove nothing about
   // which one was clicked.
-  await page.getByLabel('Nom').fill('Radiateur d’essai');
+  await (
+    await toolField(page, page.getByLabel('Nom'))
+  ).fill('Radiateur d’essai');
   await canvas.click({
     position: { x: box.width * 0.3, y: box.height * 0.35 },
   });
@@ -1934,7 +1952,11 @@ test('shows nothing above the plan until something is being done', async ({
       y: east.y - box.y + east.height * 0.25,
     },
   });
-  await expect(bar.getByRole('group', { name: 'Alignement' })).toBeVisible();
+  // Le groupe ne s'appelle plus « Alignement » : il ne porte plus seulement
+  // des alignements, mais ce que cet objet-là permet de faire.
+  await expect(
+    bar.getByRole('group', { name: 'Actions de la sélection' }),
+  ).toBeVisible();
   await expect(bar).not.toContainText('Quitter l’outil');
 
   // Un seul écran pour tout le monde : ce que l'étape ne propose pas est à un
@@ -2478,17 +2500,17 @@ test('says what the active tool expects, and how to stop', async ({ page }) => {
   // cliquer une fois ou deux, ni comment on arrête un tracé qui ne s'arrête
   // pas tout seul. On le découvrait en se trompant.
   await chooseTool(page, 'Mur');
-  await expect(bar).toContainText('Cliquez le premier point.');
+  await expect(bar).toContainText('Cliquez le début du mur.');
   await expect(bar).not.toContainText('Échap');
 
   const canvas = page.locator('.plan-canvas');
   const frame = (await canvas.boundingBox())!;
   await canvas.click({ position: { x: 60, y: frame.height - 40 } });
-  await expect(bar).toContainText('Cliquez le second point.');
+  await expect(bar).toContainText('Cliquez son extrémité.');
   // Et une issue apparaît dès qu'il y a quelque chose à abandonner.
   await expect(bar).toContainText('Échap');
   await bar.getByRole('button', { name: 'Annuler le tracé' }).click();
-  await expect(bar).toContainText('Cliquez le premier point.');
+  await expect(bar).toContainText('Cliquez le début du mur.');
 
   // Un tracé qui ne s'arrête pas tout seul dit comment on l'arrête.
   await chooseTool(page, 'Mur continu');
@@ -2504,12 +2526,20 @@ test('names an entry by what it places, and pre-fills its fiche', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await openStage(page, 'Systèmes');
+  /*
+   * Un WC se pose en meublant une salle de bain, et se raccorde ensuite.
+   *
+   * L'entrée était offerte deux fois — ici et dans Systèmes › Eau — et la
+   * seconde était un bouton mort : un appareil sanitaire appartient à
+   * l'Aménagement, donc le verrou refusait le geste à l'endroit même qui le
+   * proposait. Le doublon est parti ; c'est celle-ci qui reste.
+   */
+  await openStage(page, 'Aménagement');
 
   // « WC » n'est pas un vingt-sixième outil : c'est l'outil composant avec la
   // fiche WC déjà désignée. Choisir l'entrée fait les deux d'un coup.
   const toolbox = page.locator('#workspace-sidebar, .tool-header');
-  await openSection(page, 'Eau');
+  await openSection(page, 'Salle de bain');
   await toolbox.getByRole('button', { name: 'WC', exact: true }).click();
   await expect(page.getByLabel('Catégorie')).toHaveValue('SANITARY');
   await expect(page.getByLabel('Modèle catalogue')).toHaveValue(/generic-wc/u);
@@ -2528,8 +2558,8 @@ test('names an entry by what it places, and pre-fills its fiche', async ({
   // dépliage — les autres sous-parties de **cet** espace, et non celles des
   // six autres : « Mur » appartient au bâtiment.
   const parts = page.getByRole('navigation', { name: 'Sous-parties' });
-  await expect(parts.getByLabel('Chauffage', { exact: true })).toHaveCount(1);
-  await openSection(page, 'Chauffage');
+  await expect(parts.getByLabel('Cuisine', { exact: true })).toHaveCount(1);
+  await openSection(page, 'Cuisine');
   await expect(
     toolbox.getByRole('button', { name: 'Mur', exact: true }),
   ).toHaveCount(0);
@@ -3292,7 +3322,9 @@ test('places a thing in the building, as an object of the editor', async ({
   // A name the reference house does not already hold: the tree lists what is
   // in the project, and two lines reading the same thing prove nothing about
   // which one was clicked.
-  await page.getByLabel('Nom').fill('Radiateur d’essai');
+  await (
+    await toolField(page, page.getByLabel('Nom'))
+  ).fill('Radiateur d’essai');
 
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
@@ -3331,15 +3363,19 @@ test('routes a run of pipe from port to port on the plan', async ({ page }) => {
   const ports = page.locator('[id^="network-port:water:"]');
   await expect(ports.first()).toBeVisible();
 
-  // Waste water falls by default and pressurised water does not: the tool
-  // reads the discipline of the network chosen just beside.
-  await expect(page.getByRole('spinbutton', { name: 'Pente (%)' })).toHaveValue(
-    '0',
-  );
+  /*
+   * La pente ne se pose que là où elle a une réponse.
+   *
+   * Le champ était offert à côté d'un réseau d'eau sous pression, où
+   * l'incliner ne veut rien dire, et il y valait zéro — une réponse à une
+   * question qu'on ne pose pas. Il paraît maintenant pour les réseaux qui
+   * s'écoulent par gravité, et il y arrive déjà réglé à deux pour cent : une
+   * évacuation horizontale est une évacuation qui ne s'écoule pas.
+   */
+  const slope = page.getByRole('spinbutton', { name: 'Pente (%)' });
+  await expect(slope).toHaveCount(0);
   await network.selectOption({ index: 1 });
-  await expect(page.getByRole('spinbutton', { name: 'Pente (%)' })).toHaveValue(
-    '2',
-  );
+  await expect(await toolField(page, slope)).toHaveValue('2');
   expect(errors).toEqual([]);
 });
 
@@ -3664,8 +3700,20 @@ test('draws the ground the house sits on and its structure', async ({
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   const box = (await canvas.boundingBox())!;
-  await canvas.click({ position: { x: 20, y: 20 } });
-  await canvas.click({ position: { x: box.width - 20, y: 20 } });
+  /*
+   * Sous la rangée d'outils, qui flotte sur la marge haute du plan.
+   *
+   * Elle occupe les trente-quatre premiers pixels du dessin et laisse passer
+   * ce qui ne vise pas ses contrôles — mais ses contrôles, eux, répondent, et
+   * ils se déplacent pendant le tracé : dès le premier sommet posé, la rangée
+   * gagne « Fermer la surface », « Annuler dernier sommet » et les mesures,
+   * qui poussent les menus de l'outil vers la droite. Viser le coin haut droit
+   * du plan y tombait dessus. Quelqu'un qui voit la rangée clique en dessous,
+   * et c'est ce que fait ce test, comme celui des surfaces.
+   */
+  const under = 48;
+  await canvas.click({ position: { x: 20, y: under } });
+  await canvas.click({ position: { x: box.width - 20, y: under } });
   await canvas.click({
     position: { x: box.width - 20, y: box.height - 20 },
   });

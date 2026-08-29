@@ -1198,6 +1198,17 @@ button.icon {
 .plan-canvas.tool-dimension {
   cursor: crosshair;
 }
+/*
+ * Poser un composant se vise comme on trace un mur.
+ *
+ * L'outil ne demande qu'un clic, mais ce clic décide d'un endroit au
+ * centimètre près — contre un mur, dans l'angle d'une pièce — et la flèche du
+ * système ne dit pas où elle pointe. Le fantôme montre l'emprise ; la croix
+ * montre le point. Les deux répondent à deux questions différentes.
+ */
+.plan-canvas.tool-component {
+  cursor: crosshair;
+}
 .plan-canvas-scene {
   position: absolute;
   pointer-events: none;
@@ -2509,12 +2520,65 @@ legend {
   background: none;
   border: none;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
+  /*
+   * Le glyphe à gauche, le nom et sa ligne d'état à droite.
+   *
+   * Une grille plutôt qu'une colonne : le dessin tient les deux lignes de
+   * texte à sa hauteur, et la liste garde un pas régulier même quand une
+   * famille n'a pas de glyphe — la case reste, vide.
+   */
+  display: grid;
+  align-items: center;
+  column-gap: 0.5rem;
+  grid-template-columns: auto minmax(0, 1fr);
   padding: 0.35rem 0;
+  row-gap: 0.15rem;
   text-align: left;
   width: 100%;
+}
+
+.catalog-row > .symbol-glyph {
+  grid-row: 1 / span 2;
+}
+
+/*
+ * Le glyphe du plan, à la taille d'une ligne de liste.
+ *
+ * Il est dessiné au trait, comme sur le plan : un aperçu colorié ne
+ * ressemblerait plus à ce qu'on obtiendra. Le remplissage très pâle des
+ * surfaces est la seule licence — sans lui, un lavabo de vingt-huit pixels
+ * n'est plus qu'un contour qu'on ne distingue pas d'une bouche d'aération.
+ */
+.symbol-glyph {
+  flex: none;
+  color: var(--ink-soft);
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.symbol-glyph polygon,
+.symbol-glyph circle {
+  fill: color-mix(in srgb, currentcolor 12%, transparent);
+}
+
+.symbol-glyph text {
+  fill: currentcolor;
+  stroke: none;
+}
+
+/*
+ * Le carré générique se signale.
+ *
+ * Une famille que la planche ne dessine pas prend le carré de trois cents
+ * millimètres. Le montrer comme les autres ferait croire que c'est **son**
+ * dessin ; en pointillé, il dit ce qu'il est — un objet posé, pas encore
+ * dessiné — et c'est aussi la liste de ce qu'il reste à dessiner.
+ */
+.symbol-glyph[data-source='GENERIC'] {
+  color: var(--line);
+  stroke-dasharray: 40 30;
 }
 
 .catalog-detail {
@@ -2859,6 +2923,69 @@ legend {
   background: var(--surface);
   box-shadow: 0 0.6rem 1.6rem rgb(0 0 0 / 18%);
   overflow-y: auto;
+}
+/*
+ * Les réglages qu'on ne touche presque jamais, repliés.
+ *
+ * Un outil offrait tout ce qu'il sait faire d'un seul coup : cinq menus sur
+ * une rangée de trente-quatre pixels pour tracer un mur continu, dont
+ * « Référence » et « Fermer le contour » que personne ne change une fois sur
+ * dix. Le résultat n'était pas un écran riche, c'était un écran qu'on ne lit
+ * pas : ce qui compte vraiment — l'assemblage — se noyait dans ce qui ne
+ * compte que quelquefois.
+ *
+ * Le repli est un `details`, donc une position que le navigateur tient tout
+ * seul et que le clavier ouvre. Le panneau flotte au-dessus du plan comme le
+ * reste du bandeau, faute de quoi il serait coupé à trente-quatre pixels.
+ *
+ * La classe ne peut pas s'appeler `tool-more` : c'est déjà le « + » de la
+ * palette, dont le `summary` est un carré de deux rem.
+ */
+.tool-option-more {
+  position: relative;
+  flex: none;
+}
+.tool-option-more > summary {
+  padding: 0.2rem 0.45rem;
+  border: 1px dashed var(--line);
+  border-radius: 0.45rem;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  list-style: none;
+}
+.tool-option-more > summary::-webkit-details-marker {
+  display: none;
+}
+.tool-option-more[open] > summary {
+  border-color: var(--accent);
+  border-style: solid;
+}
+.tool-option-more-fields {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  display: flex;
+  width: max-content;
+  max-width: min(22rem, 92vw);
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: var(--surface);
+  box-shadow: 0 0.6rem 1.6rem rgb(0 0 0 / 18%);
+  /*
+   * Le fond du panneau répond, lui aussi.
+   *
+   * `.tool-line *` est à `pointer-events: none` et seuls les contrôles sont
+   * réactivés : sans cette ligne, un clic entre deux champs traverserait le
+   * panneau et tomberait sur le plan, qui poserait un point.
+   */
+  pointer-events: auto;
 }
 /*
  * Les options de l'outil actif, et rien sans outil actif.
@@ -3954,4 +4081,38 @@ button.ghost:disabled {
   color: var(--ink-soft);
   font-size: 0.85rem;
   white-space: nowrap;
+}
+
+/*
+ * Ce qu'il y avait sous le clic, quand il y avait plusieurs choses.
+ *
+ * Posée à l'endroit cliqué, au-dessus du dessin mais sous ce qui s'ouvre par
+ * la barre : c'est une réponse à un geste, pas un panneau. Elle défile si huit
+ * objets se trouvent au même point — ce que la maison de référence sait faire.
+ */
+.pick-choices {
+  position: absolute;
+  z-index: 15;
+  max-height: 12rem;
+  margin: 0.4rem 0 0;
+  border: 1px solid var(--line, #dce4df);
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  overflow-y: auto;
+  background: var(--surface, #fff);
+  box-shadow: 0 6px 18px rgba(12, 24, 19, 0.18);
+  list-style: none;
+}
+.pick-choices button {
+  width: 100%;
+  border: 0;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  text-align: left;
+  background: none;
+}
+.pick-choices button.chosen {
+  border-radius: 0.35rem;
+  font-weight: 700;
+  background: #e4eae6;
 }

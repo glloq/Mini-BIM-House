@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { SYMBOL_LIBRARY_V1 } from '@house-technical-designer/drawing-engine';
+import {
+  planSymbolFor,
+  planSymbolSource,
+  SYMBOL_LIBRARY_V1,
+} from '@house-technical-designer/drawing-engine';
 import { rawGenericEquipmentEntries } from '@house-technical-designer/equipment-catalog';
 import {
   FAMILY_REGISTRY,
@@ -160,5 +164,56 @@ describe('browsing the nomenclature', () => {
   it('offers only the trades that hold families', () => {
     expect(CATALOG_DOMAINS.length).toBeGreaterThan(5);
     expect(CATALOG_DOMAINS.map(({ id }) => id)).toContain('PLUMBING');
+  });
+});
+
+describe('the drawing beside the name', () => {
+  /*
+   * Cinq cent dix-huit noms se ressemblent ; cinq cent dix-huit dessins non.
+   *
+   * La liste ne nommait que la famille — « Applique murale », « Hublot »,
+   * « Réglette » — et on découvrait le dessin en posant. Chaque ligne porte
+   * maintenant le glyphe que le plan prendra, résolu par la même chaîne.
+   */
+  it('porte la catégorie, sans quoi trente-trois familles perdent leur dessin', () => {
+    const rows = catalogRows(entriesByFamily, known);
+    /*
+     * Le maillon du milieu, mesuré et non supposé.
+     *
+     * La chaîne va de la famille à sa catégorie, puis au carré générique. Une
+     * ligne qui n'emporte pas sa catégorie saute le maillon du milieu : la
+     * résolution reste *valide*, elle rend simplement le carré — et l'aperçu
+     * montre alors un dessin que le plan ne fera pas. Rien n'échouerait ; on
+     * verrait des carrés, ce qui est la panne muette qu'on cherche à éviter.
+     *
+     * On compare donc les deux résolutions, avec et sans, et on exige que la
+     * différence soit exactement les familles tenues par leur catégorie.
+     */
+    const tenuesParCategorie = rows.filter(
+      (row) =>
+        planSymbolSource({ familyId: row.familyId, category: row.category }) ===
+        'CATEGORY',
+    );
+    const perduesSansCategorie = rows.filter(
+      (row) =>
+        planSymbolFor({ familyId: row.familyId, category: row.category }) !==
+        planSymbolFor({ familyId: row.familyId }),
+    );
+    expect(tenuesParCategorie.length).toBeGreaterThan(0);
+    expect(perduesSansCategorie.map(({ familyId }) => familyId).sort()).toEqual(
+      tenuesParCategorie.map(({ familyId }) => familyId).sort(),
+    );
+  });
+
+  it('ne montre jamais un glyphe que la planche ne contient pas', () => {
+    // Une case vide dans la liste serait le seul défaut vraiment visible :
+    // la ligne garderait sa hauteur et rien ne s'y dessinerait.
+    const rows = catalogRows(entriesByFamily, known);
+    const manquants = rows
+      .map((row) =>
+        planSymbolFor({ familyId: row.familyId, category: row.category }),
+      )
+      .filter((id) => SYMBOL_LIBRARY_V1.definitions[id] === undefined);
+    expect([...new Set(manquants)]).toEqual([]);
   });
 });

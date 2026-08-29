@@ -72,6 +72,7 @@ import type { ClearanceGroupId } from './editor/clearance-overlay.js';
 import { InspectorPanel } from './editor/InspectorPanel.js';
 import { ViewProperties } from './editor/ViewProperties.js';
 import { ContextToolBar } from './editor/ContextToolBar.js';
+import type { ObjectActionHost } from './editor/object-actions.js';
 import { ToolHeader } from './editor/ToolHeader.js';
 import { toolboxFor } from './editor/toolbox.js';
 import { OverlayControl } from './calculations/OverlayControl.js';
@@ -1185,6 +1186,18 @@ function App() {
    */
   const clipboard = useRef<PlanClipboard>(EMPTY_CLIPBOARD);
 
+  /**
+   * L'orientation que le fantôme de pose montre en ce moment.
+   *
+   * Elle vit sur le plan : `R` la fait tourner, et on la choisit en regardant
+   * l'objet tourner sous le curseur plutôt qu'en tapant un nombre dans une
+   * barre. Elle est gardée dans une référence parce qu'elle change à chaque
+   * mouvement de souris tant qu'on la règle — la porter dans l'état
+   * redessinerait toute la coque pendant un survol, pour un chiffre que seul
+   * le prochain clic consommera.
+   */
+  const placementRotation = useRef<number | undefined>(undefined);
+
   const copySelection = useCallback(() => {
     const taken = copyObjects(
       session.current.file,
@@ -1243,6 +1256,45 @@ function App() {
     if (!runCommand(result.command)) return;
     dispatchEditor({ type: 'SELECT_MANY', objectIds: result.createdIds });
   }, [activeLevelId, editor.selection, editor.snap.gridSpacingMm, runCommand]);
+
+  /**
+   * Ce que l'application sait faire de la sélection, offert au registre.
+   *
+   * Les gestes eux-mêmes ne bougent pas : dupliquer, supprimer, transformer,
+   * aligner, cadrer et désigner les semblables restent écrits une fois ici,
+   * avec leur historique, leurs messages et leur re-sélection. Ce qui change
+   * est qui décide de les proposer — `object-actions.ts` le décide pour tous
+   * les affichages, et `stage-editing.ts` retire ceux qui écrivent quand
+   * l'espace actif ne possède pas ce qui est désigné.
+   *
+   * Certains gestes demandent un point : décaler un mur, le scinder, dériver
+   * un tronçon. Ceux-là n'appellent pas une commande, ils prennent l'outil qui
+   * la construira — et c'est déjà tout ce qui manquait, puisque ces outils
+   * existaient et qu'on ne les trouvait qu'en fouillant la boîte à outils.
+   */
+  const selectionActions = useMemo<ObjectActionHost>(
+    () => ({
+      transform: transformSelection,
+      align: alignSelection,
+      duplicate: duplicateSelection,
+      remove: deleteSelection,
+      frame: frameObject,
+      selectSimilar,
+      startTool: (tool) => dispatchEditor({ type: 'SET_TOOL', tool }),
+      runCommand: (command) => {
+        runCommand(command);
+      },
+    }),
+    [
+      alignSelection,
+      deleteSelection,
+      duplicateSelection,
+      frameObject,
+      runCommand,
+      selectSimilar,
+      transformSelection,
+    ],
+  );
 
   /**
    * Aller modifier la sélection dans l'espace qui la possède.
@@ -1503,6 +1555,16 @@ function App() {
           prefix === ''
             ? crypto.randomUUID()
             : `${prefix}-${crypto.randomUUID()}`,
+        /*
+         * L'orientation vue sous le curseur, telle quelle.
+         *
+         * Une référence et non un état : elle change à chaque mouvement de la
+         * souris quand on maintient `R`, et la faire passer par le rendu
+         * redessinerait la coque entière pendant un survol.
+         */
+        ...(placementRotation.current === undefined
+          ? {}
+          : { placementRotationDeg: placementRotation.current }),
       });
       if (result === undefined) return;
       if (result.status === 'ERROR') {
@@ -2441,6 +2503,19 @@ function App() {
     );
   }, [currentRun, overlayId]);
 
+  /**
+   * La fiche que l'outil composant tient, pour que le plan la dessine avant le
+   * clic.
+   *
+   * Même trajet que l'épaisseur du mur juste en dessous : la coque résout
+   * l'option, le plan reçoit la valeur. Sans elle le plan ne sait pas ce qu'on
+   * s'apprête à poser, et l'aperçu n'a rien à montrer.
+   */
+  const componentDefinitionId = useMemo(
+    () => toolOption(file.project, 'COMPONENT', toolDrafts, 'definitionId'),
+    [file.project, toolDrafts, toolOption],
+  );
+
   const wallThicknessMm = useMemo(() => {
     // The preview is drawn with the thickness of the assembly the tool is set
     // to, which is one of its own options.
@@ -2959,8 +3034,9 @@ function App() {
                     project={file.project}
                     editor={editor}
                     dispatch={dispatchEditor}
-                    onTransform={transformSelection}
-                    onAlign={alignSelection}
+                    stage={navigation.stage}
+                    levelId={activeLevelId}
+                    actions={selectionActions}
                     onCancel={() => dispatchEditor({ type: 'CANCEL' })}
                     onFinish={finishRun}
                   />
@@ -3042,6 +3118,9 @@ function App() {
                 stage={navigation.stage}
                 onMessage={setMessage}
                 onCommitPoints={commitPoints}
+                onPlacementRotation={(rotationDeg) => {
+                  placementRotation.current = rotationDeg;
+                }}
                 onFinishRun={finishRun}
                 onMoveSelection={moveSelection}
                 onCommand={runCommand}
@@ -3051,6 +3130,9 @@ function App() {
                 selectableFamily={selectableFamily}
                 onEditGeometry={editGeometry}
                 wallThicknessMm={wallThicknessMm}
+                {...(componentDefinitionId === ''
+                  ? {}
+                  : { componentDefinitionId })}
                 {...(drawnOverlay === undefined
                   ? {}
                   : { overlay: drawnOverlay })}

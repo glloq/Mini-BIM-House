@@ -140,3 +140,22 @@ export function toolButton(page: Page, label: string): Locator {
     .locator('visible=true')
     .first();
 }
+
+/**
+ * Un réglage de l'outil, où qu'il soit rangé.
+ *
+ * Le bandeau ne montre plus tout d'un coup : ce qu'on change presque toujours
+ * est sous la main, le reste est sous « Plus de réglages ». Un test qui remplit
+ * un champ doit donc faire ce qu'une personne fait — regarder, et déplier si ce
+ * n'est pas là — au lieu de supposer un rangement.
+ *
+ * Le dépliage n'est ouvert que s'il le faut : l'ouvrir systématiquement
+ * poserait un panneau sur le plan pour rien, et le clic suivant tomberait
+ * dessus.
+ */
+export async function toolField(page: Page, field: Locator): Promise<Locator> {
+  if (await field.first().isVisible()) return field;
+  const more = page.locator('.tool-option-more:not([open]) > summary');
+  if ((await more.count()) > 0) await more.first().click();
+  return field;
+}

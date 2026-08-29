@@ -5,10 +5,15 @@ import {
   SetParcelBoundaryCommand,
   UpdateStructuralMemberCommand,
 } from '@house-technical-designer/editor-core';
-import { structuralFootprint } from '@house-technical-designer/core-domain';
+import {
+  structuralFootprint,
+  type SiteObstacle,
+} from '@house-technical-designer/core-domain';
 import { loadDemoProject } from '../demo-project.js';
 import {
+  addSiteAxisCommand,
   addSiteOutlineCommand,
+  addSiteTreeCommand,
   addStructuralMemberCommand,
 } from './editing-commands.js';
 import {
@@ -62,17 +67,22 @@ describe('the ground the house sits on', () => {
     const dispatcher = applied(
       addSiteOutlineCommand(
         PARCEL,
-        { target: 'OBSTACLE', kind: 'TREE', heightMm: 8000, name: 'Tilleul' },
-        'obstacle-tree',
+        {
+          target: 'OBSTACLE',
+          kind: 'BUILDING',
+          heightMm: 8000,
+          name: 'Le voisin',
+        },
+        'obstacle-neighbour-drawn',
       ),
     );
-    // The one this test planted, among the ones already on the plot.
+    // The one this test drew, among the ones already on the plot.
     const obstacle = (dispatcher.project.site.obstacles ?? []).find(
-      ({ id }) => id === 'obstacle-tree',
+      ({ id }) => id === 'obstacle-neighbour-drawn',
     )!;
-    expect(obstacle.kind).toBe('TREE');
+    expect(obstacle.kind).toBe('BUILDING');
     expect(obstacle.heightMm).toBe(8000);
-    expect(obstacle.name).toBe('Tilleul');
+    expect(obstacle.name).toBe('Le voisin');
   });
 
   it('leaves the height unknown when none was given', () => {
@@ -116,24 +126,193 @@ describe('the ground the house sits on', () => {
     const dispatcher = applied(
       addSiteOutlineCommand(
         PARCEL,
-        { target: 'OBSTACLE', kind: 'TREE', heightMm: 8000 },
-        'obstacle-tree',
+        { target: 'OBSTACLE', kind: 'BUILDING', heightMm: 8000 },
+        'obstacle-neighbour-three',
       ),
     );
-    expect(familyOf(dispatcher.project, 'obstacle-tree')?.label).toBe(
-      'Terrain',
-    );
-    expect(boundsOf(dispatcher.project, 'ground', 'obstacle-tree')).toEqual({
+    expect(
+      familyOf(dispatcher.project, 'obstacle-neighbour-three')?.label,
+    ).toBe('Terrain');
+    expect(
+      boundsOf(dispatcher.project, 'ground', 'obstacle-neighbour-three'),
+    ).toEqual({
       min: { x: -5000, y: -5000 },
       max: { x: 20_000, y: 18_000 },
     });
     expect(
-      removalCommandFor(dispatcher.project, 'ground', 'obstacle-tree'),
+      removalCommandFor(
+        dispatcher.project,
+        'ground',
+        'obstacle-neighbour-three',
+      ),
     ).toBeDefined();
     expect(
-      dispatcher.dispatch(new RemoveSiteObstacleCommand('obstacle-tree'))
-        .status,
+      dispatcher.dispatch(
+        new RemoveSiteObstacleCommand('obstacle-neighbour-three'),
+      ).status,
     ).toBe('APPLIED');
+  });
+});
+
+/**
+ * Ce que chaque chose du terrain demande pour être posée.
+ *
+ * Un seul geste servait à tout : trois sommets et on referme, pour la parcelle
+ * comme pour l'arbre. Ces tests tiennent la séparation — et le premier d'entre
+ * eux tient la règle qui compte : ce qui est stocké est un polygone, un seul,
+ * et jamais la cote qui a servi à le fabriquer.
+ */
+describe('ce que le terrain demande, selon ce qu’on y pose', () => {
+  /** L'obstacle que ce test vient de poser, retrouvé par son identifiant. */
+  function obstacle(
+    dispatcher: ProjectCommandDispatcher,
+    id: string,
+  ): SiteObstacle {
+    const found = (dispatcher.project.site.obstacles ?? []).find(
+      (candidate) => candidate.id === id,
+    );
+    if (found === undefined) throw new Error(`aucun obstacle ${id}`);
+    return found;
+  }
+
+  it('plante un arbre d’un seul clic, et en dérive le houppier', () => {
+    const dispatcher = applied(
+      addSiteTreeCommand(
+        { x: 3000, y: 4000 },
+        { crownDiameterMm: 6000, heightMm: 9000, name: 'Tilleul' },
+        'obstacle-tree',
+      ),
+    );
+    const tree = obstacle(dispatcher, 'obstacle-tree');
+    expect(tree.kind).toBe('TREE');
+    expect(tree.heightMm).toBe(9000);
+    expect(tree.name).toBe('Tilleul');
+    // Le houppier est rond : tous les sommets sont à la même distance du point
+    // cliqué, et cette distance est la moitié du diamètre saisi.
+    for (const point of tree.boundary.outer)
+      expect(Math.hypot(point.x - 3000, point.y - 4000)).toBeCloseTo(3000, 6);
+    /*
+     * Et le diamètre lui-même n'est écrit nulle part.
+     *
+     * C'est toute la règle : le polygone est la vérité, la saisie a servi à le
+     * fabriquer. Un diamètre conservé à côté du contour deviendrait faux au
+     * premier sommet déplacé à la souris, sans que rien ne le signale — ce que
+     * cette liste de champs, exhaustive, interdit.
+     */
+    expect(Object.keys(tree).sort()).toEqual([
+      'boundary',
+      'heightMm',
+      'id',
+      'kind',
+      'name',
+    ]);
+  });
+
+  it('refuse de planter un arbre sans savoir où', () => {
+    expect(
+      addSiteTreeCommand(undefined, { crownDiameterMm: 5000 }, 'obstacle-x')
+        .status,
+    ).toBe('ERROR');
+    expect(
+      addSiteTreeCommand({ x: 0, y: 0 }, { crownDiameterMm: 0 }, 'obstacle-x')
+        .status,
+    ).toBe('ERROR');
+  });
+
+  it('trace une haie en polyligne, et l’épaissit de sa largeur', () => {
+    const dispatcher = applied(
+      addSiteAxisCommand(
+        [
+          { x: 0, y: 0 },
+          { x: 10_000, y: 0 },
+          { x: 10_000, y: 6000 },
+        ],
+        { kind: 'HEDGE', widthMm: 1000, heightMm: 2000 },
+        'obstacle-hedge',
+      ),
+    );
+    const hedge = obstacle(dispatcher, 'obstacle-hedge');
+    expect(hedge.kind).toBe('HEDGE');
+    // Trois points d'axe, deux côtés : six sommets, et pas un aller-retour
+    // cliqué à la main.
+    expect(hedge.boundary.outer).toHaveLength(6);
+    expect(hedge.heightMm).toBe(2000);
+    // La largeur non plus n'est pas conservée : seule l'emprise l'est.
+    expect(Object.keys(hedge).sort()).toEqual([
+      'boundary',
+      'heightMm',
+      'id',
+      'kind',
+    ]);
+  });
+
+  it('pose un portail sur ses deux montants', () => {
+    const dispatcher = applied(
+      addSiteAxisCommand(
+        [
+          { x: 0, y: 0 },
+          { x: 3500, y: 0 },
+        ],
+        { kind: 'GATE', widthMm: 80 },
+        'obstacle-gate',
+      ),
+    );
+    const gate = obstacle(dispatcher, 'obstacle-gate');
+    expect(gate.kind).toBe('GATE');
+    // Un rectangle : les deux montants cliqués, et l'épaisseur du trait.
+    expect(gate.boundary.outer).toHaveLength(4);
+  });
+
+  it('refuse un tracé qui n’a pas deux points distincts', () => {
+    expect(
+      addSiteAxisCommand([{ x: 0, y: 0 }], { kind: 'FENCE', widthMm: 80 }, 'x')
+        .status,
+    ).toBe('ERROR');
+    expect(
+      addSiteAxisCommand(
+        [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+        ],
+        { kind: 'FENCE', widthMm: 80 },
+        'x',
+      ).status,
+    ).toBe('ERROR');
+  });
+
+  it('renvoie vers le bon geste plutôt que d’accepter un triangle', () => {
+    /*
+     * Le refus est le cœur de la séparation.
+     *
+     * Tant que le contour fermé acceptait « Arbre », il restait un chemin par
+     * lequel un houppier pouvait naître triangulaire — et c'est celui que la
+     * boîte à outils empruntait. Le refus nomme l'outil à prendre : un refus
+     * qui dit seulement « non » laisse quelqu'un devant un outil qui ne veut
+     * pas de lui.
+     */
+    for (const [kind, mot] of [
+      ['TREE', 'Arbre'],
+      ['HEDGE', 'Haie'],
+      ['FENCE', 'Clôture'],
+      ['GATE', 'Portail'],
+    ] as const) {
+      const refused = addSiteOutlineCommand(
+        PARCEL,
+        { target: 'OBSTACLE', kind },
+        'obstacle-x',
+      );
+      expect(refused.status, kind).toBe('ERROR');
+      if (refused.status === 'ERROR')
+        expect(refused.message, kind).toContain(mot);
+    }
+    // Ce qui est bien une surface passe toujours, et la parcelle aussi.
+    expect(
+      addSiteOutlineCommand(
+        PARCEL,
+        { target: 'OBSTACLE', kind: 'TERRACE' },
+        'obstacle-terrace',
+      ).status,
+    ).toBe('OK');
   });
 });
 

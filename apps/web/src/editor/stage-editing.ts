@@ -31,6 +31,11 @@ import {
 import { canEdit, ownerStageOf, unownedIn } from '../ux/ownership.js';
 import type { InspectorEdit } from './inspector-edits.js';
 import {
+  objectActionsFor,
+  type ObjectAction,
+  type ObjectActionContext,
+} from './object-actions.js';
+import {
   contextActionsFor,
   editsFor,
   sharedEditsFor,
@@ -190,4 +195,34 @@ export function contextActionsInStage(
   return canEdit(stage, project, objectId)
     ? contextActionsFor(project, levelId, objectId)
     : [];
+}
+
+/**
+ * Ce que la sélection offre, depuis cet espace.
+ *
+ * `object-actions.ts` décrit une action une fois pour tous les affichages —
+ * barre contextuelle, menu, palette — et il ne connaît pas les espaces. C'est
+ * ici, et nulle part ailleurs, que la frontière d'édition s'applique à ce
+ * registre : une action qui **écrit** disparaît dès qu'un seul objet de la
+ * sélection appartient à un autre espace ; une action qui **lit** — cadrer,
+ * désigner les semblables — reste, parce qu'on vient précisément lire un mur
+ * depuis Systèmes.
+ *
+ * Un seul objet venu d'ailleurs suffit à tout retirer, comme pour l'édition
+ * commune et la suppression : appliquer un geste à six objets sur sept
+ * laisserait une maison à moitié changée sans que rien ne l'ait dit.
+ *
+ * Que la règle tienne au champ `writes` plutôt qu'à une liste d'actions
+ * autorisées est délibéré : une liste se met à jour, et celle qu'on oublie de
+ * mettre à jour est celle de l'action qu'on vient d'ajouter.
+ */
+export function objectActionsInStage(
+  stage: CreationStageId,
+  context: ObjectActionContext,
+): readonly ObjectAction[] {
+  const blocked =
+    unownedIn(stage, context.project, context.selection).length > 0;
+  return objectActionsFor(context).filter(
+    (action) => !(action.writes && blocked),
+  );
 }

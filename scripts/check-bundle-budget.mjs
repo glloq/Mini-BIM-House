@@ -287,8 +287,35 @@ export const BUDGETS = {
    *   remplace une table écrite en TypeScript et pèse à peu près pareil.
    *
    * Le plafond passe donc à 256.
+   *
+   * Puis deux de plus pour ce que l'outil dit et montre avant qu'on clique :
+   * les étapes sémantiques de vingt-sept outils — « Cliquez le mur à
+   * décaler » plutôt que « Cliquez le premier point » — et l'aperçu du
+   * composant sous le curseur, à ses dimensions réelles, avec le support qu'il
+   * aura et le refus quand il n'y en a pas. Les deux sont du premier écran par
+   * nature : le premier est la phrase du premier outil qu'on prend, le second
+   * est le dessin. Le plafond passe à 258.
+   *
+   * Puis trois pour deux choses qui vivent au premier écran par nature. Les
+   * géométries du terrain d'abord : un arbre se pose d'un clic et son houppier
+   * est dérivé, une haie et une clôture se tracent en polyligne, un portail en
+   * deux points — quatre outils de plus dans le registre, que la boîte offre
+   * dès l'ouverture. Le registre des actions ensuite : ce qu'une famille
+   * d'objet permet de faire, interrogé par la barre contextuelle, qui paraît
+   * au premier objet désigné. Le plafond passe à 261.
+   *
+   * Puis deux pour trois modules d'édition qui vivent au premier écran par
+   * nature. Le rangement des options d'outil d'abord : une option dit
+   * maintenant quand elle s'applique et si elle se règle d'emblée ou après
+   * coup, et la barre ne montre plus les quatre champs d'un obstacle pendant
+   * qu'on trace une parcelle — soixante-six champs offerts d'un coup sur
+   * vingt-deux outils, quarante-quatre désormais. L'orientation de pose
+   * ensuite, et les valeurs exactes d'une rotation ou d'un déplacement : ce
+   * sont les nombres qu'on tape pendant qu'on vise, donc du dessin, donc du
+   * premier clic. Les déclarations qui vont avec sont dans le registre des
+   * outils, qui est chargé avec la boîte. Le plafond passe à 263.
    */
-  initialGzipBytes: 256 * 1024,
+  initialGzipBytes: 263 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -500,6 +527,14 @@ export const BUDGETS = {
    * pixels dès qu'on cliquait un objet — n'existe plus. Le plafond passe à
    * 501.
    *
+   * Et deux pour le contrat d'interaction et l'aperçu avant clic : le détail
+   * est au-dessus, dans le premier écran, où ils vivent tous les deux. Le
+   * total passe à 503.
+   *
+   * Et deux pour les géométries du terrain et le registre des actions : le
+   * détail est au-dessus, au premier écran, où ils vivent aussi. Le total
+   * passe à 505.
+   *
    * Et un avec ce que douze contrôles refusaient de dire. Un bouton grisé sans
    * motif se lit comme une panne : on reclique, on cherche le réglage qui le
    * libère, il n'existe pas. Douze le faisaient — « Relier », « Ajouter le
@@ -519,8 +554,16 @@ export const BUDGETS = {
    * lit donc en comparant l'inventaire avant et après. Ce kio-là est au
    * premier écran parce que le verrou y est aussi : il vaut pour le premier
    * clic comme pour le millième.
+   *
+   * Et trois pour le rangement des options, l'orientation de pose et les
+   * valeurs exactes — le détail est au-dessus, au premier écran, où ils vivent
+   * tous les trois — plus le glyphe du catalogue, qui lui est à la demande :
+   * chaque famille de la nomenclature montre désormais, à côté de son nom, le
+   * dessin que le plan prendra, résolu par la même chaîne. Cinq cent dix-huit
+   * noms se ressemblent ; cinq cent dix-huit dessins non. Le total passe à
+   * 508.
    */
-  totalGzipBytes: 501 * 1024,
+  totalGzipBytes: 508 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

@@ -58,31 +58,32 @@ import { inspectObject, type ObjectKind } from '../editor/object-editors.js';
  * la famille qu'on vient d'ajouter, c'est-à-dire celle dont on n'a pas encore
  * réfléchi à la place.
  */
-const OWNER_OF_KIND: Readonly<Record<ObjectKind, CreationStageId | undefined>> =
-  {
-    SITE: 'SITE',
+export const OWNER_OF_KIND: Readonly<
+  Record<ObjectKind, CreationStageId | undefined>
+> = {
+  SITE: 'SITE',
 
-    WALL: 'BUILDING',
-    SPACE: 'BUILDING',
-    OPENING: 'BUILDING',
-    SLAB: 'BUILDING',
-    SLAB_HOLE: 'BUILDING',
-    STAIR: 'BUILDING',
-    ROOF: 'BUILDING',
-    ROOF_STRUCTURE: 'BUILDING',
-    STRUCTURE: 'BUILDING',
+  WALL: 'BUILDING',
+  SPACE: 'BUILDING',
+  OPENING: 'BUILDING',
+  SLAB: 'BUILDING',
+  SLAB_HOLE: 'BUILDING',
+  STAIR: 'BUILDING',
+  ROOF: 'BUILDING',
+  ROOF_STRUCTURE: 'BUILDING',
+  STRUCTURE: 'BUILDING',
 
-    NETWORK_EDGE: 'SYSTEMS',
-    NETWORK_NODE: 'SYSTEMS',
+  NETWORK_EDGE: 'SYSTEMS',
+  NETWORK_NODE: 'SYSTEMS',
 
-    // Un objet posé est d'Aménagement ou de Systèmes selon ce qu'il est : c'est
-    // sa catégorie qui tranche, pas sa famille. Voir `OWNER_OF_CATEGORY`.
-    COMPONENT: undefined,
+  // Un objet posé est d'Aménagement ou de Systèmes selon ce qu'il est : c'est
+  // sa catégorie qui tranche, pas sa famille. Voir `OWNER_OF_CATEGORY`.
+  COMPONENT: undefined,
 
-    // Dites sur le dessin, corrigées là où on les lit.
-    DIMENSION: undefined,
-    NOTE: undefined,
-  };
+  // Dites sur le dessin, corrigées là où on les lit.
+  DIMENSION: undefined,
+  NOTE: undefined,
+};
 
 /**
  * L'espace propriétaire d'un objet posé, par ce qu'il est.
@@ -100,7 +101,7 @@ const OWNER_OF_KIND: Readonly<Record<ObjectKind, CreationStageId | undefined>> =
  * refuser par l'espace qui venait de le proposer. C'est la même réponse que
  * `domainOfComponentCategory`, qui ne lui attribue aucun métier non plus.
  */
-const OWNER_OF_CATEGORY: Readonly<
+export const OWNER_OF_CATEGORY: Readonly<
   Record<ComponentCategory, CreationStageId | undefined>
 > = {
   FURNITURE: 'FITTING',
@@ -115,7 +116,60 @@ const OWNER_OF_CATEGORY: Readonly<
   PHOTOVOLTAIC: 'SYSTEMS',
 };
 
-/** La catégorie d'un objet posé, cherchée dans les niveaux qui le portent. */
+/**
+ * Ce que la nomenclature sait et que `ComponentCategory` ne sait pas.
+ *
+ * La catégorie grossière compte neuf valeurs pour cinq cents familles, et une
+ * seule de ses cases est vraiment ambiguë : `SANITARY`. Elle range ensemble
+ * l'appareil qu'on pose en meublant une salle de bain — un WC, un lavabo, une
+ * douche — et l'ouvrage de plomberie qui le dessert : la chute, le siphon, le
+ * collecteur, le mitigeur, le ballon. Les premiers appartiennent à
+ * l'Aménagement, les seconds aux Systèmes, et la catégorie les envoyait tous
+ * du même côté.
+ *
+ * La catégorie **fine** les distingue depuis toujours : `SANITARY_FIXTURE`
+ * d'un côté, `DRAINAGE`, `FITTING`, `VALVE`, `DHW_TANK` de l'autre. La donnée
+ * existait ; c'est la règle qui ne la lisait pas.
+ *
+ * Elle ne tranche que ce cas-là. Un premier essai faisait décider le domaine
+ * de la famille pour toutes : un réfrigérateur passait alors aux Systèmes
+ * parce qu'il est électrique, et une prise extérieure au Terrain parce que sa
+ * fiche est rangée là. La catégorie grossière avait raison sur ces deux-là ;
+ * une règle générale qui casse ce qui marchait n'est pas une règle générale.
+ *
+ * Elle ne lit rien du catalogue, et c'est délibéré : `ownership.ts` est du
+ * premier écran, et y importer le registre des familles y faisait entrer les
+ * cinq cent vingt-sept fiches — soixante et onze kio mesurés. Le projet porte
+ * déjà la copie de fiche avec laquelle il a été conçu, catégorie fine
+ * comprise ; c'est elle qu'on lit, et c'est la bonne, puisque c'est celle
+ * d'après laquelle l'objet a été posé.
+ */
+const FURNISHED_FINE_CATEGORY = 'SANITARY_FIXTURE';
+
+export function stageOfFineCategory(
+  fine: string | undefined,
+  coarse: ComponentCategory | undefined,
+): CreationStageId | undefined {
+  if (coarse !== 'SANITARY') return undefined;
+  return fine === FURNISHED_FINE_CATEGORY ? 'FITTING' : 'SYSTEMS';
+}
+
+/** La catégorie fine de la fiche qu'un objet posé désigne, s'il en désigne une. */
+function fineCategoryOf(
+  project: Project,
+  objectId: string,
+): string | undefined {
+  for (const level of project.building.levels)
+    for (const component of level.components ?? [])
+      if (component.id === objectId) {
+        const definitionId = component.definitionId;
+        if (definitionId === undefined) return undefined;
+        return (project.equipment ?? []).find(({ id }) => id === definitionId)
+          ?.category;
+      }
+  return undefined;
+}
+
 function categoryOf(
   project: Project,
   objectId: string,
@@ -140,7 +194,21 @@ export function ownerStageOf(
   const { kind } = inspectObject(project, objectId);
   if (kind === 'UNKNOWN') return undefined;
   if (kind !== 'COMPONENT') return OWNER_OF_KIND[kind];
+  /*
+   * La nomenclature d'abord, la catégorie grossière ensuite.
+   *
+   * `ComponentCategory` compte neuf valeurs pour cinq cents familles : elle
+   * range la chute d'évacuation, le collecteur et le mitigeur avec le lavabo,
+   * sous « sanitaire ». La nomenclature, elle, les distingue depuis toujours.
+   * On lui demande donc en premier, et on retombe sur la catégorie pour ce qui
+   * ne vient d'aucune fiche.
+   */
   const category = categoryOf(project, objectId);
+  const refined = stageOfFineCategory(
+    fineCategoryOf(project, objectId),
+    category,
+  );
+  if (refined !== undefined) return refined;
   return category === undefined ? undefined : OWNER_OF_CATEGORY[category];
 }
 

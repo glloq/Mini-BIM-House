@@ -23,9 +23,7 @@ import {
   dimensionId,
   entityId,
   allRoofPlanes,
-  hostAccepts,
   isWallOpening,
-  levelHosts,
   roofPlaneFrame,
 } from '@house-technical-designer/core-domain';
 import {
@@ -62,7 +60,14 @@ import {
   withoutVertex,
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
+import { chooseHost, type HostChoice } from './host-choice.js';
+import { normalizedAngleDeg } from './placement-angle.js';
 import { polygonSurface } from './polygon-surface.js';
+import {
+  crownFootprint,
+  outlineRefusal,
+  ribbonFootprint,
+} from './site-footprints.js';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import { polygonContains } from '@house-technical-designer/geometry';
 import type { GeometryEdit } from './grips.js';
@@ -331,6 +336,28 @@ export function addWallRectangleCommand(
  * the model does not know it leaves unsaid — a component outside every room is
  * a component with no room, not a component in the first one.
  */
+/**
+ * L'angle réellement écrit dans le projet, entre celui qu'on a choisi et celui
+ * que le support impose.
+ *
+ * Le choix l'emporte sans se composer avec le support : on a vu le fantôme
+ * tourné à l'écran, et c'est ce fantôme-là qu'on pose. Un angle qui n'en est
+ * pas un — une saisie cassée, un calcul dégénéré — n'est pas un choix, et l'on
+ * retombe alors sur le support plutôt que d'écrire un `NaN` dans le fichier.
+ *
+ * L'angle du support, lui, est rendu tel que la géométrie le donne : le
+ * ramener dans le tour changerait la valeur écrite pour tous les composants
+ * déjà posés le long d'un mur qui remonte, sans que personne l'ait demandé.
+ */
+function placedRotationDeg(
+  chosenDeg: number | undefined,
+  hostAngleDeg: number | undefined,
+): number {
+  if (chosenDeg !== undefined && Number.isFinite(chosenDeg))
+    return normalizedAngleDeg(chosenDeg);
+  return hostAngleDeg ?? 0;
+}
+
 export function placeComponentCommand(
   file: ProjectFile,
   levelId: string | undefined,
@@ -340,6 +367,15 @@ export function placeComponentCommand(
     readonly definitionId?: string;
     readonly name?: string;
     readonly elevationMm: number;
+    /**
+     * L'orientation choisie avant de poser, quand quelqu'un en a choisi une.
+     *
+     * Absente, c'est le support qui décide, comme avant : une prise suit son
+     * mur sans qu'on ait rien à dire. Présente, elle l'emporte — elle vient
+     * d'un fantôme qu'on a fait tourner à l'écran, et un aperçu qu'on tourne
+     * pour obtenir autre chose ne serait pas un aperçu.
+     */
+    readonly rotationDeg?: number;
   },
   componentId: string,
   picked?: string,
@@ -352,7 +388,7 @@ export function placeComponentCommand(
       space.boundaryMode === 'MANUAL' &&
       pointInPolygon(point, space.manualPolygon.outer),
   );
-  const host = hostUnder(
+  const support = hostUnder(
     file.project,
     level,
     point,
@@ -372,43 +408,18 @@ export function placeComponentCommand(
         : { name: draft.name }),
       position: { x: point.x, y: point.y },
       elevationMm: draft.elevationMm,
-      rotationDeg: 0,
+      // L'angle qu'on a choisi s'il y en a un, sinon celui du support, et
+      // jamais zéro d'office : c'est ce que l'aperçu montre avant le clic, et
+      // un aperçu qui montre autre chose que ce qu'on obtient est pire que pas
+      // d'aperçu.
+      rotationDeg: placedRotationDeg(draft.rotationDeg, support.wallAngleDeg),
       ...(room === undefined ? {} : { spaceId: room.id }),
-      ...(host === undefined ? {} : { hostObjectId: host }),
+      ...(support.hostObjectId === undefined
+        ? {}
+        : { hostObjectId: support.hostObjectId }),
     }),
   };
 }
-
-/** À quelle distance ce mur passe du point, en millimètres. */
-function distanceToWall(wall: Wall, point: Point2D): number {
-  let best = Number.POSITIVE_INFINITY;
-  for (let index = 1; index < wall.path.points.length; index += 1) {
-    const start = wall.path.points[index - 1]!;
-    const end = wall.path.points[index]!;
-    const dx = end.x - start.x;
-    const dy = end.y - start.y;
-    const lengthSquared = dx * dx + dy * dy;
-    if (lengthSquared === 0) continue;
-    const along = Math.max(
-      0,
-      Math.min(
-        1,
-        ((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared,
-      ),
-    );
-    best = Math.min(
-      best,
-      Math.hypot(
-        point.x - (start.x + dx * along),
-        point.y - (start.y + dy * along),
-      ),
-    );
-  }
-  return best;
-}
-
-/** Jusqu'où on accepte de rattacher un objet au mur qu'on visait. */
-const WALL_REACH_MM = 1500;
 
 /**
  * Ce à quoi l'objet posé se fixe — et qui l'accepte.
@@ -433,69 +444,6 @@ const WALL_REACH_MM = 1500;
  * Rien, sinon — et rien est la bonne réponse pour ce qui se pose sur le
  * terrain : le modèle l'accepte, parce que le terrain est partout.
  */
-function hostUnder(
-  project: Project,
-  level: Level,
-  point: Point2D,
-  picked: string | undefined,
-  definitionId: string | undefined,
-): string | undefined {
-  const hosts = levelHosts(level);
-  const allowed =
-    definitionId === undefined
-      ? undefined
-      : (project.equipment ?? []).find(({ id }) => id === definitionId)
-          ?.allowedHosts;
-  // Une fiche qui ne dit rien accepte ce qu'on lui donne : c'est le composant
-  // générique, celui qu'on pose quand le catalogue ne nomme pas la chose.
-  const fits = (id: string): boolean =>
-    allowed === undefined ||
-    allowed.length === 0 ||
-    hostAccepts(allowed, hosts.get(id));
-
-  if (picked !== undefined && hosts.has(picked) && fits(picked)) return picked;
-
-  /*
-   * Le mur d'abord, mais seulement pour ce qui va au mur.
-   *
-   * Une prise se vise sur un mur, à un mètre près ; un lit se vise au milieu
-   * d'une chambre, et le mur le plus proche n'est pas ce qui le porte. C'est
-   * la fiche qui tranche, et une fiche qui ne dit rien n'a pas demandé de mur.
-   */
-  const nearestWall = (): string | undefined =>
-    [...level.walls]
-      .map((candidate) => ({
-        id: candidate.id,
-        away: distanceToWall(candidate, point),
-      }))
-      .filter(({ away }) => away <= WALL_REACH_MM)
-      .sort((first, second) => first.away - second.away)[0]?.id;
-
-  if (allowed?.includes('WALL') === true) {
-    const wall = nearestWall();
-    if (wall !== undefined && fits(wall)) return wall;
-  }
-
-  const roof = level.roofs.find((candidate) =>
-    pointInPolygon(point, candidate.footprint.outer),
-  );
-  if (roof !== undefined && fits(roof.id)) return roof.id;
-
-  const slab = level.slabs.find(
-    (candidate) =>
-      pointInPolygon(point, candidate.polygon.outer) &&
-      !(candidate.polygon.holes ?? []).some((hole) =>
-        pointInPolygon(point, hole),
-      ),
-  );
-  if (slab !== undefined && fits(slab.id)) return slab.id;
-
-  // Et le mur en dernier recours : ce qui n'a ni toit ni dalle sous lui peut
-  // encore s'accrocher à ce qu'il touche.
-  const wall = nearestWall();
-  return wall !== undefined && fits(wall) ? wall : undefined;
-}
-
 /**
  * Cuts or extends a walking line so that it is exactly `lengthMm` long.
  *
@@ -527,6 +475,36 @@ function fittedToLength(
     travelled += segment;
   }
   return kept;
+}
+
+/**
+ * Ce qui portera cette pose, et sous quel angle.
+ *
+ * La règle vit dans `host-choice.ts`, avec l'aperçu qui la montre. Elle était
+ * écrite deux fois : ici pour poser, là-bas pour dessiner le fantôme — et deux
+ * écritures de la même règle finissent par ne plus dire la même chose, ce qui
+ * ferait d'un aperçu une promesse que la pose ne tient pas.
+ *
+ * L'angle est ce qui manquait le plus : le fantôme se couchait le long du mur
+ * et l'objet posé arrivait à zéro degré. On voyait la bonne chose, on obtenait
+ * l'autre.
+ */
+function hostUnder(
+  project: Project,
+  level: Level,
+  point: Point2D,
+  picked: string | undefined,
+  definitionId: string | undefined,
+): HostChoice {
+  return chooseHost(
+    level,
+    point,
+    picked,
+    definitionId === undefined
+      ? undefined
+      : (project.equipment ?? []).find(({ id }) => id === definitionId)
+          ?.allowedHosts,
+  );
 }
 
 /**
@@ -730,7 +708,15 @@ export function addStructuralMemberCommand(
   };
 }
 
-/** Draws the parcel, or something standing on the site around the house. */
+/**
+ * Trace la parcelle, ou une **surface** posée sur le terrain autour d'elle.
+ *
+ * Ce qui se referme : la parcelle, la terrasse, l'allée, le stationnement, le
+ * bâtiment voisin, la zone à laisser libre. Ce qui ne se referme pas — l'arbre
+ * qu'on plante d'un clic, la haie et la clôture qu'on suit, le portail entre
+ * ses deux montants — est refusé ici en nommant le geste qui convient, plutôt
+ * que d'accepter un triangle en guise de houppier.
+ */
 export function addSiteOutlineCommand(
   points: readonly Point2D[],
   draft: {
@@ -741,6 +727,12 @@ export function addSiteOutlineCommand(
   },
   obstacleId: string,
 ): EditingCommandResult {
+  // La parcelle est une limite, pas un obstacle : sa nature ne dit rien de la
+  // façon dont on la trace, et c'est toujours un contour fermé.
+  if (draft.target === 'OBSTACLE') {
+    const refusal = outlineRefusal(draft.kind);
+    if (refusal !== undefined) return { status: 'ERROR', message: refusal };
+  }
   if (points.length < 3)
     return { status: 'ERROR', message: 'Un contour demande trois points.' };
   const outline = points.map((point) => ({ ...point }));
@@ -758,6 +750,88 @@ export function addSiteOutlineCommand(
               : { heightMm: draft.heightMm }),
             ...(draft.name === undefined ? {} : { name: draft.name }),
           }),
+  };
+}
+
+/**
+ * Plante un arbre là où l'on a cliqué, houppier compris.
+ *
+ * Un clic, un diamètre, une hauteur. Le diamètre **n'est pas stocké** : il
+ * fabrique le contour du houppier et disparaît. Le polygone est la seule
+ * emprise que le modèle connaisse, donc la seule qui puisse être déplacée,
+ * mesurée et projetée en ombre — et deux réponses à « jusqu'où va cet arbre »
+ * finiraient par diverger dès le premier sommet tiré à la souris.
+ */
+export function addSiteTreeCommand(
+  point: Point2D | undefined,
+  draft: {
+    readonly crownDiameterMm: number;
+    readonly heightMm?: number;
+    readonly name?: string;
+  },
+  obstacleId: string,
+): EditingCommandResult {
+  if (point === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Cliquez l’endroit où planter l’arbre.',
+    };
+  const outline = crownFootprint(point, draft.crownDiameterMm);
+  if (outline === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Le diamètre du houppier doit être une longueur positive.',
+    };
+  return {
+    status: 'OK',
+    command: new AddSiteObstacleCommand({
+      id: obstacleId,
+      outline,
+      kind: 'TREE',
+      ...(draft.heightMm === undefined ? {} : { heightMm: draft.heightMm }),
+      ...(draft.name === undefined ? {} : { name: draft.name }),
+    }),
+  };
+}
+
+/**
+ * Pose ce qui suit un axe : une haie, une clôture, un portail.
+ *
+ * On clique la ligne — deux points pour un portail, autant qu'on veut pour une
+ * haie — et l'emprise est le ruban que cette ligne laisse à la largeur donnée.
+ * Là encore, ce qui est stocké est le ruban : la largeur a servi à le tracer
+ * et n'est pas conservée à côté de lui.
+ */
+export function addSiteAxisCommand(
+  points: readonly Point2D[],
+  draft: {
+    readonly kind: SiteObstacleKind;
+    readonly widthMm: number;
+    readonly heightMm?: number;
+    readonly name?: string;
+  },
+  obstacleId: string,
+): EditingCommandResult {
+  if (points.length < 2)
+    return {
+      status: 'ERROR',
+      message: 'Un tracé demande au moins deux points.',
+    };
+  const outline = ribbonFootprint(points, draft.widthMm);
+  if (outline === undefined)
+    return {
+      status: 'ERROR',
+      message: 'Deux points confondus ne tracent aucune ligne.',
+    };
+  return {
+    status: 'OK',
+    command: new AddSiteObstacleCommand({
+      id: obstacleId,
+      outline,
+      kind: draft.kind,
+      ...(draft.heightMm === undefined ? {} : { heightMm: draft.heightMm }),
+      ...(draft.name === undefined ? {} : { name: draft.name }),
+    }),
   };
 }
 
@@ -949,7 +1023,7 @@ export function mergeSpacesCommand(
             component.position,
             undefined,
             component.definitionId,
-          );
+          ).hostObjectId;
     const inside =
       component.spaceId !== undefined && gone.has(component.spaceId);
     return {

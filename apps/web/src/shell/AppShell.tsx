@@ -60,11 +60,27 @@ export function AppShell({
           style={{ '--workspace-columns': columns } as CSSProperties}
         >
           {drawerOpen && (
+            /*
+             * Le voile se ferme sur son propre appui, et non sur un clic.
+             *
+             * Sur un téléphone, désigner un objet fait monter la feuille de
+             * lui-même. Le voile paraissait donc **sous le doigt encore
+             * posé**, au milieu du geste : le relâchement tombait dessus, le
+             * clic partait, et la feuille se refermait dans la même fraction
+             * de seconde. On désignait un mur, et il ne se passait rien —
+             * exactement rien, ce qui est la panne la plus difficile à
+             * raconter.
+             *
+             * `pointerdown` ne peut pas être hérité d'un geste commencé
+             * ailleurs : un appui qui a débuté sur le plan n'atteint jamais un
+             * voile qui n'existait pas encore. Le clavier garde sa porte, avec
+             * `Échap` et le bouton du panneau.
+             */
             <button
               type="button"
               className="drawer-backdrop"
               aria-label="Fermer le panneau"
-              onClick={onCloseDrawer}
+              onPointerDown={onCloseDrawer}
             />
           )}
           <aside

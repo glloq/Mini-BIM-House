@@ -11,6 +11,8 @@ import {
   type DataDomain,
 } from '@house-technical-designer/catalog-registry';
 
+import { SymbolGlyph } from './SymbolGlyph.js';
+
 export interface CatalogBrowserProps {
   /**
    * The rows of each family, not its fiches.
@@ -195,6 +197,16 @@ export function CatalogBrowser({
                 setOpenId(openId === row.familyId ? undefined : row.familyId);
               }}
             >
+              {/*
+               * Le dessin d'abord, le nom ensuite.
+               *
+               * « Applique murale », « Hublot », « Réglette » : trois lignes
+               * qui se ressemblent, et qu'on départageait en posant puis en
+               * regardant le plan. Le glyphe montré ici est celui-là même,
+               * résolu par la même chaîne — donc ce qu'on choisit est ce
+               * qu'on verra.
+               */}
+              <SymbolGlyph familyId={row.familyId} category={row.category} />
               <strong>{row.label}</strong>
               <span className="hint">
                 {row.domainLabel} · vague {row.wave} ·{' '}

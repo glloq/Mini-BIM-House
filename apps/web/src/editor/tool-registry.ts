@@ -17,7 +17,9 @@ import {
   addOpeningCommand,
   addRoofOpeningCommand,
   addRoofStructureCommand,
+  addSiteAxisCommand,
   addSiteOutlineCommand,
+  addSiteTreeCommand,
   addSlabFromPointsCommand,
   addSpaceAtPointCommand,
   addStairCommand,
@@ -39,6 +41,17 @@ import {
   placeNodeCommand,
   routeCommand,
 } from '../networks/network-model.js';
+import type { InteractionStep } from './interaction-steps.js';
+import { stepForClick } from './interaction-steps.js';
+import {
+  DEFAULT_CROWN_DIAMETER_MM,
+  DEFAULT_FENCE_HEIGHT_MM,
+  DEFAULT_HEDGE_HEIGHT_MM,
+  DEFAULT_HEDGE_WIDTH_MM,
+  DEFAULT_TREE_HEIGHT_MM,
+  LINE_FOOTPRINT_WIDTH_MM,
+  isSurfaceSiteKind,
+} from './site-footprints.js';
 import type { ToolOptionDefinition } from './tool-options.js';
 import { OBJECT_FAMILIES } from './object-editors.js';
 import {
@@ -151,6 +164,15 @@ export interface ToolCommandContext {
   readonly optionNumber: (key: string) => number | undefined;
   /** A fresh identifier, so a tool never invents its own numbering. */
   readonly newId: (prefix: string) => string;
+  /**
+   * L'orientation choisie pendant la pose, quand on en a choisi une.
+   *
+   * Elle vient du plan et non de la barre d'options : on la règle avec `R`, en
+   * regardant le fantôme tourner sous le curseur, et une option d'outil
+   * clignoterait au survol. Absente, le support décide comme avant — une prise
+   * prend l'angle de son mur.
+   */
+  readonly placementRotationDeg?: number;
 }
 
 /**
@@ -245,6 +267,22 @@ export interface EditorToolDefinition {
     readonly angle: boolean;
   };
   /**
+   * Ce que l'outil demande, clic par clic, dit avec les mots du métier.
+   *
+   * `requiredPoints` dit combien de clics ; il ne dit pas ce qu'ils sont, et
+   * l'écran en tirait « premier point / second point » pour des gestes aussi
+   * différents que désigner un mur et indiquer de combien le décaler. Une
+   * étape nomme l'objet du geste, sa nature, et ce qu'il est permis de viser.
+   *
+   * Facultatif, et destiné à le rester un moment : un outil qui n'en déclare
+   * pas est décrit par son nombre de points exactement comme avant. Un outil
+   * qui en déclare doit en déclarer autant qu'il attend de clics — voir
+   * `stepCoherenceProblem`, qu'un test applique à tout le registre, parce que
+   * deux descriptions du même geste finissent toujours par se contredire.
+   */
+  readonly interaction?: readonly InteractionStep[];
+
+  /**
    * What this tool lets the user decide before drawing.
    *
    * The toolbar renders whatever is declared here and knows nothing about
@@ -296,6 +334,12 @@ export const EDITOR_TOOLS = [
     hint: 'Dessiner un mur entre deux points',
     shortcutId: 'tool.wall',
     requiredPoints: 2,
+    interaction: [
+      // Personne ne pense « deux points » en dessinant un mur : on pense un
+      // départ et une extrémité, et c'est ce que l'écran doit dire.
+      { kind: 'POINT', prompt: 'Cliquez le début du mur' },
+      { kind: 'POINT', prompt: 'Cliquez son extrémité', numericInput: true },
+    ],
     level: 'QUICK',
     drawsWalls: true,
     constrainsDrafting: true,
@@ -322,6 +366,14 @@ export const EDITOR_TOOLS = [
         key: 'role',
         kind: 'SELECT',
         label: 'Rôle',
+        /*
+         * Le rôle suit l'assemblage dans presque tous les cas — un montant
+         * d'ossature fait une cloison, un bloc isolé fait un extérieur — et
+         * quand il ne le suit pas, le corriger après coup dans l'inspecteur
+         * est le même geste qu'ici. Ce qui décide vraiment du mur qu'on trace
+         * est l'assemblage et la face que le tracé suit ; le reste attend.
+         */
+        level: 'ADVANCED',
         choices: () => WALL_ROLE_OPTIONS,
         // A partition assembly proposes the matching role; the user stays free
         // to say otherwise, and nothing is inferred at creation time.
@@ -362,6 +414,10 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.wallRun',
     // Two points is the fewest a run can describe; there is no most.
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ du mur continu' },
+      { kind: 'POINT', prompt: 'Cliquez le coin suivant', numericInput: true },
+    ],
     level: 'QUICK',
     openEnded: true,
     drawsWalls: true,
@@ -389,6 +445,9 @@ export const EDITOR_TOOLS = [
         key: 'role',
         kind: 'SELECT',
         label: 'Rôle',
+        // Même raison que pour le mur simple : l'assemblage décide, le rôle
+        // suit, et l'inspecteur le reprend sans qu'on redessine.
+        level: 'ADVANCED',
         choices: () => WALL_ROLE_OPTIONS,
         fallback: ({ project, value }) =>
           (project.assemblies ?? []).find(
@@ -410,6 +469,13 @@ export const EDITOR_TOOLS = [
         kind: 'SELECT',
         label: 'Créer',
         hint: 'Un mur par côté peut porter son propre assemblage et ses ouvertures.',
+        /*
+         * Un mur par côté est ce qu'on veut dans un plan de maison, et c'est
+         * ce qui est proposé. Le mur polyligne existe pour les cas où l'on
+         * tient à un seul objet ; c'est une préférence de modélisation, pas
+         * une décision qu'on prend en regardant le premier coin.
+         */
+        level: 'ADVANCED',
         choices: () => [
           { value: 'SEGMENTS', label: 'Un mur par côté' },
           { value: 'POLYLINE', label: 'Un seul mur polyligne' },
@@ -452,6 +518,10 @@ export const EDITOR_TOOLS = [
     hint: 'Enclore par deux coins opposés : quatre murs d’équerre',
     shortcutId: 'tool.wallRectangle',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez un coin de l’enceinte' },
+      { kind: 'POINT', prompt: 'Cliquez le coin opposé', numericInput: true },
+    ],
     drawsWalls: true,
     options: [
       {
@@ -475,6 +545,9 @@ export const EDITOR_TOOLS = [
         key: 'role',
         kind: 'SELECT',
         label: 'Rôle',
+        // Même raison que pour le mur simple : l'assemblage décide, le rôle
+        // suit, et l'inspecteur le reprend sans qu'on redessine.
+        level: 'ADVANCED',
         choices: () => WALL_ROLE_OPTIONS,
         fallback: ({ project, value }) =>
           (project.assemblies ?? []).find(
@@ -518,6 +591,15 @@ export const EDITOR_TOOLS = [
     hint: 'Percer une porte ou une fenêtre dans un mur',
     shortcutId: 'tool.opening',
     requiredPoints: 1,
+    interaction: [
+      // Un clic, mais pas n'importe où : l'ouverture se pose dans un mur, et le
+      // dire évite le clic dans le vide qui ne perce rien.
+      {
+        kind: 'PICK',
+        accepts: ['WALL'],
+        prompt: 'Cliquez le mur qui recevra la porte ou la fenêtre',
+      },
+    ],
     level: 'QUICK',
     options: [
       {
@@ -556,6 +638,13 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         min: 0,
         step: 50,
+        /*
+         * Le repli suit déjà le type : zéro pour une porte, 900 pour une
+         * fenêtre, ce qui est la hauteur d'allège d'une maison ordinaire. On
+         * pose une baie en choisissant ce qu'elle est et sa largeur ; la
+         * remonter ou la descendre est un réglage qu'on fait exprès.
+         */
+        level: 'ADVANCED',
         fallback: ({ value }) =>
           value('openingType') === 'DOOR' ? '0' : '900',
       },
@@ -587,6 +676,13 @@ export const EDITOR_TOOLS = [
     hint: 'Cliquer dans un pan de toiture pour y poser une fenêtre',
     shortcutId: 'tool.roofOpening',
     requiredPoints: 1,
+    interaction: [
+      {
+        kind: 'PICK',
+        accepts: ['ROOF'],
+        prompt: 'Cliquez le pan de toiture à percer',
+      },
+    ],
     level: 'DESIGN',
     options: [
       {
@@ -643,12 +739,26 @@ export const EDITOR_TOOLS = [
     hint: 'Cliquer dans un contour fermé par les murs pour en faire une pièce',
     shortcutId: 'tool.space',
     requiredPoints: 1,
+    interaction: [
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez à l’intérieur du contour à transformer en pièce',
+      },
+    ],
     level: 'QUICK',
     options: [
       {
         key: 'name',
         kind: 'TEXT',
         label: 'Nom',
+        /*
+         * Un nom pour une pièce ; aucun pour toutes.
+         *
+         * « Tous les contours libres » en crée autant qu'il en trouve, et la
+         * commande n'en nomme aucun — elle ne leur passe que l'usage. Laisser
+         * le champ à l'écran laisserait croire qu'on baptise la fournée.
+         */
+        visibleWhen: ({ value }) => value('scope') === 'ONE',
         // A room with no name is a room nothing can name in a schedule; the
         // fallback is a placeholder the user is expected to replace, not a
         // value the application pretends to know.
@@ -703,6 +813,10 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.slab',
     // Three corners is the fewest a floor can have; there is no most.
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le premier coin de la dalle' },
+      { kind: 'POINT', prompt: 'Cliquez le coin suivant', numericInput: true },
+    ],
     openEnded: true,
     completionMode: 'CLOSE_POLYGON',
     constrainsDrafting: true,
@@ -727,6 +841,10 @@ export const EDITOR_TOOLS = [
         key: 'role',
         kind: 'SELECT',
         label: 'Rôle',
+        // Une dalle qu'on trace est un plancher ; plafond, fondation et
+        // terrasse existent, mais on les choisit en connaissance de cause et
+        // l'inspecteur les corrige aussi bien après la pose.
+        level: 'ADVANCED',
         choices: () => SLAB_ROLE_OPTIONS,
         fallback: () => 'FLOOR',
       },
@@ -762,6 +880,10 @@ export const EDITOR_TOOLS = [
     hint: 'Percer un contour dans la dalle qui passe dessous',
     shortcutId: 'tool.slabHole',
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le premier coin de la trémie' },
+      { kind: 'POINT', prompt: 'Cliquez le coin suivant', numericInput: true },
+    ],
     level: 'EXPERT',
     openEnded: true,
     completionMode: 'CLOSE_POLYGON',
@@ -777,6 +899,10 @@ export const EDITOR_TOOLS = [
     hint: 'Décrire une toiture par son contour · Entrée termine, Échap annule',
     shortcutId: 'tool.roof',
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le premier coin de la toiture' },
+      { kind: 'POINT', prompt: 'Cliquez le coin suivant', numericInput: true },
+    ],
     openEnded: true,
     completionMode: 'CLOSE_POLYGON',
     constrainsDrafting: true,
@@ -813,6 +939,10 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         step: 50,
         min: 0,
+        // Ce qui décide d'une toiture qu'on trace est son contour, sa pente
+        // et le nombre de pans. Quarante centimètres de débord est ce que
+        // font la plupart des maisons ; l'ajuster est un second temps.
+        level: 'ADVANCED',
         fallback: () => '400',
       },
       {
@@ -863,6 +993,14 @@ export const EDITOR_TOOLS = [
     hint: 'Tracer la ligne de foulée · Entrée termine, Échap annule',
     shortcutId: 'tool.stair',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ de la ligne de foulée' },
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez la suite de la ligne de foulée',
+        numericInput: true,
+      },
+    ],
     openEnded: true,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
@@ -881,6 +1019,13 @@ export const EDITOR_TOOLS = [
         step: 1,
         min: 2,
         hint: 'La hauteur de marche se déduit de la montée entre les niveaux.',
+        /*
+         * Ce qu'on décide en traçant la ligne de foulée, c'est la forme de
+         * l'escalier et son emmarchement : l'emprise au sol qu'on dessine. Le
+         * nombre de contremarches et le giron sont le réglage du confort, que
+         * l'inspecteur juge une fois l'escalier posé et la montée connue.
+         */
+        level: 'ADVANCED',
         // Sixteen risers for a storey of about 2,70 m gives roughly 17 cm,
         // which is where a house usually lands; the user changes it freely and
         // the inspector says whether the result is comfortable.
@@ -893,6 +1038,9 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         step: 10,
         min: 1,
+        // Même raison que les contremarches : les deux se règlent ensemble,
+        // après coup, en regardant si l'escalier se monte bien.
+        level: 'ADVANCED',
         fallback: () => '270',
       },
       {
@@ -928,6 +1076,7 @@ export const EDITOR_TOOLS = [
     // A column stands at a point; a beam runs between two. The difference is
     // what the member is, and it is what the two tools are for.
     requiredPoints: 1,
+    interaction: [{ kind: 'POINT', prompt: 'Cliquez où planter le poteau' }],
     options: [
       {
         key: 'kind',
@@ -962,6 +1111,10 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         step: 50,
         hint: 'Hauteur d’un poteau, profondeur d’une fondation.',
+        // Un poteau monte du sol au plafond du niveau, et c'est ce que le
+        // repli donne. Ce qu'on regarde en cliquant est sa section, parce que
+        // c'est elle qu'on voit en plan.
+        level: 'ADVANCED',
         fallback: ({ project }) =>
           String(project.building.levels[0]?.defaultStoreyHeightMm ?? 2500),
       },
@@ -989,6 +1142,10 @@ export const EDITOR_TOOLS = [
     hint: 'Faire courir une poutre entre deux points',
     shortcutId: 'tool.beam',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ de la poutre' },
+      { kind: 'POINT', prompt: 'Cliquez son extrémité', numericInput: true },
+    ],
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
     options: [
@@ -1028,9 +1185,13 @@ export const EDITOR_TOOLS = [
     id: 'SITE',
     group: 'SITE',
     label: 'Terrain',
-    hint: 'Tracer la parcelle ou ce qui l’entoure · Entrée termine',
+    hint: 'Tracer la parcelle ou une surface du terrain · Entrée termine',
     shortcutId: 'tool.site',
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le premier coin du terrain' },
+      { kind: 'POINT', prompt: 'Cliquez le coin suivant', numericInput: true },
+    ],
     openEnded: true,
     completionMode: 'CLOSE_POLYGON',
     constrainsDrafting: true,
@@ -1050,8 +1211,32 @@ export const EDITOR_TOOLS = [
         key: 'kind',
         kind: 'SELECT',
         label: 'Nature',
-        hint: 'Un voisin, un arbre et une zone à laisser libre ne portent pas la même ombre.',
-        choices: () => SITE_OBSTACLE_OPTIONS,
+        hint: 'Un voisin, une terrasse et une zone à laisser libre ne portent pas la même ombre.',
+        /*
+         * Une parcelle n'a pas de nature.
+         *
+         * C'est une limite : `addSiteOutlineCommand` ne garde d'elle que son
+         * contour, et jette nature, hauteur et nom. Les proposer quand même
+         * revenait à faire répondre à une question que la commande ne pose
+         * pas — trois champs qui ne veulent rien dire pour ce qu'on trace.
+         *
+         * Le champ disparaît, la réponse reste : repasser sur « Un obstacle »
+         * retrouve la nature qu'on avait choisie.
+         */
+        visibleWhen: ({ value }) => value('target') === 'OBSTACLE',
+        /*
+         * Seulement ce qui se trace en refermant un contour.
+         *
+         * L'arbre, la haie, la clôture et le portail étaient offerts ici, et
+         * les choisir revenait à demander trois sommets de polygone pour
+         * planter un arbre. Ils ont leur outil, leur geste et leur nombre de
+         * clics ; les laisser dans cette liste serait laisser en place le
+         * chemin qu'on vient de retirer.
+         */
+        choices: () =>
+          SITE_OBSTACLE_OPTIONS.filter(({ value }) =>
+            isSurfaceSiteKind(value as SiteObstacleKind),
+          ),
         fallback: () => 'BUILDING',
       },
       {
@@ -1061,12 +1246,19 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         step: 500,
         hint: 'Vide, la hauteur reste inconnue et l’ombre n’est pas calculée.',
+        // La hauteur d'un obstacle est ce qui décide de son ombre, donc elle
+        // se pose avec lui. Une parcelle n'en a pas.
+        visibleWhen: ({ value }) => value('target') === 'OBSTACLE',
         fallback: () => '',
       },
       {
         key: 'name',
         kind: 'TEXT',
         label: 'Nom',
+        // Un nom se donne quand on a quelque chose à nommer, et il se donne
+        // aussi bien dans l'inspecteur une fois l'obstacle tracé.
+        visibleWhen: ({ value }) => value('target') === 'OBSTACLE',
+        level: 'ADVANCED',
         fallback: () => '',
       },
     ],
@@ -1086,6 +1278,254 @@ export const EDITOR_TOOLS = [
         context.newId('obstacle'),
       ),
   },
+  /*
+   * Quatre outils pour quatre gestes, là où il n'y en avait qu'un.
+   *
+   * Ce ne sont pas quatre réglages du terrain : un arbre se plante d'un clic,
+   * une haie et une clôture se suivent, un portail tient entre deux montants.
+   * Le nombre de clics n'est pas une option d'un outil — c'est ce qu'un outil
+   * **est** —, et c'est pourquoi ils sont ici plutôt que dans une liste
+   * déroulante de « Terrain ». Leur emprise se dérive de ce qu'on a cliqué et
+   * de ce qu'on a saisi : voir `site-footprints.ts`, qui dit aussi pourquoi la
+   * largeur d'une haie ne se retrouve nulle part dans le fichier.
+   */
+  {
+    id: 'SITE_TREE',
+    group: 'SITE',
+    label: 'Arbre',
+    hint: 'Planter un arbre : un clic, un houppier, une hauteur',
+    shortcutId: 'tool.siteTree',
+    requiredPoints: 1,
+    interaction: [{ kind: 'POINT', prompt: 'Cliquez où planter l’arbre' }],
+    options: [
+      {
+        key: 'crownDiameterMm',
+        kind: 'NUMBER',
+        label: 'Houppier',
+        unit: 'mm',
+        min: 100,
+        step: 500,
+        hint: 'Le diamètre du feuillage : c’est lui qui dessine l’emprise, et il n’est pas conservé à côté d’elle.',
+        fallback: () => String(DEFAULT_CROWN_DIAMETER_MM),
+      },
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        step: 500,
+        hint: 'Sans hauteur, l’ombre de l’arbre n’est pas calculée.',
+        fallback: () => String(DEFAULT_TREE_HEIGHT_MM),
+      },
+      {
+        key: 'name',
+        kind: 'TEXT',
+        label: 'Nom',
+        // Un arbre, une haie, une clôture, un portail se posent par leur
+        // emprise et leur hauteur ; les nommer sert au repérage, plus tard,
+        // et le repli vide dit déjà qu'on n'attend rien ici.
+        level: 'ADVANCED',
+        fallback: () => '',
+      },
+    ],
+    createCommand: (context) =>
+      addSiteTreeCommand(
+        context.points[0],
+        {
+          crownDiameterMm:
+            context.optionNumber('crownDiameterMm') ??
+            DEFAULT_CROWN_DIAMETER_MM,
+          ...(context.optionNumber('heightMm') === undefined
+            ? {}
+            : { heightMm: context.optionNumber('heightMm')! }),
+          ...(context.option('name') === ''
+            ? {}
+            : { name: context.option('name') }),
+        },
+        context.newId('obstacle'),
+      ),
+  },
+  {
+    id: 'SITE_HEDGE',
+    group: 'SITE',
+    label: 'Haie',
+    hint: 'Suivre une haie de bout en bout · Entrée termine',
+    shortcutId: 'tool.siteHedge',
+    // Deux points font déjà une haie ; le tracé continue tant qu'on clique.
+    requiredPoints: 2,
+    openEnded: true,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ de la haie' },
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez où la haie continue',
+        numericInput: true,
+      },
+    ],
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'widthMm',
+        kind: 'NUMBER',
+        label: 'Largeur',
+        unit: 'mm',
+        min: 50,
+        step: 100,
+        hint: 'L’épaisseur du feuillage de part et d’autre du tracé.',
+        fallback: () => String(DEFAULT_HEDGE_WIDTH_MM),
+      },
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        step: 100,
+        hint: 'Sans hauteur, l’ombre de la haie n’est pas calculée.',
+        fallback: () => String(DEFAULT_HEDGE_HEIGHT_MM),
+      },
+      {
+        key: 'name',
+        kind: 'TEXT',
+        label: 'Nom',
+        // Même raison que pour l'arbre : on pose une emprise et une hauteur,
+        // le nom vient au repérage.
+        level: 'ADVANCED',
+        fallback: () => '',
+      },
+    ],
+    createCommand: (context) =>
+      addSiteAxisCommand(
+        context.points,
+        {
+          kind: 'HEDGE',
+          widthMm: context.optionNumber('widthMm') ?? DEFAULT_HEDGE_WIDTH_MM,
+          ...(context.optionNumber('heightMm') === undefined
+            ? {}
+            : { heightMm: context.optionNumber('heightMm')! }),
+          ...(context.option('name') === ''
+            ? {}
+            : { name: context.option('name') }),
+        },
+        context.newId('obstacle'),
+      ),
+  },
+  {
+    id: 'SITE_FENCE',
+    group: 'SITE',
+    label: 'Clôture',
+    hint: 'Suivre une clôture, poteau après poteau · Entrée termine',
+    shortcutId: 'tool.siteFence',
+    requiredPoints: 2,
+    openEnded: true,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ de la clôture' },
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez le poteau suivant',
+        numericInput: true,
+      },
+    ],
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        step: 100,
+        hint: 'Sans hauteur, l’ombre de la clôture n’est pas calculée.',
+        fallback: () => String(DEFAULT_FENCE_HEIGHT_MM),
+      },
+      {
+        key: 'name',
+        kind: 'TEXT',
+        label: 'Nom',
+        // Même raison que pour l'arbre : on pose une emprise et une hauteur,
+        // le nom vient au repérage.
+        level: 'ADVANCED',
+        fallback: () => '',
+      },
+    ],
+    /*
+     * Aucune largeur à saisir : une clôture est une ligne.
+     *
+     * Ce qu'on trace est son axe, et l'épaisseur du trait est une convention
+     * du dessin plutôt qu'une mesure — voir `LINE_FOOTPRINT_WIDTH_MM`. La
+     * proposer en option inviterait à décrire deux fois la même chose.
+     */
+    createCommand: (context) =>
+      addSiteAxisCommand(
+        context.points,
+        {
+          kind: 'FENCE',
+          widthMm: LINE_FOOTPRINT_WIDTH_MM,
+          ...(context.optionNumber('heightMm') === undefined
+            ? {}
+            : { heightMm: context.optionNumber('heightMm')! }),
+          ...(context.option('name') === ''
+            ? {}
+            : { name: context.option('name') }),
+        },
+        context.newId('obstacle'),
+      ),
+  },
+  {
+    id: 'SITE_GATE',
+    group: 'SITE',
+    label: 'Portail',
+    hint: 'Poser un portail entre ses deux montants',
+    shortcutId: 'tool.siteGate',
+    // Deux points, et il se termine tout seul : un portail a une largeur, pas
+    // un parcours.
+    requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez un montant du portail' },
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez le montant opposé',
+        numericInput: true,
+      },
+    ],
+    constrainsDrafting: true,
+    dynamicInput: { length: true, angle: true },
+    options: [
+      {
+        key: 'heightMm',
+        kind: 'NUMBER',
+        label: 'Hauteur',
+        unit: 'mm',
+        step: 100,
+        hint: 'Sans hauteur, l’ombre du portail n’est pas calculée.',
+        fallback: () => String(DEFAULT_FENCE_HEIGHT_MM),
+      },
+      {
+        key: 'name',
+        kind: 'TEXT',
+        label: 'Nom',
+        // Même raison que pour l'arbre : on pose une emprise et une hauteur,
+        // le nom vient au repérage.
+        level: 'ADVANCED',
+        fallback: () => '',
+      },
+    ],
+    createCommand: (context) =>
+      addSiteAxisCommand(
+        context.points.slice(0, 2),
+        {
+          kind: 'GATE',
+          widthMm: LINE_FOOTPRINT_WIDTH_MM,
+          ...(context.optionNumber('heightMm') === undefined
+            ? {}
+            : { heightMm: context.optionNumber('heightMm')! }),
+          ...(context.option('name') === ''
+            ? {}
+            : { name: context.option('name') }),
+        },
+        context.newId('obstacle'),
+      ),
+  },
   {
     id: 'COMPONENT',
     group: 'COMPONENTS',
@@ -1093,6 +1533,7 @@ export const EDITOR_TOOLS = [
     hint: 'Poser un équipement, un appareil ou un meuble à un endroit du plan',
     shortcutId: 'tool.component',
     requiredPoints: 1,
+    interaction: [{ kind: 'POINT', prompt: 'Cliquez où poser l’équipement' }],
     options: [
       {
         key: 'category',
@@ -1122,6 +1563,9 @@ export const EDITOR_TOOLS = [
         kind: 'TEXT',
         label: 'Nom',
         hint: 'Vide, le composant prend le nom de sa catégorie.',
+        // Le repli le dit lui-même : sans nom, le composant prend celui de sa
+        // catégorie, ce qui suffit pour poser et se corrige d'un clic.
+        level: 'ADVANCED',
         fallback: () => '',
       },
       {
@@ -1130,6 +1574,9 @@ export const EDITOR_TOOLS = [
         label: 'Altitude sur le niveau',
         unit: 'mm',
         step: 10,
+        // Presque tout se pose au sol du niveau. Une prise à 1,10 m est un
+        // cas qu'on règle exprès, pas un champ qu'on relit à chaque pose.
+        level: 'ADVANCED',
         fallback: () => '0',
       },
     ],
@@ -1146,6 +1593,11 @@ export const EDITOR_TOOLS = [
           definitionId: context.option('definitionId'),
           name: context.option('name'),
           elevationMm: context.optionNumber('elevationMm') ?? 0,
+          // Ce qu'on a vu tourner est ce qui se pose : sans cette ligne, le
+          // fantôme promettrait une orientation que l'objet ne prendrait pas.
+          ...(context.placementRotationDeg === undefined
+            ? {}
+            : { rotationDeg: context.placementRotationDeg }),
         },
         context.newId('component'),
         // Ce que le clic a touché : un lit se pose sur une dalle, une prise
@@ -1169,6 +1621,13 @@ export const EDITOR_TOOLS = [
     hint: 'Couper un mur à l’endroit désigné',
     shortcutId: 'tool.split',
     requiredPoints: 1,
+    interaction: [
+      {
+        kind: 'PICK',
+        accepts: ['WALL'],
+        prompt: 'Cliquez le mur à scinder, là où il doit être coupé',
+      },
+    ],
     level: 'EXPERT',
     createCommand: (context) => {
       const point = context.points[context.points.length - 1]!;
@@ -1202,6 +1661,22 @@ export const EDITOR_TOOLS = [
     hint: 'Tracer un mur parallèle : le mur, puis le côté et la distance',
     shortcutId: 'tool.offset',
     requiredPoints: 2,
+    interaction: [
+      /*
+       * L'outil qui a motivé tout ceci : deux clics qui n'ont rien de commun,
+       * décrits hier par « premier point » et « second point ». Le second dit à
+       * la fois de quel côté et de combien — d'où `DISTANCE`, et `numericInput`
+       * pour le champ qui viendra. La phrase ne promet pas encore une saisie :
+       * tant qu'aucun champ ne s'affiche ici, écrire « saisissez la distance »
+       * enverrait chercher ce qui n'existe pas.
+       */
+      { kind: 'PICK', accepts: ['WALL'], prompt: 'Cliquez le mur à décaler' },
+      {
+        kind: 'DISTANCE',
+        prompt: 'Cliquez le côté du mur et la distance voulue',
+        numericInput: true,
+      },
+    ],
     level: 'DESIGN',
     createCommand: (context) => {
       const wallId = context.picks[0];
@@ -1227,6 +1702,10 @@ export const EDITOR_TOOLS = [
     hint: 'Amener deux murs à leur intersection',
     shortcutId: 'tool.join',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'PICK', accepts: ['WALL'], prompt: 'Cliquez le premier mur' },
+      { kind: 'PICK', accepts: ['WALL'], prompt: 'Cliquez le mur à rejoindre' },
+    ],
     level: 'DESIGN',
     createCommand: (context) => {
       const [firstId, secondId] = context.picks;
@@ -1254,6 +1733,18 @@ export const EDITOR_TOOLS = [
     hint: 'Allonger ou raccourcir un mur jusqu’à un autre',
     shortcutId: 'tool.trim',
     requiredPoints: 2,
+    interaction: [
+      {
+        kind: 'PICK',
+        accepts: ['WALL'],
+        prompt: 'Cliquez le mur à prolonger ou à raccourcir',
+      },
+      {
+        kind: 'PICK',
+        accepts: ['WALL'],
+        prompt: 'Cliquez le mur qui lui sert de limite',
+      },
+    ],
     level: 'DESIGN',
     createCommand: (context) => {
       const [firstId, secondId] = context.picks;
@@ -1288,6 +1779,19 @@ export const EDITOR_TOOLS = [
     // Centre, then the direction things point at now, then where that direction
     // should end up. Three clicks and no number to type.
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Choisissez le centre de la rotation' },
+      { kind: 'DIRECTION', prompt: 'Cliquez la direction actuelle' },
+      // Le troisième clic porte l'angle, et c'est celui-là qu'on peut taper :
+      // viser 37,5° à la souris demande le pixel juste — à deux mètres du
+      // centre, un pixel vaut un demi-degré — et l'exactitude n'est pas une
+      // question de dextérité.
+      {
+        kind: 'DIRECTION',
+        prompt: 'Cliquez la direction voulue',
+        numericInput: true,
+      },
+    ],
     level: 'EXPERT',
     createCommand: (context) => {
       const [centre, from, to] = context.points;
@@ -1311,6 +1815,10 @@ export const EDITOR_TOOLS = [
     hint: 'Retourner la sélection de part et d’autre d’un axe tracé',
     shortcutId: 'tool.mirror',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez par où passe l’axe de symétrie' },
+      { kind: 'DIRECTION', prompt: 'Cliquez la direction de cet axe' },
+    ],
     level: 'EXPERT',
     constrainsDrafting: true,
     // The axis has a direction that matters and a length that does not.
@@ -1340,6 +1848,14 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.networkRoute',
     // A port, a port: the corners in between are as many as the run needs.
     requiredPoints: 2,
+    interaction: [
+      { kind: 'PICK', prompt: 'Cliquez l’équipement de départ' },
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez les passages du tracé, puis l’équipement d’arrivée',
+        numericInput: true,
+      },
+    ],
     openEnded: true,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
@@ -1365,6 +1881,23 @@ export const EDITOR_TOOLS = [
         unit: '%',
         step: 0.5,
         hint: 'Une évacuation horizontale est une évacuation qui ne s’écoule pas.',
+        /*
+         * Seuls les réseaux qui s'écoulent par gravité ont une pente.
+         *
+         * Le repli le disait déjà — deux pour cent pour les eaux usées et de
+         * pluie, zéro pour les autres — mais le champ restait offert à côté
+         * d'un réseau d'eau sous pression, où l'incliner ne veut rien dire.
+         * La question ne se pose que là où elle a une réponse.
+         */
+        visibleWhen: ({ project, value }) => {
+          const network = (project.systems ?? []).find(
+            ({ id }) => id === value('networkId'),
+          );
+          return (
+            network?.discipline === 'WASTEWATER' ||
+            network?.discipline === 'RAINWATER'
+          );
+        },
         // Gravity drainage needs a fall and nothing else does; the default
         // follows the discipline of the network chosen just beside rather
         // than a number written into the code.
@@ -1385,6 +1918,9 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         step: 100,
         hint: 'Une colonne se voit : le tracé monte à la verticale au dernier coude.',
+        // Un tronçon court dans le plan du niveau ; la colonne qui monte à
+        // l'étage est le cas particulier qu'on demande quand on le veut.
+        level: 'ADVANCED',
         fallback: () => '0',
       },
     ],
@@ -1416,6 +1952,13 @@ export const EDITOR_TOOLS = [
     hint: 'Poser une pièce de dérivation sur un tronçon existant',
     shortcutId: 'tool.networkBranch',
     requiredPoints: 1,
+    interaction: [
+      {
+        kind: 'PICK',
+        accepts: ['NETWORK_EDGE'],
+        prompt: 'Cliquez le tronçon où poser la dérivation',
+      },
+    ],
     createCommand: (context) => {
       const point = context.points[0];
       const edgeId = context.picks[0];
@@ -1441,6 +1984,14 @@ export const EDITOR_TOOLS = [
     hint: 'Réunir deux pièces en retirant ce qui les sépare',
     shortcutId: 'tool.mergeSpaces',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'PICK', accepts: ['SPACE'], prompt: 'Cliquez la première pièce' },
+      {
+        kind: 'PICK',
+        accepts: ['SPACE'],
+        prompt: 'Cliquez la pièce à lui réunir',
+      },
+    ],
     createCommand: (context) => {
       const [from, to] = context.points;
       if (from === undefined || to === undefined)
@@ -1461,6 +2012,10 @@ export const EDITOR_TOOLS = [
     hint: 'Mesurer entre deux points, sans rien poser',
     shortcutId: 'tool.measure',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ de la mesure' },
+      { kind: 'POINT', prompt: 'Cliquez son arrivée', numericInput: true },
+    ],
     reads: true,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
@@ -1474,6 +2029,11 @@ export const EDITOR_TOOLS = [
     hint: 'Coter entre deux extrémités de mur',
     shortcutId: 'tool.dimension',
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez la première référence à coter' },
+      { kind: 'POINT', prompt: 'Cliquez la seconde référence' },
+      { kind: 'POINT', prompt: 'Placez la ligne de cote' },
+    ],
     options: [
       {
         key: 'dimensionType',
@@ -1500,6 +2060,7 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.note',
     // One point for the text; a second, optional, for what it points at.
     requiredPoints: 1,
+    interaction: [{ kind: 'POINT', prompt: 'Cliquez où écrire l’annotation' }],
     options: [
       {
         key: 'text',
@@ -1516,6 +2077,9 @@ export const EDITOR_TOOLS = [
         step: 0.5,
         min: 0.5,
         hint: 'Hauteur des lettres sur le papier, à l’échelle de la feuille.',
+        // 2,5 mm est la hauteur de texte des plans d'architecte ; ce qu'on
+        // décide en posant une annotation, c'est ce qu'elle dit.
+        level: 'ADVANCED',
         fallback: () => '2.5',
       },
     ],
@@ -1538,6 +2102,9 @@ export const EDITOR_TOOLS = [
     hint: 'Poser un nœud sur le réseau actif',
     shortcutId: 'tool.network',
     requiredPoints: 1,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez où poser le nœud du réseau' },
+    ],
     options: [
       {
         key: 'networkId',
@@ -1557,6 +2124,17 @@ export const EDITOR_TOOLS = [
         key: 'nodeKind',
         kind: 'SELECT',
         label: 'Type de nœud',
+        /*
+         * Montré, mais inerte tant qu'aucun réseau n'existe.
+         *
+         * Les types de nœud viennent de la discipline du réseau : sans
+         * réseau, la liste est vide et il n'y a rien à choisir. Masquer le
+         * champ ferait disparaître la question ; le laisser inerte dit qu'il
+         * manque un réseau avant, ce que la commande répond déjà quand on
+         * clique quand même.
+         */
+        enabledWhen: ({ project, value }) =>
+          (project.systems ?? []).some(({ id }) => id === value('networkId')),
         // The kinds one can place belong to the discipline of the network
         // chosen just beside: a luminaire is not a node an extract duct carries.
         choices: ({ project, value }) => {
@@ -1726,4 +2304,25 @@ export function drawsWalls(tool: EditorTool): boolean {
 /** Whether a tool drafts along constrained angles and lengths. */
 export function constrainsDrafting(tool: EditorTool): boolean {
   return toolDefinition(tool).constrainsDrafting === true;
+}
+
+/** Les étapes que cet outil déclare, s'il en déclare. */
+export function interactionOf(
+  tool: EditorTool,
+): readonly InteractionStep[] | undefined {
+  return toolDefinition(tool).interaction;
+}
+
+/**
+ * L'étape qui décrit le clic à venir, une fois `placed` clics posés.
+ *
+ * Le reste de l'application demande « que se passe-t-il maintenant » et non
+ * « quelle est la troisième étape » : compter les clics posés est déjà ce que
+ * fait la toile, et l'y refaire ailleurs serait un deuxième compteur.
+ */
+export function interactionStepAt(
+  tool: EditorTool,
+  placed: number,
+): InteractionStep | undefined {
+  return stepForClick(toolDefinition(tool).interaction, placed);
 }
