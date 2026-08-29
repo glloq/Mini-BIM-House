@@ -89,24 +89,23 @@ test('opens the context panel as a drawer and closes it', async ({ page }) => {
   await expect(sidebar).not.toBeInViewport();
 });
 
-test.fixme('fait monter les propriétés du bas quand on désigne un objet', async ({
+test('fait monter les propriétés du bas quand on désigne un objet', async ({
   page,
 }) => {
   /*
-   * ATTENDU, PAS ENCORE TENU — et mesuré, pour que la suite parte d'un fait.
+   * Ce qui refermait la feuille, et qu'il a fallu instrumenter pour voir.
    *
-   * Sur un téléphone, désigner un mur sélectionne bien (l'inspecteur porte
-   * « Porte opening-entry » juste après la tape) et la fenêtre répond bien
-   * `true` à `(max-width: 900px)`. La feuille reste pourtant fermée : le
-   * panneau garde la classe `sidebar panel`, sans `open`, à 849 px du haut.
-   * L'effet qui l'ouvre fonctionne par ailleurs — c'est lui qui, sur un écran
-   * large, oublie le mode choisi à la main quand on désélectionne, ce qu'un
-   * test vérifie. Quelque chose referme donc le tiroir entre la sélection et
-   * le rendu, et je n'ai pas trouvé quoi.
+   * La sélection avait bien lieu, la fenêtre répondait bien au seuil du
+   * tiroir, et l'effet ouvrait bien le panneau — tout était juste, et il ne se
+   * passait rien. En traçant chaque ouverture et chaque fermeture, la
+   * séquence est apparue en une ligne : `open`, puis `close` immédiat, depuis
+   * le **voile** du tiroir.
    *
-   * Le reste de la refonte est tenu : la colonne unique, les deux modes, la
-   * feuille qui monte à la demande, l'arborescence depuis la barre haute.
-   * Celui-ci attend d'être compris plutôt que d'être supprimé.
+   * La feuille monte pendant le geste. Le voile paraît donc sous le doigt
+   * encore posé, le relâchement tombe dessus, le clic part, et la feuille se
+   * referme dans la même fraction de seconde. Le voile écoute maintenant son
+   * propre appui : un appui commencé sur le plan n'atteint pas un voile qui
+   * n'existait pas encore.
    *
    * Sur un téléphone, la colonne est une feuille qui monte du bas.
    *
