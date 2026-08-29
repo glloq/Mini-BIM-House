@@ -1186,6 +1186,18 @@ function App() {
    */
   const clipboard = useRef<PlanClipboard>(EMPTY_CLIPBOARD);
 
+  /**
+   * L'orientation que le fantôme de pose montre en ce moment.
+   *
+   * Elle vit sur le plan : `R` la fait tourner, et on la choisit en regardant
+   * l'objet tourner sous le curseur plutôt qu'en tapant un nombre dans une
+   * barre. Elle est gardée dans une référence parce qu'elle change à chaque
+   * mouvement de souris tant qu'on la règle — la porter dans l'état
+   * redessinerait toute la coque pendant un survol, pour un chiffre que seul
+   * le prochain clic consommera.
+   */
+  const placementRotation = useRef<number | undefined>(undefined);
+
   const copySelection = useCallback(() => {
     const taken = copyObjects(
       session.current.file,
@@ -1543,6 +1555,16 @@ function App() {
           prefix === ''
             ? crypto.randomUUID()
             : `${prefix}-${crypto.randomUUID()}`,
+        /*
+         * L'orientation vue sous le curseur, telle quelle.
+         *
+         * Une référence et non un état : elle change à chaque mouvement de la
+         * souris quand on maintient `R`, et la faire passer par le rendu
+         * redessinerait la coque entière pendant un survol.
+         */
+        ...(placementRotation.current === undefined
+          ? {}
+          : { placementRotationDeg: placementRotation.current }),
       });
       if (result === undefined) return;
       if (result.status === 'ERROR') {
@@ -3096,6 +3118,9 @@ function App() {
                 stage={navigation.stage}
                 onMessage={setMessage}
                 onCommitPoints={commitPoints}
+                onPlacementRotation={(rotationDeg) => {
+                  placementRotation.current = rotationDeg;
+                }}
                 onFinishRun={finishRun}
                 onMoveSelection={moveSelection}
                 onCommand={runCommand}

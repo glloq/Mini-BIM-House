@@ -164,6 +164,15 @@ export interface ToolCommandContext {
   readonly optionNumber: (key: string) => number | undefined;
   /** A fresh identifier, so a tool never invents its own numbering. */
   readonly newId: (prefix: string) => string;
+  /**
+   * L'orientation choisie pendant la pose, quand on en a choisi une.
+   *
+   * Elle vient du plan et non de la barre d'options : on la règle avec `R`, en
+   * regardant le fantôme tourner sous le curseur, et une option d'outil
+   * clignoterait au survol. Absente, le support décide comme avant — une prise
+   * prend l'angle de son mur.
+   */
+  readonly placementRotationDeg?: number;
 }
 
 /**
@@ -1584,6 +1593,11 @@ export const EDITOR_TOOLS = [
           definitionId: context.option('definitionId'),
           name: context.option('name'),
           elevationMm: context.optionNumber('elevationMm') ?? 0,
+          // Ce qu'on a vu tourner est ce qui se pose : sans cette ligne, le
+          // fantôme promettrait une orientation que l'objet ne prendrait pas.
+          ...(context.placementRotationDeg === undefined
+            ? {}
+            : { rotationDeg: context.placementRotationDeg }),
         },
         context.newId('component'),
         // Ce que le clic a touché : un lit se pose sur une dalle, une prise
@@ -1768,7 +1782,15 @@ export const EDITOR_TOOLS = [
     interaction: [
       { kind: 'POINT', prompt: 'Choisissez le centre de la rotation' },
       { kind: 'DIRECTION', prompt: 'Cliquez la direction actuelle' },
-      { kind: 'DIRECTION', prompt: 'Cliquez la direction voulue' },
+      // Le troisième clic porte l'angle, et c'est celui-là qu'on peut taper :
+      // viser 37,5° à la souris demande le pixel juste — à deux mètres du
+      // centre, un pixel vaut un demi-degré — et l'exactitude n'est pas une
+      // question de dextérité.
+      {
+        kind: 'DIRECTION',
+        prompt: 'Cliquez la direction voulue',
+        numericInput: true,
+      },
     ],
     level: 'EXPERT',
     createCommand: (context) => {

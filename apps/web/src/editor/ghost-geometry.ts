@@ -1,6 +1,10 @@
 import type { SceneGeometry } from '@house-technical-designer/drawing-engine';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
-import { translatedPolygon } from './editing-commands.js';
+import {
+  transformPoint,
+  transformedPolygon,
+  type PlanTransform,
+} from './object-transform.js';
 
 /**
  * The shape a dragged object would have once dropped.
@@ -14,23 +18,43 @@ export function carriedGeometry(
   geometry: SceneGeometry,
   delta: Point2D,
 ): SceneGeometry {
-  const carried = (point: Point2D): Point2D => ({
-    x: point.x + delta.x,
-    y: point.y + delta.y,
-  });
+  return transformedGeometry(geometry, { kind: 'TRANSLATE', deltaMm: delta });
+}
+
+/**
+ * La même chose pour un déplacement, une rotation ou un miroir.
+ *
+ * Tourner une sélection ne se voyait pas : l'outil Pivoter demande un centre
+ * et deux directions, et l'on découvrait le résultat au troisième clic. Un
+ * geste dont on ne voit le résultat qu'une fois fait est un geste qu'on
+ * refait, ce qui est le contraire de ce que trois clics coûtent.
+ *
+ * Le fantôme passe par `transformPoint`, c'est-à-dire par la fonction même
+ * que la commande de transformation applique, et non par une rotation
+ * réécrite ici : deux façons de tourner un point finiraient par tourner
+ * différemment, et l'aperçu recommencerait à promettre ce qui ne sera pas.
+ */
+export function transformedGeometry(
+  geometry: SceneGeometry,
+  transform: PlanTransform,
+): SceneGeometry {
+  const moved = (point: Point2D): Point2D => transformPoint(transform, point);
   if (geometry.kind === 'POLYGON')
-    return { ...geometry, polygon: translatedPolygon(geometry.polygon, delta) };
+    return {
+      ...geometry,
+      polygon: transformedPolygon(geometry.polygon, transform),
+    };
   if (geometry.kind === 'POLYLINE')
     return {
       ...geometry,
       polyline: {
         ...geometry.polyline,
-        points: geometry.polyline.points.map(carried),
+        points: geometry.polyline.points.map(moved),
       },
     };
   if (geometry.kind === 'POINT')
-    return { ...geometry, point: carried(geometry.point) };
-  return { ...geometry, anchor: carried(geometry.anchor) };
+    return { ...geometry, point: moved(geometry.point) };
+  return { ...geometry, anchor: moved(geometry.anchor) };
 }
 
 /**

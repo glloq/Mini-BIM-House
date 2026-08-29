@@ -35,7 +35,7 @@ import {
 } from './object-editors.js';
 import { selectableInStage } from '../ux/space-scope.js';
 import { pickToleranceMm } from './pick-tolerance.js';
-import { DynamicInput } from './DynamicInput.js';
+import { DynamicInput, ExactValueInput } from './DynamicInput.js';
 import { ModelGrid } from './ModelGrid.js';
 import { NorthDial } from './NorthDial.js';
 import { UnderlayControl } from './UnderlayControl.js';
@@ -56,8 +56,26 @@ import {
   carriedGeometry,
   componentGhostOutline,
   footprintLabel,
+  transformedGeometry,
 } from './ghost-geometry.js';
 import { chooseHost, projectEquipment } from './host-choice.js';
+import {
+  FOLLOWS_HOST,
+  placementAngleDeg,
+  placementAngleNote,
+  turnedPlacement,
+  typedPlacement,
+  type PlacementOrientation,
+} from './placement-angle.js';
+import {
+  moveMeasures,
+  resolveMoveDelta,
+  rotationAngleDeg,
+  rotationTargetPoint,
+  withTypedMove,
+  type TypedMove,
+} from './placement-values.js';
+import { shouldIgnoreTarget } from './shortcuts.js';
 import {
   resolveDraftPoint,
   pointerModelPoint,
@@ -211,6 +229,21 @@ export interface PlanCanvasProps {
    * dirait quelque chose que le projet ne soutient pas.
    */
   readonly componentDefinitionId?: string;
+  /**
+   * L'orientation que le fantôme porte en ce moment, annoncée à la coque.
+   *
+   * Le canvas est l'endroit où l'on tourne ce qu'on s'apprête à poser — c'est
+   * là que la touche est frappée et là que le résultat se voit — mais il n'est
+   * pas l'endroit où la commande se fabrique : elle est faite des options de
+   * l'outil, que la coque tient. L'angle remonte donc par ce chemin, comme
+   * l'épaisseur du mur descend par le sien, plutôt que par un deuxième chemin
+   * qui finirait par dire autre chose.
+   *
+   * Sans elle, le fantôme tourne à l'écran et la pose reprend l'angle du
+   * support : c'est exactement la promesse non tenue qu'on ne veut pas, et
+   * c'est pourquoi la coque doit relayer cette valeur jusqu'à la commande.
+   */
+  readonly onPlacementRotation?: (rotationDeg: number) => void;
 }
 
 /** Segments the snap engine considers: every wall axis on the level. */
@@ -257,6 +290,7 @@ export function PlanCanvas({
   overlay,
   clearanceGroups = [],
   componentDefinitionId,
+  onPlacementRotation,
 }: PlanCanvasProps) {
   /*
    * La charte, telle qu'elle se lit depuis l'espace ouvert.
@@ -312,6 +346,36 @@ export function PlanCanvas({
     { readonly x: number; readonly y: number } | undefined
   >(undefined);
   /**
+   * Ce qu'on a tapé pendant qu'on déplace, quand on a tapé quelque chose.
+   *
+   * Un déplacement à la souris est aussi précis que l'écran : à l'échelle où
+   * l'on voit une maison entière, un pixel vaut plusieurs centimètres, et
+   * « 1 200 mm vers l'est » n'était donc atteignable qu'en calculant de tête
+   * une coordonnée dans l'inspecteur. Le champ ne remplace pas le geste : il
+   * le corrige, et ce qui reste vide continue de suivre la souris.
+   */
+  const [typedMove, setTypedMove] = useState<TypedMove>({});
+  /**
+   * L'orientation demandée pour ce qu'on s'apprête à poser.
+   *
+   * Elle ne vit qu'ici, et c'est voulu : un angle en cours de pose n'est pas
+   * un fait du bâtiment. Il naît avec l'outil, meurt avec lui, et rien n'en
+   * garde la trace — ce qui entre dans le fichier est l'angle du composant
+   * une fois posé.
+   */
+  const [orientation, setOrientation] =
+    useState<PlacementOrientation>(FOLLOWS_HOST);
+  /**
+   * L'angle tapé pour la rotation en cours, quand il l'a été.
+   *
+   * Pivoter garde ses trois clics : celui-ci ne les remplace pas, il donne au
+   * troisième la valeur qu'aucune souris ne sait viser. 37,5° se tape ; il ne
+   * se clique pas.
+   */
+  const [typedRotationDeg, setTypedRotationDeg] = useState<number | undefined>(
+    undefined,
+  );
+  /**
    * What the last click at this spot offered, and which one it took.
    *
    * A duct crossing a wall inside a room puts three objects under one pixel.
@@ -365,6 +429,68 @@ export function PlanCanvas({
   useEffect(() => {
     if (editor.selection.length === 0) setAmbiguous(undefined);
   }, [editor.selection]);
+
+  /*
+   * Chaque geste repart de zéro, et personne n'hérite de l'angle d'un autre.
+   *
+   * Un quart de tour demandé pour un lit ne doit pas rester en travers de la
+   * prise qu'on pose ensuite : ce serait un réglage invisible, celui qu'on
+   * cherche pendant dix minutes parce que rien à l'écran ne dit qu'il est là.
+   * L'outil et la fiche changent, l'orientation revient à ce que le support
+   * impose.
+   */
+  useEffect(() => {
+    setOrientation(FOLLOWS_HOST);
+  }, [editor.activeTool, componentDefinitionId]);
+
+  /*
+   * L'angle tapé pour une rotation ne survit pas au geste qui l'a demandé.
+   *
+   * Il vaut pour ces trois clics-ci ; le suivant recommence, et un angle
+   * gardé d'une rotation à l'autre ferait pivoter la sélection suivante d'un
+   * nombre que personne n'a retapé.
+   */
+  useEffect(() => {
+    setTypedRotationDeg(undefined);
+  }, [editor.activeTool, editor.pendingPoints.length]);
+
+  /*
+   * `R` fait tourner ce qu'on s'apprête à poser, d'un quart de tour.
+   *
+   * C'est la convention de tous les logiciels de dessin, et la raccourcir
+   * autrement serait demander à qui la connaît de la désapprendre. Elle est
+   * prise ici, en capture, parce que la même touche choisit ailleurs l'outil
+   * Réseau : pendant qu'un objet attend d'être posé, la question « et si je
+   * le tournais ? » est celle qu'on se pose, pas « et si je traçais un
+   * réseau ? ». Hors de la pose, `R` reprend son sens habituel.
+   *
+   * Ce qu'on tape dans un champ appartient au champ : `shouldIgnoreTarget`
+   * est la règle que toute l'application applique déjà, et l'appliquer ici
+   * évite qu'un « r » tapé dans une orientation fasse tourner le fantôme au
+   * lieu de s'écrire.
+   *
+   * L'endroit propre pour cette touche est `shortcuts.ts`, avec les autres :
+   * tant qu'elle n'y est pas déclarée, elle ne paraît pas dans l'aide, et
+   * c'est une découverte de moins.
+   */
+  useEffect(() => {
+    if (editor.activeTool !== 'COMPONENT') return;
+    function turn(event: KeyboardEvent): void {
+      if (event.key.toLowerCase() !== 'r') return;
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (shouldIgnoreTarget(target?.tagName, event)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      // Maj tourne à rebours : trois quarts de tour à droite pour revenir en
+      // arrière est une gymnastique qu'aucun dessinateur n'accepte.
+      setOrientation((current) =>
+        turnedPlacement(current, event.shiftKey ? -1 : 1),
+      );
+    }
+    window.addEventListener('keydown', turn, true);
+    return () => window.removeEventListener('keydown', turn, true);
+  }, [editor.activeTool]);
 
   /** Where the pointer went down, while it is deciding between click and band. */
   const press = useRef<
@@ -619,13 +745,28 @@ export function PlanCanvas({
   );
 
   /**
+   * L'écart réellement appliqué : celui de la souris, corrigé de ce qui est tapé.
+   *
+   * Mémorisé parce que le fantôme en dépend et que le fantôme est la
+   * sélection entière redessinée ; le recalculer à chaque rendu redessinerait
+   * la maison pour un vecteur qui n'a pas changé.
+   */
+  const carriedDelta = useMemo(
+    () =>
+      moveDelta === undefined
+        ? undefined
+        : resolveMoveDelta(moveDelta, typedMove),
+    [moveDelta, typedMove],
+  );
+
+  /**
    * The selection as it would be once dropped.
    *
    * A move nobody can see before releasing is a move made blind: the ghost is
    * the same primitives, carried by the distance travelled so far.
    */
   const ghost = useMemo<readonly ScenePrimitive[]>(() => {
-    if (moveDelta === undefined) return [];
+    if (carriedDelta === undefined) return [];
     return base.primitives
       .filter(
         (primitive) =>
@@ -635,7 +776,11 @@ export function PlanCanvas({
       .map((primitive, index): ScenePrimitive => {
         // The very transformation the command applies, so the ghost and what
         // lands can never describe two different shapes.
-        const geometry = carriedGeometry(primitive.geometry, moveDelta);
+        //
+        // Et c'est l'écart résolu — valeur tapée comprise — et non celui de
+        // la souris : un fantôme resté sous le pointeur pendant qu'on tape
+        // « 1 200 » montrerait autre chose que ce qui sera déposé.
+        const geometry = carriedGeometry(primitive.geometry, carriedDelta);
         return {
           ...primitive,
           id: `preview:move:${index}`,
@@ -644,7 +789,7 @@ export function PlanCanvas({
           state: 'GHOST' as const,
         };
       });
-  }, [base.primitives, editor.selection, moveDelta]);
+  }, [base.primitives, editor.selection, carriedDelta]);
 
   /**
    * L'objet qu'on s'apprête à poser, vu avant qu'on clique.
@@ -679,6 +824,8 @@ export function PlanCanvas({
   const componentGhost = useMemo((): {
     readonly primitives: readonly ScenePrimitive[];
     readonly sentence?: string;
+    /** L'angle que ce fantôme montre, et donc celui qui sera posé. */
+    readonly rotationDeg?: number;
   } => {
     if (editor.activeTool !== 'COMPONENT' || editor.cursorModel === undefined)
       return NO_GHOST;
@@ -698,17 +845,26 @@ export function PlanCanvas({
       pickToleranceMm(editor.camera, 'mouse'),
     );
     const choice = chooseHost(level, at, picked?.objectId, fiche.allowedHosts);
-    const outline = componentGhostOutline(
-      at,
-      fiche.dimensions,
-      choice.wallAngleDeg ?? 0,
-    );
+    /*
+     * L'angle du fantôme : celui du support, sauf si l'on en a demandé un autre.
+     *
+     * Le support reste la référence — une prise suit son mur sans qu'on ait
+     * rien à dire — et c'est le quart de tour ou la valeur tapée qui s'en
+     * écarte. Un seul calcul pour l'aperçu et pour la pose : c'est ce nombre
+     * qui remonte à la coque, et c'est ce nombre que la commande écrira.
+     */
+    const rotationDeg = placementAngleDeg(choice.wallAngleDeg, orientation);
+    const outline = componentGhostOutline(at, fiche.dimensions, rotationDeg);
     if (outline === undefined) return NO_GHOST;
     const size = footprintLabel(
       fiche.dimensions?.widthMm ?? 0,
       fiche.dimensions?.depthMm ?? 0,
     );
-    const sentence = `${size} · ${choice.sentence}`;
+    const turned = placementAngleNote(choice.wallAngleDeg, orientation);
+    const sentence =
+      turned === undefined
+        ? `${size} · ${choice.sentence}`
+        : `${size} · ${choice.sentence} · ${turned}`;
     /*
      * Le support, repassé par-dessus pour qu'on le distingue.
      *
@@ -737,6 +893,7 @@ export function PlanCanvas({
     const gapMm = GHOST_LABEL_GAP_PX / editor.camera.pixelsPerMm;
     return {
       sentence,
+      rotationDeg,
       primitives: [
         ...carried,
         {
@@ -776,8 +933,113 @@ export function PlanCanvas({
     editor.camera,
     editor.cursorModel,
     editor.levelId,
+    orientation,
     project,
   ]);
+
+  /*
+   * L'angle du fantôme, annoncé à la coque à chaque fois qu'il change.
+   *
+   * Le canvas ne fabrique pas la commande de pose : il dit ce qu'il montre, et
+   * la coque le porte jusqu'à l'outil. Sans ce relais, le fantôme tournerait
+   * pour rien — et un aperçu qui tourne pour rien est précisément le défaut
+   * qu'on répare.
+   */
+  useEffect(() => {
+    if (componentGhost.rotationDeg === undefined) return;
+    onPlacementRotation?.(componentGhost.rotationDeg);
+  }, [componentGhost.rotationDeg, onPlacementRotation]);
+
+  /**
+   * La rotation en cours, telle qu'elle sera appliquée.
+   *
+   * Pivoter demande un centre, la direction actuelle, la direction voulue.
+   * Une fois les deux premiers clics posés, l'angle est déterminé par le
+   * troisième — et c'est celui-là qu'on peut taper au lieu de le viser : le
+   * champ ne supprime pas le clic, il lui donne une valeur exacte. Ce qui est
+   * tapé l'emporte, ce qui ne l'est pas suit la souris, comme partout
+   * ailleurs.
+   */
+  const rotationDraft = useMemo(() => {
+    if (editor.activeTool !== 'ROTATE') return undefined;
+    const centre = editor.pendingPoints[0];
+    const from = editor.pendingPoints[1];
+    if (
+      centre === undefined ||
+      from === undefined ||
+      editor.cursorModel === undefined
+    )
+      return undefined;
+    const measuredDeg = rotationAngleDeg(centre, from, editor.cursorModel);
+    const angleDeg = typedRotationDeg ?? measuredDeg;
+    return {
+      centre,
+      from,
+      measuredDeg,
+      angleDeg,
+      // Le point que le troisième clic aurait posé : la commande garde ses
+      // trois points, et n'apprend rien de la saisie.
+      target: rotationTargetPoint(centre, from, angleDeg),
+    };
+  }, [
+    editor.activeTool,
+    editor.cursorModel,
+    editor.pendingPoints,
+    typedRotationDeg,
+  ]);
+
+  /**
+   * La sélection telle qu'elle sera une fois pivotée.
+   *
+   * Trois clics et rien à voir entre les deux : on découvrait la rotation une
+   * fois faite, on annulait, on recommençait. Le fantôme passe par la
+   * transformation même que la commande appliquera, si bien qu'il ne peut pas
+   * montrer un angle et en poser un autre.
+   */
+  const rotateGhost = useMemo<readonly ScenePrimitive[]>(() => {
+    if (rotationDraft === undefined || editor.selection.length === 0) return [];
+    const turned = base.primitives
+      .filter(
+        (primitive) =>
+          primitive.sourceObjectId !== undefined &&
+          editor.selection.includes(primitive.sourceObjectId),
+      )
+      .map((primitive, index): ScenePrimitive => {
+        const { sourceObjectId: _unused, ...rest } = primitive;
+        return {
+          ...rest,
+          id: `preview:rotate:${index}`,
+          geometry: transformedGeometry(primitive.geometry, {
+            kind: 'ROTATE',
+            centre: rotationDraft.centre,
+            angleDeg: rotationDraft.angleDeg,
+          }),
+          zIndex: 93,
+          state: 'GHOST' as const,
+        };
+      });
+    if (turned.length === 0) return [];
+    return [
+      ...turned,
+      {
+        // Le rayon que le troisième clic prendra : quand l'angle est tapé, la
+        // souris n'est plus dessus, et rien d'autre ne dirait où il va.
+        id: 'preview:rotate-radius',
+        semanticRole: 'ANNOTATION' as const,
+        geometry: {
+          kind: 'POLYLINE' as const,
+          polyline: {
+            points: [rotationDraft.centre, rotationDraft.target],
+            closed: false,
+          },
+        },
+        layer: 'annotation.dimensions',
+        zIndex: 92,
+        discipline: 'ARCHITECTURE' as const,
+        state: 'GHOST' as const,
+      },
+    ];
+  }, [base.primitives, editor.selection, rotationDraft]);
 
   /**
    * The room the placed machines need around them.
@@ -799,6 +1061,7 @@ export function PlanCanvas({
     if (
       overlay === undefined &&
       ghost.length === 0 &&
+      rotateGhost.length === 0 &&
       clearances.length === 0 &&
       componentGhost.primitives.length === 0
     )
@@ -817,6 +1080,7 @@ export function PlanCanvas({
       extraPrimitives: [
         ...preview,
         ...ghost,
+        ...rotateGhost,
         ...componentGhost.primitives,
         ...clearances,
         ...(overlay === undefined
@@ -828,6 +1092,7 @@ export function PlanCanvas({
   }, [
     base,
     ghost,
+    rotateGhost,
     componentGhost,
     clearances,
     overlay,
@@ -1116,6 +1381,9 @@ export function PlanCanvas({
             pointerType: event.pointerType,
             delta: { x: 0, y: 0 },
           };
+          // Chaque déplacement repart de la souris : une valeur tapée pour le
+          // précédent appliquerait au suivant un écart que personne n'a redit.
+          setTypedMove({});
           event.currentTarget.setPointerCapture(event.pointerId);
           return;
         }
@@ -1282,6 +1550,7 @@ export function PlanCanvas({
       moving.current = undefined;
       if (carried !== undefined) {
         setMoveDelta(undefined);
+        setTypedMove({});
         const travelled = Math.hypot(
           event.clientX - carried.fromClient.x,
           event.clientY - carried.fromClient.y,
@@ -1303,10 +1572,14 @@ export function PlanCanvas({
         // last render believed it was.
         const dropped = modelPointOf(event);
         const target = snapFor(event)?.point ?? dropped;
-        const delta =
+        const pointed =
           target === undefined
             ? carried.delta
             : { x: target.x - carried.from.x, y: target.y - carried.from.y };
+        // Ce qui a été tapé pendant le glissement l'emporte sur l'endroit où
+        // le bouton a été relâché : c'est ce que le fantôme montrait, et
+        // relâcher n'est pas se dédire.
+        const delta = resolveMoveDelta(pointed, typedMove);
         if (delta.x !== 0 || delta.y !== 0) onMoveSelection?.(delta);
         return;
       }
@@ -1342,6 +1615,7 @@ export function PlanCanvas({
       selectAt,
       selectable,
       snapFor,
+      typedMove,
     ],
   );
 
@@ -1529,6 +1803,117 @@ export function PlanCanvas({
       : modelToScreen(editor.camera, draftTarget);
 
   /**
+   * Les champs de la pose : où ils se posent, et ce qu'ils montrent.
+   *
+   * Sous le curseur, comme ceux du tracé, parce que c'est là qu'on regarde ce
+   * qu'on s'apprête à poser. Ils ne paraissent qu'avec un fantôme : des champs
+   * au-dessus de rien n'auraient rien à régler.
+   */
+  const placementFields =
+    editor.activeTool === 'COMPONENT' &&
+    componentGhost.rotationDeg !== undefined &&
+    editor.cursorModel !== undefined
+      ? {
+          atPx: modelToScreen(editor.camera, editor.cursorModel),
+          rotationDeg: componentGhost.rotationDeg,
+        }
+      : undefined;
+
+  /**
+   * Les champs du déplacement, pendant qu'on traîne la sélection.
+   *
+   * Ce qu'ils montrent est ce que la **souris** dit, jamais l'écart résolu :
+   * un champ qui afficherait la valeur qu'on vient d'y taper la répéterait, et
+   * un champ qui afficherait le résultat pendant qu'on tape ne dirait plus de
+   * quoi l'on part.
+   */
+  const moveFields =
+    moveDelta === undefined || editor.cursorModel === undefined
+      ? undefined
+      : {
+          atPx: modelToScreen(editor.camera, editor.cursorModel),
+          measures: moveMeasures(moveDelta),
+        };
+
+  /**
+   * Poser au clavier, sans lâcher ce qu'on est en train de régler.
+   *
+   * Entrée pose là où le curseur est, exactement comme le clic l'aurait fait
+   * — même point, même accroche, même objet touché. C'est le chemin de
+   * l'expert : régler l'orientation, valider, sans revenir à la souris pour
+   * un clic qui ne dit rien de plus.
+   */
+  const placeAtCursor = useCallback((): void => {
+    if (editor.cursorModel === undefined) return;
+    const point = editor.activeSnap?.point ?? editor.cursorModel;
+    const picked = pickPrimitive(
+      plan.primitives,
+      point,
+      pickToleranceMm(editor.camera, 'mouse'),
+    );
+    dispatch({
+      type: 'COMMIT_POINT',
+      point,
+      ...(picked === undefined ? {} : { objectId: picked.objectId }),
+    });
+    onCommitPoints([point], [picked?.objectId]);
+  }, [
+    dispatch,
+    editor.activeSnap,
+    editor.camera,
+    editor.cursorModel,
+    onCommitPoints,
+    plan.primitives,
+  ]);
+
+  /**
+   * Pivoter de l'angle affiché, qu'il vienne de la souris ou du champ.
+   *
+   * Le troisième point est posé comme un clic l'aurait posé : l'outil garde
+   * ses trois points, la commande garde sa formule, et rien n'apprend qu'une
+   * valeur a été tapée. Un chemin de plus vers la même commande serait un
+   * chemin de plus à faire diverger.
+   */
+  const commitRotation = useCallback((): void => {
+    if (rotationDraft === undefined) return;
+    dispatch({ type: 'COMMIT_POINT', point: rotationDraft.target });
+    onCommitPoints(
+      [...editor.pendingPoints, rotationDraft.target],
+      [...editor.pendingPicks, undefined],
+    );
+  }, [
+    dispatch,
+    editor.pendingPicks,
+    editor.pendingPoints,
+    onCommitPoints,
+    rotationDraft,
+  ]);
+
+  /**
+   * Déposer la sélection sur l'écart affiché, sans attendre le relâchement.
+   *
+   * On tape pendant qu'on traîne, et Entrée dépose : le bouton peut être
+   * relâché après, il ne retrouvera rien à déposer. C'est la seule façon
+   * honnête de corriger un glissement — le corriger après coup ferait deux
+   * déplacements dans l'historique pour un seul geste.
+   */
+  const commitMove = useCallback((): void => {
+    if (carriedDelta === undefined) return;
+    moving.current = undefined;
+    setMoveDelta(undefined);
+    setTypedMove({});
+    if (carriedDelta.x !== 0 || carriedDelta.y !== 0)
+      onMoveSelection?.(carriedDelta);
+  }, [carriedDelta, onMoveSelection]);
+
+  /** Abandonner le déplacement : la sélection reste où elle était. */
+  const cancelMove = useCallback((): void => {
+    moving.current = undefined;
+    setMoveDelta(undefined);
+    setTypedMove({});
+  }, []);
+
+  /**
    * The measurements written on the drawing, for the object selected.
    *
    * They are the inspector's own edits, placed where they are measured: the
@@ -1660,6 +2045,96 @@ export function PlanCanvas({
             onCancel={() => dispatch({ type: 'CANCEL' })}
           />
         )}
+
+      {/*
+        Les valeurs exactes, là où la souris ne sait qu'approcher.
+
+        Trois endroits, une seule idée : le champ dit ce que la souris dit, et
+        l'on peut le corriger. L'outil ne change pas, les clics ne changent
+        pas, et personne n'a à choisir « mode clavier » avant de commencer.
+      */}
+      {placementFields !== undefined && (
+        <ExactValueInput
+          atPx={placementFields.atPx}
+          title="Orientation de ce qu’on pose"
+          fields={[
+            {
+              id: 'rotationDeg',
+              label: 'Orientation',
+              unit: 'DEG',
+              measured: placementFields.rotationDeg,
+            },
+          ]}
+          onChange={(_id, value) =>
+            setOrientation((current) => typedPlacement(current, value))
+          }
+          onCommit={placeAtCursor}
+          onCancel={() => dispatch({ type: 'CANCEL' })}
+          commitLabel="Poser"
+          hint="R : quart de tour"
+          // Il ne prend pas le clavier : tant qu'on n'a rien tapé, la frappe
+          // qui vient est « R », celle qui fait tourner ce qu'on regarde.
+          takesFocus={false}
+        />
+      )}
+      {rotationDraft !== undefined && (
+        <ExactValueInput
+          atPx={modelToScreen(editor.camera, rotationDraft.target)}
+          title="Angle de la rotation"
+          fields={[
+            {
+              id: 'angleDeg',
+              label: 'Angle',
+              unit: 'DEG',
+              measured: rotationDraft.measuredDeg,
+            },
+          ]}
+          onChange={(_id, value) => setTypedRotationDeg(value)}
+          onCommit={commitRotation}
+          onCancel={() => dispatch({ type: 'CANCEL' })}
+          commitLabel="Pivoter"
+          takesFocus
+        />
+      )}
+      {moveFields !== undefined && (
+        <ExactValueInput
+          atPx={moveFields.atPx}
+          title="Déplacement de la sélection"
+          fields={[
+            {
+              id: 'dxMm',
+              label: 'ΔX',
+              unit: 'MM',
+              measured: moveFields.measures.dxMm,
+            },
+            {
+              id: 'dyMm',
+              label: 'ΔY',
+              unit: 'MM',
+              measured: moveFields.measures.dyMm,
+            },
+            {
+              id: 'distanceMm',
+              label: 'Distance',
+              unit: 'MM',
+              measured: moveFields.measures.distanceMm,
+            },
+            {
+              id: 'angleDeg',
+              label: 'Angle',
+              unit: 'DEG',
+              measured: moveFields.measures.angleDeg,
+            },
+          ]}
+          onChange={(id, value) =>
+            setTypedMove((current) => withTypedMove(current, id, value))
+          }
+          onCommit={commitMove}
+          onCancel={cancelMove}
+          commitLabel="Déplacer"
+          takesFocus
+        />
+      )}
 
       {rendered.status === 'EMPTY' && (
         <div className="empty-state">
@@ -1878,7 +2353,7 @@ export function PlanCanvas({
             La sortie de l'outil y est nommée parce qu'un objet qui suit la
             souris sans qu'on sache l'arrêter est un objet qu'on subit. */}
         {componentGhost.sentence !== undefined &&
-          ` · ${componentGhost.sentence} · clic pose, Échap annule`}
+          ` · ${componentGhost.sentence} · clic pose, R tourne, Échap annule`}
         {/* The two directions of a band ask two different questions, and the
             rectangle alone does not say which one is being asked. */}
         {editor.selectionBox !== undefined &&

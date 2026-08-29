@@ -3,7 +3,9 @@ import {
   carriedGeometry,
   componentGhostOutline,
   footprintLabel,
+  transformedGeometry,
 } from './ghost-geometry.js';
+import { transformPoint } from './object-transform.js';
 
 const delta = { x: 100, y: -50 };
 
@@ -139,5 +141,73 @@ describe('l’emprise que l’objet occupera, avant qu’on clique', () => {
   it('écrit la taille comme le reste du dessin l’écrit', () => {
     expect(footprintLabel(2000, 1400)).toBe('2.00 × 1.40 m');
     expect(footprintLabel(80, 40)).toBe('0.08 × 0.04 m');
+  });
+});
+
+describe('la sélection telle qu’elle sera une fois pivotée', () => {
+  const centre = { x: 1000, y: 1000 };
+  const turn = { kind: 'ROTATE' as const, centre, angleDeg: 37.5 };
+
+  it('tourne par la fonction même que la commande applique', () => {
+    // Deux façons de tourner un point finiraient par tourner différemment, et
+    // l'aperçu se remettrait à promettre ce qui ne sera pas posé.
+    const turned = transformedGeometry(
+      {
+        kind: 'POLYLINE',
+        polyline: {
+          points: [
+            { x: 1000, y: 1000 },
+            { x: 3000, y: 1000 },
+          ],
+          closed: false,
+        },
+      },
+      turn,
+    );
+    expect(turned.kind).toBe('POLYLINE');
+    if (turned.kind !== 'POLYLINE') return;
+    expect(turned.polyline.points[1]).toEqual(
+      transformPoint(turn, { x: 3000, y: 1000 }),
+    );
+    // Le centre de la rotation ne bouge pas : c'est ce qui en fait un centre.
+    expect(turned.polyline.points[0]).toEqual(centre);
+  });
+
+  it('emporte les trous d’un contour et l’ancre d’un texte', () => {
+    const turned = transformedGeometry(
+      {
+        kind: 'POLYGON',
+        polygon: {
+          outer: [{ x: 2000, y: 1000 }],
+          holes: [[{ x: 1500, y: 1000 }]],
+        },
+      },
+      turn,
+    );
+    if (turned.kind !== 'POLYGON')
+      throw new Error('un contour reste un contour');
+    expect(turned.polygon.outer[0]).toEqual(
+      transformPoint(turn, { x: 2000, y: 1000 }),
+    );
+    expect(turned.polygon.holes?.[0]?.[0]).toEqual(
+      transformPoint(turn, { x: 1500, y: 1000 }),
+    );
+    const label = transformedGeometry(
+      { kind: 'TEXT', anchor: { x: 2000, y: 1000 }, text: 'séjour' },
+      turn,
+    );
+    if (label.kind !== 'TEXT') throw new Error('un texte reste un texte');
+    expect(label.anchor).toEqual(transformPoint(turn, { x: 2000, y: 1000 }));
+  });
+
+  it('reste le chemin du déplacement, qui n’est qu’une transformation parmi trois', () => {
+    // `carriedGeometry` passe désormais par ici : une seule mécanique pour le
+    // fantôme qui glisse et pour celui qui pivote.
+    const moved = carriedGeometry(
+      { kind: 'POINT', point: { x: 10, y: 20 } },
+      { x: 5, y: -5 },
+    );
+    if (moved.kind !== 'POINT') throw new Error('un point reste un point');
+    expect(moved.point).toEqual({ x: 15, y: 15 });
   });
 });

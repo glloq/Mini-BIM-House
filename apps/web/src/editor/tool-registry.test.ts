@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import type { AddComponentCommand } from '@house-technical-designer/editor-core';
 import { loadDemoProject } from '../demo-project.js';
 import { SHORTCUTS } from './shortcuts.js';
-import { optionValue } from './tool-options.js';
+import { optionValue, storageKeyOf, type ToolDrafts } from './tool-options.js';
+import { toolOptionLayout } from './option-visibility.js';
 import { OBJECT_FAMILIES } from './object-editors.js';
 import { stepCoherenceProblem } from './interaction-steps.js';
 import { SITE_OBSTACLE_KINDS } from '@house-technical-designer/core-domain';
@@ -160,6 +162,39 @@ describe('the tools the editor offers', () => {
     expect(result?.status).toBe('ERROR');
     if (result?.status !== 'ERROR') return;
     expect(result.message).toContain('mur');
+  });
+
+  it('pose le composant à l’orientation que le fantôme montrait', () => {
+    /*
+     * Le fantôme tourne, l'objet posé aussi.
+     *
+     * `R` fait tourner l'aperçu sous le curseur ; sans ce passage, l'aperçu
+     * promettait une orientation que la commande jetait, et l'objet retombait
+     * à plat sur l'angle de son support. Un aperçu qui ment est pire que pas
+     * d'aperçu du tout : on pose en confiance, et on corrige après.
+     */
+    const posed = (rotationDeg?: number) => {
+      const result = toolDefinition('COMPONENT').createCommand?.({
+        ...context({ points: [{ x: 2500, y: 500 }] }),
+        option: (key) =>
+          optionValue(
+            file().project,
+            'COMPONENT',
+            optionsOf('COMPONENT'),
+            {},
+            key,
+          ),
+        ...(rotationDeg === undefined
+          ? {}
+          : { placementRotationDeg: rotationDeg }),
+      });
+      if (result?.status !== 'OK') throw new Error('la pose devait aboutir');
+      return (result.command as AddComponentCommand).draft.rotationDeg;
+    };
+    expect(posed(37.5)).toBe(37.5);
+    // Et rien n'est inventé quand on n'a rien demandé : le support décide,
+    // comme avant.
+    expect(posed()).not.toBe(37.5);
   });
 
   it('turns the selection by the angle two clicks describe', () => {
@@ -629,6 +664,85 @@ describe('ce que chaque chose du terrain demande pour être posée', () => {
       const steps = interactionOf(tool);
       expect(steps, tool).toBeDefined();
       for (const step of steps!) expect(step.prompt, tool).toMatch(mot);
+    }
+  });
+});
+
+describe('ce qu’un outil demande, et quand il le demande', () => {
+  /*
+   * Une option peut dépendre d'une autre — la nature d'un obstacle ne se pose
+   * que si l'on trace un obstacle. Ce qui est déclaré est donc une petite
+   * fonction, et une petite fonction se trompe : celle-ci pourrait lire une
+   * clé qui n'existe pas, ou refuser tous les états d'un coup. On parcourt
+   * donc chaque état que l'utilisateur peut atteindre en touchant un seul
+   * menu, et l'on vérifie que la barre y reste utilisable.
+   */
+  function statesOf(toolId: EditorTool): readonly ToolDrafts[] {
+    const options = optionsOf(toolId);
+    const states: ToolDrafts[] = [{}];
+    for (const option of options) {
+      if (option.kind !== 'SELECT') continue;
+      for (const choice of option.choices?.({
+        project: file().project,
+        value: () => '',
+      }) ?? [])
+        states.push({ [storageKeyOf(toolId, option)]: choice.value });
+    }
+    return states;
+  }
+
+  it('laisse toujours quelque chose à décider, quel que soit l’état', () => {
+    const project = file().project;
+    for (const tool of EDITOR_TOOLS) {
+      const options = optionsOf(tool.id);
+      if (options.length === 0) continue;
+      for (const drafts of statesOf(tool.id)) {
+        const layout = toolOptionLayout(project, tool.id, options, drafts);
+        // Un outil dont tout serait masqué ou replié n'offrirait qu'un
+        // « Plus de réglages » : le dépliage aurait alors caché l'outil.
+        expect(
+          layout.primary.length,
+          `${tool.id} ${JSON.stringify(drafts)}`,
+        ).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('ne masque jamais ce qu’il faudra bien avoir dit', () => {
+    /*
+     * Une option retirée de l'écran garde sa valeur, et c'est ce qui permet
+     * de la retirer. On le vérifie là où la dépendance est déclarée : on
+     * répond, on change d'avis en touchant chaque menu de l'outil, et l'on
+     * relit — y compris dans les états où le champ a disparu.
+     */
+    const project = file().project;
+    for (const tool of EDITOR_TOOLS) {
+      const options = optionsOf(tool.id);
+      const dependent = options.filter(
+        ({ visibleWhen }) => visibleWhen !== undefined,
+      );
+      for (const option of dependent) {
+        const choices = option.choices?.({ project, value: () => '' }) ?? [];
+        const answer =
+          option.kind === 'SELECT'
+            ? choices[choices.length - 1]?.value
+            : option.kind === 'NUMBER'
+              ? '4321'
+              : 'ce qu’on a répondu';
+        if (answer === undefined || answer === '') continue;
+        const held = { [storageKeyOf(tool.id, option)]: answer };
+        for (const drafts of statesOf(tool.id))
+          expect(
+            optionValue(
+              project,
+              tool.id,
+              options,
+              { ...drafts, ...held },
+              option.key,
+            ),
+            `${tool.id}.${option.key}`,
+          ).toBe(answer);
+      }
     }
   });
 });

@@ -39,6 +39,47 @@ describe('empêcher les étapes de contredire le nombre de points', () => {
     requiredPoints: number,
   ): StepCoherenceSubject => ({ requiredPoints, interaction: steps });
 
+  it('refuse une saisie sur une étape qui désigne un objet', () => {
+    /*
+     * `numericInput` promet un champ, et un champ promet une valeur.
+     *
+     * Une étape qui demande de montrer un mur n'a pas de nombre à taper :
+     * la déclarer saisissable annoncerait une saisie que rien ne peut offrir,
+     * et l'aide en parlerait. Les étapes qui portent une mesure — un point,
+     * un cap, une distance — restent libres de le déclarer.
+     */
+    expect(
+      stepCoherenceProblem(
+        closed(
+          [
+            {
+              kind: 'PICK',
+              prompt: 'Montrez le mur à scinder',
+              numericInput: true,
+            },
+            step('deux'),
+          ],
+          2,
+        ),
+      ),
+    ).toContain('rien ne s’y tape');
+    expect(
+      stepCoherenceProblem(
+        closed(
+          [
+            {
+              kind: 'DIRECTION',
+              prompt: 'Cliquez la direction voulue',
+              numericInput: true,
+            },
+            step('deux'),
+          ],
+          2,
+        ),
+      ),
+    ).toBeUndefined();
+  });
+
   it('laisse passer un outil qui n’en déclare pas', () => {
     // La déclaration est facultative et doit le rester : rien à contredire.
     expect(stepCoherenceProblem({ requiredPoints: 2 })).toBeUndefined();

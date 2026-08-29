@@ -116,6 +116,19 @@ export function stepCoherenceProblem(
     return steps.length <= tool.requiredPoints
       ? undefined
       : `${steps.length} étape(s) pour un tracé ouvert d'au moins ${tool.requiredPoints} clic(s) : une suite finie ne décrit pas un tracé sans fin`;
+  const typedOnAPick = steps.find(
+    (step) => step.numericInput === true && step.kind === 'PICK',
+  );
+  /*
+   * On ne tape pas un objet au clavier.
+   *
+   * `numericInput` promet un champ où l'on donne la valeur exacte que le clic
+   * aurait visée — une longueur, un cap, un écart. Une étape qui demande de
+   * **désigner** un objet n'a pas de valeur à taper : la déclarer ainsi
+   * annoncerait une saisie qui ne peut pas exister.
+   */
+  if (typedOnAPick !== undefined)
+    return `l’étape « ${typedOnAPick.prompt} » désigne un objet : rien ne s’y tape`;
   return steps.length === tool.requiredPoints
     ? undefined
     : `${steps.length} étape(s) pour ${tool.requiredPoints} clic(s) attendu(s)`;

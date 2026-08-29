@@ -61,6 +61,7 @@ import {
   type ProjectCommand,
 } from '@house-technical-designer/editor-core';
 import { chooseHost, type HostChoice } from './host-choice.js';
+import { normalizedAngleDeg } from './placement-angle.js';
 import { polygonSurface } from './polygon-surface.js';
 import {
   crownFootprint,
@@ -335,6 +336,28 @@ export function addWallRectangleCommand(
  * the model does not know it leaves unsaid — a component outside every room is
  * a component with no room, not a component in the first one.
  */
+/**
+ * L'angle réellement écrit dans le projet, entre celui qu'on a choisi et celui
+ * que le support impose.
+ *
+ * Le choix l'emporte sans se composer avec le support : on a vu le fantôme
+ * tourné à l'écran, et c'est ce fantôme-là qu'on pose. Un angle qui n'en est
+ * pas un — une saisie cassée, un calcul dégénéré — n'est pas un choix, et l'on
+ * retombe alors sur le support plutôt que d'écrire un `NaN` dans le fichier.
+ *
+ * L'angle du support, lui, est rendu tel que la géométrie le donne : le
+ * ramener dans le tour changerait la valeur écrite pour tous les composants
+ * déjà posés le long d'un mur qui remonte, sans que personne l'ait demandé.
+ */
+function placedRotationDeg(
+  chosenDeg: number | undefined,
+  hostAngleDeg: number | undefined,
+): number {
+  if (chosenDeg !== undefined && Number.isFinite(chosenDeg))
+    return normalizedAngleDeg(chosenDeg);
+  return hostAngleDeg ?? 0;
+}
+
 export function placeComponentCommand(
   file: ProjectFile,
   levelId: string | undefined,
@@ -344,6 +367,15 @@ export function placeComponentCommand(
     readonly definitionId?: string;
     readonly name?: string;
     readonly elevationMm: number;
+    /**
+     * L'orientation choisie avant de poser, quand quelqu'un en a choisi une.
+     *
+     * Absente, c'est le support qui décide, comme avant : une prise suit son
+     * mur sans qu'on ait rien à dire. Présente, elle l'emporte — elle vient
+     * d'un fantôme qu'on a fait tourner à l'écran, et un aperçu qu'on tourne
+     * pour obtenir autre chose ne serait pas un aperçu.
+     */
+    readonly rotationDeg?: number;
   },
   componentId: string,
   picked?: string,
@@ -376,10 +408,11 @@ export function placeComponentCommand(
         : { name: draft.name }),
       position: { x: point.x, y: point.y },
       elevationMm: draft.elevationMm,
-      // L'angle du support, et non zéro : c'est ce que l'aperçu montre avant
-      // le clic, et un aperçu qui montre autre chose que ce qu'on obtient est
-      // pire que pas d'aperçu.
-      rotationDeg: support.wallAngleDeg ?? 0,
+      // L'angle qu'on a choisi s'il y en a un, sinon celui du support, et
+      // jamais zéro d'office : c'est ce que l'aperçu montre avant le clic, et
+      // un aperçu qui montre autre chose que ce qu'on obtient est pire que pas
+      // d'aperçu.
+      rotationDeg: placedRotationDeg(draft.rotationDeg, support.wallAngleDeg),
       ...(room === undefined ? {} : { spaceId: room.id }),
       ...(support.hostObjectId === undefined
         ? {}
