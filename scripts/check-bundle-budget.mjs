@@ -303,8 +303,19 @@ export const BUDGETS = {
    * dès l'ouverture. Le registre des actions ensuite : ce qu'une famille
    * d'objet permet de faire, interrogé par la barre contextuelle, qui paraît
    * au premier objet désigné. Le plafond passe à 261.
+   *
+   * Puis deux pour trois modules d'édition qui vivent au premier écran par
+   * nature. Le rangement des options d'outil d'abord : une option dit
+   * maintenant quand elle s'applique et si elle se règle d'emblée ou après
+   * coup, et la barre ne montre plus les quatre champs d'un obstacle pendant
+   * qu'on trace une parcelle — soixante-six champs offerts d'un coup sur
+   * vingt-deux outils, quarante-quatre désormais. L'orientation de pose
+   * ensuite, et les valeurs exactes d'une rotation ou d'un déplacement : ce
+   * sont les nombres qu'on tape pendant qu'on vise, donc du dessin, donc du
+   * premier clic. Les déclarations qui vont avec sont dans le registre des
+   * outils, qui est chargé avec la boîte. Le plafond passe à 263.
    */
-  initialGzipBytes: 261 * 1024,
+  initialGzipBytes: 263 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -543,8 +554,16 @@ export const BUDGETS = {
    * lit donc en comparant l'inventaire avant et après. Ce kio-là est au
    * premier écran parce que le verrou y est aussi : il vaut pour le premier
    * clic comme pour le millième.
+   *
+   * Et trois pour le rangement des options, l'orientation de pose et les
+   * valeurs exactes — le détail est au-dessus, au premier écran, où ils vivent
+   * tous les trois — plus le glyphe du catalogue, qui lui est à la demande :
+   * chaque famille de la nomenclature montre désormais, à côté de son nom, le
+   * dessin que le plan prendra, résolu par la même chaîne. Cinq cent dix-huit
+   * noms se ressemblent ; cinq cent dix-huit dessins non. Le total passe à
+   * 508.
    */
-  totalGzipBytes: 505 * 1024,
+  totalGzipBytes: 508 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

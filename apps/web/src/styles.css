@@ -2520,12 +2520,65 @@ legend {
   background: none;
   border: none;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
+  /*
+   * Le glyphe à gauche, le nom et sa ligne d'état à droite.
+   *
+   * Une grille plutôt qu'une colonne : le dessin tient les deux lignes de
+   * texte à sa hauteur, et la liste garde un pas régulier même quand une
+   * famille n'a pas de glyphe — la case reste, vide.
+   */
+  display: grid;
+  align-items: center;
+  column-gap: 0.5rem;
+  grid-template-columns: auto minmax(0, 1fr);
   padding: 0.35rem 0;
+  row-gap: 0.15rem;
   text-align: left;
   width: 100%;
+}
+
+.catalog-row > .symbol-glyph {
+  grid-row: 1 / span 2;
+}
+
+/*
+ * Le glyphe du plan, à la taille d'une ligne de liste.
+ *
+ * Il est dessiné au trait, comme sur le plan : un aperçu colorié ne
+ * ressemblerait plus à ce qu'on obtiendra. Le remplissage très pâle des
+ * surfaces est la seule licence — sans lui, un lavabo de vingt-huit pixels
+ * n'est plus qu'un contour qu'on ne distingue pas d'une bouche d'aération.
+ */
+.symbol-glyph {
+  flex: none;
+  color: var(--ink-soft);
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.symbol-glyph polygon,
+.symbol-glyph circle {
+  fill: color-mix(in srgb, currentcolor 12%, transparent);
+}
+
+.symbol-glyph text {
+  fill: currentcolor;
+  stroke: none;
+}
+
+/*
+ * Le carré générique se signale.
+ *
+ * Une famille que la planche ne dessine pas prend le carré de trois cents
+ * millimètres. Le montrer comme les autres ferait croire que c'est **son**
+ * dessin ; en pointillé, il dit ce qu'il est — un objet posé, pas encore
+ * dessiné — et c'est aussi la liste de ce qu'il reste à dessiner.
+ */
+.symbol-glyph[data-source='GENERIC'] {
+  color: var(--line);
+  stroke-dasharray: 40 30;
 }
 
 .catalog-detail {

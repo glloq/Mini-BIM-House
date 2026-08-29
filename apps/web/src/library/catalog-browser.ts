@@ -42,6 +42,15 @@ export interface CatalogRow {
   readonly familyId: string;
   readonly label: string;
   readonly domain: DataDomain;
+  /**
+   * Sa catégorie, pour le deuxième maillon de la chaîne graphique.
+   *
+   * Une famille qui ne nomme pas son glyphe prend celui de sa catégorie ; sans
+   * elle, l'aperçu sauterait ce maillon et montrerait le carré générique à des
+   * familles que le plan dessine correctement. L'aperçu doit dire vrai ou ne
+   * rien dire.
+   */
+  readonly category?: string;
   readonly domainLabel: string;
   readonly wave: number;
   /** Between 0 and 1, every axis weighing the same. */
@@ -90,6 +99,7 @@ export function catalogRows(
       familyId: family.id,
       label: family.label,
       domain: family.domain,
+      ...(family.category === undefined ? {} : { category: family.category }),
       domainLabel: DATA_DOMAIN_LABELS[family.domain],
       wave: family.priority,
       progress: completeness(familyStatus(family.id, known)),
