@@ -125,6 +125,19 @@ export const DISTRIBUTE_HINTS: Readonly<Record<DistributeAxis, string>> = {
 };
 
 /**
+ * Un refus, quel que soit le rangement qui le prononce.
+ *
+ * Écrit une fois plutôt que recopié dans chaque issue : aligner, répartir et
+ * répéter refusent pour des raisons différentes, mais un refus se lit
+ * toujours de la même façon — un état nommé et une phrase. L'appelant peut
+ * ainsi traiter les trois d'un seul `if`.
+ */
+export interface ArrangementRefusal {
+  readonly status: 'REFUSED';
+  readonly message: string;
+}
+
+/**
  * Ce qu'un rangement rend : des écarts, ou une phrase qui dit pourquoi non.
  *
  * Deux issues et pas trois : ce module n'a pas de cas « ce n'est pas à moi »,
@@ -143,7 +156,7 @@ export type ArrangementOutcome =
        */
       readonly deltas: ReadonlyMap<string, Point2D>;
     }
-  | { readonly status: 'REFUSED'; readonly message: string };
+  | ArrangementRefusal;
 
 /**
  * En deçà de quoi deux positions sont la même position.
@@ -202,7 +215,7 @@ function deltaAlong(alongX: boolean, distance: number): Point2D {
   return alongX ? { x: distance, y: 0 } : { x: 0, y: distance };
 }
 
-const refused = (message: string): ArrangementOutcome => ({
+const refused = (message: string): ArrangementRefusal => ({
   status: 'REFUSED',
   message,
 });
@@ -331,4 +344,106 @@ export function distributeDeltas(
   if (deltas.size === 0)
     return refused('Ces objets sont déjà répartis régulièrement.');
   return { status: 'OK', deltas };
+}
+
+/**
+ * Une copie à venir : son rang, son écart à l'original, et l'emprise qu'elle
+ * occupera là où elle se pose.
+ *
+ * Les trois ne font pas double emploi. Le rang nomme la copie — « la
+ * troisième » — pour l'écran qui compte et pour l'identifiant de commande qui
+ * ne doit pas se répéter. L'écart est ce que la duplication attend, et rien
+ * d'autre. L'emprise est ce qu'on **montre avant de faire** : les fantômes
+ * sous le curseur, et la réponse à « la sixième copie sort-elle de la
+ * parcelle ? », qu'il faut pouvoir donner alors qu'aucune des six n'existe
+ * encore. La calculer ici plutôt que chez l'appelant évite qu'un fantôme soit
+ * dessiné à un endroit et la copie posée à un autre.
+ */
+export interface RepeatPlacement {
+  /** Le rang de la copie : 1 pour la première, celle qu'on a cliquée. */
+  readonly rank: number;
+  /** Ce qui sépare cette copie de l'original, et que la duplication porte. */
+  readonly offsetMm: Point2D;
+  readonly bounds: PlanBounds;
+}
+
+/** Ce qu'une répétition rend : des copies à venir, ou pourquoi non. */
+export type RepeatOutcome =
+  | { readonly status: 'OK'; readonly placements: readonly RepeatPlacement[] }
+  | ArrangementRefusal;
+
+/**
+ * Où se posent les copies d'un objet répété d'un pas constant.
+ *
+ * **Rien n'est créé ici, et c'est le point.** Recopier un mur et l'ouverture
+ * qu'il porte, c'est mettre l'ouverture dans le mur copié ; recopier un
+ * composant, c'est le reposer sur le support copié quand il y en a un ;
+ * recopier une parcelle, c'est refuser, parce qu'un terrain n'en a qu'une.
+ * Ces règles-là sont écrites, une par famille, dans les `DuplicateProvider`
+ * d'`object-transform.ts`. Les redire ici ferait une **seconde** duplication,
+ * plus jeune et moins complète, qui divergerait de la première au premier
+ * champ ajouté au modèle — et c'est exactement la sorte de double vérité que
+ * ce dépôt refuse ailleurs. Cette fonction ne répond donc qu'à « où ? », et
+ * l'appelant demande « quoi ? » à qui le sait déjà.
+ *
+ * Le pas est un vecteur et non une distance et un angle : il se lit sur le
+ * plan comme la différence entre l'objet désigné et l'endroit où l'on pose la
+ * première copie. Un pas qu'on taperait en aveugle serait un pas qu'on a
+ * calculé soi-même, ce qui est précisément le travail dont on cherche à
+ * dispenser.
+ *
+ * Le rang multiplie le pas : la copie `k` est à `k × pas` de l'original, et
+ * non à un pas de la copie `k-1`. La différence ne se voit pas sur trois
+ * copies et se voit sur douze — additionner douze fois un nombre à virgule
+ * accumule douze arrondis, alors qu'une multiplication n'en fait qu'un.
+ */
+export function repeatPlacements(
+  source: ArrangedObject,
+  stepMm: Point2D,
+  count: number,
+): RepeatOutcome {
+  if (!measurable(source.bounds))
+    return refused(
+      'Cet objet ne se mesure pas sur le plan : sans emprise, on ne peut ni montrer les copies avant de les poser, ni dire si l’une d’elles sort de la parcelle.',
+    );
+  if (!Number.isFinite(stepMm.x) || !Number.isFinite(stepMm.y))
+    return refused(
+      'Le pas n’est pas mesurable : désignez l’objet, puis cliquez où se pose la première copie.',
+    );
+  if (!Number.isInteger(count) || count < 1)
+    return refused(
+      `Le nombre de copies doit être un entier positif : ${count} n’en est pas un.`,
+    );
+  /*
+   * Un pas nul empilerait les copies sur l'original.
+   *
+   * On mesure la longueur du pas et non chacune de ses composantes : répéter
+   * verticalement a un pas dont l'abscisse est nulle, et ce pas-là est bon.
+   * Le seuil est celui du module — un millième de millimètre, plus fin que
+   * tout ce que le modèle porte — parce que deux clics au même pixel donnent
+   * un pas nul à la virgule près, jamais un zéro exact.
+   */
+  if (Math.hypot(stepMm.x, stepMm.y) < SAME_PLACE_MM)
+    return refused(
+      'Un pas nul poserait toutes les copies sur l’original : cliquez où se pose la première copie, à distance de l’objet répété.',
+    );
+  const placements = Array.from({ length: count }, (_unused, index) => {
+    const rank = index + 1;
+    const offsetMm = { x: stepMm.x * rank, y: stepMm.y * rank };
+    return {
+      rank,
+      offsetMm,
+      bounds: {
+        min: {
+          x: source.bounds.min.x + offsetMm.x,
+          y: source.bounds.min.y + offsetMm.y,
+        },
+        max: {
+          x: source.bounds.max.x + offsetMm.x,
+          y: source.bounds.max.y + offsetMm.y,
+        },
+      },
+    };
+  });
+  return { status: 'OK', placements };
 }

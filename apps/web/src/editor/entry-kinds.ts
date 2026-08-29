@@ -55,6 +55,26 @@ const TOOL_CREATES: Readonly<Record<string, readonly ObjectKind[]>> = {
   TRIM: ['WALL'],
   SPLIT: ['WALL'],
   OFFSET: ['WALL'],
+  /*
+   * Répéter laisse derrière lui la famille de ce qu'on lui a désigné.
+   *
+   * Il ne fabrique rien qui lui soit propre : il redemande une copie à la
+   * famille de l'objet visé, exactement comme la duplication. Les familles
+   * listées sont celles dont un `DuplicateProvider` sait faire une copie
+   * autonome — une ouverture n'y est pas, parce qu'elle appartient à son mur
+   * et se recopie avec lui.
+   */
+  REPEAT: [
+    'WALL',
+    'SLAB',
+    'ROOF',
+    'ROOF_STRUCTURE',
+    'STAIR',
+    'STRUCTURE',
+    'COMPONENT',
+    'NOTE',
+    'SITE',
+  ],
   ROTATE: [],
   MIRROR: [],
   SELECT: [],

@@ -2418,6 +2418,13 @@ export const COMMON_SECTION: ToolboxSection = {
       'MIRROR',
     ),
     entry(
+      'common.repeat',
+      'REPEAT',
+      'Répéter',
+      'Répéter un objet à intervalle constant',
+      'REPEAT',
+    ),
+    entry(
       'common.dimension',
       'DIMENSION',
       'Cotation',

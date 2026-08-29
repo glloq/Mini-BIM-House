@@ -273,6 +273,19 @@ const SHAPES: Readonly<Record<ToolIconId, ReactElement>> = {
       <path d="M9 7L4 12l5 5zM15 7l5 5-5 5z" />
     </>
   ),
+  /*
+   * L'original plein, puis ses copies : la première pleine elle aussi, la
+   * suivante en pointillé. Le glyphe dit le geste — un objet, un pas, et ce
+   * qui continue — plutôt que de montrer trois carrés identiques, qui se
+   * liraient comme un alignement.
+   */
+  REPEAT: (
+    <>
+      <path d="M3 8h5v8H3z" fill="currentColor" stroke="none" />
+      <path d="M10 8h5v8h-5z" />
+      <path d="M17 8h5v8h-5z" strokeDasharray="2 2" />
+    </>
+  ),
   DIMENSION: (
     <>
       <path d="M3 12h18" />

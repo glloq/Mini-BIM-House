@@ -16,8 +16,11 @@ import {
   alignDeltas,
   centreOf,
   distributeDeltas,
+  repeatPlacements,
   type ArrangedObject,
   type ArrangementOutcome,
+  type RepeatOutcome,
+  type RepeatPlacement,
 } from './arrangement.js';
 import { boundsOf } from './object-editors.js';
 
@@ -283,6 +286,129 @@ describe('répartir', () => {
   });
 });
 
+/**
+ * Ce que « répéter » calcule, et ce qu'il refuse de calculer.
+ *
+ * Le geste que ce module rend possible : dire où se posent N copies d'un
+ * objet, un pas constant entre chacune, **sans rien créer**. Les copies
+ * elles-mêmes appartiennent aux familles — un mur emporte ses ouvertures, un
+ * composant retrouve son support — et les redire ici aurait fait une seconde
+ * duplication à tenir à jour.
+ */
+describe('répéter', () => {
+  const source = box('poteau', 0, 0, 200, 200);
+
+  /** Les copies d'une répétition, ou l'échec du test si elle a refusé. */
+  function placementsOf(outcome: RepeatOutcome): readonly RepeatPlacement[] {
+    if (outcome.status === 'REFUSED') throw new Error(outcome.message);
+    return outcome.placements;
+  }
+
+  it('rend une copie par rang, chacune à un pas de plus que la précédente', () => {
+    const placements = placementsOf(
+      repeatPlacements(source, { x: 1500, y: 0 }, 6),
+    );
+    expect(placements.map(({ rank }) => rank)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(placements.map(({ offsetMm }) => offsetMm.x)).toEqual([
+      1500, 3000, 4500, 6000, 7500, 9000,
+    ]);
+    // Le pas est un vecteur : répéter le long d'une portée horizontale ne
+    // déplace rien en ordonnée.
+    for (const { offsetMm } of placements) expect(offsetMm.y).toBe(0);
+  });
+
+  it('porte l’emprise là où la copie se pose, avant que rien n’existe', () => {
+    // C'est ce qui permet de dessiner les fantômes et de dire qu'une copie
+    // sort de la parcelle : la question se pose alors qu'aucune copie n'a
+    // encore d'identifiant.
+    const [first, second] = placementsOf(
+      repeatPlacements(source, { x: 1000, y: 500 }, 2),
+    );
+    expect(first!.bounds).toEqual({
+      min: { x: 1000, y: 500 },
+      max: { x: 1200, y: 700 },
+    });
+    expect(second!.bounds).toEqual({
+      min: { x: 2000, y: 1000 },
+      max: { x: 2200, y: 1200 },
+    });
+  });
+
+  it('multiplie le pas par le rang plutôt que de l’additionner douze fois', () => {
+    /*
+     * Un pas à virgule additionné douze fois accumule douze arrondis.
+     *
+     * Le pas d'une portée de 10 m divisée en treize intervalles n'a pas
+     * d'écriture exacte en binaire ; `10000 / 13` additionné douze fois
+     * n'égale pas `12 × (10000 / 13)`. La copie est posée à l'endroit que
+     * l'arithmétique donne en une seule opération, et l'écart se lit ici.
+     */
+    const step = 10_000 / 13;
+    const placements = placementsOf(
+      repeatPlacements(source, { x: step, y: 0 }, 12),
+    );
+    const summed = Array.from({ length: 12 }).reduce<number>(
+      (total) => total + step,
+      0,
+    );
+    expect(placements[11]!.offsetMm.x).toBe(step * 12);
+    expect(placements[11]!.offsetMm.x).not.toBe(summed);
+  });
+
+  it('refuse un pas nul, qui empilerait les copies sur l’original', () => {
+    const outcome = repeatPlacements(source, { x: 0, y: 0 }, 4);
+    expect(outcome.status).toBe('REFUSED');
+    expect(outcome.status === 'REFUSED' && outcome.message).toMatch(
+      /pas nul.*sur l’original/u,
+    );
+  });
+
+  it('accepte un pas qui n’a qu’une composante, parce qu’il en a une', () => {
+    // Répéter vers le haut a un pas d'abscisse nulle, et ce pas-là est bon :
+    // c'est la longueur du pas qui doit être nulle pour qu'il ne dise rien.
+    expect(repeatPlacements(source, { x: 0, y: -800 }, 3).status).toBe('OK');
+  });
+
+  it('refuse un nombre de copies qui n’est pas un entier positif', () => {
+    for (const count of [0, -3, 2.5, Number.NaN]) {
+      const outcome = repeatPlacements(source, { x: 500, y: 0 }, count);
+      expect(outcome.status, `${count}`).toBe('REFUSED');
+      expect(outcome.status === 'REFUSED' && outcome.message).toMatch(
+        /entier positif/u,
+      );
+    }
+  });
+
+  it('refuse un pas qu’on ne peut pas mesurer', () => {
+    const outcome = repeatPlacements(
+      source,
+      { x: Number.POSITIVE_INFINITY, y: 0 },
+      3,
+    );
+    expect(outcome.status).toBe('REFUSED');
+    expect(outcome.status === 'REFUSED' && outcome.message).toMatch(
+      /pas.*mesurable/u,
+    );
+  });
+
+  it('refuse un objet dont on ne connaît pas l’emprise', () => {
+    // Sans emprise, il n'y a ni fantôme à dessiner ni sortie de parcelle à
+    // annoncer : la répétition serait aveugle.
+    const outcome = repeatPlacements(
+      {
+        objectId: 'sans-emprise',
+        bounds: { min: { x: Number.NaN, y: 0 }, max: { x: 0, y: 0 } },
+      },
+      { x: 500, y: 0 },
+      3,
+    );
+    expect(outcome.status).toBe('REFUSED');
+    expect(outcome.status === 'REFUSED' && outcome.message).toMatch(
+      /ne se mesure pas/u,
+    );
+  });
+});
+
 describe('sur la maison de référence', () => {
   const demo = loadDemoProject();
   if (demo.status === 'ERROR') throw new Error(demo.message);
@@ -334,6 +460,31 @@ describe('sur la maison de référence', () => {
     expect([after[0], after[after.length - 1]]).toEqual(extremes);
     const gaps = after.slice(1).map((value, index) => value - after[index]!);
     for (const gap of gaps) expect(gap).toBeCloseTo(gaps[0]!, 9);
+  });
+
+  it('dit quelle copie sort de la parcelle avant qu’aucune n’existe', () => {
+    /*
+     * La parcelle de la maison de référence s'arrête à x = 22 000 mm.
+     *
+     * On répète la ventilation, posée à x = 9 500, d'un pas de 5 000 mm vers
+     * l'est : les deux premières copies tiennent, les deux suivantes
+     * débordent. La réponse est donnée sur les emprises rendues, donc avant
+     * que la moindre copie ait été créée — c'est tout l'intérêt de ne rien
+     * créer ici.
+     */
+    const eastMm = house.site.parcelBoundary!.outer.reduce(
+      (most, { x }) => Math.max(most, x),
+      Number.NEGATIVE_INFINITY,
+    );
+    expect(eastMm).toBe(22_000);
+    const [source] = arranged(['component-vmc']);
+    expect(source).toBeDefined();
+    const outcome = repeatPlacements(source!, { x: 5000, y: 0 }, 4);
+    if (outcome.status === 'REFUSED') throw new Error(outcome.message);
+    const outside = outcome.placements
+      .filter(({ bounds }) => bounds.max.x > eastMm)
+      .map(({ rank }) => rank);
+    expect(outside).toEqual([3, 4]);
   });
 
   it('mesure tout ce que la maison porte, murs et réseaux compris', () => {

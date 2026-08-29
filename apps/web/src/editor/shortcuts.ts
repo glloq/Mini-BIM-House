@@ -35,6 +35,7 @@ export type ShortcutCommandId =
   | 'tool.rotate'
   | 'tool.mirror'
   | 'tool.offset'
+  | 'tool.repeat'
   | 'tool.join'
   | 'tool.trim'
   | 'edit.undo'
@@ -163,6 +164,17 @@ export const SHORTCUTS: readonly ShortcutBinding[] = [
   { id: 'tool.rotate', label: 'Pivoter', key: 'p', group: 'Outils' },
   { id: 'tool.mirror', label: 'Miroir', key: 'm', group: 'Outils' },
   { id: 'tool.offset', label: 'Décaler', key: 'e', group: 'Outils' },
+  /*
+   * « S » comme série : l'initiale de « Répéter » n'était pas libre.
+   *
+   * « R » est le réseau, et « Maj + R » fait pivoter la sélection d'un quart
+   * de tour. Redéclarer l'un des deux n'aurait pas fait un conflit visible :
+   * `resolveShortcut` rend le **premier candidat déclaré**, donc la seconde
+   * déclaration serait restée muette, et c'est l'outil le plus récent qui
+   * aurait paru cassé. « S » seul ne prend rien : « Ctrl + S » enregistre, et
+   * un accord modifié ne retombe jamais sur sa touche nue.
+   */
+  { id: 'tool.repeat', label: 'Répéter', key: 's', group: 'Outils' },
   { id: 'tool.join', label: 'Joindre', key: 'j', group: 'Outils' },
   { id: 'tool.trim', label: 'Ajuster', key: 't', group: 'Outils' },
   {

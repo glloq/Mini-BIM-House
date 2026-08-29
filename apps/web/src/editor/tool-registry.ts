@@ -32,6 +32,7 @@ import {
   joinWallsCommand,
   mergeSpacesCommand,
   offsetWallCommand,
+  repeatObjectsCommand,
   splitWallCommand,
   transformObjectsCommand,
   type EditingCommandResult,
@@ -53,7 +54,8 @@ import {
   isSurfaceSiteKind,
 } from './site-footprints.js';
 import type { ToolOptionDefinition } from './tool-options.js';
-import { OBJECT_FAMILIES } from './object-editors.js';
+import { OBJECT_FAMILIES, boundsOf } from './object-editors.js';
+import { repeatPlacements } from './arrangement.js';
 import {
   COMPONENT_CATEGORY_OPTIONS,
   DIMENSION_TYPE_OPTIONS,
@@ -1692,6 +1694,138 @@ export const EDITOR_TOOLS = [
         wallId,
         towards,
         context.newId('wall'),
+      );
+    },
+  },
+  {
+    id: 'REPEAT',
+    /*
+     * Répéter est une modification, comme Pivoter et Décaler.
+     *
+     * Elle crée pourtant des objets, ce qui pourrait la faire ranger dans la
+     * famille de ce qu'elle pose — mais elle en pose autant de familles qu'il
+     * y a d'objets répétables, et l'espace d'un poteau répété est celui du
+     * poteau. Ce qu'on désigne est un objet qui existe déjà : c'est la
+     * définition d'une modification, et c'est là que Décaler, qui trace lui
+     * aussi un mur neuf, se trouve déjà.
+     */
+    group: 'MODIFICATION',
+    label: 'Répéter',
+    hint: 'Répéter un objet à intervalle constant : l’objet, puis où se pose la première copie',
+    shortcutId: 'tool.repeat',
+    requiredPoints: 2,
+    interaction: [
+      /*
+       * Le pas se montre, il ne se tape pas à l'aveugle.
+       *
+       * Poser six poteaux régulièrement espacés demandait de dupliquer puis
+       * de déplacer, six fois, en calculant soi-même chaque position. Un
+       * champ « pas » dans la barre d'outils n'aurait pas mieux valu : un pas
+       * qu'on saisit sans rien voir est un pas qu'on a calculé de tête, donc
+       * un pas faux une fois sur deux. Le second clic **est** le pas, montré
+       * là où il porte — et il accepte quand même une valeur exacte, parce
+       * que 1 428,57 mm ne se clique pas sur une trame de 100 mm.
+       */
+      {
+        kind: 'PICK',
+        accepts: [
+          'WALL',
+          'SLAB',
+          'ROOF',
+          'ROOF_STRUCTURE',
+          'STAIR',
+          'STRUCTURE',
+          'COMPONENT',
+          'NOTE',
+          'SITE',
+        ],
+        prompt: 'Désignez l’objet à répéter',
+      },
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez où se pose la première copie',
+        numericInput: true,
+      },
+    ],
+    level: 'DESIGN',
+    options: [
+      {
+        key: 'count',
+        kind: 'NUMBER',
+        label: 'Copies',
+        hint: 'Autant de copies, chacune à un pas de plus que la précédente.',
+        min: 1,
+        step: 1,
+        /*
+         * Le nombre de copies pèse sur le geste en cours, donc il est offert
+         * d'emblée : on ne clique pas le pas de la même façon selon qu'on en
+         * pose trois ou douze, puisque la dernière doit encore tenir dans la
+         * parcelle. C'est exactement ce que `PRIMARY` veut dire — voir
+         * `option-visibility.ts` —, et le replier aurait caché la seule
+         * question que cet outil pose.
+         */
+        level: 'PRIMARY',
+        // Trois : une seule copie est déjà ce que Ctrl+D fait, et deux se
+        // font aussi vite à la main. C'est à partir de trois que répéter
+        // devient le geste le moins coûteux.
+        fallback: () => '3',
+      },
+    ],
+    createCommand: (context) => {
+      const objectId = context.picks[0];
+      const [from, to] = context.points;
+      if (objectId === undefined || from === undefined || to === undefined)
+        return {
+          status: 'ERROR',
+          message:
+            'Désignez l’objet à répéter, puis cliquez où se pose la première copie.',
+        };
+      const level = levelOf(context);
+      if (level === undefined)
+        return {
+          status: 'ERROR',
+          message: 'Le projet ne contient aucun niveau.',
+        };
+      const bounds = boundsOf(context.file.project, level.id, objectId);
+      if (bounds === undefined)
+        return {
+          status: 'ERROR',
+          message: `Cet objet ne se mesure pas sur le plan : ${objectId}.`,
+        };
+      const count = context.optionNumber('count');
+      if (count === undefined)
+        return {
+          status: 'ERROR',
+          message: 'Le nombre de copies ne se lit pas comme un nombre.',
+        };
+      /*
+       * Le pas est la différence entre les deux clics : le premier a désigné
+       * l'objet, le second dit où sa première copie se pose. Rien n'est
+       * inventé, et l'on voit le pas qu'on donne pendant qu'on le donne.
+       */
+      const planned = repeatPlacements(
+        { objectId, bounds },
+        { x: to.x - from.x, y: to.y - from.y },
+        count,
+      );
+      // Le refus du calcul remonte tel quel : sa phrase dit la cause, et la
+      // reformuler ici ferait deux façons de dire la même impossibilité.
+      if (planned.status === 'REFUSED')
+        return { status: 'ERROR', message: planned.message };
+      /*
+       * Les copies elles-mêmes sont demandées à la duplication qui existe :
+       * un composant recopié garde son modèle de catalogue, et une famille
+       * qui ne se duplique pas dit pourquoi. Ce qui est répété est exactement
+       * ce que `Ctrl+D` recopie de cet objet-là, ni plus ni moins. Une seule
+       * transaction réunit les copies, pour qu'annuler huit copies coûte une
+       * annulation.
+       */
+      return repeatObjectsCommand(
+        context.file,
+        context.levelId,
+        [objectId],
+        planned.placements.map(({ offsetMm }) => offsetMm),
+        context.newId,
       );
     },
   },

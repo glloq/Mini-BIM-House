@@ -2416,6 +2416,110 @@ export function duplicateObjectsCommand(
 }
 
 /**
+ * Pose plusieurs copies d'un objet, chacune à son écart, en une seule action.
+ *
+ * ## Ce qui est réutilisé, et pourquoi
+ *
+ * La duplication n'est pas réécrite : chaque copie passe par
+ * `duplicateObjectsCommand`, donc par les `DuplicateProvider` que chaque
+ * famille déclare. C'est ce qui fait qu'un composant recopié garde son modèle
+ * de catalogue et retrouve son support, qu'une ouverture répétée seule dit
+ * qu'elle appartient à son mur, et qu'un objet de réseau dit qu'il se
+ * duplique avec le réseau qui le relie. Une boucle qui aurait recopié les
+ * champs elle-même aurait été une seconde duplication, plus jeune que la
+ * première et en retard d'un champ dès la prochaine évolution du modèle.
+ *
+ * Ce que la répétition recopie est donc exactement ce que `Ctrl+D` recopie,
+ * ni plus ni moins : répéter un mur donne des murs, et les ouvertures ne
+ * suivent que si on les a désignées elles aussi. Une règle différente ici
+ * aurait fait deux réponses à « que veut dire copier ce mur ? ».
+ *
+ * Ce que cette fonction ajoute est donc uniquement la **boucle** et
+ * l'**historique** : les écarts viennent de `repeatPlacements`
+ * (`arrangement.ts`), qui ne connaît que des boîtes.
+ *
+ * ## Une seule entrée d'historique
+ *
+ * Toutes les copies sont réunies dans une seule `ProjectTransactionCommand` :
+ * annuler huit copies doit coûter une annulation, pas huit. C'est déjà la
+ * règle que l'alignement et le collage suivent ici même.
+ *
+ * ## Un refus arrête tout
+ *
+ * La première famille qui refuse arrête la répétition, et sa phrase remonte
+ * telle quelle — « Une ouverture appartient à son mur… » en dit plus que
+ * n'importe quelle reformulation. Quatre copies posées et une refusée
+ * laisseraient un plan que personne n'a demandé.
+ */
+export function repeatObjectsCommand(
+  file: ProjectFile,
+  levelId: string | undefined,
+  objectIds: readonly string[],
+  offsetsMm: readonly Point2D[],
+  newId: (prefix: string) => string,
+): DuplicationResult {
+  if (offsetsMm.length === 0)
+    return { status: 'ERROR', message: 'Aucune copie à poser.' };
+  const commands: ProjectCommand[] = [];
+  const createdIds: string[] = [];
+  for (const [rank, offsetMm] of offsetsMm.entries()) {
+    /*
+     * Chaque copie est calculée depuis le projet d'origine, jamais depuis le
+     * projet augmenté des copies précédentes.
+     *
+     * Les commandes produites ajoutent des objets neufs : elles n'ont pas
+     * besoin de se voir les unes les autres, et repartir de l'original est ce
+     * qui garantit que la douzième copie est à douze pas de l'original plutôt
+     * qu'à un pas d'une onzième déjà décalée.
+     */
+    const copy = duplicateObjectsCommand(
+      file,
+      levelId,
+      objectIds,
+      offsetMm,
+      newId,
+    );
+    if (copy.status === 'ERROR') return copy;
+    /*
+     * Chaque copie est éprouvée à son rang, et le refus le nomme.
+     *
+     * Une copie peut être impossible là où elle tombe alors que les
+     * précédentes passaient : un objet répété finit par sortir de la dalle qui
+     * le portait, et la fiche d'un appareil qui exige un support refuse alors
+     * la pose. Sans ce contrôle, la transaction entière échouait plus loin sur
+     * une phrase du modèle qui nomme l'identifiant d'un objet que personne n'a
+     * jamais vu — « component:add:component-1803978a… » — et rien ne disait ni
+     * laquelle des copies, ni qu'il suffisait d'en demander moins.
+     *
+     * On éprouve contre le projet d'origine, comme on les calcule : les copies
+     * ne se voient pas les unes les autres, et un support apparu entre-temps
+     * n'existe pas.
+     */
+    const verdict = copy.command.validate(file.project);
+    if (!verdict.valid)
+      return {
+        status: 'ERROR',
+        message: `La copie n° ${rank + 1} ne peut pas être posée : ${verdict.errors[0] ?? 'le modèle la refuse.'} Réduisez le pas, ou le nombre de copies.`,
+      };
+    createdIds.push(...copy.createdIds);
+    commands.push(copy.command);
+  }
+  return {
+    status: 'OK',
+    createdIds,
+    // L'identifiant nomme ce qui a été créé : deux répétitions de suite sont
+    // deux entrées d'historique, et non deux fois la même à un rang près.
+    command: new ProjectTransactionCommand(
+      `repeat:${createdIds.join(',')}`,
+      offsetsMm.length === 1
+        ? 'Répéter en une copie'
+        : `Répéter en ${offsetsMm.length} copies`,
+      commands,
+    ),
+  };
+}
+
+/**
  * Cuts a wall where the user pointed.
  *
  * Splitting from the toolbar cut at the middle, whatever the user had in mind;
