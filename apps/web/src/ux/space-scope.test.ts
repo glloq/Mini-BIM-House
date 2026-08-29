@@ -22,9 +22,14 @@ describe('ce que chaque espace laisse désigner', () => {
 
   it('laisse le terrain à l’espace du terrain', () => {
     expect(selectableInStage('SITE', 'SITE')).toBe(true);
-    // La terrasse est une dalle, et elle se trace ici : la refuser ferait un
-    // objet qu'on pose et qu'on ne peut plus reprendre.
-    expect(selectableInStage('SITE', 'SLAB')).toBe(true);
+    /*
+     * Et plus les dalles. La terrasse en était une, seule de sa sous-partie à
+     * fabriquer un ouvrage du bâtiment quand l'allée et le stationnement à
+     * côté posent une emprise de terrain. C'était un bouton mort depuis qu'un
+     * objet appartient à un espace : on la traçait ici, le verrou la refusait
+     * comme dalle. Elle est devenue ce que ses voisines sont.
+     */
+    expect(selectableInStage('SITE', 'SLAB')).toBe(false);
     expect(selectableInStage('SITE', 'OPENING')).toBe(false);
   });
 

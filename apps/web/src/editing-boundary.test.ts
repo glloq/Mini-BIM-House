@@ -39,7 +39,11 @@ function removeFrom(stage: CreationStageId, objectId: string) {
 const OWNED: readonly (readonly [CreationStageId, string])[] = [
   ['SITE', 'obstacle-oak'],
   ['BUILDING', 'wall-east'],
-  ['FITTING', 'component-dhw-tank'],
+  // Un appareil sanitaire, et non le ballon d'eau chaude : celui-ci est un
+  // ouvrage de plomberie, que la nomenclature range sous `DHW_TANK` et que
+  // les Systèmes possèdent — c'est précisément la distinction que
+  // `ownerStageOfFamily` a rendue lisible.
+  ['FITTING', 'component-wc'],
   // Un objet des systèmes que rien d'autre ne retient : la VMC est désignée
   // par son réseau, et le modèle refuse déjà de la retirer — un refus qui
   // n'aurait rien dit de la frontière.
@@ -77,7 +81,7 @@ describe('ce qu’un espace peut écrire, et ce qu’il ne peut pas', () => {
      * Une règle par famille les aurait rangés ensemble.
      */
     expect(removeFrom('FITTING', 'component-vmc').status).toBe('ERROR');
-    expect(removeFrom('SYSTEMS', 'component-dhw-tank').status).toBe('ERROR');
+    expect(removeFrom('SYSTEMS', 'component-wc').status).toBe('ERROR');
   });
 
   it('leaves alone what no stage claims', () => {

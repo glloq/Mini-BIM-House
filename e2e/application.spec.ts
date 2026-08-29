@@ -2504,12 +2504,20 @@ test('names an entry by what it places, and pre-fills its fiche', async ({
 }) => {
   const errors = watchConsole(page);
   await loadDemo(page);
-  await openStage(page, 'Systèmes');
+  /*
+   * Un WC se pose en meublant une salle de bain, et se raccorde ensuite.
+   *
+   * L'entrée était offerte deux fois — ici et dans Systèmes › Eau — et la
+   * seconde était un bouton mort : un appareil sanitaire appartient à
+   * l'Aménagement, donc le verrou refusait le geste à l'endroit même qui le
+   * proposait. Le doublon est parti ; c'est celle-ci qui reste.
+   */
+  await openStage(page, 'Aménagement');
 
   // « WC » n'est pas un vingt-sixième outil : c'est l'outil composant avec la
   // fiche WC déjà désignée. Choisir l'entrée fait les deux d'un coup.
   const toolbox = page.locator('#workspace-sidebar, .tool-header');
-  await openSection(page, 'Eau');
+  await openSection(page, 'Salle de bain');
   await toolbox.getByRole('button', { name: 'WC', exact: true }).click();
   await expect(page.getByLabel('Catégorie')).toHaveValue('SANITARY');
   await expect(page.getByLabel('Modèle catalogue')).toHaveValue(/generic-wc/u);
@@ -2528,8 +2536,8 @@ test('names an entry by what it places, and pre-fills its fiche', async ({
   // dépliage — les autres sous-parties de **cet** espace, et non celles des
   // six autres : « Mur » appartient au bâtiment.
   const parts = page.getByRole('navigation', { name: 'Sous-parties' });
-  await expect(parts.getByLabel('Chauffage', { exact: true })).toHaveCount(1);
-  await openSection(page, 'Chauffage');
+  await expect(parts.getByLabel('Cuisine', { exact: true })).toHaveCount(1);
+  await openSection(page, 'Cuisine');
   await expect(
     toolbox.getByRole('button', { name: 'Mur', exact: true }),
   ).toHaveCount(0);

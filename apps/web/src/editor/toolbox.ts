@@ -256,13 +256,26 @@ const STAGE_SECTIONS: Readonly<
       label: 'Accès',
       domain: 'SITE',
       entries: [
+        /*
+         * Une terrasse est une surface du terrain, comme l'allée à côté.
+         *
+         * Elle était la seule de cette sous-partie à fabriquer une **dalle** —
+         * un ouvrage du bâtiment — quand ses deux voisines posent une emprise
+         * de terrain. Depuis qu'un objet appartient à un espace, cela en
+         * faisait un bouton mort : on la traçait depuis le Terrain, et le
+         * verrou refusait une dalle au motif qu'elle est du Bâtiment.
+         *
+         * `TERRACE` existait déjà parmi les natures d'emprise, à côté de
+         * `PATH` et `PARKING`. Le même geste, le même outil, la même famille
+         * d'objet : ce qu'on trace au sol autour de la maison.
+         */
         entry(
           'site.terrace',
-          'SLAB',
+          'SITE',
           'Terrasse',
           'Tracer une terrasse au sol',
-          'SLAB',
-          { role: 'TERRACE' },
+          'SITE',
+          { target: 'OBSTACLE', kind: 'TERRACE' },
         ),
         entry(
           'site.path',
@@ -336,22 +349,6 @@ const STAGE_SECTIONS: Readonly<
           target: 'OBSTACLE',
           kind: 'GATE',
         }),
-        place(
-          'site.outdoor-heat-pump',
-          'Unité extérieure',
-          'Poser l’unité extérieure d’une pompe à chaleur',
-          'HEAT_PUMP',
-          'HEATING',
-          'OUTDOOR_HEAT_PUMP',
-        ),
-        place(
-          'site.ground-pv',
-          'Champ photovoltaïque',
-          'Poser un champ photovoltaïque au sol',
-          'PV',
-          'PHOTOVOLTAIC',
-          'GROUND_PV_ARRAY',
-        ),
       ],
     },
     {
@@ -366,14 +363,6 @@ const STAGE_SECTIONS: Readonly<
           'PIPE',
           'OTHER',
           'WATER_PUBLIC_CONNECTION',
-        ),
-        place(
-          'site.power',
-          'Électricité',
-          'Poser le coffret de branchement',
-          'BOARD',
-          'ELECTRICAL',
-          'ELECTRICAL_SERVICE_BOX',
         ),
         place(
           'site.sewer',
@@ -986,6 +975,22 @@ const STAGE_SECTIONS: Readonly<
       label: 'Salle de bain',
       domain: 'FURNITURE',
       entries: [
+        place(
+          'water.wall-hung-wc',
+          'WC suspendu',
+          'Poser un WC suspendu',
+          'WC',
+          'SANITARY',
+          'WALL_HUNG_WC',
+        ),
+        place(
+          'water.walk-in-shower',
+          'Douche à l’italienne',
+          'Poser une douche à l’italienne',
+          'SHOWER',
+          'SANITARY',
+          'WALK_IN_SHOWER',
+        ),
         place('fitting.wc', 'WC', 'Poser un WC', 'WC', 'SANITARY', 'WC'),
         place(
           'fitting.shower',
@@ -1082,30 +1087,6 @@ const STAGE_SECTIONS: Readonly<
           'TABLE',
         ),
         place(
-          'fitting.outdoor-light',
-          'Éclairage extérieur',
-          'Poser un éclairage dehors',
-          'LAMP',
-          'LIGHTING',
-          'SITE_EXTERIOR_LIGHT',
-        ),
-        place(
-          'fitting.outdoor-socket',
-          'Prise extérieure',
-          'Poser une prise dehors',
-          'SOCKET',
-          'ELECTRICAL',
-          'SITE_EXTERIOR_SOCKET',
-        ),
-        place(
-          'fitting.ev',
-          'Borne de recharge',
-          'Poser une borne de recharge',
-          'BOARD',
-          'ELECTRICAL',
-          'SITE_EV_CHARGER',
-        ),
-        place(
           'fitting.tap',
           'Robinet extérieur',
           'Poser un robinet dehors',
@@ -1146,31 +1127,6 @@ const STAGE_SECTIONS: Readonly<
       label: 'Eau',
       domain: 'PLUMBING',
       entries: [
-        place('water.wc', 'WC', 'Poser un WC', 'WC', 'SANITARY', 'WC'),
-        place(
-          'water.basin',
-          'Lavabo',
-          'Poser un lavabo',
-          'BASIN',
-          'SANITARY',
-          'WASHBASIN',
-        ),
-        place(
-          'water.shower',
-          'Douche',
-          'Poser un receveur de douche',
-          'SHOWER',
-          'SANITARY',
-          'SHOWER_TRAY',
-        ),
-        place(
-          'water.sink',
-          'Évier',
-          'Poser un évier',
-          'SINK',
-          'SANITARY',
-          'KITCHEN_SINK',
-        ),
         place(
           'water.tank',
           'Chauffe-eau',
@@ -1189,22 +1145,6 @@ const STAGE_SECTIONS: Readonly<
           undefined,
           undefined,
           hasNetworkOf('PLUMBING'),
-        ),
-        place(
-          'water.walk-in-shower',
-          'Douche à l’italienne',
-          'Poser une douche à l’italienne',
-          'SHOWER',
-          'SANITARY',
-          'WALK_IN_SHOWER',
-        ),
-        place(
-          'water.wall-hung-wc',
-          'WC suspendu',
-          'Poser un WC suspendu',
-          'WC',
-          'SANITARY',
-          'WALL_HUNG_WC',
         ),
         place(
           'water.mixing-valve',
@@ -1448,6 +1388,14 @@ const STAGE_SECTIONS: Readonly<
       domain: 'HEATING',
       entries: [
         place(
+          'site.outdoor-heat-pump',
+          'Unité extérieure',
+          'Poser l’unité extérieure d’une pompe à chaleur',
+          'HEAT_PUMP',
+          'HEATING',
+          'OUTDOOR_HEAT_PUMP',
+        ),
+        place(
           'heating.pump',
           'Pompe à chaleur',
           'Poser une pompe à chaleur',
@@ -1652,6 +1600,30 @@ const STAGE_SECTIONS: Readonly<
       domain: 'ELECTRICAL',
       entries: [
         place(
+          'site.power',
+          'Électricité',
+          'Poser le coffret de branchement',
+          'BOARD',
+          'ELECTRICAL',
+          'ELECTRICAL_SERVICE_BOX',
+        ),
+        place(
+          'fitting.ev',
+          'Borne de recharge',
+          'Poser une borne de recharge',
+          'BOARD',
+          'ELECTRICAL',
+          'SITE_EV_CHARGER',
+        ),
+        place(
+          'fitting.outdoor-socket',
+          'Prise extérieure',
+          'Poser une prise dehors',
+          'SOCKET',
+          'ELECTRICAL',
+          'SITE_EXTERIOR_SOCKET',
+        ),
+        place(
           'power.socket',
           'Prise',
           'Poser une prise',
@@ -1781,6 +1753,14 @@ const STAGE_SECTIONS: Readonly<
       label: 'Éclairage',
       domain: 'LIGHTING',
       entries: [
+        place(
+          'fitting.outdoor-light',
+          'Éclairage extérieur',
+          'Poser un éclairage dehors',
+          'LAMP',
+          'LIGHTING',
+          'SITE_EXTERIOR_LIGHT',
+        ),
         place(
           'light.luminaire',
           'Luminaire',
@@ -2167,6 +2147,14 @@ const STAGE_SECTIONS: Readonly<
       label: 'Solaire',
       domain: 'SOLAR',
       entries: [
+        place(
+          'site.ground-pv',
+          'Champ photovoltaïque',
+          'Poser un champ photovoltaïque au sol',
+          'PV',
+          'PHOTOVOLTAIC',
+          'GROUND_PV_ARRAY',
+        ),
         place(
           'energy.pv',
           'Panneaux',
