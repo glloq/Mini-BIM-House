@@ -1,4 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { detectRooms } from '@house-technical-designer/editor-core';
+import { polygonContains } from '@house-technical-designer/geometry';
+import type { Point2D } from '@house-technical-designer/geometry';
+import type { Project } from '@house-technical-designer/core-domain';
 
 import { loadDemoProject } from '../demo-project.js';
 import {
@@ -12,6 +16,62 @@ function house() {
   const loaded = loadDemoProject();
   if (loaded.status !== 'OK') throw new Error(loaded.message);
   return loaded.file.project;
+}
+
+/**
+ * La maison de référence, ses murs remplacés par ceux qu'on lui donne.
+ *
+ * On part d'elle plutôt que d'un objet écrit à la main pour que ces contours
+ * traversent exactement le même chemin que les vrais — `detectRooms`, ses
+ * scissions aux intersections, son filtre d'aire — et non un raccourci qui ne
+ * prouverait rien du produit.
+ */
+function houseWalledBy(
+  outline: readonly (readonly [Point2D, Point2D])[],
+): Project {
+  const project = house();
+  const ground = project.building.levels[0]!;
+  const model = ground.walls[0]!;
+  return {
+    ...project,
+    building: {
+      ...project.building,
+      levels: [
+        {
+          ...ground,
+          spaces: [],
+          openings: [],
+          walls: outline.map(([start, end], index) => ({
+            ...model,
+            id: `mur-${index}` as (typeof model)['id'],
+            path: { points: [start, end] },
+          })),
+        },
+      ],
+      zones: [],
+    },
+  };
+}
+
+/** Le tour d'un contour, sommet à sommet, pour le donner en murs. */
+function ring(
+  points: readonly Point2D[],
+): readonly (readonly [Point2D, Point2D])[] {
+  return points.map((point, index) => [
+    point,
+    points[(index + 1) % points.length]!,
+  ]);
+}
+
+/** La moyenne des sommets : ce que la pose faisait avant. */
+function vertexAverage(points: readonly Point2D[]): Point2D {
+  return points.reduce(
+    (total, point) => ({
+      x: total.x + point.x / points.length,
+      y: total.y + point.y / points.length,
+    }),
+    { x: 0, y: 0 },
+  );
 }
 
 describe('what the plan writes on a closed contour', () => {
@@ -49,6 +109,75 @@ describe('what the plan writes on a closed contour', () => {
       expect(label.spaceId).toBeUndefined();
       expect(label.name).toBeUndefined();
     }
+  });
+
+  it("écrit le nom d'une pièce en L dans la pièce, et non chez la voisine", () => {
+    /*
+     * Le cas qui a motivé UX-20. La moyenne des sommets d'un contour en L
+     * tombe dans le creux du L — 1 067 mm hors du contour sur celui-ci — et le
+     * creux d'un L, dans un plan, c'est la pièce d'à côté. « Séjour ·
+     * 24,30 m² » écrit dans la cuisine se croit, et c'est pire que rien.
+     */
+    const outline: readonly Point2D[] = [
+      { x: 0, y: 0 },
+      { x: 8_000, y: 0 },
+      { x: 8_000, y: 2_400 },
+      { x: 2_400, y: 2_400 },
+      { x: 2_400, y: 8_000 },
+      { x: 0, y: 8_000 },
+    ];
+    const project = houseWalledBy(ring(outline));
+    const ground = project.building.levels[0]!;
+    const rooms = detectRooms(project, ground.id);
+    expect(rooms).toHaveLength(1);
+    const contour = rooms[0]!.polygon;
+    expect(polygonContains(contour, vertexAverage(contour.outer))).toBe(false);
+
+    const labels = roomLabels(project, ground.id);
+    expect(labels).toHaveLength(1);
+    expect(polygonContains(contour, labels[0]!.at)).toBe(true);
+  });
+
+  it("ne déplace pas une étiquette parce qu'un mur a été scindé", () => {
+    /*
+     * Deux fois la même pièce : un rectangle de 6 × 4 m dont le mur nord est
+     * tracé d'un trait, puis le même dont le mur nord est tracé en six. C'est
+     * ce que la détection produit dès que des refends viennent buter dessus —
+     * la pièce n'a pas changé, seulement son nombre de sommets.
+     *
+     * La moyenne des sommets glissait alors de 2 000 mm du mur nord à 889 mm,
+     * soit 1,1 m de dérive pour un mur posé ailleurs. Le point le plus au
+     * large, lui, ne sait pas compter les sommets.
+     */
+    const corners: readonly Point2D[] = [
+      { x: 0, y: 0 },
+      { x: 6_000, y: 0 },
+      { x: 6_000, y: 4_000 },
+      { x: 0, y: 4_000 },
+    ];
+    const plain = houseWalledBy(ring(corners));
+    const split = houseWalledBy([
+      ...[0, 1_000, 2_000, 3_000, 4_000, 5_000].map(
+        (x) =>
+          [
+            { x, y: 0 },
+            { x: x + 1_000, y: 0 },
+          ] as const,
+      ),
+      ...ring(corners).slice(1),
+    ]);
+    const here = roomLabels(plain, plain.building.levels[0]!.id)[0]!.at;
+    const there = roomLabels(split, split.building.levels[0]!.id)[0]!.at;
+    // Dix millimètres : la finesse que `label-placement.ts` s'autorise.
+    expect(Math.hypot(here.x - there.x, here.y - there.y)).toBeLessThanOrEqual(
+      10,
+    );
+    // Et il faut bien que l'ancienne pose, elle, dérive : sinon on ne mesure
+    // rien du tout.
+    const splitContour = detectRooms(split, split.building.levels[0]!.id)[0]!;
+    expect(
+      Math.abs(vertexAverage(splitContour.polygon.outer).y - here.y),
+    ).toBeGreaterThan(1_000);
   });
 
   it('says nothing about a cupboard', () => {

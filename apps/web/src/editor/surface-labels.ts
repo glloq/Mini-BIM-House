@@ -39,6 +39,7 @@ import type { Point2D } from '@house-technical-designer/geometry';
 
 import type { CreationStageId } from '../ux/creation-stages.js';
 
+import { labelAnchor } from './label-placement.js';
 import { areaLabel } from './room-labels.js';
 import { polygonFacts } from './polygon-edits.js';
 import { polygonSurface, surfaceIds } from './polygon-surface.js';
@@ -52,16 +53,6 @@ export interface SurfaceLabel {
   readonly at: Point2D;
   /** Vrai quand elle est là parce qu'on a désigné son objet. */
   readonly selected: boolean;
-}
-
-function centreOf(points: readonly Point2D[]): Point2D {
-  return points.reduce(
-    (total, point) => ({
-      x: total.x + point.x / points.length,
-      y: total.y + point.y / points.length,
-    }),
-    { x: 0, y: 0 },
-  );
 }
 
 /** L'aire écrite comme un plan l'écrit, précédée de ce que c'est. */
@@ -112,7 +103,21 @@ export function surfaceLabels(
       objectId,
       label: surface.label,
       areaM2: facts.areaM2,
-      at: centreOf(surface.outline),
+      /*
+       * Le point le plus au large, comme pour une pièce.
+       *
+       * C'était la moyenne des sommets, qui n'est le centre de rien : une
+       * parcelle en L écrivait son aire hors de la parcelle, et une dalle
+       * dont un côté porte plus de sommets que les autres — ce qui arrive dès
+       * qu'on en scinde un — voyait son étiquette dériver vers ce côté.
+       *
+       * `outline` est un anneau nu, d'où l'enveloppe. Réserve à lever un
+       * jour : `polygon-surface.ts` ne rend que le contour extérieur d'une
+       * dalle, si bien qu'une trémie qui la perce est déjà perdue avant
+       * d'arriver ici. L'étiquette se pose donc au large du contour sans
+       * savoir qu'il est percé — mieux qu'avant, pas encore juste.
+       */
+      at: labelAnchor({ outer: surface.outline }),
       selected,
     });
   }

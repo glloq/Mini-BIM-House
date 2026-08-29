@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { isDimension } from '@house-technical-designer/core-domain';
 import type { Project } from '@house-technical-designer/core-domain';
 import { entityId } from '@house-technical-designer/core-domain';
+import { polygonContains } from '@house-technical-designer/geometry';
 import { materialId } from '@house-technical-designer/materials';
 import { genericMaterial } from '@house-technical-designer/materials/catalog';
 import { ProjectCommandDispatcher } from './project-commands.js';
@@ -332,6 +333,71 @@ describe('room detection', () => {
     );
     const rooms = detectRooms(commands.project, 'ground');
     expect(rooms[0]?.existingSpaceId).toBe('living');
+  });
+
+  it('reconnaît une pièce en L, que la moyenne de ses sommets manquait', () => {
+    /*
+     * Le contour concave, qui est celui où tout se joue.
+     *
+     * L'appariement se faisait sur la moyenne des sommets du contour. Sur un
+     * L — deux bras de huit mètres, deux de large — cette moyenne tombe dans
+     * l'échancrure, donc **hors** du contour, donc hors du polygone de
+     * l'espace qui le décrit pourtant exactement. La pièce ressortait « pas
+     * encore reconnue », et le plan proposait de la créer une seconde fois :
+     * deux espaces superposés pour une pièce, et une surface comptée deux
+     * fois dans tout ce qui lit le projet.
+     */
+    const corners = [
+      { x: 0, y: 0 },
+      { x: 8000, y: 0 },
+      { x: 8000, y: 2000 },
+      { x: 2000, y: 2000 },
+      { x: 2000, y: 8000 },
+      { x: 0, y: 8000 },
+    ];
+    // La moyenne des sommets est (3333 ; 3333), qui est dans l'échancrure.
+    // Le test ne vaut que tant que c'est vrai : s'il faut un jour changer ces
+    // coins, cette ligne dit ce qu'il faut leur garder.
+    const average = corners.reduce(
+      (total, point) => ({
+        x: total.x + point.x / corners.length,
+        y: total.y + point.y / corners.length,
+      }),
+      { x: 0, y: 0 },
+    );
+    expect(polygonContains({ outer: corners }, average)).toBe(false);
+
+    const base = project();
+    const level = base.building.levels[0]!;
+    const walls = corners.map((from, index) =>
+      wall(`l-${index}`, from, corners[(index + 1) % corners.length]!),
+    );
+    const withL: Project = {
+      ...base,
+      building: {
+        ...base.building,
+        levels: [
+          {
+            ...level,
+            walls,
+            spaces: [
+              {
+                id: entityId<'Space'>('sejour-l'),
+                type: 'SPACE' as const,
+                levelId: ground,
+                name: 'Séjour',
+                category: 'LIVING',
+                boundaryMode: 'MANUAL' as const,
+                manualPolygon: { outer: corners },
+              },
+            ],
+          },
+        ],
+      },
+    };
+    const rooms = detectRooms(withL, 'ground');
+    expect(rooms).toHaveLength(1);
+    expect(rooms[0]?.existingSpaceId).toBe('sejour-l');
   });
 
   it('returns nothing for an unknown level or a level without closed walls', () => {

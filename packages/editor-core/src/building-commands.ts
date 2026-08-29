@@ -51,7 +51,9 @@ import {
 } from '@house-technical-designer/core-domain';
 import type { Point2D, Polygon2D } from '@house-technical-designer/geometry';
 import {
+  interiorLabelPoint,
   polygonArea,
+  polygonContains,
   validatePolygon,
 } from '@house-technical-designer/geometry';
 import {
@@ -1433,33 +1435,35 @@ export function detectRooms(
   return [...detection.boundaries]
     .map((boundary) => {
       const areaMm2 = Math.abs(polygonArea(boundary.polygon));
-      const centre = boundary.polygon.outer.reduce(
-        (total, point) => ({
-          x: total.x + point.x / boundary.polygon.outer.length,
-          y: total.y + point.y / boundary.polygon.outer.length,
-        }),
-        { x: 0, y: 0 },
+      /*
+       * Un point pris **au large** du contour, et non la moyenne de ses
+       * sommets.
+       *
+       * La moyenne des sommets n'est le centre de rien. Sur un contour
+       * concave — une pièce en L, un couloir coudé — elle tombe dans
+       * l'échancrure, c'est-à-dire hors du contour, donc hors du polygone de
+       * l'espace qui le décrit parfaitement. Une pièce en L exactement
+       * enfermée par ses murs et exactement décrite par son espace ressortait
+       * ainsi « pas encore reconnue », avec en face un bouton qui proposait de
+       * la créer une seconde fois : on se retrouvait avec deux espaces
+       * superposés pour une seule pièce.
+       *
+       * Le point le plus éloigné de tout bord est intérieur par construction,
+       * et c'est déjà celui qui porte le nom de la pièce sur le plan. Le repli
+       * sur un sommet ne sert qu'aux contours dégénérés, que la détection ne
+       * produit pas : rien n'est deviné, la recherche répond ou l'on prend un
+       * point du contour lui-même.
+       */
+      const inside =
+        interiorLabelPoint(boundary.polygon)?.point ??
+        boundary.polygon.outer[0]!;
+      // `polygonContains` plutôt qu'une troisième copie du test de parité
+      // écrite à la main — celle-ci ignorait les trous, comme les deux autres.
+      const covering = existing.find(
+        (space) =>
+          space.boundaryMode === 'MANUAL' &&
+          polygonContains(space.manualPolygon, inside),
       );
-      const covering = existing.find((space) => {
-        if (space.boundaryMode !== 'MANUAL') return false;
-        const points = space.manualPolygon.outer;
-        let inside = false;
-        for (
-          let index = 0, previous = points.length - 1;
-          index < points.length;
-          previous = index, index += 1
-        ) {
-          const current = points[index]!;
-          const last = points[previous]!;
-          if (current.y > centre.y === last.y > centre.y) continue;
-          const crossingX =
-            ((last.x - current.x) * (centre.y - current.y)) /
-              (last.y - current.y) +
-            current.x;
-          if (centre.x < crossingX) inside = !inside;
-        }
-        return inside;
-      });
       return {
         polygon: boundary.polygon,
         areaM2: areaMm2 / 1_000_000,
