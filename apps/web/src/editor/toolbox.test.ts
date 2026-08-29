@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { family } from '@house-technical-designer/catalog-registry';
+
 import { loadDemoProject } from '../demo-project.js';
 import { CREATION_STAGES, creationStage } from '../ux/creation-stages.js';
 import { EMPTY_DESIGN_STATE, type DesignState } from '../ux/design-state.js';
@@ -15,10 +17,12 @@ import {
   entryFicheInstalled,
   ficheOfFamily,
   isEntryActive,
+  sectionFamilyDomains,
   sectionsOfStage,
   toolboxFor,
   unblockingEntry,
   type ToolboxEntry,
+  type ToolboxSection,
 } from './toolbox.js';
 
 const demo = loadDemoProject();
@@ -426,5 +430,72 @@ describe('les noms que les entrées portent', () => {
             ).toBe(candidate.toolId);
           seen.set(shown, candidate.toolId);
         }
+  });
+});
+
+describe('le métier sur lequel « Autre… » ouvre la nomenclature', () => {
+  /**
+   * Les métiers que les entrées d'une sous-partie posent vraiment, mesurés.
+   *
+   * Le plus servi d'abord ; à égalité, celui que sa première entrée pose.
+   * C'est la nomenclature qui répond, pas la section : c'est justement l'écart
+   * entre les deux que ce test existe pour interdire.
+   */
+  const measured = (section: ToolboxSection): readonly string[] => {
+    const counts = new Map<string, number>();
+    for (const candidate of section.entries) {
+      if (candidate.family === undefined) continue;
+      const domain = family(candidate.family)?.domain;
+      if (domain === undefined) continue;
+      counts.set(domain, (counts.get(domain) ?? 0) + 1);
+    }
+    // `sort` est stable : à nombre égal, l'ordre d'insertion tient, et c'est
+    // l'ordre dans lequel les entrées sont écrites.
+    return [...counts.entries()]
+      .sort(([, first], [, second]) => second - first)
+      .map(([domain]) => domain);
+  };
+
+  const placing = CREATION_STAGES.flatMap((stage) =>
+    sectionsOfStage(stage).filter(({ entries }) =>
+      entries.some(({ family: named }) => named !== undefined),
+    ),
+  );
+
+  it('a de quoi mesurer', () => {
+    // Dix-neuf sous-parties nomment au moins une famille — relevé, pas
+    // souhaité. Un test qui n'en trouverait plus aucune passerait sans rien
+    // prouver, et c'est le seul cas que ce garde-fou existe pour attraper.
+    expect(placing.length).toBeGreaterThanOrEqual(19);
+  });
+
+  it('ouvre sur ce que la sous-partie pose, et non sur ce qu’elle déclare', () => {
+    /*
+     * `fitting.bathroom` déclare « Mobilier » — c'est là qu'on meuble une
+     * salle de bain — et six de ses sept entrées posent des familles de
+     * Plomberie : WC, douche, baignoire, lavabo. Son « Autre… » ouvrait donc
+     * la nomenclature filtrée sur le Mobilier, où chercher « bidet », «
+     * urinoir », « lavabo double » ou « bac de service » ne rend rien : il
+     * fallait deviner qu'il fallait élargir le métier à la main.
+     *
+     * La table est écrite dans `toolbox.ts` pour ne pas faire entrer les cinq
+     * cents fiches du registre dans le premier écran ; c'est ici qu'elle est
+     * confrontée à ce que les familles disent d'elles-mêmes.
+     */
+    for (const section of placing)
+      expect(sectionFamilyDomains(section), section.id).toEqual(
+        measured(section),
+      );
+  });
+
+  it('nomme la salle de bain pour ce qu’elle pose', () => {
+    const bathroom = placing.find(({ id }) => id === 'fitting.bathroom')!;
+    // Le métier déclaré reste le sien : c'est lui qui range la sous-partie
+    // dans l'Aménagement et qui compte ses réseaux.
+    expect(bathroom.domain).toBe('FURNITURE');
+    // Ce sur quoi la nomenclature s'ouvre, en revanche, est la Plomberie.
+    expect(sectionFamilyDomains(bathroom)[0]).toBe('PLUMBING');
+    // Et le bidet y est.
+    expect(family('BIDET')?.domain).toBe('PLUMBING');
   });
 });

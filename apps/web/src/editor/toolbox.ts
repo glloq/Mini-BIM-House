@@ -130,7 +130,45 @@ export interface ToolboxSection {
   readonly label: string;
   /** Le métier auquel cette section appartient, quand elle en a un. */
   readonly domain?: DesignDomainId;
+  /**
+   * Les métiers des familles que ses entrées posent **vraiment**, le plus
+   * servi d'abord.
+   *
+   * Ce n'est pas le métier déclaré, et c'est tout l'intérêt. La salle de bain
+   * appartient au Mobilier — c'est là qu'on la meuble — mais six de ses sept
+   * entrées posent des familles de **Plomberie** : WC, douche, baignoire,
+   * lavabo. Son « Autre… » ouvrait donc la nomenclature filtrée sur Mobilier,
+   * où chercher « bidet » ne rend rien ; il fallait deviner qu'il fallait
+   * élargir le métier à la main, sur le chemin de toutes les familles que la
+   * boîte à outils ne nomme pas — c'est-à-dire l'immense majorité.
+   *
+   * Écrit plutôt que calculé : le métier d'une famille est dans la
+   * nomenclature, et l'importer ici ferait entrer les cinq cents fiches du
+   * registre dans le premier écran — soixante et onze kio, la dépense que
+   * `ownership.ts` a déjà refusée pour la même raison. Un test la calcule, lui,
+   * et refuse toute liste qui ne serait pas exactement celle que les entrées
+   * utilisent : la table ne peut donc pas dériver en silence.
+   *
+   * Absente, la réponse est le métier déclaré — ce qui est exact pour les onze
+   * sous-parties dont toutes les entrées sont de leur propre métier.
+   */
+  readonly familyDomains?: readonly DesignDomainId[];
   readonly entries: readonly ToolboxEntry[];
+}
+
+/**
+ * Les métiers sur lesquels la nomenclature s'ouvre depuis cette sous-partie.
+ *
+ * Le premier est celui qu'elle sert le plus ; à égalité, celui que sa première
+ * entrée pose. C'est celui-là que « Autre… » ouvre aujourd'hui, le sélecteur
+ * n'en prenant qu'un — voir le rapport pour ce qu'il faudrait pour les prendre
+ * tous.
+ */
+export function sectionFamilyDomains(
+  section: ToolboxSection,
+): readonly DesignDomainId[] {
+  if (section.familyDomains !== undefined) return section.familyDomains;
+  return section.domain === undefined ? [] : [section.domain];
 }
 
 const entry = (
@@ -371,6 +409,10 @@ const STAGE_SECTIONS: Readonly<
       id: 'site.services',
       label: 'Réseaux extérieurs',
       domain: 'SITE',
+      // Les branchements sont du terrain, mais l'arrivée d'eau est de la
+      // plomberie, le regard de l'évacuation et le coffret de la fibre des
+      // données : trois familles sur huit ne sont pas du métier de la section.
+      familyDomains: ['SITE', 'PLUMBING', 'WASTEWATER', 'DATA'],
       entries: [
         place(
           'site.water',
@@ -935,6 +977,11 @@ const STAGE_SECTIONS: Readonly<
       id: 'fitting.kitchen',
       label: 'Cuisine',
       domain: 'FURNITURE',
+      // Une cuisine se meuble, et ce qu'on y pose est surtout de
+      // l'électroménager : plaque, four, réfrigérateur sont des familles
+      // d'Électricité, le meuble et le plan de travail du Mobilier, l'évier
+      // de la Plomberie.
+      familyDomains: ['ELECTRICAL', 'FURNITURE', 'PLUMBING'],
       entries: [
         place(
           'fitting.kitchen-unit',
@@ -990,6 +1037,10 @@ const STAGE_SECTIONS: Readonly<
       id: 'fitting.bathroom',
       label: 'Salle de bain',
       domain: 'FURNITURE',
+      // Six entrées sur sept posent une famille de Plomberie — WC, douche,
+      // baignoire, lavabo — et la septième un meuble. « Autre… » ouvrait sur
+      // le Mobilier, où « bidet » ne rend rien.
+      familyDomains: ['PLUMBING', 'FURNITURE'],
       entries: [
         place(
           'water.wall-hung-wc',
@@ -1046,6 +1097,10 @@ const STAGE_SECTIONS: Readonly<
       id: 'fitting.appliances',
       label: 'Électroménager',
       domain: 'FURNITURE',
+      // La seule sous-partie dont *aucune* entrée n'est du métier déclaré :
+      // lave-linge, sèche-linge, lave-vaisselle, congélateur et micro-ondes
+      // sont tous des familles d'Électricité.
+      familyDomains: ['ELECTRICAL'],
       entries: [
         place(
           'fitting.washer',
@@ -1093,6 +1148,9 @@ const STAGE_SECTIONS: Readonly<
       id: 'fitting.outdoor',
       label: 'Extérieur',
       domain: 'FURNITURE',
+      // Une table dehors est du mobilier, un robinet extérieur de la
+      // plomberie : une entrée chacun, et la première nommée passe devant.
+      familyDomains: ['FURNITURE', 'PLUMBING'],
       entries: [
         place(
           'fitting.garden-table',
@@ -1402,6 +1460,8 @@ const STAGE_SECTIONS: Readonly<
       id: 'systems.heating',
       label: 'Chauffage',
       domain: 'HEATING',
+      // Le chauffage, et la citerne de combustible, qui est du terrain.
+      familyDomains: ['HEATING', 'SITE'],
       entries: [
         place(
           'site.outdoor-heat-pump',
@@ -1614,6 +1674,9 @@ const STAGE_SECTIONS: Readonly<
       id: 'systems.power',
       label: 'Électricité',
       domain: 'ELECTRICAL',
+      // L'électricité du bâtiment, et ce qui la relie au réseau public —
+      // coffret, compteur, mise à la terre — qui est du terrain.
+      familyDomains: ['ELECTRICAL', 'SITE'],
       entries: [
         place(
           'site.power',
@@ -1768,6 +1831,8 @@ const STAGE_SECTIONS: Readonly<
       id: 'systems.light',
       label: 'Éclairage',
       domain: 'LIGHTING',
+      // L'éclairage, et le luminaire extérieur, qui est du terrain.
+      familyDomains: ['LIGHTING', 'SITE'],
       entries: [
         place(
           'fitting.outdoor-light',
@@ -2162,6 +2227,8 @@ const STAGE_SECTIONS: Readonly<
       id: 'systems.solar',
       label: 'Solaire',
       domain: 'SOLAR',
+      // Le solaire, et le support au sol, qui est du terrain.
+      familyDomains: ['SOLAR', 'SITE'],
       entries: [
         place(
           'site.ground-pv',

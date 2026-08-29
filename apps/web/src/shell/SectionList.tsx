@@ -35,6 +35,7 @@ import type { EditorState } from '../editor/editor-state.js';
 import type { ToolDrafts } from '../editor/tool-options.js';
 import {
   isEntryActive,
+  sectionFamilyDomains,
   toolboxFor,
   type ToolboxEntry,
   type ToolboxSection,
@@ -101,41 +102,68 @@ export function SectionList({
   const equips = (held: ToolboxSection) =>
     held.entries.some(({ toolId }) => toolId === 'COMPONENT');
 
-  const entries = (held: ToolboxSection) => (
-    <>
-      <div className="add-grid">
-        {ordered(held, design).map((available) => (
-          <EntryButton
-            key={available.entry.id}
-            available={available}
-            active={isEntryActive(
-              project,
-              available.entry,
-              editor.activeTool,
-              drafts,
-            )}
-            onChoose={onChooseEntry}
-            onNavigate={onNavigate}
-          />
-        ))}
-      </div>
-      {equips(held) && (
-        <button
-          type="button"
-          className="section-more"
-          title={`Tout ce que la nomenclature tient en ${held.label.toLowerCase()}`}
-          onClick={() =>
-            onBrowseFamilies({
-              label: held.label,
-              ...(held.domain === undefined ? {} : { domain: held.domain }),
-            })
-          }
-        >
-          Autre…
-        </button>
-      )}
-    </>
-  );
+  /**
+   * Le métier sur lequel la nomenclature s'ouvre depuis cette sous-partie.
+   *
+   * Le plus servi par ses propres entrées, et le métier déclaré à défaut —
+   * `sectionFamilyDomains` tient la table et un test la prouve contre la
+   * nomenclature.
+   */
+  const openOn = (held: ToolboxSection): DesignDomainId | undefined =>
+    sectionFamilyDomains(held)[0] ?? held.domain;
+
+  const entries = (held: ToolboxSection) => {
+    const opened = openOn(held);
+    return (
+      <>
+        <div className="add-grid">
+          {ordered(held, design).map((available) => (
+            <EntryButton
+              key={available.entry.id}
+              available={available}
+              active={isEntryActive(
+                project,
+                available.entry,
+                editor.activeTool,
+                drafts,
+              )}
+              onChoose={onChooseEntry}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </div>
+        {equips(held) && (
+          <button
+            type="button"
+            className="section-more"
+            title={`Tout ce que la nomenclature tient en ${held.label.toLowerCase()}`}
+            onClick={() =>
+              onBrowseFamilies({
+                label: held.label,
+                /*
+                 * Le métier que ses entrées **utilisent**, pas celui qu'elle
+                 * déclare.
+                 *
+                 * La salle de bain est du Mobilier — c'est là qu'on la meuble —
+                 * et six de ses sept entrées posent des familles de Plomberie.
+                 * Son « Autre… » ouvrait donc la nomenclature sur Mobilier, où
+                 * chercher « bidet » ne rend rien : il fallait d'abord élargir
+                 * le métier à la main, un geste de plus sur le chemin de toutes
+                 * les familles que la boîte à outils ne nomme pas.
+                 *
+                 * Un seul métier, parce que le sélecteur n'en prend qu'un : le
+                 * plus servi. Les autres restent à un clic, comme avant.
+                 */
+                ...(opened === undefined ? {} : { domain: opened }),
+              })
+            }
+          >
+            Autre…
+          </button>
+        )}
+      </>
+    );
+  };
 
   if (only !== undefined)
     return (
