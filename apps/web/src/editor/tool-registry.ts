@@ -39,6 +39,8 @@ import {
   placeNodeCommand,
   routeCommand,
 } from '../networks/network-model.js';
+import type { InteractionStep } from './interaction-steps.js';
+import { stepForClick } from './interaction-steps.js';
 import type { ToolOptionDefinition } from './tool-options.js';
 import { OBJECT_FAMILIES } from './object-editors.js';
 import {
@@ -245,6 +247,22 @@ export interface EditorToolDefinition {
     readonly angle: boolean;
   };
   /**
+   * Ce que l'outil demande, clic par clic, dit avec les mots du métier.
+   *
+   * `requiredPoints` dit combien de clics ; il ne dit pas ce qu'ils sont, et
+   * l'écran en tirait « premier point / second point » pour des gestes aussi
+   * différents que désigner un mur et indiquer de combien le décaler. Une
+   * étape nomme l'objet du geste, sa nature, et ce qu'il est permis de viser.
+   *
+   * Facultatif, et destiné à le rester un moment : un outil qui n'en déclare
+   * pas est décrit par son nombre de points exactement comme avant. Un outil
+   * qui en déclare doit en déclarer autant qu'il attend de clics — voir
+   * `stepCoherenceProblem`, qu'un test applique à tout le registre, parce que
+   * deux descriptions du même geste finissent toujours par se contredire.
+   */
+  readonly interaction?: readonly InteractionStep[];
+
+  /**
    * What this tool lets the user decide before drawing.
    *
    * The toolbar renders whatever is declared here and knows nothing about
@@ -296,6 +314,12 @@ export const EDITOR_TOOLS = [
     hint: 'Dessiner un mur entre deux points',
     shortcutId: 'tool.wall',
     requiredPoints: 2,
+    interaction: [
+      // Personne ne pense « deux points » en dessinant un mur : on pense un
+      // départ et une extrémité, et c'est ce que l'écran doit dire.
+      { kind: 'POINT', prompt: 'Cliquez le début du mur' },
+      { kind: 'POINT', prompt: 'Cliquez son extrémité', numericInput: true },
+    ],
     level: 'QUICK',
     drawsWalls: true,
     constrainsDrafting: true,
@@ -362,6 +386,10 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.wallRun',
     // Two points is the fewest a run can describe; there is no most.
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ du mur continu' },
+      { kind: 'POINT', prompt: 'Cliquez le coin suivant', numericInput: true },
+    ],
     level: 'QUICK',
     openEnded: true,
     drawsWalls: true,
@@ -452,6 +480,10 @@ export const EDITOR_TOOLS = [
     hint: 'Enclore par deux coins opposés : quatre murs d’équerre',
     shortcutId: 'tool.wallRectangle',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez un coin de l’enceinte' },
+      { kind: 'POINT', prompt: 'Cliquez le coin opposé', numericInput: true },
+    ],
     drawsWalls: true,
     options: [
       {
@@ -518,6 +550,15 @@ export const EDITOR_TOOLS = [
     hint: 'Percer une porte ou une fenêtre dans un mur',
     shortcutId: 'tool.opening',
     requiredPoints: 1,
+    interaction: [
+      // Un clic, mais pas n'importe où : l'ouverture se pose dans un mur, et le
+      // dire évite le clic dans le vide qui ne perce rien.
+      {
+        kind: 'PICK',
+        accepts: ['WALL'],
+        prompt: 'Cliquez le mur qui recevra la porte ou la fenêtre',
+      },
+    ],
     level: 'QUICK',
     options: [
       {
@@ -587,6 +628,13 @@ export const EDITOR_TOOLS = [
     hint: 'Cliquer dans un pan de toiture pour y poser une fenêtre',
     shortcutId: 'tool.roofOpening',
     requiredPoints: 1,
+    interaction: [
+      {
+        kind: 'PICK',
+        accepts: ['ROOF'],
+        prompt: 'Cliquez le pan de toiture à percer',
+      },
+    ],
     level: 'DESIGN',
     options: [
       {
@@ -643,6 +691,12 @@ export const EDITOR_TOOLS = [
     hint: 'Cliquer dans un contour fermé par les murs pour en faire une pièce',
     shortcutId: 'tool.space',
     requiredPoints: 1,
+    interaction: [
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez à l’intérieur du contour à transformer en pièce',
+      },
+    ],
     level: 'QUICK',
     options: [
       {
@@ -703,6 +757,10 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.slab',
     // Three corners is the fewest a floor can have; there is no most.
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le premier coin de la dalle' },
+      { kind: 'POINT', prompt: 'Cliquez le coin suivant', numericInput: true },
+    ],
     openEnded: true,
     completionMode: 'CLOSE_POLYGON',
     constrainsDrafting: true,
@@ -762,6 +820,10 @@ export const EDITOR_TOOLS = [
     hint: 'Percer un contour dans la dalle qui passe dessous',
     shortcutId: 'tool.slabHole',
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le premier coin de la trémie' },
+      { kind: 'POINT', prompt: 'Cliquez le coin suivant', numericInput: true },
+    ],
     level: 'EXPERT',
     openEnded: true,
     completionMode: 'CLOSE_POLYGON',
@@ -777,6 +839,10 @@ export const EDITOR_TOOLS = [
     hint: 'Décrire une toiture par son contour · Entrée termine, Échap annule',
     shortcutId: 'tool.roof',
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le premier coin de la toiture' },
+      { kind: 'POINT', prompt: 'Cliquez le coin suivant', numericInput: true },
+    ],
     openEnded: true,
     completionMode: 'CLOSE_POLYGON',
     constrainsDrafting: true,
@@ -863,6 +929,14 @@ export const EDITOR_TOOLS = [
     hint: 'Tracer la ligne de foulée · Entrée termine, Échap annule',
     shortcutId: 'tool.stair',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ de la ligne de foulée' },
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez la suite de la ligne de foulée',
+        numericInput: true,
+      },
+    ],
     openEnded: true,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
@@ -928,6 +1002,7 @@ export const EDITOR_TOOLS = [
     // A column stands at a point; a beam runs between two. The difference is
     // what the member is, and it is what the two tools are for.
     requiredPoints: 1,
+    interaction: [{ kind: 'POINT', prompt: 'Cliquez où planter le poteau' }],
     options: [
       {
         key: 'kind',
@@ -989,6 +1064,10 @@ export const EDITOR_TOOLS = [
     hint: 'Faire courir une poutre entre deux points',
     shortcutId: 'tool.beam',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ de la poutre' },
+      { kind: 'POINT', prompt: 'Cliquez son extrémité', numericInput: true },
+    ],
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
     options: [
@@ -1031,6 +1110,10 @@ export const EDITOR_TOOLS = [
     hint: 'Tracer la parcelle ou ce qui l’entoure · Entrée termine',
     shortcutId: 'tool.site',
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le premier coin du terrain' },
+      { kind: 'POINT', prompt: 'Cliquez le coin suivant', numericInput: true },
+    ],
     openEnded: true,
     completionMode: 'CLOSE_POLYGON',
     constrainsDrafting: true,
@@ -1093,6 +1176,7 @@ export const EDITOR_TOOLS = [
     hint: 'Poser un équipement, un appareil ou un meuble à un endroit du plan',
     shortcutId: 'tool.component',
     requiredPoints: 1,
+    interaction: [{ kind: 'POINT', prompt: 'Cliquez où poser l’équipement' }],
     options: [
       {
         key: 'category',
@@ -1169,6 +1253,13 @@ export const EDITOR_TOOLS = [
     hint: 'Couper un mur à l’endroit désigné',
     shortcutId: 'tool.split',
     requiredPoints: 1,
+    interaction: [
+      {
+        kind: 'PICK',
+        accepts: ['WALL'],
+        prompt: 'Cliquez le mur à scinder, là où il doit être coupé',
+      },
+    ],
     level: 'EXPERT',
     createCommand: (context) => {
       const point = context.points[context.points.length - 1]!;
@@ -1202,6 +1293,22 @@ export const EDITOR_TOOLS = [
     hint: 'Tracer un mur parallèle : le mur, puis le côté et la distance',
     shortcutId: 'tool.offset',
     requiredPoints: 2,
+    interaction: [
+      /*
+       * L'outil qui a motivé tout ceci : deux clics qui n'ont rien de commun,
+       * décrits hier par « premier point » et « second point ». Le second dit à
+       * la fois de quel côté et de combien — d'où `DISTANCE`, et `numericInput`
+       * pour le champ qui viendra. La phrase ne promet pas encore une saisie :
+       * tant qu'aucun champ ne s'affiche ici, écrire « saisissez la distance »
+       * enverrait chercher ce qui n'existe pas.
+       */
+      { kind: 'PICK', accepts: ['WALL'], prompt: 'Cliquez le mur à décaler' },
+      {
+        kind: 'DISTANCE',
+        prompt: 'Cliquez le côté du mur et la distance voulue',
+        numericInput: true,
+      },
+    ],
     level: 'DESIGN',
     createCommand: (context) => {
       const wallId = context.picks[0];
@@ -1227,6 +1334,10 @@ export const EDITOR_TOOLS = [
     hint: 'Amener deux murs à leur intersection',
     shortcutId: 'tool.join',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'PICK', accepts: ['WALL'], prompt: 'Cliquez le premier mur' },
+      { kind: 'PICK', accepts: ['WALL'], prompt: 'Cliquez le mur à rejoindre' },
+    ],
     level: 'DESIGN',
     createCommand: (context) => {
       const [firstId, secondId] = context.picks;
@@ -1254,6 +1365,18 @@ export const EDITOR_TOOLS = [
     hint: 'Allonger ou raccourcir un mur jusqu’à un autre',
     shortcutId: 'tool.trim',
     requiredPoints: 2,
+    interaction: [
+      {
+        kind: 'PICK',
+        accepts: ['WALL'],
+        prompt: 'Cliquez le mur à prolonger ou à raccourcir',
+      },
+      {
+        kind: 'PICK',
+        accepts: ['WALL'],
+        prompt: 'Cliquez le mur qui lui sert de limite',
+      },
+    ],
     level: 'DESIGN',
     createCommand: (context) => {
       const [firstId, secondId] = context.picks;
@@ -1288,6 +1411,11 @@ export const EDITOR_TOOLS = [
     // Centre, then the direction things point at now, then where that direction
     // should end up. Three clicks and no number to type.
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Choisissez le centre de la rotation' },
+      { kind: 'DIRECTION', prompt: 'Cliquez la direction actuelle' },
+      { kind: 'DIRECTION', prompt: 'Cliquez la direction voulue' },
+    ],
     level: 'EXPERT',
     createCommand: (context) => {
       const [centre, from, to] = context.points;
@@ -1311,6 +1439,10 @@ export const EDITOR_TOOLS = [
     hint: 'Retourner la sélection de part et d’autre d’un axe tracé',
     shortcutId: 'tool.mirror',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez par où passe l’axe de symétrie' },
+      { kind: 'DIRECTION', prompt: 'Cliquez la direction de cet axe' },
+    ],
     level: 'EXPERT',
     constrainsDrafting: true,
     // The axis has a direction that matters and a length that does not.
@@ -1340,6 +1472,14 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.networkRoute',
     // A port, a port: the corners in between are as many as the run needs.
     requiredPoints: 2,
+    interaction: [
+      { kind: 'PICK', prompt: 'Cliquez l’équipement de départ' },
+      {
+        kind: 'POINT',
+        prompt: 'Cliquez les passages du tracé, puis l’équipement d’arrivée',
+        numericInput: true,
+      },
+    ],
     openEnded: true,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
@@ -1416,6 +1556,13 @@ export const EDITOR_TOOLS = [
     hint: 'Poser une pièce de dérivation sur un tronçon existant',
     shortcutId: 'tool.networkBranch',
     requiredPoints: 1,
+    interaction: [
+      {
+        kind: 'PICK',
+        accepts: ['NETWORK_EDGE'],
+        prompt: 'Cliquez le tronçon où poser la dérivation',
+      },
+    ],
     createCommand: (context) => {
       const point = context.points[0];
       const edgeId = context.picks[0];
@@ -1441,6 +1588,14 @@ export const EDITOR_TOOLS = [
     hint: 'Réunir deux pièces en retirant ce qui les sépare',
     shortcutId: 'tool.mergeSpaces',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'PICK', accepts: ['SPACE'], prompt: 'Cliquez la première pièce' },
+      {
+        kind: 'PICK',
+        accepts: ['SPACE'],
+        prompt: 'Cliquez la pièce à lui réunir',
+      },
+    ],
     createCommand: (context) => {
       const [from, to] = context.points;
       if (from === undefined || to === undefined)
@@ -1461,6 +1616,10 @@ export const EDITOR_TOOLS = [
     hint: 'Mesurer entre deux points, sans rien poser',
     shortcutId: 'tool.measure',
     requiredPoints: 2,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez le départ de la mesure' },
+      { kind: 'POINT', prompt: 'Cliquez son arrivée', numericInput: true },
+    ],
     reads: true,
     constrainsDrafting: true,
     dynamicInput: { length: true, angle: true },
@@ -1474,6 +1633,11 @@ export const EDITOR_TOOLS = [
     hint: 'Coter entre deux extrémités de mur',
     shortcutId: 'tool.dimension',
     requiredPoints: 3,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez la première référence à coter' },
+      { kind: 'POINT', prompt: 'Cliquez la seconde référence' },
+      { kind: 'POINT', prompt: 'Placez la ligne de cote' },
+    ],
     options: [
       {
         key: 'dimensionType',
@@ -1500,6 +1664,7 @@ export const EDITOR_TOOLS = [
     shortcutId: 'tool.note',
     // One point for the text; a second, optional, for what it points at.
     requiredPoints: 1,
+    interaction: [{ kind: 'POINT', prompt: 'Cliquez où écrire l’annotation' }],
     options: [
       {
         key: 'text',
@@ -1538,6 +1703,9 @@ export const EDITOR_TOOLS = [
     hint: 'Poser un nœud sur le réseau actif',
     shortcutId: 'tool.network',
     requiredPoints: 1,
+    interaction: [
+      { kind: 'POINT', prompt: 'Cliquez où poser le nœud du réseau' },
+    ],
     options: [
       {
         key: 'networkId',
@@ -1726,4 +1894,25 @@ export function drawsWalls(tool: EditorTool): boolean {
 /** Whether a tool drafts along constrained angles and lengths. */
 export function constrainsDrafting(tool: EditorTool): boolean {
   return toolDefinition(tool).constrainsDrafting === true;
+}
+
+/** Les étapes que cet outil déclare, s'il en déclare. */
+export function interactionOf(
+  tool: EditorTool,
+): readonly InteractionStep[] | undefined {
+  return toolDefinition(tool).interaction;
+}
+
+/**
+ * L'étape qui décrit le clic à venir, une fois `placed` clics posés.
+ *
+ * Le reste de l'application demande « que se passe-t-il maintenant » et non
+ * « quelle est la troisième étape » : compter les clics posés est déjà ce que
+ * fait la toile, et l'y refaire ailleurs serait un deuxième compteur.
+ */
+export function interactionStepAt(
+  tool: EditorTool,
+  placed: number,
+): InteractionStep | undefined {
+  return stepForClick(toolDefinition(tool).interaction, placed);
 }

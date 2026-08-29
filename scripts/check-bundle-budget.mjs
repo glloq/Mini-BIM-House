@@ -287,8 +287,16 @@ export const BUDGETS = {
    *   remplace une table écrite en TypeScript et pèse à peu près pareil.
    *
    * Le plafond passe donc à 256.
+   *
+   * Puis deux de plus pour ce que l'outil dit et montre avant qu'on clique :
+   * les étapes sémantiques de vingt-sept outils — « Cliquez le mur à
+   * décaler » plutôt que « Cliquez le premier point » — et l'aperçu du
+   * composant sous le curseur, à ses dimensions réelles, avec le support qu'il
+   * aura et le refus quand il n'y en a pas. Les deux sont du premier écran par
+   * nature : le premier est la phrase du premier outil qu'on prend, le second
+   * est le dessin. Le plafond passe à 258.
    */
-  initialGzipBytes: 256 * 1024,
+  initialGzipBytes: 258 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -500,6 +508,10 @@ export const BUDGETS = {
    * pixels dès qu'on cliquait un objet — n'existe plus. Le plafond passe à
    * 501.
    *
+   * Et deux pour le contrat d'interaction et l'aperçu avant clic : le détail
+   * est au-dessus, dans le premier écran, où ils vivent tous les deux. Le
+   * total passe à 503.
+   *
    * Et un avec ce que douze contrôles refusaient de dire. Un bouton grisé sans
    * motif se lit comme une panne : on reclique, on cherche le réglage qui le
    * libère, il n'existe pas. Douze le faisaient — « Relier », « Ajouter le
@@ -520,7 +532,7 @@ export const BUDGETS = {
    * premier écran parce que le verrou y est aussi : il vaut pour le premier
    * clic comme pour le millième.
    */
-  totalGzipBytes: 501 * 1024,
+  totalGzipBytes: 503 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

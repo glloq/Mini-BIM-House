@@ -34,7 +34,6 @@ import { EntryButton } from '../editor/EntryButton.js';
 import type { EditorState } from '../editor/editor-state.js';
 import type { ToolDrafts } from '../editor/tool-options.js';
 import {
-  availabilityOf,
   isEntryActive,
   toolboxFor,
   type ToolboxEntry,
@@ -42,6 +41,7 @@ import {
 } from '../editor/toolbox.js';
 import { networksOfDomain } from '../systems/discipline-scope.js';
 import type { CreationStageId } from '../ux/creation-stages.js';
+import { ordered } from './toolbox-order.js';
 import type { DesignState } from '../ux/design-state.js';
 import type { UiTarget } from '../ux/ui-target.js';
 
@@ -71,21 +71,6 @@ export interface SectionListProps {
     readonly label: string;
     readonly domain?: DesignDomainId;
   }) => void;
-}
-
-/**
- * Les recommandées d'abord, les inertes en dernier.
- *
- * L'ordre du registre est celui d'un chantier ; celui de l'écran est celui de
- * ce qui reste à faire.
- */
-function ordered(section: ToolboxSection, design: DesignState) {
-  const graded = section.entries.map((entry) => availabilityOf(entry, design));
-  return [
-    ...graded.filter(({ recommended }) => recommended),
-    ...graded.filter(({ recommended, enabled }) => !recommended && enabled),
-    ...graded.filter(({ enabled }) => !enabled),
-  ];
 }
 
 export function SectionList({

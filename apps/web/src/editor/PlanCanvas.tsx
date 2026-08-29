@@ -52,7 +52,12 @@ import { surfaceLabels, surfaceMeasureLabel } from './surface-labels.js';
 import { runSlopes, slopeLabel } from './run-slopes.js';
 import { TEMPORARY_EDIT_IDS } from './temporary-edits.js';
 import { draftedMeasures } from './typed-values.js';
-import { carriedGeometry } from './ghost-geometry.js';
+import {
+  carriedGeometry,
+  componentGhostOutline,
+  footprintLabel,
+} from './ghost-geometry.js';
+import { chooseHost, projectEquipment } from './host-choice.js';
 import {
   resolveDraftPoint,
   pointerModelPoint,
@@ -98,6 +103,18 @@ function gripLabel(grip: Grip): string {
 
 /** How far the pointer travels before a click becomes a rubber band, in pixels. */
 const BAND_THRESHOLD_PX = 4;
+
+/**
+ * L'écart entre le fantôme et la phrase qui l'accompagne, en pixels.
+ *
+ * En pixels comme la marque du premier sommet, et pour la même raison : une
+ * prise fait huit centimètres, une baignoire un mètre soixante-dix, et un
+ * écart en millimètres serait collé sur l'une et perdu au large de l'autre.
+ */
+const GHOST_LABEL_GAP_PX = 16;
+
+/** Rien sous le curseur à annoncer : la valeur rendue quand il n'y a pas de fantôme. */
+const NO_GHOST = { primitives: [] as readonly ScenePrimitive[] } as const;
 
 export interface PlanCanvasProps {
   readonly project: Project;
@@ -181,6 +198,19 @@ export interface PlanCanvasProps {
   readonly stage: CreationStageId;
   /** Ce qu'il y a à dire quand une aide refuse : l'image trop lourde, par exemple. */
   readonly onMessage?: (message: string) => void;
+  /**
+   * La fiche que l'outil Composant est réglé à poser.
+   *
+   * La valeur **résolue** de l'option, pas les brouillons dont elle sort : le
+   * canvas dessine, il n'arbitre pas ce qu'un formulaire a saisi. C'est déjà
+   * la façon dont `wallThicknessMm` arrive ici — la coque lit l'option, le
+   * canvas reçoit le nombre — et deux chemins pour une même question est ce
+   * qui fait qu'un aperçu finit par montrer autre chose que ce qu'on pose.
+   *
+   * Sans elle, aucun fantôme : un objet dessiné aux dimensions de personne
+   * dirait quelque chose que le projet ne soutient pas.
+   */
+  readonly componentDefinitionId?: string;
 }
 
 /** Segments the snap engine considers: every wall axis on the level. */
@@ -226,6 +256,7 @@ export function PlanCanvas({
   graphicProfileId,
   overlay,
   clearanceGroups = [],
+  componentDefinitionId,
 }: PlanCanvasProps) {
   /*
    * La charte, telle qu'elle se lit depuis l'espace ouvert.
@@ -576,6 +607,139 @@ export function PlanCanvas({
   }, [base.primitives, editor.selection, moveDelta]);
 
   /**
+   * L'objet qu'on s'apprête à poser, vu avant qu'on clique.
+   *
+   * L'outil Composant n'a qu'un clic — un lit, un frigo, un WC, une prise se
+   * posent d'un geste — et l'aperçu du canvas ne se construisait qu'à partir
+   * d'un point déjà posé. Il n'y avait donc, pour tout le mobilier et tous les
+   * équipements, strictement rien à voir avant de cliquer : on posait, on
+   * regardait, on annulait. Le refus arrivait par la même porte, en toutes
+   * lettres, une fois le clic donné — « Ce modèle se fixe à : Mur » — alors
+   * que c'est avant qu'il sert à quelque chose.
+   *
+   * Ce que le fantôme montre tient en trois choses, et aucune n'est décidée
+   * ici :
+   *
+   * - **la taille**, telle que la fiche du projet la déclare ;
+   * - **le support**, choisi par le même enchaînement que la commande, et
+   *   redessiné en survol pour qu'on voie lequel des murs porte ;
+   * - **le refus**, quand la fiche n'accepte rien de ce qu'il y a sous le
+   *   curseur : le contour passe en erreur et la phrase dit sur quoi ce
+   *   modèle se pose.
+   *
+   * Il est calculé sur `base` et non sur `plan`, parce que `plan` contient
+   * déjà les aperçus — dont celui-ci — et qu'un fantôme qui se désignerait
+   * lui-même comme support serait une boucle. La différence porte sur les
+   * seules zones de dégagement, qui ne sont pas des supports sur lesquels on
+   * pose.
+   *
+   * Dérivé et jamais gardé : il n'existe qu'entre deux mouvements de souris,
+   * et rien de tout cela n'entre dans le fichier projet.
+   */
+  const componentGhost = useMemo((): {
+    readonly primitives: readonly ScenePrimitive[];
+    readonly sentence?: string;
+  } => {
+    if (editor.activeTool !== 'COMPONENT' || editor.cursorModel === undefined)
+      return NO_GHOST;
+    const fiche = projectEquipment(project, componentDefinitionId);
+    if (fiche === undefined) return NO_GHOST;
+    const level =
+      editor.levelId === undefined
+        ? project.building.levels[0]
+        : project.building.levels.find(({ id }) => id === editor.levelId);
+    if (level === undefined) return NO_GHOST;
+    const at = editor.cursorModel;
+    // Le même tirage que le clic donnera : ce que le canvas sait, c'est à
+    // quelle distance on vise juste sur cet écran et à ce zoom-là.
+    const picked = pickPrimitive(
+      base.primitives,
+      at,
+      pickToleranceMm(editor.camera, 'mouse'),
+    );
+    const choice = chooseHost(level, at, picked?.objectId, fiche.allowedHosts);
+    const outline = componentGhostOutline(
+      at,
+      fiche.dimensions,
+      choice.wallAngleDeg ?? 0,
+    );
+    if (outline === undefined) return NO_GHOST;
+    const size = footprintLabel(
+      fiche.dimensions?.widthMm ?? 0,
+      fiche.dimensions?.depthMm ?? 0,
+    );
+    const sentence = `${size} · ${choice.sentence}`;
+    /*
+     * Le support, repassé par-dessus pour qu'on le distingue.
+     *
+     * Ce sont les traits du plan eux-mêmes, réémis en survol : le mur porteur
+     * se reconnaît donc à la charte du dessin et non à une couleur écrite
+     * dans ce composant. Le lien vers l'objet source est coupé exprès — une
+     * copie qui le garderait serait désignable, et le clic prendrait la copie
+     * dessinée au-dessus au lieu du mur qu'elle recouvre.
+     */
+    const carried =
+      choice.hostObjectId === undefined
+        ? []
+        : base.primitives
+            .filter(
+              ({ sourceObjectId }) => sourceObjectId === choice.hostObjectId,
+            )
+            .map((primitive, index): ScenePrimitive => {
+              const { sourceObjectId: _unused, ...rest } = primitive;
+              return {
+                ...rest,
+                id: `preview:component-host:${index}`,
+                zIndex: 94,
+                state: 'HOVER' as const,
+              };
+            });
+    const gapMm = GHOST_LABEL_GAP_PX / editor.camera.pixelsPerMm;
+    return {
+      sentence,
+      primitives: [
+        ...carried,
+        {
+          id: 'preview:component',
+          semanticRole: 'ANNOTATION' as const,
+          geometry: { kind: 'POLYGON' as const, polygon: outline },
+          layer: 'components.placed',
+          zIndex: 95,
+          discipline: 'ARCHITECTURE' as const,
+          // Un refus doit se voir, et se voir là où l'on regarde. L'état
+          // d'erreur est celui que la charte réserve à ce qui ne va pas ;
+          // c'est elle qui décide à quoi cela ressemble.
+          state: choice.accepted ? ('GHOST' as const) : ('ERROR' as const),
+        },
+        {
+          id: 'preview:component-label',
+          semanticRole: 'ANNOTATION' as const,
+          geometry: {
+            kind: 'TEXT' as const,
+            anchor: {
+              x: at.x,
+              y: Math.min(...outline.outer.map(({ y }) => y)) - gapMm,
+            },
+            text: sentence,
+          },
+          layer: 'annotation.dimensions',
+          zIndex: 96,
+          discipline: 'ARCHITECTURE' as const,
+          state: choice.accepted ? ('GHOST' as const) : ('ERROR' as const),
+        },
+      ],
+    };
+  }, [
+    base.primitives,
+    componentDefinitionId,
+    editor.activeTool,
+    editor.camera,
+    editor.cursorModel,
+    editor.levelId,
+    project,
+  ]);
+
+  /**
    * The room the placed machines need around them.
    *
    * Worked out here and never stored: the zones are the catalogue entry and
@@ -592,7 +756,12 @@ export function PlanCanvas({
   );
 
   const plan: PlanViewResult = useMemo(() => {
-    if (overlay === undefined && ghost.length === 0 && clearances.length === 0)
+    if (
+      overlay === undefined &&
+      ghost.length === 0 &&
+      clearances.length === 0 &&
+      componentGhost.primitives.length === 0
+    )
       return base;
     return buildPlanView(project, {
       ...(editor.levelId === undefined ? {} : { levelId: editor.levelId }),
@@ -608,6 +777,7 @@ export function PlanCanvas({
       extraPrimitives: [
         ...preview,
         ...ghost,
+        ...componentGhost.primitives,
         ...clearances,
         ...(overlay === undefined
           ? []
@@ -618,6 +788,7 @@ export function PlanCanvas({
   }, [
     base,
     ghost,
+    componentGhost,
     clearances,
     overlay,
     project,
@@ -1619,6 +1790,13 @@ export function PlanCanvas({
           : `${Math.round(editor.cursorModel.x)} ; ${Math.round(editor.cursorModel.y)} mm`}
         {editor.activeSnap !== undefined &&
           ` · accroche ${editor.activeSnap.kind.toLowerCase()}`}
+        {/* Ce que le fantôme dit, écrit aussi en toutes lettres.
+            Un contour rouge sous le curseur dit qu'on refuse ; il ne dit pas
+            sur quoi ce modèle se pose, et c'est cette phrase-là qu'on relit.
+            La sortie de l'outil y est nommée parce qu'un objet qui suit la
+            souris sans qu'on sache l'arrêter est un objet qu'on subit. */}
+        {componentGhost.sentence !== undefined &&
+          ` · ${componentGhost.sentence} · clic pose, Échap annule`}
         {/* The two directions of a band ask two different questions, and the
             rectangle alone does not say which one is being asked. */}
         {editor.selectionBox !== undefined &&

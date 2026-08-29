@@ -3,6 +3,7 @@ import { loadDemoProject } from '../demo-project.js';
 import { SHORTCUTS } from './shortcuts.js';
 import { optionValue } from './tool-options.js';
 import { OBJECT_FAMILIES } from './object-editors.js';
+import { stepCoherenceProblem } from './interaction-steps.js';
 import {
   EDITOR_LEVELS,
   EDITOR_TOOLS,
@@ -10,6 +11,8 @@ import {
   completionModeOf,
   constrainsDrafting,
   isOpenEnded,
+  interactionOf,
+  interactionStepAt,
   dynamicInputOf,
   populatedToolGroups,
   populatedToolGroupsAtLevel,
@@ -413,5 +416,98 @@ describe('ce que « terminer » veut dire', () => {
   it('écrit le geste avec le mot du geste', () => {
     expect(completionLabel('CLOSE_POLYGON')).toBe('Fermer la surface');
     expect(completionLabel('FINISH_PATH')).toBe('Terminer le tracé');
+  });
+});
+
+describe('ce qu’un outil déclare attendre, clic par clic', () => {
+  it('ne laisse jamais les étapes contredire le nombre de points', () => {
+    /*
+     * Deux déclarations du même geste sont deux vérités qui divergent : un
+     * outil passé de deux à trois clics, dont les étapes en décrivent
+     * toujours deux, afficherait « Cliquez son extrémité » pour un clic qui
+     * n'est pas celui-là — et le compilateur n'en saurait rien, puisque les
+     * deux champs sont valides séparément. Le nombre de points reste
+     * l'autorité ; c'est ici qu'on empêche la seconde source de vérité.
+     */
+    for (const tool of EDITOR_TOOLS) {
+      expect(stepCoherenceProblem(tool), tool.id).toBeUndefined();
+    }
+  });
+
+  it('déclare une phrase que l’écran peut prolonger', () => {
+    for (const tool of EDITOR_TOOLS) {
+      for (const step of interactionOf(tool.id) ?? []) {
+        expect(step.prompt.length, tool.id).toBeGreaterThan(0);
+        // Le point final appartient à l'écran, qui ajoute parfois ce qui est
+        // déjà posé ou comment refermer. Une étape ponctuée obligerait à
+        // dépoinctuer pour la prolonger.
+        expect(step.prompt.endsWith('.'), `${tool.id} · ${step.prompt}`).toBe(
+          false,
+        );
+        // Le rang du point est précisément ce qu'on remplace : une étape qui
+        // le redit n'apporte rien de plus que le repli qu'elle remplace.
+        expect(step.prompt, tool.id).not.toMatch(
+          /(premier|second|deuxième|troisième) point\b/i,
+        );
+      }
+    }
+  });
+
+  it('ne laisse viser que des familles d’objets qui existent', () => {
+    // `accepts` servira à restreindre ce qu'un clic peut attraper. Une famille
+    // mal orthographiée ne restreindrait rien du tout, en silence.
+    const known = OBJECT_FAMILIES.flatMap((family) => [...family.kinds]);
+    for (const tool of EDITOR_TOOLS) {
+      for (const step of interactionOf(tool.id) ?? []) {
+        for (const kind of step.accepts ?? [])
+          expect(known, `${tool.id} · ${kind}`).toContain(kind);
+      }
+    }
+  });
+
+  it('nomme l’objet du geste pour les outils où le rang ne disait rien', () => {
+    /*
+     * Les huit outils du relevé : ceux dont les clics portent des rôles
+     * distincts, que « premier / second point » écrasait en un seul. Les
+     * inscrire ici est ce qui empêche qu'une refonte du registre les
+     * reperde sans que personne ne le voie.
+     */
+    for (const id of [
+      'WALL',
+      'OPENING',
+      'OFFSET',
+      'JOIN',
+      'TRIM',
+      'DIMENSION',
+      'ROTATE',
+      'NETWORK_ROUTE',
+    ] as const) {
+      const steps = interactionOf(id);
+      expect(steps, id).toBeDefined();
+      // Deux clics de rôles différents ne peuvent pas partager une phrase.
+      const prompts = new Set(steps!.map(({ prompt }) => prompt));
+      expect(prompts.size, id).toBe(steps!.length);
+    }
+  });
+
+  it('demande au clic qui vise un objet de dire lequel', () => {
+    // Un outil qui coupe un mur ne devrait pas pouvoir attraper la cotation
+    // qui passe par là. Le tracé de réseau fait exception : ce qu'un tronçon
+    // relie est un nœud ou un équipement, et le nœud n'est pas une famille
+    // que le registre d'objets nomme à part.
+    for (const tool of EDITOR_TOOLS) {
+      if (tool.id === 'NETWORK_ROUTE') continue;
+      for (const step of interactionOf(tool.id) ?? []) {
+        if (step.kind !== 'PICK') continue;
+        expect(step.accepts, `${tool.id} · ${step.prompt}`).toBeDefined();
+      }
+    }
+  });
+
+  it('répète la dernière étape au-delà de ce qu’un tracé ouvert exige', () => {
+    const last = interactionOf('SITE')!.slice(-1)[0]!;
+    expect(interactionStepAt('SITE', 12)).toBe(last);
+    // Un outil qui ne déclare rien ne répond rien, et le repli s'applique.
+    expect(interactionStepAt('SELECT', 0)).toBeUndefined();
   });
 });

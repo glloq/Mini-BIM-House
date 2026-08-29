@@ -97,10 +97,21 @@ export function EntryButton({
         </span>
       )}
       {requirement !== undefined && (
-        // Hors du nom accessible : « Porte » doit rester « Porte » pour qui
-        // la cherche. La raison passe par `aria-description`, juste au-dessus.
+        /*
+         * Hors du nom accessible : « Porte » doit rester « Porte » pour qui la
+         * cherche. La raison passe par `aria-description`, juste au-dessus.
+         *
+         * Et la tuile dit ce que le clic va faire, parce qu'il ne fait pas ce
+         * que son nom annonce. Cliquer « Porte » sans mur prend l'outil Mur :
+         * c'est le bon geste — on ne laisse personne devant un cul-de-sac —
+         * mais le lire seulement dans l'infobulle en fait une surprise. Le
+         * même nombre de gestes, et plus d'ambiguïté.
+         */
         <span className="entry-reason" aria-hidden="true">
           {requirement.reason}
+          {unblock !== undefined &&
+            ` Cliquez pour prendre « ${unblock.label} ».`}
+          {elsewhere !== undefined && ' Cliquez pour y aller.'}
         </span>
       )}
     </button>

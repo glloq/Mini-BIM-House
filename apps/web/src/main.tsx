@@ -2441,6 +2441,19 @@ function App() {
     );
   }, [currentRun, overlayId]);
 
+  /**
+   * La fiche que l'outil composant tient, pour que le plan la dessine avant le
+   * clic.
+   *
+   * Même trajet que l'épaisseur du mur juste en dessous : la coque résout
+   * l'option, le plan reçoit la valeur. Sans elle le plan ne sait pas ce qu'on
+   * s'apprête à poser, et l'aperçu n'a rien à montrer.
+   */
+  const componentDefinitionId = useMemo(
+    () => toolOption(file.project, 'COMPONENT', toolDrafts, 'definitionId'),
+    [file.project, toolDrafts, toolOption],
+  );
+
   const wallThicknessMm = useMemo(() => {
     // The preview is drawn with the thickness of the assembly the tool is set
     // to, which is one of its own options.
@@ -3051,6 +3064,9 @@ function App() {
                 selectableFamily={selectableFamily}
                 onEditGeometry={editGeometry}
                 wallThicknessMm={wallThicknessMm}
+                {...(componentDefinitionId === ''
+                  ? {}
+                  : { componentDefinitionId })}
                 {...(drawnOverlay === undefined
                   ? {}
                   : { overlay: drawnOverlay })}

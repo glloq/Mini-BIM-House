@@ -2478,17 +2478,17 @@ test('says what the active tool expects, and how to stop', async ({ page }) => {
   // cliquer une fois ou deux, ni comment on arrête un tracé qui ne s'arrête
   // pas tout seul. On le découvrait en se trompant.
   await chooseTool(page, 'Mur');
-  await expect(bar).toContainText('Cliquez le premier point.');
+  await expect(bar).toContainText('Cliquez le début du mur.');
   await expect(bar).not.toContainText('Échap');
 
   const canvas = page.locator('.plan-canvas');
   const frame = (await canvas.boundingBox())!;
   await canvas.click({ position: { x: 60, y: frame.height - 40 } });
-  await expect(bar).toContainText('Cliquez le second point.');
+  await expect(bar).toContainText('Cliquez son extrémité.');
   // Et une issue apparaît dès qu'il y a quelque chose à abandonner.
   await expect(bar).toContainText('Échap');
   await bar.getByRole('button', { name: 'Annuler le tracé' }).click();
-  await expect(bar).toContainText('Cliquez le premier point.');
+  await expect(bar).toContainText('Cliquez le début du mur.');
 
   // Un tracé qui ne s'arrête pas tout seul dit comment on l'arrête.
   await chooseTool(page, 'Mur continu');

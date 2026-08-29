@@ -1198,6 +1198,17 @@ button.icon {
 .plan-canvas.tool-dimension {
   cursor: crosshair;
 }
+/*
+ * Poser un composant se vise comme on trace un mur.
+ *
+ * L'outil ne demande qu'un clic, mais ce clic décide d'un endroit au
+ * centimètre près — contre un mur, dans l'angle d'une pièce — et la flèche du
+ * système ne dit pas où elle pointe. Le fantôme montre l'emprise ; la croix
+ * montre le point. Les deux répondent à deux questions différentes.
+ */
+.plan-canvas.tool-component {
+  cursor: crosshair;
+}
 .plan-canvas-scene {
   position: absolute;
   pointer-events: none;

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { carriedGeometry } from './ghost-geometry.js';
+import {
+  carriedGeometry,
+  componentGhostOutline,
+  footprintLabel,
+} from './ghost-geometry.js';
 
 const delta = { x: 100, y: -50 };
 
@@ -75,5 +79,65 @@ describe('the shape a dragged object would have once dropped', () => {
     );
     if (dot.kind !== 'POINT') return;
     expect(dot.point).toEqual({ x: 101, y: -48 });
+  });
+});
+
+describe('l’emprise que l’objet occupera, avant qu’on clique', () => {
+  it('fait la taille que la fiche déclare, et pas une taille de convention', () => {
+    // Un lit fait deux mètres sur un mètre quarante. Un carré de convention
+    // dirait « quelque chose est ici » et rien de ce qu'on cherche à savoir :
+    // est-ce que ça passe entre la porte et la fenêtre.
+    const outline = componentGhostOutline(
+      { x: 1000, y: 500 },
+      { widthMm: 2000, depthMm: 1400 },
+      0,
+    );
+    expect(outline).toBeDefined();
+    if (outline === undefined) return;
+    const xs = outline.outer.map(({ x }) => x);
+    const ys = outline.outer.map(({ y }) => y);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(2000, 6);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(1400, 6);
+    // Centrée sur le curseur : c'est le point qu'on regarde en visant.
+    expect((Math.max(...xs) + Math.min(...xs)) / 2).toBeCloseTo(1000, 6);
+    expect((Math.max(...ys) + Math.min(...ys)) / 2).toBeCloseTo(500, 6);
+  });
+
+  it('couche sa largeur le long du mur quand un mur l’oriente', () => {
+    // Un radiateur contre un mur vertical le longe : c'est sa largeur qui
+    // court le long du mur, et sa profondeur qui s'en écarte. L'inverse le
+    // ferait traverser la cloison.
+    const outline = componentGhostOutline(
+      { x: 0, y: 0 },
+      { widthMm: 1000, depthMm: 100 },
+      90,
+    );
+    if (outline === undefined) throw new Error('une emprise était attendue');
+    const xs = outline.outer.map(({ x }) => x);
+    const ys = outline.outer.map(({ y }) => y);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(1000, 6);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(100, 6);
+  });
+
+  it('ne dessine rien plutôt que d’inventer une dimension manquante', () => {
+    // Compléter la profondeur par la largeur donnerait un chiffre que le
+    // projet ne soutient pas — et un fantôme qu'on aurait cru.
+    for (const dimensions of [
+      undefined,
+      {},
+      { widthMm: 600 },
+      { depthMm: 600 },
+      { widthMm: 600, depthMm: 0 },
+      { widthMm: -600, depthMm: 600 },
+      { widthMm: Number.NaN, depthMm: 600 },
+    ])
+      expect(
+        componentGhostOutline({ x: 0, y: 0 }, dimensions, 0),
+      ).toBeUndefined();
+  });
+
+  it('écrit la taille comme le reste du dessin l’écrit', () => {
+    expect(footprintLabel(2000, 1400)).toBe('2.00 × 1.40 m');
+    expect(footprintLabel(80, 40)).toBe('0.08 × 0.04 m');
   });
 });
