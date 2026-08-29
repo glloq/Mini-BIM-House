@@ -314,8 +314,16 @@ export const BUDGETS = {
    * sont les nombres qu'on tape pendant qu'on vise, donc du dessin, donc du
    * premier clic. Les déclarations qui vont avec sont dans le registre des
    * outils, qui est chargé avec la boîte. Le plafond passe à 263.
+   *
+   * Et un pour deux modules qui sont du dessin, donc du premier clic. Le
+   * rangement d'une sélection d'abord — aligner sur un bord ou sur un centre,
+   * répartir régulièrement — qui remplace des dizaines de déplacements à la
+   * souris, dont la trame de cent millimètres ne rattrapait de toute façon
+   * pas l'erreur. La pose des étiquettes ensuite : le point le plus au large
+   * d'un contour, qui est la seule façon d'écrire le nom d'une pièce en L
+   * dans la pièce et non chez la voisine. Le plafond passe à 264.
    */
-  initialGzipBytes: 263 * 1024,
+  initialGzipBytes: 264 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -562,8 +570,12 @@ export const BUDGETS = {
    * dessin que le plan prendra, résolu par la même chaîne. Cinq cent dix-huit
    * noms se ressemblent ; cinq cent dix-huit dessins non. Le total passe à
    * 508.
+   *
+   * Et un pour le rangement d'une sélection et la pose des étiquettes : le
+   * détail est au-dessus, au premier écran, où ils vivent tous les deux. Le
+   * total passe à 510.
    */
-  totalGzipBytes: 508 * 1024,
+  totalGzipBytes: 510 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

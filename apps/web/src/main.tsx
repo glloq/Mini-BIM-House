@@ -239,7 +239,6 @@ import {
   type ToolboxEntry,
 } from './editor/toolbox.js';
 import {
-  alignObjectsCommand,
   EMPTY_CLIPBOARD,
   clipboardCount,
   copyObjects,
@@ -247,7 +246,6 @@ import {
   deleteObjectsCommand,
   duplicateObjectsCommand,
   pasteClipboardCommand,
-  type AlignEdge,
   type PlanClipboard,
   geometryEditCommand,
   moveObjectsCommand,
@@ -1115,24 +1113,6 @@ function App() {
     [activeLevelId],
   );
 
-  /** Lines the selection up on one edge of its own outline. */
-  const alignSelection = useCallback(
-    (edge: AlignEdge) => {
-      const result = alignObjectsCommand(
-        session.current.file,
-        activeLevelId,
-        editor.selection,
-        edge,
-      );
-      if (result.status === 'ERROR') {
-        setMessage(result.message);
-        return;
-      }
-      runCommand(result.command);
-    },
-    [activeLevelId, editor.selection, runCommand],
-  );
-
   /**
    * Turns or reflects the selection about its own centre.
    *
@@ -1275,7 +1255,6 @@ function App() {
   const selectionActions = useMemo<ObjectActionHost>(
     () => ({
       transform: transformSelection,
-      align: alignSelection,
       duplicate: duplicateSelection,
       remove: deleteSelection,
       frame: frameObject,
@@ -1286,7 +1265,6 @@ function App() {
       },
     }),
     [
-      alignSelection,
       deleteSelection,
       duplicateSelection,
       frameObject,

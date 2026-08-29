@@ -45,14 +45,30 @@
  * penser déclare `writes` parce que le type l'y oblige.
  */
 import type { Project } from '@house-technical-designer/core-domain';
-import type { ProjectCommand } from '@house-technical-designer/editor-core';
-
-import type { AlignEdge } from './editing-commands.js';
 import {
+  ProjectTransactionCommand,
+  type ProjectCommand,
+} from '@house-technical-designer/editor-core';
+
+import {
+  ALIGN_INTENT_HINTS,
+  ALIGN_INTENT_LABELS,
+  DISTRIBUTE_HINTS,
+  DISTRIBUTE_LABELS,
+  alignDeltas,
+  distributeDeltas,
+  type AlignIntent,
+  type ArrangedObject,
+  type ArrangementOutcome,
+  type DistributeAxis,
+} from './arrangement.js';
+import {
+  boundsOf,
   contextActionsFor,
   inspectObject,
   selectionCapabilities,
   similarTo,
+  transformCommandsFor,
   type ObjectKind,
 } from './object-editors.js';
 import { straightWallOf } from './object-facts.js';
@@ -73,8 +89,6 @@ import { toolDefinition, type EditorTool } from './tool-registry.js';
 export interface ObjectActionHost {
   /** Pivoter d'un quart de tour ou retourner, autour du centre de la sélection. */
   readonly transform: (kind: 'ROTATE' | 'MIRROR') => void;
-  /** Aligner la sélection sur un bord de son propre contour. */
-  readonly align: (edge: AlignEdge) => void;
   /** Copier la sélection un peu à côté, et désigner les copies. */
   readonly duplicate: () => void;
   /** Retirer la sélection du projet. */
@@ -146,6 +160,24 @@ export interface ObjectAction {
   readonly appliesTo: (context: ObjectActionContext) => boolean;
   /** Si elle aboutirait maintenant, sur cette sélection-là. */
   readonly enabled: (context: ObjectActionContext) => boolean;
+  /**
+   * Pourquoi elle n'aboutirait pas, quand elle n'aboutit pas.
+   *
+   * L'en-tête dit qu'un bouton visiblement indisponible se lit comme une
+   * propriété de l'objet — mais seulement si l'objet dit laquelle. « Répartir »
+   * gris sur trois objets peut vouloir dire trois choses différentes : ils sont
+   * déjà répartis, ils sont tous à la même abscisse, ou l'un d'eux est une
+   * pièce qui ne se déplace pas. Un bouton gris qui ne dit pas laquelle des
+   * trois se lit comme une panne, ce que ce dépôt refuse.
+   *
+   * Facultatif, et non pas obligatoire : les gestes qui existaient avant ce
+   * champ restent gris sans motif jusqu'à ce que chacun dise le sien, et un
+   * champ obligatoire aurait fait inventer huit phrases d'un coup, dont sept
+   * approximatives. Rendu `undefined` quand l'action aboutit.
+   */
+  readonly unavailableReason?: (
+    context: ObjectActionContext,
+  ) => string | undefined;
   readonly run: (context: ObjectActionContext) => void;
 }
 
@@ -207,20 +239,205 @@ function toolAction(
 }
 
 /**
- * Les alignements, un par bord.
+ * Mettre plusieurs objets d'équerre les uns par rapport aux autres.
  *
- * Ils restent ensemble et restent en `ADVANCED`. Quatre boutons qui ne
- * diffèrent que par un bord sont un seul geste à quatre issues : les faire
- * concourir un par un avec « Pivoter » ferait remonter « Aligner à gauche »
- * tout seul, et un alignement sur quatre affiché est pire que quatre repliés.
- * Derrière le « … », ils sont quatre et ils se lisent.
+ * Le calcul est ailleurs — `arrangement.ts` ne connaît que des boîtes et des
+ * écarts, et se vérifie au millimètre sans projet ni React. Ce qui suit est le
+ * seul chemin entre ce calcul et le projet : lire les emprises que les
+ * familles déclarent, demander aux familles de porter chaque écart, et n'en
+ * faire qu'une entrée d'historique.
+ *
+ * ## Pourquoi ce n'est pas `transformObjectsCommand`
+ *
+ * `moveObjectsCommand` et `transformObjectsCommand` déplacent **toute** la
+ * sélection du **même** écart, et c'est précisément ce qu'un rangement ne fait
+ * pas : aligner six chaises, c'est six écarts différents. Ce qui est réutilisé
+ * ici est donc l'étage d'en dessous — `transformCommandsFor`, où chaque
+ * famille dit comment elle suit une translation, avec ses ouvertures portées
+ * et ses azimuts corrigés — et non l'étage d'au-dessus, qui suppose un écart
+ * unique. Rien du déplacement n'est réécrit ; seule la boucle change.
+ *
+ * ## Une seule entrée d'historique
+ *
+ * Les commandes de toutes les familles sont réunies dans une seule
+ * `ProjectTransactionCommand`. Annuler l'alignement de six chaises est un
+ * `Ctrl+Z`, pas six : l'historique doit dire ce que l'utilisateur a demandé,
+ * pas comment ça s'est trouvé exécuté. C'est déjà la règle que l'alignement
+ * d'`editing-commands.ts` suit, et il n'y a aucune raison qu'un centrage ou
+ * une répartition la suive moins bien.
  */
-const ALIGNMENTS: readonly (readonly [AlignEdge, string])[] = [
-  ['LEFT', 'Aligner à gauche'],
-  ['RIGHT', 'Aligner à droite'],
-  ['TOP', 'Aligner en haut'],
-  ['BOTTOM', 'Aligner en bas'],
+
+/** Ce qu'on demande à une sélection de devenir. */
+export type ArrangementIntent =
+  | { readonly kind: 'ALIGN'; readonly intent: AlignIntent }
+  | { readonly kind: 'DISTRIBUTE'; readonly axis: DistributeAxis };
+
+/** La sélection, avec l'emprise que chaque famille donne à ses objets. */
+function arrangedSelection(
+  context: ObjectActionContext,
+): readonly ArrangedObject[] {
+  const { project, levelId, selection } = context;
+  if (levelId === undefined) return [];
+  return selection.flatMap((objectId) => {
+    const bounds = boundsOf(project, levelId, objectId);
+    // Une famille qui ne mesure pas ses objets ne les range pas. Toutes les
+    // familles que la maison de référence porte déclarent une emprise — les
+    // cent quarante objets de son plan se mesurent — sauf la cote, qui n'en
+    // déclare pas et qui suit de toute façon ce qu'elle mesure.
+    return bounds === undefined ? [] : [{ objectId, bounds }];
+  });
+}
+
+/** Les écarts que cette intention demande, ou le refus qui les remplace. */
+function arrangementOutcome(
+  context: ObjectActionContext,
+  intent: ArrangementIntent,
+): ArrangementOutcome {
+  const objects = arrangedSelection(context);
+  return intent.kind === 'ALIGN'
+    ? alignDeltas(objects, intent.intent)
+    : distributeDeltas(objects, intent.axis);
+}
+
+/** Une action de rangement aboutie : sa commande, prête à être dispatchée. */
+export type ArrangementPlan =
+  | { readonly status: 'OK'; readonly command: ProjectCommand }
+  | { readonly status: 'REFUSED'; readonly message: string };
+
+/**
+ * Ce qu'un rangement ferait de cette sélection, sans encore rien faire.
+ *
+ * Une seule fonction pour les trois usages — « le bouton est-il actif », « que
+ * dit-il quand il ne l'est pas », « que fait-il quand on clique » — parce que
+ * trois fonctions séparées finissent par ne plus répondre la même chose, et
+ * qu'un bouton actif dont le clic ne fait rien est le défaut que ce dépôt
+ * appelle une panne.
+ */
+export function arrangementPlan(
+  context: ObjectActionContext,
+  intent: ArrangementIntent,
+  label: string,
+): ArrangementPlan {
+  const { project, levelId, selection } = context;
+  if (levelId === undefined)
+    return {
+      status: 'REFUSED',
+      message: 'Aucun niveau n’est regardé : un rangement se fait sur un plan.',
+    };
+  const outcome = arrangementOutcome(context, intent);
+  if (outcome.status === 'REFUSED') return outcome;
+  const travelling = new Set(selection);
+  const commands: ProjectCommand[] = [];
+  for (const [objectId, deltaMm] of outcome.deltas) {
+    const carried = transformCommandsFor(
+      project,
+      levelId,
+      objectId,
+      { kind: 'TRANSLATE', deltaMm },
+      travelling,
+    );
+    if (carried === undefined)
+      return {
+        status: 'REFUSED',
+        message: `Cet objet n’appartient pas au niveau regardé : ${objectId}.`,
+      };
+    // La famille refuse et dit pourquoi ; le refus remonte tel quel, parce
+    // que sa phrase vaut mieux que la nôtre.
+    if (carried.status === 'REFUSED') return carried;
+    commands.push(...carried.commands);
+  }
+  if (commands.length === 0)
+    return {
+      status: 'REFUSED',
+      message: 'Ces objets n’ont rien à parcourir : ils sont déjà rangés.',
+    };
+  return {
+    status: 'OK',
+    command: new ProjectTransactionCommand(
+      // L'identifiant nomme le geste et ce sur quoi il porte : deux
+      // alignements de suite sur deux sélections différentes sont deux
+      // entrées, et non deux fois la même à un rang près.
+      `arrange:${intent.kind === 'ALIGN' ? intent.intent : `DISTRIBUTE_${intent.axis}`}:${selection.join(',')}`,
+      label,
+      commands,
+    ),
+  };
+}
+
+/**
+ * Les rangements offerts, dans l'ordre où ils se lisent.
+ *
+ * Ils restent ensemble et restent en `ADVANCED`. Huit boutons qui ne diffèrent
+ * que par une direction sont un seul geste à huit issues : les faire concourir
+ * un par un avec « Pivoter » ferait remonter « Aligner à gauche » tout seul, et
+ * un alignement sur huit affiché est pire que huit repliés. Derrière le « … »,
+ * ils sont huit et ils se lisent — les six alignements d'abord, parce qu'on
+ * aligne dix fois pour une fois qu'on répartit.
+ *
+ * Les quatre premiers gardent l'identifiant `align.LEFT`… qu'ils avaient : ce
+ * sont les mêmes gestes, et changer leur nom aurait cassé ce qui les désigne
+ * ailleurs sans rien apporter à personne.
+ */
+const ARRANGEMENTS: readonly {
+  readonly id: string;
+  readonly label: string;
+  readonly hint: string;
+  /** Combien d'objets il faut pour que le geste veuille dire quelque chose. */
+  readonly needs: number;
+  readonly intent: ArrangementIntent;
+}[] = [
+  ...(
+    [
+      'LEFT',
+      'RIGHT',
+      'TOP',
+      'BOTTOM',
+      'CENTRE_X',
+      'CENTRE_Y',
+    ] as const satisfies readonly AlignIntent[]
+  ).map((intent) => ({
+    id: `align.${intent}`,
+    label: ALIGN_INTENT_LABELS[intent],
+    hint: ALIGN_INTENT_HINTS[intent],
+    // Aligner un objet sur lui-même n'aligne rien.
+    needs: 2,
+    intent: { kind: 'ALIGN', intent } as const,
+  })),
+  ...(['X', 'Y'] as const satisfies readonly DistributeAxis[]).map((axis) => ({
+    id: `distribute.${axis}`,
+    label: DISTRIBUTE_LABELS[axis],
+    hint: DISTRIBUTE_HINTS[axis],
+    // Entre deux objets il n'y a qu'un intervalle, et il est déjà régulier :
+    // le geste n'apparaît pas plutôt que d'apparaître gris pour toujours.
+    needs: 3,
+    intent: { kind: 'DISTRIBUTE', axis } as const,
+  })),
 ];
+
+/** Les actions de rangement, telles que le registre les porte. */
+const ARRANGEMENT_ACTIONS: readonly ObjectAction[] = ARRANGEMENTS.map(
+  ({ id, label, hint, needs, intent }): ObjectAction => ({
+    id,
+    label,
+    hint,
+    importance: 'ADVANCED',
+    writes: true,
+    appliesTo: (context) => context.selection.length >= needs,
+    enabled: (context) =>
+      arrangementPlan(context, intent, label).status === 'OK',
+    unavailableReason: (context) => {
+      const plan = arrangementPlan(context, intent, label);
+      return plan.status === 'REFUSED' ? plan.message : undefined;
+    },
+    run: (context) => {
+      const plan = arrangementPlan(context, intent, label);
+      // Le bouton est gris quand le plan refuse : on n'arrive ici qu'avec un
+      // plan qui aboutit. La garde est là pour que le raccourci clavier de
+      // demain, qui ne regarde aucun bouton, ne fasse pas pire.
+      if (plan.status === 'OK') context.host.runCommand(plan.command);
+    },
+  }),
+);
 
 /**
  * Les actions que l'éditeur connaît, dans l'ordre où elles se disputent la
@@ -334,19 +551,14 @@ export const OBJECT_ACTIONS: readonly ObjectAction[] = [
     enabled: () => true,
     run: (context) => context.host.remove(),
   },
-  ...ALIGNMENTS.map(([edge, label]): ObjectAction => ({
-    id: `align.${edge}`,
-    label,
-    hint: `${label} : sur le bord du contour de la sélection`,
-    importance: 'ADVANCED',
-    writes: true,
-    // Aligner un objet sur lui-même n'aligne rien. Le bouton gris d'hier
-    // promettait un geste qu'aucun clic sur cet objet ne rendait possible ;
-    // seule une autre sélection le rend possible, et alors il apparaît.
-    appliesTo: (context) => context.selection.length >= 2,
-    enabled: (context) => allows(context).movable,
-    run: (context) => context.host.align(edge),
-  })),
+  /*
+   * Aligner, centrer et répartir.
+   *
+   * Ils n'apparaissent qu'à partir de deux objets — trois pour répartir —,
+   * parce qu'un alignement sur soi-même n'aligne rien : le bouton gris d'hier
+   * promettait un geste qu'aucun clic sur cet objet ne rendait possible.
+   */
+  ...ARRANGEMENT_ACTIONS,
   {
     /*
      * Cadrer et désigner les semblables lisent le dessin sans y écrire : ce

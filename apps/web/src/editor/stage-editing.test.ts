@@ -48,7 +48,6 @@ import {
 /** Une coque qui ne fait rien : on compte ce qui est offert, pas ce qui suit. */
 const NOTHING: ObjectActionHost = {
   transform: () => {},
-  align: () => {},
   duplicate: () => {},
   remove: () => {},
   frame: () => {},
