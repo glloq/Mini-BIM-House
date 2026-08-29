@@ -63,17 +63,50 @@ describe('what the building drawn gives, in one page', () => {
      * comptait zéro écart, sur tous les projets, depuis toujours. Les tests
      * passaient parce qu'aucun n'exigeait qu'un écart apparaisse quelque part.
      *
-     * La maison de référence a une pièce sans émetteur et cinq raccords de
-     * ventilation indéterminés. Ce sont deux choses différentes, elles vont sur
-     * deux lignes différentes, et aucune des deux ne dit « ✓ ».
+     * La maison de référence a une pièce sans émetteur : un écart, sur la
+     * ligne du chauffage.
+     *
+     * Elle avait aussi cinq raccords de ventilation indéterminés — un
+     * indéterminé n'est pas un écart, et les deux vont sur deux lignes
+     * différentes. Ils ont disparu le jour où le réseau a déclaré ce que ses
+     * ports transportent : ils ne disaient pas « cette ventilation est
+     * douteuse », ils disaient « rien ici ne permet d'en juger ».
+     *
+     * Le test garde ses deux moitiés en se donnant un indéterminé plutôt qu'en
+     * renonçant à en vérifier un : on retire son genre à un seul port, et la
+     * ligne de la ventilation doit repasser d'elle-même à « pas vérifiable ».
      */
     const lines = await linesAfterCalculation();
     const byDomain = new Map(lines.map((line) => [line.domain, line]));
     expect(byDomain.get('HEATING')).toMatchObject({ state: 'GAP', gaps: 1 });
     expect(byDomain.get('VENTILATION')).toMatchObject({
-      state: 'UNVERIFIED',
-      unknowns: 5,
+      state: 'HELD',
+      unknowns: 0,
     });
+
+    const blinded = house();
+    const doubtful = await linesAfterCalculation({
+      ...blinded,
+      systems: (blinded.systems ?? []).map((system) =>
+        system.id !== 'ventilation'
+          ? system
+          : {
+              ...system,
+              ports: system.ports.map((port, index) =>
+                index === 0
+                  ? Object.fromEntries(
+                      Object.entries(port).filter(
+                        ([key]) => key !== 'portTypeId',
+                      ),
+                    )
+                  : port,
+              ) as typeof system.ports,
+            },
+      ),
+    });
+    expect(
+      new Map(doubtful.map((line) => [line.domain, line])).get('VENTILATION'),
+    ).toMatchObject({ state: 'UNVERIFIED' });
   });
 
   it('never says a trade is held while it is reporting about it', async () => {

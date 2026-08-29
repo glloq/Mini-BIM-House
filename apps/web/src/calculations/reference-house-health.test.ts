@@ -147,8 +147,7 @@ describe('les réseaux de la maison de référence', () => {
   };
 
   /*
-   * La ventilation reste à typer, et ce n'est pas un oubli : c'est un désaccord
-   * que le modèle n'a pas encore de mot pour dire.
+   * La ventilation est typée, et il a fallu trancher pour y arriver.
    *
    * Le graphe d'un réseau est ici l'**arbre de distribution depuis l'organe** —
    * le tableau vers les circuits, le caisson vers les bouches — et le module de
@@ -157,21 +156,27 @@ describe('les réseaux de la maison de référence', () => {
    * bouches. Les évacuations font exception parce que la gravité leur donne un
    * exutoire unique, et leur graphe suit donc l'écoulement.
    *
-   * Or `AIR_EXTRACT` est défini comme une entrée et `AIR_EXTRACT_OUTLET` comme
-   * une sortie : le vocabulaire suppose que le graphe suit l'air. Sur une
-   * extraction il va à contresens, et les typer selon la physique fait
-   * échouer la validation — « déclare AIR_EXTRACT, qui est IN, et dit OUT » —
-   * ce qui est le modèle qui a raison contre la tentative. Essayé, refusé,
-   * défait.
+   * Or `AIR_EXTRACT` est déclaré entrant et `AIR_EXTRACT_OUTLET` sortant. Les
+   * typer « selon la physique » — l'air part de la bouche et va au caisson —
+   * met le vocabulaire à contresens du graphe et fait échouer la validation :
+   * « déclare AIR_EXTRACT, qui est IN, et dit OUT ». Le modèle a raison contre
+   * la tentative.
    *
-   * Deux issues, et aucune n'est un détail : retourner le graphe de la
-   * ventilation, ce que le module lit ; ou donner au vocabulaire de quoi
-   * distinguer « du côté de l'organe » et « du côté du terminal » de ce que le
-   * fluide fait. La seconde vaut sans doute mieux, et elle se décide.
+   * Ce qui est retenu : les genres suivent le **graphe** et non le fluide.
+   * Un port sortant est du côté de l'organe, un port entrant du côté du
+   * terminal — ce que les deux noms disent déjà, à condition de les lire comme
+   * une place dans l'arbre plutôt que comme un sens de circulation. Les dix
+   * ports du réseau se raccordent, et la VMC se branche.
+   *
+   * La tension demeure et elle est écrite ici plutôt que dans un réseau muet :
+   * « entrant » et « sortant » nomment une place, pas une direction, et un
+   * vocabulaire qui distinguerait les deux serait mieux. Ce qui a changé est
+   * qu'un réseau sans genre de port était **inutilisable en silence** — rien
+   * ne pouvait s'y raccorder, et rien ne disait pourquoi.
    */
-  const NOT_YET_TYPED = new Set(['ventilation']);
+  const NOT_YET_TYPED = new Set<string>([]);
 
-  it.each(['water', 'wastewater', 'electrical'])(
+  it.each(['water', 'wastewater', 'ventilation', 'electrical'])(
     'dit ce que chaque port de %s transporte',
     (networkId) => {
       const network = (house().systems ?? []).find(
@@ -184,9 +189,9 @@ describe('les réseaux de la maison de référence', () => {
     },
   );
 
-  it('n’en laisse qu’un seul non typé, et il est nommé', () => {
-    // L'inverse : si la ventilation venait à être typée, cette liste devrait
-    // être vidée plutôt que de rester là à décrire un état révolu.
+  it('n’en laisse aucun sans genre de port', () => {
+    // La liste est vide, et le test reste : un réseau neuf qui arriverait sans
+    // genre de port serait de nouveau inutilisable en silence.
     const remaining = (house().systems ?? [])
       .filter(({ ports }) =>
         ports.some(({ portTypeId }) => portTypeId === undefined),
@@ -222,21 +227,20 @@ describe('l’écran des vérifications, sur la maison de référence', () => {
 
   it('ne laisse en suspens que ce qui est nommé', () => {
     /*
-     * Les cinq de ventilation ont leur raison écrite plus haut ; le jeu de
-     * règles absent est un choix de l'utilisateur — activer un texte
-     * réglementaire est une décision, et prétendre le contraire ferait dire à
-     * l'application qu'un projet est conforme à quelque chose que personne n'a
-     * choisi.
+     * Il n'en reste qu'un, et c'est un choix de l'utilisateur : activer un
+     * texte réglementaire est une décision, et prétendre le contraire ferait
+     * dire à l'application qu'un projet est conforme à quelque chose que
+     * personne n'a choisi.
+     *
+     * Les cinq raccordements de ventilation qui figuraient ici ont disparu
+     * parce que le réseau déclare enfin ce que ses ports transportent. Ils
+     * n'étaient pas « en attente d'une étude » : rien ne pouvait dire s'ils
+     * tenaient, faute de vocabulaire.
      */
     const pending = checks
       .filter(({ status }) => status === 'UNKNOWN')
       .map(({ id }) => id);
-    expect(
-      pending.filter((id) => !id.startsWith('network:ventilation:')),
-    ).toEqual(['rule-pack:none']);
-    expect(
-      pending.filter((id) => id.startsWith('network:ventilation:')),
-    ).toHaveLength(5);
+    expect(pending).toEqual(['rule-pack:none']);
   });
 
   it('ne fait se rentrer dedans aucun objet', () => {

@@ -272,6 +272,75 @@ export function declaredConnections(
 }
 
 /**
+ * Où l'appareil offre ce raccordement-là, sur le plan.
+ *
+ * La fiche donne un décalage depuis le repère de l'appareil — un lavabo évacue
+ * 400 mm sous son centre, un radiateur part et revient à 480 mm de part et
+ * d'autre du sien — et ce décalage est celui du **modèle**, le même pour les
+ * huit exemplaires posés. Il ne peut donc pas savoir comment celui-ci est
+ * tourné : `rotationDeg` lui est appliqué ici.
+ *
+ * La rotation est appliquée, et c'est un choix. Un radiateur retourné contre le
+ * mur d'en face a bien son départ à gauche et non plus à droite, et 960 mm
+ * séparent les deux hypothèses — soit, sur une évacuation, deux coudes et un
+ * mètre de tuyau qui n'existe pas. Elle tourne autour de la verticale, comme
+ * partout ailleurs dans ce dépôt (`componentGhostOutline` écrit la même
+ * matrice) : la hauteur du raccordement, elle, ne dépend pas de l'orientation.
+ *
+ * Le résultat est arrondi au millimètre parce que les cotes de ce modèle sont
+ * des millimètres entiers : un demi-tour exact vaut cos = −1 et sin = 1,2·10⁻¹⁶,
+ * et ce sinus-là s'écrirait tel quel dans le fichier du projet.
+ */
+function portPlace(placed: ResolvedPlacedEquipment, portId: string): Point3D {
+  const offset = placed.ports.find(({ id }) => id === portId)?.position;
+  // Une fiche qui ne situe pas son raccordement ne se voit pas inventer un
+  // décalage : l'appareil se raccorde alors là où il se tient, ce qui est
+  // exactement ce que le geste faisait pour tout le monde.
+  if (offset === undefined) return placed.position;
+  const radians = (placed.rotationDeg * Math.PI) / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  return {
+    x: Math.round(placed.position.x + offset.x * cos - offset.y * sin),
+    y: Math.round(placed.position.y + offset.x * sin + offset.y * cos),
+    z: Math.round(placed.position.z + offset.z),
+  };
+}
+
+/**
+ * Où le nœud de l'appareil se pose sur ce réseau-là.
+ *
+ * Un nœud porte une position et une seule, et il représente l'appareil sur
+ * **un** réseau : c'est donc là où se trouvent les raccordements que ce
+ * réseau-là dessert. Quand il n'y en a qu'un — une évacuation, une arrivée
+ * d'eau, un fil d'alimentation, c'est le cas courant — le nœud se pose
+ * exactement sur ce raccordement. Quand il y en a deux — l'arrivée et le départ
+ * d'un tableau, le départ et le retour d'un radiateur — il se pose entre les
+ * deux, ce qui redonne le centre de l'appareil quand ils sont symétriques,
+ * comme ils le sont sur toutes les fiches de ce catalogue.
+ *
+ * Un nœud par raccordement aurait dit la vérité de plus près et aurait fait
+ * deux nœuds pour un radiateur, que rien ne saurait ensuite recoller en un
+ * appareil ; `componentId` ne nomme qu'un objet par nœud.
+ */
+function nodePlace(
+  placed: ResolvedPlacedEquipment,
+  connections: readonly DeclaredConnection[],
+): Point3D {
+  const places = connections.map(({ portId }) => portPlace(placed, portId));
+  if (places.length === 0) return placed.position;
+  const mean = (of: (place: Point3D) => number): number =>
+    Math.round(
+      places.reduce((total, place) => total + of(place), 0) / places.length,
+    );
+  return {
+    x: mean(({ x }) => x),
+    y: mean(({ y }) => y),
+    z: mean(({ z }) => z),
+  };
+}
+
+/**
  * Le port tel que le réseau le porterait, pour pouvoir le juger avant de le
  * créer.
  *
@@ -325,12 +394,31 @@ function fittingTemplate(network: TechnicalNetwork, node: NetworkNode) {
  * Le genre du port qu'un nœud gagnerait de ce côté-là.
  *
  * Repris de ce que le nœud porte **déjà** dans ce sens, et seulement à défaut
- * du gabarit de la discipline. C'est l'idiome de `branchCommand` — « les deux
- * ports du tronçon reprennent ceux qu'ils remplacent » — et la raison en est la
- * même : le regard de la maison de référence reçoit en `WASTEWATER_COMBINED_INLET`,
- * que `systemPortType` ne sait pas produire pour un réseau unitaire ; en
- * partant du gabarit, l'évacuation du WC — des eaux-vannes — était refusée par
- * le regard qui la reçoit pourtant déjà.
+ * du gabarit de la discipline. Ce n'était au départ qu'un contournement : la
+ * table des genres donnait des eaux usées **séparées** à un réseau unitaire, si
+ * bien que l'évacuation du WC — des eaux-vannes — était refusée par le regard
+ * qui la reçoit pourtant déjà. Cette table dit maintenant ce qu'un réseau
+ * unitaire porte, et les deux sources tombent d'accord sur ce regard-là.
+ *
+ * L'ordre reste celui-ci, et pour une meilleure raison que celle qui l'avait
+ * fait écrire. La table dit ce que l'application **crée** par défaut pour un
+ * type de système ; les ports d'un nœud disent ce que ce projet-ci a décidé.
+ * Ce ne sont pas les mêmes autorités, et quand elles diffèrent c'est le projet
+ * qui a raison :
+ *
+ * - un réseau unitaire dont la colonne reste séparative jusqu'au regard est un
+ *   dessin courant, et c'est exactement ce que porte la maison de référence,
+ *   dont les trois nœuds de colonne reçoivent des eaux usées et non de
+ *   l'unitaire. En leur imposant le genre du système, on redéclarerait en
+ *   silence le réseau de quelqu'un ;
+ * - quatre lignes de la table nomment encore les deux faces d'un **appareil**
+ *   plutôt que ce qu'un réseau transporte — `EXTRACT` en tête, dont la sortie
+ *   est le rejet extérieur d'une VMC et non l'air que la gaine emporte. Sur le
+ *   réseau de ventilation de cette maison, la table propose donc un genre qui
+ *   ne se raccorde à aucune bouche ; ce que le nœud porte, si.
+ *
+ * Le gabarit reste le recours quand le nœud ne dit rien de ce côté-là : un nœud
+ * qui n'a encore aucun port dans ce sens n'a rien à recopier.
  */
 function slotPortType(
   network: TechnicalNetwork,
@@ -358,6 +446,40 @@ function candidatePort(
   return { id, nodeId, portTypeId, role: kind.service, direction };
 }
 
+/**
+ * Un réseau qui s'écoule par gravité, où la hauteur décide de tout.
+ *
+ * Deux disciplines, et c'est la discipline qui le dit : ce qui coule dans une
+ * évacuation ou une descente d'eaux pluviales n'est poussé par rien.
+ */
+function gravityFed(network: TechnicalNetwork): boolean {
+  return (
+    network.discipline === 'WASTEWATER' || network.discipline === 'RAINWATER'
+  );
+}
+
+/**
+ * La pente que ce projet demande à ses évacuations, en fraction.
+ *
+ * Aucun chiffre écrit ici : c'est `minimumSlope`, le réglage que le module de
+ * calcul d'eaux usées porte déjà dans le projet — 0,01 sur la maison de
+ * référence, soit un centimètre par mètre — et celui-là même dont ce module de
+ * calcul se sert pour signaler les tronçons trop plats. Une seconde valeur
+ * proposerait des tracés que la note de calcul refuserait ensuite.
+ *
+ * Zéro quand le projet ne le dit pas : on ne se donne alors aucune marge, ce
+ * qui revient à ne proposer sur une colonne que ce qui descend franchement.
+ */
+function minimumDrainSlope(project: Project): number {
+  const declared =
+    project.calculationSettings?.['wastewater']?.settings['minimumSlope'];
+  return typeof declared === 'number' &&
+    Number.isFinite(declared) &&
+    declared > 0
+    ? declared
+    : 0;
+}
+
 /** Les trois façons de rejoindre un réseau, une fois choisie la plus proche. */
 type Attachment =
   | {
@@ -377,6 +499,8 @@ type Attachment =
       readonly at: Point3D;
       readonly arrival: string;
       readonly edgeId: string;
+      /** De quel côté le piquage neuf regarde, ce que `branchCommand` demande. */
+      readonly facing: 'IN' | 'OUT';
     };
 
 /**
@@ -389,6 +513,23 @@ type Attachment =
  */
 function reach(from: Point3D, to: Point3D): number {
   return Math.abs(to.x - from.x) + Math.abs(to.y - from.y);
+}
+
+/**
+ * La longueur développée que le tracé fera jusque-là, montée comprise.
+ *
+ * C'est sur elle que les points d'accroche se classent, et non sur la seule
+ * distance en plan. `routeThrough` ajoute une jambe verticale dès que les deux
+ * bouts ne sont pas à la même hauteur : classer sans elle, c'est appeler
+ * « le plus proche » un circuit du premier étage 23 mm plus près en plan et
+ * 3,6 m plus haut — ce qui est arrivé au ballon d'eau chaude, dont le câble
+ * proposé mesurait alors 10,0 m au lieu de 7,5 m.
+ *
+ * La distance en plan garde son emploi ailleurs : une pente se compte sur le
+ * parcours horizontal, et une jambe verticale n'a pas de pente.
+ */
+function span(from: Point3D, to: Point3D): number {
+  return reach(from, to) + Math.abs(to.z - from.z);
 }
 
 /**
@@ -438,12 +579,34 @@ function attachments(
    * un réseau à rejoindre.
    */
   ours: ReadonlySet<string> = new Set(),
+  /*
+   * La pente que ce réseau doit tenir, quand il s'écoule par gravité.
+   *
+   * `undefined` pour un réseau sous pression, où la hauteur du point d'accroche
+   * ne décide de rien. Pour une évacuation elle décide de tout : un point
+   * d'accroche plus haut que l'appareil n'en est pas un, et sur une colonne —
+   * verticale, donc libre en hauteur — c'est elle qui dit à quelle hauteur se
+   * piquer.
+   */
+  fall: number | undefined = undefined,
 ): readonly Attachment[] {
   const found: {
     readonly attachment: Attachment;
     readonly at: number;
     readonly key: string;
+    /*
+     * Vrai quand rien ne s'écoulerait vers ce point-là.
+     *
+     * Il reste candidat, et il passe seulement après tous les autres : c'est ce
+     * qui permet au refus « rien ne s'écoule vers le haut » de continuer à se
+     * dire quand **aucun** point d'accroche ne descend, plutôt que de devenir un
+     * « plus rien n'accepte ce raccordement » qui ne nomme pas la cause.
+     */
+    readonly uphill: boolean;
   }[] = [];
+  // Un réseau sous pression n'a pas de haut ni de bas : tout y est « en
+  // descente », c'est-à-dire que la hauteur ne classe rien.
+  const uphill = (at: Point3D): boolean => fall !== undefined && at.z >= from.z;
   const nodeAt = (nodeId: string) =>
     network.nodes.find(({ id }) => id === nodeId);
   const isOurs = (nodeId: string | undefined) =>
@@ -463,8 +626,9 @@ function attachments(
         portId: port.id,
         arrival: `le raccordement libre de ${nodeName(network, node)}`,
       },
-      at: reach(from, node.position),
+      at: span(from, node.position),
       key: port.id,
+      uphill: uphill(node.position),
     });
   }
 
@@ -493,32 +657,64 @@ function attachments(
           arrival: nodeName(network, node),
           port,
         },
-        at: reach(from, node.position),
+        at: span(from, node.position),
         key: port.id,
+        uphill: uphill(node.position),
       });
     }
   }
 
   /*
-   * La dérivation d'un tronçon n'existe que dans un sens.
+   * De quel côté le piquage de la dérivation regarde.
    *
-   * `branchCommand` pose la pièce de dérivation de la discipline et lui laisse
-   * un piquage **sortant** : c'est ce qu'il faut pour alimenter un appareil, et
-   * jamais pour recevoir ce qu'il évacue. Une évacuation gravitaire ne se
-   * dérive donc pas ici — elle rejoint le regard, qui la reçoit. Rendre le sens
-   * du piquage réglable est une modification de `network-model.ts`, hors de ce
-   * module ; en attendant, on ne propose que ce que la commande sait faire.
+   * `branchCommand` ne savait poser qu'un piquage **sortant** — ce qu'il faut
+   * pour alimenter un appareil, et jamais pour recevoir ce qu'il évacue. Les
+   * huit évacuations que ce module proposait allaient donc toutes au regard,
+   * colonne de chute ou pas : la seule autre façon de rejoindre un réseau leur
+   * était fermée. La commande demande maintenant son sens, et on le lui donne.
+   *
+   * Le piquage regarde à l'inverse du raccordement de l'appareil : ce qui
+   * évacue veut une arrivée, ce qui consomme veut un départ. Quand le
+   * raccordement de l'appareil ne tranche pas — une eau froide et un courant
+   * alternatif sont bidirectionnels, le registre le dit —, on reste sur le
+   * départ, qui est ce que le réseau distribue et ce que ce module faisait.
    */
-  const spareTypeId = systemPortType(network.systemType, 'OUT');
+  const facing: 'IN' | 'OUT' = mine.direction === 'OUT' ? 'IN' : 'OUT';
+  const spareTypeId = systemPortType(network.systemType, facing);
   const spare =
     spareTypeId === undefined
       ? undefined
-      : candidatePort('piquage', 'dérivation', spareTypeId, 'OUT');
+      : candidatePort('piquage', 'dérivation', spareTypeId, facing);
   if (spare !== undefined && portsConnectable(mine, spare))
     for (const edge of network.edges) {
       if (isOurs(portNode(edge.fromPortId)) || isOurs(portNode(edge.toPortId)))
         continue;
-      const at = nearestPointOnRoute(edge.path, from);
+      /*
+       * Où se piquer, et à quelle hauteur quand le tronçon en laisse le choix.
+       *
+       * En plan, l'endroit est celui du point le plus proche, comme toujours.
+       * Un tronçon qui **monte tout droit** — une colonne de chute, une
+       * descente d'eaux pluviales — est un point en plan : sa hauteur est alors
+       * libre, et `nearestPointOnRoute` répondait l'extrémité par laquelle le
+       * tracé a été saisi, c'est-à-dire la tête de colonne pour qui vise le
+       * rez-de-chaussée.
+       *
+       * On lui demande donc la hauteur qu'il faut : celle de l'appareil, moins
+       * ce que la pente coûte sur la distance en plan qui les sépare. Le `floor`
+       * arrondit vers le bas, du côté où la pente obtenue est au moins celle
+       * qu'on demande. Sur un tronçon horizontal la hauteur est imposée par le
+       * tracé et cette demande ne change rien.
+       */
+      const inPlan = nearestPointOnRoute(edge.path, from);
+      if (inPlan === undefined) continue;
+      const at =
+        fall === undefined
+          ? inPlan
+          : nearestPointOnRoute(
+              edge.path,
+              from,
+              Math.floor(from.z - reach(from, inPlan) * fall),
+            );
       if (at === undefined) continue;
       /*
        * Se dériver sur l'extrémité d'un tronçon, c'est ne pas s'y dériver.
@@ -537,18 +733,21 @@ function attachments(
           at,
           arrival: `le tronçon « ${edge.id} »`,
           edgeId: edge.id,
+          facing,
         },
-        at: reach(from, at),
+        at: span(from, at),
         key: edge.id,
+        uphill: uphill(at),
       });
     }
 
   return found
-    .sort((first, second) =>
-      first.at === second.at
+    .sort((first, second) => {
+      if (first.uphill !== second.uphill) return first.uphill ? 1 : -1;
+      return first.at === second.at
         ? first.key.localeCompare(second.key)
-        : first.at - second.at,
-    )
+        : first.at - second.at;
+    })
     .map(({ attachment }) => attachment);
 }
 
@@ -596,7 +795,16 @@ export function connectableNetworks(
       // La position ne joue aucun rôle ici : on demande s'il **existe** un
       // point d'accroche, pas lequel. Le tri par distance est l'affaire de la
       // proposition, qui sait d'où l'on part.
-      if (attachments(network, mine, placed.position).length === 0) continue;
+      if (
+        attachments(
+          network,
+          mine,
+          placed.position,
+          new Set<string>(),
+          gravityFed(network) ? minimumDrainSlope(project) : undefined,
+        ).length === 0
+      )
+        continue;
       placedSomewhere = true;
       const held = served.get(network.id);
       if (held === undefined) served.set(network.id, [connection]);
@@ -707,15 +915,16 @@ function templateForObject(
  *
  * ## Où le nœud se pose
  *
- * Là où l'appareil se tient : `ResolvedPlacedEquipment.position`, qui est déjà
- * absolue — la hauteur y est comptée depuis le sol du projet et non depuis le
- * plancher de l'étage, ce qui est exactement ce qu'il faut pour comparer deux
- * niveaux. Les décalages que la fiche donne à chacun de ses ports ne sont pas
- * reportés, pour deux raisons : `ResolvedPlacedEquipment` n'expose d'un port
- * que son identifiant et son genre, et un nœud par port ferait deux nœuds pour
- * un appareil dont deux raccordements tombent sur le même réseau — un
- * radiateur, son départ et son retour. Sur la maison de référence ces
- * décalages valent au plus 400 mm en plan, et sont nuls pour la plupart.
+ * Là où sont les raccordements que ce réseau dessert — `nodePlace` —, et non au
+ * centre de l'appareil. La position de l'appareil est absolue (la hauteur y est
+ * comptée depuis le sol du projet et non depuis le plancher de l'étage, ce
+ * qu'il faut pour comparer deux niveaux) ; ce que la fiche ajoute est le
+ * décalage de chaque port, que ce module ne pouvait pas lire.
+ *
+ * C'est la hauteur qui en dépendait. Un lavabo évacue 400 mm sous son centre :
+ * poser le nœud au centre, c'est faire tomber le tuyau de 400 mm de plus qu'il
+ * ne tombe, et les pentes proposées sur cette maison allaient de 12 à 35 % —
+ * un tuyau à la verticale — là où une évacuation se pose entre 1 et 3 %.
  *
  * Un nœud par appareil et par réseau, donc, et il porte `componentId` : c'est
  * la seule façon pour une note de calcul de savoir **lequel** des trois
@@ -766,7 +975,7 @@ export function connectionProposal(
       portTypeId,
     })),
   });
-  const position: Point3D = placed.position;
+  const position: Point3D = nodePlace(placed, connections);
   const node: NetworkNode = {
     id: nodeId,
     kind: templateForObject(network, placed, connections).kind,
@@ -795,6 +1004,10 @@ export function connectionProposal(
   const commands: ProjectCommand[] = [addNode];
   const runs: ProposedRun[] = [];
   const budgetMm = longestSensibleRunMm(project);
+  const gravity = gravityFed(network);
+  // La pente qu'une évacuation doit tenir, lue une fois : elle sert à choisir
+  // où se piquer sur une colonne, puis à juger ce qu'on a obtenu.
+  const drainSlope = gravity ? minimumDrainSlope(project) : undefined;
   // Ce que cette proposition a elle-même posé, et qui n'est donc pas un réseau
   // à rejoindre : le nœud de l'appareil, puis chaque pièce de dérivation.
   const ours = new Set<string>([nodeId]);
@@ -803,7 +1016,7 @@ export function connectionProposal(
   for (const connection of connections) {
     const current = findNetwork(projected, networkId)!;
     const mine = portOfObject(nodeId, connection);
-    const chosen = attachments(current, mine, position, ours)[0];
+    const chosen = attachments(current, mine, position, ours, drainSlope)[0];
     if (chosen === undefined)
       return refused(
         `Rien sur le réseau ${of(discipline)} n’accepte « ${connection.label} » : tous ses raccordements sont pris.`,
@@ -822,6 +1035,10 @@ export function connectionProposal(
         nodeId: fittingId,
         newId: (prefix) =>
           `${nodeId}:${connection.portId}-${prefix}-${(counter += 1)}`,
+        // Ce qui évacue se pique en arrivée, ce qui consomme en départ : le
+        // sens a été choisi en même temps que le point d'accroche, parce que
+        // c'est lui qui décide si ce tronçon-là est un candidat.
+        facing: chosen.facing,
       });
       if (branch.status === 'ERROR') return refused(branch.message);
       commands.push(branch.command);
@@ -883,8 +1100,6 @@ export function connectionProposal(
     );
     const runMm = reach(position, arrivalNode.position);
     const fallMm = position.z - arrivalNode.position.z;
-    const gravity =
-      network.discipline === 'WASTEWATER' || network.discipline === 'RAINWATER';
     if (gravity && runMm > 0 && fallMm <= 0)
       return refused(
         `Le raccordement ${of(discipline)} le plus proche est plus haut que ${placed.name ?? objectId} : rien ne s’écoule vers le haut.`,

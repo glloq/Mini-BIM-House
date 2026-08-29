@@ -156,6 +156,52 @@ describe('what actually stands in the building', () => {
     expect(placed?.issues.join(' ')).toContain('now holds 1.0.0');
   });
 
+  it('expose où chaque raccordement se trouve sur l’appareil', () => {
+    /*
+     * La fiche le dit — un radiateur part et revient à 480 mm de part et
+     * d'autre de son centre, 280 mm sous lui — et ce type ne l'exposait pas :
+     * un port n'y était qu'un identifiant et un genre. Tout ce qui lit un
+     * appareil posé plaçait donc ses raccordements au centre de l'appareil, et
+     * sur une évacuation, où la hauteur **est** le calcul, les pentes que
+     * « Raccorder au réseau » proposait allaient de 12 à 35 % au lieu de 1 à
+     * 3 %.
+     *
+     * Le décalage est rendu tel que la fiche l'écrit — dans le repère de
+     * l'appareil, avant rotation —, parce que c'est la fiche du modèle et
+     * qu'elle est la même pour les trois radiateurs identiques : elle ne peut
+     * pas savoir comment celui-ci est tourné. C'est à qui la lit d'appliquer
+     * `rotationDeg`, qui est rendu à côté.
+     */
+    const [placed] = placedEquipment(
+      project(
+        [
+          component('rad-1', {
+            definitionId: 'radiator-model',
+            rotationDeg: 90,
+          }),
+        ],
+        [
+          {
+            ...radiatorModel,
+            ports: [
+              {
+                id: 'flow',
+                portTypeId: 'HEATING_FLOW',
+                position: { x: -480, y: 0, z: -280 },
+              },
+              { id: 'return', portTypeId: 'HEATING_RETURN' },
+            ],
+          },
+        ],
+      ),
+    );
+    expect(placed?.ports[0]?.position).toEqual({ x: -480, y: 0, z: -280 });
+    // Non tourné : c'est le décalage de la fiche, pas celui du plan.
+    expect(placed?.rotationDeg).toBe(90);
+    // Une fiche qui ne situe pas un raccordement n'en gagne pas un inventé.
+    expect(placed?.ports[1]?.position).toBeUndefined();
+  });
+
   it('groups by the room each one stands in', () => {
     const placed = placedEquipment(
       project(

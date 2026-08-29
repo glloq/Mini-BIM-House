@@ -115,10 +115,22 @@ describe('ce qu’un écran dit, et dans quelle langue', () => {
     ).toEqual([]);
   });
 
-  it('en a assez à lire pour que le test veuille dire quelque chose', () => {
-    // Une règle qui ne voit rien passe toujours. Un projet neuf réclame des
-    // dizaines de données ; si ce compte s'effondrait, c'est la mesure qui
-    // serait cassée, pas l'interface qui serait devenue parfaite.
-    expect(projectChecks(house(), undefined).length).toBeGreaterThan(3);
+  it('en a assez à lire pour que le test veuille dire quelque chose', async () => {
+    /*
+     * Une règle qui ne voit rien passe toujours.
+     *
+     * La sentinelle comptait les constats de la maison de référence. Ceux-ci
+     * ne rapportent que les raccordements dont rien ne permet de juger, et il
+     * n'en reste aucun depuis que le réseau de ventilation déclare ce que ses
+     * ports transportent : le compte est tombé à un, et la sentinelle criait
+     * au vide alors que c'était elle qui regardait au mauvais endroit.
+     *
+     * Elle compte désormais ce que les huit autres tests lisent réellement :
+     * les données qu'un projet neuf réclame, quarante-six phrases. Si ce
+     * compte s'effondrait, ce serait la mesure qui serait cassée, pas
+     * l'interface qui serait devenue parfaite.
+     */
+    const run = await runProjectCalculations(blank(), demoClimateDatasets());
+    expect(run.missing.length).toBeGreaterThan(30);
   });
 });

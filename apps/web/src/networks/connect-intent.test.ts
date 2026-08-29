@@ -18,6 +18,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { Project } from '@house-technical-designer/core-domain';
+import { placedEquipment } from '@house-technical-designer/core-domain';
 import { loadDemoProject } from '../demo-project.js';
 import {
   connectPlan,
@@ -98,6 +99,39 @@ describe('quels réseaux peuvent accueillir un appareil', () => {
     expect(outcome.message).toMatch(/ne déclare aucun raccordement/);
   });
 
+  it('reconnaît enfin le réseau de ventilation, qui ne déclarait aucun genre', () => {
+    /*
+     * Les dix ports du réseau de ventilation de cette maison ne déclaraient
+     * aucun `portTypeId`. Le modèle ne juge pas une question à moitié posée —
+     * « un raccordement déclare AIR_EXTRACT et l'autre ne déclare pas de
+     * genre : rien ne dit si les deux se raccordent » — donc **rien** ne
+     * pouvait rejoindre ce réseau : ni une bouche d'extraction, ni le groupe de
+     * VMC qu'il dessert pourtant.
+     *
+     * Une fois les genres déclarés, l'extraction du groupe trouve ce réseau, et
+     * ce que le geste répond est le vrai état des choses : ce groupe-là y est
+     * déjà, sous le nœud qui porte son identifiant. Un refus qui nomme le nœud
+     * vaut mieux qu'un bouton absent.
+     */
+    const outcome = connectableNetworks(house, 'component-vmc', GROUND);
+    if (outcome.status === 'REFUSED') throw new Error(outcome.message);
+    const ventilation = outcome.networks.find(
+      ({ networkId }) => networkId === 'ventilation',
+    );
+    expect(ventilation?.connections.map(({ portId }) => portId)).toEqual([
+      'extract',
+    ]);
+    // Le rejet extérieur du groupe n'a pas de nœud dans cette maison : il est
+    // dit comme non desservi, et non passé sous silence.
+    expect(outcome.unserved.map(({ portId }) => portId)).toContain('exhaust');
+
+    const plan = connectPlan(house, GROUND, 'component-vmc');
+    expect(plan.status).toBe('REFUSED');
+    if (plan.status !== 'REFUSED') return;
+    expect(plan.message).toMatch(/déjà raccordé au réseau de ventilation/);
+    expect(plan.message).toContain('ventilation:unit');
+  });
+
   it('ne rend rien d’un objet qui n’est pas un appareil posé', () => {
     // Un mur n'a pas de port : l'action ne doit pas même s'afficher sur lui.
     expect(declaredConnections(house, 'wall-south', GROUND)).toEqual([]);
@@ -167,6 +201,115 @@ describe('la proposition de raccordement', () => {
     expect(proposal.runs[0]!.slopePercent).toBeUndefined();
   });
 
+  it('pose le nœud là où la fiche situe le raccordement, et non au centre', () => {
+    /*
+     * Le lavabo évacue 400 mm sous son centre : sa fiche le dit, et rien ne le
+     * lisait. Le nœud se posait à l'altitude de l'appareil — 850 mm au-dessus
+     * du sol, le bord de la vasque — c'est-à-dire 400 mm plus haut que le
+     * tuyau ne part réellement, et ces 400 mm-là se retrouvaient entiers dans
+     * la pente proposée.
+     */
+    const proposal = connectionProposal(
+      house,
+      GROUND,
+      'component-washbasin',
+      'wastewater',
+    );
+    if (proposal.status === 'REFUSED') throw new Error(proposal.message);
+    // 850 mm de hauteur d'appareil moins les 400 mm que la fiche déclare.
+    expect(proposal.from.z).toBe(450);
+    // En plan le siphon est sous le centre de la vasque : la fiche l'y met, et
+    // la position lue est bien celle-là et non un décalage inventé.
+    expect(proposal.from.x).toBe(7000);
+    expect(proposal.from.y).toBe(4600);
+  });
+
+  it('tourne le décalage d’un port avec l’appareil qui le porte', () => {
+    /*
+     * La fiche donne le décalage dans le repère de l'appareil, et c'est le
+     * repère du **modèle** : la même fiche sert les huit exemplaires posés, et
+     * elle ne peut pas savoir comment celui-ci est tourné. Le ballon d'eau
+     * chaude de cette maison est posé à 180°, et son raccordement électrique
+     * est à 280 mm d'un côté de son axe : appliquer la rotation le met à
+     * 9 220 mm, l'ignorer le mettrait à 9 780 — 560 mm d'écart, soit deux
+     * coudes et un demi-mètre de câble qui n'existe pas.
+     *
+     * Le contrôle est fait sur un port dont le décalage n'est **pas** nul en
+     * plan : ceux qui le sont — le siphon d'un lavabo, l'about d'un plafonnier
+     * — tournent sans bouger et ne prouveraient rien.
+     */
+    const tank = placedEquipment(house).find(
+      ({ instanceId }) => instanceId === 'component-dhw-tank',
+    )!;
+    expect(tank.rotationDeg).toBe(180);
+    expect(tank.ports.find(({ id }) => id === 'power')?.position).toEqual({
+      x: 280,
+      y: 0,
+      z: 0,
+    });
+
+    const proposal = connectionProposal(
+      house,
+      GROUND,
+      'component-dhw-tank',
+      'electrical',
+    );
+    if (proposal.status === 'REFUSED') throw new Error(proposal.message);
+    expect(proposal.from.x).toBe(tank.position.x - 280);
+    expect(proposal.from.y).toBe(tank.position.y);
+
+    // Le même ballon droit met son raccordement de l'autre côté, et c'est la
+    // seule chose qui change : la rotation est bien lue, pas subie.
+    const straightened = structuredClone(house);
+    const placed = (
+      straightened.building.levels.find(({ id }) => id === GROUND)!
+        .components ?? []
+    ).find(({ id }) => id === 'component-dhw-tank')!;
+    (placed as { rotationDeg: number }).rotationDeg = 0;
+    const other = connectionProposal(
+      straightened,
+      GROUND,
+      'component-dhw-tank',
+      'electrical',
+    );
+    if (other.status === 'REFUSED') throw new Error(other.message);
+    expect(other.from.x).toBe(tank.position.x + 280);
+  });
+
+  it('rejoint la colonne de chute qui passe derrière, à la pente que le projet demande', () => {
+    /*
+     * Les deux corrections qui se répondent, mesurées ensemble.
+     *
+     * La colonne n'avait aucun gabarit, et une évacuation ne savait pas se
+     * dériver : le lavabo du rez-de-chaussée marchait donc 5,9 m jusqu'au
+     * regard, en tombant de 20,7 % — un tuyau presque vertical présenté comme
+     * une pente. La colonne passe à 1,1 m derrière lui.
+     *
+     * La hauteur du piquage n'est pas choisie au hasard non plus : sur une
+     * chute, elle est libre, et c'est `minimumSlope` — le réglage que le module
+     * de calcul d'eaux usées porte déjà dans ce projet, 1 % — qui la fixe.
+     * Aucune seconde valeur : une pente inventée ici serait refusée par la note
+     * de calcul deux écrans plus loin.
+     */
+    const declared =
+      house.calculationSettings?.['wastewater']?.settings['minimumSlope'];
+    expect(declared).toBe(0.01);
+    const proposal = connectionProposal(
+      house,
+      GROUND,
+      'component-washbasin',
+      'wastewater',
+    );
+    if (proposal.status === 'REFUSED') throw new Error(proposal.message);
+    const run = proposal.runs[0]!;
+    expect(run.arrival).toContain('wastewater:stack-drop');
+    expect(run.lengthMm).toBeLessThan(1200);
+    // La pente obtenue est celle qu'on demande, à l'arrondi au millimètre près
+    // de la hauteur visée — d'où la borne haute plutôt qu'une égalité.
+    expect(run.slopePercent).toBeGreaterThanOrEqual(1);
+    expect(run.slopePercent).toBeLessThan(1.1);
+  });
+
   it('se dérive sur le tronçon qui passe le plus près, plutôt que d’aller à la nourrice', () => {
     /*
      * L'évier de cuisine est à moins d'un mètre du tronçon d'eau qui le longe,
@@ -188,22 +331,37 @@ describe('la proposition de raccordement', () => {
     expect(run.lengthMm).toBeLessThan(1000);
   });
 
-  it('reprend le genre de port du nœud qu’il rejoint, et non celui du gabarit', () => {
+  it('reçoit des eaux-vannes sur un réseau unitaire, et non des eaux usées', () => {
     /*
-     * Le WC évacue des **eaux-vannes** ; le regard de cette maison reçoit en
-     * arrivée unitaire, qui les accepte. Le gabarit de la discipline, lui, ne
-     * connaît qu'une arrivée d'eaux usées — et un raccordement construit
-     * dessus était refusé : « BLACKWATER et GREYWATER ne sont pas le même
-     * service ». C'est le nœud qu'on rejoint qui dit ce qu'il reçoit.
+     * Le défaut que la table des genres portait, et son coût exact.
+     *
+     * Un réseau unitaire transporte les eaux usées **et** les eaux-vannes ;
+     * `SYSTEM_PORT_TYPES` donnait à `COMBINED_WASTEWATER` des genres d'eaux
+     * usées séparées, si bien que tout ce que l'application posait sur ce
+     * réseau — le piquage d'une dérivation, le port d'un regard — refusait
+     * ensuite l'évacuation d'un WC : « BLACKWATER et GREYWATER ne sont pas le
+     * même service ».
+     *
+     * Le WC de cette maison ne descend nulle part (voir le refus plus bas), on
+     * le rapproche donc de la colonne et on le remonte à hauteur de cuvette,
+     * ce qu'un plan correctement coté donnerait de lui-même. Ce que le test
+     * regarde est le **genre** du piquage obtenu, pas la distance.
      */
+    const placed = structuredClone(house);
+    const wc = (
+      placed.building.levels.find(({ id }) => id === GROUND)!.components ?? []
+    ).find(({ id }) => id === 'component-wc')!;
+    // La fiche pose l'évacuation 350 mm sous l'origine de la cuvette : 500 mm
+    // la remettent au-dessus du pied de colonne, qui est à −200.
+    (wc as { elevationMm: number }).elevationMm = 500;
     const proposal = connectionProposal(
-      house,
+      placed,
       GROUND,
       'component-wc',
       'wastewater',
     );
     if (proposal.status === 'REFUSED') throw new Error(proposal.message);
-    const applied = proposal.command.execute(house).nextState;
+    const applied = proposal.command.execute(placed).nextState;
     const created = network(applied, 'wastewater').ports.find(
       ({ id }) => id === proposal.runs[0]!.toPortId,
     )!;
@@ -324,13 +482,24 @@ describe('les refus, qui nomment leur cause', () => {
   });
 
   it('refuse une évacuation qui devrait remonter', () => {
-    // Rien ne s'écoule vers le haut. Le regard est ici remonté au-dessus du
-    // lavabo du premier étage, ce qu'un plan mal coté produit tout seul.
+    /*
+     * Rien ne s'écoule vers le haut. Tout le réseau d'eaux usées est ici
+     * remonté de dix mètres, ce qu'un plan mal coté produit tout seul en
+     * saisissant une altitude de niveau au lieu d'une profondeur.
+     *
+     * Le réseau entier, et non le seul regard : un point d'accroche plus haut
+     * que l'appareil passe désormais **après** tous les autres au lieu d'être
+     * choisi le premier, de sorte qu'il suffisait de remonter le regard pour
+     * que la colonne prenne le relais — ce qui est le comportement voulu. Le
+     * refus se dit quand il ne reste vraiment rien qui descende.
+     */
     const raised = structuredClone(house);
-    const collector = network(raised, 'wastewater').nodes.find(
-      ({ id }) => id === 'wastewater:collector',
-    )!;
-    (collector as { position: { z: number } }).position.z = 9000;
+    for (const node of network(raised, 'wastewater').nodes)
+      (node as { position: { z: number } }).position.z += 10000;
+    // Les tracés aussi : c'est sur eux qu'une dérivation se pique, et un réseau
+    // dont on n'aurait remonté que les nœuds serait un réseau incohérent.
+    for (const edge of network(raised, 'wastewater').edges)
+      for (const point of edge.path) (point as { z: number }).z += 10000;
     const proposal = connectionProposal(
       raised,
       FIRST,
@@ -340,6 +509,27 @@ describe('les refus, qui nomment leur cause', () => {
     expect(proposal.status).toBe('REFUSED');
     if (proposal.status !== 'REFUSED') return;
     expect(proposal.message).toMatch(/rien ne s’écoule vers le haut/);
+  });
+
+  it('refuse le WC de cette maison, dont la sortie est au fond du regard', () => {
+    /*
+     * Un refus qui dit quelque chose du **projet** et non du geste.
+     *
+     * La fiche `generic-wc` pose son évacuation 350 mm sous l'origine de la
+     * cuvette, et cette cuvette est posée à l'altitude du plancher : sa sortie
+     * tombe donc à −350 mm, c'est-à-dire exactement le radier du regard qui
+     * devrait la recevoir, et 150 mm sous le pied de la colonne de chute. Rien
+     * de ce réseau n'est plus bas qu'elle.
+     *
+     * Le geste le disait autrefois : il posait le nœud à l'altitude de la
+     * cuvette — 0 — et proposait une évacuation à 6 % vers le regard, en
+     * ignorant les 350 mm que la fiche déclare. Lire la position du port, c'est
+     * aussi apprendre ce que le projet a de faux.
+     */
+    const plan = connectPlan(house, GROUND, 'component-wc');
+    expect(plan.status).toBe('REFUSED');
+    if (plan.status !== 'REFUSED') return;
+    expect(plan.message).toMatch(/rien ne s’écoule vers le haut/);
   });
 });
 
@@ -381,8 +571,10 @@ describe('ce que le raccordement écrit dans le projet', () => {
     expect(network(applied, 'water').edges.length).toBe(
       network(house, 'water').edges.length + 2,
     );
+    // L'évacuation se dérive maintenant sur la colonne de chute : la
+    // dérivation coupe un tronçon en deux et le tracé en ajoute un troisième.
     expect(network(applied, 'wastewater').edges.length).toBe(
-      network(house, 'wastewater').edges.length + 1,
+      network(house, 'wastewater').edges.length + 2,
     );
     const undone = execution.inverse.execute(applied).nextState;
     expect(JSON.stringify(undone.systems)).toBe(before);
@@ -395,10 +587,13 @@ describe('ce que le raccordement écrit dans le projet', () => {
     for (const objectId of [
       'component-washbasin',
       'component-kitchen-sink',
-      'component-wc',
       'component-shower',
       'component-socket-living',
       'component-socket-kitchen',
+      // Le tableau et son disjoncteur, qui sont posés sous le nœud qui les
+      // représente depuis que la maison de référence les y a remis.
+      'component-board',
+      'component-breaker',
     ]) {
       const plan = connectPlan(house, GROUND, objectId);
       if (plan.status === 'REFUSED')
@@ -427,12 +622,19 @@ describe('ce que le geste couvre sur la maison de référence', () => {
     /*
      * Le compte, et ce qu'il dit du projet autant que du geste. Sur
      * trente-trois appareils posés : huit attendent un réseau de chauffage que
-     * cette maison n'a pas, huit plafonniers sont déjà nommés par un nœud, la
-     * batterie et les panneaux attendent un réseau de stockage et un réseau
-     * solaire, et le tableau et son disjoncteur sont posés à neuf mètres du
-     * circuit qu'ils alimentent — le geste refuse plutôt que de traverser la
-     * maison. Les treize qui restent se raccordent d'un geste : dix-huit
-     * tronçons, là où il en fallait onze gestes chacun.
+     * cette maison n'a pas, huit plafonniers et le groupe de VMC sont déjà
+     * nommés par un nœud, la batterie et les panneaux attendent un réseau de
+     * stockage et un réseau solaire, le ballon d'eau chaude n'a pas de réseau
+     * pour son eau chaude, et le WC a sa sortie au radier du regard. Les treize
+     * qui restent se raccordent d'un geste : dix-neuf tronçons, là où il en
+     * fallait onze gestes chacun.
+     *
+     * Le compte est resté à treize et a changé de composition : le tableau et
+     * son disjoncteur, remis sous le nœud qui les représente, se raccordent
+     * maintenant à 0,4 m au lieu d'être refusés à 14 m ; le groupe de VMC et le
+     * WC les remplacent parmi les refus, l'un parce qu'il est déjà raccordé —
+     * le réseau de ventilation déclare enfin ses genres de port —, l'autre
+     * parce que rien de son réseau ne descend plus bas que lui.
      */
     const counted = { ok: 0, refused: 0, runs: 0 };
     for (const level of house.building.levels)
@@ -450,6 +652,6 @@ describe('ce que le geste couvre sur la maison de référence', () => {
           expect(plan.message, id).toMatch(/[.:]$/);
         }
       }
-    expect(counted).toEqual({ ok: 13, refused: 20, runs: 18 });
+    expect(counted).toEqual({ ok: 13, refused: 20, runs: 19 });
   });
 });

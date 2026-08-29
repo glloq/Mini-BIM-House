@@ -731,8 +731,8 @@
               "definitionId": "generic-distribution-board",
               "name": "Tableau de répartition",
               "position": {
-                "x": 600,
-                "y": 5600
+                "x": 8000,
+                "y": 400
               },
               "elevationMm": 1200,
               "rotationDeg": 0
@@ -745,8 +745,8 @@
               "definitionId": "generic-miniature-circuit-breaker",
               "name": "Disjoncteur divisionnaire",
               "position": {
-                "x": 620,
-                "y": 5600
+                "x": 8020,
+                "y": 400
               },
               "elevationMm": 1300,
               "rotationDeg": 0,
@@ -10832,61 +10832,71 @@
             "id": "ventilation:unit-out",
             "nodeId": "ventilation:unit",
             "role": "AIR",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "AIR_EXTRACT_OUTLET"
           },
           {
             "id": "ventilation:junction-in",
             "nodeId": "ventilation:junction",
             "role": "AIR",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "AIR_EXTRACT"
           },
           {
             "id": "ventilation:junction-out-kitchen",
             "nodeId": "ventilation:junction",
             "role": "AIR",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "AIR_EXTRACT_OUTLET"
           },
           {
             "id": "ventilation:junction-out-bathroom",
             "nodeId": "ventilation:junction",
             "role": "AIR",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "AIR_EXTRACT_OUTLET"
           },
           {
             "id": "ventilation:kitchen-in",
             "nodeId": "ventilation:extract-kitchen",
             "role": "AIR",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "AIR_EXTRACT"
           },
           {
             "id": "ventilation:bathroom-in",
             "nodeId": "ventilation:extract-bathroom",
             "role": "AIR",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "AIR_EXTRACT"
           },
           {
             "id": "ventilation:junction-out-riser",
             "nodeId": "ventilation:junction",
             "role": "AIR",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "AIR_EXTRACT_OUTLET"
           },
           {
             "id": "ventilation:riser-in",
             "nodeId": "ventilation:riser",
             "role": "AIR",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "AIR_EXTRACT"
           },
           {
             "id": "ventilation:riser-out-bath",
             "nodeId": "ventilation:riser",
             "role": "AIR",
-            "direction": "OUT"
+            "direction": "OUT",
+            "portTypeId": "AIR_EXTRACT_OUTLET"
           },
           {
             "id": "ventilation:first-bath-in",
             "nodeId": "ventilation:extract-first-bath",
             "role": "AIR",
-            "direction": "IN"
+            "direction": "IN",
+            "portTypeId": "AIR_EXTRACT"
           }
         ],
         "edges": [

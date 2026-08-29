@@ -48,9 +48,33 @@ export interface ResolvedPlacedEquipment {
   readonly instanceProperties: Readonly<Record<string, JsonValue>>;
   /** The two seen together, the instance winning. */
   readonly resolvedProperties: Readonly<Record<string, JsonValue>>;
+  /**
+   * Ce par quoi il se raccorde, et **où** chaque raccordement se trouve.
+   *
+   * La fiche le dit depuis toujours — un lavabo évacue 400 mm sous son centre,
+   * un radiateur part et revient à 480 mm de part et d'autre du sien — et
+   * `resolveOne` recopie déjà les ports de la fiche verbatim. Ce type n'en
+   * exposait que l'identifiant et le genre, si bien que tout ce qui lit un
+   * appareil posé plaçait ses raccordements au centre de l'appareil.
+   *
+   * Ce que ça coûtait se mesure sur une évacuation, où la hauteur **est** le
+   * calcul : les pentes proposées par « Raccorder au réseau » allaient de 12 à
+   * 35 % — un tuyau à la verticale — là où une évacuation se pose entre 1 et
+   * 3 %. Un décalage qu'on ne peut pas lire est un décalage qui vaut zéro.
+   *
+   * Le décalage est exprimé **dans le repère de l'appareil**, avant rotation :
+   * c'est la fiche du modèle, la même pour les huit exemplaires posés, et elle
+   * ne peut pas savoir comment celui-ci est tourné. Qui la lit doit donc lui
+   * appliquer `rotationDeg`, qui est juste au-dessus.
+   */
   readonly ports: readonly {
     readonly id: string;
     readonly portTypeId?: string;
+    readonly position?: {
+      readonly x: number;
+      readonly y: number;
+      readonly z: number;
+    };
   }[];
   /** The zones this kind of thing has, measured or not. */
   readonly requiredClearances: readonly ClearanceZone[];
