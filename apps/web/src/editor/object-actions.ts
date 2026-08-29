@@ -74,6 +74,11 @@ import {
 import { straightWallOf } from './object-facts.js';
 import type { ObjectCapabilities } from './object-transform.js';
 import { toolDefinition, type EditorTool } from './tool-registry.js';
+import {
+  connectPlan,
+  declaredConnections,
+  type ConnectPlan,
+} from '../networks/connect-intent.js';
 
 /**
  * Ce que la coque sait faire, vu de l'action.
@@ -440,6 +445,33 @@ const ARRANGEMENT_ACTIONS: readonly ObjectAction[] = ARRANGEMENTS.map(
 );
 
 /**
+ * Relier un appareil posé au réseau qui le dessert.
+ *
+ * Le calcul est ailleurs — `networks/connect-intent.ts` ne connaît ni React ni
+ * la coque, choisit le point d'accroche, réutilise `branchCommand` et
+ * `routeCommand`, et rend **une** commande. Ce qui suit est le seul chemin
+ * entre ce calcul et la barre, et il est écrit comme `arrangementPlan` juste
+ * au-dessus : une seule fonction sert à `enabled`, à `unavailableReason` et à
+ * `run`, pour qu'ils ne puissent pas diverger. Trois fonctions séparées
+ * finissent par ne plus répondre la même chose, et un bouton actif dont le clic
+ * ne fait rien est ce que ce dépôt appelle une panne.
+ *
+ * Le plan relie l'appareil à **tous** ses réseaux d'un coup — un lavabo a une
+ * arrivée d'eau et une évacuation — et n'en fait qu'une entrée d'historique.
+ * Raccorder l'un et pas l'autre en silence serait pire qu'un refus : ce serait
+ * un appareil qu'on croit raccordé.
+ */
+function connectOutcome(context: ObjectActionContext): ConnectPlan {
+  const objectId = only(context);
+  if (objectId === undefined)
+    return {
+      status: 'REFUSED',
+      message: 'Un raccordement se demande sur un seul appareil à la fois.',
+    };
+  return connectPlan(context.project, context.levelId, objectId);
+}
+
+/**
  * Les actions que l'éditeur connaît, dans l'ordre où elles se disputent la
  * barre.
  *
@@ -491,6 +523,44 @@ export const OBJECT_ACTIONS: readonly ObjectAction[] = [
     const kind = kindOf(context);
     return kind === 'NETWORK_NODE' || kind === 'NETWORK_EDGE';
   }),
+  {
+    /*
+     * Ce qu'un lavabo fait et qu'un mur ne fait pas.
+     *
+     * L'action ne paraît que sur un objet dont la fiche déclare par quoi il se
+     * raccorde : sur un mur, sur une pièce, sur une chaise, elle n'a rien à
+     * dire et ne s'affiche pas. Quand elle est là et qu'elle n'aboutit pas,
+     * elle dit pourquoi — « Aucun réseau de chauffage dans ce projet »,
+     * « déjà raccordé », « le tracé traverserait toute la maison » —, parce
+     * qu'un bouton gris muet se lit comme une panne et qu'un bouton gris qui
+     * nomme sa cause se lit comme une propriété du projet.
+     */
+    id: 'network.connect',
+    label: 'Raccorder au réseau',
+    hint: 'Relier cet appareil aux réseaux qui le desservent, d’un seul geste',
+    importance: 'PRIMARY',
+    writes: true,
+    appliesTo: (context) => {
+      const objectId = only(context);
+      return (
+        objectId !== undefined &&
+        declaredConnections(context.project, objectId, context.levelId).length >
+          0
+      );
+    },
+    enabled: (context) => connectOutcome(context).status === 'OK',
+    unavailableReason: (context) => {
+      const plan = connectOutcome(context);
+      return plan.status === 'REFUSED' ? plan.message : undefined;
+    },
+    run: (context) => {
+      const plan = connectOutcome(context);
+      // Le bouton est gris quand le plan refuse : on n'arrive ici qu'avec un
+      // plan qui aboutit. La garde est là pour le raccourci clavier de demain,
+      // qui ne regardera aucun bouton.
+      if (plan.status === 'OK') context.host.runCommand(plan.command);
+    },
+  },
 
   /*
    * Les gestes communs. Ils s'affichent toujours et se grisent quand la

@@ -319,6 +319,101 @@ describe('le registre des actions', () => {
     }
   });
 
+  it('n’offre le raccordement qu’à un objet qui déclare des raccordements', () => {
+    /*
+     * Un lavabo se raccorde ; un mur, une pièce, un tronçon ne se raccordent
+     * pas. L'action ne s'affiche donc pas sur eux, plutôt que de s'y afficher
+     * grise en promettant un geste qu'aucun clic ne rendrait possible — c'est
+     * la règle qu'`appliesTo` porte depuis UX-17.
+     */
+    const offered = (objectId: string, level = levelId) =>
+      objectActionsFor({
+        project: house,
+        levelId: level,
+        selection: [objectId],
+        host: recorder().host,
+      }).map(({ id }) => id);
+    expect(offered('component-washbasin')).toContain('network.connect');
+    expect(offered(aWall)).not.toContain('network.connect');
+    expect(offered(aRoom)).not.toContain('network.connect');
+    expect(offered(anEdge)).not.toContain('network.connect');
+    // Et jamais sur plusieurs objets : un raccordement se demande appareil par
+    // appareil, parce que chacun rejoint son réseau à un endroit différent.
+    expect(
+      objectActionsFor(
+        on(['component-washbasin', 'component-kitchen-sink']),
+      ).map(({ id }) => id),
+    ).not.toContain('network.connect');
+  });
+
+  it('raccorde un lavabo à ses deux réseaux en une seule entrée d’historique', () => {
+    /*
+     * Un lavabo a une arrivée d'eau et une évacuation : les deux passent par
+     * `host.runCommand`, qui traverse la frontière d'édition, et n'y passent
+     * qu'une fois. Annuler le branchement ne doit pas demander deux
+     * annulations — encore moins six, puisque le raccordement pose deux nœuds,
+     * ajoute un port, dérive un tronçon et en trace deux.
+     */
+    const { host, done } = recorder();
+    const context: ObjectActionContext = {
+      project: house,
+      levelId,
+      selection: ['component-washbasin'],
+      host,
+    };
+    const connect = objectActionsFor(context).find(
+      ({ id }) => id === 'network.connect',
+    )!;
+    expect(connect.enabled(context)).toBe(true);
+    expect(connect.unavailableReason?.(context)).toBeUndefined();
+    connect.run(context);
+    expect(done).toEqual(['run:Raccorder aux réseaux']);
+  });
+
+  it('dit au radiateur ce qui manque au projet, plutôt que de griser sans motif', () => {
+    // Cette maison n'a pas de réseau de chauffage : ses radiateurs sont posés
+    // et ne mènent nulle part. Le bouton est là, il est gris, et il dit quoi
+    // faire — créer le réseau — au lieu de laisser chercher.
+    const context = on(['component-radiator-living']);
+    const connect = objectActionsFor(context).find(
+      ({ id }) => id === 'network.connect',
+    )!;
+    expect(connect.enabled(context)).toBe(false);
+    expect(connect.unavailableReason?.(context)).toMatch(
+      /Aucun réseau de chauffage/,
+    );
+    // Et un appareil déjà raccordé le dit aussi, avec le nœud qui le nomme.
+    const bound = on(['component-luminaire-living']);
+    const already = objectActionsFor(bound).find(
+      ({ id }) => id === 'network.connect',
+    )!;
+    expect(already.enabled(bound)).toBe(false);
+    expect(already.unavailableReason?.(bound)).toMatch(/déjà raccordé/);
+  });
+
+  it('donne un motif à chaque raccordement gris, et aucun quand il aboutit', () => {
+    // Le même invariant que pour les rangements : `enabled` et
+    // `unavailableReason` sortent d'un seul plan, et ne peuvent donc pas
+    // finir par ne plus répondre la même chose.
+    for (const level of house.building.levels)
+      for (const { id } of level.components ?? []) {
+        const context: ObjectActionContext = {
+          project: house,
+          levelId: level.id,
+          selection: [id],
+          host: recorder().host,
+        };
+        const connect = objectActionsFor(context).find(
+          ({ id: actionId }) => actionId === 'network.connect',
+        );
+        expect(connect, id).toBeDefined();
+        const reason = connect?.unavailableReason?.(context);
+        expect(reason === undefined, `${id} · ${reason ?? ''}`).toBe(
+          connect?.enabled(context),
+        );
+      }
+  });
+
   it('ne propose rien sur une sélection vide', () => {
     expect(objectActionsFor(on([]))).toEqual([]);
   });
