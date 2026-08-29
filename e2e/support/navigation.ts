@@ -94,22 +94,11 @@ export async function openDestination(
       name: 'Arborescence du projet',
     });
     /*
-     * L'arborescence vit sur le plan, sous « Éléments du projet » : venir
-     * d'une autre bibliothèque, ou d'une étape qui offre plusieurs
-     * destinations, veut dire y revenir d'abord. Le panneau montre où l'on
-     * est, donc « Plan » est là pour cela.
-     *
-     * Et sur un téléphone, choisir une destination referme le tiroir — c'est
-     * ce qu'il faut pour voir le plan, et ce qui fait qu'il faut le rouvrir
-     * pour lire l'arborescence.
+     * L'arborescence ne vit plus dans la colonne, ni sur une destination
+     * plutôt qu'une autre : c'est un navigateur qu'on ouvre depuis la barre
+     * haute, où qu'on soit. Venir d'une autre bibliothèque ne demande donc
+     * plus de repasser par le plan d'abord.
      */
-    if (!(await tree.isVisible())) {
-      const back = page
-        .locator('#workspace-sidebar')
-        .getByRole('button', { name: 'Plan', exact: true });
-      if (await back.isVisible()) await back.click();
-      if (await toggle.isVisible()) await toggle.click();
-    }
     await openModelTree(page);
     const entry = tree.getByRole('button', { name: label, exact: true });
     if (!(await entry.isVisible()))

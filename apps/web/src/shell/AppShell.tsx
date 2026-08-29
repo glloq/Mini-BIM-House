@@ -10,6 +10,14 @@
  *
  * Everything here is a slot. The shell decides where things are; it decides
  * nothing about what they are.
+ *
+ * **Une seule colonne, et elle est à gauche.** Il y en avait deux, de part et
+ * d'autre du dessin, et la seconde ne servait qu'à lire : ce que l'objet
+ * désigné est. Elle prenait 280 px de large plus son bord plus sa gouttière,
+ * du côté où l'on finit de lire, et elle les prenait dès qu'on cliquait un
+ * objet — c'est-à-dire à chaque geste de la journée. Ce qu'elle montrait est
+ * descendu dans la colonne de gauche, qui le montre à la place des outils.
+ * La droite est au plan, entière, et sans condition.
  */
 import type { CSSProperties, ReactNode } from 'react';
 
@@ -18,8 +26,6 @@ export interface AppShellProps {
   readonly contextPanel: ReactNode;
   readonly contextSeparator: ReactNode;
   readonly canvas: ReactNode;
-  readonly inspectorSeparator: ReactNode;
-  readonly inspector: ReactNode;
   readonly statusBar: ReactNode;
   /** Modals, prompts and popovers, which belong to no column. */
   readonly overlays?: ReactNode;
@@ -28,7 +34,6 @@ export interface AppShellProps {
   /** Whether the context panel is open over the canvas on a narrow screen. */
   readonly drawerOpen: boolean;
   readonly onCloseDrawer: () => void;
-  readonly inspectorHidden: boolean;
 }
 
 export function AppShell({
@@ -36,15 +41,12 @@ export function AppShell({
   contextPanel,
   contextSeparator,
   canvas,
-  inspectorSeparator,
-  inspector,
   statusBar,
   overlays,
   columns,
   contextPanelHidden,
   drawerOpen,
   onCloseDrawer,
-  inspectorHidden,
 }: AppShellProps) {
   return (
     <main className="workspace">
@@ -74,14 +76,6 @@ export function AppShell({
           </aside>
           {contextSeparator}
           {canvas}
-          {inspectorSeparator}
-          <aside
-            className="inspector panel"
-            id="inventory"
-            hidden={inspectorHidden}
-          >
-            {inspector}
-          </aside>
         </div>
       </div>
       {statusBar}

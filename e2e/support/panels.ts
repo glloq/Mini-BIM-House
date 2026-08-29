@@ -10,23 +10,37 @@ import { openStage } from './navigation.js';
  * le ferait. L'arborescence, elle, est passée sous « Ajouter ».
  */
 /**
- * L'arborescence, dépliée comme une personne la déplie.
+ * L'arborescence, ouverte comme une personne l'ouvre.
  *
  * Elle occupait toute la colonne de gauche et racontait ce que le projet
- * **contient** ; ce qu'on vient y faire, c'est **ajouter**. Ce que la
- * sous-partie sait poser est donc passé devant, et l'arborescence est passée
- * dessous, derrière « Éléments du projet » — accessible, secondaire.
+ * **contient** ; ce qu'on vient y faire, c'est **ajouter**. Elle est donc
+ * passée sous « Ajouter », puis derrière un dépliage — et elle n'est
+ * désormais plus dans la colonne du tout : la colonne porte aussi les
+ * propriétés de la sélection, et un dépliage replié prend sa rangée sans rien
+ * montrer. Retrouver un objet est un geste qu'on fait quelquefois, poser un
+ * objet un geste qu'on fait tout le temps.
  *
- * Le helper dit encore ce que fait le test : il ouvre le dépliage si besoin,
- * puis attend l'arborescence.
+ * Le helper dit toujours ce que fait le test : il ouvre le navigateur si
+ * besoin, puis attend l'arborescence.
  */
 export async function openModelTree(page: Page): Promise<void> {
   const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
   if (!(await tree.isVisible())) {
-    const fold = page.locator('details.project-tree-fold > summary');
-    if ((await fold.count()) > 0) await fold.click();
+    const opener = page.getByRole('button', { name: 'Éléments', exact: true });
+    if ((await opener.count()) > 0) await opener.click();
   }
   await tree.waitFor();
+}
+
+/** Referme le navigateur, qui est posé par dessus le dessin. */
+export async function closeModelTree(page: Page): Promise<void> {
+  const tree = page.getByRole('navigation', { name: 'Arborescence du projet' });
+  if (!(await tree.isVisible())) return;
+  await page
+    .getByRole('dialog', { name: 'Éléments du projet' })
+    .getByRole('button', { name: 'Fermer' })
+    .click();
+  await expect(tree).toHaveCount(0);
 }
 
 /**
@@ -93,20 +107,61 @@ export async function hidePlacedComponents(page: Page): Promise<void> {
   await closeDisplayPanel(page);
 }
 
+function propertiesPin(page: Page) {
+  return page
+    .locator('.app-header')
+    .getByRole('button', { name: 'Propriétés', exact: true });
+}
+
+function columnTab(page: Page, label: string) {
+  return page
+    .locator('#workspace-sidebar')
+    .getByRole('button', { name: label, exact: true });
+}
+
 /**
- * L'inspecteur, ouvert avant de mesurer le dessin.
+ * Les propriétés, montrées avant de mesurer le dessin.
  *
- * Tant que rien n'a jamais été désigné, l'inspecteur ne réserve pas ses 280 px
- * — c'est le repli automatique de UX-1. Il s'ouvre à la première sélection, et
- * le canvas rétrécit d'autant : un test qui relève une position dans le plan,
- * clique, puis reclique au même endroit cliquerait deux fois sur deux dessins
- * différents. L'ouvrir d'abord fige la mise en page, comme le ferait quelqu'un
- * qui veut voir les propriétés sous les yeux avant de choisir un objet.
+ * C'était un panneau à droite du plan qui paraissait à la première sélection,
+ * et le dessin rétrécissait d'autant : un test qui relevait une position dans
+ * le plan, cliquait, puis recliquait au même endroit cliquait deux fois sur
+ * deux dessins différents. L'ouvrir d'abord figeait la mise en page.
+ *
+ * La colonne unique règle cela par construction — elle montre les propriétés
+ * **à la place** des outils, et le plan ne bouge plus d'un pixel quand on
+ * désigne quelque chose. Le helper reste, parce que ce qu'il demande reste
+ * vrai : montre-moi les propriétés. C'est ce que fait quelqu'un qui veut les
+ * avoir sous les yeux avant de choisir un objet.
  */
 export async function openInspector(page: Page): Promise<void> {
-  const toggle = page.getByRole('button', { name: 'Inspecteur', exact: true });
-  if ((await toggle.getAttribute('aria-pressed')) === 'true') return;
-  await toggle.click();
+  const tab = columnTab(page, 'Propriétés');
+  if ((await tab.count()) > 0) {
+    if ((await tab.getAttribute('aria-pressed')) !== 'true') await tab.click();
+    return;
+  }
+  // Sans rien de désigné, la colonne n'offre pas la bascule : une bascule dont
+  // une position est vide n'en est pas une. C'est l'épingle de la barre haute
+  // qui demande à lire ce que le plan montre.
+  const pin = propertiesPin(page);
+  if ((await pin.getAttribute('aria-pressed')) === 'true') return;
+  await pin.click();
+}
+
+/**
+ * Et les outils, quand c'est eux qu'on veut.
+ *
+ * La colonne fait deux métiers l'un après l'autre : désigner un objet la fait
+ * passer aux propriétés toute seule, et reprendre un outil demande de le dire.
+ */
+export async function openTools(page: Page): Promise<void> {
+  const tab = columnTab(page, 'Outils');
+  if ((await tab.count()) > 0) {
+    if ((await tab.getAttribute('aria-pressed')) !== 'true') await tab.click();
+    return;
+  }
+  const pin = propertiesPin(page);
+  if (!(await pin.isVisible())) return;
+  if ((await pin.getAttribute('aria-pressed')) === 'true') await pin.click();
 }
 
 /**

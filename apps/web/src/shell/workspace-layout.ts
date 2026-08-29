@@ -1,5 +1,5 @@
 /**
- * How wide the panels are, and whether they are shown at all.
+ * How wide the panel is, and whether it is shown at all.
  *
  * A drawing application is used on whatever screen the person has, and the
  * useful width of the plan is what is left once the panels have taken theirs.
@@ -8,19 +8,19 @@
  *
  * This is a preference of the person, not a fact of the project: it is kept in
  * the browser and never travels with the file.
+ *
+ * **Il n'y a plus qu'un panneau, et il est à gauche.** La coque tenait deux
+ * colonnes de part et d'autre du dessin : les outils à gauche, les propriétés
+ * de la sélection à droite. Deux colonnes veulent dire deux largeurs à régler,
+ * deux bords à tirer, et surtout un plan qui rétrécissait de 294 px — panneau,
+ * bord et gouttière — chaque fois qu'on désignait un objet, c'est-à-dire à
+ * chaque geste. La droite est désormais au plan, toujours ; ce que
+ * l'inspecteur montrait est descendu dans la colonne de gauche, qui le montre
+ * à la place des outils. Voir `column-mode.ts` pour la bascule.
  */
 export interface WorkspaceLayout {
   readonly sidebarPx: number;
-  readonly inspectorPx: number;
   readonly sidebarShown: boolean;
-  /**
-   * L'épingle de l'inspecteur, et non sa présence.
-   *
-   * Le panneau paraît de lui-même quand on désigne quelque chose. Ce drapeau
-   * dit qu'on veut le garder ouvert même sans rien de désigné — pour lire les
-   * propriétés de la vue. Il part fermé : au repos, la largeur est au dessin.
-   */
-  readonly inspectorShown: boolean;
 }
 
 export const LAYOUT_KEY = 'house-technical-designer:layout';
@@ -31,9 +31,7 @@ export const MAXIMUM_PANEL_PX = 520;
 
 export const DEFAULT_LAYOUT: WorkspaceLayout = {
   sidebarPx: 220,
-  inspectorPx: 280,
   sidebarShown: true,
-  inspectorShown: false,
 };
 
 /** A width the grid can actually use, whatever it was asked for. */
@@ -63,19 +61,16 @@ export function parseLayout(stored: string | null): WorkspaceLayout {
   }
   if (typeof value !== 'object' || value === null) return DEFAULT_LAYOUT;
   const record = value as Record<string, unknown>;
+  // Un enregistrement d'avant la colonne unique porte encore `inspectorPx` et
+  // `inspectorShown` : ils décrivent une colonne qui n'existe plus, et les
+  // ignorer vaut mieux que de refuser la largeur que la personne avait réglée.
   return {
     sidebarPx: boundedWidth(
       typeof record.sidebarPx === 'number'
         ? record.sidebarPx
         : DEFAULT_LAYOUT.sidebarPx,
     ),
-    inspectorPx: boundedWidth(
-      typeof record.inspectorPx === 'number'
-        ? record.inspectorPx
-        : DEFAULT_LAYOUT.inspectorPx,
-    ),
     sidebarShown: readBoolean(record.sidebarShown, true),
-    inspectorShown: readBoolean(record.inspectorShown, false),
   };
 }
 
@@ -85,16 +80,18 @@ export const SEPARATOR_PX = 6;
 /**
  * The columns the workspace grid is built from.
  *
- * Five tracks, always: the two edges keep their place even when the panel
- * beside them is hidden, so that showing it again does not renumber the
- * columns under the drawing.
+ * Trois pistes, toujours : la colonne, son bord, le dessin. Le bord garde sa
+ * place même quand la colonne est repliée, pour que la remontrer ne renumérote
+ * pas les colonnes sous le dessin.
+ *
+ * Les deux pistes de droite ont disparu avec l'inspecteur, et pas seulement
+ * leurs 286 px : une piste de zéro pixel garde sa gouttière, et la grille en
+ * dépensait deux — seize pixels de dessin payés pour deux colonnes vides.
  */
 export function gridColumns(layout: WorkspaceLayout): string {
   const sidebar = layout.sidebarShown ? `${layout.sidebarPx}px` : '0px';
-  const inspector = layout.inspectorShown ? `${layout.inspectorPx}px` : '0px';
-  const left = layout.sidebarShown ? `${SEPARATOR_PX}px` : '0px';
-  const right = layout.inspectorShown ? `${SEPARATOR_PX}px` : '0px';
-  return `${sidebar} ${left} minmax(0, 1fr) ${right} ${inspector}`;
+  const edge = layout.sidebarShown ? `${SEPARATOR_PX}px` : '0px';
+  return `${sidebar} ${edge} minmax(0, 1fr)`;
 }
 
 /** Reads the layout this browser remembers, if it remembers one. */

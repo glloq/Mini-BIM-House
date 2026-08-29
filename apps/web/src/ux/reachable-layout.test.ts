@@ -67,14 +67,34 @@ describe('rien n’est dans le document sans être sur l’écran', () => {
     expect(rule('.plan-canvas')).toMatch(/min-height:\s*0/u);
   });
 
-  it('borne l’inspecteur quand il passe sous le plan', () => {
-    // Sans borne, la grille lui donnait autant de hauteur qu'au dessin.
-    const narrow = styles.slice(styles.indexOf('@media (max-width: 1050px)'));
-    const inspector = narrow.slice(
-      narrow.indexOf('.inspector {'),
-      narrow.indexOf('}', narrow.indexOf('.inspector {')),
-    );
-    expect(inspector).toMatch(/max-height:/u);
+  it('fait défiler le mode ouvert, et jamais la colonne elle-même', () => {
+    /*
+     * L'inspecteur passait sous le plan en dessous de 1 050 px, et il fallait
+     * l'y borner : sans borne, la grille lui donnait autant de hauteur qu'au
+     * dessin. Il n'y a plus de seconde colonne à replier — les propriétés
+     * sont dans celle de gauche, à la place des outils.
+     *
+     * La borne qui compte est donc ailleurs. La colonne montre une fiche de
+     * propriétés qui peut être longue ; si c'est la colonne qui défile, la
+     * bascule « Outils / Propriétés » part avec elle vers le haut, et l'on se
+     * retrouve dans un panneau dont la seule sortie est hors de l'écran.
+     */
+    expect(rule('.sidebar')).toMatch(/flex-direction:\s*column/u);
+    expect(rule('.column-pane')).toMatch(/flex:\s*1/u);
+    expect(rule('.column-pane')).toMatch(/overflow-y:\s*auto/u);
+    expect(rule('.column-pane')).toMatch(/min-height:\s*0/u);
+  });
+
+  it('borne le navigateur du modèle, qui flotte sur le dessin', () => {
+    /*
+     * L'arborescence n'est plus dans la colonne : c'est un panneau qu'on
+     * ouvre, posé contre le plan. Posé, donc hors de toute case qui le
+     * contiendrait — cent onze entrées sur un écran de 768 px sortent par le
+     * bas, et il n'y aurait rien pour aller les chercher.
+     */
+    expect(rule('.model-navigator')).toMatch(/position:\s*fixed/u);
+    expect(rule('.model-navigator')).toMatch(/overflow-y:\s*auto/u);
+    expect(rule('.model-navigator')).toMatch(/bottom:/u);
   });
 
   it('pose le panneau d’affichage hors de la case du plan', () => {
