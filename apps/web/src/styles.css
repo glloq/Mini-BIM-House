@@ -2872,6 +2872,69 @@ legend {
   overflow-y: auto;
 }
 /*
+ * Les réglages qu'on ne touche presque jamais, repliés.
+ *
+ * Un outil offrait tout ce qu'il sait faire d'un seul coup : cinq menus sur
+ * une rangée de trente-quatre pixels pour tracer un mur continu, dont
+ * « Référence » et « Fermer le contour » que personne ne change une fois sur
+ * dix. Le résultat n'était pas un écran riche, c'était un écran qu'on ne lit
+ * pas : ce qui compte vraiment — l'assemblage — se noyait dans ce qui ne
+ * compte que quelquefois.
+ *
+ * Le repli est un `details`, donc une position que le navigateur tient tout
+ * seul et que le clavier ouvre. Le panneau flotte au-dessus du plan comme le
+ * reste du bandeau, faute de quoi il serait coupé à trente-quatre pixels.
+ *
+ * La classe ne peut pas s'appeler `tool-more` : c'est déjà le « + » de la
+ * palette, dont le `summary` est un carré de deux rem.
+ */
+.tool-option-more {
+  position: relative;
+  flex: none;
+}
+.tool-option-more > summary {
+  padding: 0.2rem 0.45rem;
+  border: 1px dashed var(--line);
+  border-radius: 0.45rem;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  list-style: none;
+}
+.tool-option-more > summary::-webkit-details-marker {
+  display: none;
+}
+.tool-option-more[open] > summary {
+  border-color: var(--accent);
+  border-style: solid;
+}
+.tool-option-more-fields {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  display: flex;
+  width: max-content;
+  max-width: min(22rem, 92vw);
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: var(--surface);
+  box-shadow: 0 0.6rem 1.6rem rgb(0 0 0 / 18%);
+  /*
+   * Le fond du panneau répond, lui aussi.
+   *
+   * `.tool-line *` est à `pointer-events: none` et seuls les contrôles sont
+   * réactivés : sans cette ligne, un clic entre deux champs traverserait le
+   * panneau et tomberait sur le plan, qui poserait un point.
+   */
+  pointer-events: auto;
+}
+/*
  * Les options de l'outil actif, et rien sans outil actif.
  *
  * Posée **par-dessus** le plan et non au-dessus de lui. Une rangée qui pousse

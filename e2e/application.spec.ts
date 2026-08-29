@@ -14,7 +14,12 @@ import {
   openLayerEditor,
   openModelTree,
 } from './support/panels.js';
-import { chooseTool, openSection, toolButton } from './support/tools.js';
+import {
+  chooseTool,
+  openSection,
+  toolButton,
+  toolField,
+} from './support/tools.js';
 
 /**
  * Console errors are a failure, not noise: a blank page caused by an unhandled
@@ -1586,7 +1591,9 @@ test('reaches a column and a component through the project tree', async ({
   // A name the reference house does not already hold: the tree lists what is
   // in the project, and two lines reading the same thing prove nothing about
   // which one was clicked.
-  await page.getByLabel('Nom').fill('Radiateur d’essai');
+  await (
+    await toolField(page, page.getByLabel('Nom'))
+  ).fill('Radiateur d’essai');
   await canvas.click({
     position: { x: box.width * 0.3, y: box.height * 0.35 },
   });
@@ -3315,7 +3322,9 @@ test('places a thing in the building, as an object of the editor', async ({
   // A name the reference house does not already hold: the tree lists what is
   // in the project, and two lines reading the same thing prove nothing about
   // which one was clicked.
-  await page.getByLabel('Nom').fill('Radiateur d’essai');
+  await (
+    await toolField(page, page.getByLabel('Nom'))
+  ).fill('Radiateur d’essai');
 
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
@@ -3354,15 +3363,19 @@ test('routes a run of pipe from port to port on the plan', async ({ page }) => {
   const ports = page.locator('[id^="network-port:water:"]');
   await expect(ports.first()).toBeVisible();
 
-  // Waste water falls by default and pressurised water does not: the tool
-  // reads the discipline of the network chosen just beside.
-  await expect(page.getByRole('spinbutton', { name: 'Pente (%)' })).toHaveValue(
-    '0',
-  );
+  /*
+   * La pente ne se pose que là où elle a une réponse.
+   *
+   * Le champ était offert à côté d'un réseau d'eau sous pression, où
+   * l'incliner ne veut rien dire, et il y valait zéro — une réponse à une
+   * question qu'on ne pose pas. Il paraît maintenant pour les réseaux qui
+   * s'écoulent par gravité, et il y arrive déjà réglé à deux pour cent : une
+   * évacuation horizontale est une évacuation qui ne s'écoule pas.
+   */
+  const slope = page.getByRole('spinbutton', { name: 'Pente (%)' });
+  await expect(slope).toHaveCount(0);
   await network.selectOption({ index: 1 });
-  await expect(page.getByRole('spinbutton', { name: 'Pente (%)' })).toHaveValue(
-    '2',
-  );
+  await expect(await toolField(page, slope)).toHaveValue('2');
   expect(errors).toEqual([]);
 });
 
@@ -3687,8 +3700,20 @@ test('draws the ground the house sits on and its structure', async ({
   const canvas = page.locator('.plan-canvas');
   await canvas.scrollIntoViewIfNeeded();
   const box = (await canvas.boundingBox())!;
-  await canvas.click({ position: { x: 20, y: 20 } });
-  await canvas.click({ position: { x: box.width - 20, y: 20 } });
+  /*
+   * Sous la rangée d'outils, qui flotte sur la marge haute du plan.
+   *
+   * Elle occupe les trente-quatre premiers pixels du dessin et laisse passer
+   * ce qui ne vise pas ses contrôles — mais ses contrôles, eux, répondent, et
+   * ils se déplacent pendant le tracé : dès le premier sommet posé, la rangée
+   * gagne « Fermer la surface », « Annuler dernier sommet » et les mesures,
+   * qui poussent les menus de l'outil vers la droite. Viser le coin haut droit
+   * du plan y tombait dessus. Quelqu'un qui voit la rangée clique en dessous,
+   * et c'est ce que fait ce test, comme celui des surfaces.
+   */
+  const under = 48;
+  await canvas.click({ position: { x: 20, y: under } });
+  await canvas.click({ position: { x: box.width - 20, y: under } });
   await canvas.click({
     position: { x: box.width - 20, y: box.height - 20 },
   });

@@ -357,6 +357,14 @@ export const EDITOR_TOOLS = [
         key: 'role',
         kind: 'SELECT',
         label: 'Rôle',
+        /*
+         * Le rôle suit l'assemblage dans presque tous les cas — un montant
+         * d'ossature fait une cloison, un bloc isolé fait un extérieur — et
+         * quand il ne le suit pas, le corriger après coup dans l'inspecteur
+         * est le même geste qu'ici. Ce qui décide vraiment du mur qu'on trace
+         * est l'assemblage et la face que le tracé suit ; le reste attend.
+         */
+        level: 'ADVANCED',
         choices: () => WALL_ROLE_OPTIONS,
         // A partition assembly proposes the matching role; the user stays free
         // to say otherwise, and nothing is inferred at creation time.
@@ -428,6 +436,9 @@ export const EDITOR_TOOLS = [
         key: 'role',
         kind: 'SELECT',
         label: 'Rôle',
+        // Même raison que pour le mur simple : l'assemblage décide, le rôle
+        // suit, et l'inspecteur le reprend sans qu'on redessine.
+        level: 'ADVANCED',
         choices: () => WALL_ROLE_OPTIONS,
         fallback: ({ project, value }) =>
           (project.assemblies ?? []).find(
@@ -449,6 +460,13 @@ export const EDITOR_TOOLS = [
         kind: 'SELECT',
         label: 'Créer',
         hint: 'Un mur par côté peut porter son propre assemblage et ses ouvertures.',
+        /*
+         * Un mur par côté est ce qu'on veut dans un plan de maison, et c'est
+         * ce qui est proposé. Le mur polyligne existe pour les cas où l'on
+         * tient à un seul objet ; c'est une préférence de modélisation, pas
+         * une décision qu'on prend en regardant le premier coin.
+         */
+        level: 'ADVANCED',
         choices: () => [
           { value: 'SEGMENTS', label: 'Un mur par côté' },
           { value: 'POLYLINE', label: 'Un seul mur polyligne' },
@@ -518,6 +536,9 @@ export const EDITOR_TOOLS = [
         key: 'role',
         kind: 'SELECT',
         label: 'Rôle',
+        // Même raison que pour le mur simple : l'assemblage décide, le rôle
+        // suit, et l'inspecteur le reprend sans qu'on redessine.
+        level: 'ADVANCED',
         choices: () => WALL_ROLE_OPTIONS,
         fallback: ({ project, value }) =>
           (project.assemblies ?? []).find(
@@ -608,6 +629,13 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         min: 0,
         step: 50,
+        /*
+         * Le repli suit déjà le type : zéro pour une porte, 900 pour une
+         * fenêtre, ce qui est la hauteur d'allège d'une maison ordinaire. On
+         * pose une baie en choisissant ce qu'elle est et sa largeur ; la
+         * remonter ou la descendre est un réglage qu'on fait exprès.
+         */
+        level: 'ADVANCED',
         fallback: ({ value }) =>
           value('openingType') === 'DOOR' ? '0' : '900',
       },
@@ -714,6 +742,14 @@ export const EDITOR_TOOLS = [
         key: 'name',
         kind: 'TEXT',
         label: 'Nom',
+        /*
+         * Un nom pour une pièce ; aucun pour toutes.
+         *
+         * « Tous les contours libres » en crée autant qu'il en trouve, et la
+         * commande n'en nomme aucun — elle ne leur passe que l'usage. Laisser
+         * le champ à l'écran laisserait croire qu'on baptise la fournée.
+         */
+        visibleWhen: ({ value }) => value('scope') === 'ONE',
         // A room with no name is a room nothing can name in a schedule; the
         // fallback is a placeholder the user is expected to replace, not a
         // value the application pretends to know.
@@ -796,6 +832,10 @@ export const EDITOR_TOOLS = [
         key: 'role',
         kind: 'SELECT',
         label: 'Rôle',
+        // Une dalle qu'on trace est un plancher ; plafond, fondation et
+        // terrasse existent, mais on les choisit en connaissance de cause et
+        // l'inspecteur les corrige aussi bien après la pose.
+        level: 'ADVANCED',
         choices: () => SLAB_ROLE_OPTIONS,
         fallback: () => 'FLOOR',
       },
@@ -890,6 +930,10 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         step: 50,
         min: 0,
+        // Ce qui décide d'une toiture qu'on trace est son contour, sa pente
+        // et le nombre de pans. Quarante centimètres de débord est ce que
+        // font la plupart des maisons ; l'ajuster est un second temps.
+        level: 'ADVANCED',
         fallback: () => '400',
       },
       {
@@ -966,6 +1010,13 @@ export const EDITOR_TOOLS = [
         step: 1,
         min: 2,
         hint: 'La hauteur de marche se déduit de la montée entre les niveaux.',
+        /*
+         * Ce qu'on décide en traçant la ligne de foulée, c'est la forme de
+         * l'escalier et son emmarchement : l'emprise au sol qu'on dessine. Le
+         * nombre de contremarches et le giron sont le réglage du confort, que
+         * l'inspecteur juge une fois l'escalier posé et la montée connue.
+         */
+        level: 'ADVANCED',
         // Sixteen risers for a storey of about 2,70 m gives roughly 17 cm,
         // which is where a house usually lands; the user changes it freely and
         // the inspector says whether the result is comfortable.
@@ -978,6 +1029,9 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         step: 10,
         min: 1,
+        // Même raison que les contremarches : les deux se règlent ensemble,
+        // après coup, en regardant si l'escalier se monte bien.
+        level: 'ADVANCED',
         fallback: () => '270',
       },
       {
@@ -1048,6 +1102,10 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         step: 50,
         hint: 'Hauteur d’un poteau, profondeur d’une fondation.',
+        // Un poteau monte du sol au plafond du niveau, et c'est ce que le
+        // repli donne. Ce qu'on regarde en cliquant est sa section, parce que
+        // c'est elle qu'on voit en plan.
+        level: 'ADVANCED',
         fallback: ({ project }) =>
           String(project.building.levels[0]?.defaultStoreyHeightMm ?? 2500),
       },
@@ -1146,6 +1204,18 @@ export const EDITOR_TOOLS = [
         label: 'Nature',
         hint: 'Un voisin, une terrasse et une zone à laisser libre ne portent pas la même ombre.',
         /*
+         * Une parcelle n'a pas de nature.
+         *
+         * C'est une limite : `addSiteOutlineCommand` ne garde d'elle que son
+         * contour, et jette nature, hauteur et nom. Les proposer quand même
+         * revenait à faire répondre à une question que la commande ne pose
+         * pas — trois champs qui ne veulent rien dire pour ce qu'on trace.
+         *
+         * Le champ disparaît, la réponse reste : repasser sur « Un obstacle »
+         * retrouve la nature qu'on avait choisie.
+         */
+        visibleWhen: ({ value }) => value('target') === 'OBSTACLE',
+        /*
          * Seulement ce qui se trace en refermant un contour.
          *
          * L'arbre, la haie, la clôture et le portail étaient offerts ici, et
@@ -1167,12 +1237,19 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         step: 500,
         hint: 'Vide, la hauteur reste inconnue et l’ombre n’est pas calculée.',
+        // La hauteur d'un obstacle est ce qui décide de son ombre, donc elle
+        // se pose avec lui. Une parcelle n'en a pas.
+        visibleWhen: ({ value }) => value('target') === 'OBSTACLE',
         fallback: () => '',
       },
       {
         key: 'name',
         kind: 'TEXT',
         label: 'Nom',
+        // Un nom se donne quand on a quelque chose à nommer, et il se donne
+        // aussi bien dans l'inspecteur une fois l'obstacle tracé.
+        visibleWhen: ({ value }) => value('target') === 'OBSTACLE',
+        level: 'ADVANCED',
         fallback: () => '',
       },
     ],
@@ -1231,7 +1308,16 @@ export const EDITOR_TOOLS = [
         hint: 'Sans hauteur, l’ombre de l’arbre n’est pas calculée.',
         fallback: () => String(DEFAULT_TREE_HEIGHT_MM),
       },
-      { key: 'name', kind: 'TEXT', label: 'Nom', fallback: () => '' },
+      {
+        key: 'name',
+        kind: 'TEXT',
+        label: 'Nom',
+        // Un arbre, une haie, une clôture, un portail se posent par leur
+        // emprise et leur hauteur ; les nommer sert au repérage, plus tard,
+        // et le repli vide dit déjà qu'on n'attend rien ici.
+        level: 'ADVANCED',
+        fallback: () => '',
+      },
     ],
     createCommand: (context) =>
       addSiteTreeCommand(
@@ -1289,7 +1375,15 @@ export const EDITOR_TOOLS = [
         hint: 'Sans hauteur, l’ombre de la haie n’est pas calculée.',
         fallback: () => String(DEFAULT_HEDGE_HEIGHT_MM),
       },
-      { key: 'name', kind: 'TEXT', label: 'Nom', fallback: () => '' },
+      {
+        key: 'name',
+        kind: 'TEXT',
+        label: 'Nom',
+        // Même raison que pour l'arbre : on pose une emprise et une hauteur,
+        // le nom vient au repérage.
+        level: 'ADVANCED',
+        fallback: () => '',
+      },
     ],
     createCommand: (context) =>
       addSiteAxisCommand(
@@ -1335,7 +1429,15 @@ export const EDITOR_TOOLS = [
         hint: 'Sans hauteur, l’ombre de la clôture n’est pas calculée.',
         fallback: () => String(DEFAULT_FENCE_HEIGHT_MM),
       },
-      { key: 'name', kind: 'TEXT', label: 'Nom', fallback: () => '' },
+      {
+        key: 'name',
+        kind: 'TEXT',
+        label: 'Nom',
+        // Même raison que pour l'arbre : on pose une emprise et une hauteur,
+        // le nom vient au repérage.
+        level: 'ADVANCED',
+        fallback: () => '',
+      },
     ],
     /*
      * Aucune largeur à saisir : une clôture est une ligne.
@@ -1389,7 +1491,15 @@ export const EDITOR_TOOLS = [
         hint: 'Sans hauteur, l’ombre du portail n’est pas calculée.',
         fallback: () => String(DEFAULT_FENCE_HEIGHT_MM),
       },
-      { key: 'name', kind: 'TEXT', label: 'Nom', fallback: () => '' },
+      {
+        key: 'name',
+        kind: 'TEXT',
+        label: 'Nom',
+        // Même raison que pour l'arbre : on pose une emprise et une hauteur,
+        // le nom vient au repérage.
+        level: 'ADVANCED',
+        fallback: () => '',
+      },
     ],
     createCommand: (context) =>
       addSiteAxisCommand(
@@ -1444,6 +1554,9 @@ export const EDITOR_TOOLS = [
         kind: 'TEXT',
         label: 'Nom',
         hint: 'Vide, le composant prend le nom de sa catégorie.',
+        // Le repli le dit lui-même : sans nom, le composant prend celui de sa
+        // catégorie, ce qui suffit pour poser et se corrige d'un clic.
+        level: 'ADVANCED',
         fallback: () => '',
       },
       {
@@ -1452,6 +1565,9 @@ export const EDITOR_TOOLS = [
         label: 'Altitude sur le niveau',
         unit: 'mm',
         step: 10,
+        // Presque tout se pose au sol du niveau. Une prise à 1,10 m est un
+        // cas qu'on règle exprès, pas un champ qu'on relit à chaque pose.
+        level: 'ADVANCED',
         fallback: () => '0',
       },
     ],
@@ -1743,6 +1859,23 @@ export const EDITOR_TOOLS = [
         unit: '%',
         step: 0.5,
         hint: 'Une évacuation horizontale est une évacuation qui ne s’écoule pas.',
+        /*
+         * Seuls les réseaux qui s'écoulent par gravité ont une pente.
+         *
+         * Le repli le disait déjà — deux pour cent pour les eaux usées et de
+         * pluie, zéro pour les autres — mais le champ restait offert à côté
+         * d'un réseau d'eau sous pression, où l'incliner ne veut rien dire.
+         * La question ne se pose que là où elle a une réponse.
+         */
+        visibleWhen: ({ project, value }) => {
+          const network = (project.systems ?? []).find(
+            ({ id }) => id === value('networkId'),
+          );
+          return (
+            network?.discipline === 'WASTEWATER' ||
+            network?.discipline === 'RAINWATER'
+          );
+        },
         // Gravity drainage needs a fall and nothing else does; the default
         // follows the discipline of the network chosen just beside rather
         // than a number written into the code.
@@ -1763,6 +1896,9 @@ export const EDITOR_TOOLS = [
         unit: 'mm',
         step: 100,
         hint: 'Une colonne se voit : le tracé monte à la verticale au dernier coude.',
+        // Un tronçon court dans le plan du niveau ; la colonne qui monte à
+        // l'étage est le cas particulier qu'on demande quand on le veut.
+        level: 'ADVANCED',
         fallback: () => '0',
       },
     ],
@@ -1919,6 +2055,9 @@ export const EDITOR_TOOLS = [
         step: 0.5,
         min: 0.5,
         hint: 'Hauteur des lettres sur le papier, à l’échelle de la feuille.',
+        // 2,5 mm est la hauteur de texte des plans d'architecte ; ce qu'on
+        // décide en posant une annotation, c'est ce qu'elle dit.
+        level: 'ADVANCED',
         fallback: () => '2.5',
       },
     ],
@@ -1963,6 +2102,17 @@ export const EDITOR_TOOLS = [
         key: 'nodeKind',
         kind: 'SELECT',
         label: 'Type de nœud',
+        /*
+         * Montré, mais inerte tant qu'aucun réseau n'existe.
+         *
+         * Les types de nœud viennent de la discipline du réseau : sans
+         * réseau, la liste est vide et il n'y a rien à choisir. Masquer le
+         * champ ferait disparaître la question ; le laisser inerte dit qu'il
+         * manque un réseau avant, ce que la commande répond déjà quand on
+         * clique quand même.
+         */
+        enabledWhen: ({ project, value }) =>
+          (project.systems ?? []).some(({ id }) => id === value('networkId')),
         // The kinds one can place belong to the discipline of the network
         // chosen just beside: a luminaire is not a node an extract duct carries.
         choices: ({ project, value }) => {

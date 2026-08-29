@@ -20,6 +20,22 @@ export interface ToolOptionContext {
 }
 
 /**
+ * À quel moment une option se présente.
+ *
+ * Une barre d'outils qui montre tout ce qu'un outil accepte montre, au moment
+ * du placement, des champs qui ne pèsent pas sur le geste en cours : le rôle
+ * d'un mur, la hauteur des lettres d'une annotation, l'altitude d'un composant
+ * se règlent aussi bien après coup, et occupent pourtant la même place que
+ * l'assemblage, qui, lui, décide de ce qui va être construit.
+ *
+ * Deux niveaux, et pas trois : ce qui peut changer la décision immédiate, et
+ * le reste. Une option qu'on ne sait pas classer reste `PRIMARY` — se tromper
+ * en montrant coûte une ligne de trop, se tromper en cachant coûte un réglage
+ * qu'on cherche.
+ */
+export type ToolOptionLevel = 'PRIMARY' | 'ADVANCED';
+
+/**
  * One thing a tool lets the user decide before drawing.
  *
  * The toolbar used to hold a panel per tool, written by hand: the wall's
@@ -52,6 +68,40 @@ export interface ToolOptionDefinition {
   readonly choices?: (
     context: ToolOptionContext,
   ) => readonly ToolOptionChoice[];
+  /**
+   * Whether the option means anything in the state the tool is in.
+   *
+   * L'outil Terrain trace une parcelle ou un obstacle. Une parcelle est une
+   * limite : elle n'a ni nature, ni hauteur, ni nom — la commande les ignore
+   * purement et simplement. Les proposer quand même, c'était offrir trois
+   * réponses à une question qui n'est pas posée.
+   *
+   * Une option muette est **absente de l'écran, pas effacée** : sa valeur
+   * reste lisible par `optionValue`, que les outils appellent au moment de
+   * construire. Repasser sur « Obstacle » retrouve la nature qu'on avait
+   * choisie, et un outil ne lit jamais `undefined` parce qu'un champ a quitté
+   * la barre. Une option qui ne dit rien est visible.
+   */
+  readonly visibleWhen?: (context: ToolOptionContext) => boolean;
+  /**
+   * Whether the option can be changed right now.
+   *
+   * Différent de `visibleWhen`, et pour une raison précise : il y a des cas
+   * où la question se pose mais où l'on ne peut pas encore y répondre — le
+   * type d'un nœud de réseau tant qu'aucun réseau n'existe. La masquer ferait
+   * disparaître la question ; la montrer inerte dit qu'elle existe et qu'il
+   * manque quelque chose avant. Une option qui ne dit rien est modifiable.
+   */
+  readonly enabledWhen?: (context: ToolOptionContext) => boolean;
+  /**
+   * Si l'option est offerte d'emblée ou derrière « Plus de réglages ».
+   *
+   * Ce n'est pas une importance, c'est un moment : `ADVANCED` dit que le
+   * repli répond juste dans l'immense majorité des poses, et que le régler
+   * est un geste qu'on fait exprès. Rien n'est retiré — voir
+   * `option-visibility.ts`, qui ne fait que ranger.
+   */
+  readonly level?: ToolOptionLevel;
   /**
    * What the option means when the user has not chosen.
    *
@@ -94,6 +144,13 @@ export function storageKeyOf(
  * deleted, a network that was renamed — is not used: the option falls back to
  * what the project can actually offer, rather than drawing with a reference
  * pointing nowhere.
+ *
+ * Cette fonction ne regarde ni `visibleWhen` ni `level`, et c'est délibéré :
+ * ce sont les outils eux-mêmes qui l'appellent pour construire, pas seulement
+ * l'affichage. Une option repliée ou masquée garde donc exactement la valeur
+ * qu'elle avait — masquer est une décision d'écran, effacer serait une
+ * décision de modèle, et un outil qui lirait `undefined` parce qu'un champ a
+ * quitté la barre serait un défaut bien pire que le champ de trop.
  */
 export function optionValue(
   project: Project,
