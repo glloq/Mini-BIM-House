@@ -8,6 +8,7 @@ import {
   duplicateObjectsCommand,
   moveObjectsCommand,
   pasteClipboardCommand,
+  repeatObjectsCommand,
 } from './editing-commands.js';
 
 function file() {
@@ -102,6 +103,73 @@ describe('carrying a selection across the plan', () => {
 
 describe('copying a selection a little to the side', () => {
   const ids = (prefix: string) => `${prefix}-copy`;
+
+  it('donne un support à la copie d’un équipement qui n’en nommait pas', () => {
+    /*
+     * Sept équipements sur vingt-trois se laissaient dupliquer.
+     *
+     * Les vingt-trois appareils de la maison de référence sont posés sans
+     * support nommé, et la fiche d'un plafonnier exige un mur ou une dalle.
+     * La copie était donc refusée — « Ce modèle se fixe à : Mur, Dalle » —
+     * alors que l'original est là, sous les yeux. Le refus était exact : c'est
+     * bien la copie qui manquait de support. Seuls passaient les sept
+     * appareils dont la fiche n'exige rien.
+     *
+     * La copie demande maintenant son support à la règle qui répond déjà pour
+     * une pose, au point où elle arrive. Il en reste un seul de refusé, et
+     * pour une raison qu'on ne peut pas lui enlever : un disjoncteur se fixe à
+     * un tableau, et déplacer une copie de soixante centimètres ne la pose sur
+     * aucun tableau.
+     */
+    const opened = file();
+    const level = opened.project.building.levels[0]!;
+    const posed = level.components ?? [];
+    expect(posed.length).toBeGreaterThan(20);
+    const accepted = posed.filter((component) => {
+      const result = duplicateObjectsCommand(
+        opened,
+        'ground',
+        [component.id],
+        { x: 600, y: 0 },
+        (prefix) => `${prefix}-${component.id}`,
+      );
+      return (
+        result.status === 'OK' && result.command.validate(opened.project).valid
+      );
+    });
+    expect(accepted.length).toBe(posed.length - 1);
+  });
+
+  it('dit laquelle des copies est refusée, et ce qu’il faut en faire', () => {
+    /*
+     * Une copie peut être impossible là où elle tombe.
+     *
+     * Un appareil répété finit par sortir de la dalle qui le portait, et sa
+     * fiche exige un support. Le refus remontait alors du modèle, nommant
+     * l'identifiant d'un objet que personne n'a jamais vu :
+     * « component:add:component-1803978a-4ec8-… ». Rien ne disait laquelle des
+     * copies était en cause, ni qu'il suffisait d'en demander moins.
+     */
+    const opened = file();
+    const result = repeatObjectsCommand(
+      opened,
+      'ground',
+      ['component-battery'],
+      // Le pas est choisi pour que la troisième copie sorte de la dalle : les
+      // deux premières passent, ce qui est le cas intéressant.
+      [
+        { x: 833, y: 0 },
+        { x: 1666, y: 0 },
+        { x: 2499, y: 0 },
+      ],
+      (prefix) => `${prefix}-copie`,
+    );
+    expect(result.status).toBe('ERROR');
+    if (result.status !== 'ERROR') return;
+    expect(result.message).toContain('copie n° 3');
+    expect(result.message).toContain('Mur, Dalle');
+    expect(result.message).toContain('Réduisez le pas');
+  });
 
   it('copies walls and reports the copies, which is what is worked on next', () => {
     const opened = file();

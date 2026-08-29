@@ -309,7 +309,10 @@ describe('what a family says it does not do', () => {
     });
     expect(result.status).toBe('ERROR');
     if (result.status !== 'ERROR') return;
-    expect(result.message).toContain('sélectionnez-les avec lui');
+    // Ce que le refus doit dire est la raison, pas le remède : un tronçon n'a
+    // pas de position à lui. La phrase vaut aussi bien pour un déplacement
+    // d'ensemble que pour un rangement, où chaque objet part de son côté.
+    expect(result.message).toContain('n’a pas de position à lui');
   });
 
   it('refuses to move the parcel, which is the limit of the ground', () => {
