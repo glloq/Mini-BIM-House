@@ -15,7 +15,12 @@ import {
   CATALOG_DOMAINS,
   catalogFamilyView,
   catalogRows,
+  shownDomain,
+  withChosenDomain,
+  type CatalogFilter,
 } from './catalog-browser.js';
+import { CREATION_STAGES } from '../ux/creation-stages.js';
+import { sectionFamilyDomains, sectionsOfStage } from '../editor/toolbox.js';
 
 // Rows, not fiches: the panel draws a name and a version, and used to be
 // handed whole catalogue entries to do it.
@@ -215,5 +220,176 @@ describe('the drawing beside the name', () => {
       )
       .filter((id) => SYMBOL_LIBRARY_V1.definitions[id] === undefined);
     expect([...new Set(manquants)]).toEqual([]);
+  });
+});
+
+describe('ouvrir la nomenclature sur plusieurs métiers', () => {
+  /*
+   * Une sous-partie n'est pas un métier.
+   *
+   * La salle de bain pose des WC, des douches et des lavabos — de la
+   * Plomberie — et aussi des meubles sous vasque et des colonnes ; la cuisine
+   * mêle l'électroménager et le mobilier. Ouverte sur le seul métier le plus
+   * servi, l'autre moitié de ce qu'elle pose restait derrière un
+   * élargissement à la main que personne ne devine — et une recherche qui ne
+   * rend rien parce qu'on regarde le mauvais métier est pire qu'une recherche
+   * vide : elle fait croire que la famille n'existe pas.
+   */
+  const idsOf = (rows: readonly { readonly familyId: string }[]) =>
+    rows.map(({ familyId }) => familyId).sort();
+
+  it('rend l’union des métiers ouverts, et non le premier seul', () => {
+    const plomberie = catalogRows(entriesByFamily, known, {
+      domain: 'PLUMBING',
+    });
+    const mobilier = catalogRows(entriesByFamily, known, {
+      domain: 'FURNITURE',
+    });
+    const salleDeBain = catalogRows(entriesByFamily, known, {
+      domains: ['PLUMBING', 'FURNITURE'],
+    });
+    // Exactement les deux métiers réunis : ni le premier seul — ce que le
+    // sélecteur faisait — ni la nomenclature entière, ce que rendrait un
+    // filtre qui ignorerait la liste.
+    expect(idsOf(salleDeBain)).toEqual(idsOf([...plomberie, ...mobilier]));
+    expect(salleDeBain.length).toBe(plomberie.length + mobilier.length);
+    expect(salleDeBain.length).toBeGreaterThan(plomberie.length);
+    // Et la famille par laquelle on s'en est aperçu : « bidet » est de la
+    // Plomberie, une colonne de rangement du Mobilier, et la salle de bain
+    // pose les deux.
+    expect(salleDeBain.some(({ domain }) => domain === 'FURNITURE')).toBe(true);
+    expect(salleDeBain.some(({ domain }) => domain === 'PLUMBING')).toBe(true);
+  });
+
+  it('ne filtre rien sur une liste vide, et filtre sur une liste pleine', () => {
+    // Une sous-partie qui ne déclare aucun métier ouvre la nomenclature telle
+    // qu'elle est : lui rendre zéro famille serait la punir de ne rien
+    // savoir, alors que « tout » est la bonne réponse à « je ne sais pas où
+    // chercher ».
+    expect(catalogRows(entriesByFamily, known, { domains: [] }).length).toBe(
+      catalogRows(entriesByFamily, known).length,
+    );
+    const deux = catalogRows(entriesByFamily, known, {
+      domains: ['LIGHTING', 'SAFETY'],
+    });
+    expect(deux.length).toBeGreaterThan(0);
+    expect(
+      deux.every(({ domain }) => domain === 'LIGHTING' || domain === 'SAFETY'),
+    ).toBe(true);
+    expect(deux.length).toBeLessThan(
+      catalogRows(entriesByFamily, known).length,
+    );
+  });
+
+  it('cumule le métier choisi et les métiers ouverts', () => {
+    // Deux critères posés ensemble se lisent « et », comme le métier et la
+    // vague : on ne rend jamais plus large que ce qui a été demandé. L'écran
+    // ne les pose jamais ensemble — choisir efface l'ouverture — mais le
+    // filtre doit répondre quand même.
+    const croise = catalogRows(entriesByFamily, known, {
+      domain: 'FURNITURE',
+      domains: ['PLUMBING', 'FURNITURE'],
+    });
+    expect(idsOf(croise)).toEqual(
+      idsOf(catalogRows(entriesByFamily, known, { domain: 'FURNITURE' })),
+    );
+    expect(
+      catalogRows(entriesByFamily, known, {
+        domain: 'FURNITURE',
+        domains: ['PLUMBING'],
+      }),
+    ).toEqual([]);
+  });
+
+  it('montre le premier métier ouvert, et le choix efface l’ouverture', () => {
+    const ouvert: CatalogFilter = { domains: ['PLUMBING', 'FURNITURE'] };
+    // La case ne peut pas rester vide : elle dirait « Tous » au-dessus d'une
+    // liste qui n'en montre que deux sur seize.
+    expect(shownDomain(ouvert)).toBe('PLUMBING');
+    expect(shownDomain({})).toBe('');
+    expect(shownDomain({ domain: 'HEATING', domains: ['PLUMBING'] })).toBe(
+      'HEATING',
+    );
+    // Choisir remplace : demander « Mobilier » depuis une salle de bain
+    // ouverte sur Plomberie + Mobilier rend le Mobilier et rien d'autre.
+    const choisi = withChosenDomain(ouvert, 'FURNITURE');
+    expect(choisi.domain).toBe('FURNITURE');
+    expect(choisi.domains).toBeUndefined();
+    expect(idsOf(catalogRows(entriesByFamily, known, choisi))).toEqual(
+      idsOf(catalogRows(entriesByFamily, known, { domain: 'FURNITURE' })),
+    );
+    // Et « Tous » efface les deux : le mot promet la nomenclature entière.
+    const tous = withChosenDomain(choisi, '');
+    expect(tous.domain).toBeUndefined();
+    expect(tous.domains).toBeUndefined();
+    expect(catalogRows(entriesByFamily, known, tous).length).toBe(
+      catalogRows(entriesByFamily, known).length,
+    );
+  });
+
+  it('ouvre chaque sous-partie sur tout ce qu’elle pose', () => {
+    /*
+     * Le bout du chemin, mesuré sur la boîte à outils elle-même.
+     *
+     * `sectionFamilyDomains` rend les métiers qu'une sous-partie sert
+     * vraiment, du plus servi au moins ; « Autre… » les passe tous. Ce test
+     * refuse le retour en arrière : une sous-partie qui n'ouvrirait que sur
+     * le premier laisserait ses autres métiers derrière un geste à la main.
+     *
+     * Rien n'est écrit en dur ici : les comptes viennent de la nomenclature,
+     * de sorte qu'une famille ajoutée demain les déplace sans toucher au
+     * test.
+     */
+    const placing = CREATION_STAGES.flatMap((stage) =>
+      sectionsOfStage(stage).filter(({ entries }) =>
+        entries.some(({ family: named }) => named !== undefined),
+      ),
+    );
+    expect(placing.length).toBeGreaterThanOrEqual(19);
+    let premierSeul = 0;
+    let tousLesMetiers = 0;
+    let melangees = 0;
+    for (const section of placing) {
+      const domains = sectionFamilyDomains(section);
+      const premier = domains[0];
+      if (premier === undefined) continue;
+      const avant = catalogRows(entriesByFamily, known, {
+        domain: premier,
+        withGenericData: true,
+      });
+      const apres = catalogRows(entriesByFamily, known, {
+        domains,
+        withGenericData: true,
+      });
+      premierSeul += avant.length;
+      tousLesMetiers += apres.length;
+      if (domains.length > 1) melangees += 1;
+      // Ouvrir sur tous les métiers ne peut que rendre au moins autant que sur
+      // le premier seul, et jamais rien d'un métier que la sous-partie ne sert
+      // pas : « tous ses métiers » n'est pas « toute la nomenclature », qui
+      // serait le mur de cinq cents lignes qu'on ne lit pas.
+      expect(apres.length, section.id).toBeGreaterThanOrEqual(avant.length);
+      expect(
+        apres.every((row) => domains.includes(row.domain)),
+        section.id,
+      ).toBe(true);
+      // Et chaque métier déclaré est atteignable sans rien élargir — sauf
+      // celui dont aucune famille n'a encore de fiche, qu'aucun filtre ne
+      // peut faire apparaître.
+      for (const domain of domains)
+        expect(
+          apres.some((row) => row.domain === domain) ||
+            catalogRows(entriesByFamily, known, {
+              domain,
+              withGenericData: true,
+            }).length === 0,
+          `${section.id} · ${domain}`,
+        ).toBe(true);
+    }
+    // Une bonne moitié des sous-parties mêle deux métiers ou plus : c'est ce
+    // qui rend l'écart mesurable, et un jour où plus aucune n'en mêlerait,
+    // ce test passerait sans rien prouver.
+    expect(melangees).toBeGreaterThanOrEqual(8);
+    expect(tousLesMetiers).toBeGreaterThan(premierSeul);
   });
 });

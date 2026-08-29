@@ -486,11 +486,31 @@ function App() {
   /*
    * La sous-partie dont on est en train de lire la nomenclature.
    *
-   * Une sous-partie nomme trois à huit familles ; le métier en tient quarante.
-   * « Autre… » ouvre les autres, filtrées sur ce métier-là.
+   * Une sous-partie nomme trois à huit familles ; ses métiers en tiennent
+   * plusieurs dizaines. « Autre… » ouvre les autres, filtrées sur ces
+   * métiers-là.
+   *
+   * Des métiers, au pluriel, parce qu'une sous-partie n'en sert pas qu'un : la
+   * salle de bain pose du sanitaire *et* du mobilier, la cuisine de
+   * l'électroménager *et* du mobilier. N'en porter qu'un laissait l'autre
+   * moitié de ce qu'elle pose derrière un élargissement à la main que personne
+   * ne devine, sur le chemin de toutes les familles que la boîte à outils ne
+   * nomme pas — c'est-à-dire l'immense majorité des cinq cent vingt-sept.
+   *
+   * Ce sont des chaînes, et rien d'autre : la nomenclature pèse soixante et
+   * onze kio, ce fichier est le premier écran, et la bibliothèque qui la lit
+   * est chargée à la demande précisément pour qu'elle n'y entre jamais. Le
+   * métier unique reste porté à côté de la liste — la coque peut n'envoyer que
+   * lui, et c'est encore ce qu'elle fait tant que « Autre… » ne passe pas la
+   * liste entière.
    */
   const [browsing, setBrowsing] = useState<
-    { readonly label: string; readonly domain?: DesignDomainId } | undefined
+    | {
+        readonly label: string;
+        readonly domain?: DesignDomainId;
+        readonly domains?: readonly DesignDomainId[];
+      }
+    | undefined
   >(undefined);
   const [displayOpen, setDisplayOpen] = useState(false);
   /*
@@ -3506,6 +3526,9 @@ function App() {
                 {...(browsing.domain === undefined
                   ? {}
                   : { domain: browsing.domain })}
+                {...(browsing.domains === undefined
+                  ? {}
+                  : { domains: browsing.domains })}
                 onCommand={runCommand}
                 onMessage={setMessage}
                 onClose={() => setBrowsing(undefined)}

@@ -79,6 +79,57 @@ test('tracer un mur dans un projet neuf', async ({ page }) => {
   await expectGestures(page, 'tracer un mur dans un projet neuf', 4);
 });
 
+test('revenir à une sous-partie déjà ouverte ne se paie pas deux fois', async ({
+  page,
+}) => {
+  /*
+   * L'enchaînement le plus ordinaire du dessin : un mur, une porte dans ce
+   * mur, un autre mur. Onze gestes, et l'un d'eux ne devrait pas exister.
+   *
+   * Cinq sont des actions sur le plan, trois sont les outils qu'on prend, un
+   * est l'espace. Le onzième rouvre « Murs », que l'ouverture d'« Ouvertures »
+   * avait refermé : le sommaire de la colonne est un accordéon, et revenir à
+   * une sous-partie où l'on travaillait coûte un clic pour défaire ce que le
+   * précédent avait défait.
+   *
+   * Essayé, mesuré, défait : laisser plusieurs replis ouverts ramène bien le
+   * compte à dix, et fait paraître ensemble des entrées qui portent le même
+   * nom dans des sous-parties différentes — deux boutons « Tracer un
+   * tronçon », l'un pour une canalisation, l'autre pour un circuit. À l'œil on
+   * les départage par le titre sous lequel ils sont rangés ; pour qui écoute
+   * la page, ce sont deux boutons identiques. Un geste gagné contre un écran
+   * ambigu n'est pas un bon échange.
+   *
+   * Le budget dit donc onze et non dix, et il dit pourquoi. Le jour où les
+   * entrées de la boîte porteront des noms qui se distinguent, il descendra —
+   * et c'est ce test qui le rappellera.
+   */
+  await fresh(page);
+  const canvas = page.locator(CANVAS);
+
+  await openStage(page, 'Bâtiment');
+  await openTools(page);
+  await openSection(page, 'Murs');
+  await toolButton(page, 'Mur').click();
+  await canvas.click({ position: await at(page, 0.3, 0.4) });
+  await canvas.click({ position: await at(page, 0.7, 0.4) });
+
+  await openTools(page);
+  await openSection(page, 'Ouvertures');
+  await toolButton(page, 'Porte').click();
+  await page.locator('[id^="wall:"]').first().click({ force: true });
+
+  await openTools(page);
+  await openSection(page, 'Murs');
+  await toolButton(page, 'Mur').click();
+  await canvas.click({ position: await at(page, 0.3, 0.6) });
+  await canvas.click({ position: await at(page, 0.7, 0.6) });
+
+  await expect(page.locator('[id^="wall:"]')).toHaveCount(2);
+  await expect(page.locator('[id^="opening:"]')).toHaveCount(1);
+  await expectGestures(page, 'un mur, une porte, puis un autre mur', 11);
+});
+
 test('poser une porte dans un mur existant', async ({ page }) => {
   await demo(page);
   const before = await page.locator('[id^="opening:"]').count();
@@ -346,22 +397,25 @@ test('poser ce que la sous-partie ne nomme pas, par la nomenclature', async ({
    * « Autre… » est la porte vers les cinq cents familles, et le budget dit ce
    * qu'elle coûte à franchir.
    *
-   * Le filtre de métier est le geste surprise. « Autre… » ouvre la
-   * nomenclature sur le métier de la sous-partie, et le métier de « Salle de
-   * bain » est Mobilier : elle s'ouvre donc sur dix familles de meubles, où
-   * un bidet n'est pas — il est en Plomberie. Chercher « bidet » dans cet
-   * écran ne rend rien du tout, et il faut d'abord élargir le métier pour
-   * que la recherche réponde. Une porte qui s'ouvre à côté de la pièce
+   * Le geste surprise était le filtre de métier. La sous-partie « Salle de
+   * bain » est rangée dans le Mobilier — c'est là qu'on la meuble — et la
+   * nomenclature s'ouvrait donc sur dix familles de meubles, où un bidet
+   * n'est pas : il est en Plomberie. Chercher « bidet » dans cet écran ne
+   * rendait rien du tout, et il fallait d'abord élargir le métier à la main
+   * pour que la recherche réponde. Une porte qui s'ouvrait à côté de la pièce
    * qu'on demandait.
+   *
+   * Elle s'ouvre maintenant sur tous les métiers que la sous-partie sert —
+   * plomberie **et** mobilier — et le geste a disparu du budget.
    */
   await openStage(page, 'Aménagement');
   await openTools(page);
   await openSection(page, 'Salle de bain');
-  await page.getByRole('button', { name: 'Autre…' }).click();
+  // Chaque « Autre… » dit de quelle sous-partie il ouvre le reste.
+  await page.getByRole('button', { name: 'Autre… — Salle de bain' }).click();
   const picker = page.getByRole('dialog', { name: 'Depuis la nomenclature' });
-  await mark(page, 'la nomenclature est ouverte — sur le mobilier');
+  await mark(page, 'la nomenclature est ouverte — sur ce que la pièce pose');
 
-  await picker.getByLabel('Métier').selectOption({ label: 'Plomberie' });
   await picker.getByLabel('Rechercher').fill('bidet');
   await picker.locator('.catalog-row').first().click();
   await picker.getByRole('button', { name: 'Poser sur le plan' }).click();
@@ -373,7 +427,7 @@ test('poser ce que la sous-partie ne nomme pas, par la nomenclature', async ({
   await expectGestures(
     page,
     'poser ce que la sous-partie ne nomme pas, par la nomenclature',
-    7,
+    6,
   );
 });
 

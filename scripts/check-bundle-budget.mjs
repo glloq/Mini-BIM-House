@@ -342,8 +342,14 @@ export const BUDGETS = {
    * un outil est en main quand la colonne choisit ce qu'elle montre. Trois
    * questions qui se posent au premier clic, donc trois réponses qui ne
    * peuvent pas attendre. Le plafond passe à 270.
+   *
+   * Et un dernier pour l'écart d'une étiquette de pièce : le champ que le
+   * modèle porte, la commande qui le pose, le geste qui la fait glisser et
+   * les deux champs qui la remettent au millimètre. Une étiquette se dessine
+   * au premier plan affiché, donc tout cela est du premier écran. Le plafond
+   * passe à 271.
    */
-  initialGzipBytes: 270 * 1024,
+  initialGzipBytes: 271 * 1024,
   /**
    * Everything the build produces, gzipped.
    *
@@ -598,8 +604,14 @@ export const BUDGETS = {
    * Et cinq pour l'outil Répéter et le raccordement d'un appareil à ses
    * réseaux : le détail est au-dessus, au premier écran, où ils décident tous
    * les deux sur la sélection. Le total passe à 515.
+   *
+   * Et deux pour l'écart d'une étiquette — le détail est au-dessus — et pour
+   * la nomenclature ouverte sur tous les métiers d'une sous-partie plutôt que
+   * sur le premier : neuf sous-parties sur vingt en mêlent au moins deux, et
+   * n'en ouvrir qu'un laissait l'autre moitié de ce qu'elles posent derrière
+   * un élargissement à la main. Le total passe à 517.
    */
-  totalGzipBytes: 515 * 1024,
+  totalGzipBytes: 517 * 1024,
 };
 
 /** The assets an HTML page loads before anything runs. */

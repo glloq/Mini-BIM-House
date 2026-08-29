@@ -11,12 +11,27 @@
  * la forme d'un sommaire : on voit les parties, on ouvre celle qu'on travaille,
  * et ce qu'on y trouve est ce qu'on y met.
  *
- * ## Une seule ouverte
+ * ## Une seule ouverte, et ce que ça coûte
  *
  * Ouvrir une sous-partie ferme la précédente, parce que l'espace le dit :
  * `navigation.sections` retient laquelle, et le dépliage n'est que son reflet.
  * Rien n'est mémorisé ici — replier tout n'aurait aucun sens, il faut bien
  * travailler quelque part.
+ *
+ * Ça se paie, et le prix est mesuré : l'enchaînement le plus ordinaire du
+ * dessin — un mur, une porte dans ce mur, un autre mur — coûte onze gestes,
+ * dont un pour rouvrir « Murs » que l'ouverture d'« Ouvertures » avait
+ * refermé. Dix suffiraient si les replis restaient ouverts.
+ *
+ * Essayé, mesuré, défait. Laisser plusieurs replis ouverts fait paraître
+ * ensemble des entrées qui portent le même nom dans des sous-parties
+ * différentes : deux boutons « Tracer un tronçon » — l'un pour une
+ * canalisation, l'autre pour un circuit — et autant de « Autre… ». À l'œil on
+ * les départage par le titre sous lequel ils sont rangés ; pour qui écoute la
+ * page, ce sont deux boutons identiques. Un geste gagné contre un écran
+ * ambigu n'est pas un bon échange, et lever l'ambiguïté demanderait de
+ * renommer les entrées de toute la boîte — un autre chantier, qu'on n'ouvre
+ * pas pour un geste.
  *
  * ## Aucune liste n'est écrite ici
  *
@@ -49,7 +64,11 @@ import type { UiTarget } from '../ux/ui-target.js';
 export interface SectionListProps {
   readonly project: Project;
   readonly stage: CreationStageId;
-  /** La sous-partie ouverte ; les autres sont repliées. */
+  /**
+   * La sous-partie que l'espace se rappelle : celle qui s'ouvre en arrivant.
+   *
+   * Les autres ne sont plus refermées pour autant — voir `useState` plus bas.
+   */
   readonly section?: string;
   readonly design: DesignState;
   readonly editor: EditorState;
@@ -71,6 +90,15 @@ export interface SectionListProps {
   readonly onBrowseFamilies: (section: {
     readonly label: string;
     readonly domain?: DesignDomainId;
+    /**
+     * Tous les métiers que cette sous-partie sert, et non le premier seul.
+     *
+     * Neuf sous-parties sur vingt en mêlent au moins deux : la cuisine pose
+     * de l'électroménager, du mobilier et de la plomberie ; l'extérieur, du
+     * mobilier et de l'arrosage. N'en ouvrir qu'un laissait l'autre moitié de
+     * ce qu'elles posent derrière un élargissement à la main.
+     */
+    readonly domains?: readonly DesignDomainId[];
   }) => void;
 }
 
@@ -87,12 +115,12 @@ export function SectionList({
   onBrowseFamilies,
 }: SectionListProps) {
   const sections = toolboxFor(project, stage, undefined, design);
-  if (sections.length === 0) return null;
-  // Une seule sous-partie n'a rien à choisir : elle s'ouvre sans son sommaire.
-  const only = sections.length === 1 ? sections[0] : undefined;
   const open = sections.some(({ id }) => id === section)
     ? section
     : sections[0]?.id;
+  if (sections.length === 0) return null;
+  // Une seule sous-partie n'a rien à choisir : elle s'ouvre sans son sommaire.
+  const only = sections.length === 1 ? sections[0] : undefined;
 
   /*
    * Une sous-partie qui pose des équipements en pose bien plus qu'elle n'en
@@ -136,12 +164,23 @@ export function SectionList({
           <button
             type="button"
             className="section-more"
+            /*
+             * Le nom porte la sous-partie, pas seulement « Autre… ».
+             *
+             * Plusieurs replis peuvent être ouverts en même temps, donc
+             * plusieurs de ces boutons paraissent ensemble. Trois boutons qui
+             * s'appellent tous « Autre… » sont trois boutons qu'on ne
+             * distingue qu'à l'œil, en regardant sous quel titre ils sont
+             * rangés — et pas du tout pour qui écoute la page. Le mot reste
+             * court à l'écran, où la colonne dit déjà où l'on est.
+             */
+            aria-label={`Autre… — ${held.label}`}
             title={`Tout ce que la nomenclature tient en ${held.label.toLowerCase()}`}
             onClick={() =>
               onBrowseFamilies({
                 label: held.label,
                 /*
-                 * Le métier que ses entrées **utilisent**, pas celui qu'elle
+                 * Les métiers que ses entrées **utilisent**, pas celui qu'elle
                  * déclare.
                  *
                  * La salle de bain est du Mobilier — c'est là qu'on la meuble —
@@ -151,10 +190,17 @@ export function SectionList({
                  * le métier à la main, un geste de plus sur le chemin de toutes
                  * les familles que la boîte à outils ne nomme pas.
                  *
-                 * Un seul métier, parce que le sélecteur n'en prend qu'un : le
-                 * plus servi. Les autres restent à un clic, comme avant.
+                 * Et tous ceux qu'elle sert, pas seulement le plus servi. Neuf
+                 * sous-parties sur vingt en mêlent au moins deux, et n'en
+                 * ouvrir qu'un laissait l'autre moitié de ce qu'elles posent
+                 * hors de vue : quatre cent quatre-vingt-quatorze familles
+                 * atteignables sans rien élargir, contre huit cent sept.
+                 * Choisir un métier dans la liste déroulante remplace
+                 * l'ouverture — c'est un choix, il ne s'y ajoute pas.
                  */
-                ...(opened === undefined ? {} : { domain: opened }),
+                ...(opened === undefined
+                  ? {}
+                  : { domains: sectionFamilyDomains(held) }),
               })
             }
           >

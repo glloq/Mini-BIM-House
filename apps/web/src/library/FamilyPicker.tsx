@@ -11,10 +11,15 @@
  *
  * Trois cent une entrées de plus ne sont pas la réponse : c'est le mur de
  * boutons que la boîte à outils a démonté. La réponse est **une** entrée par
- * sous-partie — « Autre… » — qui ouvre la nomenclature déjà filtrée sur le
- * métier de cette sous-partie, et qui, sur le choix d'une famille, installe sa
+ * sous-partie — « Autre… » — qui ouvre la nomenclature déjà filtrée sur les
+ * métiers de cette sous-partie, et qui, sur le choix d'une famille, installe sa
  * fiche **et** prend l'outil avec elle. Il reste un clic sur le plan, comme
  * pour n'importe quel bouton nommé.
+ *
+ * Sur *les* métiers, au pluriel : une sous-partie en mêle souvent deux — la
+ * salle de bain le sanitaire et le mobilier, la cuisine l'électroménager et le
+ * mobilier — et n'en ouvrir qu'un laissait l'autre moitié de ce qu'elle pose
+ * derrière un élargissement à la main.
  *
  * Rien n'est écrit ici que la bibliothèque ne sache déjà : c'est le même
  * `CatalogBrowser`, le même dépôt, la même commande d'installation.
@@ -41,12 +46,28 @@ import {
 } from '@house-technical-designer/catalog-registry';
 
 import { CatalogBrowser } from './CatalogBrowser.js';
+import type { CatalogFilter } from './catalog-browser.js';
 import { projectEquipmentFromCatalog } from './library-model.js';
 
 export interface FamilyPickerProps {
   readonly project: Project;
   /** Le métier de la sous-partie d'où on l'ouvre : la nomenclature s'y ouvre. */
   readonly domain?: DataDomain;
+  /**
+   * Tous les métiers que la sous-partie sert, du plus servi au moins servi.
+   *
+   * Une sous-partie n'en sert pas qu'un : la salle de bain pose des sanitaires
+   * **et** des meubles, la cuisine de l'électroménager **et** des meubles. Le
+   * sélecteur n'en prenait qu'un, et l'autre moitié de ce qu'elle pose restait
+   * derrière un élargissement à la main — sur le chemin de toutes les familles
+   * que la boîte à outils ne nomme pas, c'est-à-dire l'immense majorité.
+   *
+   * La coque envoie des chaînes, pas une fonction de la nomenclature : le
+   * registre pèse soixante et onze kio et n'a rien à faire dans le premier
+   * écran, que cette bibliothèque est justement chargée à la demande pour ne
+   * pas alourdir.
+   */
+  readonly domains?: readonly DataDomain[];
   /** Ce qu'on lit en tête : « Électricité — le reste du métier ». */
   readonly title: string;
   readonly onCommand: (command: ProjectCommand) => boolean;
@@ -72,6 +93,7 @@ function allowedHostsOfFamily(
 export function FamilyPicker({
   project,
   domain,
+  domains,
   title,
   onCommand,
   onPlace,
@@ -95,6 +117,19 @@ export function FamilyPicker({
     [repository],
   );
   const takenIds = (project.equipment ?? []).map(({ id }) => id);
+  /*
+   * Ce sur quoi la nomenclature s'ouvre, monté ici et non dans le JSX.
+   *
+   * Rien n'est passé quand on ne sait rien : un `openOn` vide n'est pas
+   * neutre, il coche « seulement ce qui est posable ». Ouvrir sans métier
+   * connu doit rendre la nomenclature telle qu'elle est, sans case cochée
+   * dans le dos de la personne.
+   */
+  const openOn: CatalogFilter = {
+    ...(domain === undefined ? {} : { domain }),
+    ...(domains === undefined || domains.length === 0 ? {} : { domains }),
+  };
+  const opened = Object.keys(openOn).length > 0;
 
   return (
     <div
@@ -112,16 +147,19 @@ export function FamilyPicker({
         </button>
       </header>
       {/*
-       * Ouvert sur le métier de la sous-partie, et sur ce qui a une fiche.
+       * Ouvert sur les métiers de la sous-partie, et sur ce qui a une fiche.
        *
        * Une nomenclature de cinq cents familles ouverte à plat est une liste
-       * qu'on ne lit pas ; ouverte sur les quarante-six de l'électricité, elle
-       * est un catalogue. Les filtres restent là : on les élargit d'un clic.
+       * qu'on ne lit pas ; ouverte sur les soixante-quatre de l'électricité,
+       * elle est un catalogue. Sur *tous* ses métiers plutôt que sur le seul
+       * plus servi, parce qu'une sous-partie en sert souvent deux et que
+       * l'élargissement à la main est le geste que personne ne devine. Les
+       * filtres restent là : on les rétrécit ou on les élargit d'un clic.
        */}
       <CatalogBrowser
         summariesByFamily={summariesByFamily}
         known={known}
-        {...(domain === undefined ? {} : { openOn: { domain } })}
+        {...(opened ? { openOn } : {})}
         placeLabel="Poser sur le plan"
         onAdd={(summary) => {
           void repository.entry(summary.ref).then((body) => {

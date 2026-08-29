@@ -4,12 +4,11 @@ import {
   CATALOG_DOMAINS,
   catalogFamilyView,
   catalogRows,
+  shownDomain,
+  withChosenDomain,
   type CatalogFilter,
 } from './catalog-browser.js';
-import {
-  FAMILY_REGISTRY,
-  type DataDomain,
-} from '@house-technical-designer/catalog-registry';
+import { FAMILY_REGISTRY } from '@house-technical-designer/catalog-registry';
 
 import { SymbolGlyph } from './SymbolGlyph.js';
 
@@ -32,6 +31,10 @@ export interface CatalogBrowserProps {
    * quarante-six de l'électricité sont un catalogue. Ouvert depuis la
    * sous-partie « Électricité », le métier est déjà su, et le redemander
    * serait faire recommencer un choix déjà fait.
+   *
+   * Ce peut être plusieurs métiers (`domains`) : une sous-partie n'en sert
+   * pas qu'un, et n'en montrer qu'un laissait l'autre moitié de ce qu'elle
+   * pose derrière un élargissement à la main.
    */
   readonly openOn?: CatalogFilter;
   /** Ce que le bouton d'une fiche dit qu'il fait : ajouter, ou poser. */
@@ -65,6 +68,25 @@ const STATUS_LABELS: Readonly<Record<string, string>> = {
 };
 
 const SHOWN = 40;
+
+/**
+ * Les métiers ouverts, nommés comme on les nomme ailleurs.
+ *
+ * Les libellés viennent de `CATALOG_DOMAINS`, c'est-à-dire de la même table
+ * que les options de la liste déroulante : une phrase qui dirait « Plomberie »
+ * au-dessus d'une case qui dit autre chose serait une deuxième traduction à
+ * tenir à jour. L'identifiant brut est rendu tel quel si la table l'ignore —
+ * cela ne devrait jamais arriver, et faire disparaître le métier serait pire
+ * que le montrer nu.
+ */
+function ouverts(domains: readonly string[]): string {
+  const labels = domains.map(
+    (id) => CATALOG_DOMAINS.find((domain) => domain.id === id)?.label ?? id,
+  );
+  return labels.length < 2
+    ? (labels[0] ?? '')
+    : `${labels.slice(0, -1).join(', ')} et ${labels[labels.length - 1]}`;
+}
 
 /**
  * The nomenclature, browsable.
@@ -139,15 +161,16 @@ export function CatalogBrowser({
         <label>
           Métier
           <select
-            value={filter.domain ?? ''}
+            /*
+             * Ce qu'on montre est le premier des métiers ouverts, et ce qu'on
+             * choisit efface l'ouverture : les deux règles vivent dans
+             * `catalog-browser.ts`, où un test les tient, plutôt qu'ici où
+             * rien ne les regarde.
+             */
+            value={shownDomain(filter)}
             onChange={(event) => {
               const chosen = event.target.value;
-              setFilter((current) => {
-                const { domain: _domain, ...rest } = current;
-                return chosen === ''
-                  ? rest
-                  : { ...rest, domain: chosen as DataDomain };
-              });
+              setFilter((current) => withChosenDomain(current, chosen));
             }}
           >
             <option value="">Tous</option>
@@ -173,6 +196,21 @@ export function CatalogBrowser({
         </label>
       </div>
 
+      {/*
+       * Ce que la case « Métier » ne peut pas dire à elle seule.
+       *
+       * Elle ne montre qu'un métier — le plus servi — alors que la liste en
+       * dessous en montre plusieurs : sans cette phrase, on lit « Plomberie »
+       * au-dessus de meubles sous vasque et on ne sait plus à quoi la case
+       * sert. Elle dit aussi ce qui arrive si on y touche, parce que c'est
+       * exactement ce qu'on est tenté de faire en la lisant.
+       */}
+      {filter.domain === undefined && (filter.domains ?? []).length > 1 && (
+        <p className="hint">
+          Ouvert sur {ouverts(filter.domains ?? [])}. Choisir un métier
+          ci-dessus n’en garde qu’un.
+        </p>
+      )}
       <p className="hint">
         {/* Of the families in service: one that has left it is offered to
             nobody, and counting it in the denominator would make « toutes »

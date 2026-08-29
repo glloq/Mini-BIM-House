@@ -23,6 +23,28 @@ import type { CatalogSummary } from '@house-technical-designer/catalog-registry'
 export interface CatalogFilter {
   readonly search?: string;
   readonly domain?: DataDomain;
+  /**
+   * Les métiers sur lesquels la nomenclature s'ouvre, quand elle en sert
+   * plusieurs à la fois.
+   *
+   * Une sous-partie ne tient pas dans un métier. La salle de bain pose des
+   * WC, des douches et des lavabos — de la Plomberie — et aussi des meubles
+   * sous vasque et des colonnes ; la cuisine mêle l'électroménager et le
+   * mobilier. Filtrée sur le seul métier le plus servi, l'autre moitié de ce
+   * qu'elle pose restait derrière un élargissement à la main que personne ne
+   * devine : chercher « colonne de rangement » dans la Plomberie ne rend
+   * rien, et une recherche vide fait croire que la famille n'existe pas.
+   *
+   * C'est donc une liste, et non un remplacement de `domain` : le métier
+   * unique reste ce que choisit la liste déroulante quand quelqu'un s'en
+   * sert, et il continue de marcher tel quel.
+   *
+   * Une liste vide ne filtre rien. C'est le cas d'une sous-partie qui ne
+   * déclare aucun métier ; lui rendre zéro famille serait la punir de ne
+   * rien savoir, alors que la nomenclature entière est exactement la bonne
+   * réponse à « je ne sais pas où chercher ».
+   */
+  readonly domains?: readonly DataDomain[];
   readonly wave?: number;
   /** Only the families somebody can actually place something from today. */
   readonly withGenericData?: boolean;
@@ -84,6 +106,24 @@ export function catalogRows(
       return false;
     if (filter.domain !== undefined && family.domain !== filter.domain)
       return false;
+    /*
+     * Les deux se cumulent, ils ne se remplacent pas.
+     *
+     * Chaque filtre rétrécit — c'est ce que « filtrer » veut dire — et deux
+     * critères posés ensemble se lisent « et », comme le métier et la vague
+     * juste au-dessus. L'écran, lui, ne les pose jamais ensemble : choisir un
+     * métier à la main efface la liste d'ouverture (voir
+     * `withChosenDomain`), parce qu'un choix explicite remplace ce sur quoi
+     * on avait ouvert. Le cumul n'est donc pas un mode d'emploi, c'est la
+     * réponse la moins surprenante au cas où les deux arriveraient quand
+     * même : on ne rend jamais plus large que ce qui a été demandé.
+     */
+    if (
+      filter.domains !== undefined &&
+      filter.domains.length > 0 &&
+      !filter.domains.includes(family.domain)
+    )
+      return false;
     if (filter.wave !== undefined && family.priority !== filter.wave)
       return false;
     const entries = summariesByFamily[family.id] ?? [];
@@ -116,6 +156,44 @@ export function catalogRows(
         second.progress - first.progress ||
         first.label.localeCompare(second.label, 'fr'),
     );
+}
+
+/**
+ * Le métier que la liste déroulante montre.
+ *
+ * Celui qu'on a choisi ; à défaut le premier de ceux sur lesquels on a
+ * ouvert, `sectionFamilyDomains` les rendant du plus servi au moins servi.
+ * La salle de bain affiche donc « Plomberie » et non « Tous » : dire « Tous »
+ * quand on montre deux métiers sur seize serait faux, et laisser la case vide
+ * ferait croire qu'aucun filtre n'est posé alors que la liste en applique un.
+ *
+ * Ce que la case ne dit pas — les métiers suivants — est dit en toutes
+ * lettres à côté d'elle : une case qui nomme un métier au-dessus d'une liste
+ * qui en montre deux serait, sans cela, une contradiction muette.
+ */
+export function shownDomain(filter: CatalogFilter): DataDomain | '' {
+  return filter.domain ?? filter.domains?.[0] ?? '';
+}
+
+/**
+ * Ce que devient le filtre quand quelqu'un choisit un métier à la main.
+ *
+ * Le choix **remplace** l'ouverture, il ne s'y ajoute pas : demander
+ * « Mobilier » depuis une salle de bain ouverte sur Plomberie + Mobilier doit
+ * rendre le Mobilier, et rien d'autre. Garder la liste rendrait les deux, et
+ * la personne aurait alors déplacé une case sans que la liste bouge — le
+ * genre de commande morte qui apprend à ne plus toucher aux filtres.
+ *
+ * Et « Tous » efface les deux. Un « Tous » qui resterait borné aux métiers
+ * d'ouverture serait le pire des deux mondes : le mot promet la nomenclature
+ * entière, et la sortie n'en montrerait qu'un cinquième.
+ */
+export function withChosenDomain(
+  filter: CatalogFilter,
+  chosen: string,
+): CatalogFilter {
+  const { domain: _domain, domains: _domains, ...rest } = filter;
+  return chosen === '' ? rest : { ...rest, domain: chosen as DataDomain };
 }
 
 export interface CatalogAxis {
