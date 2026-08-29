@@ -87,8 +87,11 @@ import type { InspectorEdit } from './editor/inspector-edits.js';
 import type { CheckFix } from './checks/checks-model.js';
 import {
   completionModeOf,
+  designatesWhatItCreates,
   isOpenEnded,
+  objectsCreatedSince,
   optionsOf,
+  placedObjectIds,
   requiredPoints,
   toolDefinition,
 } from './editor/tool-registry.js';
@@ -231,7 +234,6 @@ import {
 } from './ux/destinations.js';
 import { objectEntries, type PaletteEntry } from './palette/palette-model.js';
 import { EDITOR_TOOLS } from './editor/tool-registry.js';
-import { surfaceIds } from './editor/polygon-surface.js';
 import {
   componentDrafts,
   draftsForEntry,
@@ -1459,6 +1461,14 @@ function App() {
    */
   const createRoomAt = useCallback(
     (at: { x: number; y: number }) => {
+      /*
+       * L'identifiant est décidé ici, donc il n'y a rien à retrouver.
+       *
+       * `commitPoints` compare le projet avant et après parce qu'une commande
+       * d'outil ne dit pas ce qu'elle a créé ; ici, c'est nous qui le nommons,
+       * et le relire dans le projet serait chercher ce qu'on tient déjà.
+       */
+      const spaceId = `space-${crypto.randomUUID()}`;
       const result = addSpaceAtPointCommand(
         session.current.file,
         activeLevelId,
@@ -1467,13 +1477,33 @@ function App() {
         // s'appelle quelque chose. « Pièce » est un nom de travail qu'on
         // change dans l'inspecteur, pas un vide qu'on laisse.
         { name: 'Pièce', category: 'OTHER' },
-        `space-${crypto.randomUUID()}`,
+        spaceId,
       );
       if (result.status === 'ERROR') {
         setMessage(result.message);
         return;
       }
-      runCommand(result.command);
+      if (!runCommand(result.command)) return;
+      /*
+       * La pièce créée est désignée, et l'outil revient à la Sélection.
+       *
+       * Le geste ne vient pas de la boîte à outils : il vient de l'étiquette
+       * posée sur le contour, qu'on clique en plein tracé de murs. La pièce
+       * portait donc le nom de travail « Pièce » et personne ne la regardait —
+       * l'outil des murs restait armé, si bien que le clic suivant, celui qui
+       * visait la pièce pour la renommer, traçait un mur de plus. Il fallait
+       * reprendre la Sélection, viser, puis seulement nommer : trois gestes
+       * pour revenir sur ce qu'on venait de faire.
+       *
+       * Revenir à la Sélection est ici la suite du geste et non une décision
+       * prise à la place de l'utilisateur : créer une pièce depuis son
+       * étiquette n'est pas « poser des pièces à la chaîne », c'est une
+       * parenthèse dans un tracé de murs — et la seule chose qu'on veuille
+       * faire ensuite est lui donner son nom. C'est déjà ce que fait
+       * `finishRun` pour une surface qu'on vient de fermer.
+       */
+      dispatchEditor({ type: 'SET_TOOL', tool: 'SELECT' });
+      dispatchEditor({ type: 'SELECT', objectId: spaceId });
     },
     [activeLevelId, runCommand],
   );
@@ -1509,6 +1539,20 @@ function App() {
         dispatchEditor({ type: 'CANCEL' });
         return;
       }
+      /*
+       * Ce que le niveau porte avant le geste, pour savoir ce qu'il a fait
+       * naître.
+       *
+       * Relevé avant l'appel et non après : une commande qui échoue laisse le
+       * projet tel quel, et la comparaison rendra donc une liste vide — rien
+       * n'est désigné, ce qui est la bonne réponse. Le relevé n'est pris que
+       * pour les outils qui désignent, parce qu'il parcourt toutes les
+       * familles du niveau et qu'un mur continu n'en a aucun usage.
+       */
+      const designates = designatesWhatItCreates(editor.activeTool);
+      const before = designates
+        ? placedObjectIds(session.current.file.project, activeLevelId)
+        : undefined;
       const result = tool.createCommand?.({
         file: session.current.file,
         ...(activeLevelId === undefined ? {} : { levelId: activeLevelId }),
@@ -1549,7 +1593,42 @@ function App() {
         setMessage(result.message);
         return;
       }
-      runCommand(result.command);
+      if (!runCommand(result.command)) return;
+      // Pas de relevé, pas de désignation : c'est un outil qui enchaîne, et il
+      // l'a dit avant qu'on ne pose.
+      if (before === undefined) return;
+      /*
+       * Ce qu'on vient de poser est ce qu'on veut regarder.
+       *
+       * Une fenêtre percée n'avait pas de menuiserie et n'était pas désignée :
+       * pour lui en donner une il fallait reprendre la Sélection, viser
+       * l'ouverture, puis seulement choisir — deux gestes de rattrapage pour
+       * un objet qu'on n'avait pas quitté des yeux. La même chose valait pour
+       * un composant, un escalier, un poteau : seule une surface fermée se
+       * désignait, et uniquement parce que `finishRun` comparait les surfaces
+       * avant et après.
+       *
+       * L'outil reste celui qu'on avait pris, et ce n'est pas un oubli :
+       * poser cinq prises à la suite doit rester cinq clics. Désigner suffit à
+       * faire paraître les propriétés dans la colonne — c'est ce qu'elle fait
+       * à toute sélection — sans rien retirer de ce qu'on était en train de
+       * faire. Seule une surface fermée revient à la Sélection, parce que ses
+       * poignées ne se dessinent qu'au repos ; c'est `finishRun` qui le dit.
+       *
+       * Une commande qui sait nommer ses créations est crue sur parole :
+       * « Répéter » rend les identifiants de ses huit copies, et les
+       * redécouvrir en comparant coûterait un parcours de tout le niveau pour
+       * retrouver ce qu'elle tenait déjà.
+       */
+      const created =
+        result.createdIds ??
+        objectsCreatedSince(
+          before,
+          session.current.file.project,
+          activeLevelId,
+        );
+      if (created.length === 0) return;
+      dispatchEditor({ type: 'SELECT_MANY', objectIds: created });
     },
     [
       activeLevelId,
@@ -1825,25 +1904,18 @@ function App() {
      * même où l'objet venait d'exister. Le prendre répond aux deux questions
      * qui suivent : est-ce que c'est reconnu, et comment je le corrige.
      *
-     * Une commande ne rend pas l'identifiant de ce qu'elle a fait ; le
-     * comparer avant/après ne demande à aucune commande de s'en souvenir.
+     * La désignation elle-même n'est plus faite ici : `commitPoints` la fait
+     * pour tout outil qui pose, en comparant le projet avant et après, et ce
+     * qui était vrai d'une surface fermée l'est de tout ce qu'on pose. Ne
+     * reste ici que ce qui appartient en propre à une surface fermée — le
+     * retour à la Sélection, parce que ses poignées ne se dessinent que dans
+     * l'état de repos, qui est celui où l'on corrige.
      */
-    const before = new Set(
-      surfaceIds(session.current.file.project, activeLevelId),
-    );
     commitPoints(editor.pendingPoints, editor.pendingPicks);
     dispatchEditor({ type: 'FINISH_RUN' });
     if (completionModeOf(editor.activeTool) !== 'CLOSE_POLYGON') return;
-    const made = surfaceIds(session.current.file.project, activeLevelId).find(
-      (id) => !before.has(id),
-    );
-    if (made === undefined) return;
-    // Et la sélection, pour que ses poignées soient là : elles ne se
-    // dessinent que dans l'état de repos, qui est celui où l'on corrige.
     dispatchEditor({ type: 'SET_TOOL', tool: 'SELECT' });
-    dispatchEditor({ type: 'SELECT', objectId: made });
   }, [
-    activeLevelId,
     commitPoints,
     editor.activeTool,
     editor.pendingPicks,

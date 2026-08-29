@@ -257,21 +257,19 @@ test('tracer une pièce et la nommer', async ({ page }) => {
   await mark(page, 'la pièce existe, et s’appelle « Pièce »');
 
   /*
-   * Deux gestes pour arriver au nom, et ce sont eux qu'il faut regarder.
+   * Un geste pour le nom, et c'est le bon chiffre.
    *
-   * Créer la pièce ne la désigne pas : l'outil en cours est toujours celui
-   * des murs, il faut donc reprendre la Sélection puis pointer la pièce qu'on
-   * vient de créer, sans quoi le clic trace un mur de plus. Nommer ce qu'on
-   * vient de faire devrait être la suite du même mouvement.
+   * Créer la pièce la désigne et rend la main à la Sélection : la colonne
+   * passe aux propriétés d'elle-même, et nommer ce qu'on vient de faire est
+   * la suite du même mouvement. Reprendre l'outil puis viser la pièce coûtait
+   * deux gestes pour revenir sur un objet qu'on n'avait pas quitté des yeux.
    */
-  await toolButton(page, 'Sélection').click();
-  await canvas.click({ position: await at(page, 0.48, 0.54) });
   const name = page.locator('#inspector-name');
   await name.fill('Séjour');
   await name.press('Enter');
 
   await expect(name).toHaveValue('Séjour');
-  await expectGestures(page, 'tracer une pièce et la nommer', 8);
+  await expectGestures(page, 'tracer une pièce et la nommer', 6);
 });
 
 test('percer une fenêtre, puis lui choisir une menuiserie', async ({
@@ -286,27 +284,28 @@ test('percer une fenêtre, puis lui choisir une menuiserie', async ({
   await toolButton(page, 'Fenêtre').click();
   await page.locator('[id^="wall:"]').first().click({ force: true });
   await expect(page.locator('[id^="opening:"]')).toHaveCount(before.length + 1);
-  await mark(page, 'la fenêtre est percée — et sans menuiserie');
+  await mark(page, 'la fenêtre est percée, désignée, et déjà menuisée');
 
   /*
-   * Une fenêtre posée n'a pas de modèle, et c'est ce qui porte sa
-   * transmission thermique : toute fenêtre dessinée est une inconnue dans le
-   * bilan tant que personne n'est revenu la désigner. La désigner coûte deux
-   * gestes de plus — reprendre la Sélection, puis viser l'ouverture — parce
-   * que poser ne désigne pas ce qu'on vient de poser.
+   * Poser désigne, et poser renseigne.
+   *
+   * Une fenêtre posée n'avait pas de modèle, et c'est ce qui porte sa
+   * transmission thermique : toute fenêtre dessinée était une inconnue du
+   * bilan tant que personne n'était revenu la désigner — ce qui coûtait deux
+   * gestes, reprendre la Sélection puis viser l'ouverture. L'outil pose
+   * maintenant la première menuiserie du catalogue qui convient à ce qu'il
+   * perce, et la baie est désignée en naissant. En choisir une autre reste un
+   * geste, et un seul.
    */
-  const after = await objectsOf(page, 'opening:');
-  const placed = after.find((id) => !before.includes(id))!;
-  await toolButton(page, 'Sélection').click();
-  await page.locator(`[id^="${placed}"]`).first().click({ force: true });
   const model = page.locator('#inspector-definitionId');
+  await expect(model).not.toHaveValue('');
   await model.selectOption({ index: 1 });
 
   await expect(model).not.toHaveValue('');
   await expectGestures(
     page,
     'percer une fenêtre, puis lui choisir une menuiserie',
-    7,
+    5,
   );
 });
 
