@@ -33,7 +33,17 @@ export interface CatalogEntryCandidate {
   readonly ports?: readonly {
     readonly id: string;
     readonly portTypeId?: string;
+    readonly position?: {
+      readonly x: number;
+      readonly y: number;
+      readonly z: number;
+    };
   }[];
+  readonly dimensions?: {
+    readonly widthMm?: number;
+    readonly depthMm?: number;
+    readonly heightMm?: number;
+  };
   readonly provenance?: ProvenanceCandidate;
   readonly clearances?: readonly (Omit<ClearanceZoneDefinition, 'zone'> & {
     readonly zone: string;
@@ -207,6 +217,43 @@ export function validateCatalogEntry(
       at(`ports/${index}`, `unknown port type ${port.portTypeId}`);
       continue;
     }
+    /*
+     * Le repère d'un port, vérifié là où le catalogue est jugé.
+     *
+     * `position` part de l'origine de l'appareil — le centre de l'emprise en x
+     * et y, le dessous en z — et il s'ensuit qu'un raccordement se trouve dans
+     * le volume que la fiche déclare. Le catalogue tenait pourtant une autre
+     * convention, jamais écrite : deux cent quatre-vingt-huit raccordements de
+     * cent soixante-quinze fiches comptaient depuis le centre de la boîte et
+     * tombaient donc sous leur propre appareil. La sortie du WC de la maison
+     * de référence était à trois cent cinquante millimètres sous la dalle, et
+     * son raccordement refusé pour cette raison-là — un refus juste, sur une
+     * donnée fausse.
+     *
+     * Le contrôle est ici, et non seulement dans un test, parce que c'est ici
+     * qu'une fiche venue d'ailleurs est jugée : une convention qu'on n'oppose
+     * pas est une convention qu'on redécouvre.
+     */
+    const offset = port.position;
+    if (offset !== undefined) {
+      const { widthMm, depthMm, heightMm } = entry.dimensions ?? {};
+      if (offset.z < 0 || (heightMm !== undefined && offset.z > heightMm))
+        at(
+          `ports/${index}/position/z`,
+          `${port.id} sits at z = ${offset.z} mm, outside ${entry.id}: z is measured from the equipment origin, which is its underside`,
+        );
+      if (widthMm !== undefined && Math.abs(offset.x) > widthMm / 2)
+        at(
+          `ports/${index}/position/x`,
+          `${port.id} sits outside the width of ${entry.id}`,
+        );
+      if (depthMm !== undefined && Math.abs(offset.y) > depthMm / 2)
+        at(
+          `ports/${index}/position/y`,
+          `${port.id} sits outside the depth of ${entry.id}`,
+        );
+    }
+
     declared.push(port.portTypeId);
   }
   // Each declared port answers for one requirement and no more. Matching by

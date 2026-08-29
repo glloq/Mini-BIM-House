@@ -21,6 +21,69 @@ function issue(
 }
 
 /**
+ * Le contrôle qui rend le repère d'un port opposable.
+ *
+ * Le repère est écrit sur `EquipmentPortDefinition.position` : le décalage part
+ * de l'**origine de l'appareil**, celle que la pose situe — centre de l'emprise
+ * en x et y, dessous en z. Une phrase de documentation n'a jamais empêché
+ * personne d'écrire autre chose : ce que le repère permet, et qu'aucune autre
+ * convention ne permettrait, c'est de le **vérifier**, parce qu'un raccordement
+ * qui part de l'origine est forcément dans le volume que la fiche déclare.
+ *
+ * D'où les trois bornes, qui sont les trois dimensions de la fiche et rien
+ * d'autre : aucun seuil n'est écrit ici. Une dimension que la fiche ne déclare
+ * pas ne borne rien — on ne refuse pas ce qu'on n'a pas de quoi juger — sauf
+ * en z, où le zéro tient tout seul : un raccordement sous l'origine est sous
+ * l'appareil, qu'on connaisse sa hauteur ou non.
+ *
+ * C'est ce contrôle qui aurait dit tout de suite ce que la maison de référence
+ * a mis un an à montrer : 288 raccordements de 175 fiches — dont la sortie du
+ * WC, 350 mm sous sa propre cuvette — étaient écrits depuis le centre de la
+ * boîte, un repère que rien n'avait jamais énoncé.
+ */
+function portWithinBody(
+  definition: EquipmentDefinition,
+  port: EquipmentDefinition['ports'][number],
+  index: number,
+): readonly EquipmentIssue[] {
+  // Une fiche qui ne situe pas son raccordement n'est pas jugée ici : c'est le
+  // schéma qui exige `position`, et redire son refus donnerait deux messages
+  // pour un même manque.
+  const position = port.position;
+  if (position === undefined) return [];
+  const outside = (
+    axis: 'x' | 'y' | 'z',
+    value: number,
+    low: number,
+    high: number | undefined,
+    said: string,
+  ): readonly EquipmentIssue[] =>
+    Number.isFinite(value) &&
+    (value < low || (high !== undefined && value > high))
+      ? [
+          issue(
+            'EQUIPMENT_PORT_OUTSIDE_BODY',
+            `/ports/${index}/position/${axis}`,
+            'ERROR',
+            `${port.id} sits at ${axis} = ${value} mm, outside the ${said} of ${definition.id}: a port position is measured from the equipment origin — centre of the footprint, underside in z.`,
+          ),
+        ]
+      : [];
+  const width = definition.dimensions?.widthMm;
+  const depth = definition.dimensions?.depthMm;
+  const height = definition.dimensions?.heightMm;
+  return [
+    ...(width === undefined
+      ? []
+      : outside('x', position.x, -width / 2, width / 2, 'width')),
+    ...(depth === undefined
+      ? []
+      : outside('y', position.y, -depth / 2, depth / 2, 'depth')),
+    ...outside('z', position.z, 0, height, 'height'),
+  ];
+}
+
+/**
  * Validates one definition. A `PRODUCT` entry has to name its manufacturer and
  * source its properties, so a generic figure can never be presented as a
  * declared product performance.
@@ -68,6 +131,7 @@ export function validateEquipmentDefinition(
         ),
       );
     portIds.add(port.id);
+    issues.push(...portWithinBody(definition, port, index));
   }
   const dimensions = definition.dimensions;
   for (const key of ['widthMm', 'depthMm', 'heightMm'] as const) {

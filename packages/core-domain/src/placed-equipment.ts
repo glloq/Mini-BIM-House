@@ -51,21 +51,38 @@ export interface ResolvedPlacedEquipment {
   /**
    * Ce par quoi il se raccorde, et **où** chaque raccordement se trouve.
    *
-   * La fiche le dit depuis toujours — un lavabo évacue 400 mm sous son centre,
-   * un radiateur part et revient à 480 mm de part et d'autre du sien — et
-   * `resolveOne` recopie déjà les ports de la fiche verbatim. Ce type n'en
-   * exposait que l'identifiant et le genre, si bien que tout ce qui lit un
-   * appareil posé plaçait ses raccordements au centre de l'appareil.
+   * La fiche le dit depuis toujours — un radiateur part et revient à 480 mm de
+   * part et d'autre de son axe, un ballon prend son eau froide en bas et rend
+   * son eau chaude en haut — et `resolveOne` recopie déjà les ports de la fiche
+   * verbatim. Ce type n'en exposait que l'identifiant et le genre, si bien que
+   * tout ce qui lit un appareil posé plaçait ses raccordements au point où
+   * l'appareil se tient.
    *
    * Ce que ça coûtait se mesure sur une évacuation, où la hauteur **est** le
    * calcul : les pentes proposées par « Raccorder au réseau » allaient de 12 à
    * 35 % — un tuyau à la verticale — là où une évacuation se pose entre 1 et
    * 3 %. Un décalage qu'on ne peut pas lire est un décalage qui vaut zéro.
    *
-   * Le décalage est exprimé **dans le repère de l'appareil**, avant rotation :
-   * c'est la fiche du modèle, la même pour les huit exemplaires posés, et elle
-   * ne peut pas savoir comment celui-ci est tourné. Qui la lit doit donc lui
-   * appliquer `rotationDeg`, qui est juste au-dessus.
+   * ## Depuis quel point le décalage se compte
+   *
+   * Depuis `position`, juste au-dessus, et rien d'autre : c'est **l'origine de
+   * l'appareil**, le point que la pose situe — le centre de l'emprise en x et
+   * y, le dessous en z (`ComponentInstance.elevationMm` compte au-dessus du
+   * plancher, et `ClearancePlacement` nomme ce même point « the underside »).
+   * Une lecture est donc une addition, sans les dimensions de la fiche.
+   *
+   * Rien ne l'avait jamais écrit, et le catalogue s'était donné l'autre repère
+   * possible : sur 789 ports positionnés, 788 comptaient z depuis le **centre**
+   * de la boîte englobante. Les deux repères s'accordent en x et en y et
+   * seulement là ; en z, 288 raccordements de 175 fiches tombaient sous
+   * l'appareil qui les porte, et le WC de la maison de référence évacuait
+   * 350 mm sous sa propre dalle. Le repère est maintenant énoncé sur
+   * `EquipmentPortDefinition.position` et vérifié fiche par fiche.
+   *
+   * Le décalage est exprimé **avant rotation** : c'est la fiche du modèle, la
+   * même pour les huit exemplaires posés, et elle ne peut pas savoir comment
+   * celui-ci est tourné. Qui la lit doit donc lui appliquer `rotationDeg`, qui
+   * est juste au-dessus.
    */
   readonly ports: readonly {
     readonly id: string;

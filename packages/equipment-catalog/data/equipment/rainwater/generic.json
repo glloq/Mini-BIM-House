@@ -16,7 +16,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 800
+            "z": 1700
           },
           "nominalSize": 0.1
         },
@@ -26,7 +26,7 @@
           "position": {
             "x": 900,
             "y": 0,
-            "z": 700
+            "z": 1600
           },
           "nominalSize": 0.1
         },
@@ -36,7 +36,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -800
+            "z": 100
           },
           "nominalSize": 0.032
         }
@@ -55,7 +55,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "rainwater.equipment"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

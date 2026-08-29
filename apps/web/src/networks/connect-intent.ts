@@ -274,11 +274,17 @@ export function declaredConnections(
 /**
  * Où l'appareil offre ce raccordement-là, sur le plan.
  *
- * La fiche donne un décalage depuis le repère de l'appareil — un lavabo évacue
- * 400 mm sous son centre, un radiateur part et revient à 480 mm de part et
- * d'autre du sien — et ce décalage est celui du **modèle**, le même pour les
- * huit exemplaires posés. Il ne peut donc pas savoir comment celui-ci est
- * tourné : `rotationDeg` lui est appliqué ici.
+ * La fiche donne un décalage depuis l'**origine de l'appareil** — le point que
+ * `placed.position` situe, centre de l'emprise en plan et dessous en hauteur —
+ * et une lecture est donc une addition : un radiateur part et revient à 480 mm
+ * de part et d'autre de son axe, 20 mm au-dessus de son dessous, et un ballon
+ * prend son eau froide à 10 mm et la rend à 1 490. Le repère est écrit sur
+ * `EquipmentPortDefinition.position`, et vérifié fiche par fiche : rien ici
+ * n'a besoin des dimensions de l'appareil pour placer un raccordement.
+ *
+ * Ce décalage est celui du **modèle**, le même pour les huit exemplaires posés.
+ * Il ne peut donc pas savoir comment celui-ci est tourné : `rotationDeg` lui
+ * est appliqué ici.
  *
  * La rotation est appliquée, et c'est un choix. Un radiateur retourné contre le
  * mur d'en face a bien son départ à gauche et non plus à droite, et 960 mm
@@ -916,15 +922,22 @@ function templateForObject(
  * ## Où le nœud se pose
  *
  * Là où sont les raccordements que ce réseau dessert — `nodePlace` —, et non au
- * centre de l'appareil. La position de l'appareil est absolue (la hauteur y est
- * comptée depuis le sol du projet et non depuis le plancher de l'étage, ce
- * qu'il faut pour comparer deux niveaux) ; ce que la fiche ajoute est le
- * décalage de chaque port, que ce module ne pouvait pas lire.
+ * point où l'appareil se tient. La position de l'appareil est absolue (la
+ * hauteur y est comptée depuis le sol du projet et non depuis le plancher de
+ * l'étage, ce qu'il faut pour comparer deux niveaux) ; ce que la fiche ajoute
+ * est le décalage de chaque port, que ce module ne pouvait pas lire.
  *
- * C'est la hauteur qui en dépendait. Un lavabo évacue 400 mm sous son centre :
- * poser le nœud au centre, c'est faire tomber le tuyau de 400 mm de plus qu'il
- * ne tombe, et les pentes proposées sur cette maison allaient de 12 à 35 % —
- * un tuyau à la verticale — là où une évacuation se pose entre 1 et 3 %.
+ * C'est la hauteur qui en dépendait. Un lavabo évacue plus bas qu'il ne se
+ * tient : poser le nœud à l'appareil, c'est faire tomber le tuyau de toute
+ * cette différence, et les pentes proposées sur cette maison allaient de 12 à
+ * 35 % — un tuyau à la verticale — là où une évacuation se pose entre 1 et 3 %.
+ *
+ * Encore faut-il que la fiche compte depuis le même point que la pose. Elle
+ * comptait depuis le centre de sa boîte englobante, personne ne l'ayant jamais
+ * écrit : la sortie du WC de cette maison tombait donc 350 mm **sous** la
+ * dalle, au radier du regard, et son raccordement était refusé — à juste titre.
+ * Les fiches disent maintenant leurs raccordements depuis l'origine de
+ * l'appareil, et le WC descend de 50 mm à 1 % sur 1,35 m.
  *
  * Un nœud par appareil et par réseau, donc, et il porte `componentId` : c'est
  * la seule façon pour une note de calcul de savoir **lequel** des trois

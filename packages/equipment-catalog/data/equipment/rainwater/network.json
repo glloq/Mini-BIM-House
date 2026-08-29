@@ -16,7 +16,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -25.0
+            "z": 0
           }
         }
       ],
@@ -24,7 +24,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -53,7 +53,7 @@
           "position": {
             "x": -2000.0,
             "y": 0,
-            "z": 0
+            "z": 100
           }
         },
         {
@@ -62,7 +62,7 @@
           "position": {
             "x": 2000.0,
             "y": 0,
-            "z": 0
+            "z": 100
           }
         }
       ],
@@ -72,7 +72,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -101,7 +101,7 @@
           "position": {
             "x": -3000.0,
             "y": 0,
-            "z": 0
+            "z": 62.5
           }
         },
         {
@@ -110,7 +110,7 @@
           "position": {
             "x": 3000.0,
             "y": 0,
-            "z": 0
+            "z": 62.5
           }
         }
       ],
@@ -120,7 +120,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -149,7 +149,7 @@
           "position": {
             "x": -3000.0,
             "y": 0,
-            "z": 0
+            "z": 100
           }
         },
         {
@@ -158,7 +158,7 @@
           "position": {
             "x": 3000.0,
             "y": 0,
-            "z": 0
+            "z": 100
           }
         }
       ],
@@ -168,7 +168,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -197,7 +197,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 75.0
+            "z": 150
           }
         },
         {
@@ -206,7 +206,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -75.0
+            "z": 0
           }
         }
       ],
@@ -216,7 +216,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -245,7 +245,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 60.0
+            "z": 120
           }
         },
         {
@@ -254,7 +254,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -60.0
+            "z": 0
           }
         }
       ],
@@ -264,7 +264,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -293,7 +293,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 1500.0
+            "z": 3000
           }
         },
         {
@@ -302,7 +302,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -1500.0
+            "z": 0
           }
         }
       ],
@@ -312,7 +312,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -341,7 +341,7 @@
           "position": {
             "x": -200.0,
             "y": 0,
-            "z": 0
+            "z": 300
           }
         },
         {
@@ -350,7 +350,7 @@
           "position": {
             "x": 200.0,
             "y": 0,
-            "z": 0
+            "z": 300
           }
         }
       ],
@@ -360,7 +360,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -389,7 +389,7 @@
           "position": {
             "x": -150.0,
             "y": 0,
-            "z": 0
+            "z": 300
           }
         },
         {
@@ -398,7 +398,7 @@
           "position": {
             "x": 150.0,
             "y": 0,
-            "z": 0
+            "z": 300
           }
         }
       ],
@@ -409,7 +409,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -438,7 +438,7 @@
           "position": {
             "x": -150.0,
             "y": 0,
-            "z": 0
+            "z": 200
           }
         },
         {
@@ -447,7 +447,7 @@
           "position": {
             "x": 150.0,
             "y": 0,
-            "z": 0
+            "z": 200
           }
         }
       ],
@@ -457,7 +457,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -486,7 +486,7 @@
           "position": {
             "x": -1100.0,
             "y": 0,
-            "z": 0
+            "z": 800
           }
         },
         {
@@ -495,7 +495,7 @@
           "position": {
             "x": 1100.0,
             "y": 0,
-            "z": 0
+            "z": 800
           }
         },
         {
@@ -504,7 +504,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 800.0
+            "z": 1600
           }
         }
       ],
@@ -521,7 +521,7 @@
         ],
         "planFootprint": "SYMBOL_ONLY"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -550,7 +550,7 @@
           "position": {
             "x": -125.0,
             "y": 0,
-            "z": 0
+            "z": 175
           }
         },
         {
@@ -559,7 +559,7 @@
           "position": {
             "x": 125.0,
             "y": 0,
-            "z": 0
+            "z": 175
           }
         },
         {
@@ -568,7 +568,7 @@
           "position": {
             "x": 0,
             "y": 100.0,
-            "z": 0
+            "z": 175
           }
         }
       ],
@@ -584,7 +584,7 @@
         ],
         "planFootprint": "SYMBOL_ONLY"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -613,7 +613,7 @@
           "position": {
             "x": -225.0,
             "y": 0,
-            "z": 0
+            "z": 350
           }
         },
         {
@@ -622,7 +622,7 @@
           "position": {
             "x": 225.0,
             "y": 0,
-            "z": 0
+            "z": 350
           }
         },
         {
@@ -631,7 +631,7 @@
           "position": {
             "x": 0,
             "y": 175.0,
-            "z": 0
+            "z": 350
           }
         }
       ],
@@ -647,7 +647,7 @@
         ],
         "planFootprint": "SYMBOL_ONLY"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -676,7 +676,7 @@
           "position": {
             "x": -150.0,
             "y": 0,
-            "z": 0
+            "z": 55
           }
         },
         {
@@ -685,7 +685,7 @@
           "position": {
             "x": 150.0,
             "y": 0,
-            "z": 0
+            "z": 55
           }
         }
       ],
@@ -695,7 +695,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -724,7 +724,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 1000.0
+            "z": 2000
           }
         }
       ],
@@ -735,7 +735,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -764,7 +764,7 @@
           "position": {
             "x": -5000.0,
             "y": 0,
-            "z": 0
+            "z": 500
           }
         }
       ],
@@ -775,7 +775,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -804,7 +804,7 @@
           "position": {
             "x": -7500.0,
             "y": 0,
-            "z": 0
+            "z": 250
           }
         }
       ],
@@ -814,7 +814,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -843,7 +843,7 @@
           "position": {
             "x": -4000.0,
             "y": 0,
-            "z": 0
+            "z": 600
           }
         },
         {
@@ -852,7 +852,7 @@
           "position": {
             "x": 4000.0,
             "y": 0,
-            "z": 0
+            "z": 600
           }
         }
       ],
@@ -862,7 +862,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -891,7 +891,7 @@
           "position": {
             "x": -5000.0,
             "y": 0,
-            "z": 0
+            "z": 750
           }
         },
         {
@@ -900,7 +900,7 @@
           "position": {
             "x": 5000.0,
             "y": 0,
-            "z": 0
+            "z": 750
           }
         }
       ],
@@ -910,7 +910,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -939,7 +939,7 @@
           "position": {
             "x": -500.0,
             "y": 0,
-            "z": 0
+            "z": 85
           }
         }
       ],
@@ -949,7 +949,7 @@
       "rendering": {
         "planFootprint": "RECTANGLE"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"

@@ -47,7 +47,7 @@
       "id": "generic-outdoor-air-intake",
       "familyId": "OUTDOOR_AIR_INTAKE",
       "name": "Prise d’air neuf",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 300,
@@ -60,7 +60,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -75
+            "z": 0
           },
           "nominalSize": 0.16
         }
@@ -101,7 +101,7 @@
       "id": "generic-roof-exhaust-terminal",
       "familyId": "EXHAUST_TERMINAL",
       "name": "Rejet en toiture",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 300,
@@ -114,7 +114,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -200
+            "z": 0
           },
           "nominalSize": 0.16
         }
@@ -155,7 +155,7 @@
       "id": "generic-supply-terminal",
       "familyId": "SUPPLY_TERMINAL",
       "name": "Bouche de soufflage",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 125,
         "depthMm": 125,
@@ -168,7 +168,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -30
+            "z": 0
           },
           "nominalSize": 0.08
         }
@@ -209,7 +209,7 @@
       "id": "generic-decentralized-hrv",
       "familyId": "DECENTRALIZED_HRV",
       "name": "VMC double flux décentralisée",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 500,
         "depthMm": 500,
@@ -222,7 +222,7 @@
           "position": {
             "x": 0,
             "y": 250,
-            "z": 0
+            "z": 150
           },
           "nominalSize": 0.16
         },
@@ -232,7 +232,7 @@
           "position": {
             "x": 100,
             "y": 250,
-            "z": 0
+            "z": 150
           },
           "nominalSize": 0.16
         },
@@ -242,7 +242,7 @@
           "position": {
             "x": -200,
             "y": 250,
-            "z": -100
+            "z": 50
           }
         }
       ],
@@ -290,7 +290,7 @@
       "id": "generic-duct-fan",
       "familyId": "FAN",
       "name": "Ventilateur de conduit",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 250,
         "depthMm": 250,
@@ -303,7 +303,7 @@
           "position": {
             "x": -125,
             "y": 0,
-            "z": 0
+            "z": 150
           },
           "nominalSize": 0.16
         },
@@ -313,7 +313,7 @@
           "position": {
             "x": 125,
             "y": 0,
-            "z": 0
+            "z": 150
           },
           "nominalSize": 0.16
         },
@@ -323,7 +323,7 @@
           "position": {
             "x": 0,
             "y": 125,
-            "z": 100
+            "z": 250
           }
         }
       ],
@@ -404,7 +404,7 @@
       "id": "generic-hot-water-coil",
       "familyId": "HEATING_COIL",
       "name": "Batterie chaude à eau",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 400,
         "depthMm": 300,
@@ -417,7 +417,7 @@
           "position": {
             "x": -200,
             "y": 0,
-            "z": 0
+            "z": 150
           },
           "nominalSize": 0.2
         },
@@ -427,7 +427,7 @@
           "position": {
             "x": 200,
             "y": 0,
-            "z": 0
+            "z": 150
           },
           "nominalSize": 0.2
         },
@@ -437,7 +437,7 @@
           "position": {
             "x": 0,
             "y": 150,
-            "z": 100
+            "z": 250
           },
           "nominalSize": 0.015
         },
@@ -447,7 +447,7 @@
           "position": {
             "x": 0,
             "y": 150,
-            "z": -100
+            "z": 50
           },
           "nominalSize": 0.015
         }
@@ -477,7 +477,7 @@
       "id": "generic-dx-cooling-coil",
       "familyId": "COOLING_COIL",
       "name": "Batterie froide à détente directe",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 400,
         "depthMm": 350,
@@ -490,7 +490,7 @@
           "position": {
             "x": -200,
             "y": 0,
-            "z": 0
+            "z": 150
           },
           "nominalSize": 0.2
         },
@@ -500,7 +500,7 @@
           "position": {
             "x": 200,
             "y": 0,
-            "z": 0
+            "z": 150
           },
           "nominalSize": 0.2
         },
@@ -510,7 +510,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -150
+            "z": 0
           },
           "nominalSize": 0.02
         },
@@ -520,7 +520,7 @@
           "position": {
             "x": -200.0,
             "y": 175.0,
-            "z": 0
+            "z": 150
           }
         },
         {
@@ -529,7 +529,7 @@
           "position": {
             "x": 200.0,
             "y": 175.0,
-            "z": 0
+            "z": 150
           }
         }
       ],
@@ -559,7 +559,7 @@
       "id": "generic-chilled-water-cooling-coil",
       "familyId": "COOLING_COIL",
       "name": "Batterie froide à eau glacée",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 400,
         "depthMm": 350,
@@ -572,7 +572,7 @@
           "position": {
             "x": -200,
             "y": 0,
-            "z": 0
+            "z": 150
           },
           "nominalSize": 0.2
         },
@@ -582,7 +582,7 @@
           "position": {
             "x": 200,
             "y": 0,
-            "z": 0
+            "z": 150
           },
           "nominalSize": 0.2
         },
@@ -592,7 +592,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -150
+            "z": 0
           },
           "nominalSize": 0.02
         },
@@ -602,7 +602,7 @@
           "position": {
             "x": -200.0,
             "y": 175.0,
-            "z": 0
+            "z": 150
           }
         },
         {
@@ -611,7 +611,7 @@
           "position": {
             "x": 200.0,
             "y": 175.0,
-            "z": 0
+            "z": 150
           }
         }
       ],
@@ -641,7 +641,7 @@
       "id": "generic-motorised-damper",
       "familyId": "DAMPER",
       "name": "Registre motorisé",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 200,
         "depthMm": 120,
@@ -654,7 +654,7 @@
           "position": {
             "x": -100,
             "y": 0,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.16
         },
@@ -664,7 +664,7 @@
           "position": {
             "x": 100,
             "y": 0,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.16
         },
@@ -674,7 +674,7 @@
           "position": {
             "x": 0,
             "y": 60,
-            "z": 100
+            "z": 200
           }
         },
         {
@@ -683,7 +683,7 @@
           "position": {
             "x": 0,
             "y": 60,
-            "z": 60
+            "z": 160
           }
         }
       ],
@@ -712,7 +712,7 @@
       "id": "generic-balancing-damper",
       "familyId": "BALANCING_DAMPER",
       "name": "Registre d’équilibrage",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 160,
         "depthMm": 100,
@@ -725,7 +725,7 @@
           "position": {
             "x": -80.0,
             "y": 0,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.16
         },
@@ -735,7 +735,7 @@
           "position": {
             "x": 80.0,
             "y": 0,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.16
         }
@@ -765,7 +765,7 @@
       "id": "generic-backdraft-damper",
       "familyId": "BACKDRAFT_DAMPER",
       "name": "Clapet anti-retour de conduit",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 160,
         "depthMm": 80,
@@ -778,7 +778,7 @@
           "position": {
             "x": -80.0,
             "y": 0,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.16
         },
@@ -788,7 +788,7 @@
           "position": {
             "x": 80.0,
             "y": 0,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.16
         }
@@ -818,7 +818,7 @@
       "id": "generic-fire-damper",
       "familyId": "FIRE_DAMPER",
       "name": "Clapet coupe-feu",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 250,
         "depthMm": 300,
@@ -831,7 +831,7 @@
           "position": {
             "x": -125,
             "y": 0,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.2
         },
@@ -841,7 +841,7 @@
           "position": {
             "x": 125,
             "y": 0,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.2
         },
@@ -851,7 +851,7 @@
           "position": {
             "x": 0,
             "y": 150,
-            "z": 80
+            "z": 205
           }
         }
       ],
@@ -881,7 +881,7 @@
       "id": "generic-duct-silencer",
       "familyId": "SILENCER",
       "name": "Silencieux de conduit",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 900,
         "depthMm": 250,
@@ -894,7 +894,7 @@
           "position": {
             "x": -450.0,
             "y": 0,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.16
         },
@@ -904,7 +904,7 @@
           "position": {
             "x": 450.0,
             "y": 0,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.16
         }
@@ -934,7 +934,7 @@
       "id": "generic-duct-filter",
       "familyId": "VENTILATION_FILTER",
       "name": "Filtre de conduit",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 250,
@@ -947,7 +947,7 @@
           "position": {
             "x": -150.0,
             "y": 0,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.16
         },
@@ -957,7 +957,7 @@
           "position": {
             "x": 150.0,
             "y": 0,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.16
         }
@@ -988,7 +988,7 @@
       "id": "generic-duct-elbow-90",
       "familyId": "VENTILATION_ELBOW",
       "name": "Coude de conduit 90°",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 160,
         "depthMm": 160,
@@ -1001,7 +1001,7 @@
           "position": {
             "x": -80.0,
             "y": 0,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.16
         },
@@ -1011,7 +1011,7 @@
           "position": {
             "x": 80.0,
             "y": 0,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.16
         }
@@ -1034,7 +1034,7 @@
       "id": "generic-duct-reducer",
       "familyId": "VENTILATION_REDUCER",
       "name": "Réduction de conduit",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 200,
         "depthMm": 160,
@@ -1047,7 +1047,7 @@
           "position": {
             "x": -100.0,
             "y": 0,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.16
         },
@@ -1057,7 +1057,7 @@
           "position": {
             "x": 100.0,
             "y": 0,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.16
         }
@@ -1080,7 +1080,7 @@
       "id": "generic-duct-transition",
       "familyId": "TRANSITION",
       "name": "Transformation rectangulaire/circulaire",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 250,
@@ -1093,7 +1093,7 @@
           "position": {
             "x": -150.0,
             "y": 0,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.16
         },
@@ -1103,7 +1103,7 @@
           "position": {
             "x": 150.0,
             "y": 0,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.16
         }
@@ -1126,7 +1126,7 @@
       "id": "generic-duct-tee",
       "familyId": "VENTILATION_TEE",
       "name": "Té de conduit",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 200,
@@ -1139,7 +1139,7 @@
           "position": {
             "x": -150,
             "y": 0,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.16
         },
@@ -1149,7 +1149,7 @@
           "position": {
             "x": 150,
             "y": 0,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.16
         },
@@ -1159,7 +1159,7 @@
           "position": {
             "x": 0,
             "y": 100,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.125
         }
@@ -1182,7 +1182,7 @@
       "id": "generic-duct-y-branch",
       "familyId": "Y_BRANCH",
       "name": "Culotte de conduit",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 250,
@@ -1195,7 +1195,7 @@
           "position": {
             "x": -150,
             "y": 0,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.16
         },
@@ -1205,7 +1205,7 @@
           "position": {
             "x": 150,
             "y": -80,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.125
         },
@@ -1215,7 +1215,7 @@
           "position": {
             "x": 150,
             "y": 80,
-            "z": 0
+            "z": 80
           },
           "nominalSize": 0.125
         }
@@ -1238,7 +1238,7 @@
       "id": "generic-supply-plenum",
       "familyId": "PLENUM",
       "name": "Plénum de distribution",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 600,
         "depthMm": 300,
@@ -1251,7 +1251,7 @@
           "position": {
             "x": -300,
             "y": 0,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.16
         },
@@ -1261,7 +1261,7 @@
           "position": {
             "x": 300,
             "y": -100,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.08
         },
@@ -1271,7 +1271,7 @@
           "position": {
             "x": 300,
             "y": 0,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.08
         },
@@ -1281,7 +1281,7 @@
           "position": {
             "x": 300,
             "y": 100,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.08
         },
@@ -1291,7 +1291,7 @@
           "position": {
             "x": 0,
             "y": 150,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.08
         }
@@ -1321,7 +1321,7 @@
       "id": "generic-ventilation-condensate-trap",
       "familyId": "VENTILATION_CONDENSATE_TRAP",
       "name": "Siphon de condensats",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 80,
@@ -1334,7 +1334,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 100
+            "z": 200
           },
           "nominalSize": 0.02
         },
@@ -1344,7 +1344,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -100
+            "z": 0
           },
           "nominalSize": 0.032
         }

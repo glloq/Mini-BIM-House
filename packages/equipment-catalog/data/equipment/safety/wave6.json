@@ -152,7 +152,7 @@
       "id": "generic-door-contact",
       "familyId": "DOOR_CONTACT",
       "name": "Contact de porte",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 70,
         "depthMm": 20,
@@ -165,7 +165,7 @@
           "position": {
             "x": 0,
             "y": 10,
-            "z": 0
+            "z": 10
           }
         }
       ],
@@ -184,7 +184,7 @@
       "id": "generic-intrusion-detector",
       "familyId": "SAFETY_MOTION_DETECTOR",
       "name": "Détecteur d’intrusion infrarouge",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 60,
         "depthMm": 50,
@@ -197,7 +197,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 50
           }
         }
       ],
@@ -217,7 +217,7 @@
       "id": "generic-outdoor-siren",
       "familyId": "SIREN",
       "name": "Sirène extérieure",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 250,
         "depthMm": 90,
@@ -230,7 +230,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 150
           }
         }
       ],
@@ -251,7 +251,7 @@
       "id": "generic-alarm-panel",
       "familyId": "ALARM_PANEL",
       "name": "Centrale d’alarme",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 80,
@@ -264,7 +264,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -125
+            "z": 0
           }
         },
         {
@@ -273,7 +273,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 0
+            "z": 125
           }
         }
       ],
@@ -299,7 +299,7 @@
       "id": "generic-emergency-luminaire",
       "familyId": "SAFETY_EMERGENCY_LIGHT",
       "name": "Bloc autonome d’éclairage de sécurité d’évacuation",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 70,
@@ -312,7 +312,7 @@
           "position": {
             "x": 0,
             "y": 35,
-            "z": 0
+            "z": 65
           }
         }
       ],
@@ -337,7 +337,7 @@
       "id": "generic-emergency-stop",
       "familyId": "EMERGENCY_STOP",
       "name": "Bouton d’arrêt d’urgence coup-de-poing",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 80,
         "depthMm": 80,
@@ -350,7 +350,7 @@
           "position": {
             "x": 0,
             "y": 40,
-            "z": 0
+            "z": 40
           }
         }
       ],
@@ -378,7 +378,7 @@
       "id": "generic-emergency-cutoff",
       "familyId": "ELECTRICAL_EMERGENCY_CUTOFF",
       "name": "Coupure d’urgence générale",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 100,
         "depthMm": 90,
@@ -391,7 +391,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 75
+            "z": 150
           }
         },
         {
@@ -400,7 +400,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -75
+            "z": 0
           }
         }
       ],

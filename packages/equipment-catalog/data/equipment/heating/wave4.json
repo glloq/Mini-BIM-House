@@ -4,7 +4,7 @@
       "id": "generic-gas-condensing-boiler",
       "familyId": "BOILER_GAS",
       "name": "Chaudière gaz à condensation",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 450,
         "depthMm": 360,
@@ -17,7 +17,7 @@
           "position": {
             "x": -120,
             "y": 0,
-            "z": -375
+            "z": 0
           },
           "nominalSize": 0.02
         },
@@ -27,7 +27,7 @@
           "position": {
             "x": 120,
             "y": 0,
-            "z": -375
+            "z": 0
           },
           "nominalSize": 0.02
         },
@@ -37,7 +37,7 @@
           "position": {
             "x": -200,
             "y": 0,
-            "z": -300
+            "z": 75
           }
         },
         {
@@ -46,7 +46,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 375
+            "z": 750
           },
           "nominalSize": 0.06
         },
@@ -56,7 +56,7 @@
           "position": {
             "x": 0,
             "y": 60,
-            "z": 375
+            "z": 750
           },
           "nominalSize": 0.1
         },
@@ -66,7 +66,7 @@
           "position": {
             "x": 60,
             "y": 0,
-            "z": -375
+            "z": 0
           },
           "nominalSize": 0.032
         },
@@ -76,7 +76,7 @@
           "position": {
             "x": -225.0,
             "y": 0,
-            "z": -375.0
+            "z": 0
           }
         }
       ],
@@ -114,7 +114,7 @@
       "id": "generic-oil-condensing-boiler",
       "familyId": "BOILER_OIL",
       "name": "Chaudière fioul à condensation",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 600,
         "depthMm": 700,
@@ -127,7 +127,7 @@
           "position": {
             "x": -150,
             "y": -350,
-            "z": 400
+            "z": 1000
           },
           "nominalSize": 0.026
         },
@@ -137,7 +137,7 @@
           "position": {
             "x": 150,
             "y": -350,
-            "z": 400
+            "z": 1000
           },
           "nominalSize": 0.026
         },
@@ -147,7 +147,7 @@
           "position": {
             "x": -250,
             "y": -350,
-            "z": 300
+            "z": 900
           }
         },
         {
@@ -156,7 +156,7 @@
           "position": {
             "x": 0,
             "y": 350,
-            "z": 500
+            "z": 1100
           },
           "nominalSize": 0.1
         },
@@ -166,7 +166,7 @@
           "position": {
             "x": 100,
             "y": -350,
-            "z": -600
+            "z": 0
           },
           "nominalSize": 0.032
         },
@@ -176,7 +176,7 @@
           "position": {
             "x": -300.0,
             "y": 0,
-            "z": -600.0
+            "z": 0
           }
         }
       ],
@@ -214,7 +214,7 @@
       "id": "generic-pellet-boiler",
       "familyId": "BOILER_BIOMASS",
       "name": "Chaudière à granulés",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 800,
         "depthMm": 900,
@@ -227,7 +227,7 @@
           "position": {
             "x": -200,
             "y": -450,
-            "z": 600
+            "z": 1350
           },
           "nominalSize": 0.032
         },
@@ -237,7 +237,7 @@
           "position": {
             "x": 200,
             "y": -450,
-            "z": 600
+            "z": 1350
           },
           "nominalSize": 0.032
         },
@@ -247,7 +247,7 @@
           "position": {
             "x": -350,
             "y": -450,
-            "z": 400
+            "z": 1150
           }
         },
         {
@@ -256,7 +256,7 @@
           "position": {
             "x": 0,
             "y": 450,
-            "z": 600
+            "z": 1350
           },
           "nominalSize": 0.13
         },
@@ -266,7 +266,7 @@
           "position": {
             "x": -150,
             "y": 450,
-            "z": 500
+            "z": 1250
           },
           "nominalSize": 0.1
         }
@@ -306,7 +306,7 @@
       "id": "generic-electric-boiler",
       "familyId": "ELECTRIC_BOILER",
       "name": "Chaudière électrique murale",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 450,
         "depthMm": 250,
@@ -319,7 +319,7 @@
           "position": {
             "x": -120,
             "y": 0,
-            "z": -375
+            "z": 0
           },
           "nominalSize": 0.02
         },
@@ -329,7 +329,7 @@
           "position": {
             "x": 120,
             "y": 0,
-            "z": -375
+            "z": 0
           },
           "nominalSize": 0.02
         },
@@ -339,7 +339,7 @@
           "position": {
             "x": -200,
             "y": 0,
-            "z": -300
+            "z": 75
           }
         }
       ],
@@ -376,7 +376,7 @@
       "id": "generic-electric-convector",
       "familyId": "ELECTRIC_HEATER",
       "name": "Convecteur électrique",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 800,
         "depthMm": 110,
@@ -389,7 +389,7 @@
           "position": {
             "x": -400,
             "y": 0,
-            "z": -225
+            "z": 0
           }
         }
       ],
@@ -425,7 +425,7 @@
       "id": "generic-district-heating-substation",
       "familyId": "DISTRICT_HEATING_INTERFACE",
       "name": "Sous-station de réseau de chaleur",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 600,
         "depthMm": 400,
@@ -438,7 +438,7 @@
           "position": {
             "x": -200,
             "y": 0,
-            "z": -450
+            "z": 0
           },
           "nominalSize": 0.026
         },
@@ -448,7 +448,7 @@
           "position": {
             "x": -100,
             "y": 0,
-            "z": -450
+            "z": 0
           },
           "nominalSize": 0.026
         },
@@ -458,7 +458,7 @@
           "position": {
             "x": 100,
             "y": 0,
-            "z": -450
+            "z": 0
           },
           "nominalSize": 0.026
         },
@@ -468,7 +468,7 @@
           "position": {
             "x": 200,
             "y": 0,
-            "z": -450
+            "z": 0
           },
           "nominalSize": 0.026
         },
@@ -478,7 +478,7 @@
           "position": {
             "x": -300,
             "y": 0,
-            "z": -300
+            "z": 150
           }
         }
       ],
@@ -514,7 +514,7 @@
       "id": "generic-flat-plate-solar-collector",
       "familyId": "SOLAR_THERMAL",
       "name": "Capteur solaire thermique plan",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 1200,
         "depthMm": 90,
@@ -527,7 +527,7 @@
           "position": {
             "x": 500,
             "y": 0,
-            "z": 1000
+            "z": 2000
           },
           "nominalSize": 0.018
         },
@@ -537,7 +537,7 @@
           "position": {
             "x": -500,
             "y": 0,
-            "z": -1000
+            "z": 0
           },
           "nominalSize": 0.018
         }
@@ -573,7 +573,7 @@
       "id": "generic-air-air-heat-pump",
       "familyId": "HEAT_PUMP_AIR_AIR",
       "name": "Pompe à chaleur air/air",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 900,
         "depthMm": 350,
@@ -586,7 +586,7 @@
           "position": {
             "x": -300,
             "y": 175,
-            "z": -300
+            "z": 75
           },
           "nominalSize": 0.0064
         },
@@ -596,7 +596,7 @@
           "position": {
             "x": -200,
             "y": 175,
-            "z": -300
+            "z": 75
           },
           "nominalSize": 0.0095
         },
@@ -606,7 +606,7 @@
           "position": {
             "x": -400,
             "y": 175,
-            "z": -250
+            "z": 125
           }
         },
         {
@@ -615,7 +615,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -375
+            "z": 0
           },
           "nominalSize": 0.02
         }
@@ -713,7 +713,7 @@
       "id": "generic-air-water-heat-pump-split",
       "familyId": "HEAT_PUMP_AIR_WATER_SPLIT",
       "name": "Pompe à chaleur air/eau bibloc",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 1000,
         "depthMm": 400,
@@ -726,7 +726,7 @@
           "position": {
             "x": -350,
             "y": 0,
-            "z": -400
+            "z": 0
           },
           "nominalSize": 0.026
         },
@@ -736,7 +736,7 @@
           "position": {
             "x": 350,
             "y": 0,
-            "z": -400
+            "z": 0
           },
           "nominalSize": 0.026
         },
@@ -746,7 +746,7 @@
           "position": {
             "x": -300,
             "y": 200,
-            "z": -300
+            "z": 100
           },
           "nominalSize": 0.0064
         },
@@ -756,7 +756,7 @@
           "position": {
             "x": -200,
             "y": 200,
-            "z": -300
+            "z": 100
           },
           "nominalSize": 0.0127
         },
@@ -766,7 +766,7 @@
           "position": {
             "x": 0,
             "y": 200,
-            "z": -350
+            "z": 50
           }
         },
         {
@@ -775,7 +775,7 @@
           "position": {
             "x": 100,
             "y": 0,
-            "z": -400
+            "z": 0
           },
           "nominalSize": 0.02
         }
@@ -873,7 +873,7 @@
       "id": "generic-ground-water-heat-pump",
       "familyId": "HEAT_PUMP_GROUND_WATER",
       "name": "Pompe à chaleur sol/eau",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 600,
         "depthMm": 650,
@@ -886,7 +886,7 @@
           "position": {
             "x": -200,
             "y": -325,
-            "z": 400
+            "z": 950
           },
           "nominalSize": 0.032
         },
@@ -896,7 +896,7 @@
           "position": {
             "x": -100,
             "y": -325,
-            "z": 400
+            "z": 950
           },
           "nominalSize": 0.032
         },
@@ -906,7 +906,7 @@
           "position": {
             "x": 100,
             "y": -325,
-            "z": 400
+            "z": 950
           },
           "nominalSize": 0.026
         },
@@ -916,7 +916,7 @@
           "position": {
             "x": 200,
             "y": -325,
-            "z": 400
+            "z": 950
           },
           "nominalSize": 0.026
         },
@@ -926,7 +926,7 @@
           "position": {
             "x": -300,
             "y": -325,
-            "z": 300
+            "z": 850
           }
         }
       ],
@@ -1006,7 +1006,7 @@
       "id": "generic-water-water-heat-pump",
       "familyId": "HEAT_PUMP_WATER_WATER",
       "name": "Pompe à chaleur eau/eau",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 600,
         "depthMm": 650,
@@ -1019,7 +1019,7 @@
           "position": {
             "x": -200,
             "y": -325,
-            "z": 400
+            "z": 950
           },
           "nominalSize": 0.032
         },
@@ -1029,7 +1029,7 @@
           "position": {
             "x": -100,
             "y": -325,
-            "z": 400
+            "z": 950
           },
           "nominalSize": 0.032
         },
@@ -1039,7 +1039,7 @@
           "position": {
             "x": 100,
             "y": -325,
-            "z": 400
+            "z": 950
           },
           "nominalSize": 0.026
         },
@@ -1049,7 +1049,7 @@
           "position": {
             "x": 200,
             "y": -325,
-            "z": 400
+            "z": 950
           },
           "nominalSize": 0.026
         },
@@ -1059,7 +1059,7 @@
           "position": {
             "x": -300,
             "y": -325,
-            "z": 300
+            "z": 850
           }
         }
       ],
@@ -1139,7 +1139,7 @@
       "id": "generic-exhaust-air-heat-pump",
       "familyId": "EXHAUST_AIR_HEAT_PUMP",
       "name": "Pompe à chaleur sur air extrait",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 600,
         "depthMm": 600,
@@ -1152,7 +1152,7 @@
           "position": {
             "x": -300,
             "y": 0,
-            "z": 900
+            "z": 1900
           },
           "nominalSize": 0.16
         },
@@ -1162,7 +1162,7 @@
           "position": {
             "x": 300,
             "y": 0,
-            "z": 900
+            "z": 1900
           },
           "nominalSize": 0.16
         },
@@ -1172,7 +1172,7 @@
           "position": {
             "x": -150,
             "y": -300,
-            "z": 700
+            "z": 1700
           },
           "nominalSize": 0.02
         },
@@ -1182,7 +1182,7 @@
           "position": {
             "x": 150,
             "y": -300,
-            "z": 700
+            "z": 1700
           },
           "nominalSize": 0.02
         },
@@ -1192,7 +1192,7 @@
           "position": {
             "x": -250,
             "y": -300,
-            "z": 600
+            "z": 1600
           }
         },
         {
@@ -1201,7 +1201,7 @@
           "position": {
             "x": 0,
             "y": -300,
-            "z": -900
+            "z": 100
           },
           "nominalSize": 0.02
         }
@@ -1287,7 +1287,7 @@
       "id": "generic-reversible-heat-pump",
       "familyId": "REVERSIBLE_HEAT_PUMP",
       "name": "Pompe à chaleur air/eau réversible",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 1100,
         "depthMm": 450,
@@ -1300,7 +1300,7 @@
           "position": {
             "x": -400,
             "y": 0,
-            "z": -425
+            "z": 0
           },
           "nominalSize": 0.026
         },
@@ -1310,7 +1310,7 @@
           "position": {
             "x": 400,
             "y": 0,
-            "z": -425
+            "z": 0
           },
           "nominalSize": 0.026
         },
@@ -1320,7 +1320,7 @@
           "position": {
             "x": 0,
             "y": 225,
-            "z": -375
+            "z": 50
           }
         },
         {
@@ -1329,7 +1329,7 @@
           "position": {
             "x": 100,
             "y": 0,
-            "z": -425
+            "z": 0
           },
           "nominalSize": 0.02
         }
@@ -1460,7 +1460,7 @@
       "id": "generic-outdoor-unit",
       "familyId": "OUTDOOR_UNIT",
       "name": "Unité extérieure",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 950,
         "depthMm": 330,
@@ -1473,7 +1473,7 @@
           "position": {
             "x": -350,
             "y": 165,
-            "z": -300
+            "z": 75
           },
           "nominalSize": 0.0064
         },
@@ -1483,7 +1483,7 @@
           "position": {
             "x": -250,
             "y": 165,
-            "z": -300
+            "z": 75
           },
           "nominalSize": 0.0095
         },
@@ -1493,7 +1493,7 @@
           "position": {
             "x": -420,
             "y": 165,
-            "z": -250
+            "z": 125
           }
         },
         {
@@ -1502,7 +1502,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -375
+            "z": 0
           },
           "nominalSize": 0.02
         }
@@ -1550,7 +1550,7 @@
       "id": "generic-indoor-unit",
       "familyId": "INDOOR_UNIT",
       "name": "Unité intérieure",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 900,
         "depthMm": 200,
@@ -1563,7 +1563,7 @@
           "position": {
             "x": -400,
             "y": 0,
-            "z": -150
+            "z": 0
           },
           "nominalSize": 0.0064
         },
@@ -1573,7 +1573,7 @@
           "position": {
             "x": -330,
             "y": 0,
-            "z": -150
+            "z": 0
           },
           "nominalSize": 0.0095
         },
@@ -1583,7 +1583,7 @@
           "position": {
             "x": -250,
             "y": 0,
-            "z": -150
+            "z": 0
           },
           "nominalSize": 0.016
         },
@@ -1593,7 +1593,7 @@
           "position": {
             "x": -430,
             "y": 0,
-            "z": -100
+            "z": 50
           }
         }
       ],
@@ -1634,7 +1634,7 @@
       "id": "generic-wall-split-unit",
       "familyId": "WALL_SPLIT_UNIT",
       "name": "Split mural",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 900,
         "depthMm": 220,
@@ -1647,7 +1647,7 @@
           "position": {
             "x": -400,
             "y": 0,
-            "z": -150
+            "z": 0
           },
           "nominalSize": 0.0064
         },
@@ -1657,7 +1657,7 @@
           "position": {
             "x": -330,
             "y": 0,
-            "z": -150
+            "z": 0
           },
           "nominalSize": 0.0095
         },
@@ -1667,7 +1667,7 @@
           "position": {
             "x": -250,
             "y": 0,
-            "z": -150
+            "z": 0
           },
           "nominalSize": 0.016
         },
@@ -1677,7 +1677,7 @@
           "position": {
             "x": -430,
             "y": 0,
-            "z": -100
+            "z": 50
           }
         }
       ],
@@ -1718,7 +1718,7 @@
       "id": "generic-ceiling-cassette",
       "familyId": "CASSETTE",
       "name": "Cassette de plafond",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 600,
         "depthMm": 600,
@@ -1731,7 +1731,7 @@
           "position": {
             "x": -300,
             "y": -200,
-            "z": 0
+            "z": 140
           },
           "nominalSize": 0.0064
         },
@@ -1741,7 +1741,7 @@
           "position": {
             "x": -300,
             "y": -100,
-            "z": 0
+            "z": 140
           },
           "nominalSize": 0.0127
         },
@@ -1751,7 +1751,7 @@
           "position": {
             "x": -300,
             "y": 100,
-            "z": 0
+            "z": 140
           },
           "nominalSize": 0.02
         },
@@ -1761,7 +1761,7 @@
           "position": {
             "x": -300,
             "y": 200,
-            "z": 0
+            "z": 140
           }
         }
       ],
@@ -1802,7 +1802,7 @@
       "id": "generic-ducted-unit",
       "familyId": "DUCTED_UNIT",
       "name": "Gainable",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 900,
         "depthMm": 600,
@@ -1815,7 +1815,7 @@
           "position": {
             "x": -450,
             "y": -200,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.0064
         },
@@ -1825,7 +1825,7 @@
           "position": {
             "x": -450,
             "y": -100,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.0127
         },
@@ -1835,7 +1835,7 @@
           "position": {
             "x": -450,
             "y": 100,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.02
         },
@@ -1845,7 +1845,7 @@
           "position": {
             "x": -450,
             "y": 200,
-            "z": 0
+            "z": 125
           }
         },
         {
@@ -1854,7 +1854,7 @@
           "position": {
             "x": 0,
             "y": -300,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.25
         },
@@ -1864,7 +1864,7 @@
           "position": {
             "x": 0,
             "y": 300,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.25
         }
@@ -1906,7 +1906,7 @@
       "id": "generic-refnet-joint",
       "familyId": "REFNET",
       "name": "Répartiteur frigorifique",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 300,
         "depthMm": 150,
@@ -1919,7 +1919,7 @@
           "position": {
             "x": -150,
             "y": 0,
-            "z": 0
+            "z": 60
           },
           "nominalSize": 0.0095
         },
@@ -1929,7 +1929,7 @@
           "position": {
             "x": -150,
             "y": 60,
-            "z": 0
+            "z": 60
           },
           "nominalSize": 0.0159
         },
@@ -1939,7 +1939,7 @@
           "position": {
             "x": 150,
             "y": -40,
-            "z": 0
+            "z": 60
           },
           "nominalSize": 0.0064
         },
@@ -1949,7 +1949,7 @@
           "position": {
             "x": 150,
             "y": 20,
-            "z": 0
+            "z": 60
           },
           "nominalSize": 0.0127
         },
@@ -1959,7 +1959,7 @@
           "position": {
             "x": 0,
             "y": -75,
-            "z": 0
+            "z": 60
           },
           "nominalSize": 0.0064
         },
@@ -1969,7 +1969,7 @@
           "position": {
             "x": 60,
             "y": -75,
-            "z": 0
+            "z": 60
           },
           "nominalSize": 0.0127
         }
@@ -1998,7 +1998,7 @@
       "id": "generic-branch-joint-box",
       "familyId": "BRANCH_JOINT",
       "name": "Boîtier de dérivation frigorifique",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 400,
         "depthMm": 300,
@@ -2011,7 +2011,7 @@
           "position": {
             "x": -200,
             "y": -100,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.0095
         },
@@ -2021,7 +2021,7 @@
           "position": {
             "x": -200,
             "y": 0,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.0159
         },
@@ -2031,7 +2031,7 @@
           "position": {
             "x": 200,
             "y": -100,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.0064
         },
@@ -2041,7 +2041,7 @@
           "position": {
             "x": 200,
             "y": 0,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.0127
         },
@@ -2051,7 +2051,7 @@
           "position": {
             "x": 200,
             "y": 100,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.0064
         },
@@ -2061,7 +2061,7 @@
           "position": {
             "x": 0,
             "y": 150,
-            "z": 0
+            "z": 100
           },
           "nominalSize": 0.0127
         },
@@ -2071,7 +2071,7 @@
           "position": {
             "x": -200,
             "y": 100,
-            "z": 0
+            "z": 100
           }
         },
         {
@@ -2080,7 +2080,7 @@
           "position": {
             "x": 0,
             "y": -150,
-            "z": -100
+            "z": 0
           },
           "nominalSize": 0.02
         }
@@ -2110,7 +2110,7 @@
       "id": "generic-condensate-pump",
       "familyId": "CONDENSATE_DRAIN",
       "name": "Pompe de relevage de condensats",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 180,
         "depthMm": 60,
@@ -2123,7 +2123,7 @@
           "position": {
             "x": -90,
             "y": 0,
-            "z": 0
+            "z": 30
           },
           "nominalSize": 0.016
         },
@@ -2133,7 +2133,7 @@
           "position": {
             "x": 90,
             "y": 0,
-            "z": 0
+            "z": 30
           },
           "nominalSize": 0.01
         },
@@ -2143,7 +2143,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 30
+            "z": 60
           }
         }
       ],
@@ -2171,7 +2171,7 @@
       "id": "generic-towel-radiator",
       "familyId": "TOWEL_RADIATOR",
       "name": "Sèche-serviettes eau chaude",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 500,
         "depthMm": 100,
@@ -2184,7 +2184,7 @@
           "position": {
             "x": -250,
             "y": 0,
-            "z": -600
+            "z": 0
           },
           "nominalSize": 0.015
         },
@@ -2194,7 +2194,7 @@
           "position": {
             "x": 250,
             "y": 0,
-            "z": -600
+            "z": 0
           },
           "nominalSize": 0.015
         }
@@ -2239,7 +2239,7 @@
       "id": "generic-fan-coil",
       "familyId": "FAN_COIL",
       "name": "Ventilo-convecteur",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 1000,
         "depthMm": 220,
@@ -2252,7 +2252,7 @@
           "position": {
             "x": -450,
             "y": 0,
-            "z": -300
+            "z": 0
           },
           "nominalSize": 0.015
         },
@@ -2262,7 +2262,7 @@
           "position": {
             "x": -380,
             "y": 0,
-            "z": -300
+            "z": 0
           },
           "nominalSize": 0.015
         },
@@ -2272,7 +2272,7 @@
           "position": {
             "x": -480,
             "y": 0,
-            "z": -250
+            "z": 50
           }
         },
         {
@@ -2281,7 +2281,7 @@
           "position": {
             "x": -300,
             "y": 0,
-            "z": -300
+            "z": 0
           },
           "nominalSize": 0.02
         }
@@ -2324,7 +2324,7 @@
       "id": "generic-underfloor-heating-surface",
       "familyId": "UNDERFLOOR_HEATING",
       "name": "Plancher chauffant à eau",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 1000,
         "depthMm": 1000,
@@ -2337,7 +2337,7 @@
           "position": {
             "x": -500,
             "y": 0,
-            "z": -45
+            "z": 0
           },
           "nominalSize": 0.016
         },
@@ -2347,7 +2347,7 @@
           "position": {
             "x": 500,
             "y": 0,
-            "z": -45
+            "z": 0
           },
           "nominalSize": 0.016
         }
@@ -2373,7 +2373,7 @@
       "id": "generic-wall-heating-surface",
       "familyId": "WALL_HEATING",
       "name": "Mur chauffant à eau",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 1000,
         "depthMm": 60,
@@ -2386,7 +2386,7 @@
           "position": {
             "x": -500,
             "y": 0,
-            "z": -500
+            "z": 0
           },
           "nominalSize": 0.016
         },
@@ -2396,7 +2396,7 @@
           "position": {
             "x": 500,
             "y": 0,
-            "z": -500
+            "z": 0
           },
           "nominalSize": 0.016
         }
@@ -2429,7 +2429,7 @@
       "id": "generic-ceiling-heating-surface",
       "familyId": "CEILING_HEATING",
       "name": "Plafond chauffant à eau",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 1000,
         "depthMm": 1000,
@@ -2442,7 +2442,7 @@
           "position": {
             "x": -500,
             "y": 0,
-            "z": 25
+            "z": 50
           },
           "nominalSize": 0.016
         },
@@ -2452,7 +2452,7 @@
           "position": {
             "x": 500,
             "y": 0,
-            "z": 25
+            "z": 50
           },
           "nominalSize": 0.016
         }
@@ -2485,7 +2485,7 @@
       "id": "generic-ufh-loop",
       "familyId": "UFH_LOOP",
       "name": "Boucle de plancher chauffant",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 3600,
         "depthMm": 3600,
@@ -2498,7 +2498,7 @@
           "position": {
             "x": -1800,
             "y": 0,
-            "z": -45
+            "z": 0
           },
           "nominalSize": 0.016
         },
@@ -2508,7 +2508,7 @@
           "position": {
             "x": -1800,
             "y": 100,
-            "z": -45
+            "z": 0
           },
           "nominalSize": 0.016
         }
@@ -2536,7 +2536,7 @@
       "id": "generic-ufh-manifold",
       "familyId": "UFH_MANIFOLD",
       "name": "Collecteur de plancher chauffant 4 circuits",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 480,
         "depthMm": 110,
@@ -2549,7 +2549,7 @@
           "position": {
             "x": -240,
             "y": 0,
-            "z": 100
+            "z": 310
           },
           "nominalSize": 0.026
         },
@@ -2559,7 +2559,7 @@
           "position": {
             "x": -240,
             "y": 0,
-            "z": -100
+            "z": 110
           },
           "nominalSize": 0.026
         },
@@ -2569,7 +2569,7 @@
           "position": {
             "x": -75,
             "y": 0,
-            "z": 210
+            "z": 420
           },
           "nominalSize": 0.016
         },
@@ -2579,7 +2579,7 @@
           "position": {
             "x": -25,
             "y": 0,
-            "z": 210
+            "z": 420
           },
           "nominalSize": 0.016
         },
@@ -2589,7 +2589,7 @@
           "position": {
             "x": 25,
             "y": 0,
-            "z": 210
+            "z": 420
           },
           "nominalSize": 0.016
         },
@@ -2599,7 +2599,7 @@
           "position": {
             "x": 75,
             "y": 0,
-            "z": 210
+            "z": 420
           },
           "nominalSize": 0.016
         },
@@ -2609,7 +2609,7 @@
           "position": {
             "x": -75,
             "y": 0,
-            "z": -210
+            "z": 0
           },
           "nominalSize": 0.016
         },
@@ -2619,7 +2619,7 @@
           "position": {
             "x": -25,
             "y": 0,
-            "z": -210
+            "z": 0
           },
           "nominalSize": 0.016
         },
@@ -2629,7 +2629,7 @@
           "position": {
             "x": 25,
             "y": 0,
-            "z": -210
+            "z": 0
           },
           "nominalSize": 0.016
         },
@@ -2639,7 +2639,7 @@
           "position": {
             "x": 75,
             "y": 0,
-            "z": -210
+            "z": 0
           },
           "nominalSize": 0.016
         },
@@ -2649,7 +2649,7 @@
           "position": {
             "x": 240,
             "y": 0,
-            "z": 150
+            "z": 360
           }
         }
       ],
@@ -2678,7 +2678,7 @@
       "id": "generic-ufh-actuator",
       "familyId": "UFH_ACTUATOR",
       "name": "Tête électrothermique",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 45,
         "depthMm": 45,
@@ -2691,7 +2691,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 27
+            "z": 54.5
           }
         }
       ],
@@ -2718,7 +2718,7 @@
       "id": "generic-room-thermostat",
       "familyId": "ROOM_THERMOSTAT",
       "name": "Thermostat d’ambiance",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 86,
         "depthMm": 30,
@@ -2731,7 +2731,7 @@
           "position": {
             "x": 0,
             "y": -15,
-            "z": 0
+            "z": 43
           }
         }
       ],
@@ -2775,7 +2775,7 @@
       "id": "generic-heating-air-separator",
       "familyId": "AIR_SEPARATOR",
       "name": "Séparateur d’air",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 120,
         "depthMm": 120,
@@ -2788,7 +2788,7 @@
           "position": {
             "x": -60.0,
             "y": 0,
-            "z": 0
+            "z": 110
           },
           "nominalSize": 0.02
         },
@@ -2798,7 +2798,7 @@
           "position": {
             "x": 60.0,
             "y": 0,
-            "z": 0
+            "z": 110
           },
           "nominalSize": 0.02
         }
@@ -2827,7 +2827,7 @@
       "id": "generic-heating-dirt-separator",
       "familyId": "DIRT_SEPARATOR",
       "name": "Pot à boues",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 120,
         "depthMm": 120,
@@ -2840,7 +2840,7 @@
           "position": {
             "x": -60.0,
             "y": 0,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.02
         },
@@ -2850,7 +2850,7 @@
           "position": {
             "x": 60.0,
             "y": 0,
-            "z": 0
+            "z": 125
           },
           "nominalSize": 0.02
         }
@@ -2879,7 +2879,7 @@
       "id": "generic-heating-magnetic-filter",
       "familyId": "MAGNETIC_FILTER",
       "name": "Filtre magnétique",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 110,
         "depthMm": 110,
@@ -2892,7 +2892,7 @@
           "position": {
             "x": -55.0,
             "y": 0,
-            "z": 0
+            "z": 115
           },
           "nominalSize": 0.02
         },
@@ -2902,7 +2902,7 @@
           "position": {
             "x": 55.0,
             "y": 0,
-            "z": 0
+            "z": 115
           },
           "nominalSize": 0.02
         }
@@ -2931,7 +2931,7 @@
       "id": "generic-heating-isolation-valve",
       "familyId": "HEATING_ISOLATION_VALVE",
       "name": "Vanne d’isolement",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 90,
         "depthMm": 55,
@@ -2944,7 +2944,7 @@
           "position": {
             "x": -45.0,
             "y": 0,
-            "z": 0
+            "z": 35
           },
           "nominalSize": 0.02
         },
@@ -2954,7 +2954,7 @@
           "position": {
             "x": 45.0,
             "y": 0,
-            "z": 0
+            "z": 35
           },
           "nominalSize": 0.02
         }
@@ -2988,7 +2988,7 @@
       "id": "generic-heating-check-valve",
       "familyId": "HEATING_CHECK_VALVE",
       "name": "Clapet anti-retour",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 70,
         "depthMm": 55,
@@ -3001,7 +3001,7 @@
           "position": {
             "x": -35.0,
             "y": 0,
-            "z": 0
+            "z": 27.5
           },
           "nominalSize": 0.02
         },
@@ -3011,7 +3011,7 @@
           "position": {
             "x": 35.0,
             "y": 0,
-            "z": 0
+            "z": 27.5
           },
           "nominalSize": 0.02
         }
@@ -3045,7 +3045,7 @@
       "id": "generic-heating-balancing-valve",
       "familyId": "HEATING_BALANCING_VALVE",
       "name": "Vanne d’équilibrage",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 100,
         "depthMm": 60,
@@ -3058,7 +3058,7 @@
           "position": {
             "x": -50.0,
             "y": 0,
-            "z": 0
+            "z": 45
           },
           "nominalSize": 0.02
         },
@@ -3068,7 +3068,7 @@
           "position": {
             "x": 50.0,
             "y": 0,
-            "z": 0
+            "z": 45
           },
           "nominalSize": 0.02
         }
@@ -3103,7 +3103,7 @@
       "id": "generic-heating-air-vent",
       "familyId": "HEATING_AIR_VENT",
       "name": "Purgeur automatique de chauffage",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 50,
         "depthMm": 50,
@@ -3116,7 +3116,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -55
+            "z": 0
           },
           "nominalSize": 0.015
         }
@@ -3144,7 +3144,7 @@
       "id": "generic-heating-expansion-vessel",
       "familyId": "HEATING_EXPANSION_VESSEL",
       "name": "Vase d’expansion",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 280,
         "depthMm": 280,
@@ -3157,7 +3157,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -175
+            "z": 0
           },
           "nominalSize": 0.02
         }
@@ -3187,7 +3187,7 @@
       "id": "generic-heating-safety-valve",
       "familyId": "SAFETY_VALVE",
       "name": "Soupape de sécurité",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 90,
         "depthMm": 60,
@@ -3200,7 +3200,7 @@
           "position": {
             "x": -45,
             "y": 0,
-            "z": 0
+            "z": 45
           },
           "nominalSize": 0.015
         },
@@ -3210,7 +3210,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -45
+            "z": 0
           },
           "nominalSize": 0.02
         }
@@ -3239,7 +3239,7 @@
       "id": "generic-heating-mixing-valve",
       "familyId": "MIXING_VALVE",
       "name": "Vanne mélangeuse trois voies",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 120,
         "depthMm": 90,
@@ -3252,7 +3252,7 @@
           "position": {
             "x": -60,
             "y": 0,
-            "z": 0
+            "z": 60
           },
           "nominalSize": 0.026
         },
@@ -3262,7 +3262,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -60
+            "z": 0
           },
           "nominalSize": 0.026
         },
@@ -3272,7 +3272,7 @@
           "position": {
             "x": 60,
             "y": 0,
-            "z": 0
+            "z": 60
           },
           "nominalSize": 0.026
         }
@@ -3307,7 +3307,7 @@
       "id": "generic-heating-three-way-valve",
       "familyId": "THREE_WAY_VALVE",
       "name": "Vanne trois voies",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 110,
         "depthMm": 85,
@@ -3320,7 +3320,7 @@
           "position": {
             "x": -55,
             "y": 0,
-            "z": 0
+            "z": 55
           },
           "nominalSize": 0.026
         },
@@ -3330,7 +3330,7 @@
           "position": {
             "x": 55,
             "y": 0,
-            "z": 0
+            "z": 55
           },
           "nominalSize": 0.026
         },
@@ -3340,7 +3340,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -55
+            "z": 0
           },
           "nominalSize": 0.026
         }
@@ -3374,7 +3374,7 @@
       "id": "generic-heating-buffer-tank",
       "familyId": "BUFFER_TANK",
       "name": "Ballon tampon",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 600,
         "depthMm": 600,
@@ -3387,7 +3387,7 @@
           "position": {
             "x": -300,
             "y": 0,
-            "z": 500
+            "z": 1200
           },
           "nominalSize": 0.026
         },
@@ -3397,7 +3397,7 @@
           "position": {
             "x": -300,
             "y": 0,
-            "z": -500
+            "z": 200
           },
           "nominalSize": 0.026
         },
@@ -3407,7 +3407,7 @@
           "position": {
             "x": 300,
             "y": 0,
-            "z": 500
+            "z": 1200
           },
           "nominalSize": 0.026
         },
@@ -3417,7 +3417,7 @@
           "position": {
             "x": 300,
             "y": 0,
-            "z": -500
+            "z": 200
           },
           "nominalSize": 0.026
         }
@@ -3447,7 +3447,7 @@
       "id": "generic-hydraulic-separator",
       "familyId": "HYDRAULIC_SEPARATOR",
       "name": "Bouteille de découplage",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dimensions": {
         "widthMm": 140,
         "depthMm": 140,
@@ -3460,7 +3460,7 @@
           "position": {
             "x": -70,
             "y": 0,
-            "z": 200
+            "z": 500
           },
           "nominalSize": 0.032
         },
@@ -3470,7 +3470,7 @@
           "position": {
             "x": -70,
             "y": 0,
-            "z": -200
+            "z": 100
           },
           "nominalSize": 0.032
         },
@@ -3480,7 +3480,7 @@
           "position": {
             "x": 70,
             "y": 0,
-            "z": 200
+            "z": 500
           },
           "nominalSize": 0.032
         },
@@ -3490,7 +3490,7 @@
           "position": {
             "x": 70,
             "y": 0,
-            "z": -200
+            "z": 100
           },
           "nominalSize": 0.032
         }
@@ -3521,7 +3521,7 @@
       "id": "generic-heating-manifold",
       "familyId": "HEATING_MANIFOLD",
       "name": "Collecteur de chauffage 3 départs",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dimensions": {
         "widthMm": 500,
         "depthMm": 80,
@@ -3534,7 +3534,7 @@
           "position": {
             "x": -250,
             "y": 0,
-            "z": 40
+            "z": 120
           },
           "nominalSize": 0.032
         },
@@ -3544,7 +3544,7 @@
           "position": {
             "x": -250,
             "y": 0,
-            "z": -40
+            "z": 40
           },
           "nominalSize": 0.032
         },
@@ -3554,7 +3554,7 @@
           "position": {
             "x": -100,
             "y": 0,
-            "z": 80
+            "z": 160
           },
           "nominalSize": 0.02
         },
@@ -3564,7 +3564,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 80
+            "z": 160
           },
           "nominalSize": 0.02
         },
@@ -3574,7 +3574,7 @@
           "position": {
             "x": 100,
             "y": 0,
-            "z": 80
+            "z": 160
           },
           "nominalSize": 0.02
         },
@@ -3584,7 +3584,7 @@
           "position": {
             "x": -100,
             "y": 0,
-            "z": -80
+            "z": 0
           },
           "nominalSize": 0.02
         },
@@ -3594,7 +3594,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -80
+            "z": 0
           },
           "nominalSize": 0.02
         },
@@ -3604,7 +3604,7 @@
           "position": {
             "x": 100,
             "y": 0,
-            "z": -80
+            "z": 0
           },
           "nominalSize": 0.02
         }

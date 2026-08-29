@@ -83,6 +83,7 @@
                   "minLength": 1
                 },
                 "position": {
+                  "description": "Où ce raccordement se trouve sur l'appareil, depuis son origine, en millimètres. L'origine est le point que la pose situe : le centre de l'emprise en x et y, le dessous en z — « elevationMm » compte au-dessus du plancher, et le volume de l'appareil va de elevationMm à elevationMm + heightMm. Un raccordement est donc dans ce volume : |x| ≤ widthMm/2, |y| ≤ depthMm/2, 0 ≤ z ≤ heightMm.",
                   "type": "object",
                   "required": [
                     "x",

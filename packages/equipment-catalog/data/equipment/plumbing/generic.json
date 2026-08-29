@@ -16,7 +16,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -740
+            "z": 10
           },
           "nominalSize": 0.02
         },
@@ -26,7 +26,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": 740
+            "z": 1490
           },
           "nominalSize": 0.02
         },
@@ -36,7 +36,7 @@
           "position": {
             "x": 280,
             "y": 0,
-            "z": 0
+            "z": 750
           }
         }
       ],
@@ -56,7 +56,7 @@
         "planFootprint": "CIRCLE",
         "layer": "water.equipment"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -91,7 +91,7 @@
           "position": {
             "x": -100,
             "y": 0,
-            "z": -300
+            "z": 150
           },
           "nominalSize": 0.012
         },
@@ -101,7 +101,7 @@
           "position": {
             "x": 100,
             "y": 0,
-            "z": -300
+            "z": 150
           },
           "nominalSize": 0.012
         },
@@ -111,7 +111,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -450
+            "z": 0
           },
           "nominalSize": 0.04
         }
@@ -132,7 +132,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "water.fixtures"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -166,7 +166,7 @@
           "position": {
             "x": -100,
             "y": 0,
-            "z": 200
+            "z": 1200
           },
           "nominalSize": 0.012
         },
@@ -176,7 +176,7 @@
           "position": {
             "x": 100,
             "y": 0,
-            "z": 200
+            "z": 1200
           },
           "nominalSize": 0.012
         },
@@ -186,7 +186,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -1000
+            "z": 0
           },
           "nominalSize": 0.04
         }
@@ -207,7 +207,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "water.fixtures"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -241,7 +241,7 @@
           "position": {
             "x": -100,
             "y": 0,
-            "z": -300
+            "z": 125
           },
           "nominalSize": 0.012
         },
@@ -251,7 +251,7 @@
           "position": {
             "x": 100,
             "y": 0,
-            "z": -300
+            "z": 125
           },
           "nominalSize": 0.012
         },
@@ -261,7 +261,7 @@
           "position": {
             "x": 0,
             "y": 0,
-            "z": -400
+            "z": 25
           },
           "nominalSize": 0.032
         }
@@ -282,7 +282,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "water.fixtures"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
@@ -316,7 +316,7 @@
           "position": {
             "x": 0,
             "y": 300,
-            "z": -300
+            "z": 100
           },
           "nominalSize": 0.012
         },
@@ -326,7 +326,7 @@
           "position": {
             "x": 0,
             "y": 250,
-            "z": -350
+            "z": 50
           },
           "nominalSize": 0.1
         }
@@ -347,7 +347,7 @@
         "planFootprint": "RECTANGLE",
         "layer": "water.fixtures"
       },
-      "version": "1.1.0",
+      "version": "1.2.0",
       "provenance": {
         "type": "GENERIC",
         "reference": "Valeurs de dimensionnement génériques — ne provient d’aucun fabricant"
