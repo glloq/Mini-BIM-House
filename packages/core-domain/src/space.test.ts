@@ -84,6 +84,45 @@ describe('space boundaries', () => {
     expect(validateSpace(automatic)).toEqual([]);
     expect(validateSpace(manual)).not.toEqual([]);
   });
+  it("accepte une pièce sans écart d'étiquette et refuse un écart non fini", () => {
+    /*
+     * Le champ est facultatif, et c'est ce qui fait qu'un fichier écrit avant
+     * lui s'ouvre : une pièce qui ne le porte pas est valide, sans valeur par
+     * défaut à inventer. Ce qui n'est pas valide, c'est un écart qui ne
+     * désigne aucun point — l'étiquette n'aurait alors nulle part où aller.
+     */
+    const room: Space = {
+      id: entityId<'Space'>('auto'),
+      type: 'SPACE',
+      levelId: entityId<'Level'>('level'),
+      name: 'Room',
+      category: 'LIVING',
+      boundaryMode: 'AUTO',
+    };
+    expect(validateSpace(room)).toEqual([]);
+    expect(
+      validateSpace({ ...room, labelOffsetMm: { x: -420, y: 900 } }),
+    ).toEqual([]);
+    expect(
+      validateSpace({ ...room, labelOffsetMm: { x: Number.NaN, y: 0 } }),
+    ).toEqual(['labelOffsetMm must be a finite point']);
+    // Une pièce tracée à la main porte l'écart de la même façon : il est sur
+    // `SpaceBase`, pas sur l'une des deux branches de contour.
+    expect(
+      validateSpace({
+        ...room,
+        boundaryMode: 'MANUAL',
+        manualPolygon: {
+          outer: [
+            { x: 0, y: 0 },
+            { x: 1_000, y: 0 },
+            { x: 1_000, y: 1_000 },
+          ],
+        },
+        labelOffsetMm: { x: 0, y: Number.POSITIVE_INFINITY },
+      }),
+    ).toEqual(['labelOffsetMm must be a finite point']);
+  });
   it('returns an explicit diagnostic when no cycle exists', () => {
     expect(detectSpaceBoundaries([wall('a', [0, 0], [10, 0])])).toEqual({
       status: 'INVALID',

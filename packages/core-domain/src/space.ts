@@ -18,6 +18,38 @@ interface SpaceBase {
   readonly category: string;
   readonly usageProfileId?: string;
   readonly thermalZoneId?: string;
+  /**
+   * L'écart que quelqu'un a demandé pour l'étiquette de cette pièce, en
+   * millimètres.
+   *
+   * **Pourquoi ce champ existe alors que la position, elle, ne s'enregistre
+   * pas.** Le nom et la surface se posent au point le plus au large du
+   * contour — le plus éloigné de tout bord. C'est le bon défaut et il est
+   * intérieur par construction, mais il ne sait rien de ce qui est *dessiné*
+   * là : le débattement d'une porte, un îlot, une trémie, un luminaire de
+   * plafond. Mesuré sur les deux maisons de référence, cinq étiquettes sur
+   * dix-sept tombent à l'intérieur d'un objet déjà dessiné. Aucun calcul ne
+   * tranche ces cas-là — seul un humain sait de quel côté le texte gêne le
+   * moins — donc la décision est une donnée du projet, au même titre que le
+   * nom de la pièce, et elle se persiste.
+   *
+   * **Pourquoi un écart et non une position.** Ce qui est enregistré ici est
+   * la différence entre où l'étiquette doit être et où le calcul la met ; la
+   * position affichée reste `point calculé + écart` et n'est jamais écrite
+   * nulle part. La conséquence se voit dès qu'on déplace un mur : le point
+   * calculé suit la pièce, l'écart le suit avec lui, et l'étiquette reste au
+   * bon endroit relatif. Une position absolue, elle, resterait derrière — sur
+   * la voisine si la pièce a assez bougé — et il faudrait la reposer à chaque
+   * retouche du plan. C'est exactement la distinction entre une donnée du
+   * projet et de l'état dérivé : l'intention se garde, le résultat se
+   * recalcule.
+   *
+   * **Facultatif**, et deux choses en dépendent : un fichier écrit avant ce
+   * champ s'ouvre sans rien de particulier à faire, et une pièce que personne
+   * n'a corrigée ne porte rien — l'absence dit « le calcul convient », ce
+   * qu'un `{ x: 0, y: 0 }` écrit partout ne dirait pas aussi clairement.
+   */
+  readonly labelOffsetMm?: Point2D;
 }
 
 export type Space = SpaceBase &
@@ -181,14 +213,25 @@ export function detectSpaceBoundaries(
 
 export function validateSpace(space: Space): readonly string[] {
   if (space.name.trim() === '') return ['name must not be empty'];
+  /*
+   * Un écart non fini poserait l'étiquette nulle part.
+   *
+   * Vérifié avant le mode de contour, et pour les deux modes : l'écart est
+   * porté par `SpaceBase`, donc une pièce tracée à la main peut le porter
+   * comme une pièce détectée, et la faute se dit dans les deux cas plutôt que
+   * de dépendre de la branche par laquelle on est entré.
+   */
+  if (space.labelOffsetMm !== undefined && !isFinitePoint(space.labelOffsetMm))
+    return ['labelOffsetMm must be a finite point'];
   if (space.boundaryMode === 'MANUAL')
     return validatePolygon(space.manualPolygon).map(({ message }) => message);
-  if (
-    space.anchor !== undefined &&
-    (!Number.isFinite(space.anchor.x) || !Number.isFinite(space.anchor.y))
-  )
+  if (space.anchor !== undefined && !isFinitePoint(space.anchor))
     return ['anchor must be a finite point'];
   return [];
+}
+
+function isFinitePoint(point: Point2D): boolean {
+  return Number.isFinite(point.x) && Number.isFinite(point.y);
 }
 
 function clampParameter(value: number): number {

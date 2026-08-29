@@ -441,6 +441,79 @@ export class UpdateSpaceCommand extends BuildingCommand {
   }
 }
 
+/**
+ * Poser — ou reprendre — l'écart de l'étiquette d'une pièce.
+ *
+ * **Pourquoi une commande à part et non `UpdateSpaceCommand`.** Celle-ci
+ * prend un `Partial` de champs textuels et les fusionne ; l'écart a besoin de
+ * dire une chose de plus qu'un texte ne dit jamais : *retirer la valeur*.
+ * `{ labelOffsetMm: undefined }` fusionné laisserait le champ en place, et
+ * `exactOptionalPropertyTypes` refuse d'ailleurs qu'on l'écrive. Ici,
+ * `offsetMm` absent veut dire « remets l'étiquette où le calcul la met », et
+ * la pièce ressort sans le champ plutôt qu'avec un zéro — l'absence dit « le
+ * calcul convient », un `{ x: 0, y: 0 }` dirait « quelqu'un a choisi zéro ».
+ *
+ * **Ce qui n'est pas enregistré :** la position de l'étiquette. Ce que le
+ * fichier garde est l'intention — de combien la déplacer par rapport au point
+ * le plus au large du contour — et la position se recalcule à chaque dessin.
+ * Un mur déplacé emmène donc l'étiquette avec la pièce ; une position absolue
+ * l'aurait laissée derrière.
+ *
+ * **Une entrée d'historique par déplacement**, parce que la commande n'est
+ * émise qu'au relâchement du pointeur et jamais pendant le glissement : ce
+ * qu'on annule est le geste, pas la dernière des cent positions qu'il a
+ * traversées.
+ */
+export class SetSpaceLabelOffsetCommand extends BuildingCommand {
+  constructor(
+    readonly levelId: string,
+    readonly spaceId: string,
+    /** L'écart voulu, en millimètres ; absent pour revenir au point calculé. */
+    readonly offsetMm?: Point2D,
+  ) {
+    super(
+      `space:label-offset:${spaceId}`,
+      offsetMm === undefined
+        ? 'Replacer l’étiquette de la pièce'
+        : 'Déplacer l’étiquette de la pièce',
+    );
+  }
+  validate(project: Project): CommandValidation {
+    const level = project.building.levels.find(({ id }) => id === this.levelId);
+    if (level?.spaces.some(({ id }) => id === this.spaceId) !== true)
+      return rejected(`La pièce ${this.spaceId} est introuvable.`);
+    return this.offsetMm !== undefined &&
+      (!Number.isFinite(this.offsetMm.x) || !Number.isFinite(this.offsetMm.y))
+      ? rejected('L’écart de l’étiquette doit être fini.')
+      : ok();
+  }
+  protected apply(project: Project): Project {
+    /*
+     * Le millimètre est l'unité du modèle : un écart au dixième de
+     * millimètre ne viendrait que de l'arrondi d'un pixel d'écran, et il
+     * alourdirait le fichier sans rien y ajouter.
+     */
+    const rounded =
+      this.offsetMm === undefined
+        ? undefined
+        : { x: Math.round(this.offsetMm.x), y: Math.round(this.offsetMm.y) };
+    return mapLevel(project, this.levelId, (level) => ({
+      ...level,
+      spaces: level.spaces.map((space): Space => {
+        if (space.id !== this.spaceId) return space;
+        // Reconstruire sans le champ plutôt que d'y écrire `undefined` :
+        // c'est ce que `exactOptionalPropertyTypes` demande, et c'est aussi
+        // ce que le fichier doit contenir — une pièce remise à sa place n'a
+        // rien à porter.
+        const { labelOffsetMm: _dropped, ...rest } = space;
+        return rounded === undefined
+          ? rest
+          : { ...rest, labelOffsetMm: rounded };
+      }),
+    }));
+  }
+}
+
 export class RemoveSpaceCommand extends BuildingCommand {
   constructor(
     readonly levelId: string,

@@ -996,7 +996,28 @@ function spacePrimitives(
   const placement = interiorLabelPoint(polygon);
   const box = boundingBox2D(polygon.outer);
   if (box === undefined) return drafts;
-  const anchor = placement?.point ?? centroid(polygon);
+  const placed = placement?.point ?? centroid(polygon);
+  /*
+   * Le même écart qu'à l'écran, quand la pièce en porte un.
+   *
+   * Le point le plus au large est un bon défaut et un mauvais résultat dans
+   * quelques cas — une étiquette posée sur un luminaire de plafond, sur le
+   * débattement d'une porte, sur un receveur de douche. Une personne peut
+   * alors la déplacer, et ce qu'elle décide est gardé par le projet : un
+   * écart, jamais une position, pour qu'un mur déplacé emmène l'étiquette
+   * avec lui.
+   *
+   * Il se lit ici comme il se lit à l'écran. Sans cette ligne, une étiquette
+   * déplacée reviendrait à sa place au moment de l'export — le dessin qu'on
+   * remet à quelqu'un ne serait pas celui qu'on a corrigé.
+   */
+  const anchor =
+    space.labelOffsetMm === undefined
+      ? placed
+      : {
+          x: placed.x + space.labelOffsetMm.x,
+          y: placed.y + space.labelOffsetMm.y,
+        };
   const reach =
     placement?.clearance ??
     Math.min(box.max.x - box.min.x, box.max.y - box.min.y) / 2;

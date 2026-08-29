@@ -22,6 +22,7 @@ import {
   RemoveRoofCommand,
   RemoveSlabCommand,
   RemoveSpaceCommand,
+  SetSpaceLabelOffsetCommand,
   UpdateComponentCommand,
   UpdateLevelCommand,
   UpdateSpaceCommand,
@@ -275,6 +276,101 @@ describe('space commands', () => {
           category: 'LIVING',
           polygon: { outer: [{ x: 0, y: 0 }] },
         }),
+      ).status,
+    ).toBe('REJECTED');
+  });
+
+  it("porte l'écart de l'étiquette, puis le retire tout à fait", () => {
+    const commands = dispatcher();
+    commands.dispatch(
+      new AddSpaceCommand('ground', {
+        id: 'living',
+        name: 'Séjour',
+        category: 'LIVING',
+        polygon: square(4000),
+      }),
+    );
+    const room = () => commands.project.building.levels[0]!.spaces[0]!;
+    // Une pièce qu'on n'a pas corrigée ne porte rien : le calcul convient.
+    expect(room().labelOffsetMm).toBeUndefined();
+    expect(
+      commands.dispatch(
+        new SetSpaceLabelOffsetCommand('ground', 'living', {
+          x: -640.4,
+          y: 900.6,
+        }),
+      ).status,
+    ).toBe('APPLIED');
+    // Arrondi au millimètre, l'unité du modèle.
+    expect(room().labelOffsetMm).toEqual({ x: -640, y: 901 });
+    /*
+     * Remettre à zéro retire la clé, il ne la met pas à zéro : un
+     * `{ x: 0, y: 0 }` enregistré dirait « quelqu'un a choisi de ne pas
+     * bouger l'étiquette », ce qui n'est pas la même chose que « personne n'y
+     * a touché ». Le test lit donc la clé et pas seulement sa valeur.
+     */
+    expect(
+      commands.dispatch(new SetSpaceLabelOffsetCommand('ground', 'living'))
+        .status,
+    ).toBe('APPLIED');
+    expect(Object.hasOwn(room(), 'labelOffsetMm')).toBe(false);
+    // Le reste de la pièce a traversé intact : ce n'est pas une pièce neuve.
+    expect(room().name).toBe('Séjour');
+    expect(room().boundaryMode).toBe('MANUAL');
+  });
+
+  it("annule un déplacement d'étiquette d'un seul coup", () => {
+    /*
+     * Une entrée d'historique par déplacement, et non une par position
+     * traversée : la commande n'est émise qu'au relâchement du pointeur, donc
+     * un seul « annuler » ramène l'étiquette là où elle était.
+     */
+    const commands = dispatcher();
+    commands.dispatch(
+      new AddSpaceCommand('ground', {
+        id: 'living',
+        name: 'Séjour',
+        category: 'LIVING',
+        polygon: square(4000),
+      }),
+    );
+    commands.dispatch(
+      new SetSpaceLabelOffsetCommand('ground', 'living', { x: 300, y: 0 }),
+    );
+    commands.dispatch(
+      new SetSpaceLabelOffsetCommand('ground', 'living', { x: 800, y: -200 }),
+    );
+    commands.undo();
+    expect(
+      commands.project.building.levels[0]!.spaces[0]!.labelOffsetMm,
+    ).toEqual({ x: 300, y: 0 });
+    commands.undo();
+    expect(
+      commands.project.building.levels[0]!.spaces[0]!.labelOffsetMm,
+    ).toBeUndefined();
+  });
+
+  it("refuse un écart d'étiquette non fini ou posé sur une pièce absente", () => {
+    const commands = dispatcher();
+    commands.dispatch(
+      new AddSpaceCommand('ground', {
+        id: 'living',
+        name: 'Séjour',
+        category: 'LIVING',
+        polygon: square(4000),
+      }),
+    );
+    expect(
+      commands.dispatch(
+        new SetSpaceLabelOffsetCommand('ground', 'living', {
+          x: Number.NaN,
+          y: 0,
+        }),
+      ).status,
+    ).toBe('REJECTED');
+    expect(
+      commands.dispatch(
+        new SetSpaceLabelOffsetCommand('ground', 'absente', { x: 1, y: 1 }),
       ).status,
     ).toBe('REJECTED');
   });

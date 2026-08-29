@@ -24,13 +24,38 @@ export interface RoomLabel {
   readonly name?: string;
   readonly areaM2: number;
   /**
-   * Le point du modèle où l'étiquette se pose.
+   * Le point du modèle où l'étiquette se pose : `anchorAt` plus `offsetMm`.
+   *
+   * **Rien de tout ça ne s'enregistre.** Ce point est recalculé à chaque
+   * dessin, à partir du contour que la détection vient de trouver et de
+   * l'écart que la pièce porte. C'est ce qui fait qu'un mur déplacé emmène
+   * l'étiquette avec la pièce, écart compris : si la position absolue était
+   * dans le fichier, elle resterait où elle a été posée — chez la voisine, si
+   * la pièce a assez bougé.
+   */
+  readonly at: Point2D;
+  /**
+   * Le point que le calcul propose, sans l'écart.
    *
    * Le point le plus au large du contour, et non le milieu de sa boîte ni la
    * moyenne de ses sommets : `label-placement.ts` dit pourquoi, et de combien
    * les deux autres se trompent.
+   *
+   * Gardé à part de `at` parce que deux gestes en ont besoin : remettre
+   * l'étiquette à sa place, et désigner le contour lui-même — une étiquette
+   * qu'on a tirée sur le côté ne désigne plus la pièce qu'elle nomme, mais
+   * ce point-ci, lui, est intérieur par construction.
    */
-  readonly at: Point2D;
+  readonly anchorAt: Point2D;
+  /**
+   * L'écart que la pièce porte, quand quelqu'un en a demandé un.
+   *
+   * Absent tant que personne n'a bougé l'étiquette : l'absence dit « le
+   * calcul convient », ce qu'un `{ x: 0, y: 0 }` ne dirait pas. C'est aussi ce
+   * qui permet de n'offrir de remise à zéro que là où elle veut dire quelque
+   * chose.
+   */
+  readonly offsetMm?: Point2D;
   /** L'espace qui couvre déjà ce contour, s'il y en a un. */
   readonly spaceId?: string;
 }
@@ -68,11 +93,31 @@ export function roomLabels(
           ? undefined
           : spaces.get(room.existingSpaceId);
       const name = space?.name?.trim();
+      /*
+       * Le point calculé, puis l'écart qu'une personne a demandé.
+       *
+       * Deux natures différentes réunies au dernier moment : le premier est de
+       * l'état dérivé — il se relit à chaque dessin et ne s'enregistre jamais
+       * — le second est une donnée du projet, au même titre que le nom de la
+       * pièce, parce qu'aucun calcul ne sait qu'un débattement de porte ou un
+       * îlot de cuisine occupe déjà cet endroit-là. Ce qui est enregistré est
+       * donc l'intention, et jamais son résultat.
+       *
+       * Un contour que rien ne couvre n'a pas de pièce, donc pas d'écart : le
+       * calcul est tout ce qu'il a.
+       */
+      const anchorAt = labelAnchor(room.polygon);
+      const offsetMm = space?.labelOffsetMm;
       return {
         id: room.existingSpaceId ?? `contour-${index}`,
         ...(name === undefined || name === '' ? {} : { name }),
         areaM2: room.areaM2,
-        at: labelAnchor(room.polygon),
+        anchorAt,
+        at:
+          offsetMm === undefined
+            ? anchorAt
+            : { x: anchorAt.x + offsetMm.x, y: anchorAt.y + offsetMm.y },
+        ...(offsetMm === undefined ? {} : { offsetMm }),
         ...(room.existingSpaceId === undefined
           ? {}
           : { spaceId: room.existingSpaceId }),

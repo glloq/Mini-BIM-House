@@ -8,7 +8,11 @@ import {
   renderSemanticSceneToSvg,
   type ScenePrimitive,
 } from '@house-technical-designer/drawing-engine';
-import { findSnap, modelToScreen } from '@house-technical-designer/editor-core';
+import {
+  SetSpaceLabelOffsetCommand,
+  findSnap,
+  modelToScreen,
+} from '@house-technical-designer/editor-core';
 import type { Point2D, Segment2D } from '@house-technical-designer/geometry';
 import type { AnalysisOverlay } from '@house-technical-designer/calculation-core';
 import {
@@ -363,6 +367,29 @@ export function PlanCanvas({
   >(undefined);
   const [moveDelta, setMoveDelta] = useState<
     { readonly x: number; readonly y: number } | undefined
+  >(undefined);
+  /**
+   * L'étiquette qu'on est en train de glisser, et d'où elle est partie.
+   *
+   * Le même montage que `moving` juste au-dessus, et pour la même raison : la
+   * référence porte ce dont le relâchement a besoin — l'écart de départ, le
+   * point du modèle sous le doigt au moment de la pression — parce que la
+   * relire dans l'état donnerait la valeur du rendu précédent et poserait
+   * l'étiquette une image en retard. L'état, lui, ne porte que ce que le
+   * dessin a besoin de montrer pendant le geste.
+   */
+  const draggedLabel = useRef<
+    | {
+        readonly spaceId: string;
+        readonly levelId: string;
+        readonly fromClient: { x: number; y: number };
+        readonly fromModel: Point2D;
+        readonly baseOffsetMm: Point2D;
+      }
+    | undefined
+  >(undefined);
+  const [labelDrag, setLabelDrag] = useState<
+    { readonly spaceId: string; readonly delta: Point2D } | undefined
   >(undefined);
   /**
    * Ce qu'on a tapé pendant qu'on déplace, quand on a tapé quelque chose.
@@ -1896,6 +1923,129 @@ export function PlanCanvas({
     [commitDrag, modelPointOf, snapFor],
   );
 
+  /*
+   * Prendre une étiquette et la glisser.
+   *
+   * **Le même chemin que les poignées**, volontairement : presser sur
+   * l'élément, capturer le pointeur pour que le glissement continue même si
+   * la souris sort de l'étiquette, relâcher, commettre une fois. Rien n'est
+   * envoyé au projet pendant le mouvement — c'est ce qui fait qu'un
+   * déplacement vaut **une** entrée d'historique et non cent — et un
+   * enfoncement qui n'a pas bougé n'est pas un déplacement mais un clic, donc
+   * il ne commet rien du tout.
+   *
+   * **Ce que la commande porte** : `position relâchée − position pressée`,
+   * ajouté à l'écart que la pièce portait déjà. Jamais la position absolue :
+   * `space.ts` dit pourquoi, et c'est tout le sujet.
+   *
+   * **Pas d'accrochage.** Une poignée de mur se colle à un autre mur parce
+   * qu'un mur qui rate son voisin de trois millimètres est une faute de
+   * construction. Une étiquette, elle, ne se construit pas : elle se lit, et
+   * l'aligner sur un axe de mur la remettrait précisément là où le dessin est
+   * chargé.
+   */
+  const handleLabelDown = useCallback(
+    (
+      label: { readonly spaceId: string; readonly offsetMm?: Point2D },
+      event: React.PointerEvent<HTMLElement>,
+    ): void => {
+      const levelId = editor.levelId ?? project.building.levels[0]?.id;
+      if (onCommand === undefined || levelId === undefined) return;
+      event.stopPropagation();
+      event.preventDefault();
+      /*
+       * Alt-clic remet l'étiquette où le calcul la met.
+       *
+       * La même touche et le même geste qu'alt-clic sur un sommet, qui le
+       * retire : dans les deux cas on défait à la main quelque chose qu'on
+       * avait ajouté à la main, sur l'objet même, sans aller le chercher
+       * ailleurs. L'inspecteur de la pièce offre la même remise à zéro pour
+       * qui ne devine pas la touche — les deux chemins passent par la même
+       * commande.
+       */
+      if (event.altKey) {
+        onCommand(new SetSpaceLabelOffsetCommand(levelId, label.spaceId));
+        return;
+      }
+      const fromModel = modelPointOf(event);
+      if (fromModel === undefined) return;
+      draggedLabel.current = {
+        spaceId: label.spaceId,
+        levelId,
+        fromClient: { x: event.clientX, y: event.clientY },
+        fromModel,
+        baseOffsetMm: label.offsetMm ?? { x: 0, y: 0 },
+      };
+      event.currentTarget.setPointerCapture(event.pointerId);
+    },
+    [editor.levelId, modelPointOf, onCommand, project.building.levels],
+  );
+
+  const handleLabelMove = useCallback(
+    (event: React.PointerEvent<HTMLElement>): void => {
+      const drag = draggedLabel.current;
+      // Survoler l'étiquette ne coupe rien : le plan a besoin de savoir où est
+      // le pointeur. C'est seulement pendant qu'on la traîne que le mouvement
+      // lui appartient — laisser passer donnerait au canvas un accrochage et
+      // un panoramique par-dessus le glissement.
+      if (drag === undefined) return;
+      event.stopPropagation();
+      const model = modelPointOf(event);
+      if (model === undefined) return;
+      // Ce que l'état porte est le déplacement du geste en cours, pas l'écart
+      // total : le dessin ajoute l'un à l'autre au moment de placer le texte.
+      setLabelDrag({
+        spaceId: drag.spaceId,
+        delta: {
+          x: model.x - drag.fromModel.x,
+          y: model.y - drag.fromModel.y,
+        },
+      });
+    },
+    [modelPointOf],
+  );
+
+  const handleLabelUp = useCallback(
+    (event: React.PointerEvent<HTMLElement>): void => {
+      const drag = draggedLabel.current;
+      draggedLabel.current = undefined;
+      setLabelDrag(undefined);
+      if (drag !== undefined) event.stopPropagation();
+      if (event.currentTarget.hasPointerCapture(event.pointerId))
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      if (drag === undefined || onCommand === undefined) return;
+      // Deux pixels, comme pour une poignée : un enfoncement qui n'a pas bougé
+      // est un clic sur la pièce, et il n'a rien à écrire dans le fichier.
+      const moved =
+        Math.abs(event.clientX - drag.fromClient.x) +
+        Math.abs(event.clientY - drag.fromClient.y);
+      if (moved < 2) {
+        /*
+         * Un clic sur le nom d'une pièce désigne la pièce.
+         *
+         * L'étiquette laissait passer les clics jusqu'au dessin qui est
+         * dessous ; une étiquette qu'on peut prendre les retient, et sans
+         * cette ligne cliquer sur « Séjour » ne ferait plus rien du tout —
+         * une régression déguisée en fonctionnalité. Elle désigne donc ce
+         * qu'elle nomme, ce qui est de toute façon la réponse qu'on attend en
+         * cliquant sur un nom.
+         */
+        dispatch({ type: 'SELECT', objectId: drag.spaceId });
+        onDesignate?.(drag.spaceId);
+        return;
+      }
+      const model = modelPointOf(event);
+      if (model === undefined) return;
+      onCommand(
+        new SetSpaceLabelOffsetCommand(drag.levelId, drag.spaceId, {
+          x: drag.baseOffsetMm.x + (model.x - drag.fromModel.x),
+          y: drag.baseOffsetMm.y + (model.y - drag.fromModel.y),
+        }),
+      );
+    },
+    [dispatch, modelPointOf, onCommand, onDesignate],
+  );
+
   const handleWheel = useCallback(
     (event: React.WheelEvent<HTMLDivElement>) => {
       const bounds = container.current?.getBoundingClientRect();
@@ -2374,16 +2524,77 @@ export function PlanCanvas({
         );
       })}
       {labels.map((label) => {
-        const at = modelToScreen(editor.camera, label.at);
+        /*
+         * Une étiquette se prend et se glisse — quand elle nomme une pièce.
+         *
+         * Un contour que rien ne couvre n'a pas de pièce, donc rien pour
+         * porter l'écart : on ne peut pas déplacer l'étiquette de quelque
+         * chose qui n'existe pas encore dans le fichier. Son geste à elle est
+         * « + Créer pièce », et il est déjà là.
+         */
+        const movable = label.spaceId !== undefined && onCommand !== undefined;
+        const spaceId = label.spaceId;
+        // Ce que le geste en cours ajoute, tant qu'il n'est pas relâché : le
+        // texte suit le doigt sans que rien n'entre dans le projet.
+        const dragging =
+          labelDrag !== undefined && labelDrag.spaceId === spaceId
+            ? labelDrag.delta
+            : undefined;
+        const at = modelToScreen(
+          editor.camera,
+          dragging === undefined
+            ? label.at
+            : { x: label.at.x + dragging.x, y: label.at.y + dragging.y },
+        );
         return (
           <div
             key={label.id}
-            className={
-              label.spaceId === undefined
-                ? 'room-label room-label-free'
-                : 'room-label'
-            }
-            style={{ left: `${at.x}px`, top: `${at.y}px` }}
+            className={[
+              'room-label',
+              label.spaceId === undefined ? 'room-label-free' : '',
+              movable ? 'room-label-movable' : '',
+              label.offsetMm === undefined ? '' : 'room-label-moved',
+            ]
+              .filter((name) => name !== '')
+              .join(' ')}
+            style={{
+              left: `${at.x}px`,
+              top: `${at.y}px`,
+              /*
+               * L'étiquette laisse passer les clics — on vise le sol qu'elle
+               * nomme, pas elle. Une étiquette qu'on peut prendre doit au
+               * contraire attraper la pression, sinon le geste n'existe pas ;
+               * `touch-action` coupe le défilement du plan pendant qu'un doigt
+               * la traîne, comme il le faudrait pour n'importe quelle poignée.
+               */
+              ...(movable
+                ? {
+                    pointerEvents: 'auto' as const,
+                    touchAction: 'none' as const,
+                    cursor: 'move' as const,
+                  }
+                : {}),
+            }}
+            {...(movable && spaceId !== undefined
+              ? {
+                  onPointerDown: (event: React.PointerEvent<HTMLDivElement>) =>
+                    handleLabelDown(
+                      {
+                        spaceId,
+                        ...(label.offsetMm === undefined
+                          ? {}
+                          : { offsetMm: label.offsetMm }),
+                      },
+                      event,
+                    ),
+                  onPointerMove: handleLabelMove,
+                  onPointerUp: handleLabelUp,
+                  title:
+                    label.offsetMm === undefined
+                      ? 'Glisser pour déplacer l’étiquette'
+                      : 'Glisser pour déplacer l’étiquette · alt-clic pour la replacer',
+                }
+              : {})}
           >
             {label.name !== undefined && (
               <span className="room-label-name">{label.name}</span>
@@ -2394,12 +2605,19 @@ export function PlanCanvas({
              * se pose. Aller le chercher dans une barre d'outils pour désigner
              * ensuite un endroit qu'on est déjà en train de regarder est un
              * détour que rien ne justifie.
+             *
+             * Le point donné est celui du **calcul**, pas celui du texte : une
+             * étiquette qu'on a tirée sur le côté ne désigne plus son contour,
+             * alors que le point le plus au large est intérieur par
+             * construction. Un contour libre n'a pas d'écart aujourd'hui, donc
+             * les deux valent pareil — c'est le jour où ça changerait que ce
+             * choix compte.
              */}
             {label.spaceId === undefined && onCreateRoom !== undefined && (
               <button
                 type="button"
                 className="room-label-add"
-                onClick={() => onCreateRoom(label.at)}
+                onClick={() => onCreateRoom(label.anchorAt)}
               >
                 + Créer pièce
               </button>

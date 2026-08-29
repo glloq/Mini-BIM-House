@@ -1342,6 +1342,25 @@ button.icon {
 .room-label-add:hover {
   text-decoration: underline;
 }
+
+/*
+ * Une étiquette qu'on peut prendre le dit, et une étiquette déplacée aussi.
+ *
+ * Les étiquettes laissent passer le pointeur vers le sol qu'elles nomment —
+ * sans quoi on ne pourrait pas désigner la pièce à travers son propre nom.
+ * Celles qu'on peut saisir font l'inverse, et rien ne le laissait deviner : un
+ * geste qui n'existe que si on l'essaie n'existe pas. Le point qui suit le nom
+ * d'une étiquette déplacée dit, lui, que sa place vient d'une décision et non
+ * du calcul — sans quoi on la croirait mal posée et on la déplacerait encore.
+ */
+.room-label-movable:hover {
+  text-decoration: underline dotted var(--line);
+}
+
+.room-label-moved .room-label-name::after {
+  content: ' ·';
+  color: var(--line);
+}
 .snap-marker {
   position: absolute;
   width: 12px;
